@@ -43,7 +43,7 @@ function EnhancedKeysSection({
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText } = translations;
+  const { vault: vaultText, common, signer: signerText } = translations;
   const [currentTimeUntilActivation, setCurrentTimeUntilActivation] = useState('');
 
   useEffect(() => {
@@ -157,9 +157,9 @@ function EnhancedKeysSection({
           colorMode={colorMode}
           badgeText={
             key.identifier.startsWith(INHERITANCE_KEY_IDENTIFIER)
-              ? 'Inheritance Key'
+              ? common.Inheritancekey
               : key.identifier.startsWith(EMERGENCY_KEY_IDENTIFIER)
-              ? 'Emergency Key'
+              ? signerText.emergencyKey
               : ''
           }
         />

@@ -54,9 +54,11 @@ function SigningRequestCard({ requestId, title, dateTime, amount, timeRemaining,
       <Box style={styles.header}>
         <Text medium>{signingServer.timeUntilSigning}:</Text>
         {(timeRemaining && timeRemaining === '0') || timeRemaining === '0s' ? (
-          <Text fontSize={13}>Delay completed</Text>
+          <Text fontSize={13}>{signingServer.delayCompleted}</Text>
         ) : (
-          <Text fontSize={13}>{timeRemaining} Remains</Text>
+          <Text fontSize={13}>
+            {timeRemaining} {common.remians}
+          </Text>
         )}
       </Box>
 

@@ -1,14 +1,17 @@
 import { StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const FeeDataSource = () => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { settings } = translations;
   return (
     <Box style={styles.container}>
       <Text style={styles.label} color={`${colorMode}.inActiveMsg`}>
-        Data Source: mempool.space | coingecko.com
+        {settings.dataSource}
       </Text>
     </Box>
   );

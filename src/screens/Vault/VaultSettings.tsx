@@ -223,8 +223,8 @@ function VaultSettings({ route }) {
     },
     vault.archivedId &&
       vault.isMigrating && {
-        title: 'Archive this wallet',
-        description: 'If you have finished migrating to the new vault archive the wallet here',
+        title: vaultText.archiveWallet,
+        description: vaultText.finishMigration,
         icon: null,
         isDiamond: false,
         onPress: () => archiveWallet(),

@@ -45,7 +45,7 @@ function ResetInheritanceKey({ route }) {
   const signers: Signer[] = inheritanceSigners.map(
     (emergencySigner) => signerMap[getKeyUID(emergencySigner)]
   );
-  const { vault: vaultText, common } = translations;
+  const { vault: vaultText, common, error: errorText } = translations;
   const { showToast } = useToastMessage();
   const [generatedVaultId, setGeneratedVaultId] = useState('');
   const { allVaults } = useVault({ includeArchived: false });
@@ -67,8 +67,8 @@ function ResetInheritanceKey({ route }) {
       .every((id) => selectedOptions[id]);
     if (!hasAllSelections) {
       showToast(
-        'Please select activation time' +
-          (inheritanceSigners.length === 1 ? '' : ' for all inheritance keys'),
+        errorText.selectActivationTime +
+          (inheritanceSigners.length === 1 ? '' : errorText.forAllInheritanceKey),
         <ToastErrorIcon />
       );
       setCreating(false);
@@ -83,10 +83,7 @@ function ResetInheritanceKey({ route }) {
         console.log('Failed to re-fetch current block height: ' + err);
       }
       if (!currentSyncedBlockHeight) {
-        showToast(
-          'Failed to fetch current chain data, please check your connection and try again',
-          <ToastErrorIcon />
-        );
+        showToast(errorText.failedToFetchCurrentChain, <ToastErrorIcon />);
         setCreating(false);
         return false;
       }

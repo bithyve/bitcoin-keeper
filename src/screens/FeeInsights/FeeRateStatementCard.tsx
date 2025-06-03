@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Fonts from 'src/constants/Fonts';
 import Text from 'src/components/KeeperText';
@@ -9,6 +9,7 @@ import BTC_UP from 'src/assets/images/btc_up.svg';
 import { Box, useColorMode } from 'native-base';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
 import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 interface Props {
@@ -21,6 +22,8 @@ const FeerateStatement = (props: Props) => {
   const [arrowPointer, setArrowPointer] = useState('higher');
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const { translations } = useContext(LocalizationContext);
+  const { error, common } = translations;
 
   const { showFeesInsightModal, feeInsightData } = props;
   useEffect(() => {
@@ -31,7 +34,7 @@ const FeerateStatement = (props: Props) => {
 
   function updateFeeStatement(data: any[]) {
     if (data.length === 0) {
-      setShortFeeStatement('Failed to fetch fee stats');
+      setShortFeeStatement(error.failedTofetchFeeStats);
       return;
     }
 
@@ -54,7 +57,7 @@ const FeerateStatement = (props: Props) => {
       <Box>
         <Box>
           <Text color={`${colorMode}.primaryText`} fontSize={16} medium>
-            Fee Stats
+            {common.feeSats}
           </Text>
         </Box>
 

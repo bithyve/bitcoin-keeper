@@ -1,9 +1,10 @@
 import { Box, Checkbox, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { PermittedAction } from 'src/models/interfaces/AssistedKeys';
 
 const permissionLabels = Object.values(PermittedAction);
@@ -18,6 +19,8 @@ function PermittedActionContent({
   const [permissions, setPermissions] = useState<{ [key: string]: boolean }>(
     Object.fromEntries(permissionLabels.map((label) => [label, false]))
   );
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   useEffect(() => {
     if (PermittedActionData) {
@@ -104,7 +107,7 @@ function PermittedActionContent({
             setAddNewUserModal(true);
           }}
           fullWidth
-          primaryText="Confirm"
+          primaryText={common.confirm}
         />
       </Box>
     </Box>

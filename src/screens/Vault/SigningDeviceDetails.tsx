@@ -88,13 +88,15 @@ export const SignersReqVault = [
 ];
 
 function EmptyActivityView({ colorMode, isDarkMode }) {
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations } = translations;
   return (
     <Box style={styles.emptyWrapper}>
       <Text color={`${colorMode}.secondaryText`} style={styles.emptyText} medium>
-        No activity detected!
+        {signerTranslations.noActivityDetected}
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-        This Signer isn't linked to a wallet yet. Ready to unlock its power?
+        {signerTranslations.signerNotLinked}
       </Text>
       <Box style={styles.emptyStateContainer}>
         {!isDarkMode ? <EmptyStateLight /> : <EmptyStateDark />}
@@ -104,32 +106,29 @@ function EmptyActivityView({ colorMode, isDarkMode }) {
 }
 
 const getSignerContent = (type: SignerType) => {
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerTranslations } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       return {
         title: 'Coldcard',
-        subTitle:
-          'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
+        subTitle: signerTranslations.coldCardInfo,
         assert: <ThemedSvg name={'coldCard_illustration'} />,
-        description:
-          '\u2022 Coldcard provides the best physical security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.',
+        description: signerTranslations.coldCardDesx,
         FAQ: 'https://coldcard.com/docs/faq',
       };
     case SignerType.TAPSIGNER:
       return {
         title: 'TAPSIGNER',
-        subTitle:
-          'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone.',
+        subTitle: signerTranslations.tapsignerInfo,
         assert: <ThemedSvg name={'tapSigner_illustration'} />,
-        description:
-          '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s). \n\u2022 The card form factor makes it easy to carry and easy to conceal.',
+        description: signerTranslations.tapsignerDes,
         FAQ: 'https://tapsigner.com/faq',
       };
     case SignerType.LEDGER:
       return {
         title: 'LEDGER',
-        subTitle:
-          'Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.',
+        subTitle: signerTranslations.ledgerInfo,
         assert: <ThemedSvg name={'ledger_illustration'} width={180} height={180} />,
         description: '',
         FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
@@ -137,108 +136,90 @@ const getSignerContent = (type: SignerType) => {
     case SignerType.SEEDSIGNER:
       return {
         title: 'SeedSigner',
-        subTitle:
-          'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
+        subTitle: signerTranslations.seedSigerInfo,
         assert: <ThemedSvg name={'seedSigner_illustration'} />,
-        description:
-          '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022 It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+        description: signerTranslations.seedSigerDes,
         FAQ: 'https://seedsigner.com/faqs/',
       };
     case SignerType.KEYSTONE:
       return {
         title: 'Keystone',
-        subTitle:
-          'It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.',
+        subTitle: signerTranslations.keyStoneInfo,
         assert: <ThemedSvg name={'keyStone_illustration'} />,
-        description:
-          "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
+        description: signerTranslations.keystoneDes,
         FAQ: 'https://support.keyst.one/miscellaneous/faq',
       };
     case SignerType.PASSPORT:
       return {
         title: 'Foundation Passport',
-        subTitle:
-          'Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering',
+        subTitle: signerTranslations.foundationInfo,
         assert: <ThemedSvg name={'passport_illustration'} />,
-        description:
-          '\u2022 Passport has no direct connection with the outside world – meaning your keys are never directly exposed online. It uses a camera and QR codes for communication. This provides hardcore, air-gapped security while offering a seamless user experience.\n\u2022 Passport’s software and hardware are both fully open source. No walled gardens, no closed source engineering. Connect Passport to their Envoy mobile app for a seamless experience.',
+        description: signerTranslations.foundationDesc,
         FAQ: 'https://docs.foundationdevices.com',
       };
     case SignerType.MOBILE_KEY:
       return {
         title: 'Mobile Key',
-        subTitle: 'You could use the wallet key on your app as one of the signing keys',
+        subTitle: signerTranslations.mobileKeyInfo,
         assert: <ThemedSvg name={'external_Key_illustration'} />,
-        description:
-          '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
+        description: signerTranslations.mobileKeyDes,
         FAQ: KEEPER_KNOWLEDGEBASE,
       };
     case SignerType.SEED_WORDS:
       return {
         title: 'Seed Key',
-        subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
+        subTitle: signerTranslations.seedKeyInfo,
         assert: <ThemedSvg name={'SeedSetupIllustration'} />,
-        description:
-          '\u2022 Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
+        description: signerTranslations.seedKeyDes,
         FAQ: '',
       };
     case SignerType.MY_KEEPER:
     case SignerType.KEEPER:
       return {
         title: `${getSignerNameFromType(type)} as signer`,
-        subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
+        subTitle: signerTranslations.externalKeyinfo,
         assert: <ThemedSvg name={'external_Key_illustration'} />,
-        description:
-          '\u2022 Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used.',
+        description: signerTranslations.externalKeyDes,
         FAQ: KEEPER_KNOWLEDGEBASE,
       };
     case SignerType.POLICY_SERVER:
       return {
         title: 'Server Key',
-        subTitle:
-          'The key on the signer will sign a transaction depending on the policy and authentication',
+        subTitle: signerTranslations.serverKeyinfo,
         assert: <ThemedSvg name={'signing_server_illustration'} />,
-        description:
-          '\u2022 An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+        description: signerTranslations.serverKeyDesc,
         FAQ: '',
       };
     case SignerType.BITBOX02:
       return {
         title: 'Bitbox 02',
-        subTitle: 'Easy backup and restore with a microSD card',
+        subTitle: signerTranslations.biTBoxInfo,
         assert: <ThemedSvg name={'bitBox_illustration'} />,
-        description:
-          '\u2022 BitBox02 is known for its ease of use, open-source firmware, and security features like backup recovery via microSD card, USB-C connectivity, and integration with the BitBoxApp.\n\u2022 The wallet prioritizes privacy and security with advanced encryption and verification protocols, making it ideal for users who value high security in managing their bitcoin.',
+        description: signerTranslations.bitBoxDesx,
         FAQ: 'https://shiftcrypto.ch/support/',
       };
     case SignerType.TREZOR:
       return {
         title: 'Trezor',
-        subTitle:
-          'Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence',
+        subTitle: signerTranslations.trezorInfo,
         assert: <ThemedSvg name={'trezor_illustration'} />,
-        description:
-          '\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup',
+        description: signerTranslations.trezorDes,
         FAQ: 'https://trezor.io/support',
       };
     case SignerType.JADE:
       return {
         title: 'Jade Blockstream',
-        subTitle:
-          'Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.',
+        subTitle: signerTranslations.jadeInfo,
         assert: <ThemedSvg name={'jade_illustration'} />,
-        description:
-          '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
+        description: signerTranslations.jadeDesc,
         FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
       };
     case SignerType.SPECTER:
       return {
         title: 'Specter DIY',
-        subTitle:
-          'An open-source hardware wallet for users to take full control over their Bitcoin security.',
+        subTitle: signerTranslations.specterInfo,
         assert: <ThemedSvg name={'specter_illustration'} />,
-        description:
-          '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
+        description: signerTranslations.specterDesc,
         FAQ: 'https://docs.specter.solutions/diy/faq/',
       };
     default:
@@ -254,7 +235,15 @@ const getSignerContent = (type: SignerType) => {
 
 function SigningDeviceDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslations, BackupWallet: strings, common } = translations;
+  const {
+    signer: signerTranslations,
+    BackupWallet: strings,
+    common,
+    error: errorText,
+    wallet: walletText,
+    vault: vaultText,
+    healthcheck: healthcheckText,
+  } = translations;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -319,13 +308,13 @@ function SigningDeviceDetails({ route }) {
       try {
         const data = idx(session, (_) => _.application.content.content);
         if (!data) {
-          showToast('Please scan a valid psbt', <ToastErrorIcon />);
+          showToast(errorText.scanValidPsbt, <ToastErrorIcon />);
           return;
         }
         signPSBT(data);
       } catch (err) {
         captureError(err);
-        showToast('Something went wrong.', <ToastErrorIcon />);
+        showToast(common.somethingWrong, <ToastErrorIcon />);
       } finally {
         cleanUp();
       }
@@ -413,10 +402,7 @@ function SigningDeviceDetails({ route }) {
         <Box style={styles.skipHealthIllustration}>
           <SkipHealthCheck />
         </Box>
-        <Text>
-          You can choose to manually confirm the health of the signer if you are sure that they are
-          secure and accessible. Or you can choose to do the Health Check when you can
-        </Text>
+        <Text>{signerTranslations.manualHealthCheck}</Text>
       </Box>
     );
   }
@@ -433,8 +419,8 @@ function SigningDeviceDetails({ route }) {
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: 'Scan Transaction',
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: walletText.scanTransaction,
+          subtitle: walletText.ScanQRData,
           onQrScan: signPSBT,
           setup: true,
           type: SignerType.KEEPER,
@@ -486,7 +472,7 @@ function SigningDeviceDetails({ route }) {
         signPSBT(psbt);
       } catch (err) {
         captureError(err);
-        showToast('Please scan a valid psbt tag', <ToastErrorIcon />);
+        showToast(errorText.scanValidPsbt, <ToastErrorIcon />);
       }
     } catch (err) {
       cleanUp();
@@ -495,7 +481,7 @@ function SigningDeviceDetails({ route }) {
         return;
       }
       captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 
@@ -547,7 +533,7 @@ function SigningDeviceDetails({ route }) {
       }
 
       if (!signerMatched) {
-        showToast('Current signer is not available in the PSBT', <ToastErrorIcon />);
+        showToast(errorText.signerNotValid, <ToastErrorIcon />);
         navigation.goBack();
         return;
       }
@@ -651,7 +637,7 @@ function SigningDeviceDetails({ route }) {
   const signerFooterItems = [
     signer?.type !== SignerType.POLICY_SERVER &&
       details && {
-        text: 'Share Key',
+        text: signerTranslations.magicLinkCTA,
         Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'share_key'} />} />,
         onPress: () => {
           setShareKeyModal(true);
@@ -661,7 +647,7 @@ function SigningDeviceDetails({ route }) {
       signer?.type !== SignerType.POLICY_SERVER &&
       signer?.type !== SignerType.UNKOWN_SIGNER &&
       details && {
-        text: 'Sign Transaction',
+        text: walletText.SignTransaction,
         Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'sign_transaction'} />} />,
         // onPress: navigateToScanPSBT,
         onPress: () => {
@@ -669,12 +655,12 @@ function SigningDeviceDetails({ route }) {
         },
       },
     signer?.type === SignerType.UNKOWN_SIGNER && {
-      text: 'Set Device Type',
+      text: walletText.setDeviceType,
       Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'change_key_icon'} />} />,
       onPress: navigateToAssignSigner,
     },
     signer?.type !== SignerType.MY_KEEPER && {
-      text: 'Health Check',
+      text: vaultText.healthCheck,
       Icon: () => (
         <FooterIcon
           Icon={() => <ThemedSvg name="health_check" />}
@@ -713,7 +699,7 @@ function SigningDeviceDetails({ route }) {
     ...(signer.type !== SignerType.MY_KEEPER
       ? [
           {
-            text: 'Health Check',
+            text: vaultText.healthCheck,
             Icon: () => (
               <FooterIcon
                 Icon={isDarkMode ? HealthCheckDark : HealthCheckLight}
@@ -751,7 +737,7 @@ function SigningDeviceDetails({ route }) {
       activeVault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.length < 2)
       ? [
           {
-            text: 'Change Key',
+            text: vaultText.changeKey,
             Icon: () => <FooterIcon Icon={() => <ThemedSvg name={'change_key_icon'} />} />,
             onPress: isEmergencyKey
               ? () =>
@@ -797,7 +783,7 @@ function SigningDeviceDetails({ route }) {
         ]
       : []),
     {
-      text: 'Settings',
+      text: common.settings,
       Icon: () => <FooterIcon Icon={isDarkMode ? SettingIcon : SettingIconLight} />,
       onPress: navigateToSettings,
     },
@@ -910,10 +896,10 @@ function SigningDeviceDetails({ route }) {
             <KeeperModal
               visible={skipHealthCheckModalVisible}
               close={() => setSkipHealthCheckModalVisible(false)}
-              title="Skipping Health Check"
-              subTitle="It is very important that you keep your signers secure and fairly accessible at all times."
-              buttonText="Confirm Access"
-              secondaryButtonText="Confirm Later"
+              title={healthcheckText.SkippingHealthCheck}
+              subTitle={healthcheckText.keepYourSignersSecure}
+              buttonText={healthcheckText.confirmAccess}
+              secondaryButtonText={healthcheckText.confirmLater}
               buttonTextColor={`${colorMode}.buttonText`}
               buttonCallback={() => {
                 dispatch(
@@ -924,7 +910,7 @@ function SigningDeviceDetails({ route }) {
                     },
                   ])
                 );
-                showToast('Device verified manually!');
+                showToast(healthcheckText.deviceVerifiedManually);
                 setSkipHealthCheckModalVisible(false);
               }}
               secondaryCallback={() => {
@@ -936,7 +922,7 @@ function SigningDeviceDetails({ route }) {
                     },
                   ])
                 );
-                showToast('Device health check skipped!');
+                showToast(healthcheckText.deviceHealthCheckSkipped);
                 setSkipHealthCheckModalVisible(false);
               }}
               textColor={`${colorMode}.textGreen`}
@@ -1024,8 +1010,8 @@ function SigningDeviceDetails({ route }) {
             <KeeperModal
               visible={shareKeyModal}
               close={() => setShareKeyModal(false)}
-              title={'Share Key Details'}
-              subTitle={'Choose how you would like to share your key'}
+              title={signerTranslations.shareKeyDetails}
+              subTitle={signerTranslations.howToShare}
               modalBackground={`${colorMode}.modalWhiteBackground`}
               textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -1034,8 +1020,8 @@ function SigningDeviceDetails({ route }) {
             <KeeperModal
               visible={stModal}
               close={() => setStModal(false)}
-              title={'Scan Transaction'}
-              subTitle={'Scan and verify transaction details'}
+              title={walletText.scanTransaction}
+              subTitle={walletText.scanAndVerifyTransaction}
               modalBackground={`${colorMode}.modalWhiteBackground`}
               textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}

@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
 import AirDropIcon from 'src/assets/images/airdrop-circle-icon.svg';
@@ -13,10 +13,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function STModalContent({ navigateToScanPSBT, setData, setStModal, readFromNFC }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorTranslation, common } = translations;
 
   const isIos = Platform.OS === 'ios';
 
@@ -31,7 +34,7 @@ function STModalContent({ navigateToScanPSBT, setData, setStModal, readFromNFC }
         setData(cosigner);
       } catch (err) {
         captureError(err);
-        showToast('Please pick a valid co-signer file', <ToastErrorIcon />);
+        showToast(errorTranslation.validCoSignerFile, <ToastErrorIcon />);
       }
     } catch (err) {
       if (err.toString().includes('user canceled')) {
@@ -39,7 +42,7 @@ function STModalContent({ navigateToScanPSBT, setData, setStModal, readFromNFC }
         return;
       }
       captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 

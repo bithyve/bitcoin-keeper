@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/utils/service-utilities/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType, WalletType } from 'src/services/wallets/enums';
@@ -17,6 +17,7 @@ import useToastMessage from './useToastMessage';
 import useVault from './useVault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { Alert } from 'react-native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
@@ -27,6 +28,9 @@ const useConfigRecovery = () => {
   const dispatch = useDispatch();
   const { allVaults } = useVault({});
   const [generatedVaultId, setGeneratedVaultId] = useState(null);
+  const { translations } = useContext(LocalizationContext);
+
+  const { importWallet, wallet, error } = translations;
 
   const recoveryError = {
     failed: false,
@@ -37,7 +41,7 @@ const useConfigRecovery = () => {
     if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
       if (allVaults.find((vault) => vault.id === generatedVaultId)) {
-        Alert.alert('A vault already exists with similar configuration!');
+        Alert.alert(error.vaultAlreadyExists);
         dispatch(resetRealyVaultState());
         setRecoveryLoading(false);
         navigation.goBack();
@@ -55,8 +59,8 @@ const useConfigRecovery = () => {
               vaultScheme: scheme,
               vaultSigners: vaultSignersList,
               vaultDetails: {
-                name: 'Imported Vault',
-                description: 'Secure your sats',
+                name: importWallet.importedWalletTitle,
+                description: wallet.secureSats,
               },
               miniscriptElements,
             };
@@ -88,11 +92,11 @@ const useConfigRecovery = () => {
       setGeneratedVaultId(null);
       dispatch(resetRealyVaultState());
       setRecoveryLoading(false);
-      showToast('Wallet imported successfully!', <TickIcon />);
+      showToast(wallet.importSuccessful, <TickIcon />);
       navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {
-      showToast('Wallet import failed!');
+      showToast(error.importedWalletFailed);
       setRecoveryLoading(false);
     }
   }, [relayVaultUpdate, relayVaultError, generatedVaultId]);
@@ -108,8 +112,10 @@ const useConfigRecovery = () => {
             importedKey,
             importedKeyType,
             type: WalletType.IMPORTED,
-            name: 'Imported Wallet',
-            description: 'Watch Only',
+            name: importWallet.importedWalletTitle,
+            description: importedKeyDetails.watchOnly
+              ? wallet.watchOnly
+              : importWallet.importedWalletTitle,
           });
           setRecoveryLoading(false);
           return;

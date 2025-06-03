@@ -51,16 +51,14 @@ function BuyBitcoinScreen({ route }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title={'Buy Bitcoin with Ramp'}
-        subTitle={
-          'Ramp enables BTC purchases using payment methods available, based on your country'
-        }
+        title={rampTranslations.buyBitcoinWithRamp}
+        subTitle={rampTranslations.buyBitcoinWithRampSubTitle}
         // To-Do-Learn-More
       />
       <Box style={styles.container}>
         <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            Bitcoin will be transferred to
+            {rampTranslations.bitcoinTransfer}
           </Text>
           <Box style={styles.iconContainer}>
             <HexagonIcon
@@ -113,8 +111,7 @@ function BuyBitcoinScreen({ route }) {
       <Box style={styles.flexSpacer} />
 
       <Text color={`${colorMode}.black`} style={styles.buyBtcContent}>
-        By proceeding, you understand that Ramp will process the payment and transfer for the
-        purchased bitcoin
+        {rampTranslations.byProceedRampParagraph}
       </Text>
 
       <Box style={styles.footer}>

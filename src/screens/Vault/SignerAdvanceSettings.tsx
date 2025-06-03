@@ -68,6 +68,8 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 const { width } = Dimensions.get('screen');
 
 function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault }) {
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
   return (
     <Box>
       <ActionCard
@@ -78,7 +80,7 @@ function Content({ colorMode, vaultUsed }: { colorMode: string; vaultUsed: Vault
       />
       <Box style={styles.pv20}>
         <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
-          Either hide the vault or remove the key from the vault to perform this operation.
+          {signerText.eitherHideVaultOrRemove}
         </Text>
       </Box>
     </Box>
@@ -124,6 +126,8 @@ function SignerAdvanceSettings({ route }: any) {
     signer: signerTranslation,
     seed: seedTranslation,
     formatString,
+    wallet: walletTranslation,
+    error: errorTranslation,
   } = translations;
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
   const { primaryMnemonic, id: appId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -201,7 +205,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const hideKey = () => {
     dispatch(updateSignerDetails(signer, 'hidden', true));
-    showToast('Key hidden successfully', <TickIcon />);
+    showToast(signerTranslation.keyHiddenSuccessfully, <TickIcon />);
     const popAction = StackActions.pop(2);
     navigation.dispatch(popAction);
   };
@@ -218,7 +222,7 @@ function SignerAdvanceSettings({ route }: any) {
       dispatch(resetRealyVaultState());
     }
     if (relayVaultError) {
-      showToast(`Canary wallet creation failed ${realyVaultErrorMessage}`);
+      showToast(`${signerTranslation.failedCanaryWallet} ${realyVaultErrorMessage}`);
       dispatch(resetRealyVaultState());
       setCanaryVaultLoading(false);
     }
@@ -232,8 +236,8 @@ function SignerAdvanceSettings({ route }: any) {
           vaultScheme: CANARY_SCHEME,
           vaultSigners: [ssVaultKey],
           vaultDetails: {
-            name: 'Canary Wallet',
-            description: `Canary Wallet for ${signer.signerName}`,
+            name: walletTranslation.canaryWallet,
+            description: `${walletTranslation.canaryWalletFor} ${signer.signerName}`,
           },
         };
         if (vaultAlreadyExists(vaultInfo, allVaults, archivedVaults)) {
@@ -302,7 +306,7 @@ function SignerAdvanceSettings({ route }: any) {
 
       default:
         showToast(
-          "This device doesn't require vault registration",
+          walletTranslation.deviceDoesntRequireVaultRegistration,
           null,
           IToastCategory.DEFAULT,
           1000
@@ -337,8 +341,7 @@ function SignerAdvanceSettings({ route }: any) {
         </Box>
         <Box>
           <Text color={`${colorMode}.greenText`} style={styles.warningText}>
-            If the signer is identified incorrectly there may be repercussions with general signer
-            interactions like signing etc.
+            {walletTranslation.warningContentData}
           </Text>
         </Box>
       </>
@@ -394,6 +397,7 @@ function SignerAdvanceSettings({ route }: any) {
       setCanaryVaultLoading(true);
       const singleSigSigner = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0]);
       if (!singleSigSigner) {
+        showToast(errorTranslation.noSingleSigFound);
         setCanaryVaultLoading(false);
         setSingleSigModal(true);
       } else {
@@ -417,7 +421,7 @@ function SignerAdvanceSettings({ route }: any) {
         }
       }
     } catch (err) {
-      console.log('Something Went Wrong', err);
+      console.log(common.somethingWrong, err);
       setCanaryVaultLoading(false);
     }
   };
@@ -528,7 +532,7 @@ function SignerAdvanceSettings({ route }: any) {
               if (clipBoardData.match(/^\d{6}$/)) {
                 setOtp(clipBoardData);
               } else {
-                showToast('Invalid OTP');
+                showToast(errorTranslation.invalidOtpshort);
                 setOtp('');
               }
             }}
@@ -559,7 +563,7 @@ function SignerAdvanceSettings({ route }: any) {
                 onPressConfirm();
               }}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
             />
           </Box>
         </Box>
@@ -609,7 +613,7 @@ function SignerAdvanceSettings({ route }: any) {
       setShowOTPModal(true);
       setBackupModal(false);
     } else {
-      showToast('This signer does not support one-time backup');
+      showToast(errorTranslation.oneTimeBackupNotSupported);
     }
   };
 
@@ -635,7 +639,7 @@ function SignerAdvanceSettings({ route }: any) {
             initiateOneTimeBackup();
           }}
           fullWidth
-          primaryText="Backup Now"
+          primaryText={common.backupNow}
           paddingVertical={13}
         />
       </Box>
@@ -646,47 +650,47 @@ function SignerAdvanceSettings({ route }: any) {
     !isMobileKey && (
       <OptionCard
         key="keyHistory"
-        title="Key History"
-        description="View the usage timeline"
+        title={vaultTranslation.keyHistory}
+        description={vaultTranslation.usageTimeline}
         callback={navigateToKeyHistory}
       />
     ),
     !(isPolicyServer || signersWithoutRegistration || !vaultId || !isMultisig) && (
       <OptionCard
         key="manualRegistration"
-        title="Manual Registration"
-        description="Register your active vault"
+        title={vaultTranslation.manualRegistration}
+        description={vaultTranslation.registerActiveVault}
         callback={registerSigner}
       />
     ),
     isPolicyServer && (
       <OptionCard
         key="configurationSetting"
-        title="Server Policy Settings"
-        description="Update your server key signing policy"
+        title={vaultTranslation.serverPolicySettings}
+        description={vaultTranslation.updateServerKeyPolicy}
         callback={navigateToPolicyChange}
       />
     ),
     isPolicyServer && (
       <OptionCard
         key="signingRequests"
-        title="Signing Requests"
-        description="See your pending signing requests"
+        title={signerTranslation.signingReq}
+        description={signerTranslation.seePendingSigning}
         callback={navigateToSigningRequests}
       />
     ),
     isTapsigner && (
       <OptionCard
         key="manageTapsigner"
-        title="Manage TAPSIGNER"
-        description="Manage your TAPSIGNER card"
+        title={signerTranslation.manageTapsigner}
+        description={signerTranslation.manageTapsignerCard}
         callback={openTapsignerSettings}
       />
     ),
     <OptionCard
       key="additionalInfo"
-      title="Additional Info"
-      description="Associate contact or edit description"
+      title={signerTranslation.additionalInfo}
+      description={signerTranslation.accociateContactAndDesc}
       callback={navigateToAdditionalDetails}
     />,
     isMobileKey && (
@@ -703,16 +707,16 @@ function SignerAdvanceSettings({ route }: any) {
     !(isPolicyServer || signersWithoutRegistration) && (
       <OptionCard
         key="changeDeviceType"
-        title={isOtherSD ? 'Assign device type' : 'Change device type'}
-        description="Select from device list"
+        title={isOtherSD ? signerTranslation.deviceType : signerTranslation.changeDeviceType}
+        description={signerTranslation.deviceList}
         callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
       />
     ),
     !vaultId && (
       <OptionCard
         key="hideKey"
-        title="Hide key"
-        description="Hide this key from the list"
+        title={signerTranslation.hideKey}
+        description={signerTranslation.hideKeyDesc}
         callback={() => {
           for (const vaultItem of allUnhiddenVaults) {
             if (vaultItem.signers.find((s) => getKeyUID(s) === getKeyUID(signer))) {
@@ -729,8 +733,8 @@ function SignerAdvanceSettings({ route }: any) {
     isCanaryWalletAllowed && (
       <OptionCard
         key="canaryWallet"
-        title="Canary Wallet"
-        description="Your on-chain key alert"
+        title={walletTranslation.canaryWallet}
+        description={walletTranslation.onChainKeyAlert}
         callback={handleCanaryWallet}
         disabled={isOnL1}
         rightComponent={
@@ -751,9 +755,9 @@ function SignerAdvanceSettings({ route }: any) {
     isPolicyServer && showOneTimeBackup && (
       <OptionCard
         key="backupServerKey"
-        title="Back Up Server Key"
+        title={signingServer.BackUpModalTitle}
         description={
-          disableOneTimeBackup ? 'Server key backed up' : 'Save a backup of the Server Key'
+          disableOneTimeBackup ? signingServer.serverKeyBackup : signingServer.saveBackup
         }
         callback={() => {
           if (!disableOneTimeBackup) setDisplayBackupModal(true);
@@ -764,9 +768,9 @@ function SignerAdvanceSettings({ route }: any) {
     isPolicyServer && !signer.linkedViaSecondary && (
       <OptionCard
         key="AdditionalUsers"
-        title="Additional Users"
-        description={`Add multiple users for the Server Key${
-          !isOnL4 ? '\n\nUnlock with the Keeper Private tier' : ''
+        title={signingServer.additionalUsers}
+        description={`${signingServer.AddMultipleUsers}${
+          !isOnL4 ? `${signingServer.unlockKeeperPrivate}` : ''
         }`}
         callback={() => {
           isOnL4 && navigation.navigate('AdditionalUsers', { signer });
@@ -794,28 +798,23 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.COLDCARD:
         return {
           title: 'Coldcard',
-          subTitle:
-            'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
+          subTitle: signerTranslation.coldCardInfo,
           assert: <ThemedSvg name={'coldCard_illustration'} />,
-          description:
-            '\u2022 Coldcard provides the best physical security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.',
+          description: signerTranslation.coldCardDesx,
           FAQ: 'https://coldcard.com/docs/faq',
         };
       case SignerType.TAPSIGNER:
         return {
           title: 'TAPSIGNER',
-          subTitle:
-            'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone.',
+          subTitle: signerTranslation.tapsignerInfo,
           assert: <ThemedSvg name={'tapSigner_illustration'} />,
-          description:
-            '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s). \n\u2022 The card form factor makes it easy to carry and easy to conceal.',
+          description: signerTranslation.tapsignerDes,
           FAQ: 'https://tapsigner.com/faq',
         };
       case SignerType.LEDGER:
         return {
           title: 'LEDGER',
-          subTitle:
-            'Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.',
+          subTitle: signerTranslation.ledgerInfo,
           assert: <ThemedSvg name={'ledger_illustration'} width={180} height={180} />,
           description: '',
           FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
@@ -823,108 +822,91 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.SEEDSIGNER:
         return {
           title: 'SeedSigner',
-          subTitle:
-            'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signer using inexpensive, publicly available hardware components (usually < $50).',
+          subTitle: signerTranslation.seedSigerInfo,
           assert: <ThemedSvg name={'seedSigner_illustration'} />,
-          description:
-            '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022 It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+          description: signerTranslation.seedSigerDes,
           FAQ: 'https://seedsigner.com/faqs/',
         };
       case SignerType.KEYSTONE:
         return {
           title: 'Keystone',
-          subTitle:
-            'It offers a convenient cold storage solution with open source firmware, a 4-inch touchscreen, and multi-key support. Protect your bitcoin with the right balance between a secure and convenient hardware wallet with mobile phone support.',
+          subTitle: signerTranslation.keyStoneInfo,
           assert: <ThemedSvg name={'keyStone_illustration'} />,
-          description:
-            "\u2022 With QR codes, you can verify all data transmission to ensure that information coming into Keystone contains no trojans or viruses, while information going out doesn't leak private keys or any other sensitive information.",
+          description: signerTranslation.keystoneDes,
           FAQ: 'https://support.keyst.one/miscellaneous/faq',
         };
       case SignerType.PASSPORT:
         return {
           title: 'Foundation Passport',
-          subTitle:
-            'Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering',
+          subTitle: signerTranslation.foundationInfo,
           assert: <ThemedSvg name={'passport_illustration'} />,
-          description:
-            '\u2022 Passport has no direct connection with the outside world – meaning your keys are never directly exposed online. It uses a camera and QR codes for communication. This provides hardcore, air-gapped security while offering a seamless user experience.\n\u2022 Passport’s software and hardware are both fully open source. No walled gardens, no closed source engineering. Connect Passport to their Envoy mobile app for a seamless experience.',
+          description: signerTranslation.foundationDesc,
           FAQ: 'https://docs.foundationdevices.com',
         };
       case SignerType.MOBILE_KEY:
         return {
           title: 'Mobile Key',
-          subTitle: 'You could use the wallet key on your app as one of the signing keys',
+          subTitle: signerTranslation.mobileKeyInfo,
           assert: <ThemedSvg name={'external_Key_illustration'} />,
-          description:
-            '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
+          description: signerTranslation.mobileKeyDes,
           FAQ: KEEPER_KNOWLEDGEBASE,
         };
       case SignerType.SEED_WORDS:
         return {
           title: 'Seed Key',
-          subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
+          subTitle: signerTranslation.seedKeyInfo,
           assert: <ThemedSvg name={'SeedSetupIllustration'} />,
-          description:
-            '\u2022 Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
+          description: signerTranslation.seedKeyDes,
           FAQ: '',
         };
       case SignerType.MY_KEEPER:
       case SignerType.KEEPER:
         return {
           title: `${getSignerNameFromType(type)} as signer`,
-          subTitle: 'You can use a specific BIP-85 wallet on Keeper as a signer',
+          subTitle: signerTranslation.externalKeyinfo,
           assert: <ThemedSvg name={'external_Key_illustration'} />,
-          description:
-            '\u2022 Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used.',
+          description: signerTranslation.externalKeyDes,
+
           FAQ: KEEPER_KNOWLEDGEBASE,
         };
       case SignerType.POLICY_SERVER:
         return {
           title: 'Server Key',
-          subTitle:
-            'The key on the signer will sign a transaction depending on the policy and authentication',
+          subTitle: signerTranslation.serverKeyinfo,
           assert: <ThemedSvg name={'signing_server_illustration'} />,
-          description:
-            '\u2022 An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signers, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+          description: signerTranslation.serverKeyDesc,
           FAQ: '',
         };
       case SignerType.BITBOX02:
         return {
           title: 'Bitbox 02',
-          subTitle: 'Easy backup and restore with a microSD card',
+          subTitle: signerTranslation.biTBoxInfo,
           assert: <ThemedSvg name={'bitBox_illustration'} />,
-          description:
-            '\u2022 BitBox02 is known for its ease of use, open-source firmware, and security features like backup recovery via microSD card, USB-C connectivity, and integration with the BitBoxApp.\n\u2022 The wallet prioritizes privacy and security with advanced encryption and verification protocols, making it ideal for users who value high security in managing their bitcoin.',
+          description: signerTranslation.bitBoxDesx,
           FAQ: 'https://shiftcrypto.ch/support/',
         };
       case SignerType.TREZOR:
         return {
           title: 'Trezor',
-          subTitle:
-            'Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence',
+          subTitle: signerTranslation.trezorInfo,
           assert: <ThemedSvg name={'trezor_illustration'} />,
-          description:
-            '\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup',
+          description: signerTranslation.trezorDes,
           FAQ: 'https://trezor.io/support',
         };
       case SignerType.JADE:
         return {
           title: 'Jade Blockstream',
-          subTitle:
-            'Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.',
+          subTitle: signerTranslation.jadeInfo,
           assert: <ThemedSvg name={'jade_illustration'} />,
-          description:
-            '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
+          description: signerTranslation.jadeDesc,
           FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
         };
       case SignerType.SPECTER:
         return {
           title: 'Specter DIY',
-          subTitle:
-            'An open-source hardware wallet for users to take full control over their Bitcoin security.',
+          subTitle: signerTranslation.specterInfo,
           assert: <ThemedSvg name={'specter_illustration'} />,
-          description:
-            '\u2022 Create a trust-minimized signing device, providing a high level of security and privacy for Bitcoin transactions.',
+          description: signerTranslation.specterDesc,
           FAQ: 'https://docs.specter.solutions/diy/faq/',
         };
       default:
@@ -981,14 +963,12 @@ function SignerAdvanceSettings({ route }: any) {
       <WalletHeader
         title={
           !signer.isBIP85
-            ? ` ${getSignerNameFromType(signer.type, signer.isMock, false).replace(
-                /\*+/g,
-                ''
-              )} Settings`
-            : ` ${getSignerNameFromType(signer.type, signer.isMock, false).replace(
-                /\*+/g,
-                ''
-              )} Settings`
+            ? ` ${getSignerNameFromType(signer.type, signer.isMock, false).replace(/\*+/g, '')} ${
+                common.settings
+              }`
+            : ` ${getSignerNameFromType(signer.type, signer.isMock, false).replace(/\*+/g, '')} ${
+                common.settings
+              }`
         }
         rightComponent={
           <TouchableOpacity style={styles.infoIcon} onPress={() => setDetailModal(true)}>
@@ -1018,8 +998,8 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={registerSignerModal}
         close={() => setRegisterSignerModal(false)}
-        title="Manual Registration"
-        subTitle="Register your active vault"
+        title={vaultTranslation.manualRegistration}
+        subTitle={vaultTranslation.registerActiveVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -1040,13 +1020,13 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
-        title="Changing Device Type"
-        subTitle="Are you sure you want to change the device type?"
+        title={vaultTranslation.changeDeviceType}
+        subTitle={vaultTranslation.wantTochageDevice}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Continue"
-        secondaryButtonText="Cancel"
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => setWarning(false)}
         buttonCallback={navigateToAssignSigner}
         Content={WarningContent}
@@ -1064,10 +1044,10 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={warningEnabled && !!vaultUsed}
         close={() => setHideWarning(false)}
-        title="Key is being used for Vault"
-        subTitle="The Key you are trying to hide is used in one of the visible vaults."
-        buttonText="View Vault"
-        secondaryButtonText="Back"
+        title={vaultTranslation.keyUsedForVault}
+        subTitle={vaultTranslation.keysTryingToHide}
+        buttonText={vaultTranslation.ViewVault}
+        secondaryButtonText={common.back}
         secondaryCallback={() => setHideWarning(false)}
         secButtonTextColor={`${colorMode}.greenText`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -1085,10 +1065,12 @@ function SignerAdvanceSettings({ route }: any) {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        title={common.confirmPassCode}
         subTitleWidth={wp(240)}
         subTitle={
-          actionAfterPasscode === 'hideKey' ? 'To hide the key' : 'To view Mobile Key seed words'
+          actionAfterPasscode === 'hideKey'
+            ? vaultTranslation.toHideKey
+            : vaultTranslation.toviewMobileKey
         }
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}

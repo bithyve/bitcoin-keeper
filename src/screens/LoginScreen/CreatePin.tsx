@@ -41,7 +41,7 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const { translations } = useContext(LocalizationContext);
-  const { login, common } = translations;
+  const { login, common, error: errorText } = translations;
   const { showToast } = useToastMessage();
 
   const createPin = pinState.value.slice(0, 4);
@@ -131,8 +131,7 @@ export default function CreatePin(props) {
           <Passwordlock />
         </Box>
         <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-          You will be locked out of the app if you forget your passcode and will have to recover it
-          using the Recovery Key.
+          {login.lockedOutOfApp}
         </Text>
       </Box>
     );
@@ -158,7 +157,7 @@ export default function CreatePin(props) {
           }
 
           const { success } = await RNBiometrics.simplePrompt({
-            promptMessage: 'Confirm your identity',
+            promptMessage: errorText.confirmIdentity,
           });
 
           if (success) {
@@ -166,10 +165,7 @@ export default function CreatePin(props) {
             dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
             props.navigation.replace('OnBoardingSlides');
           } else {
-            showToast(
-              'Biometric authentication failed.\nPlease try again or use PIN.',
-              <ToastErrorIcon />
-            );
+            showToast(errorText.biometicAuthFailed, <ToastErrorIcon />);
             setTimeout(() => {
               props.navigation.replace('OnBoardingSlides');
             }, 2000);
@@ -178,20 +174,14 @@ export default function CreatePin(props) {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        showToast(
-          'Biometrics not enabled.\nPlease go to settings and enable it.',
-          <ToastErrorIcon />
-        );
+        showToast(errorText.biometricNotEnabled, <ToastErrorIcon />);
         setTimeout(() => {
           props.navigation.replace('OnBoardingSlides');
         }, 2000);
       }
     } catch (error) {
       console.log(error);
-      showToast(
-        'An error occurred with biometrics.\nPlease use an alternative method.',
-        <ToastErrorIcon />
-      );
+      showToast(errorText.errorWithBiometrics, <ToastErrorIcon />);
       setTimeout(() => {
         props.navigation.replace('OnBoardingSlides');
       }, 2000);
@@ -259,14 +249,14 @@ export default function CreatePin(props) {
       <KeeperModal
         visible={createPassword}
         close={() => {}}
-        title="Remember your passcode"
-        subTitle="Storing the devices securely is an important responsibility. Please ensure their safety and accessibility. Losing them may lead to permanent loss of your bitcoin."
+        title={login.rememberPasscode}
+        subTitle={login.storingDeviceSecure}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
-        buttonText="Continue"
-        secondaryButtonText="Back"
+        buttonText={common.continue}
+        secondaryButtonText={common.back}
         buttonCallback={handleNext}
         secondaryCallback={() => {
           setCreatePassword(false);
@@ -277,14 +267,14 @@ export default function CreatePin(props) {
       <KeeperModal
         visible={enableBiometric}
         close={() => {}}
-        title="Enable Biometric Authentication"
-        subTitle="Use fingerprint or face recognition for quick and secure access."
+        title={login.enableBiometric}
+        subTitle={login.fingerprintOrFace}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
-        buttonText="Continue"
-        secondaryButtonText="Skip"
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
         buttonCallback={() => {
           setEnableBiometric(false);
           onChangeLoginMethod();

@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation, useFocusEffect } from '@react-navigation/native';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import {
   MiniscriptTypes,
   MultisigScriptType,
@@ -65,6 +65,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import useSigners from 'src/hooks/useSigners';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function VaultMigrationController({
   vaultCreating,
@@ -99,7 +100,8 @@ function VaultMigrationController({
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { archivedVaults } = useArchivedVaults();
-
+  const { translations } = useContext(LocalizationContext);
+  const { vault: VaultText, error: ErrorText } = translations;
   const [recipients, setRecepients] = useState<any[]>();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
   const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
@@ -188,7 +190,7 @@ function VaultMigrationController({
         );
       } else if (sendPhaseOneState.hasFailed) {
         if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-          showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
+          showToast(ErrorText.insufficientBalanceatThisTime, <ToastErrorIcon />);
         } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
       }
     }, [sendPhaseOneState, newVault, activeVault, recipients, miniscriptSelectedSatisfier])
@@ -337,7 +339,7 @@ function VaultMigrationController({
         : null;
 
     if (!durationIdentifier) {
-      showToast('Invalid duration selected', <ToastErrorIcon />);
+      showToast(ErrorText.invalidDuration, <ToastErrorIcon />);
       return;
     }
 
@@ -368,10 +370,7 @@ function VaultMigrationController({
         miniscriptTypes.includes(MiniscriptTypes.EMERGENCY)
       )
     ) {
-      showToast(
-        'Invalid vault type - supported only for timelocked, inheritance emergency',
-        <ToastErrorIcon />
-      );
+      showToast(ErrorText.invalidVaultType, <ToastErrorIcon />);
       return;
     }
 
@@ -411,7 +410,7 @@ function VaultMigrationController({
       for (const { key, duration } of inheritanceSigners) {
         const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
-          showToast('Failed to determine inheritance timelock duration', <ToastErrorIcon />);
+          showToast(ErrorText.failedToDetermineInheritanceDuration, <ToastErrorIcon />);
           return;
         }
         inheritanceSignerWithTimelocks.push({
@@ -425,7 +424,7 @@ function VaultMigrationController({
       for (const { key, duration } of emergencySigners) {
         const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
-          showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
+          showToast(ErrorText.failedToDetermineEmergencyDuration, <ToastErrorIcon />);
           return;
         }
         emergencySignerWithTimelocks.push({
@@ -444,7 +443,7 @@ function VaultMigrationController({
     );
 
     if (!miniscriptElements) {
-      showToast('Failed to generate miniscript elements', <ToastErrorIcon />);
+      showToast(ErrorText.failedToGenerateMiniscript, <ToastErrorIcon />);
       return;
     }
     vaultInfo.miniscriptElements = miniscriptElements;
@@ -558,12 +557,7 @@ function VaultMigrationController({
         close={() => {
           setCheckAddressModalVisible(false);
           dispatch(resetVaultMigration());
-          showToast(
-            'Wallet update initiated successfully, you can continue transferring the funds from the Send tab.',
-            null,
-            IToastCategory.DEFAULT,
-            6000
-          );
+          showToast(ErrorText.walletUpdateInitiated, null, IToastCategory.DEFAULT, 6000);
           setTimeout(() => {
             navigation.dispatch(
               CommonActions.reset({
@@ -579,18 +573,9 @@ function VaultMigrationController({
         title="Verify the new wallet address"
         Content={() => (
           <Box style={{ gap: 20 }}>
-            <Text>
-              Your updated wallet has been successfully created and is ready to receive funds from
-              the previous wallet.
-            </Text>
-            <Text>
-              We recommend verifying the new wallet address on your hardware device before
-              transferring funds.
-            </Text>
-            <Text>
-              You can transfer the funds now or later. Your old wallet will remain visible in the
-              Wallets tab until the transfer is complete.
-            </Text>
+            <Text>{ErrorText.updatedWalletReady}</Text>
+            <Text>{ErrorText.verifyNewAddress}</Text>
+            <Text>{ErrorText.transferFunds} </Text>
           </Box>
         )}
         modalBackground="modalWhiteBackground"
