@@ -16,17 +16,21 @@ import {
   getKeyTimelock,
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 function EnhancedKeysSection({
   vault,
   keys,
+  currentMedianTimePast,
   currentBlockHeight,
   handleCardSelect,
   setCurrentBlockHeight,
+  setCurrentMedianTimePast,
 }: {
   vault: Vault;
   keys: { key: Signer; keyMeta: VaultSigner; identifier: string }[];
   currentBlockHeight: number | null;
+  currentMedianTimePast: number | null;
   handleCardSelect: (
     signer: Signer,
     item: VaultSigner,
@@ -34,6 +38,7 @@ function EnhancedKeysSection({
     isEmergencyKey: boolean
   ) => void;
   setCurrentBlockHeight: (blockHeight: number | null) => void;
+  setCurrentMedianTimePast: (medianTimePast: number | null) => void;
 }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -42,24 +47,42 @@ function EnhancedKeysSection({
   const [currentTimeUntilActivation, setCurrentTimeUntilActivation] = useState('');
 
   useEffect(() => {
-    WalletUtilities.fetchCurrentBlockHeight()
-      .then(({ currentBlockHeight }) => {
-        setCurrentBlockHeight(currentBlockHeight);
-      })
-      .catch((err) => showToast(err));
-  }, [setCurrentBlockHeight, showToast]);
+    if (isVaultUsingBlockHeightTimelock(vault)) {
+      WalletUtilities.fetchCurrentBlockHeight()
+        .then(({ currentBlockHeight }) => {
+          setCurrentBlockHeight(currentBlockHeight);
+        })
+        .catch((err) => showToast(err));
+    } else {
+      WalletUtilities.fetchCurrentMedianTime()
+        .then(({ currentMedianTime }) => {
+          setCurrentMedianTimePast(currentMedianTime);
+        })
+        .catch((err) => showToast(err));
+    }
+  }, [setCurrentBlockHeight, setCurrentMedianTimePast, showToast, vault]);
 
   useEffect(() => {
-    if (!keys.length || currentBlockHeight === null) return;
+    if (!keys.length || (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null))
+      return;
 
     try {
-      const blocksUntilActivation =
-        getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
-        currentBlockHeight;
+      let secondsUntilActivation = 0;
 
-      if (blocksUntilActivation > 0) {
-        const seconds = blocksUntilActivation * 10 * 60;
-        const days = Math.floor(seconds / (24 * 60 * 60));
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        const blocksUntilActivation =
+          getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
+          currentBlockHeight;
+
+        secondsUntilActivation = blocksUntilActivation * 10 * 60;
+      } else {
+        secondsUntilActivation =
+          getKeyTimelock(keys[0].identifier, vault.scheme.miniscriptScheme.miniscriptElements) -
+          currentMedianTimePast;
+      }
+
+      if (secondsUntilActivation > 0) {
+        const days = Math.floor(secondsUntilActivation / (24 * 60 * 60));
         const months = Math.floor(days / 30);
 
         let timeString = '';
@@ -68,8 +91,8 @@ function EnhancedKeysSection({
         } else if (days > 0) {
           timeString = `${days} day${days > 1 ? 's' : ''}`;
         } else {
-          const hours = Math.floor(seconds / 3600);
-          const minutes = Math.floor((seconds % 3600) / 60);
+          const hours = Math.floor(secondsUntilActivation / 3600);
+          const minutes = Math.floor((secondsUntilActivation % 3600) / 60);
           timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
             minutes > 1 ? 's' : ''
           }`;

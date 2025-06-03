@@ -19,6 +19,7 @@ import utxoReducer from './reducers/utxos';
 import conciergeReducer from './reducers/concierge';
 import cachedTxnReducer from './reducers/cachedTxn';
 import signerReducer from './reducers/signer';
+import accountReducer from './reducers/account';
 
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
@@ -38,6 +39,7 @@ const appReducer = combineReducers({
   concierge: conciergeReducer,
   cachedTxn: cachedTxnReducer,
   signer: signerReducer,
+  account: accountReducer,
 });
 
 const rootReducer = (state, action) => {

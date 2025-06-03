@@ -157,7 +157,7 @@ const HomeWallet = () => {
         textColor={`${colorMode}.greenWhiteText`}
         name={walletText.addWallet}
         callback={() => setShowAddWalletModal(true)}
-        icon={<ThemedSvg name={'add_wallet_plus_icon'} />}
+        icon={<ThemedSvg name={'add_wallet_plus_icon'} width={9} height={9} />}
         iconWidth={22}
         iconHeight={20}
       />

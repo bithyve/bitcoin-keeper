@@ -561,5 +561,17 @@ export default class Relay {
       throw new Error(err.message);
     }
   };
+
+  public static getActiveCampaign = async (appId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getActiveCampaign?appId=${appId}`);
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
 }
 

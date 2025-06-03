@@ -399,7 +399,7 @@ export const parseTextforVaultConfig = (secret: string) => {
     return parsedResponse;
   }
   if (secret.includes('after(')) {
-    const { signers, inheritanceKeys, emergencyKeys, importedKeyUsageCounts } =
+    const { signers, inheritanceKeys, emergencyKeys, importedKeyUsageCounts, initialTimelock } =
       parseEnhancedVaultMiniscript(secret);
     const multiMatch = secret.match(/thresh\((\d+),/);
     const m = multiMatch ? parseInt(multiMatch[1]) : 1;
@@ -408,7 +408,8 @@ export const parseTextforVaultConfig = (secret: string) => {
       signers,
       inheritanceKeys,
       emergencyKeys,
-      { m, n: signers.length }
+      { m, n: signers.length },
+      initialTimelock
     );
 
     const miniscriptScheme = generateMiniscriptScheme(
@@ -529,6 +530,7 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
   inheritanceKeys: { signer: VaultSigner; timelock: number }[];
   emergencyKeys: { signer: VaultSigner; timelock: number }[];
   importedKeyUsageCounts: Record<string, number>;
+  initialTimelock: number;
 } {
   // Remove wsh() wrapper and checksum
   const innerScript = miniscript.replace('wsh(', '').replace(/\)#.*$/, '');
@@ -587,9 +589,18 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
   });
 
   // Identify regular keys (keys that appear more in the entire innerScript than in the stages)
-  const regularKeys = Array.from(allKeyCounts.entries())
+  let regularKeys = Array.from(allKeyCounts.entries())
     .filter(([key, count]) => count > (stageKeyCounts.get(key) || 0))
     .map(([key]) => key);
+
+  let initialTimelock = 0;
+
+  // If there is initialTimelock no regular keys will be found, treat the first stage as the regular
+  if ((!regularKeys || regularKeys.length === 0) && stages.length > 0) {
+    regularKeys = [...stages[0].stage.matchAll(keyRegex)].map((match) => match[0]);
+    initialTimelock = stages[0].afterValue;
+    stages.shift();
+  }
 
   const fingerprintRegex = /\[([A-Fa-f0-9]{8})/; // Adjusted regex
 
@@ -642,6 +653,7 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
     inheritanceKeys,
     emergencyKeys,
     importedKeyUsageCounts,
+    initialTimelock,
   };
 }
 

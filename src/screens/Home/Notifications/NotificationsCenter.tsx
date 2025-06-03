@@ -30,6 +30,7 @@ import TransferToVaultIcon from 'src/assets/images/transfer_to_vault.svg';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import CloudBackupIcon from 'src/assets/images/cloud-backup-icon.svg';
 import RecevieIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
+import DiscountIcon from 'src/assets/images/discountIcon.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import UAIView from '../components/UAIView';
@@ -77,6 +78,7 @@ const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.POLICY_DELAY,
   uaiType.INCOMING_TRANSACTION,
   uaiType.SERVER_BACKUP_FAILURE,
+  uaiType.CAMPAIGN,
 ];
 
 const Card = memo(({ uai }: CardProps) => {
@@ -321,6 +323,22 @@ const Card = memo(({ uai }: CardProps) => {
               cta: () => {
                 dispatch(uaiActioned({ uaiId: uai.id, action: false }));
                 dispatch(backupAllSignersAndVaults());
+              },
+            },
+          },
+        };
+      }
+      case uaiType.CAMPAIGN: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+                navigtaion.dispatch(CommonActions.navigate('ChoosePlan', { showDiscounted: true }));
               },
             },
           },
@@ -575,6 +593,12 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: details?.heading,
         body: details?.body,
         icon: <CloudBackupIcon />,
+      };
+    case uaiType.CAMPAIGN:
+      return {
+        heading: '25% off on Diamond Hands this week',
+        body: 'Plan your inheritance and improve your security',
+        icon: <DiscountIcon />,
       };
 
     default:

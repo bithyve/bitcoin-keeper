@@ -54,7 +54,7 @@ function EnterSeedScreen({ route, navigation }) {
   } = route.params || {};
   const { appImageError } = useAppSelector((state) => state.bhr);
 
-  const { appId } = useAppSelector((state) => state.storage);
+  const { appCreated } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -95,12 +95,12 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    if (appId && recoveryLoading) {
+    if (appCreated && recoveryLoading) {
       setRecoveryLoading(false);
       setRecoverySuccessModal(true);
       dispatch(resetSeedWords());
     }
-  }, [appId]);
+  }, [appCreated]);
 
   useEffect(() => {
     if (appImageError) {

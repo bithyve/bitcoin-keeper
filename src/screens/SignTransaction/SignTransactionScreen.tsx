@@ -165,6 +165,7 @@ function SignTransactionScreen() {
   const [snapshotOptions, setSnapshotOptions] = useState(snapshot?.options || {});
   const sendAndReceive = useAppSelector((state) => state.sendAndReceive);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const [activeSignerName, setActiveSignerName] = useState('');
 
   useEffect(() => {
     if (sendAndReceive.sendPhaseThree.txid) {
@@ -396,14 +397,22 @@ function SignTransactionScreen() {
             );
           }
         } else if (SignerType.SEED_WORDS === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithSeedWords({
-            signingPayload,
-            defaultVault,
-            seedBasedSingerMnemonic,
-            serializedPSBT,
-            xfp,
-            isMultisig: defaultVault.isMultiSig,
-          });
+          const { signedSerializedPSBT } = currentKey.xpriv
+            ? await signTransactionWithMobileKey({
+                setPasswordModal,
+                signingPayload,
+                defaultVault,
+                serializedPSBT,
+                xfp,
+              })
+            : await signTransactionWithSeedWords({
+                signingPayload,
+                defaultVault,
+                seedBasedSingerMnemonic,
+                serializedPSBT,
+                xfp,
+                isMultisig: defaultVault.isMultiSig,
+              });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(
             healthCheckStatusUpdate([
@@ -492,6 +501,7 @@ function SignTransactionScreen() {
       showToast(errorText.enoughtSignature);
       return;
     }
+    setActiveSignerName(signer.signerName);
     switch (signer.type) {
       case SignerType.TAPSIGNER:
         setTapsignerModal(true);
@@ -524,18 +534,22 @@ function SignTransactionScreen() {
           showOTPModal(true);
         } else showOTPModal(true);
         break;
-      case SignerType.SEED_WORDS:
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'EnterSeedScreen',
-            params: {
-              parentScreen: SIGNTRANSACTION,
-              xfp: vaultKey.xfp,
-              onSuccess: signTransaction,
-            },
-          })
-        );
+      case SignerType.SEED_WORDS: {
+        if (vaultKey.xpriv) setConfirmPassVisible(true);
+        else {
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'EnterSeedScreen',
+              params: {
+                parentScreen: SIGNTRANSACTION,
+                xfp: vaultKey.xfp,
+                onSuccess: signTransaction,
+              },
+            })
+          );
+        }
         break;
+      }
       case SignerType.PASSPORT:
         setPassportModal(true);
         break;
@@ -780,7 +794,7 @@ function SignTransactionScreen() {
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
         title={settingsText.EnterPasscodeTitle}
-        subTitle={settingsText.EnterPasscodeMobile}
+        subTitle={`Confirm passcode to sign with ${activeSignerName}`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

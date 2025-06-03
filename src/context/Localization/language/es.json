@@ -141,6 +141,7 @@
     "for": "For",
     "madeIn": "Made in:",
     "goToBackup": "Go to Backup",
+    "goToWallets": "Go to wallets",
     "Advisor": "Advisor",
     "AssistedWallet": "Assisted Wallet",
     "ASSISTED": "Assisted",
@@ -234,7 +235,9 @@
     "identify": "Identify",
     "enterYourName": "Enter Your Name/label",
     "seletPermitedAction": "Select Permitted Actions",
-    "remians": "Remains"
+    "remians": "Remains",
+    "vaultTimelockActive": "Vault has an active timelock",
+    "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends."
   },
   "noInternet": {
     "no": "No Internet",
@@ -848,7 +851,10 @@
     "recoverYourWallet": "You will need it to recover your wallet in case you lose access to your device.",
     "doThisLater": "You can also do this later from the wallet settings.",
     "backupFile": "Backup Wallet Recovery File",
-    "keepItPrivate": "Keep it private and secure"
+    "keepItPrivate": "Keep it private and secure",
+    "currentBtcPrice": "Current BTC Price",
+    "amountBeingSend": "Amount being sent",
+    "sendingAmount": "Sending Amount:"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -951,6 +957,9 @@
     "requiredKeys": "Required Keys",
     "minimumNumberOfKeysToSignATransaction": "Minimum number of keys to sign a transaction",
     "pleaseEnterVaultName": "Please enter a name for your vault",
+    "resetInitialTLTitle": "Resetting Wallet Timelock",
+    "resetInitialTLDesc": "Re-vault to start the timer again on the wallet timelock",
+    "resetInitialTLNote": "Note that funds cannot be moved to the new vault until the existing timelock expires.",
     "resetIKTitle": "Resetting Inheritance Key",
     "resetIKDesc": "Re-vault to start the timer again on the Inheritance Key",
     "resetEKTitle": "Resetting Emergency Key",
@@ -970,6 +979,11 @@
     "revaultYourVault": "Revault your vault",
     "eligibleForRevault": "Your vault is eligible for revaulting, allowing you to secure your funds back into the vault and reset the timeline",
     "unlockIKS": "Please upgrade to Diamond Hands to add an Inheritance Key to your vault.",
+    "selectWalletTimelock": "Select Wallet Timelock",
+    "selectWalletTimelockDesc": "Add a timelock period to your vault. During that period all funds sent into the vault will be unspendable.",
+    "selectWalletTimelockWarning": "Funds sent to this vault will not be possible to spend for the selected time period. Proceed only if you are sure this is what you want.",
+    "selectWalletTimelockNote": "Note that if you configure any special keys, their activation time will start counting only after the timelock period ends.",
+    "selectWalletTimelockAccept": "I understand the limits and wish to continue",
     "addInheritanceKey": "Add Inheritance Key",
     "addInheritanceKeyAfterKeys": "Add Inheritance Key after adding the usual keys (early access)",
     "inheritanceKeyDesc": "Set an Inheritance key for your vault. This will act as a reserve key and will be activated if one of your key gets misplaced",
@@ -1054,6 +1068,7 @@
     "IKActivatesIn": "Inheritance Key activates in",
     "EnhancedKeyActivatesIn": "Enhanced Key activates in",
     "EnhancedKeysActivateIn": "Enhanced Keys activate in",
+    "failedToCheckTimelockEndTime": "Failed to check the timelock status for the vault",
     "failedToCheckIKActivationTime": "Failed to check current activation time for Inheritance Key",
     "shareContactDetails": "Share my Contact Details",
     "addContactModalTitle": "Add a Contact",
@@ -1503,7 +1518,11 @@
     "torConnectionString": " is connected",
     "numberOfRecipients": "Number of recipients (for transaction batching):",
     "accountNumberForAdvancedUser": "Account numbers are for advanced users. Leave this empty unless you need a specific account.",
-    "accountNumberInvalid": "Account number invalid"
+    "accountNumberInvalid": "Account number invalid",
+    "multiUserTitle": "Multi User Mode",
+    "multiUserSubTitle": "Setup multiple app users",
+    "multiUserScreenHeader": "Add New Keeper User",
+    "multiUserScreenTitle1": "Keeper allows you to create multiple users of the app, each completely separated with its own 4-digit PIN. When you log in, just enter the PIN of the user you want to access and the app will load for it."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -2086,7 +2105,10 @@
     "confirmPasscode": "Confirm passcode to generate key",
     "enterPass": "Enter your password",
     "enterPassDesp": "The one you use to login to the app",
-    "settingUpSigner": "To complete setting up the signer"
+    "settingUpSigner": "To complete setting up the signer",
+    "seedKeyRememberTitle": "Remember Seed Words?",
+    "seedKeyRememberSubTitle": "Allow the app to securely store your seed words and sign transactions automatically when needed.",
+    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
   },
   "inheritancePlanning": {
     "BuyNewHardwareSigner": "Buy new Hardware Signers",

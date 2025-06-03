@@ -93,7 +93,7 @@ function WalletConfiguration({
         navigation.dispatch(
           CommonActions.navigate('GenerateVaultDescriptor', {
             vaultId,
-            isMiniscriptVault,
+            showAnimatedOption: isMiniscriptVault || vault?.scheme?.n > 3,
           })
         );
         setWalletConfigModal(false);

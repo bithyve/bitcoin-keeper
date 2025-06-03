@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "private": true,
   "scripts": {
     "ios": "npx react-native run-ios --scheme=hexa_keeper_dev --simulator 'iPhone 16' ",
@@ -83,6 +83,7 @@
     "react-native-crypto": "2.2.0",
     "react-native-device-info": "10.0.2",
     "react-native-document-picker": "8.2.2",
+    "react-native-fast-image": "^8.6.3",
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.14.0",
     "react-native-get-random-values": "1.8.0",

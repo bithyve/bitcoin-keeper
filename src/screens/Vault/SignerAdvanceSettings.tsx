@@ -130,7 +130,7 @@ function SignerAdvanceSettings({ route }: any) {
     error: errorTranslation,
   } = translations;
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
-  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+  const { primaryMnemonic, id: appId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -213,13 +213,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
-  const {
-    oneTimeBackupStatus,
-  }: {
-    oneTimeBackupStatus: {
-      signingServer: boolean;
-    };
-  } = useAppSelector((state) => state.settings);
+  const { oneTimeBackupStatusByAppId } = useAppSelector((state) => state.account);
 
   useEffect(() => {
     if (relayVaultUpdate) {
@@ -596,7 +590,7 @@ function SignerAdvanceSettings({ route }: any) {
   const showOneTimeBackup = isPolicyServer && signer?.isBIP85;
   let disableOneTimeBackup = false; // disables OTB once the user has backed it up
   if (showOneTimeBackup) {
-    if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatus?.signingServer;
+    if (isPolicyServer) disableOneTimeBackup = oneTimeBackupStatusByAppId[appId];
   }
 
   const onSuccess = () => {

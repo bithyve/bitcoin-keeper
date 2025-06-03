@@ -5,12 +5,12 @@ import Fonts from 'src/constants/Fonts';
 import Text from 'src/components/KeeperText';
 import RightArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
 import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
-import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_UP from 'src/assets/images/btc_up.svg';
 import { Box, useColorMode } from 'native-base';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 interface Props {
   showFeesInsightModal: () => void;
@@ -70,7 +70,7 @@ const FeerateStatement = (props: Props) => {
                   {`Fees are `}
                 </Text>
                 <Box style={styles.arrowWrapper}>
-                  {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
+                  {arrowPointer === 'lower' ? <ThemedSvg name={'btc_down_arrow'} /> : <BTC_UP />}
                 </Box>
                 <Text style={styles.percentageStatement} bold color={`${colorMode}.feeInfoColor`}>
                   {Number(shortFeeStatement.match(/\d+\.?\d*/)?.[0] || 0)}%
@@ -87,7 +87,7 @@ const FeerateStatement = (props: Props) => {
 
                 {(shortFeeStatement.includes('low') || shortFeeStatement.includes('high')) && (
                   <Box style={styles.arrowWrapper}>
-                    {arrowPointer === 'lower' ? <BTC_DOWN /> : <BTC_UP />}
+                    {arrowPointer === 'lower' ? <ThemedSvg name={'btc_down_arrow'} /> : <BTC_UP />}
                   </Box>
                 )}
               </>

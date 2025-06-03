@@ -30,4 +30,5 @@ export enum uaiType {
   // No UAI support yet for these types
   DEFAULT = 'DEFAULT',
   RELEASE_MESSAGE = 'RELEASE_MESSAGE',
+  CAMPAIGN = 'CAMPAIGN',
 }

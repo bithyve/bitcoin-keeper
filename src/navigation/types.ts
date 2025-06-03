@@ -115,7 +115,6 @@ export type AppStackParams = {
   VaultSetup: {
     scheme: VaultScheme;
     vaultId?: string;
-    isTimeLock?: boolean;
     isAddInheritanceKeyFromParams?: boolean;
   };
   AssignSignerType: undefined;
@@ -157,8 +156,10 @@ export type AppStackParams = {
   EditContact: undefined;
   ManageTapsignerSettings: undefined;
   SetupPortal: undefined;
+  SelectInitialTimelock: undefined;
   AddReserveKey: undefined;
   AddEmergencyKey: undefined;
+  ResetInitialTimelock: undefined;
   ResetInheritanceKey: undefined;
   ResetEmergencyKey: undefined;
   KeeperConcierge: undefined;
@@ -175,6 +176,8 @@ export type AppStackParams = {
   ShareQR: undefined;
   PurchaseWithChannel: undefined;
   AddMultipleXpub: undefined;
+  DiscountedPlanScreen: undefined;
+  MultiUserScreen: undefined;
 };
 
 // Usage:
