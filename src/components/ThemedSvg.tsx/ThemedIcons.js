@@ -253,6 +253,11 @@ import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_Down_White from 'src/assets/images/btc-down-white.svg';
 import BTC_Down_Gold from 'src/assets/privateImages/btc-down-gold.svg';
 import RememberSeedKeyIllustration from 'src/assets/images/RememberSeedKeyIllustration.svg';
+import BackupMismatch from 'src/assets/images/BackupMismatchIllustration.svg';
+import BackupMismatchPrivate from 'src/assets/privateImages/BackupMismatchPrivateIllustration.svg';
+import BackupVerificationFailed from 'src/assets/images/BackupVerificationFailedModal.svg';
+import BackupVerificationFailedPrivate from 'src/assets/privateImages/BackupVerificationFailedPrivateModal.svg';
+
 
 const themeIcons = {
   keeperLogo: {
@@ -910,6 +915,18 @@ const themeIcons = {
     LIGHT: RememberSeedKeyIllustration,
     PRIVATE: RememberSeedKeyIllustration,
     PRIVATE_LIGHT: RememberSeedKeyIllustration,
+  },
+  BackupMismatch: {
+    DARK: BackupMismatch,
+    LIGHT: BackupMismatch,
+    PRIVATE: BackupMismatchPrivate,
+    PRIVATE_LIGHT: BackupMismatchPrivate,
+  },
+  BackupVerificationFailed: {
+    DARK: BackupVerificationFailed,
+    LIGHT: BackupVerificationFailed,
+    PRIVATE: BackupVerificationFailedPrivate,
+    PRIVATE_LIGHT: BackupVerificationFailedPrivate,
   },
 };
 

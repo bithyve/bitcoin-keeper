@@ -15,8 +15,6 @@ import {
 import { setBackupAllFailure, setSeedConfirmed } from 'src/store/reducers/bhr';
 import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
-import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
-import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg';
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
 import KeeperFooter from '../KeeperFooter';
@@ -29,8 +27,7 @@ import LoadingAnimation from 'src/components/Loader';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 import Text from '../KeeperText';
 import { hp } from 'src/constants/responsive';
-import BackupVerificationFailedIllustration from 'src/assets/images/BackupVerificationFailedModal.svg';
-import BackupMismatchIllustration from 'src/assets/images/BackupMismatchIllustration.svg';
+import ThemedSvg from '../ThemedSvg.tsx/ThemedSvg';
 
 const ContentType = {
   verifying: 'verifying',
@@ -39,7 +36,6 @@ const ContentType = {
   healthCheckSuccessful: 'healthCheckSuccessful',
 };
 function Content({ contentType }: { contentType: string }) {
-  const { colorMode } = useColorMode();
   const { BackupWallet } = useContext(LocalizationContext).translations;
   const illustrations = {
     [ContentType.verifying]: (
@@ -47,10 +43,9 @@ function Content({ contentType }: { contentType: string }) {
         <LoadingAnimation />
       </Box>
     ),
-    [ContentType.verificationFailed]: <BackupVerificationFailedIllustration />,
-    [ContentType.mismatch]: <BackupMismatchIllustration />,
-    [ContentType.healthCheckSuccessful]:
-      colorMode === 'light' ? <AlertIllustration /> : <AlertIllustrationDark />,
+    [ContentType.verificationFailed]: <ThemedSvg name={'BackupVerificationFailed'} />,
+    [ContentType.mismatch]: <ThemedSvg name={'BackupMismatch'} />,
+    [ContentType.healthCheckSuccessful]: <ThemedSvg name={'success_illustration'} />,
   };
   const descriptions = {
     [ContentType.verificationFailed]: BackupWallet.backupFailedModalDesc,
