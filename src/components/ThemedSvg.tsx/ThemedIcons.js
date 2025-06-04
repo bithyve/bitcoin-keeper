@@ -258,6 +258,10 @@ import BackupMismatchPrivate from 'src/assets/privateImages/BackupMismatchPrivat
 import BackupVerificationFailed from 'src/assets/images/BackupVerificationFailedModal.svg';
 import BackupVerificationFailedPrivate from 'src/assets/privateImages/BackupVerificationFailedPrivateModal.svg';
 import RememberSeedKeyPrivate from 'src/assets/privateImages/RememberSeedKeyPrivateIllustration.svg';
+import NoNotificationIllustration from 'src/assets/images/no-notification-illustration.svg';
+import NoNotificationIllustrationDark from 'src/assets/images/no-notification-dark-illustration.svg';
+import PrivateNoNotificationIllustration from 'src/assets/privateImages/no-noti-private-light.svg';
+import PrivateNoNotificationIllustrationDark from 'src/assets/privateImages/no-noti-private-dark.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -927,6 +931,12 @@ const themeIcons = {
     LIGHT: BackupVerificationFailed,
     PRIVATE: BackupVerificationFailedPrivate,
     PRIVATE_LIGHT: BackupVerificationFailedPrivate,
+  },
+  no_notification_illustration: {
+    DARK: NoNotificationIllustrationDark,
+    LIGHT: NoNotificationIllustration,
+    PRIVATE: PrivateNoNotificationIllustrationDark,
+    PRIVATE_LIGHT: PrivateNoNotificationIllustration,
   },
 };
 

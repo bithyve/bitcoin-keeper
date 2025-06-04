@@ -2301,7 +2301,8 @@
     "enhancedSecurityofVault": "Enhance security by creating a vault for your sats. Vaults add extra protection with multi-signature authentication.",
     "viewInsights": "View insights",
     "feeInsight": "Fee Insights",
-    "noNewNotification": "You have no new notifications"
+    "noNewNotification": "No Notification Yet",
+    "noNotiSub": "You’re all set — we’ll let you know when there’s something new."
   },
   "concierge": {
     "welcomeToConcierge": "Welcome to Keeper Concierge!",
