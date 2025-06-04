@@ -28,14 +28,17 @@ import {
   deleteDelayedPolicyUpdate,
   setAppCreated,
   setAppId,
-  setDefaultWalletCreated,
   updateDelayedTransaction,
 } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
 import { resetRealyWalletState } from '../reducers/bhr';
 import { addToUaiStack } from '../sagaActions/uai';
 import { RootState } from '../store';
-import { addAccount, setBiometricEnabledAppId } from '../reducers/account';
+import {
+  addAccount,
+  setBiometricEnabledAppId,
+  updateDefaultWalletCreatedByAppId,
+} from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 import LoginMethod from 'src/models/enums/LoginMethod';
 
@@ -110,7 +113,9 @@ export function* setupKeeperAppWorker({ payload }) {
       const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
-      yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
+      yield put(
+        updateDefaultWalletCreatedByAppId({ appId: appID, networkType: bitcoinNetworkType })
+      );
       yield put(setAppId(appID));
       yield put(setAppCreated(true));
       yield put(resetRealyWalletState());

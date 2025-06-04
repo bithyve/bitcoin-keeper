@@ -61,6 +61,7 @@ import { setAutomaticCloudBackup, setBackupType } from '../reducers/bhr';
 import { autoWalletsSyncWorker } from './wallets';
 import {
   addAccount,
+  saveDefaultWalletState,
   setBiometricEnabledAppId,
   setTempDetails,
   updateOneTimeBackupStatus,
@@ -184,9 +185,8 @@ function* credentialsAuthWorker({ payload }) {
       }
 
       const previousVersion = yield select((state) => state.storage.appVersion);
-      const { plebDueToOffline, wasAutoUpdateEnabledBeforeDowngrade } = yield select(
-        (state) => state.storage
-      );
+      const { plebDueToOffline, wasAutoUpdateEnabledBeforeDowngrade, defaultWalletCreated } =
+        yield select((state) => state.storage);
 
       // setting correct app id from realm at login
       const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -293,6 +293,7 @@ function* credentialsAuthWorker({ payload }) {
                 status: oneTimeBackupStatus.signingServer,
               })
             );
+            yield put(saveDefaultWalletState({ appId, data: defaultWalletCreated }));
           }
           yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
           yield put(
