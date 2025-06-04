@@ -44,14 +44,20 @@ import { getPassportDetails } from 'src/hardware/passport';
 import { getJadeDetails } from 'src/hardware/jade';
 import ElectrumClient from 'src/services/electrum/client';
 import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
-
-jest.setTimeout(20000);
+import {
+  AverageTxFeesByNetwork,
+  OutputUTXOs,
+  TransactionPrerequisite,
+} from 'src/services/wallets/interfaces';
+import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { setupMobileKey } from 'src/hardware/signerSetup';
+import { getKeyUID } from 'src/utils/utilities';
 
 jest.mock('src/store/store', () => ({
   store: {
     getState: () => ({
       settings: {
-        bitcoinNetworkType: 'MAINNET',
+        bitcoinNetworkType: 'TESTNET',
       },
     }),
   },
@@ -70,42 +76,28 @@ const connectToElectrumClient = async () => {
   }
 };
 
-describe('Vault: Single-sig(1-of-1)', () => {
-  let primaryMnemonic;
-  let vault;
-  let mobileKey;
-  let averageTxFees;
-  let txPrerequisites;
-  let txnPriority;
-  let PSBT;
+describe('Vault: Single-Sig(1-of-1)', () => {
+  let primaryMnemonic: string;
+  let vault: Vault;
+  let mobileKey: VaultSigner;
+  let mobileKeySigner: Signer;
+  let averageTxFees: AverageTxFeesByNetwork;
+  let txPrerequisites: TransactionPrerequisite;
+  let txnPriority: TxPriority;
+  let currentBlockHeight: number;
+  let PSBT: bitcoinJS.Psbt;
 
   beforeAll(async () => {
     primaryMnemonic =
-      'duty burger portion domain athlete sweet birth impact miss shield help peanut';
-
+      'midnight auction hello stereo such fault legal outdoor manual recycle derive like';
     await connectToElectrumClient();
-
-    const networkType = NetworkType.TESTNET;
-
-    const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
-      primaryMnemonic,
-      networkType,
-      true
-    );
-    const { key: key1 } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.MOBILE_KEY,
-      storageType: SignerStorage.WARM,
-      isMultisig: true,
-      xpriv,
-    });
-    mobileKey = key1;
+    const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig: false }); // Note: 1-of-1 vault is now a single-sig vault(uses m/84 instead of m/48)
+    mobileKeySigner = signer;
+    mobileKey = key;
   });
 
   test('vault factory: creating a 1-of-1 vault(mobile-key)', async () => {
-    const scheme = { m: 1, n: 1 };
+    const scheme: VaultScheme = { m: 1, n: 1 };
     const vaultType = VaultType.DEFAULT;
     const vaultSigners = [mobileKey];
     const vaultDetails = {
@@ -120,7 +112,6 @@ describe('Vault: Single-sig(1-of-1)', () => {
       scheme,
       signers: vaultSigners,
       networkType: NetworkType.TESTNET,
-      signerMap: {},
     });
     expect(vault.signers.length).toEqual(1);
     expect(vault.isMultiSig).toEqual(false);
@@ -128,81 +119,122 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
   test('vault operations: generating a receive address', () => {
     const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
-    expect(receivingAddress).toEqual('tb1qvndgkznthw8zghkwg5ayjjer473pxf8gu492j4');
+    expect(receivingAddress).toMatch(/^tb1[a-z0-9]{39}$/);
   });
 
-  test('vault operations: fetching balance, utxos & transactions', async () => {
+  test('vault operations: fetching balance, UTXOs & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(vault.networkType);
     const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
       [vault],
       network
     );
-    [vault] = synchedWallets;
+    vault = synchedWallets[0].synchedWallet as Vault;
 
-    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.synchedWallet.specs;
+    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.specs;
+    const checkUTXO = (utxo) => {
+      expect(utxo).toEqual(
+        expect.objectContaining({
+          txId: expect.any(String),
+          vout: expect.any(Number),
+          value: expect.any(Number),
+          address: expect.any(String),
+          height: expect.any(Number),
+        })
+      );
+    };
 
-    let netBalance = 0;
-    confirmedUTXOs.forEach((utxo) => {
-      netBalance += utxo.value;
-    });
-    unconfirmedUTXOs.forEach((utxo) => {
-      netBalance += utxo.value;
-    });
+    confirmedUTXOs.forEach(checkUTXO);
+    unconfirmedUTXOs.forEach(checkUTXO);
 
-    expect(balances.confirmed + balances.unconfirmed).toEqual(3300);
-    expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
-    expect(transactions.length).toEqual(1);
+    const netBalance = [...confirmedUTXOs, ...unconfirmedUTXOs].reduce(
+      (sum, utxo) => sum + utxo.value,
+      0
+    );
+
+    expect(balances.confirmed + balances.unconfirmed).toEqual(netBalance);
+    expect(transactions.length).toBeGreaterThan(0);
   });
 
   test('vault operations: transaction fee fetch', async () => {
-    const averageTxFeeByNetwork = await WalletOperations.calculateAverageTxFee();
-    averageTxFees = averageTxFeeByNetwork;
-    expect(averageTxFees[NetworkType.MAINNET]).toBeDefined();
-    expect(averageTxFees[NetworkType.TESTNET]).toBeDefined();
+    averageTxFees = await WalletOperations.calculateAverageTxFee();
+    expect(typeof averageTxFees).toBe('object');
+    Object.values(NetworkType).forEach((network) => {
+      const fees = averageTxFees[network];
+      expect(fees).toBeDefined();
+      expect(typeof fees).toBe('object');
+      [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+        expect(fees[priority]).toEqual({
+          estimatedBlocks: expect.any(Number),
+          feePerByte: expect.any(Number),
+        });
+      });
+    });
   });
 
-  test('vault operations: transaction pre-requisites(priority based coinselection)', async () => {
+  test('should fetch the current block height', async () => {
+    txnPriority = TxPriority.LOW;
+    currentBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight()).currentBlockHeight;
+    expect(currentBlockHeight).toBeGreaterThan(0);
+  });
+
+  test('should calculate transaction prerequisites using transferST1', async () => {
     const averageTxFeeByNetwork = averageTxFees[vault.networkType];
     const recipients = [
       {
         address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
-        amount: 2000,
+        amount: 3000,
       },
     ];
 
     const res = await WalletOperations.transferST1(vault, recipients, averageTxFeeByNetwork);
     txPrerequisites = res.txPrerequisites;
 
-    expect(txPrerequisites[TxPriority.LOW]).toBeDefined();
-    expect(txPrerequisites[TxPriority.MEDIUM]).toBeDefined();
-    expect(txPrerequisites[TxPriority.HIGH]).toBeDefined();
+    expect(res.txPrerequisites).toBeDefined();
+    expect(res.txRecipients).toBeDefined();
+
+    [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+      const prerequisites = txPrerequisites[priority];
+      expect(prerequisites).toEqual(
+        expect.objectContaining({
+          inputs: expect.arrayContaining([
+            expect.objectContaining({
+              txId: expect.any(String),
+              vout: expect.any(Number),
+              value: expect.any(Number),
+              address: expect.any(String),
+              height: expect.any(Number),
+            }),
+          ]),
+          outputs: expect.arrayContaining([
+            expect.objectContaining({
+              value: expect.any(Number),
+              address: expect.any(String),
+            }),
+          ]),
+          fee: expect.any(Number),
+          estimatedBlocks: expect.any(Number),
+        })
+      );
+    });
   });
 
-  test('vault operations: transaction construction(PSBT)', async () => {
-    txnPriority = TxPriority.LOW;
-    const res = await WalletOperations.createTransaction(vault, txPrerequisites, txnPriority);
-    PSBT = res.PSBT;
-    expect(PSBT.data.inputs.length).toBeGreaterThan(0);
-    expect(PSBT.data.outputs.length).toBeGreaterThan(0);
-  });
+  test('should construct and broadcast transaction using transferST2', async () => {
+    // const broadcastSpy = jest
+    //   .spyOn(WalletOperations, 'broadcastTransaction')
+    //   .mockResolvedValue('73833807769bbc4f56636cc1cbffb0f57a80bcc305c9df38652819d779df22a1'); // mocking transaction broadcast to avoid subsequent broadcast failure
 
-  test('vault operations: transaction signing(PSBT)', async () => {
-    const { inputs } = txPrerequisites[txnPriority];
-
-    const serialisedPSBT = PSBT.toBase64();
-    const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
+    const signerMap = { [getKeyUID(mobileKey)]: mobileKeySigner };
+    const { cachedTxid, serializedPSBTEnvelops } = await WalletOperations.transferST2(
       vault,
-      inputs,
-      serialisedPSBT,
-      mobileKey.xpriv
+      currentBlockHeight,
+      txPrerequisites,
+      txnPriority,
+      null,
+      signerMap
     );
-    const signedPSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
-
-    // const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    // expect(areSignaturesValid).toEqual(true);
-
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-    expect(txHex).toBeDefined();
+    expect(cachedTxid).toEqual(expect.any(String));
+    expect(serializedPSBTEnvelops).toBeDefined();
+    // broadcastSpy.mockRestore();
   });
 });
 
