@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BackupType } from 'src/models/enums/BHR';
+import { NetworkType } from 'src/services/wallets/enums';
 
 export type AccountWithoutHash = {
   isDefault: boolean;
@@ -25,6 +26,13 @@ export type OneTimeBackupStatusByAppId = {
   [appId: string]: Boolean;
 };
 
+export type DefaultWalletCreatedByAppId = {
+  [appId: string]: {
+    [NetworkType.MAINNET]: boolean;
+    [NetworkType.TESTNET]: boolean;
+  };
+};
+
 const initialState: {
   allAccounts: Account[];
   tempDetails: tempDetails;
@@ -32,6 +40,7 @@ const initialState: {
   biometricEnabledAppId: string;
   backupMethodByAppId: BackupMethodByAppId;
   oneTimeBackupStatusByAppId: OneTimeBackupStatusByAppId;
+  defaultWalletCreatedByAppId: DefaultWalletCreatedByAppId;
 } = {
   allAccounts: [],
   tempDetails: null,
@@ -39,6 +48,7 @@ const initialState: {
   biometricEnabledAppId: null,
   backupMethodByAppId: {},
   oneTimeBackupStatusByAppId: {}, // for signing server backup
+  defaultWalletCreatedByAppId: {},
 };
 
 const accountSlice = createSlice({
@@ -90,6 +100,37 @@ const accountSlice = createSlice({
     ) => {
       (state.oneTimeBackupStatusByAppId ??= {})[action.payload.appId] = action.payload.status;
     },
+
+    updateDefaultWalletCreatedByAppId: (
+      state,
+      action: PayloadAction<{ appId: string; networkType: NetworkType; updateBoth?: boolean }>
+    ) => {
+      if (state.defaultWalletCreatedByAppId[action.payload.appId] === undefined) {
+        state.defaultWalletCreatedByAppId[action.payload.appId] = {
+          [NetworkType.MAINNET]: false,
+          [NetworkType.TESTNET]: false,
+        };
+      }
+      if (action.payload.updateBoth) {
+        state.defaultWalletCreatedByAppId[action.payload.appId][NetworkType.MAINNET] = true;
+        state.defaultWalletCreatedByAppId[action.payload.appId][NetworkType.TESTNET] = true;
+      }
+
+      state.defaultWalletCreatedByAppId[action.payload.appId] = {
+        ...state.defaultWalletCreatedByAppId[action.payload.appId],
+        [action.payload.networkType]: true,
+      };
+    },
+
+    saveDefaultWalletState: (
+      state,
+      action: PayloadAction<{
+        appId: string;
+        data: { [NetworkType.MAINNET]: boolean; [NetworkType.TESTNET]: boolean };
+      }>
+    ) => {
+      state.defaultWalletCreatedByAppId[action.payload.appId] = action.payload.data;
+    },
   },
 });
 
@@ -102,5 +143,7 @@ export const {
   setBiometricEnabledAppId,
   updateBackupMethodByAppId,
   updateOneTimeBackupStatus,
+  updateDefaultWalletCreatedByAppId,
+  saveDefaultWalletState,
 } = accountSlice.actions;
 export default accountSlice.reducer;

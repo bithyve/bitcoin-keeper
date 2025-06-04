@@ -86,6 +86,8 @@ import {
 } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
+import { addAccount, saveDefaultWalletState } from '../reducers/account';
+import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 
 export function* updateAppImageWorker({
   payload,
@@ -416,9 +418,17 @@ function* getAppImageWorker({ payload }) {
         console.log(err);
       }
     }
+    yield put(addAccount(appID));
     yield put(autoSyncWallets(true, true, false));
-    yield put(setDefaultWalletCreated({ networkType: bitcoinNetworkType, created: true }));
+    yield put(
+      saveDefaultWalletState({
+        appId: appID,
+        data: { [NetworkType.MAINNET]: true, [NetworkType.TESTNET]: true },
+      })
+    );
     yield put(uaiChecks([uaiType.SECURE_VAULT]));
+    yield put(loadConciergeUser(null));
+    yield put(loadConciergeTickets([]));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
