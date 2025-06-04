@@ -45,7 +45,7 @@ function NodeSettings() {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { common, settings, error } = translations;
+  const { common, settings, error: errorString } = translations;
   const { showToast } = useToastMessage();
 
   const [nodeList, setNodeList] = useState([]);
@@ -99,7 +99,7 @@ function NodeSettings() {
       selectedNode.isConnected = connected;
       Node.update(selectedNode, { isConnected: connected });
       dispatch(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
-      showToast(`${error.connectedTo} ${connectedTo}`, <TickIcon />);
+      showToast(`${errorString.ConnectedTo} ${connectedTo}`, <TickIcon />);
     } else {
       dispatch(electrumClientConnectionExecuted({ successful: connected, error }));
     }
@@ -117,7 +117,7 @@ function NodeSettings() {
       Node.disconnect(selectedNode);
       selectedNode.isConnected = false;
       Node.update(selectedNode, { isConnected: selectedNode.isConnected });
-      showToast(`${error.disconnectedFrom} ${selectedNode.host}`, <ToastErrorIcon />);
+      showToast(`${errorString.disconnectedFrom} ${selectedNode.host}`, <ToastErrorIcon />);
 
       const updatedNodes = nodeList.map((node) =>
         node.id === selectedNode.id ? { ...selectedNode } : node
@@ -126,7 +126,7 @@ function NodeSettings() {
       setLoading(false);
     } catch (error) {
       console.error('Error disconnecting electrum client', error);
-      showToast(error.failedToDiConnect, <ToastErrorIcon />);
+      showToast(errorString.failedToDiConnect, <ToastErrorIcon />);
     }
   };
 
