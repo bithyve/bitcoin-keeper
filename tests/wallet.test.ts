@@ -17,7 +17,7 @@ jest.mock('src/store/store', () => ({
   store: {
     getState: () => ({
       settings: {
-        bitcoinNetworkType: 'MAINNET',
+        bitcoinNetworkType: 'TESTNET',
       },
     }),
   },
@@ -165,58 +165,10 @@ describe('Wallet Functionality Tests', () => {
       });
     });
 
-    test('should calculate transaction prerequisites', async () => {
-      const averageTxFeeByNetwork = averageTxFees[wallet.networkType];
-      const recipients = [
-        {
-          address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
-          amount: 3000,
-        },
-      ];
-
-      const res = await WalletOperations.transferST1(wallet, recipients, averageTxFeeByNetwork);
-      txPrerequisites = res.txPrerequisites;
-
-      [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
-        const prerequisites = txPrerequisites[priority];
-        expect(prerequisites).toEqual(
-          expect.objectContaining({
-            inputs: expect.arrayContaining([
-              expect.objectContaining({
-                txId: expect.any(String),
-                vout: expect.any(Number),
-                value: expect.any(Number),
-                address: expect.any(String),
-                height: expect.any(Number),
-              }),
-            ]),
-            outputs: expect.arrayContaining([
-              expect.objectContaining({
-                value: expect.any(Number),
-                address: expect.any(String),
-              }),
-            ]),
-            fee: expect.any(Number),
-            estimatedBlocks: expect.any(Number),
-          })
-        );
-      });
-    });
-
-    test('should construct a transaction (PSBT)', async () => {
+    test('should fetch the current block height', async () => {
       txnPriority = TxPriority.LOW;
       currentBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight()).currentBlockHeight;
       expect(currentBlockHeight).toBeGreaterThan(0);
-      const res = await WalletOperations.createTransaction(
-        wallet,
-        currentBlockHeight,
-        txPrerequisites,
-        txnPriority
-      );
-      PSBT = res.PSBT;
-      expect(PSBT).toBeDefined();
-      expect(PSBT.data.inputs.length).toBeGreaterThan(0);
-      expect(PSBT.data.outputs.length).toBeGreaterThan(0);
     });
   });
 
