@@ -11,6 +11,8 @@ import SwitchArrowsWhite from 'src/assets/images/switch-arrows-white.svg';
 import SwitchArrowGreen from 'src/assets/images/switch-arrows-green.svg';
 import useBalance from 'src/hooks/useBalance';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import { useDispatch } from 'react-redux';
 
 const AmountDetailsInput = ({
   amount,
@@ -30,6 +32,7 @@ const AmountDetailsInput = ({
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const dispatch = useDispatch();
 
   const convertAmount = (value, fromKind, toKind) => {
     return getCustomConvertedBalance(value, fromKind, toKind);
@@ -120,12 +123,14 @@ const AmountDetailsInput = ({
       localCurrencyKind === CurrencyKind.FIAT ? CurrencyKind.BITCOIN : CurrencyKind.FIAT;
     setLocalCurrencyKind(newCurrencyKind);
     if (!currentAmount || currentAmount === '0') {
+      dispatch(setCurrencyKind(newCurrencyKind));
       return;
     }
 
     const newEquivalentAmount = convertAmount(currentAmount, localCurrencyKind, newCurrencyKind);
     setEquivalentAmount(currentAmount);
     setCurrentAmount(newEquivalentAmount);
+    dispatch(setCurrencyKind(newCurrencyKind));
   };
 
   return (
