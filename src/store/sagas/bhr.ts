@@ -86,7 +86,8 @@ import {
 } from 'src/utils/utilities';
 import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
-import { saveDefaultWalletState } from '../reducers/account';
+import { addAccount, saveDefaultWalletState } from '../reducers/account';
+import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 
 export function* updateAppImageWorker({
   payload,
@@ -417,6 +418,7 @@ function* getAppImageWorker({ payload }) {
         console.log(err);
       }
     }
+    yield put(addAccount(appID));
     yield put(autoSyncWallets(true, true, false));
     yield put(
       saveDefaultWalletState({
@@ -425,6 +427,8 @@ function* getAppImageWorker({ payload }) {
       })
     );
     yield put(uaiChecks([uaiType.SECURE_VAULT]));
+    yield put(loadConciergeUser(null));
+    yield put(loadConciergeTickets([]));
   } catch (err) {
     yield put(setAppImageError(err.message));
   } finally {
