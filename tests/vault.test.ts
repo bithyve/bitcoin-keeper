@@ -47,6 +47,7 @@ import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
 import {
   AverageTxFeesByNetwork,
   OutputUTXOs,
+  SerializedPSBTEnvelop,
   TransactionPrerequisite,
 } from 'src/services/wallets/interfaces';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -224,16 +225,45 @@ describe('Vault: Single-Sig(1-of-1)', () => {
     //   .mockResolvedValue('73833807769bbc4f56636cc1cbffb0f57a80bcc305c9df38652819d779df22a1'); // mocking transaction broadcast to avoid subsequent broadcast failure
 
     const signerMap = { [getKeyUID(mobileKey)]: mobileKeySigner };
-    const { cachedTxid, serializedPSBTEnvelops } = await WalletOperations.transferST2(
-      vault,
-      currentBlockHeight,
-      txPrerequisites,
-      txnPriority,
-      null,
-      signerMap
-    );
+    const {
+      cachedTxid,
+      serializedPSBTEnvelops,
+    }: { cachedTxid: string; serializedPSBTEnvelops: SerializedPSBTEnvelop[] } =
+      await WalletOperations.transferST2(
+        vault,
+        currentBlockHeight,
+        txPrerequisites,
+        txnPriority,
+        null,
+        signerMap
+      );
     expect(cachedTxid).toEqual(expect.any(String));
-    expect(serializedPSBTEnvelops).toBeDefined();
+    expect(serializedPSBTEnvelops).toEqual([
+      {
+        isMockSigner: false,
+        isSigned: false,
+        mfp: mobileKey.masterFingerprint,
+        serializedPSBT:
+          'cHNidP8BAHECAAAAAWvUYDjdiqlvKkSnM1XUKys4aRMy1sS27V2TDQTrEIdgAQAAAAD+////AicLAAAAAAAAFgAUOr4YmeIZENQXNOvjYTa2yasROjm4CwAAAAAAABYAFP+dpWfmLzDqhlT6HV+9R774474TwUsBAAABAR9wFwAAAAAAABYAFEMWC07RvtvwiRh4UXEuN9eGWkBbIgYCxsLB8TVJS4TBET3LOqPGTxo55YjcZBsuZhU+aXJnM80YWPBbDVQAAIABAACAAAAAgAAAAAAAAAAAACICAuYp5kpdV1mP5Z3LcDgLLhC8LtEkcHeIWIkqeKZ2srX0GFjwWw1UAACAAQAAgAAAAIABAAAAAAAAAAAA',
+        signerType: mobileKeySigner.type,
+        signingPayload: [
+          {
+            inputs: [
+              {
+                address: 'tb1qgvtqknk3hmdlpzgc0pghzt3h67r95szmp8pr2d',
+                height: 84928,
+                script: { length: 27 },
+                txId: '608710eb040d935dedb6c4d6321369382b2bd45533a7442a6fa98add3860d46b',
+                value: 6000,
+                vout: 1,
+              },
+            ],
+            payloadTarget: mobileKeySigner.type,
+          },
+        ],
+        xfp: mobileKey.xfp,
+      },
+    ]);
     // broadcastSpy.mockRestore();
   });
 });
