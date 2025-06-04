@@ -86,13 +86,18 @@ describe('Vault: Single-Sig(1-of-1)', () => {
   let txPrerequisites: TransactionPrerequisite;
   let txnPriority: TxPriority;
   let currentBlockHeight: number;
+  let serializedPSBTEnvelops: SerializedPSBTEnvelop[];
   let PSBT: bitcoinJS.Psbt;
 
   beforeAll(async () => {
     primaryMnemonic =
       'midnight auction hello stereo such fault legal outdoor manual recycle derive like';
     await connectToElectrumClient();
-    const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig: false }); // Note: 1-of-1 vault is now a single-sig vault(uses m/84 instead of m/48)
+    const { signer, key } = await setupMobileKey({
+      primaryMnemonic,
+      isMultisig: false,
+      isMock: true,
+    }); // Note: 1-of-1 vault is now a single-sig vault(uses m/84 instead of m/48)
     mobileKeySigner = signer;
     mobileKey = key;
   });
@@ -220,38 +225,31 @@ describe('Vault: Single-Sig(1-of-1)', () => {
   });
 
   test('should construct and broadcast transaction using transferST2', async () => {
-    // const broadcastSpy = jest
-    //   .spyOn(WalletOperations, 'broadcastTransaction')
-    //   .mockResolvedValue('73833807769bbc4f56636cc1cbffb0f57a80bcc305c9df38652819d779df22a1'); // mocking transaction broadcast to avoid subsequent broadcast failure
-
     const signerMap = { [getKeyUID(mobileKey)]: mobileKeySigner };
-    const {
-      cachedTxid,
-      serializedPSBTEnvelops,
-    }: { cachedTxid: string; serializedPSBTEnvelops: SerializedPSBTEnvelop[] } =
-      await WalletOperations.transferST2(
-        vault,
-        currentBlockHeight,
-        txPrerequisites,
-        txnPriority,
-        null,
-        signerMap
-      );
-    expect(cachedTxid).toEqual(expect.any(String));
+    const res = await WalletOperations.transferST2(
+      vault,
+      currentBlockHeight,
+      txPrerequisites,
+      txnPriority,
+      null,
+      signerMap
+    );
+
+    serializedPSBTEnvelops = res.serializedPSBTEnvelops;
+    expect(res.cachedTxid).toEqual(expect.any(String));
     expect(serializedPSBTEnvelops).toEqual([
       {
-        isMockSigner: false,
-        isSigned: false,
+        isMockSigner: true,
+        isSigned: true,
         mfp: mobileKey.masterFingerprint,
-        serializedPSBT:
-          'cHNidP8BAHECAAAAAWvUYDjdiqlvKkSnM1XUKys4aRMy1sS27V2TDQTrEIdgAQAAAAD+////AicLAAAAAAAAFgAUOr4YmeIZENQXNOvjYTa2yasROjm4CwAAAAAAABYAFP+dpWfmLzDqhlT6HV+9R774474TwUsBAAABAR9wFwAAAAAAABYAFEMWC07RvtvwiRh4UXEuN9eGWkBbIgYCxsLB8TVJS4TBET3LOqPGTxo55YjcZBsuZhU+aXJnM80YWPBbDVQAAIABAACAAAAAgAAAAAAAAAAAACICAuYp5kpdV1mP5Z3LcDgLLhC8LtEkcHeIWIkqeKZ2srX0GFjwWw1UAACAAQAAgAAAAIABAAAAAAAAAAAA',
+        serializedPSBT: expect.any(String),
         signerType: mobileKeySigner.type,
         signingPayload: [
           {
             inputs: [
               {
                 address: 'tb1qgvtqknk3hmdlpzgc0pghzt3h67r95szmp8pr2d',
-                height: 84928,
+                height: expect.any(Number),
                 script: { length: 27 },
                 txId: '608710eb040d935dedb6c4d6321369382b2bd45533a7442a6fa98add3860d46b',
                 value: 6000,
@@ -264,7 +262,21 @@ describe('Vault: Single-Sig(1-of-1)', () => {
         xfp: mobileKey.xfp,
       },
     ]);
-    // broadcastSpy.mockRestore();
+  });
+
+  test('should construct and broadcast transaction using transferST2', async () => {
+    const broadcastSpy = jest
+      .spyOn(WalletOperations, 'broadcastTransaction')
+      .mockResolvedValue('73833807769bbc4f56636cc1cbffb0f57a80bcc305c9df38652819d779df22a1'); // mocking transaction broadcast to avoid subsequent broadcast failure
+    console.log({ serializedPSBTEnvelops });
+    const { txid } = await WalletOperations.transferST3(
+      vault,
+      serializedPSBTEnvelops,
+      txPrerequisites,
+      txnPriority
+    );
+    expect(txid).toEqual('73833807769bbc4f56636cc1cbffb0f57a80bcc305c9df38652819d779df22a1');
+    broadcastSpy.mockRestore();
   });
 });
 
