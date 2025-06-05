@@ -7,8 +7,6 @@ import { StyleSheet } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import ActionCard from 'src/components/ActionCard';
-import HexagonIcon from 'src/components/HexagonIcon';
-import Colors from 'src/theme/Colors';
 import Note from 'src/components/Note/Note';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';

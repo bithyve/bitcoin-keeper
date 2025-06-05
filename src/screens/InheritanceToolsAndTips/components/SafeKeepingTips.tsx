@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { wp } from 'src/constants/responsive';
@@ -7,10 +7,13 @@ import InheritanceHeader from '../InheritanceHeader';
 import Text from 'src/components/KeeperText';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SafeGuardingTips({}) {
   const slider_background = ThemedColor({ name: 'slider_background' });
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const { translations } = useContext(LocalizationContext);
+  const { inheritancePlanning } = translations;
 
   const tips = [
     {
@@ -51,7 +54,7 @@ function SafeGuardingTips({}) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={slider_background}>
       <InheritanceHeader />
       <Text style={styles.container} color={green_modal_text_color}>
-        Key Safekeeping Tips
+        {inheritancePlanning.keySafekeeping}
       </Text>
       <TipsSlider items={tips} />
     </ScreenWrapper>

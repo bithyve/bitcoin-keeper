@@ -182,24 +182,48 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig, isMock = false }) =
   return { signer: mobileKey, key };
 };
 
-const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
+const setupSeedWordsBasedKey = (
+  mnemonic: string,
+  isMultisig: boolean,
+  remember: boolean = false
+) => {
   const { bitcoinNetworkType: networkType } = store.getState().settings;
   // fetched multi-sig seed words based key
   const {
+    xpriv: multiSigXpriv,
     xpub: multiSigXpub,
     derivationPath: multiSigPath,
     masterFingerprint,
   } = generateSeedWordsKey(mnemonic, networkType, true);
   // fetched single-sig seed words based key
-  const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
-    mnemonic,
-    networkType,
-    false
-  );
+  const {
+    xpriv: singleSigXpriv,
+    xpub: singleSigXpub,
+    derivationPath: singleSigPath,
+  } = generateSeedWordsKey(mnemonic, networkType, false);
+
+  const {
+    xpriv: taprootXpriv,
+    xpub: taprootXpub,
+    derivationPath: taprootPath,
+  } = generateSeedWordsKey(mnemonic, networkType, false, true);
 
   const xpubDetails: XpubDetailsType = {};
-  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
-  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+  xpubDetails[XpubTypes.P2WPKH] = {
+    xpub: singleSigXpub,
+    derivationPath: singleSigPath,
+    xpriv: remember ? singleSigXpriv : null,
+  };
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    xpriv: remember ? multiSigXpriv : null,
+  };
+  xpubDetails[XpubTypes.P2TR] = {
+    xpub: taprootXpub,
+    derivationPath: taprootPath,
+    xpriv: remember ? taprootXpriv : null,
+  };
 
   const { signer: softSigner, key } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,

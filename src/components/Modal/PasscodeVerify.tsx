@@ -37,13 +37,13 @@ function PasscodeVerifyModal({
 }: Props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, login, error: bioError } = translations;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [btnDisable, setBtnDisable] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [errMessage, setErrMessage] = useState('Incorrect Passcode! Try Again');
+  const [errMessage, setErrMessage] = useState(login.Incorrect);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
   const { loginMethod } = useAppSelector((state) => state.settings);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
@@ -60,15 +60,15 @@ function PasscodeVerifyModal({
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
         const { success, signature } = await RNBiometrics.createSignature({
-          promptMessage: 'Authenticate',
+          promptMessage: common.Authenticate,
           payload: appId,
-          cancelButtonText: 'Use PIN',
+          cancelButtonText: common.usePin,
         });
         if (success) {
           dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, true));
         }
       } catch (error) {
-        console.log('🚀 ~ biometricAuth ~ error:', error);
+        console.log(bioError.biometricAuth, error);
       } finally {
         processing = false;
       }
@@ -114,7 +114,7 @@ function PasscodeVerifyModal({
         dispatch(credsAuthenticated(false));
       } else {
         setLoginError(true);
-        setErrMessage('Incorrect Passcode! Try Again');
+        setErrMessage(login.Incorrect);
         setPasscode('');
         setAttempts(attempts + 1);
         disableCTA();

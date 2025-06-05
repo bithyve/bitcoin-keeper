@@ -241,6 +241,27 @@ import SmallWalletGreen from 'src/assets/images/smallWalletGreen.svg';
 import SmallWalletGrey from 'src/assets/images/smallWalletGrey.svg';
 import MissingSingleXpubIllustration from 'src/assets/images/MissingSingleXpubIllustration.svg';
 import PrivateMissingSingleXpubIllustration from 'src/assets/privateImages/PrivateMissingSingleXpubIllustration.svg';
+import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
+import PrivateChangeDeviceTypeIllustration from 'src/assets/privateImages/privatechangeDeviceIllustration.svg';
+import ChangeKeyLight from 'src/assets/images/change-key-green.svg';
+import ChangeKeyDark from 'src/assets/images/change-key-white.svg';
+import PrivateChangeKeyLight from 'src/assets/privateImages/change-key-gold.svg';
+import Triple_arrow_green from 'src/assets/images/triple-arrow-green.svg';
+import Triple_arrow_white from 'src/assets/images/triple-arrow-white.svg';
+import Triple_arrow_gold from 'src/assets/privateImages/triple-arrow-gold.svg';
+import BTC_DOWN from 'src/assets/images/btc_down.svg';
+import BTC_Down_White from 'src/assets/images/btc-down-white.svg';
+import BTC_Down_Gold from 'src/assets/privateImages/btc-down-gold.svg';
+import RememberSeedKeyIllustration from 'src/assets/images/RememberSeedKeyIllustration.svg';
+import BackupMismatch from 'src/assets/images/BackupMismatchIllustration.svg';
+import BackupMismatchPrivate from 'src/assets/privateImages/BackupMismatchPrivateIllustration.svg';
+import BackupVerificationFailed from 'src/assets/images/BackupVerificationFailedModal.svg';
+import BackupVerificationFailedPrivate from 'src/assets/privateImages/BackupVerificationFailedPrivateModal.svg';
+import RememberSeedKeyPrivate from 'src/assets/privateImages/RememberSeedKeyPrivateIllustration.svg';
+import NoNotificationIllustration from 'src/assets/images/no-notification-illustration.svg';
+import NoNotificationIllustrationDark from 'src/assets/images/no-notification-dark-illustration.svg';
+import PrivateNoNotificationIllustration from 'src/assets/privateImages/no-noti-private-light.svg';
+import PrivateNoNotificationIllustrationDark from 'src/assets/privateImages/no-noti-private-dark.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -868,6 +889,54 @@ const themeIcons = {
     LIGHT: MissingSingleXpubIllustration,
     PRIVATE: PrivateMissingSingleXpubIllustration,
     PRIVATE_LIGHT: PrivateMissingSingleXpubIllustration,
+  },
+  change_device_type_illustration: {
+    DARK: ChangeSignerIllustration,
+    LIGHT: ChangeSignerIllustration,
+    PRIVATE: PrivateChangeDeviceTypeIllustration,
+    PRIVATE_LIGHT: PrivateChangeDeviceTypeIllustration,
+  },
+  change_key_icon: {
+    DARK: ChangeKeyDark,
+    LIGHT: ChangeKeyLight,
+    PRIVATE: ChangeKeyDark,
+    PRIVATE_LIGHT: PrivateChangeKeyLight,
+  },
+  triple_arrow: {
+    DARK: Triple_arrow_white,
+    LIGHT: Triple_arrow_green,
+    PRIVATE: Triple_arrow_white,
+    PRIVATE_LIGHT: Triple_arrow_gold,
+  },
+  btc_down_arrow: {
+    DARK: BTC_Down_White,
+    LIGHT: BTC_DOWN,
+    PRIVATE: BTC_Down_White,
+    PRIVATE_LIGHT: BTC_Down_Gold,
+  },
+  RememberSeedKey: {
+    DARK: RememberSeedKeyIllustration,
+    LIGHT: RememberSeedKeyIllustration,
+    PRIVATE: RememberSeedKeyPrivate,
+    PRIVATE_LIGHT: RememberSeedKeyPrivate,
+  },
+  BackupMismatch: {
+    DARK: BackupMismatch,
+    LIGHT: BackupMismatch,
+    PRIVATE: BackupMismatchPrivate,
+    PRIVATE_LIGHT: BackupMismatchPrivate,
+  },
+  BackupVerificationFailed: {
+    DARK: BackupVerificationFailed,
+    LIGHT: BackupVerificationFailed,
+    PRIVATE: BackupVerificationFailedPrivate,
+    PRIVATE_LIGHT: BackupVerificationFailedPrivate,
+  },
+  no_notification_illustration: {
+    DARK: NoNotificationIllustrationDark,
+    LIGHT: NoNotificationIllustration,
+    PRIVATE: PrivateNoNotificationIllustrationDark,
+    PRIVATE_LIGHT: PrivateNoNotificationIllustration,
   },
 };
 

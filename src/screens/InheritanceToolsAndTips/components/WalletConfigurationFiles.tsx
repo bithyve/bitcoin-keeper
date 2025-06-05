@@ -21,7 +21,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function WalletConfigurationFiles() {
   const [fingerPrints, setFingerPrints] = useState(null);
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common } = translations;
 
   const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
@@ -85,7 +85,7 @@ function WalletConfigurationFiles() {
 
         <Box style={[styles.leftTextStyle]}>
           <Text bold color={`${colorMode}.headerWhite`}>
-            Note:
+            {common.note}:
           </Text>
           <Text color={`${colorMode}.headerWhite`}>
             {inheritancePlanning.walletConfigFilesNote}

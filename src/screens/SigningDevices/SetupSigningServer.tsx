@@ -31,7 +31,7 @@ function SetupSigningServer({ route }: { route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, error: errorText, signingServer } = translations;
   const [validationModal, showValidationModal] = useState(false);
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
@@ -59,7 +59,7 @@ function SetupSigningServer({ route }: { route }) {
         setOtp('');
       } else {
         showValidationModal(false);
-        showToast('Invalid OTP. Please try again!');
+        showToast(errorText.invalidOtp);
         setOtp('');
       }
     } catch (err) {
@@ -167,7 +167,7 @@ function SetupSigningServer({ route }: { route }) {
                 validateSetup();
               }}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
               primaryDisable={otp.length !== 6}
             />
           </Box>
@@ -180,7 +180,7 @@ function SetupSigningServer({ route }: { route }) {
     <ScreenWrapper>
       <View style={styles.Container}>
         <Box>
-          <WalletHeader title="Set up 2FA for Server Key" />
+          <WalletHeader title={signingServer.setupServer2FATitle} />
         </Box>
         <Box>
           {validationKey === '' ? (
@@ -216,18 +216,14 @@ function SetupSigningServer({ route }: { route }) {
         {/* {Bottom note} */}
         <Box style={styles.bottomNoteContainer}>
           <Box marginBottom={hp(30)}>
-            <Note
-              title="Note"
-              subtitle="It is a good idea to have the authenticator app on another device"
-              subtitleColor="GreyText"
-            />
+            <Note title={common.note} subtitle={signingServer.noteDesC2} subtitleColor="GreyText" />
           </Box>
           <Buttons
             primaryCallback={() => {
               showValidationModal(true);
             }}
             fullWidth
-            primaryText="Next"
+            primaryText={common.next}
           />
         </Box>
         <KeeperModal

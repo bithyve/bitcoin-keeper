@@ -15,7 +15,7 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 function RecoveryInstruction({}) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common } = translations;
   const slider_background = ThemedColor({ name: 'slider_background' });
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
 
@@ -57,7 +57,7 @@ function RecoveryInstruction({}) {
 
         <Box style={[styles.leftTextStyle]}>
           <Text bold color={green_modal_text_color}>
-            Note:
+            {common.note}:
           </Text>
           <Text color={green_modal_text_color}>
             {inheritancePlanning.recoveryInstructionsNotes}

@@ -50,7 +50,7 @@ const themeColors = {
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
   copyToClipboard: {
-    DARK: Colors.dullGreen,
+    DARK: Colors.separator,
     LIGHT: Colors.dullGreen,
     PRIVATE: Colors.separator,
     PRIVATE_LIGHT: Colors.separator,
@@ -170,13 +170,13 @@ const themeColors = {
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
   manage_signer_backGround: {
-    DARK: Colors.charcolBrown,
+    DARK: Colors.primaryGreen,
     LIGHT: Colors.primaryGreen,
     PRIVATE: Colors.goldenGradient,
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
   signing_CircleIconWrapper: {
-    DARK: Colors.secondaryBlack,
+    DARK: Colors.primaryCream,
     LIGHT: Colors.primaryCream,
     PRIVATE: Colors.goldenGradient,
     PRIVATE_LIGHT: Colors.primaryCream,

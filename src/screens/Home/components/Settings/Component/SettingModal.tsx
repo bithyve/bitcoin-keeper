@@ -15,7 +15,7 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { settings, common } = translations;
+  const { settings, common, signer } = translations;
 
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -39,9 +39,9 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
           setConfirmPassVisible(false);
           setConfirmPass(false);
         }}
-        title="Confirm Passcode"
+        title={common.confirmPassCode}
         subTitleWidth={wp(240)}
-        subTitle="To back up the app recovery key"
+        subTitle={signer.RKBackupPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

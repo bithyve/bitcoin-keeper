@@ -178,7 +178,7 @@ function SetupCollaborativeWallet() {
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet, vault: vaultText } = translations;
+  const { common, wallet, vault: vaultText, error: errorText } = translations;
   const [learnMoreModal, setLearnMoreModal] = useState(false);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const [addKeyModal, setAddKeyModal] = useState(false);
@@ -465,14 +465,14 @@ function SetupCollaborativeWallet() {
         const data = idx(session, (_) => _.application.content.content);
         if (data == previousContent) return; // To discard multiple responses from handler due of failure in listener cleanup on android.
         if (!data) {
-          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
+          showToast(errorText.scanValidCoSigner, <ToastErrorIcon />);
           return;
         }
         previousContent = data;
         createCosignerFromNFC(data);
       } catch (err) {
         captureError(err);
-        showToast('Something went wrong.', <ToastErrorIcon />);
+        showToast(common.somethingWrong, <ToastErrorIcon />);
       } finally {
         setNfcModal(false);
       }

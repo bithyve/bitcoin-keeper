@@ -22,7 +22,6 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperHeader from 'src/components/KeeperHeader';
 import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
@@ -37,7 +36,7 @@ import WalletHeader from 'src/components/WalletHeader';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { seed, common } = translations;
+  const { seed, common, healthcheck, cloudBackup } = translations;
 
   const {
     mode,
@@ -55,7 +54,7 @@ function EnterSeedScreen({ route, navigation }) {
   } = route.params || {};
   const { appImageError } = useAppSelector((state) => state.bhr);
 
-  const { appId } = useAppSelector((state) => state.storage);
+  const { appCreated } = useAppSelector((state) => state.storage);
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -96,12 +95,12 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    if (appId && recoveryLoading) {
+    if (appCreated && recoveryLoading) {
       setRecoveryLoading(false);
       setRecoverySuccessModal(true);
       dispatch(resetSeedWords());
     }
-  }, [appId]);
+  }, [appCreated]);
 
   useEffect(() => {
     if (appImageError) {
@@ -194,7 +193,7 @@ function EnterSeedScreen({ route, navigation }) {
               derivedSigner.masterFingerprint,
               hcStatusType.HEALTH_CHECK_SUCCESSFULL
             );
-            showToast('Health check successful!', <TickIcon />);
+            showToast(healthcheck.HealthCheckSuccessful, <TickIcon />);
             dispatch(resetSeedWords());
             navigateBack(step);
           } else {
@@ -202,7 +201,7 @@ function EnterSeedScreen({ route, navigation }) {
               derivedSigner.masterFingerprint,
               hcStatusType.HEALTH_CHECK_FAILED
             );
-            showToast('Health check failed');
+            showToast(cloudBackup.CLOUD_BACKUP_HEALTH_FAILED);
           }
         }
       } catch (err) {
@@ -225,11 +224,11 @@ function EnterSeedScreen({ route, navigation }) {
             derivedSigner.masterFingerprint,
             hcStatusType.HEALTH_CHECK_SUCCESSFULL
           );
-          showToast('Identification successful!', <TickIcon />);
+          showToast(cloudBackup.identificanSuccessful, <TickIcon />);
           dispatch(resetSeedWords());
           navigateBack(step);
         } else {
-          showToast('Identification failed');
+          showToast(cloudBackup.identificanFailed);
         }
       } catch (err) {
         handleIdentificationError(err);
@@ -545,20 +544,20 @@ function EnterSeedScreen({ route, navigation }) {
         <WalletHeader
           title={
             isHealthCheck || isIdentification
-              ? 'Seed key health check'
+              ? healthcheck.seedHealthCheck
               : isImport
-              ? 'Enter Seed Words'
+              ? healthcheck.enterSeedWord
               : isSignTransaction
               ? seed?.EnterSeed
               : seed?.enterRecoveryPhrase
           }
           subTitle={
             isHealthCheck || isIdentification
-              ? 'Enter the seed key'
+              ? healthcheck.enterSeedKey
               : isImport
-              ? 'To import enter the seed key'
+              ? healthcheck.toimportEnterSeedKey
               : isSignTransaction
-              ? 'To sign transaction'
+              ? healthcheck.toSignTransaction
               : seed.enterRecoveryPhraseSubTitle
           }
           onPressHandler={() => {
@@ -632,7 +631,7 @@ function EnterSeedScreen({ route, navigation }) {
           showCloseIcon={false}
           title={seed.InvalidSeeds}
           subTitle={seed.InvalidSeedsSubtitle}
-          buttonText="Retry"
+          buttonText={common.retry}
           buttonTextColor={`${colorMode}.buttonText`}
           buttonCallback={closeInvalidSeedsModal}
           textColor={`${colorMode}.textGreen`}
@@ -640,9 +639,9 @@ function EnterSeedScreen({ route, navigation }) {
         />
         <KeeperModal
           visible={recoverySuccessModal}
-          title="App Recovered Successfully!"
-          subTitle="All your wallets and data about your vault has been recovered"
-          buttonText="Continue"
+          title={seed.appRecoveredSuccessfulTitle}
+          subTitle={seed.appRecoveredSuccessfulSubTitle}
+          buttonText={common.continue}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}

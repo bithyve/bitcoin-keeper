@@ -13,7 +13,7 @@ import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { VaultType } from 'src/services/wallets/enums';
+import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
@@ -55,17 +55,24 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import Buttons from 'src/components/Buttons';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 function Footer({
   vault,
   isCollaborativeWallet,
   pendingHealthCheckCount,
   setShowHealthCheckModal,
+  setShowTimelockModal,
+  timeUntilTimelockExpires,
 }: {
   vault: Vault;
   isCollaborativeWallet: boolean;
   pendingHealthCheckCount: number;
   setShowHealthCheckModal: any;
+  setShowTimelockModal: any;
+  timeUntilTimelockExpires: any;
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -106,6 +113,10 @@ function Footer({
           Icon: colorMode === 'light' ? SendIcon : SendIconWhite,
           text: common.send,
           onPress: async () => {
+            if (timeUntilTimelockExpires) {
+              setShowTimelockModal(true);
+              return;
+            }
             if (vault.type === VaultType.MINISCRIPT) {
               try {
                 await selectVaultSpendingPaths();
@@ -236,6 +247,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
   const [showHealthCheckModal, setShowHealthCheckModal] = useState(false);
+  const [showTimelockModal, setShowTimelockModal] = useState(false);
   const {
     vaultTransferSuccessful = false,
     autoRefresh = false,
@@ -288,6 +300,79 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
+
+  const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
+  const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (vault?.type === VaultType.MINISCRIPT) {
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => showToast(err));
+      } else {
+        WalletUtilities.fetchCurrentMedianTime()
+          .then(({ currentMedianTime }) => {
+            setCurrentMedianTimePast(currentMedianTime);
+          })
+          .catch((err) => showToast(err));
+      }
+    }
+  }, [setCurrentBlockHeight, setCurrentMedianTimePast, showToast]);
+
+  useEffect(() => {
+    if (
+      !vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(MiniscriptTypes.TIMELOCKED) ||
+      (isVaultUsingBlockHeightTimelock(vault) && currentBlockHeight === null) ||
+      (!isVaultUsingBlockHeightTimelock(vault) && currentMedianTimePast === null)
+    )
+      return;
+
+    try {
+      let secondsUntilActivation = 0;
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        const blocksUntilActivation =
+          vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentBlockHeight;
+        secondsUntilActivation = blocksUntilActivation * 10 * 60;
+      } else {
+        secondsUntilActivation =
+          vault.scheme?.miniscriptScheme?.miniscriptElements.timelocks[0] - currentMedianTimePast;
+      }
+
+      if (secondsUntilActivation > 0) {
+        const days = Math.floor(secondsUntilActivation / (24 * 60 * 60));
+        const months = Math.floor(days / 30);
+
+        let timeString = '';
+        if (months > 0) {
+          timeString = `${months} month${months > 1 ? 's' : ''}`;
+        } else if (days > 0) {
+          timeString = `${days} day${days > 1 ? 's' : ''}`;
+        } else {
+          const hours = Math.floor(secondsUntilActivation / 3600);
+          const minutes = Math.floor((secondsUntilActivation % 3600) / 60);
+          timeString = `${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${
+            minutes > 1 ? 's' : ''
+          }`;
+        }
+
+        setTimeUntilTimelockExpires(`${timeString}`);
+      } else {
+        setTimeUntilTimelockExpires(null);
+      }
+    } catch {
+      showToast(
+        vaultTranslation.failedToCheckTimelockEndTime,
+        null,
+        IToastCategory.DEFAULT,
+        3000,
+        true
+      );
+    }
+  }, [currentBlockHeight, keys, translations, vault, showToast]);
 
   useEffect(() => {
     if (viewTransaction) {
@@ -387,6 +472,32 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     dispatch(refreshWallets([vault], { hardRefresh }));
     setPullRefresh(false);
   };
+
+  const showTimelockModalContent = useCallback(() => {
+    return (
+      <Box style={styles.delayModalContainer}>
+        <ThemedSvg name={'DelayModalIcon'} />
+        <Box
+          style={styles.timeContainer}
+          backgroundColor={
+            isDarkMode ? `${colorMode}.primaryBackground` : `${colorMode}.secondaryCreamWhite`
+          }
+        >
+          <Text fontSize={13}>{common.RemainingTime}:</Text>
+          <Text fontSize={13}>{timeUntilTimelockExpires}</Text>
+        </Box>
+        <Box style={styles.buttonContainer}>
+          <Buttons
+            primaryCallback={() => {
+              setShowTimelockModal(false);
+            }}
+            fullWidth
+            primaryText={common.continue}
+          />
+        </Box>
+      </Box>
+    );
+  }, [timeUntilTimelockExpires]);
 
   const VaultContent = useCallback(
     () => (
@@ -524,6 +635,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             pendingHealthCheckCount={pendingHealthCheckCount}
             isCanaryWallet={isCanaryWallet}
             setShowHealthCheckModal={setShowHealthCheckModal}
+            setShowTimelockModal={setShowTimelockModal}
+            timeUntilTimelockExpires={timeUntilTimelockExpires}
           />
         </Box>
       </VStack>
@@ -585,6 +698,18 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           setShowHealthCheckModal(false);
           navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
         }}
+      />
+      <KeeperModal
+        visible={showTimelockModal}
+        close={() => {
+          setShowTimelockModal(false);
+        }}
+        title={common.vaultTimelockActive}
+        subTitle={common.vaultTimelockActiveDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={showTimelockModalContent}
       />
     </Box>
   );
@@ -823,6 +948,26 @@ const styles = StyleSheet.create({
     gap: wp(16),
     borderRadius: 12,
     borderWidth: 1,
+  },
+  delayModalContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(21),
+    borderRadius: 10,
+    marginTop: hp(20),
+    marginBottom: hp(15),
+  },
+  buttonContainer: {
+    marginTop: hp(15),
   },
 });
 

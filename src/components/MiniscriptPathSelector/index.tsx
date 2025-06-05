@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Pressable, StyleSheet } from 'react-native';
 import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
@@ -6,7 +6,11 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import WalletOperations from 'src/services/wallets/operations';
-import { getAvailableMiniscriptPhase } from 'src/services/wallets/factories/VaultFactory';
+import {
+  getAvailableMiniscriptPhase,
+  getBlockHeightOrTimestampForVault,
+  isVaultUsingBlockHeightTimelock,
+} from 'src/services/wallets/factories/VaultFactory';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -15,6 +19,7 @@ import {
   INHERITANCE_KEY_IDENTIFIER,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface MiniscriptPathSelectorProps {
   vault: Vault;
@@ -38,15 +43,26 @@ export const MiniscriptPathSelector = forwardRef<
   const [selectedPhase, setSelectedPhase] = useState<Phase>(null);
   const [availablePaths, setAvailablePaths] = useState<Path[]>([]);
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
+  const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation, error } = translations;
 
   useEffect(() => {
     if (vault.type === VaultType.MINISCRIPT) {
-      WalletUtilities.fetchCurrentBlockHeight()
-        .then(({ currentBlockHeight }) => {
-          setCurrentBlockHeight(currentBlockHeight);
-        })
-        .catch((err) => onError(err));
+      if (isVaultUsingBlockHeightTimelock(vault)) {
+        WalletUtilities.fetchCurrentBlockHeight()
+          .then(({ currentBlockHeight }) => {
+            setCurrentBlockHeight(currentBlockHeight);
+          })
+          .catch((err) => onError(err));
+      } else {
+        WalletUtilities.fetchCurrentMedianTime()
+          .then(({ currentMedianTime }) => {
+            setCurrentMedianTimePast(currentMedianTime);
+          })
+          .catch((err) => onError(err));
+      }
     }
   }, []);
 
@@ -87,8 +103,8 @@ export const MiniscriptPathSelector = forwardRef<
 
     if (inheritanceKeysInPhase && emergencyKeysInPhase) {
       return {
-        title: `Use with Enhanced Keys`,
-        subtitle: `Spend using the Inheritance Key and the regular keys`,
+        title: vaultTranslation.useEnhancedKeys,
+        subtitle: vaultTranslation.useEnhancedKeysDesc,
       };
     }
 
@@ -104,21 +120,22 @@ export const MiniscriptPathSelector = forwardRef<
       return {
         title:
           vault.scheme.m == 1
-            ? `Use the Inheritance Key${multiKeysAppendix}`
-            : `Use with Inheritance Key${multiKeysAppendix}`,
+            ? `${vaultTranslation.useTheInheritanceKey}${multiKeysAppendix}`
+            : `${vaultTranslation.useWithInheritanceKey}${multiKeysAppendix}`,
         subtitle:
           vault.scheme.m == 1
-            ? `Spend using the Inheritance Key${multiKeysAppendix}`
-            : `Spend using the Inheritance Key and the regular keys${multiKeysAppendix}`,
+            ? `${vaultTranslation.useInheritanceKey}${multiKeysAppendix}`
+            : `${vaultTranslation.useEnhancedKeysDesc}${multiKeysAppendix}`,
       };
     }
 
     return {
-      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use regular keys',
+      title:
+        vault.scheme.n == 1 ? vaultTranslation.useRegularKey : vaultTranslation.useOnlyRegularKeys,
       subtitle:
         vault.scheme.n == 1
-          ? 'Spend using the regular key'
-          : 'Spend using only the regular vault keys',
+          ? vaultTranslation.spendUsingRegularKey
+          : vaultTranslation.spendOnlyRegularKey,
     };
   };
 
@@ -161,21 +178,22 @@ export const MiniscriptPathSelector = forwardRef<
       return {
         title:
           vault.scheme.m == 1
-            ? `Use the Inheritance Key${multiKeysAppendix}`
-            : `Use with Inheritance Key${multiKeysAppendix}`,
+            ? `${vaultTranslation.useInheritanceKey}${multiKeysAppendix}`
+            : `${vaultTranslation.useEnhancedKeysDesc}${multiKeysAppendix}`,
         subtitle:
           vault.scheme.m == 1
-            ? `Spend using the Inheritance Key${multiKeysAppendix}`
-            : `Spend using the Inheritance Key and the regular keys${multiKeysAppendix}`,
+            ? `${vaultTranslation.useInheritanceKey}${multiKeysAppendix}`
+            : `${vaultTranslation.useEnhancedKeysDesc}${multiKeysAppendix}`,
       };
     }
 
     return {
-      title: vault.scheme.n == 1 ? 'Use the regular key' : 'Use regular keys',
+      title:
+        vault.scheme.n == 1 ? vaultTranslation.useRegularKey : vaultTranslation.useOnlyRegularKeys,
       subtitle:
         vault.scheme.n == 1
-          ? 'Spend using the regular key'
-          : 'Spend using only the regular vault keys',
+          ? vaultTranslation.spendUsingRegularKey
+          : vaultTranslation.spendOnlyRegularKey,
     };
   };
 
@@ -186,22 +204,26 @@ export const MiniscriptPathSelector = forwardRef<
         currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
           .currentBlockHeight;
       } catch (err) {
-        console.log('Failed to re-fetch current block height: ' + err);
+        console.log(error.failedtoRefetchCurrentBlock + err);
       }
       if (!currentSyncedBlockHeight) {
-        throw Error(
-          'Failed to fetch current chain data, please check your connection and try again'
-        );
+        throw Error(error.failedToFetchCurrentChain);
       }
     }
 
-    const { phases: availablePhasesOptions } = getAvailableMiniscriptPhase(
+    const currentTime = getBlockHeightOrTimestampForVault(
       vault,
-      currentBlockHeight
+      currentBlockHeight,
+      currentMedianTimePast
     );
+    if (!currentTime) {
+      throw Error('Failed to get current time, please check your connection and try again');
+    }
+
+    const { phases: availablePhasesOptions } = getAvailableMiniscriptPhase(vault, currentTime);
 
     if (!availablePhasesOptions || availablePhasesOptions.length === 0) {
-      onError('No spending paths available; timelock is active');
+      onError(error.noSpendingPathTimeLockActive);
       return;
     }
 

@@ -10,7 +10,6 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerNameFromType } from 'src/hardware';
-import ChangeSignerIllustration from 'src/assets/images/changeSignerIllustration.svg';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -26,6 +25,7 @@ import { SDIcons } from '../SigningDeviceIcons';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 type AssignSignerTypeCardProps = {
   type: SignerType;
@@ -52,7 +52,7 @@ function AssignSignerTypeCard({
   const isDarkMode = colorMode === 'dark';
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { common } = translations;
+  const { common, vault: vaultText, error: errorText } = translations;
   const navigation = useNavigation();
 
   const changeSignerType = () => {
@@ -69,6 +69,19 @@ function AssignSignerTypeCard({
 
   const validateServerKey = async () => {
     const verificationToken = Number(otp);
+    let signerId;
+    for (const { masterFingerprint, xfp } of vault.signers) {
+      if (masterFingerprint === signer.masterFingerprint) {
+        signerId = xfp;
+        break;
+      }
+    }
+
+    if (!signerId) {
+      showToast(vaultText.unableToFindServerKeyId);
+      return;
+    }
+
     try {
       // for (const { masterFingerprint, xfp } of vault.signers) {
       //   if (masterFingerprint === signer.masterFingerprint) {
@@ -101,7 +114,7 @@ function AssignSignerTypeCard({
               isExternal: true,
               linkedViaSecondary,
               signerPolicy: policy,
-              signerName: 'External Server Key',
+              signerName: vaultText.externalServerKey,
             }
           );
           showToast('Server Key successfully assigned', <TickIcon />);
@@ -111,7 +124,7 @@ function AssignSignerTypeCard({
         } else throw new Error('Server Key mismatch');
       } else throw new Error('Server Key validation failed');
     } catch (err) {
-      showToast(err?.message || 'Server Key validation failed', <ToastErrorIcon />);
+      showToast(err?.message || vaultText.serverKayValidationFailed);
     }
 
     setOtp('');
@@ -145,7 +158,7 @@ function AssignSignerTypeCard({
               if (clipBoardData.match(/^\d{6}$/)) {
                 setOtp(clipBoardData);
               } else {
-                showToast('Invalid OTP');
+                showToast(errorText.invalidOtpshort);
                 setOtp('');
               }
             }}
@@ -175,7 +188,7 @@ function AssignSignerTypeCard({
             <Buttons
               primaryCallback={validateServerKey}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
               primaryDisable={otp.length !== 6}
             />
           </Box>
@@ -225,20 +238,18 @@ function AssignSignerTypeCard({
       <KeeperModal
         visible={showConfirm}
         close={() => setShowConfirm(false)}
-        title="Changing Device Type"
-        subTitle={`Are you sure you want to change the device type to ${getSignerNameFromType(
-          type
-        )}?`}
+        title={vaultText.changeDeviceType}
+        subTitle={`${vaultText.sureWantTOChangeDeviceType} ${getSignerNameFromType(type)}?`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Continue"
-        secondaryButtonText="Cancel"
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
         secondaryCallback={() => setShowConfirm(false)}
         buttonCallback={changeSignerType}
         Content={() => (
           <Box style={styles.illustrationContainer}>
-            <ChangeSignerIllustration />
+            <ThemedSvg name={'change_device_type_illustration'} />
           </Box>
         )}
       />
