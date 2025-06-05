@@ -1,8 +1,5 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { VerificationType } from 'src/models/interfaces/AssistedKeys';
-import SigningServer from 'src/services/backend/SigningServer';
-import idx from 'idx';
-import { authenticator } from 'otplib';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import {
@@ -51,7 +48,7 @@ import {
   TransactionPrerequisite,
 } from 'src/services/wallets/interfaces';
 import { Signer, Vault, VaultScheme, VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { setupMobileKey } from 'src/hardware/signerSetup';
+import { setupMobileKey, setupSeedWordsBasedKey } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 
 jest.mock('src/store/store', () => ({
@@ -264,11 +261,10 @@ describe('Vault: Single-Sig(1-of-1)', () => {
     ]);
   });
 
-  test('should construct and broadcast transaction using transferST2', async () => {
+  test('should construct and broadcast transaction using transferST3', async () => {
     const broadcastSpy = jest
       .spyOn(WalletOperations, 'broadcastTransaction')
       .mockResolvedValue('73833807769bbc4f56636cc1cbffb0f57a80bcc305c9df38652819d779df22a1'); // mocking transaction broadcast to avoid subsequent broadcast failure
-    console.log({ serializedPSBTEnvelops });
     const { txid } = await WalletOperations.transferST3(
       vault,
       serializedPSBTEnvelops,
@@ -281,112 +277,75 @@ describe('Vault: Single-Sig(1-of-1)', () => {
 });
 
 describe('Vault: Multi-sig(2-of-3)', () => {
-  let primaryMnemonic;
-  let vault;
+  let primaryMnemonic: string;
+  let vault: Vault;
 
-  let mobileKey; // Signer - 1
-  let signingServer; // Signer - 2
-  let softSigner; // Signer - 3
+  let mobileKey: VaultSigner; // Signer - 1
+  let seedWordsKey: VaultSigner; // Signer - 2
+  let signingServerKey: VaultSigner; // Signer - 3
 
-  let seedwords;
+  let seedWords;
   let signingServerConfig;
   let averageTxFees;
   let txPrerequisites;
   let txnPriority;
-  let PSBT;
-  let recipients;
-  let transaction;
-  let signerMap = {};
-  const signedSerializedPSBTs = [];
-  const signers = [];
+  let currentBlockHeight;
+  let serializedPSBTEnvelops: SerializedPSBTEnvelop[];
+  const signerMap = {};
 
   beforeAll(async () => {
     primaryMnemonic =
-      'duty burger portion domain athlete sweet birth impact miss shield hunt peanut';
+      'midnight auction hello stereo such fault legal outdoor manual recycle derive like';
 
     // configure 1st singer: mobile-key
-    const networkType = NetworkType.TESTNET;
-    const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
+    const { signer, key } = await setupMobileKey({
       primaryMnemonic,
-      networkType,
-      true
-    );
-
-    const { key: key2, signer: signer2 } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.MOBILE_KEY,
-      storageType: SignerStorage.WARM,
       isMultisig: true,
-      xpriv,
     });
-    mobileKey = key2;
-    signers.push(signer2);
+    mobileKey = key;
+    signerMap[getKeyUID(mobileKey)] = signer;
 
-    // configure 2nd singer: signing server
-    const signingServerXpub =
-      'tpubDEy3jjqkWNw6NHyYD89NyeP28L1eSuJGrp7SiWw9utzrawV3VyY45W2jYWcJdLNvqLcC3yfGGHN5g1Tm6HekPtp1f5vkgJpkTWehumF2JKn';
-    const signingServerMasterFingerprint = '45EBB0F6';
+    // configure 2nd signer: seedwords based key
+    seedWords = 'absent beauty three bronze reduce runway oil girl decide juice point cruel';
+    const { signer: singer2, key: key2 } = setupSeedWordsBasedKey(seedWords, true);
+    seedWordsKey = key2;
+    signerMap[getKeyUID(seedWordsKey)] = singer2;
+
+    // configure 3rd singer: signing server
     signingServerConfig = {
       method: 'TWO_FA',
-      verifier: 'PJ4HOTJYIZ3EETCEK53XSK3INZHG4VBV',
-    };
-    const policy = {
-      verification: {
-        method: VerificationType.TWO_FA,
-      },
-      restrictions: {
-        none: false,
-        maxTransactionAmount: 10000000,
-      },
-      exceptions: {
-        none: false,
-        transactionAmount: 1000000,
-      },
+      verifier: 'NZDA2HBHGIQSSUCY',
     };
     const { key: key3, signer: signer3 } = generateSignerFromMetaData({
-      xpub: signingServerXpub,
-      derivationPath,
-      masterFingerprint: signingServerMasterFingerprint,
+      xpub: 'tpubDERPm4XUYBFJXrA1h3cUQyhZhVXiDkjRRQXJiaSFnqwXnucEseRVcqC99fYgGxZaPEE5ZZu3nKEoW2pVGz2obWBVnpS9Noncs7kw5QkF51q',
+      derivationPath: "m/48'/1'/0'/2'",
+      masterFingerprint: '3EE66DDF',
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
-      signerPolicy: policy,
+      signerPolicy: {
+        verification: {
+          method: VerificationType.TWO_FA,
+        },
+        restrictions: {
+          none: false,
+          maxTransactionAmount: 10000,
+        },
+        signingDelay: 0,
+      },
     });
-    signingServer = key3;
-    signers.push(signer3);
-
-    // configure 3rd singer: signing server
-    seedwords = 'crisp sausage hunt resource green meat rude volume what bamboo flash extra';
-    const seedwordSignerConfig = generateSeedWordsKey(seedwords, networkType, true);
-    const { key: key4, signer: signer4 } = generateSignerFromMetaData({
-      xpub: seedwordSignerConfig.xpub,
-      derivationPath: seedwordSignerConfig.derivationPath,
-      masterFingerprint: seedwordSignerConfig.masterFingerprint,
-      signerType: SignerType.SEED_WORDS,
-      storageType: SignerStorage.WARM,
-      isMultisig: true,
-
-      xpriv: seedwordSignerConfig.xpriv,
-    });
-    softSigner = key4;
-    signers.push(signer4);
+    signingServerKey = key3;
+    signerMap[getKeyUID(signingServerKey)] = signer3;
   });
 
   test('vault factory: creating a 2-of-3 vault', async () => {
     const scheme = { m: 2, n: 3 };
     const vaultType = VaultType.DEFAULT;
-    const vaultSigners = [mobileKey, signingServer, softSigner];
+    const vaultSigners = [mobileKey, seedWordsKey, signingServerKey];
     const vaultDetails = {
       name: 'Vault',
       description: 'Secure your sats',
     };
-
-    signerMap = signers.reduce((acc, signer) => {
-      acc[signer.masterFingerprint] = signer;
-      return acc;
-    }, {});
 
     vault = await generateVault({
       type: vaultType,
@@ -395,7 +354,6 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       scheme,
       signers: vaultSigners,
       networkType: NetworkType.TESTNET,
-      signerMap,
     });
     expect(vault.scheme.m).toEqual(2);
     expect(vault.signers.length).toEqual(3);
@@ -405,145 +363,184 @@ describe('Vault: Multi-sig(2-of-3)', () => {
   test('vault operations: generating a receive address', () => {
     const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual(
-      'tb1qet0mjzd50luyjurja0h6t4jy0y0e6eu976aa9e565s2c4etwuzts0lyd32'
+      'tb1qn0gxmwpqhrxadmxuawm9z6uj4fn5ehhm8fjkglysxp3fa3ft30esnm0max'
     );
   });
 
-  test('vault operations: fetching balance, utxos & transactions', async () => {
+  test('vault operations: fetching balance, UTXOs & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(vault.networkType);
     const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
       [vault],
       network
     );
-    [vault] = synchedWallets;
+    vault = synchedWallets[0].synchedWallet as Vault;
 
-    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.synchedWallet.specs;
+    const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.specs;
+    const checkUTXO = (utxo) => {
+      expect(utxo).toEqual(
+        expect.objectContaining({
+          txId: expect.any(String),
+          vout: expect.any(Number),
+          value: expect.any(Number),
+          address: expect.any(String),
+          height: expect.any(Number),
+        })
+      );
+    };
 
-    let netBalance = 0;
-    confirmedUTXOs.forEach((utxo) => {
-      netBalance += utxo.value;
-    });
-    unconfirmedUTXOs.forEach((utxo) => {
-      netBalance += utxo.value;
-    });
+    confirmedUTXOs.forEach(checkUTXO);
+    unconfirmedUTXOs.forEach(checkUTXO);
+    const netBalance = [...confirmedUTXOs, ...unconfirmedUTXOs].reduce(
+      (sum, utxo) => sum + utxo.value,
+      0
+    );
 
-    expect(balances.confirmed + balances.unconfirmed).toEqual(4000);
-    expect(netBalance).toEqual(balances.confirmed + balances.unconfirmed);
-    expect(transactions.length).toEqual(1);
+    expect(balances.confirmed + balances.unconfirmed).toEqual(netBalance);
+    expect(transactions.length).toBeGreaterThan(0);
   });
 
   test('vault operations: transaction fee fetch', async () => {
-    const averageTxFeeByNetwork = await WalletOperations.calculateAverageTxFee();
-    averageTxFees = averageTxFeeByNetwork;
-    expect(averageTxFees[NetworkType.MAINNET]).toBeDefined();
-    expect(averageTxFees[NetworkType.TESTNET]).toBeDefined();
+    averageTxFees = await WalletOperations.calculateAverageTxFee();
+    expect(typeof averageTxFees).toBe('object');
+    Object.values(NetworkType).forEach((network) => {
+      const fees = averageTxFees[network];
+      expect(fees).toBeDefined();
+      expect(typeof fees).toBe('object');
+      [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+        expect(fees[priority]).toEqual({
+          estimatedBlocks: expect.any(Number),
+          feePerByte: expect.any(Number),
+        });
+      });
+    });
   });
 
-  test('vault operations: transaction pre-requisites(priority based coinselection)', async () => {
+  test('should fetch the current block height', async () => {
+    txnPriority = TxPriority.LOW;
+    currentBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight()).currentBlockHeight;
+    expect(currentBlockHeight).toBeGreaterThan(0);
+  });
+
+  test('should calculate transaction prerequisites using transferST1', async () => {
     const averageTxFeeByNetwork = averageTxFees[vault.networkType];
-    recipients = [
+    const recipients = [
       {
         address: 'tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt',
-        amount: 2000,
+        amount: 3000,
       },
     ];
 
     const res = await WalletOperations.transferST1(vault, recipients, averageTxFeeByNetwork);
     txPrerequisites = res.txPrerequisites;
 
-    expect(txPrerequisites[TxPriority.LOW]).toBeDefined();
-    expect(txPrerequisites[TxPriority.MEDIUM]).toBeDefined();
-    expect(txPrerequisites[TxPriority.HIGH]).toBeDefined();
-  });
+    expect(res.txPrerequisites).toBeDefined();
+    expect(res.txRecipients).toBeDefined();
 
-  test('vault operations: transaction construction(PSBT)', async () => {
-    txnPriority = TxPriority.MEDIUM;
-    transaction = await WalletOperations.createTransaction(vault, txPrerequisites, txnPriority);
-    PSBT = transaction.PSBT;
-    expect(PSBT.data.inputs.length).toBeGreaterThan(0);
-    expect(PSBT.data.outputs.length).toBeGreaterThan(0);
-  });
-
-  test('vault operations: Sign PSBT(signer - seedwords softkey)', async () => {
-    const { inputs, outputs } = txPrerequisites[txnPriority];
-
-    let outgoing = 0;
-    recipients.forEach((recipient) => {
-      outgoing += recipient.amount;
+    [TxPriority.LOW, TxPriority.MEDIUM, TxPriority.HIGH].forEach((priority) => {
+      const prerequisites = txPrerequisites[priority];
+      expect(prerequisites).toEqual(
+        expect.objectContaining({
+          inputs: expect.arrayContaining([
+            expect.objectContaining({
+              txId: expect.any(String),
+              vout: expect.any(Number),
+              value: expect.any(Number),
+              address: expect.any(String),
+              height: expect.any(Number),
+            }),
+          ]),
+          outputs: expect.arrayContaining([
+            expect.objectContaining({
+              value: expect.any(Number),
+              address: expect.any(String),
+            }),
+          ]),
+          fee: expect.any(Number),
+          estimatedBlocks: expect.any(Number),
+        })
+      );
     });
+  });
 
-    const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
+  test('should construct and broadcast transaction using transferST2', async () => {
+    const res = await WalletOperations.transferST2(
       vault,
-      inputs,
-      PSBT,
-      softSigner,
-      outgoing,
-      outputs,
-      transaction.change,
+      currentBlockHeight,
+      txPrerequisites,
+      txnPriority,
+      null,
       signerMap
     );
-
-    expect(serializedPSBTEnvelop?.serializedPSBT).toBeDefined();
-    const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
-      vault,
-      inputs,
-      serializedPSBTEnvelop.serializedPSBT,
-      softSigner.xpriv
-    );
-    signedSerializedPSBTs.push(signedSerializedPSBT);
+    serializedPSBTEnvelops = res.serializedPSBTEnvelops;
+    console.log({ serializedPSBTEnvelops });
+    expect(res.cachedTxid).toEqual(expect.any(String));
+    expect(serializedPSBTEnvelops.length).toBe(3);
   });
 
-  test('vault operations: Sign PSBT(signer - server key)', async () => {
-    const { inputs, outputs } = txPrerequisites[txnPriority];
-
-    let outgoing = 0;
-    recipients.forEach((recipient) => {
-      outgoing += recipient.amount;
-    });
-
-    const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
-      vault,
-      inputs,
-      PSBT,
-      signingServer,
-      outgoing,
-      outputs,
-      transaction.change,
-      signerMap
+  test('should sign the PSBT using mobileKey - 1st signature', async () => {
+    const mobileKeyEnvelopIndex = serializedPSBTEnvelops.findIndex(
+      (envelop) => envelop.signerType === SignerType.MOBILE_KEY
     );
+    expect(mobileKeyEnvelopIndex).toBeGreaterThanOrEqual(0);
 
-    const { serializedPSBT, signingPayload } = serializedPSBTEnvelop;
-    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
-    expect(childIndexArray).toBeDefined();
-
-    const token = authenticator.generate(signingServerConfig.verifier);
-    expect(token).toBeDefined();
-
-    jest.setTimeout(10000);
-    const { signedPSBT } = await SigningServer.signPSBT(
-      signingServer.xfp,
-      Number(token),
-      serializedPSBT,
-      childIndexArray,
-      outgoing
-    );
-    expect(signedPSBT).toBeDefined();
-    signedSerializedPSBTs.push(signedPSBT);
+    const { signedSerializedPSBT: mobileKeySignedSerializedPSBT } =
+      WalletOperations.internallySignVaultPSBT(
+        vault,
+        serializedPSBTEnvelops[mobileKeyEnvelopIndex].serializedPSBT,
+        mobileKey
+      );
+    expect(mobileKeySignedSerializedPSBT).toBeDefined();
+    serializedPSBTEnvelops[mobileKeyEnvelopIndex] = {
+      ...serializedPSBTEnvelops[mobileKeyEnvelopIndex],
+      serializedPSBT: mobileKeySignedSerializedPSBT,
+    };
   });
 
-  test('vault operations: combine and validate PSBT & construct txHex', async () => {
-    let combinedPSBT;
-    // eslint-disable-next-line no-restricted-syntax
-    for (const signedSerializedPSBT of signedSerializedPSBTs) {
-      const signedPSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
-      if (!combinedPSBT) combinedPSBT = signedPSBT;
-      else combinedPSBT.combine(signedPSBT);
-    }
-    // const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs();
-    // expect(areSignaturesValid).toEqual(true);
+  test('should fail to construct and broadcast transaction w/ a single signature', async () => {
+    await expect(
+      WalletOperations.transferST3(
+        vault,
+        serializedPSBTEnvelops, // signature 1 of 3
+        txPrerequisites,
+        txnPriority
+      )
+    ).rejects.toThrow('Can not finalize input #0');
+  });
 
-    const txHex = combinedPSBT.finalizeAllInputs().extractTransaction().toHex();
-    expect(txHex).toBeDefined();
+  test('should sign the PSBT using seed words - 2nd signature', async () => {
+    const seedKeyEnvelopIndex = serializedPSBTEnvelops.findIndex(
+      (envelop) => envelop.signerType === SignerType.SEED_WORDS
+    );
+    expect(seedKeyEnvelopIndex).toBeGreaterThanOrEqual(0);
+
+    const { xpub, xpriv } = generateSeedWordsKey(seedWords, NetworkType.TESTNET, true);
+    if (seedWordsKey.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+    const { signedSerializedPSBT: seedKeySignedSerializedPSBT } =
+      WalletOperations.internallySignVaultPSBT(
+        vault,
+        serializedPSBTEnvelops[seedKeyEnvelopIndex].serializedPSBT,
+        { ...seedWordsKey, xpriv }
+      );
+
+    expect(seedKeySignedSerializedPSBT).toBeDefined();
+    serializedPSBTEnvelops[seedKeyEnvelopIndex] = {
+      ...serializedPSBTEnvelops[seedKeyEnvelopIndex],
+      serializedPSBT: seedKeySignedSerializedPSBT,
+    };
+  });
+
+  test('should construct and broadcast transaction using transferST3', async () => {
+    const broadcastSpy = jest
+      .spyOn(WalletOperations, 'broadcastTransaction')
+      .mockResolvedValue('87e91c91d0b663f83d416f1c5b39786cc27fe9a5a5da4c24d391926648b4a868'); // mocking transaction broadcast to avoid subsequent broadcast failure
+    const { txid } = await WalletOperations.transferST3(
+      vault,
+      serializedPSBTEnvelops, // signature 2 of 3
+      txPrerequisites,
+      txnPriority
+    );
+    expect(txid).toEqual('87e91c91d0b663f83d416f1c5b39786cc27fe9a5a5da4c24d391926648b4a868');
+    broadcastSpy.mockRestore();
   });
 });
 
