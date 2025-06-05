@@ -12,7 +12,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import Passwordlock from 'src/assets/images/passwordlock.svg';
 import BiometricIcon from 'src/assets/images/biometric-icon.svg';
 import { changeLoginMethod, storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
@@ -24,6 +23,8 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Fonts from 'src/constants/Fonts';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 enum PasscodeStages {
   CREATE = 'CREATE',
@@ -54,6 +55,10 @@ export default function CreatePin(props) {
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const { allAccounts } = useAppSelector((state) => state.account);
   const RNBiometrics = new ReactNativeBiometrics();
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const login_button_backGround = ThemedColor({ name: 'login_button_backGround' });
+  const login_button_text_color = ThemedColor({ name: 'login_button_text_color' });
+  const login_text_color = ThemedColor({ name: 'login_text_color' });
 
   useEffect(() => {
     if (hasCreds) {
@@ -128,7 +133,7 @@ export default function CreatePin(props) {
     return (
       <Box>
         <Box style={styles.passImg}>
-          <Passwordlock />
+          <ThemedSvg name={'AdditonalUserIcon'} />
         </Box>
         <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
           {login.lockedOutOfApp}
@@ -189,35 +194,38 @@ export default function CreatePin(props) {
   };
 
   return (
-    <Box
-      safeAreaTop
-      testID="main"
-      style={styles.container}
-      backgroundColor={`${colorMode}.pantoneGreen`}
-    >
+    <Box safeAreaTop testID="main" style={styles.container} backgroundColor={slider_background}>
       <Box style={styles.wrapper}>
         <StatusBar barStyle="light-content" />
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} medium color={`${colorMode}.headerWhite`}>
+              <Text style={styles.welcomeText} medium color={login_text_color}>
                 {login.welcome}
               </Text>
             </Box>
             <Box style={styles.passCodeWrapper}>
               <Box style={styles.createPasscodeWrapper}>
-                <Text color={`${colorMode}.headerWhite`} style={styles.labelText}>
+                <Text color={login_text_color} style={styles.labelText}>
                   {login.Createpasscode}
                 </Text>
-                <PinDotView passCode={createPin} />
+                <PinDotView
+                  passCode={createPin}
+                  dotColor={login_text_color}
+                  borderColor={login_text_color}
+                />
               </Box>
               {isCreateComplete && (
                 <Box style={styles.confirmPasscodeWrapper}>
-                  <Text color={`${colorMode}.headerWhite`} style={styles.labelText}>
+                  <Text color={login_text_color} style={styles.labelText}>
                     {login.Confirmyourpasscode}
                   </Text>
                   <Box>
-                    <PinDotView passCode={confirmPin} />
+                    <PinDotView
+                      passCode={confirmPin}
+                      dotColor={login_text_color}
+                      borderColor={login_text_color}
+                    />
                     {isConfirmComplete && !isPinMatch && (
                       <Text color={`${colorMode}.error`} italic style={styles.errorText}>
                         {login.MismatchPasscode}
@@ -231,16 +239,17 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={<DeleteIcon />}
+            ClearIcon={<ThemedSvg name="delete_icon" />}
             bubbleEffect
+            keyColor={login_text_color}
           />
           <Box style={styles.btnWrapper}>
             <Buttons
               primaryCallback={() => setCreatePassword(true)}
               primaryText={common.create}
               primaryDisable={!isPinMatch}
-              primaryBackgroundColor={`${colorMode}.buttonText`}
-              primaryTextColor={`${colorMode}.pantoneGreen`}
+              primaryBackgroundColor={login_button_backGround}
+              primaryTextColor={login_button_text_color}
               fullWidth
             />
           </Box>
