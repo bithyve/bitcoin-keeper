@@ -3,8 +3,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Fonts from 'src/constants/Fonts';
 import Text from 'src/components/KeeperText';
-import RightArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
-import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 import BTC_UP from 'src/assets/images/btc_up.svg';
 import { Box, useColorMode } from 'native-base';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
@@ -55,10 +53,15 @@ const FeerateStatement = (props: Props) => {
       testID="fee_insight"
     >
       <Box>
-        <Box>
-          <Text color={`${colorMode}.primaryText`} fontSize={16} medium>
+        <Box style={styles.titleWrapper}>
+          <Text color={`${colorMode}.primaryText`} fontSize={13} medium>
             {common.feeSats}
           </Text>
+          {(shortFeeStatement.includes('low') || shortFeeStatement.includes('high')) && (
+            <Box style={styles.arrowWrapper}>
+              {arrowPointer === 'lower' ? <ThemedSvg name={'btc_down_arrow'} /> : <BTC_UP />}
+            </Box>
+          )}
         </Box>
 
         <Box style={styles.statementWrapper}>
@@ -80,24 +83,13 @@ const FeerateStatement = (props: Props) => {
                 </Text>
               </>
             ) : (
-              <>
+              <Box>
                 <Text style={styles.highAlertSatsFee} color={`${colorMode}.modalWhiteContent`}>
                   {shortFeeStatement}
                 </Text>
-
-                {(shortFeeStatement.includes('low') || shortFeeStatement.includes('high')) && (
-                  <Box style={styles.arrowWrapper}>
-                    {arrowPointer === 'lower' ? <ThemedSvg name={'btc_down_arrow'} /> : <BTC_UP />}
-                  </Box>
-                )}
-              </>
+              </Box>
             )}
           </Box>
-        </Box>
-      </Box>
-      <Box>
-        <Box style={styles.ctaContainer}>
-          {isDarkMode ? <RightArrowWhite /> : <RightArrowGrey />}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -117,7 +109,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   highAlertSatsFee: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: Fonts.InterRegular,
   },
   percentageStatement: {
@@ -130,12 +122,21 @@ const styles = StyleSheet.create({
   arrowWrapper: {
     width: 15,
     height: 20,
-    marginTop: hp(3),
-    marginHorizontal: wp(5),
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
   },
   textWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: hp(5),
+    width: '98%',
+  },
+  titleWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: hp(5),
+    position: 'relative',
+    width: '98%',
   },
 });

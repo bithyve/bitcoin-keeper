@@ -669,28 +669,38 @@ function SendConfirmation({ route }) {
                 estimationSign={estimationSign}
               />
             </TouchableOpacity>
-            {OneDayHistoricalFee.length > 0 && (
-              <FeeRateStatementCard
-                showFeesInsightModal={toogleFeesInsightModal}
-                feeInsightData={OneDayHistoricalFee}
-              />
-            )}
-            <Box>
-              <Text
-                medium
-                color={`${colorMode}.primaryText`}
-                fontSize={16}
-                style={styles.currentBtcPrice}
+            <Box
+              style={{
+                flexDirection: 'row',
+              }}
+            >
+              <Box
+                style={{ flexBasis: '48%', marginRight: 18 }}
+                borderRightColor={`${colorMode}.separator`}
+                borderRightWidth={2}
               >
-                {walletTranslations.currentBtcPrice}
-              </Text>
-              <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {exchangeRates?.BMD?.symbol +
-                  new Intl.NumberFormat('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }).format(exchangeRates?.BMD?.last)}
-              </Text>
+                <Text
+                  medium
+                  color={`${colorMode}.primaryText`}
+                  fontSize={13}
+                  style={styles.currentBtcPrice}
+                >
+                  {walletTranslations.currentBtcPrice}
+                </Text>
+                <Text fontSize={12} color={`${colorMode}.primaryText`}>
+                  {exchangeRates?.BMD?.symbol +
+                    new Intl.NumberFormat('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(exchangeRates?.BMD?.last)}
+                </Text>
+              </Box>
+              {OneDayHistoricalFee.length > 0 && (
+                <FeeRateStatementCard
+                  showFeesInsightModal={toogleFeesInsightModal}
+                  feeInsightData={OneDayHistoricalFee}
+                />
+              )}
             </Box>
           </ReceiptWrapper>
         </Box>
@@ -701,35 +711,35 @@ function SendConfirmation({ route }) {
         >
           <AmountDetails
             title={walletTranslations.networkFee}
-            titleFontSize={13}
+            titleFontSize={12}
             amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
-            amountFontSize={13}
-            unitFontSize={13}
+            amountFontSize={12}
+            unitFontSize={12}
             titleColor={`${colorMode}.secondaryLightGrey`}
             amountColor={`${colorMode}.secondaryLightGrey`}
             unitColor={`${colorMode}.secondaryLightGrey`}
           />
           <AmountDetails
             title={walletTranslations.amountBeingSend}
-            titleFontSize={16}
+            titleFontSize={13}
             titleFontWeight={500}
             amount={amounts.reduce((sum, amount) => sum + amount, 0)}
-            amountFontSize={16}
-            unitFontSize={14}
+            amountFontSize={15}
+            unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
             title={walletTranslations.totalAmount}
-            titleFontSize={16}
+            titleFontSize={13}
             titleFontWeight={500}
             amount={
               txFeeInfo[transactionPriority?.toLowerCase()]?.amount +
               amounts.reduce((sum, amount) => sum + amount, 0)
             }
-            amountFontSize={18}
-            unitFontSize={14}
+            amountFontSize={15}
+            unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
           />
