@@ -274,6 +274,7 @@ import InheritancePlanPrivateLightIllustration from 'src/assets/privateImages/in
 import MultiUserIllustration from 'src/assets/images/MultiUserIllustration.svg';
 import MultiUserIllustrationDark from 'src/assets/images/MultiUserIllustrationDark.svg';
 import MultiUserPrivateIllustration from 'src/assets/privateImages/multiuser-private-image.svg';
+import ManageKeysLight from 'src/assets/privateImages/manage-key-light.svg';
 import Skip from 'src/assets/images/skip.svg';
 import SkipBlack from 'src/assets/privateImages/skip-black.svg';
 
@@ -962,7 +963,7 @@ const themeIcons = {
     DARK: ManageKeysIllustration,
     LIGHT: ManageKeysIllustration,
     PRIVATE: ManageKeysPrivateIllustration,
-    PRIVATE_LIGHT: ManageKeysPrivateLightIllustration,
+    PRIVATE_LIGHT: ManageKeysLight,
   },
   inheritance_illustration: {
     DARK: InheritancePlanIllustration,
