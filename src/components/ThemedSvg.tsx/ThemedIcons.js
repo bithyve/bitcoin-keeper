@@ -262,6 +262,20 @@ import NoNotificationIllustration from 'src/assets/images/no-notification-illust
 import NoNotificationIllustrationDark from 'src/assets/images/no-notification-dark-illustration.svg';
 import PrivateNoNotificationIllustration from 'src/assets/privateImages/no-noti-private-light.svg';
 import PrivateNoNotificationIllustrationDark from 'src/assets/privateImages/no-noti-private-dark.svg';
+import CreateWalletIllustration from 'src/assets/images/create-wallet-illustration.svg';
+import CreateWalletPrivateIllustration from 'src/assets/privateImages/create-wallet-private-illustration.svg';
+import CreateWalletPrivateLightIllustration from 'src/assets/privateImages/create-wallet-private-light-ilustration.svg';
+import ManageKeysIllustration from 'src/assets/images/manage-keys-illustration.svg';
+import ManageKeysPrivateIllustration from 'src/assets/privateImages/manage-keys-private-illustration.svg';
+import ManageKeysPrivateLightIllustration from 'src/assets/privateImages/manage-keys-private-illustration.svg';
+import InheritancePlanIllustration from 'src/assets/images/inheritance-illustration.svg';
+import InheritancePlanPrivateIllustration from 'src/assets/privateImages/inheritance-plan-private-illustration.svg';
+import InheritancePlanPrivateLightIllustration from 'src/assets/privateImages/inheritance-plan-private-light.svg';
+import MultiUserIllustration from 'src/assets/images/MultiUserIllustration.svg';
+import MultiUserIllustrationDark from 'src/assets/images/MultiUserIllustrationDark.svg';
+import MultiUserPrivateIllustration from 'src/assets/privateImages/multiuser-private-image.svg';
+import Skip from 'src/assets/images/skip.svg';
+import SkipBlack from 'src/assets/privateImages/skip-black.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -937,6 +951,36 @@ const themeIcons = {
     LIGHT: NoNotificationIllustration,
     PRIVATE: PrivateNoNotificationIllustrationDark,
     PRIVATE_LIGHT: PrivateNoNotificationIllustration,
+  },
+  create_wallet_illustration: {
+    DARK: CreateWalletIllustration,
+    LIGHT: CreateWalletIllustration,
+    PRIVATE: CreateWalletPrivateLightIllustration,
+    PRIVATE_LIGHT: CreateWalletPrivateIllustration,
+  },
+  manage_keys_illustration: {
+    DARK: ManageKeysIllustration,
+    LIGHT: ManageKeysIllustration,
+    PRIVATE: ManageKeysPrivateIllustration,
+    PRIVATE_LIGHT: ManageKeysPrivateLightIllustration,
+  },
+  inheritance_illustration: {
+    DARK: InheritancePlanIllustration,
+    LIGHT: InheritancePlanIllustration,
+    PRIVATE: InheritancePlanPrivateIllustration,
+    PRIVATE_LIGHT: InheritancePlanPrivateLightIllustration,
+  },
+  multiuser_illustration: {
+    DARK: MultiUserIllustrationDark,
+    LIGHT: MultiUserIllustration,
+    PRIVATE: MultiUserPrivateIllustration,
+    PRIVATE_LIGHT: MultiUserPrivateIllustration,
+  },
+  skip_icon: {
+    DARK: Skip,
+    LIGHT: Skip,
+    PRIVATE: Skip,
+    PRIVATE_LIGHT: SkipBlack,
   },
 };
 

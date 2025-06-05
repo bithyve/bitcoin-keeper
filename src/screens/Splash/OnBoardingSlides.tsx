@@ -12,15 +12,12 @@ import { Box, useColorMode } from 'native-base';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Illustration1 from 'src/assets/images/create-wallet-illustration.svg';
-import Illustration2 from 'src/assets/images/manage-keys-illustration.svg';
-import Illustration8 from 'src/assets/images/inheritance-illustration.svg';
-import Skip from 'src/assets/images/skip.svg';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
-
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const { width } = Dimensions.get('window');
 
@@ -36,19 +33,19 @@ function OnBoardingSlides({ navigation }) {
       id: 1,
       title: onboarding.slide01Title,
       paragraph: onboarding.slide01Paragraph,
-      illustration: <Illustration1 />,
+      illustration: <ThemedSvg name={'create_wallet_illustration'} />,
     },
     {
       id: 2,
       title: common.manageKeys,
       paragraph: onboarding.slide02Paragraph,
-      illustration: <Illustration2 width={wp(255)} height={hp(250)} />,
+      illustration: <ThemedSvg name={'manage_keys_illustration'} />,
     },
     {
       id: 3,
       title: onboarding.slide03Title,
       paragraph: onboarding.slide03Paragraph,
-      illustration: <Illustration8 />,
+      illustration: <ThemedSvg name={'inheritance_illustration'} />,
     },
   ]);
 
@@ -62,8 +59,13 @@ function OnBoardingSlides({ navigation }) {
     setCurrentPosition(viewableItems.changed[0].index);
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
+  const onBoardingSlides_background = ThemedColor({ name: 'onBoardingSlides_background' });
+  const start_Button_BackGround = ThemedColor({ name: 'start_Button_BackGround' });
+  const start_Button_Text_Color = ThemedColor({ name: 'start_Button_Text_Color' });
+  const login_text_color = ThemedColor({ name: 'login_text_color' });
+
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box style={styles.container} backgroundColor={onBoardingSlides_background}>
       <SafeAreaView style={styles.safeAreaViewWrapper}>
         <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 5 : 2} height={10}>
           {currentPosition !== 2 && (
@@ -72,10 +74,10 @@ function OnBoardingSlides({ navigation }) {
               style={styles.skipTextWrapper}
               testID="btn_skip"
             >
-              <Text color={`${colorMode}.seashellWhiteText`} bold style={styles.skipText}>
+              <Text color={login_text_color} bold style={styles.skipText}>
                 Skip&nbsp;&nbsp;
               </Text>
-              <Skip />
+              <ThemedSvg name={'skip_icon'} />
             </TouchableOpacity>
           )}
         </Box>
@@ -107,10 +109,10 @@ function OnBoardingSlides({ navigation }) {
           <TouchableOpacity testID="btn_FAQ" onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}`)}>
             <Box
               style={styles.seeFAQWrapper}
-              backgroundColor={`${colorMode}.modalGreenLearnMore`}
-              borderColor={`${colorMode}.modalWhiteBackground`}
+              backgroundColor={start_Button_BackGround}
+              borderColor={`${colorMode}.separator`}
             >
-              <Text color={`${colorMode}.white`} bold style={styles.seeFAQText}>
+              <Text color={start_Button_Text_Color} bold style={styles.seeFAQText}>
                 {common.seeFAQs}
               </Text>
             </Box>
@@ -121,7 +123,7 @@ function OnBoardingSlides({ navigation }) {
                 <Box
                   key={item.id.toString()}
                   backgroundColor={
-                    currentPosition === index ? `${colorMode}.white` : `${colorMode}.sliderStep`
+                    currentPosition === index ? login_text_color : `${colorMode}.sliderStep`
                   }
                   style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                 />
@@ -140,8 +142,8 @@ function OnBoardingSlides({ navigation }) {
                 }}
                 testID="btn_startApp"
               >
-                <Box style={styles.cta} backgroundColor={`${colorMode}.white`}>
-                  <Text color={`${colorMode}.greenText`} style={styles.startAppText} medium>
+                <Box style={styles.cta} backgroundColor={start_Button_BackGround}>
+                  <Text color={start_Button_Text_Color} style={styles.startAppText} medium>
                     {common.getStarted}
                   </Text>
                 </Box>

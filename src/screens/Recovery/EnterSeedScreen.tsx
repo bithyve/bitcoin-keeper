@@ -450,9 +450,11 @@ function EnterSeedScreen({ route, navigation }) {
           <Input
             fontWeight={500}
             fontFamily={item.name === '' ? 'Arial' : Fonts.LoraSemiBold}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            borderColor={item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.seashellWhite`}
-            _focus={{ borderColor: `${colorMode}.pantoneGreen` }}
+            backgroundColor={`${colorMode}.primaryBackground`}
+            borderColor={
+              item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.primaryBackground`
+            }
+            _focus={{ borderColor: `${colorMode}.primaryBackground` }}
             ref={(el) => (inputRef.current[index] = el)}
             style={styles.input}
             placeholder={`Enter ${getPlaceholderSuperScripted(index)} word`}
