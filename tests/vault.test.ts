@@ -575,6 +575,7 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
   let txnPriority: TxPriority;
   let currentBlockHeight: number;
   let serializedPSBTEnvelops: SerializedPSBTEnvelop[];
+  let serializedPSBTEnvelopsInitial: string;
   let miniscriptTxElements;
 
   const signerMap = {};
@@ -626,7 +627,7 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
     // configure 4th signer: Inheritance Key
     seedWordsInheritance =
       'erode copper burst fossil average cancel quantum gorilla essay neither pistol fat';
-    const { signer: singer4, key: key4 } = setupSeedWordsBasedKey(seedWords, true);
+    const { signer: singer4, key: key4 } = setupSeedWordsBasedKey(seedWordsInheritance, true);
     seedWordsKeyInheritance = key4;
     signerMap[getKeyUID(seedWordsKeyInheritance)] = singer4;
   });
@@ -648,12 +649,13 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
       vaultDetails,
       miniscriptTypes,
     };
-    const initialTimelock = ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET['MONTHS_3'];
+    const timelock = ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET['MONTHS_3'];
+    const initialTimelock = 0;
     currentBlockHeight = 85172;
     const inheritanceSignerWithTimelocks = [
       {
         signer: seedWordsKeyInheritance,
-        timelock: currentBlockHeight + initialTimelock, // removed + timelock
+        timelock: currentBlockHeight + initialTimelock + timelock,
       },
     ];
     const emergencySignerWithTimelocks = [];
@@ -701,7 +703,7 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
   test('vault operations: generating a receive address', () => {
     const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual(
-      'tb1qkxe4rx6ryp8t7r5p02xra7e22f5gsysp68hehxu4mfdsap0addfsldgwhg'
+      'tb1q4vtx5pud9v5xhqr92x8qp8kyw4mst3at70z6fn64zmx5pgh9prtqj4lngd'
     );
   });
 
@@ -796,7 +798,7 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
 
   test('should construct PSBTs to sign using transferST2', async () => {
     txnPriority = TxPriority.LOW;
-    miniscriptTxElements = { selectedPhase: 1, selectedPaths: [1] };
+    miniscriptTxElements = { selectedPhase: 1, selectedPaths: [1] }; // 1st phase of the vault: w/o timelock and inheritance key
     const res = await WalletOperations.transferST2(
       vault,
       currentBlockHeight,
@@ -806,9 +808,14 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
       signerMap,
       miniscriptTxElements
     );
-    serializedPSBTEnvelops = res.serializedPSBTEnvelops;
+    serializedPSBTEnvelops = (res as any).serializedPSBTEnvelops;
     expect(res.cachedTxid).toEqual(expect.any(String));
-    expect(serializedPSBTEnvelops.length).toBeDefined();
+    expect(serializedPSBTEnvelops.length).toBe(3); // 3 signers: mobileKey, seedWordsKey, signingServerKey, doesn't include inheritance key
+
+    serializedPSBTEnvelops.forEach((envelop, idx) => {
+      // to check that inheritance key(seedWordsKeyInheritance) is not included in phase I
+      expect(envelop.xfp).not.toEqual(seedWordsKeyInheritance.xfp);
+    });
   });
 
   test('should sign the PSBT using mobileKey - 1st signature', async () => {
@@ -882,22 +889,83 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
     expect(txid).toEqual('87e91c91d0b663f83d416f1c5b39786cc27fe9a5a5da4c24d391926648b4a868');
     broadcastSpy.mockRestore();
   });
-});
 
-  test('seedsigner: able to finalise signed PSBT from seedsigner partial signature', () => {
-    const unsignedPSBT =
-      'cHNidP8BAFICAAAAAdV/bwKJ4yO8cWQBdGyO7rcbQRFTpRSrawxJmPh3yHRJAQAAAAD/////AREHAAAAAAAAFgAUWuqKm/XkjrJ7aXnZe991fPmIYNsAAAAAAAEBH9AHAAAAAAAAFgAUZXZJ33JeEh4yl7uMQZ5i0agCuZ8iBgLTClhWB9tTYUNHkts1hfzm29IyXWRAL8ttspe8dWmHQBjh5mMQVAAAgAEAAIAAAACAAAAAAAIAAAAAAA==';
-    const signedDataFromSeedSigner =
-      'cHNidP8BAFICAAAAAdV/bwKJ4yO8cWQBdGyO7rcbQRFTpRSrawxJmPh3yHRJAQAAAAD/////AREHAAAAAAAAFgAUWuqKm/XkjrJ7aXnZe991fPmIYNsAAAAAACICAtMKWFYH21NhQ0eS2zWF/Obb0jJdZEAvy22yl7x1aYdARzBEAiAsOx0YL/VV9qaApH9mAM5q6B5SyPFMOFlvP+j7cOybPAIgU8bLfjCK+uj9mEg08VhY7TrkCdmsKWwj59sifxmHseEBAAA=';
-    const { signedPsbt } = updateInputsForSeedSigner({
-      serializedPSBT: unsignedPSBT,
-      signedSerializedPSBT: signedDataFromSeedSigner,
-    });
-    expect(signedPsbt).toEqual(
-      'cHNidP8BAFICAAAAAdV/bwKJ4yO8cWQBdGyO7rcbQRFTpRSrawxJmPh3yHRJAQAAAAD/////AREHAAAAAAAAFgAUWuqKm/XkjrJ7aXnZe991fPmIYNsAAAAAAAEBH9AHAAAAAAAAFgAUZXZJ33JeEh4yl7uMQZ5i0agCuZ8iAgLTClhWB9tTYUNHkts1hfzm29IyXWRAL8ttspe8dWmHQEcwRAIgLDsdGC/1VfamgKR/ZgDOaugeUsjxTDhZbz/o+3DsmzwCIFPGy34wivro/ZhINPFYWO065AnZrClsI+fbIn8Zh7HhASIGAtMKWFYH21NhQ0eS2zWF/Obb0jJdZEAvy22yl7x1aYdAGOHmYxBUAACAAQAAgAAAAIAAAAAAAgAAAAAA'
+  test('should perform a transaction w/ Inheritance Key once phase 2 is activated(timeout expires)', async () => {
+    const miniscriptTxElements = { selectedPhase: 2, selectedPaths: [1] }; // 1st phase of the vault: w/o timelock and inheritance key
+    const res = await WalletOperations.transferST2(
+      vault,
+      currentBlockHeight,
+      txPrerequisites,
+      txnPriority,
+      null,
+      signerMap,
+      miniscriptTxElements
     );
+    const serializedPSBTEnvelops = (res as any).serializedPSBTEnvelops;
+    expect(res.cachedTxid).toEqual(expect.any(String));
+    expect(serializedPSBTEnvelops.length).toBe(4); // 4 signers: mobileKey, seedWordsKey, signingServerKey, seedWordsKeyInheritance
+
+    // sign transaction w/ mobile key
+    const mobileKeyEnvelopIndex = serializedPSBTEnvelops.findIndex(
+      (envelop) => envelop.signerType === SignerType.MOBILE_KEY
+    );
+    expect(mobileKeyEnvelopIndex).toBeGreaterThanOrEqual(0);
+
+    const { signedSerializedPSBT: mobileKeySignedSerializedPSBT } =
+      WalletOperations.internallySignVaultPSBT(
+        vault,
+        serializedPSBTEnvelops[mobileKeyEnvelopIndex].serializedPSBT,
+        mobileKey
+      );
+    expect(mobileKeySignedSerializedPSBT).toBeDefined();
+    serializedPSBTEnvelops[mobileKeyEnvelopIndex] = {
+      ...serializedPSBTEnvelops[mobileKeyEnvelopIndex],
+      serializedPSBT: mobileKeySignedSerializedPSBT,
+    };
+
+    // sign transaction w/ seed words - inheritance key
+    const seedKeyEnvelopIndexes = [];
+    serializedPSBTEnvelops.forEach((envelop, idx) => {
+      if (envelop.signerType === SignerType.SEED_WORDS) {
+        seedKeyEnvelopIndexes.push(idx);
+      }
+    });
+    const seedKeyInheritanceIndex = seedKeyEnvelopIndexes[1]; // Inheritance Key
+    expect(seedKeyInheritanceIndex).toBeGreaterThanOrEqual(0);
+
+    const { xpub, xpriv } = generateSeedWordsKey(seedWordsInheritance, NetworkType.TESTNET, true);
+    if (seedWordsKeyInheritance.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
+    const { signedSerializedPSBT: seedKeySignedSerializedPSBT } =
+      WalletOperations.internallySignVaultPSBT(
+        vault,
+        serializedPSBTEnvelops[seedKeyInheritanceIndex].serializedPSBT,
+        { ...seedWordsKeyInheritance, xpriv }
+      );
+
+    expect(seedKeySignedSerializedPSBT).toBeDefined();
+    serializedPSBTEnvelops[seedKeyInheritanceIndex] = {
+      ...serializedPSBTEnvelops[seedKeyInheritanceIndex],
+      serializedPSBT: seedKeySignedSerializedPSBT,
+    };
+
+    // broadcast transaction
+    const broadcastSpy = jest
+      .spyOn(WalletOperations, 'broadcastTransaction')
+      .mockResolvedValue('87e91c91d0b663f83d416f1c5b39786cc27fe9a5a5da4c24d391926648b4a868'); // mocking transaction broadcast to avoid subsequent broadcast failure
+    const { txid } = await WalletOperations.transferST3(
+      vault,
+      serializedPSBTEnvelops, // signature 2 of 3 (mobile + inheritance key)
+      txPrerequisites,
+      txnPriority,
+      null,
+      null,
+      miniscriptTxElements
+    );
+    expect(txid).toEqual('87e91c91d0b663f83d416f1c5b39786cc27fe9a5a5da4c24d391926648b4a868');
+    broadcastSpy.mockRestore();
   });
 });
+
 
 describe('Vault: AirGapping with Keystone', () => {
   let vault;
