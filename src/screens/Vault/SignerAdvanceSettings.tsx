@@ -1004,7 +1004,7 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <RegisterSignerContent
-            isUSBAvailable={signer.type == SignerType.COLDCARD || signer.type == SignerType.JADE}
+            isUSBAvailable={activeVault?.scheme?.miniscriptScheme}
             signer={signer}
             vaultId={vaultId}
             vaultKey={vaultKey}
