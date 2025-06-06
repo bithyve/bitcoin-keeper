@@ -4,12 +4,10 @@ import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import {
   generateMiniscriptScheme,
-  generateMobileKey,
   generateSeedWordsKey,
   generateVault,
 } from 'src/services/wallets/factories/VaultFactory';
 import {
-  DerivationPurpose,
   MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
@@ -18,35 +16,11 @@ import {
   TxPriority,
   VaultType,
 } from 'src/services/wallets/enums';
-import { extractColdCardExport } from 'src/hardware/coldcard';
-import {
-  generateSignerFromMetaData,
-  getSignerNameFromType,
-  getSignerSigTypeInfo,
-  getWalletConfig,
-} from 'src/hardware';
-import {
-  COLDCARD_EXPORT,
-  JADE_MS_EXPORT,
-  JADE_SS_EXPORT,
-  KEYSTONE_MS_EXPORT,
-  KEYSTONE_SS_EXPORT,
-  PASSPORT_MS_EXPORT,
-  PASSPORT_SS_EXPORT,
-  SEEDSIGNER_MS_EXPORT,
-  SEEDSIGNER_SS_EXPORT,
-} from './signingDeviceExportFormats';
-import { getSeedSignerDetails, updateInputsForSeedSigner } from 'src/hardware/seedsigner';
-import { decodeURBytes } from 'src/services/qr';
-import { getKeystoneDetails, getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
-import { getPassportDetails } from 'src/hardware/passport';
-import { getJadeDetails } from 'src/hardware/jade';
+import { generateSignerFromMetaData } from 'src/hardware';
 import ElectrumClient from 'src/services/electrum/client';
 import { predefinedTestnetNodes } from 'src/services/electrum/predefinedNodes';
 import {
   AverageTxFeesByNetwork,
-  OutputUTXOs,
   SerializedPSBTEnvelop,
   TransactionPrerequisite,
 } from 'src/services/wallets/interfaces';
