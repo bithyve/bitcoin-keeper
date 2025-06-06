@@ -627,7 +627,12 @@ function SigningDeviceDetails({ route }) {
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       if (wallet.type === VaultType.SINGE_SIG) return <WalletIcon />;
-      else return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+      else
+        return wallet.type === VaultType.COLLABORATIVE ? (
+          <CollaborativeIcon width={15} height={15} />
+        ) : (
+          <VaultIcon />
+        );
     } else {
       return <WalletIcon />;
     }
@@ -808,11 +813,7 @@ function SigningDeviceDetails({ route }) {
           icon={
             <CircleIconWrapper
               backgroundColor={signing_CircleIconWrapper}
-              icon={
-                SDIcons({ type: signer.type, light: colorMode === 'dark', width: 26, height: 26 })
-                  .Icon
-              }
-              // icon={SDIcons({ type: signer.type }).Icon}
+              icon={SDIcons({ type: signer.type, light: false, width: 26, height: 26 }).Icon}
               image={getPersistedDocument(signer?.extraData?.thumbnailPath)}
             />
           }
@@ -856,6 +857,7 @@ function SigningDeviceDetails({ route }) {
                     }
                     showSelection={false}
                     colorVarient="transparent"
+                    cardBackground={`${colorMode}.thirdBackground`}
                     customStyle={styles.signerCard}
                     colorMode={colorMode}
                     borderColor={`${colorMode}.separator`}
@@ -1229,8 +1231,8 @@ const styles = StyleSheet.create({
   signerCard: {
     borderWidth: 1,
     borderColor: Colors.secondaryLightGrey,
-    height: 125,
-    width: wp(105),
+    height: hp(125),
+    width: wp(161),
     paddingTop: 5,
     paddingLeft: 14,
   },

@@ -37,6 +37,8 @@ import UAIView from '../components/UAIView';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import Fonts from 'src/constants/Fonts';
 
 type CardProps = {
   uai: any;
@@ -446,20 +448,21 @@ function NotificationsCenter() {
   };
 
   return (
-    <ScreenWrapper paddingHorizontal={0}>
+    <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box
         style={{
           paddingHorizontal: 20,
           paddingTop: hp(15),
           paddingBottom: hp(5),
         }}
+        backgroundColor={`${colorMode}.primaryBackground`}
       >
         <WalletHeader title={common.Notifications} />
       </Box>
       <Box
         style={styles.notificationsContainer}
         height="93%"
-        backgroundColor={`${colorMode}.seashellWhite`}
+        backgroundColor={`${colorMode}.primaryBackground`}
       >
         {isLoading ? (
           <Box height="100%" justifyContent="center" alignItems="center">
@@ -467,39 +470,52 @@ function NotificationsCenter() {
           </Box>
         ) : (
           <Box height="95%">
-            <SectionList
-              sections={[
-                {
-                  title: common.New,
-                  data: unseenNotifications,
-                  show: unseenNotifications.length > 0,
-                },
-                {
-                  title: common.Seen,
-                  data: seenNotifications,
-                  show: seenNotifications.length > 0,
-                },
-              ].filter((section) => section.show)}
-              renderItem={({ item }) => renderNotificationCard({ uai: item })}
-              renderSectionHeader={({ section: { title } }) => (
-                <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
-                  <Text fontSize={16} semiBold>
-                    {title}
+            <Box height="95%">
+              {seenNotifications.length === 0 && unseenNotifications.length === 0 ? (
+                <Box
+                  style={styles.NonotificationsContainer}
+                  backgroundColor={`${colorMode}.textInputBackground`}
+                  borderColor={`${colorMode}.separator`}
+                >
+                  <ThemedSvg name={'no_notification_illustration'} />
+                  <Text fontSize={18} medium style={styles.text} color={`${colorMode}.primaryText`}>
+                    {notification.noNewNotification}
                   </Text>
-                  <Box
-                    style={{ borderBottomWidth: 1, marginTop: hp(8) }}
-                    borderColor={`${colorMode}.pantoneGreenLight`}
-                  />
+                  <Text fontSize={13} color={`${colorMode}.primaryText`} style={styles.subTitle}>
+                    {notification.noNotiSub}
+                  </Text>
                 </Box>
+              ) : (
+                <SectionList
+                  sections={[
+                    {
+                      title: common.New,
+                      data: unseenNotifications,
+                      show: unseenNotifications.length > 0,
+                    },
+                    {
+                      title: common.Seen,
+                      data: seenNotifications,
+                      show: seenNotifications.length > 0,
+                    },
+                  ].filter((section) => section.show)}
+                  renderItem={({ item }) => renderNotificationCard({ uai: item })}
+                  renderSectionHeader={({ section: { title } }) => (
+                    <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
+                      <Text fontSize={16} semiBold>
+                        {title}
+                      </Text>
+                      <Box
+                        style={{ borderBottomWidth: 1, marginTop: hp(8) }}
+                        borderColor={`${colorMode}.pantoneGreenLight`}
+                      />
+                    </Box>
+                  )}
+                  keyExtractor={(item) => item.id}
+                  showsVerticalScrollIndicator={false}
+                />
               )}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-            />
-            {seenNotifications.length == 0 && unseenNotifications.length == 0 && (
-              <Box height="95%" marginLeft={wp(15)}>
-                <Text fontSize={14}>{notification.noNewNotification}</Text>
-              </Box>
-            )}
+            </Box>
           </Box>
         )}
       </Box>
@@ -515,7 +531,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   notificationsContainer: {
-    marginTop: hp(30),
+    marginTop: hp(10),
     marginBottom: hp(10),
     width: '100%',
   },
@@ -524,6 +540,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(22),
     paddingTop: wp(20),
     paddingBottom: wp(10),
+  },
+  NonotificationsContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    marginHorizontal: wp(22),
+    paddingTop: hp(40),
+    paddingBottom: hp(80),
+    borderRadius: 20,
+    paddingHorizontal: wp(30),
+  },
+  text: {
+    marginTop: hp(30),
+    marginBottom: hp(10),
+    fontFamily: Fonts.LoraSemiBold,
+  },
+  subTitle: {
+    textAlign: 'center',
   },
 });
 

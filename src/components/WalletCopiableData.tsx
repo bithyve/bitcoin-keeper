@@ -30,7 +30,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
 
   return (
     <Box
-      backgroundColor={`${colorMode}.seashellWhite`}
+      backgroundColor={`${colorMode}.textInputBackground`}
       borderColor={isDarkMode ? `${colorMode}.dullGreyBorder` : `${colorMode}.greyBorder`}
       style={styles.container}
       width={width}
