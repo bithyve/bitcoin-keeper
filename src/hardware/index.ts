@@ -466,6 +466,9 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.PORTAL: {
       return 'Mobile-specific signer from TwentyTwo';
     }
+    case SignerType.KRUX: {
+      return 'A DIY Krux based signer';
+    }
     default:
       return null;
   }

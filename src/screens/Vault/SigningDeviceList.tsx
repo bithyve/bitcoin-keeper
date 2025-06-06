@@ -94,6 +94,7 @@ const SigningDeviceList = () => {
       SignerType.SPECTER,
       SignerType.TAPSIGNER,
       SignerType.TREZOR,
+      SignerType.KRUX,
     ],
     [SignerCategory.SOFTWARE]: [
       SignerType.KEEPER,

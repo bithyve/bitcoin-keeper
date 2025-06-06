@@ -233,6 +233,19 @@ function PortalContent() {
     </>
   );
 }
+function KruxContent({ isMultisig }) {
+  const { translations } = useContext(LocalizationContext);
+  const { signer: signerText } = translations;
+  return (
+    <>
+      <Box style={styles.portalIllustration}>
+        <ThemedSvg name={'krux_illustration'} />
+      </Box>
+      <Instruction text={isMultisig ? signerText.kruxSign1 : signerText.kruxSignSingleSig} />
+      <Instruction text={signerText.kruxSign2} />
+    </>
+  );
+}
 
 function PasswordEnter({ signTransaction, setPasswordModal }) {
   const { colorMode } = useColorMode();
@@ -493,6 +506,7 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
       };
     case SignerType.KEYSTONE:
     case SignerType.PASSPORT:
+    case SignerType.KRUX:
       return {
         supportedSigningOptions: [
           {
@@ -570,6 +584,7 @@ function SignerModals({
   bitbox02Modal,
   portalModal,
   otherSDModal,
+  kruxModal,
   setOtherSDModal,
   setTrezorModal,
   setBitbox02Modal,
@@ -584,6 +599,7 @@ function SignerModals({
   setPasswordModal,
   showOTPModal,
   setPortalModal,
+  setKruxModal,
   signTransaction,
   vaultKeys,
   isMultisig,
@@ -613,6 +629,7 @@ function SignerModals({
   bitbox02Modal: boolean;
   portalModal: boolean;
   otherSDModal: boolean;
+  kruxModal: boolean;
   setOtherSDModal: any;
   setTrezorModal: any;
   setBitbox02Modal: any;
@@ -627,6 +644,7 @@ function SignerModals({
   setPasswordModal: any;
   showOTPModal: any;
   setPortalModal: any;
+  setKruxModal: any;
   signTransaction: any;
   vaultKeys: VaultSigner[];
   isMultisig: boolean;
@@ -665,6 +683,7 @@ function SignerModals({
   const [otherModalContent, setOtherModalContent] = useState(false);
   const [keeperContentModal, setKeeperContentModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
+  const [kruxContentModal, setKruxContentModal] = useState(false);
 
   const navigateToQrSigning = (vaultKey: VaultSigner) => {
     setPassportModal(false);
@@ -762,6 +781,10 @@ function SignerModals({
                         } else if (signer.type === SignerType.KEEPER) {
                           setKeeperModalContent(true);
                           setKeeperModal(false);
+                        }
+                        if (signer.type === SignerType.KRUX) {
+                          setKruxContentModal(true);
+                          setKruxModal(false);
                         } else {
                           setColdCardContentModal(true);
                           setColdCardModal(false);
@@ -1444,6 +1467,74 @@ function SignerModals({
               }}
               Content={() => <PortalContent />}
             />
+          );
+        }
+        if (signer.type === SignerType.KRUX) {
+          return (
+            <>
+              <KeeperModal
+                visible={currentSigner && kruxModal}
+                close={() => setKruxModal(false)}
+                title={signerText.kruxReady}
+                subTitle={signerText.selectSignOption}
+                modalBackground={`${colorMode}.modalWhiteBackground`}
+                textColor={`${colorMode}.textGreen`}
+                subTitleColor={`${colorMode}.modalSubtitleBlack`}
+                Content={() => (
+                  <OptionModalContent
+                    supportedSigningOptions={supportedSigningOptions}
+                    onSelect={(mode) => {
+                      setSigningMode(mode);
+                    }}
+                    signingMode={signingMode}
+                  />
+                )}
+              />
+              <KeeperModal
+                key={vaultKey.xfp}
+                visible={currentSigner && kruxContentModal}
+                close={() => {
+                  setKruxContentModal(false);
+                }}
+                title={signerText.signingWith + signingMode}
+                subTitle={signerText.kruxQrSub}
+                modalBackground={`${colorMode}.modalWhiteBackground`}
+                textColor={`${colorMode}.textGreen`}
+                subTitleColor={`${colorMode}.modalSubtitleBlack`}
+                Content={() => <KruxContent isMultisig={isMultisig} />}
+                buttonText={signerText.startSigning}
+                secondaryButtonText={
+                  isMultisig && !isRemoteKey && !info?.registered
+                    ? vaultText.registerMultisig
+                    : null
+                }
+                secondaryCallback={() => {
+                  setKruxContentModal(false);
+                  openRegisterModal(signer, vaultKey, activeVault);
+                }}
+                buttonCallback={() => {
+                  setKruxContentModal(false);
+                  if (signingMode === SigningMode.FILE) {
+                    navigation.dispatch(
+                      CommonActions.navigate({
+                        name: 'HandleFile',
+                        params: {
+                          title: `${signerText.signingWith} ${getSignerNameFromType(signer.type)}`,
+                          subTitle: signerText.uploadAndPasteFile,
+                          ctaText: common.proceed,
+                          onFileExtract: onFileSign,
+                          fileData: serializedPSBTEnvelop.serializedPSBT,
+                          fileType: 'PSBT',
+                          signerType: signer.type,
+                        },
+                      })
+                    );
+                    return;
+                  }
+                  navigateToQrSigning(vaultKey);
+                }}
+              />
+            </>
           );
         }
 

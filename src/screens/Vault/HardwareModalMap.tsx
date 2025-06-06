@@ -75,6 +75,7 @@ import {
   setupJade,
   setupKeeperSigner,
   setupKeystone,
+  setupKrux,
   setupMobileKey,
   setupPassport,
   setupSeedSigner,
@@ -100,6 +101,7 @@ import BackupModalContent from '../AppSettings/BackupModal';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { manipulateKruxData } from 'src/hardware/krux';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -126,7 +128,8 @@ const getSignerContent = (
   isIdentification: boolean,
   colorMode: string,
   isNfcSupported: boolean,
-  keyGenerationMode: KeyGenerationMode
+  keyGenerationMode: KeyGenerationMode,
+  formatString: any
 ) => {
   const {
     tapsigner,
@@ -592,6 +595,52 @@ const getSignerContent = (
         options: [],
       };
 
+    case SignerType.KRUX:
+      const kruxIns = [
+        signerText.kruxInstruction1,
+        formatString(
+          signerText.kruxInstruction2,
+          keyGenerationMode === KeyGenerationMode.FILE ? 'XPUB-Text' : 'XPUB QR Code'
+        ),
+      ];
+      if (isTestnet()) kruxIns.push(signerText.kruxTestnet);
+
+      return {
+        type: SignerType.KRUX,
+        Illustration: <ThemedSvg name={'krux_illustration'} />,
+        Instructions: kruxIns,
+        title: isHealthcheck
+          ? signerText.kruxVerify
+          : isCanaryAddition
+          ? signerText.jadeCanaryTiltle
+          : signerText.kruxAdd,
+        subTitle: signerText.kruxSub,
+        options: [
+          {
+            title: 'QR',
+            icon: (
+              <CircleIconWrapper
+                icon={<QRComms />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.QR,
+          },
+          {
+            title: 'File',
+            icon: (
+              <CircleIconWrapper
+                icon={<Import />}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+                width={35}
+              />
+            ),
+            name: KeyGenerationMode.FILE,
+          },
+        ],
+      };
+
     default:
       return {
         type,
@@ -743,6 +792,11 @@ const verifyKeeperSigner = (qrData, signer) => {
 const verifyColdCard = (qrData, signer, isMultiSig) => {
   const { masterFingerprint } = extractColdCardExport(qrData, isMultiSig);
   return masterFingerprint === signer.masterFingerprint;
+};
+
+const verifyKrux = (qrData: any, signer: VaultSigner) => {
+  const { mfp } = manipulateKruxData(qrData);
+  return mfp === signer.masterFingerprint;
 };
 
 function PasswordEnter({
@@ -928,7 +982,7 @@ function HardwareModalMap({
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { translations } = useContext(LocalizationContext);
+  const { translations, formatString } = useContext(LocalizationContext);
   const {
     common,
     settings,
@@ -1043,10 +1097,14 @@ function HardwareModalMap({
 
   const navigateToAddQrBasedSigner = () => {
     let routeName = 'ScanQR';
+    const multipleXpubSigners = [
+      SignerType.JADE,
+      SignerType.SEEDSIGNER,
+      SignerType.PASSPORT,
+      SignerType.KRUX,
+    ];
     if (!isHealthcheck && !isCanaryAddition && !isExternalKey) {
-      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type)) {
-        routeName = 'AddMultipleXpub';
-      }
+      if (multipleXpubSigners.includes(type)) routeName = 'AddMultipleXpub';
     }
     navigation.dispatch(
       CommonActions.navigate({
@@ -1079,7 +1137,7 @@ function HardwareModalMap({
   const navigateToFileBasedSigner = (type) => {
     navigation.dispatch(
       CommonActions.navigate({
-        name: 'HandleFile',
+        name: type === SignerType.KRUX ? 'AddMultipleXpubFiles' : 'HandleFile',
         params: {
           title: `${
             isHealthcheck
@@ -1354,6 +1412,9 @@ function HardwareModalMap({
         case SignerType.COLDCARD:
           hw = setupColdcard(qrData, isMultisig);
           break;
+        case SignerType.KRUX:
+          hw = setupKrux(qrData, isMultisig);
+          break;
         default:
           break;
       }
@@ -1446,6 +1507,9 @@ function HardwareModalMap({
           break;
         case SignerType.COLDCARD:
           healthcheckStatus = verifyColdCard(qrData, signer, isMultisig);
+          break;
+        case SignerType.KRUX:
+          healthcheckStatus = verifyKrux(qrData, signer);
           break;
         default:
           break;
@@ -1568,6 +1632,18 @@ function HardwareModalMap({
               <ToastErrorIcon />
             );
           }
+        } catch (err) {
+          error = err;
+        }
+      case SignerType.KRUX:
+        try {
+          const { signer } = setupKrux(jsonData, isMultisig);
+          if (!signer)
+            showToast(
+              `${errorText.importFileFrom} ${getSignerNameFromType(type)}`,
+              <ToastErrorIcon />
+            );
+          else hw = signer;
         } catch (err) {
           error = err;
         }
@@ -1777,7 +1853,8 @@ function HardwareModalMap({
     isIdentification,
     colorMode,
     isNfcSupported,
-    keyGenerationMode
+    keyGenerationMode,
+    formatString
   );
 
   const lastUsedOption = useAppSelector(
@@ -1799,6 +1876,7 @@ function HardwareModalMap({
       case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
+      case SignerType.KRUX:
         setKeyGenerationMode(option.name);
         dispatch(setLastUsedOption({ signerType, option: option.name }));
         break;
@@ -1826,7 +1904,8 @@ function HardwareModalMap({
       signerType === SignerType.KEYSTONE ||
       signerType === SignerType.PASSPORT ||
       (signerType === SignerType.SEED_WORDS && !isHealthcheck) ||
-      signerType === SignerType.KEEPER
+      signerType === SignerType.KEEPER ||
+      signerType === SignerType.KRUX
     ) {
       return (
         <Box style={styles.modalContainer}>
@@ -1888,7 +1967,8 @@ function HardwareModalMap({
       signerType === SignerType.KEYSTONE ||
       signerType === SignerType.PASSPORT ||
       signerType === SignerType.SEED_WORDS ||
-      signerType === SignerType.KEEPER
+      signerType === SignerType.KEEPER ||
+      signerType === SignerType.KRUX
     ) {
       return (
         <Box style={styles.modalContainer}>
@@ -2005,6 +2085,7 @@ function HardwareModalMap({
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.KEYSTONE:
+      case SignerType.KRUX:
         if (keyGenerationMode === KeyGenerationMode.FILE) {
           return navigateToFileBasedSigner(type);
         }
@@ -2137,6 +2218,17 @@ function HardwareModalMap({
       [KeyGenerationMode.FILE]: {
         setupTitle: `${signerText.addWith} file`,
         setupSubTitle: externalKey.modalSubtitle,
+      },
+    },
+    [SignerType.KRUX]: {
+      [KeyGenerationMode.QR]: {
+        setupTitle: signerText.kruxQr,
+        setupSubTitle: signerText.kruxQrSub,
+      },
+
+      [KeyGenerationMode.FILE]: {
+        setupTitle: signerText.kruxFile,
+        setupSubTitle: signerText.kruxQrSub,
       },
     },
   };

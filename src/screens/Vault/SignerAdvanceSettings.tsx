@@ -283,6 +283,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
       case SignerType.COLDCARD:
+      case SignerType.KRUX:
         setRegisterSignerModal(true);
         break;
       case SignerType.JADE:

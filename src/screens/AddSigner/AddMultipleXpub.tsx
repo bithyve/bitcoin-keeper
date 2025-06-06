@@ -23,6 +23,7 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { manipulateKruxData } from 'src/hardware/krux';
 
 export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -67,6 +68,7 @@ export const AddMultipleXpub = () => {
     let passportTaproot;
     try {
       if (type === SignerType.SEEDSIGNER) data = manipulateSeedSignerData(data);
+      else if (type === SignerType.KRUX) data = manipulateKruxData(data);
       else if (type === SignerType.PASSPORT) {
         data = manipulatePassportDetails(getPassportDetails(data, true));
         passportTaproot = data?.taproot;
@@ -93,6 +95,7 @@ export const AddMultipleXpub = () => {
     [SignerType.PASSPORT]: signer.xPubPassPortSub,
     [SignerType.SEEDSIGNER]: signer.xPubSeedSignerSub,
     [SignerType.JADE]: signer.xPubJadeSub,
+    [SignerType.KRUX]: signer.kruxQrSub,
   };
 
   const subtitleModal = modalSubtitle[type] || signer.xPubDefaultSubtitle;
