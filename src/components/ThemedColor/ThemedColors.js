@@ -235,6 +235,30 @@ const themeColors = {
     PRIVATE: Colors.charcolBrown,
     PRIVATE_LIGHT: 'transparent',
   },
+  onBoardingSlides_background: {
+    DARK: Colors.primaryGreen,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.secondaryBlack,
+    PRIVATE_LIGHT: Colors.primaryCream,
+  },
+  start_Button_BackGround: {
+    DARK: Colors.primaryCream,
+    LIGHT: Colors.primaryCream,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
+  start_Button_Text_Color: {
+    DARK: Colors.primaryGreen,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.headerWhite,
+  },
+  onBording_Text_Color: {
+    DARK: Colors.headerWhite,
+    LIGHT: Colors.headerWhite,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.charcolBrown,
+  },
 };
 
 export default themeColors;

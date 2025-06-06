@@ -8,8 +8,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import MultiUserIllustration from 'src/assets/images/MultiUserIllustration.svg';
-import MultiUserIllustrationDark from 'src/assets/images/MultiUserIllustrationDark.svg';
 import { clearHasCreds } from 'src/store/reducers/login';
 import { setAppCreated } from 'src/store/reducers/storage';
 import { useAppSelector } from 'src/store/hooks';
@@ -22,6 +20,7 @@ import TickIcon from 'src/assets/images/icon_check.svg';
 import { setInitialNodesSaved } from 'src/store/reducers/network';
 import { saveBackupMethodByAppId } from 'src/store/sagaActions/account';
 import { setBackupType } from 'src/store/reducers/bhr';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export const MultiUserScreen = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
@@ -68,7 +67,7 @@ export const MultiUserScreen = ({ navigation }: any) => {
         >
           <Text fontSize={14}>{settings.multiUserScreenTitle1}</Text>
           <Box alignItems={'center'}>
-            {isDarkMode ? <MultiUserIllustrationDark /> : <MultiUserIllustration />}
+            <ThemedSvg name={'multiuser_illustration'} />
           </Box>
           <Buttons
             primaryText="Add User"
