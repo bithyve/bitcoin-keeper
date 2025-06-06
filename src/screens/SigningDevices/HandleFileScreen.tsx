@@ -134,7 +134,7 @@ const HandleFileScreen = ({ route, navigation }) => {
             <Buttons
               primaryCallback={() => {
                 navigation.goBack();
-                signerType === SignerType.KRUX
+                signerType === SignerType.KRUX && isHealthcheck
                   ? manipulateKruxSingleFile(inputText, onFileExtract)
                   : onFileExtract(inputText);
               }}

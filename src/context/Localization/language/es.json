@@ -2107,7 +2107,7 @@
     "kruxFile": "Use Krux via file",
     "kruxQr": "Use Krux with QR",
     "kruxQrSub": "Get Your Krux Ready and powered up before proceeding",
-    "kruxInstruction1": "Make sure the seed is loaded. To Configure Wallet go to Wallet > Customize > Policy Type(Single-sig/Multisig) > Script Type > Native Segwit - 84(only required for multisig)",
+    "kruxInstruction1": "Make sure the seed is loaded. To Configure Wallet go to Wallet > Customize > Policy Type(Single-sig/Multisig) > Script Type > Native Segwit - 84(only required for single-sig)",
     "kruxInstruction2": "To export the corresponding xPub go to Extended Public Key > Select {0}",
     "kruxTestnet": "Make sure to enable Testnet mode on Krux if you are running the app in Testnet mode from Wallet > Customize > Network > Testnet and enable it.",
     "kruxVerify": "Verify Krux",
