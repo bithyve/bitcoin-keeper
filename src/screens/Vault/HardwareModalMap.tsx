@@ -1135,9 +1135,10 @@ function HardwareModalMap({
   };
 
   const navigateToFileBasedSigner = (type) => {
+    const route = type === SignerType.KRUX && addSignerFlow ? 'AddMultipleXpubFiles' : 'HandleFile';
     navigation.dispatch(
       CommonActions.navigate({
-        name: type === SignerType.KRUX ? 'AddMultipleXpubFiles' : 'HandleFile',
+        name: route,
         params: {
           title: `${
             isHealthcheck
