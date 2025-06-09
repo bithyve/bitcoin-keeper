@@ -2117,6 +2117,8 @@
     "kruxSign1": "Make sure the seed is loaded and multisig wallet is registered with Krux before signing the transaction",
     "kruxSign2": "To sign the transaction, from the Home Screen select Sign > PSBT > Load from camera / Load from SD card",
     "kruxSignSingleSig": "Make sure the seed is loaded before signing the transaction",
+    "kruxInfo": "An open-source firmware that transforms off-the-shelf Kendryte K210 devices, such as the Maix Amigo, M5StickV and more, into versatile bitcoin transaction signers.",
+    "kruxDesc": "Interacting seamlessly with leading coordinator wallets through QR codes, SD cards, and even thermal printers, the user-friendly firmware offers unique features to support transactions and mnemonic backups in an offline environment.",
     "seedKeyTiltle": "Import a Seed Key",
     "seedKeySub": "Seed Key is a 12-word phrase that can be generated new or imported",
     "createSeedKey": "Create a Seed Key",

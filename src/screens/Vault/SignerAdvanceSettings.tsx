@@ -909,6 +909,14 @@ function SignerAdvanceSettings({ route }: any) {
           description: signerTranslation.specterDesc,
           FAQ: 'https://docs.specter.solutions/diy/faq/',
         };
+      case SignerType.KRUX:
+        return {
+          title: 'Krux',
+          subTitle: signerTranslation.kruxInfo,
+          assert: <ThemedSvg name={'krux_illustration'} />,
+          description: signerTranslation.kruxDesc,
+          FAQ: 'https://selfcustody.github.io/krux/faq/',
+        };
       default:
         return {
           title: '',

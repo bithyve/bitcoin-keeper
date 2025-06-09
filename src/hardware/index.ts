@@ -218,6 +218,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.PORTAL:
       name = 'Portal';
       break;
+    case SignerType.KRUX:
+      name = 'Krux';
+      break;
     default:
       name = type;
       break;
