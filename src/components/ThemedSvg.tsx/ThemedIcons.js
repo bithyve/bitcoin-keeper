@@ -281,6 +281,10 @@ import KruxIllustration from 'src/assets/images/krux_illustration.svg';
 import KruxIllustrationDark from 'src/assets/images/krux_illustration_dark.svg';
 import KruxSuccess from 'src/assets/images/krux_success.svg';
 import KruxSuccessDark from 'src/assets/images/krux_success_dark.svg';
+import KruxSuccessPrivate from 'src/assets/privateImages/kruxSuccessPrivate.svg';
+import KruxSuccessPrivateDark from 'src/assets/privateImages/kruxSuccessPrivateDark.svg';
+import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustration.svg';
+import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -990,14 +994,14 @@ const themeIcons = {
   krux_illustration: {
     DARK: KruxIllustrationDark,
     LIGHT: KruxIllustration,
-    PRIVATE: KruxIllustrationDark,
-    PRIVATE_LIGHT: KruxIllustration, // ! update
+    PRIVATE: KruxPrivateIllustration,
+    PRIVATE_LIGHT: KruxPrivateIllustrationDark,
   },
   krux_success: {
     DARK: KruxSuccessDark,
     LIGHT: KruxSuccess,
-    PRIVATE: PrivatePortalSuccess, // ! update
-    PRIVATE_LIGHT: PrivatePortalSuccess,
+    PRIVATE: KruxSuccessPrivate,
+    PRIVATE_LIGHT: KruxSuccessPrivateDark,
   },
 };
 
