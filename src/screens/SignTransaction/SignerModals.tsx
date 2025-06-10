@@ -1551,10 +1551,7 @@ function SignerModals({
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           Content={() => (
             <RegisterSignerContent
-              isUSBAvailable={
-                registeredSigner.type === SignerType.COLDCARD ||
-                (registeredSigner.type === SignerType.JADE && isMiniscript)
-              }
+              isUSBAvailable={isMiniscript}
               signer={registeredSigner}
               vaultId={vaultId}
               vaultKey={registeredVaultKey}

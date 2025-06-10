@@ -57,7 +57,7 @@ const SigningDeviceList = () => {
   } = route.params as any;
   const { colorMode } = useColorMode();
   const { isOnL1, isOnL2 } = usePlan();
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
