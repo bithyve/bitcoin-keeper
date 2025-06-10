@@ -735,19 +735,21 @@ function SendConfirmation({ route }) {
           />
         </Box>
       </ScrollView>
-      <Buttons
-        primaryText={common.confirmProceed}
-        secondaryText={isCachedTransaction ? common.discard : common.cancel}
-        secondaryCallback={() => {
-          if (isCachedTransaction) discardCachedTransaction();
-          else navigation.goBack();
-        }}
-        primaryCallback={() => {
-          dispatch(credsAuthenticated(false));
-          setConfirmPassVisible(true);
-        }}
-        primaryLoading={inProgress}
-      />
+      <Box marginTop={hp(15)}>
+        <Buttons
+          primaryText={common.confirmProceed}
+          secondaryText={isCachedTransaction ? common.discard : common.cancel}
+          secondaryCallback={() => {
+            if (isCachedTransaction) discardCachedTransaction();
+            else navigation.goBack();
+          }}
+          primaryCallback={() => {
+            dispatch(credsAuthenticated(false));
+            setConfirmPassVisible(true);
+          }}
+          primaryLoading={inProgress}
+        />
+      </Box>
       <KeeperModal
         visible={visibleModal}
         close={!isMoveAllFunds ? viewDetails : viewManageWallets}
