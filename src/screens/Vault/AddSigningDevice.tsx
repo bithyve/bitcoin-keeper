@@ -353,7 +353,7 @@ function Footer({
   setCreating,
   isCollaborativeFlow,
   isAssistedWalletFlow,
-  isTimeLock,
+  hasInitialTimelock,
   setTimelockCautionModal,
   isReserveKeyFlow,
   isEmergencyKeyFlow,
@@ -426,48 +426,78 @@ function Footer({
           primaryLoading={relayVaultUpdateLoading}
           primaryText={keyToRotate ? 'Replace Key' : common.proceed}
           primaryCallback={
-            !isAddInheritanceKey
-              ? !isAddEmergencyKey
-                ? keyToRotate
-                  ? () => {
-                      setCreating(true);
-                    }
-                  : () => {
-                      navigation.navigate('ConfirmWalletDetails', {
-                        vaultKeys,
-                        scheme,
-                        isHotWallet,
-                        vaultType,
-                        isTimeLock,
-                        isAddInheritanceKey,
-                        currentBlockHeight,
-                        hotWalletInstanceNum,
-                        selectedSigners: signersList,
-                        vaultId,
-                      });
-                    }
+            !hasInitialTimelock
+              ? !isAddInheritanceKey
+                ? !isAddEmergencyKey
+                  ? keyToRotate
+                    ? () => {
+                        setCreating(true);
+                      }
+                    : () => {
+                        navigation.navigate('ConfirmWalletDetails', {
+                          vaultKeys,
+                          scheme,
+                          isHotWallet,
+                          vaultType,
+                          hasInitialTimelock,
+                          isAddInheritanceKey,
+                          currentBlockHeight,
+                          hotWalletInstanceNum,
+                          selectedSigners: signersList,
+                          vaultId,
+                        });
+                      }
+                  : () =>
+                      navigation.dispatch(
+                        CommonActions.navigate('AddEmergencyKey', {
+                          vaultKeys: vaultKeys.filter(
+                            (signer) =>
+                              !Object.keys(
+                                activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                  ?.signerFingerprints || {}
+                              )
+                                .filter((key) => key.startsWith(EMERGENCY_KEY_IDENTIFIER))
+                                .some((key) => {
+                                  const fingerprint =
+                                    activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                      ?.signerFingerprints[key];
+                                  const fingerprintCount = Object.values(
+                                    activeVault?.scheme?.miniscriptScheme?.miniscriptElements
+                                      ?.signerFingerprints || {}
+                                  ).filter((fp) => fp === fingerprint).length;
+                                  return (
+                                    signer.masterFingerprint === fingerprint &&
+                                    fingerprintCount === 1
+                                  );
+                                })
+                          ),
+                          vaultId,
+                          scheme,
+                          name,
+                          description,
+                          isAddInheritanceKey,
+                          isAddEmergencyKey,
+                          hasInitialTimelock,
+                          currentBlockHeight,
+                          selectedSigners: signersList,
+                        })
+                      )
                 : () =>
                     navigation.dispatch(
-                      CommonActions.navigate('AddEmergencyKey', {
+                      CommonActions.navigate('AddReserveKey', {
                         vaultKeys: vaultKeys.filter(
                           (signer) =>
                             !Object.keys(
                               activeVault?.scheme?.miniscriptScheme?.miniscriptElements
                                 ?.signerFingerprints || {}
                             )
-                              .filter((key) => key.startsWith(EMERGENCY_KEY_IDENTIFIER))
-                              .some((key) => {
-                                const fingerprint =
+                              .filter((key) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
+                              .some(
+                                (key) =>
+                                  signer.masterFingerprint ===
                                   activeVault?.scheme?.miniscriptScheme?.miniscriptElements
-                                    ?.signerFingerprints[key];
-                                const fingerprintCount = Object.values(
-                                  activeVault?.scheme?.miniscriptScheme?.miniscriptElements
-                                    ?.signerFingerprints || {}
-                                ).filter((fp) => fp === fingerprint).length;
-                                return (
-                                  signer.masterFingerprint === fingerprint && fingerprintCount === 1
-                                );
-                              })
+                                    ?.signerFingerprints[key]
+                              )
                         ),
                         vaultId,
                         scheme,
@@ -475,33 +505,22 @@ function Footer({
                         description,
                         isAddInheritanceKey,
                         isAddEmergencyKey,
+                        hasInitialTimelock,
                         currentBlockHeight,
                         selectedSigners: signersList,
                       })
                     )
               : () =>
                   navigation.dispatch(
-                    CommonActions.navigate('AddReserveKey', {
-                      vaultKeys: vaultKeys.filter(
-                        (signer) =>
-                          !Object.keys(
-                            activeVault?.scheme?.miniscriptScheme?.miniscriptElements
-                              ?.signerFingerprints || {}
-                          )
-                            .filter((key) => key.startsWith(INHERITANCE_KEY_IDENTIFIER))
-                            .some(
-                              (key) =>
-                                signer.masterFingerprint ===
-                                activeVault?.scheme?.miniscriptScheme?.miniscriptElements
-                                  ?.signerFingerprints[key]
-                            )
-                      ),
+                    CommonActions.navigate('SelectInitialTimelock', {
+                      vaultKeys,
                       vaultId,
                       scheme,
                       name,
                       description,
                       isAddInheritanceKey,
                       isAddEmergencyKey,
+                      hasInitialTimelock,
                       currentBlockHeight,
                       selectedSigners: signersList,
                     })
@@ -1146,13 +1165,13 @@ function AddSigningDevice() {
       addedSigner?: Signer;
       addSignerFlow?: boolean;
       showModal?: boolean;
-      isTimeLock?: boolean;
       currentBlockHeight?: number;
       selectedSignersFromParams?: Signer[];
       isAddInheritanceKey?: boolean;
       isAddEmergencyKey?: boolean;
       isNewSchemeFlow?: boolean;
       signerFilters?: SignerType | Array<SignerType>;
+      hasInitialTimelock?: boolean;
     };
   };
   const {
@@ -1168,9 +1187,9 @@ function AddSigningDevice() {
     isSSAddition = false,
     addedSigner,
     selectedSignersFromParams,
-    isTimeLock = false,
     isAddInheritanceKey: isAddInheritanceKeyParam = false,
     isAddEmergencyKey: isAddEmergencyKeyParam = false,
+    hasInitialTimelock,
     isNewSchemeFlow = false,
     currentBlockHeight,
     signerFilters = [],
@@ -1178,7 +1197,7 @@ function AddSigningDevice() {
   const { showToast } = useToastMessage();
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation } = translations;
+  const { vault: vaultTranslation, wallet: walletTranslation } = translations;
   const [keyAddedModalVisible, setKeyAddedModalVisible] = useState(false);
 
   const { signers } = useSigners('', false);
@@ -1410,7 +1429,7 @@ function AddSigningDevice() {
     isCollaborativeWallet,
     isSSAddition,
     isAssistedWallet,
-    isTimeLock,
+    isTimeLock: hasInitialTimelock,
     isInheritance: isAddInheritanceKey,
     isEmergency: isAddEmergencyKey,
     scheme,
@@ -1431,7 +1450,7 @@ function AddSigningDevice() {
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
       <SafeAreaView style={styles.topContainer}>
         <Box style={styles.topSection}>
-          <WalletHeader title="Select your wallet keys" />
+          <WalletHeader title={vaultTranslation.selectYourWalletKeys} />
         </Box>
         <VaultMigrationController
           vaultCreating={vaultCreating}
@@ -1445,6 +1464,7 @@ function AddSigningDevice() {
           vaultType={vaultType}
           currentBlockHeight={currentBlockHeight}
           miniscriptTypes={[
+            ...(hasInitialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
             ...(isAddInheritanceKey ? [MiniscriptTypes.INHERITANCE] : []),
             ...(isAddEmergencyKey ? [MiniscriptTypes.EMERGENCY] : []),
           ]}
@@ -1493,6 +1513,7 @@ function AddSigningDevice() {
           isEmergencyKeyFlow={isEmergencyKeyFlow}
           isAddInheritanceKey={isAddInheritanceKey}
           isAddEmergencyKey={isAddEmergencyKey}
+          hasInitialTimelock={hasInitialTimelock}
           currentBlockHeight={currentBlockHeight}
           onGoBack={onGoBack}
           vaultKeys={vaultKeys}
@@ -1512,11 +1533,13 @@ function AddSigningDevice() {
           dismissible
           close={() => {}}
           visible={vaultCreatedModalVisible}
-          title={keyToRotate ? 'Key Replaced Successfully' : 'Wallet Created Successfully'}
+          title={
+            keyToRotate ? vaultTranslation.keyReplacedSuccessfully : walletTranslation.WalletCreated
+          }
           subTitle={
             keyToRotate
-              ? 'Your wallet key was successfully replaced, you can continue to use your updated wallet.'
-              : `Your ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} vault has been created successfully. Please test the setup before putting in significant amounts.`
+              ? walletTranslation.yourWalletKeyWasSuccessfullyReplaced
+              : `${walletTranslation.your} ${newVault?.scheme?.m}-of-${newVault?.scheme?.n} ${walletTranslation.testVault}`
           }
           Content={
             keyToRotate
@@ -1531,7 +1554,7 @@ function AddSigningDevice() {
               ? () => SingleSigWallet(newVault)
               : () => VaultCreatedModalContent(newVault)
           }
-          buttonText="View Wallet"
+          buttonText={walletTranslation.ViewWallet}
           buttonCallback={viewVault}
           secondaryCallback={viewVault}
           modalBackground={`${colorMode}.modalWhiteBackground`}

@@ -57,13 +57,13 @@ const SigningDeviceList = () => {
   } = route.params as any;
   const { colorMode } = useColorMode();
   const { isOnL1, isOnL2 } = usePlan();
-  const { signers } = useSigners();
+  const { signers } = useSigners('', false);
   const { translations } = useContext(LocalizationContext);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
   const dispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
-  const { signer, common } = translations;
+  const { signer, common, settings } = translations;
   const isMultisig = addSignerFlow
     ? true
     : scheme?.n !== 1 || scheme?.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
@@ -143,14 +143,14 @@ const SigningDeviceList = () => {
   function AdvancedSettingsContent() {
     return (
       <Box>
-        <Text>Account Number (Optional):</Text>
+        <Text>{signer.accountNumberoptional}</Text>
         <Box
           style={styles.input}
           backgroundColor={`${colorMode}.seashellWhite`}
           borderColor={`${colorMode}.greyBorder`}
         >
           <Input
-            placeholder="Enter account number (default is 0)"
+            placeholder={signer.accountNumberoptionalDesc}
             placeholderTextColor={`${colorMode}.placeHolderTextColor`}
             borderWidth={0}
             value={accountNumberText}
@@ -275,8 +275,8 @@ const SigningDeviceList = () => {
       />
       <KeeperModal
         visible={showAdvancedSettingsModal}
-        title="Advanced Options"
-        subTitle="Account numbers are for advanced users. Leave this empty unless you need a specific account."
+        title={settings.SingerSettingsTitle}
+        subTitle={settings.accountNumberForAdvancedUser}
         close={() => setShowAdvancedSettingsModal(false)}
         buttonText={common.save}
         buttonCallback={() => {
@@ -287,7 +287,7 @@ const SigningDeviceList = () => {
             setAccountNumber(0);
             setShowAdvancedSettingsModal(false);
           } else {
-            showToast('Account number invalid', null, IToastCategory.DEFAULT, 3000, true);
+            showToast(settings.accountNumberInvalid, null, IToastCategory.DEFAULT, 3000, true);
           }
         }}
         secondaryButtonText={common.cancel}

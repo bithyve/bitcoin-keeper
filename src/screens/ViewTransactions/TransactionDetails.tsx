@@ -43,13 +43,15 @@ export function EditNoteContent({ existingNote, noteRef }: { existingNote: strin
   const updateNote = useCallback((text) => {
     noteRef.current = text;
   }, []);
+  const { translations } = useContext(LocalizationContext);
+  const { transactions } = translations;
 
   return (
     <VStack style={styles.noteContainer}>
       <KeeperTextInput
         defaultValue={existingNote}
         onChangeText={updateNote}
-        placeholder="Add transaction note"
+        placeholder={transactions.addTransactionNote}
         testID="tx_note"
       />
     </VStack>

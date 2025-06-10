@@ -1,5 +1,5 @@
 import { Box, useColorMode, View } from 'native-base';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import DashedCta from 'src/components/DashedCta';
 import WalletCard from './WalletCard';
@@ -14,7 +14,7 @@ import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import ImportWalletIcon from 'src/assets/images/import.svg';
@@ -30,12 +30,15 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const { wallets } = useWallets({ getAll: true });
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletText, home, common } = translations;
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
   const { allVaults } = useVault({
     includeArchived: false,
@@ -87,8 +90,8 @@ const HomeWallet = () => {
 
   const CREATE_WALLET_OPTIONS = [
     {
-      title: 'Create Wallet',
-      subtitle: 'Create a new bitcoin wallet',
+      title: walletText.createWallet,
+      subtitle: walletText.createWalletDesc,
       icon: <NewWalletIcon />,
       onPress: () => {
         setShowAddWalletModal(false);
@@ -97,8 +100,8 @@ const HomeWallet = () => {
       id: 'newWallet',
     },
     {
-      title: 'Import Wallet',
-      subtitle: 'Restore an existing wallet',
+      title: home.ImportWallet,
+      subtitle: walletText.restoreExistingWallet,
       icon: <ImportWalletIcon />,
       onPress: () => {
         setShowAddWalletModal(false);
@@ -107,8 +110,8 @@ const HomeWallet = () => {
       id: 'importWallet',
     },
     {
-      title: 'Collaborative Wallet',
-      subtitle: 'Create wallet with family and friends',
+      title: common.collaborativeWallet,
+      subtitle: walletText.walletWithFamily,
       icon: <CollaborativeWalletIcon />,
       onPress: handleCollaborativeWalletCreation,
       id: 'collaborativeWallet',
@@ -152,7 +155,7 @@ const HomeWallet = () => {
         backgroundColor={dashed_CTA_background}
         hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
         textColor={`${colorMode}.greenWhiteText`}
-        name="Add Wallet"
+        name={walletText.addWallet}
         callback={() => setShowAddWalletModal(true)}
         icon={<ThemedSvg name={'add_wallet_plus_icon'} width={9} height={9} />}
         iconWidth={22}
@@ -168,8 +171,8 @@ const HomeWallet = () => {
       />
       <KeeperModal
         visible={showAddWalletModal}
-        title="Add a New Wallet"
-        subTitle="Create a new wallet or import existing one"
+        title={walletText.addNewWallet}
+        subTitle={walletText.createOrImportWallet}
         close={() => setShowAddWalletModal(false)}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -185,10 +188,10 @@ const HomeWallet = () => {
       <KeeperModal
         visible={collabSessionExistsModalVisible}
         close={() => setCollabSessionExistsModalVisible(false)}
-        title="Collaborative wallet setup session already exists"
-        subTitle="You already have a collaborative wallet setup session in progress, would you like to continue the session or start a new one?"
-        buttonText="Continue session"
-        secondaryButtonText="Start new"
+        title={walletText.collaborativeSessionExists}
+        subTitle={walletText.collaborativeSessionExistsDesc}
+        buttonText={common.continueSession}
+        secondaryButtonText={common.startNew}
         secondaryCallback={() => {
           setCollabSessionExistsModalVisible(false);
           dispatch(resetCollaborativeSession());

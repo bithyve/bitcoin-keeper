@@ -34,7 +34,7 @@ function SigningRequest() {
   const [otp, setOtp] = useState('');
   const [requestToCancel, setRequestToCancel] = useState('');
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, error: errorText, signer } = translations;
   const { showToast } = useToastMessage();
 
   const signingRequests = useMemo(() => {
@@ -66,7 +66,7 @@ function SigningRequest() {
       const txid = requestToCancel;
       const { signerId, signedPSBT } = delayedTransactions[txid] as DelayedTransaction;
       if (signedPSBT) {
-        showToast('This request has already been signed');
+        showToast(errorText.requestAlreadySigned);
         showValidationModal(false);
         setOtp('');
         return;
@@ -81,9 +81,9 @@ function SigningRequest() {
       );
 
       if (canceled) {
-        showToast('Signing request has been cancelled');
+        showToast(errorText.signingRequestCancelled);
         dispatch(deleteDelayedTransaction(txid));
-      } else showToast('Failed to cancel the signing request');
+      } else showToast(errorText.failedToCancelSigningReq);
 
       showValidationModal(false);
       setOtp('');
@@ -121,7 +121,7 @@ function SigningRequest() {
               if (clipBoardData.match(/^\d{6}$/)) {
                 setOtp(clipBoardData);
               } else {
-                showToast('Invalid OTP');
+                showToast(errorText.invalidOtpshort);
                 setOtp('');
               }
             }}
@@ -153,11 +153,11 @@ function SigningRequest() {
                 if (requestToCancel) {
                   cancelRequest();
                 } else {
-                  showToast('Please select a Signing Request');
+                  showToast(errorText.selectSigningRequest);
                 }
               }}
               fullWidth
-              primaryText="Confirm"
+              primaryText={common.confirm}
               primaryDisable={otp.length !== 6}
             />
           </Box>
@@ -168,7 +168,7 @@ function SigningRequest() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Signing Requests" />
+      <WalletHeader title={signer.signingReq} />
       <ScrollView contentContainerStyle={styles.container}>
         <Box gap={hp(20)}>
           {signingRequests.length > 0 ? (
@@ -187,7 +187,7 @@ function SigningRequest() {
               />
             ))
           ) : (
-            <Text style={styles.noRequestsText}>There are no signing requests.</Text>
+            <Text style={styles.noRequestsText}>{signer.noSigningReq}</Text>
           )}
         </Box>
       </ScrollView>

@@ -64,14 +64,16 @@ function AddReserveKey({ route }) {
     vaultId,
     isAddInheritanceKey,
     isAddEmergencyKey,
+    hasInitialTimelock,
     currentBlockHeight: currentBlockHeightParam,
     keyToRotate,
+    initialTimelockDuration,
   } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultTranslations } = translations;
+  const { common, vault: vaultTranslations, wallet: walletTranslations } = translations;
   const [selectedOption, setSelectedOption] = useState(DEFAULT_INHERITANCE_KEY_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const { activeVault, allVaults } = useVault({ vaultId });
@@ -153,6 +155,7 @@ function AddReserveKey({ route }) {
       scheme,
       isAddInheritanceKey,
       isAddEmergencyKey,
+      hasInitialTimelock,
       currentBlockHeight,
       onGoBack: (signer) => setSelectedSigner(signer),
     });
@@ -164,6 +167,7 @@ function AddReserveKey({ route }) {
     scheme,
     isAddInheritanceKey,
     isAddEmergencyKey,
+    hasInitialTimelock,
     currentBlockHeight,
   ]);
 
@@ -235,12 +239,14 @@ function AddReserveKey({ route }) {
                   description,
                   isAddInheritanceKey,
                   isAddEmergencyKey,
+                  hasInitialTimelock,
                   currentBlockHeight,
                   selectedSigners: route.params.selectedSigners,
                   keyToRotate,
                   inheritanceKeys: selectedSigner
                     ? [{ key: selectedSigner[0], duration: selectedOption.label }]
                     : [],
+                  initialTimelockDuration,
                 });
               } else {
                 if (vaultId) {
@@ -252,9 +258,9 @@ function AddReserveKey({ route }) {
                   scheme,
                   isHotWallet: false,
                   vaultType: VaultType.MINISCRIPT,
-                  isTimeLock: false,
                   isAddInheritanceKey,
                   isAddEmergencyKey,
+                  hasInitialTimelock,
                   currentBlockHeight,
                   hotWalletInstanceNum: null,
                   reservedKeys: selectedSigner
@@ -262,6 +268,7 @@ function AddReserveKey({ route }) {
                     : [],
                   selectedSigners: route.params.selectedSigners,
                   vaultId,
+                  initialTimelockDuration,
                 });
               }
             }}
@@ -272,10 +279,8 @@ function AddReserveKey({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Key Replaced Successfully'}
-        subTitle={
-          'Your key was successfully replaced, you can continue to use your updated wallet.'
-        }
+        title={vaultTranslations.keyReplacedSuccessfully}
+        subTitle={vaultTranslations.replacedKeyMessage}
         Content={() => {
           return (
             <Box flex={1} alignItems={'center'}>
@@ -283,7 +288,7 @@ function AddReserveKey({ route }) {
             </Box>
           );
         }}
-        buttonText={'View Wallet'}
+        buttonText={walletTranslations.ViewWallet}
         buttonCallback={viewVault}
         secondaryCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -317,8 +322,12 @@ function AddReserveKey({ route }) {
         inheritanceKeys={
           selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
         }
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
-        miniscriptTypes={[MiniscriptTypes.INHERITANCE]}
+        miniscriptTypes={[
+          ...(initialTimelockDuration ? [MiniscriptTypes.TIMELOCKED] : []),
+          MiniscriptTypes.INHERITANCE,
+        ]}
         setVaultCreatedModalVisible={setVaultCreatedModalVisible}
       />
     </ScreenWrapper>

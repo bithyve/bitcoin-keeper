@@ -54,7 +54,6 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { deleteDelayedTransaction } from 'src/store/reducers/storage';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import ReceiptWrapper from './ReceiptWrapper';
-import TransferCard from './TransferCard';
 import TransactionPriorityDetails from './TransactionPriorityDetails';
 import HighFeeAlert from './HighFeeAlert';
 import FeeRateStatementCard from '../FeeInsights/FeeRateStatementCard';
@@ -63,6 +62,11 @@ import SendSuccessfulContent from './SendSuccessfulContent';
 import PriorityModal from './PriorityModal';
 import CustomPriorityModal from './CustomPriorityModal';
 import SigningServer from '../../services/backend/SigningServer';
+import SendingCard from './SendingCard';
+import SendingCardIcon from 'src/assets/images/vault_icon.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import MultiSendSvg from 'src/assets/images/@.svg';
+import useExchangeRates from 'src/hooks/useExchangeRates';
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
@@ -109,6 +113,7 @@ function SendConfirmation({ route }) {
     miniscriptSelectedSatisfier,
   }: SendConfirmationRouteParams = route.params;
   const navigation = useNavigation();
+  const exchangeRates = useExchangeRates();
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const txRecipientsOptions = useAppSelector(
@@ -128,7 +133,13 @@ function SendConfirmation({ route }) {
   const { activeVault: defaultVault } = useVault({ includeArchived: false, getFirst: true });
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations, common, vault } = translations;
+  const {
+    wallet: walletTranslations,
+    common,
+    vault,
+    error: errorText,
+    transactions,
+  } = translations;
 
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
@@ -236,7 +247,7 @@ function SendConfirmation({ route }) {
           })
         );
         if (isFocused) {
-          showToast('New pending transaction saved successfully', <TickIcon />);
+          showToast(errorText.pendingTransactonSuccesful, <TickIcon />);
         }
       } else {
         navigation.dispatch(e.data.action);
@@ -287,7 +298,7 @@ function SendConfirmation({ route }) {
           (sender as Vault).scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG
         ) {
           if (!miniscriptSelectedSatisfier) {
-            showToast('Invalid phase/path selection', <ToastErrorIcon />);
+            showToast(errorText.invalidPhase, <ToastErrorIcon />);
             return;
           }
         }
@@ -312,12 +323,7 @@ function SendConfirmation({ route }) {
               );
             }, 200);
           })
-          .catch(() =>
-            showToast(
-              'Failed to fetch current block height. Please check your internet connection and retry.',
-              <ToastErrorIcon />
-            )
-          );
+          .catch(() => showToast(errorText.failedToFetchCurrentBlock, <ToastErrorIcon />));
       }
     }
   }, [inProgress]);
@@ -382,13 +388,13 @@ function SendConfirmation({ route }) {
     if (canceled) {
       dispatch(deleteDelayedTransaction(cachedTxid));
       showValidationModal(false);
-      showToast('Associated Server Key signing request has been cancelled');
+      showToast(errorText.serverKeysigningReq);
 
       dropSnapshot();
     } else {
       setOtp('');
       showValidationModal(false);
-      showToast('Failed to cancel the associated Server Key signing request. Please try again!');
+      showToast(errorText.failedToCancelServerKeysigningReq);
     }
   };
 
@@ -507,9 +513,9 @@ function SendConfirmation({ route }) {
 
     try {
       await Share.open({
-        message: 'The transaction has been successfully sent. You can track its status here:',
+        message: transactions.transactionSuccessSent,
         url,
-        title: 'Transaction Details',
+        title: transactions.transactionDetails,
       });
     } catch (err) {
       console.error('Share error:', err);
@@ -526,7 +532,7 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     if (sendPhaseTwoFailed) setProgress(false);
     if (failedSendPhaseTwoErrorMessage) {
-      showToast(`Failed to send transaction: ${failedSendPhaseTwoErrorMessage}`);
+      showToast(`${errorText.failedToSendTransaction} ${failedSendPhaseTwoErrorMessage}`);
     }
   }, [sendPhaseTwoFailed]);
 
@@ -624,7 +630,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Send Confirmation" rightComponent={<CurrencyTypeSwitch />} />
+      <WalletHeader title={common.sendConfirmation} rightComponent={<CurrencyTypeSwitch />} />
 
       <ScrollView
         style={styles.container}
@@ -632,27 +638,22 @@ function SendConfirmation({ route }) {
         showsVerticalScrollIndicator={false}
       >
         <Box style={styles.receiptContainer}>
-          <ReceiptWrapper>
-            <TransferCard
-              title="Sending from"
-              titleFontSize={16}
-              titleFontWeight={500}
+          <ReceiptWrapper showThemedSvg>
+            <SendingCard
+              title={walletTranslations.sendingFrom}
               subTitle={sender?.presentationData?.name}
-              subTitleFontSize={15}
-              amountFontSize={16}
-              unitFontSize={13}
+              icon={<SendingCardIcon width={30} height={30} />}
             />
-            {amounts.flatMap((amount, index) => [
-              <TransferCard
-                key={`to-${index}`}
-                title="Sending to"
-                titleFontSize={16}
-                titleFontWeight={500}
+            {amounts?.flatMap((amount, index) => [
+              <SendingCard
+                title={walletTranslations.sendingTo}
                 subTitle={internalRecipients[index]?.presentationData?.name || addresses[index]}
-                subTitleFontSize={15}
+                icon={amounts.length > 1 ? <MultiSendSvg /> : <WalletIcon />}
                 amount={amount}
+                multiItem={amounts.length > 1 ? true : false}
               />,
             ])}
+
             <TouchableOpacity
               testID="btn_transactionPriority"
               onPress={() => setTransPriorityModalVisible(true)}
@@ -674,39 +675,69 @@ function SendConfirmation({ route }) {
                 feeInsightData={OneDayHistoricalFee}
               />
             )}
+            <Box>
+              <Text
+                medium
+                color={`${colorMode}.primaryText`}
+                fontSize={16}
+                style={styles.currentBtcPrice}
+              >
+                {walletTranslations.currentBtcPrice}
+              </Text>
+              <Text fontSize={14} color={`${colorMode}.primaryText`}>
+                {exchangeRates?.BMD?.symbol +
+                  new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(exchangeRates?.BMD?.last)}
+              </Text>
+            </Box>
           </ReceiptWrapper>
         </Box>
-        <Box style={styles.totalAmountWrapper}>
+        <Box
+          style={styles.totalAmountWrapper}
+          borderColor={`${colorMode}.separator`}
+          backgroundColor={`${colorMode}.textInputBackground`}
+        >
           <AmountDetails
-            title={walletTranslations.totalAmount}
+            title={walletTranslations.networkFee}
+            titleFontSize={13}
+            amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
+            amountFontSize={13}
+            unitFontSize={13}
+            titleColor={`${colorMode}.secondaryLightGrey`}
+            amountColor={`${colorMode}.secondaryLightGrey`}
+            unitColor={`${colorMode}.secondaryLightGrey`}
+          />
+          <AmountDetails
+            title={walletTranslations.amountBeingSend}
             titleFontSize={16}
+            titleFontWeight={500}
             amount={amounts.reduce((sum, amount) => sum + amount, 0)}
             amountFontSize={16}
             unitFontSize={14}
-          />
-          <AmountDetails
-            title={walletTranslations.networkFee}
-            titleFontSize={16}
-            amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
-            amountFontSize={16}
-            unitFontSize={14}
+            amountColor={`${colorMode}.secondaryText`}
+            unitColor={`${colorMode}.secondaryText`}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
-            title={walletTranslations.total}
+            title={walletTranslations.totalAmount}
             titleFontSize={16}
+            titleFontWeight={500}
             amount={
               txFeeInfo[transactionPriority?.toLowerCase()]?.amount +
               amounts.reduce((sum, amount) => sum + amount, 0)
             }
             amountFontSize={18}
             unitFontSize={14}
+            amountColor={`${colorMode}.secondaryText`}
+            unitColor={`${colorMode}.secondaryText`}
           />
         </Box>
       </ScrollView>
       <Buttons
         primaryText={common.confirmProceed}
-        secondaryText={isCachedTransaction ? 'Discard' : common.cancel}
+        secondaryText={isCachedTransaction ? common.discard : common.cancel}
         secondaryCallback={() => {
           if (isCachedTransaction) discardCachedTransaction();
           else navigation.goBack();
@@ -878,7 +909,7 @@ function SendConfirmation({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.pantoneGreen`}
-        buttonText="Discard"
+        buttonText={common.discard}
         buttonCallback={discardCachedTransaction}
         buttonTextColor={`${colorMode}.buttonText`}
         secondaryButtonText="Cancel"
@@ -909,7 +940,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.Goback}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle="Enter amount in sats/vbyte"
+          subTitle={walletTranslations.enterAmonuntInSat}
           network={sender?.networkType || sourceWallet?.networkType}
           recipients={addresses.map((address, index) => ({
             address,
@@ -925,7 +956,7 @@ function SendConfirmation({ route }) {
             } else {
               if (customFeePerByte === '0') {
                 setTransPriorityModalVisible(false);
-                showToast('Fee rate cannot be less than 1 sat/vbyte', <ToastErrorIcon />);
+                showToast(errorText.feeRateLessThanOne, <ToastErrorIcon />);
               }
             }
           }}
@@ -968,8 +999,12 @@ const styles = StyleSheet.create({
   totalAmountWrapper: {
     width: '100%',
     gap: 5,
-    paddingVertical: hp(10),
-    paddingHorizontal: wp(15),
+    paddingVertical: hp(22),
+    paddingHorizontal: wp(20),
+    marginBottom: hp(10),
+    marginTop: hp(5),
+    borderWidth: 1,
+    borderRadius: wp(20),
   },
   otpContainer: {
     width: '100%',
@@ -977,5 +1012,8 @@ const styles = StyleSheet.create({
   CVVInputsView: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  currentBtcPrice: {
+    marginBottom: hp(5),
   },
 });

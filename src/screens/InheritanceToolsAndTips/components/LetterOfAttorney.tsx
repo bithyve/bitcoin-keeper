@@ -27,7 +27,7 @@ function LetterOfAttorney() {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning } = translations;
+  const { inheritancePlanning, common, signer: signerText, error: ErrorText } = translations;
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const dispatch = useDispatch();
   const slider_background = ThemedColor({ name: 'slider_background' });
@@ -67,7 +67,7 @@ function LetterOfAttorney() {
 
         <Box style={[styles.leftTextStyle]}>
           <Text bold color={green_modal_text_color}>
-            Note:
+            {common.note}:
           </Text>
           <Text color={green_modal_text_color}>{inheritancePlanning.letterOfAttorneyNotes}</Text>
         </Box>
@@ -76,9 +76,9 @@ function LetterOfAttorney() {
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
-        title="Confirm Passcode"
+        title={common.confirmPassCode}
         subTitleWidth={wp(240)}
-        subTitle="To back up the app recovery key"
+        subTitle={signerText.RKBackupPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -97,7 +97,7 @@ function LetterOfAttorney() {
                   }
                 });
               } else {
-                showToast('No vaults found');
+                showToast(ErrorText.noVaultsFound);
               }
             }}
           />

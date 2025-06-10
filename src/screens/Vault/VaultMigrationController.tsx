@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation, useFocusEffect } from '@react-navigation/native';
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useContext } from 'react';
 import {
   MiniscriptTypes,
   MultisigScriptType,
@@ -31,6 +31,7 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import {
   generateMiniscriptScheme,
   generateVaultId,
+  isVaultUsingBlockHeightTimelock,
 } from 'src/services/wallets/factories/VaultFactory';
 import useArchivedVaults from 'src/hooks/useArchivedVaults';
 import {
@@ -45,13 +46,16 @@ import {
   MONTHS_48,
   MONTHS_54,
   MONTHS_60,
+  MONTHS_9,
 } from './constants';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
 } from 'src/components/MiniscriptPathSelector';
 import {
-  ENHANCED_VAULT_TIMELOCKS_MAINNET,
-  ENHANCED_VAULT_TIMELOCKS_TESTNET,
+  ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET,
+  ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET,
+  ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET,
   generateEnhancedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import { getKeyUID } from 'src/utils/utilities';
@@ -61,6 +65,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import useSigners from 'src/hooks/useSigners';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function VaultMigrationController({
   vaultCreating,
@@ -74,6 +79,7 @@ function VaultMigrationController({
   vaultType = VaultType.DEFAULT,
   inheritanceKeys = [],
   emergencyKeys = [],
+  initialTimelockDuration = '',
   currentBlockHeight = null,
   miniscriptTypes = [],
   setVaultCreatedModalVisible = null,
@@ -94,7 +100,8 @@ function VaultMigrationController({
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { archivedVaults } = useArchivedVaults();
-
+  const { translations } = useContext(LocalizationContext);
+  const { vault: VaultText, error: ErrorText } = translations;
   const [recipients, setRecepients] = useState<any[]>();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
   const [miniscriptSelectedSatisfier, setMiniscriptSelectedSatisfier] = useState(null);
@@ -183,7 +190,7 @@ function VaultMigrationController({
         );
       } else if (sendPhaseOneState.hasFailed) {
         if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
-          showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
+          showToast(ErrorText.insufficientBalanceatThisTime, <ToastErrorIcon />);
         } else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
       }
     }, [sendPhaseOneState, newVault, activeVault, recipients, miniscriptSelectedSatisfier])
@@ -293,12 +300,24 @@ function VaultMigrationController({
     ])
   );
 
+  // The getCurrentTimeForLock and getTimelockDuration control whether
+  // a vault created will use UNIX timestamp or block height based timelocks.
+
+  const getCurrentTimeForLock = () => {
+    if (activeVault && isVaultUsingBlockHeightTimelock(activeVault)) {
+      return currentBlockHeight;
+    }
+    return Math.floor(Date.now() / 1000);
+  };
+
   const getTimelockDuration = (selectedDuration, networkType) => {
     const durationIdentifier =
       selectedDuration === MONTHS_3
         ? 'MONTHS_3'
         : selectedDuration === MONTHS_6
         ? 'MONTHS_6'
+        : selectedDuration === MONTHS_9
+        ? 'MONTHS_9'
         : selectedDuration === MONTHS_12
         ? 'MONTHS_12'
         : selectedDuration === MONTHS_18
@@ -320,13 +339,19 @@ function VaultMigrationController({
         : null;
 
     if (!durationIdentifier) {
-      showToast('Invalid duration selected', <ToastErrorIcon />);
+      showToast(ErrorText.invalidDuration, <ToastErrorIcon />);
       return;
     }
 
+    if (activeVault && isVaultUsingBlockHeightTimelock(activeVault)) {
+      return networkType === NetworkType.MAINNET
+        ? ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_MAINNET[durationIdentifier]
+        : ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET[durationIdentifier];
+    }
+
     return networkType === NetworkType.MAINNET
-      ? ENHANCED_VAULT_TIMELOCKS_MAINNET[durationIdentifier]
-      : ENHANCED_VAULT_TIMELOCKS_TESTNET[durationIdentifier];
+      ? ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET[durationIdentifier]
+      : ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_TESTNET[durationIdentifier];
   };
 
   const prepareMiniscriptScheme = async (
@@ -334,37 +359,46 @@ function VaultMigrationController({
     miniscriptTypes: MiniscriptTypes[],
     inheritanceSigners?: { key: VaultSigner; duration: string }[],
     emergencySigners?: { key: VaultSigner; duration: string }[],
+    initialTimelockDuration?: string,
     existingMiniscriptScheme?: MiniscriptScheme
   ) => {
     if (
       vaultInfo.vaultType !== VaultType.MINISCRIPT ||
       !(
+        miniscriptTypes.includes(MiniscriptTypes.TIMELOCKED) ||
         miniscriptTypes.includes(MiniscriptTypes.INHERITANCE) ||
         miniscriptTypes.includes(MiniscriptTypes.EMERGENCY)
       )
     ) {
-      showToast(
-        'Invalid vault type - supported only for inheritance and emergency',
-        <ToastErrorIcon />
-      );
+      showToast(ErrorText.invalidVaultType, <ToastErrorIcon />);
       return;
     }
 
+    let initialTimelock = 0;
+
     const multisigScriptType = MultisigScriptType.MINISCRIPT_MULTISIG;
-    let currentSyncedBlockHeight = currentBlockHeight;
-    if (!currentSyncedBlockHeight) {
-      try {
-        currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
-          .currentBlockHeight;
-      } catch (err) {
-        console.log('Failed to re-fetch current block height: ' + err);
-      }
-      if (!currentSyncedBlockHeight) {
-        showToast(
-          'Failed to fetch current chain data, please check your connection and try again',
-          <ToastErrorIcon />
-        );
-        setCreating(false);
+    // let currentSyncedBlockHeight = currentBlockHeight;
+    // if (!currentSyncedBlockHeight) {
+    //   try {
+    //     currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
+    //       .currentBlockHeight;
+    //   } catch (err) {
+    //     console.log('Failed to re-fetch current block height: ' + err);
+    //   }
+    //   if (!currentSyncedBlockHeight) {
+    //     showToast(
+    //       'Failed to fetch current chain data, please check your connection and try again',
+    //       <ToastErrorIcon />
+    //     );
+    //     setCreating(false);
+    //     return;
+    //   }
+    // }
+
+    if (initialTimelockDuration) {
+      initialTimelock = getTimelockDuration(initialTimelockDuration, bitcoinNetworkType);
+      if (!initialTimelock) {
+        showToast('Failed to determine initial timelock duration', <ToastErrorIcon />);
         return;
       }
     }
@@ -376,12 +410,12 @@ function VaultMigrationController({
       for (const { key, duration } of inheritanceSigners) {
         const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
-          showToast('Failed to determine inheritance timelock duration', <ToastErrorIcon />);
+          showToast(ErrorText.failedToDetermineInheritanceDuration, <ToastErrorIcon />);
           return;
         }
         inheritanceSignerWithTimelocks.push({
           signer: key,
-          timelock: currentBlockHeight + timelock,
+          timelock: getCurrentTimeForLock() + initialTimelock + timelock,
         });
       }
     }
@@ -390,10 +424,13 @@ function VaultMigrationController({
       for (const { key, duration } of emergencySigners) {
         const timelock = getTimelockDuration(duration, bitcoinNetworkType);
         if (!timelock) {
-          showToast('Failed to determine emergency timelock duration', <ToastErrorIcon />);
+          showToast(ErrorText.failedToDetermineEmergencyDuration, <ToastErrorIcon />);
           return;
         }
-        emergencySignerWithTimelocks.push({ signer: key, timelock: currentBlockHeight + timelock });
+        emergencySignerWithTimelocks.push({
+          signer: key,
+          timelock: getCurrentTimeForLock() + initialTimelock + timelock,
+        });
       }
     }
 
@@ -401,11 +438,12 @@ function VaultMigrationController({
       vaultInfo.vaultSigners,
       inheritanceSignerWithTimelocks,
       emergencySignerWithTimelocks,
-      vaultInfo.vaultScheme
+      vaultInfo.vaultScheme,
+      initialTimelock ? getCurrentTimeForLock() + initialTimelock : 0
     );
 
     if (!miniscriptElements) {
-      showToast('Failed to generate miniscript elements', <ToastErrorIcon />);
+      showToast(ErrorText.failedToGenerateMiniscript, <ToastErrorIcon />);
       return;
     }
     vaultInfo.miniscriptElements = miniscriptElements;
@@ -463,6 +501,7 @@ function VaultMigrationController({
             miniscriptTypes,
             inheritanceKeys,
             emergencyKeys,
+            initialTimelockDuration,
             activeVault ? activeVault.scheme.miniscriptScheme : null
           );
         } catch (err) {
@@ -518,12 +557,7 @@ function VaultMigrationController({
         close={() => {
           setCheckAddressModalVisible(false);
           dispatch(resetVaultMigration());
-          showToast(
-            'Wallet update initiated successfully, you can continue transferring the funds from the Send tab.',
-            null,
-            IToastCategory.DEFAULT,
-            6000
-          );
+          showToast(ErrorText.walletUpdateInitiated, null, IToastCategory.DEFAULT, 6000);
           setTimeout(() => {
             navigation.dispatch(
               CommonActions.reset({
@@ -539,18 +573,9 @@ function VaultMigrationController({
         title="Verify the new wallet address"
         Content={() => (
           <Box style={{ gap: 20 }}>
-            <Text>
-              Your updated wallet has been successfully created and is ready to receive funds from
-              the previous wallet.
-            </Text>
-            <Text>
-              We recommend verifying the new wallet address on your hardware device before
-              transferring funds.
-            </Text>
-            <Text>
-              You can transfer the funds now or later. Your old wallet will remain visible in the
-              Wallets tab until the transfer is complete.
-            </Text>
+            <Text>{ErrorText.updatedWalletReady}</Text>
+            <Text>{ErrorText.verifyNewAddress}</Text>
+            <Text>{ErrorText.transferFunds} </Text>
           </Box>
         )}
         modalBackground="modalWhiteBackground"

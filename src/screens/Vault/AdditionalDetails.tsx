@@ -1,5 +1,5 @@
 import { Image, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, useColorMode, VStack } from 'native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -24,6 +24,7 @@ import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'AdditionalDetails'>;
 
@@ -40,6 +41,8 @@ function AdditionalDetails({ route }: ScreenProps) {
   const [hasUpdatedDescription, setHasUpdatedDescription] = useState(false);
   const { thumbnailPath, givenName, familyName } = signer.extraData ?? {};
   const { relaySignersUpdate } = useAppSelector((state) => state.bhr);
+  const { translations } = useContext(LocalizationContext);
+  const { concierge, vault: vaultTranslations, wallet: walletTranslation, common } = translations;
 
   useEffect(() => {
     if (relaySignersUpdate && hasUpdatedDescription) {
@@ -61,8 +64,8 @@ function AdditionalDetails({ route }: ScreenProps) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Additional Details"
-        subTitle="Optionally you can add description and associate a contact with the key"
+        title={concierge.conciergeAdditionDetailTitle}
+        subTitle={vaultTranslations.additionalDetailsDesc}
       />
       <VStack style={styles.descriptionContainer}>
         <Box style={styles.inputWrapper}>
@@ -70,7 +73,7 @@ function AdditionalDetails({ route }: ScreenProps) {
             autoCapitalize="sentences"
             onChangeText={(text) => setDescription(text)}
             style={styles.descriptionEdit}
-            placeholder="Add a description (Optional)" // TODO: Use translations
+            placeholder={walletTranslation.WalletDescriptionPlaceholder}
             placeholderTextColor={Colors.secondaryDarkGrey}
             value={description}
             maxLength={20}
@@ -78,7 +81,7 @@ function AdditionalDetails({ route }: ScreenProps) {
           />
         </Box>
         <OptionTile
-          title="Associate a Contact"
+          title={vaultTranslations.associateAContact}
           callback={() => {
             signer?.extraData?.givenName
               ? setEditContactModal(true)
@@ -94,10 +97,10 @@ function AdditionalDetails({ route }: ScreenProps) {
         visible={editContactModal}
         close={() => setEditContactModal(false)}
         showCloseIcon={false}
-        title="Associated Contact"
-        subTitle="The contact you associated with the Key will be displayed here"
-        buttonText="Edit Details"
-        secondaryButtonText="Cancel"
+        title={vaultTranslations.associateContact}
+        subTitle={vaultTranslations.associateContactKeySub}
+        buttonText={common.EditDetails}
+        secondaryButtonText={common.cancel}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.modalWhiteContent`}
         buttonTextColor={`${colorMode}.buttonText`}

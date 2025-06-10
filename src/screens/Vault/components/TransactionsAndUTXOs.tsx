@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
 import { windowHeight, wp } from 'src/constants/responsive';
 import { EntityKind } from 'src/services/wallets/enums';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function TransactionsAndUTXOs({
   transactions,
@@ -24,6 +25,8 @@ function TransactionsAndUTXOs({
 }) {
   const { colorMode } = useColorMode();
   const [pullRefresh, setPullRefresh] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { home } = translations;
   const dispatch = useDispatch();
   const syncVault = () => {
     setPullRefresh(true);
@@ -56,7 +59,7 @@ function TransactionsAndUTXOs({
             fontSize={16}
             letterSpacing={1.28}
           >
-            Transactions
+            {home.Transactions}
           </Text>
           {transactions.length ? (
             <TouchableOpacity>
@@ -65,8 +68,8 @@ function TransactionsAndUTXOs({
                   onPress={() => {
                     navigation.dispatch(
                       CommonActions.navigate('AllTransactions', {
-                        title: 'Vault Transactions',
-                        subtitle: 'All incoming and outgoing transactions',
+                        title: home.vaultTransactions,
+                        subtitle: home.incommingAndOutgoing,
                         entityKind: EntityKind.VAULT,
                       })
                     );
@@ -79,7 +82,7 @@ function TransactionsAndUTXOs({
                     bold
                     letterSpacing={0.6}
                   >
-                    View All
+                    {home.viewAll}
                   </Text>
                 </TouchableOpacity>
                 <IconArrowBlack />
@@ -101,8 +104,8 @@ function TransactionsAndUTXOs({
           ListEmptyComponent={
             <EmptyStateView
               IllustartionImage={NoVaultTransactionIcon}
-              title="Security Tip"
-              subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
+              title={home.securityTip}
+              subTitle={home.securityTipDesc}
             />
           }
         />

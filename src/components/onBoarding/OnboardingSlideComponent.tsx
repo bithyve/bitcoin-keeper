@@ -1,21 +1,27 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
-import Skip from 'src/assets/images/skip.svg';
 import { hp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
+import ThemedColor from '../ThemedColor/ThemedColor';
+import ThemedSvg from '../ThemedSvg.tsx/ThemedSvg';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+  const onBording_Text_Color = ThemedColor({ name: 'onBording_Text_Color' });
+
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
         <Text
           fontSize={24}
-          color={`${colorMode}.primaryBackground`}
+          color={onBording_Text_Color}
           textAlign="center"
           letterSpacing={0.2}
           semiBold
@@ -26,7 +32,7 @@ function OnboardingSlideComponent(props) {
       </Box>
       <Box style={styles.illustartionWrapper}>{props.illustration}</Box>
       <Box style={styles.paragraphWrapper}>
-        <Text color={`${colorMode}.primaryBackground`} style={styles.paragraphText}>
+        <Text color={onBording_Text_Color} style={styles.paragraphText}>
           {props.paragraph}
         </Text>
       </Box>
@@ -38,9 +44,9 @@ function OnboardingSlideComponent(props) {
             testID={'btn_startApp'}
           >
             <Text fontSize={14} color={`${colorMode}.primaryBackground`} textAlign="center" bold>
-              Start App&nbsp;&nbsp;
+              {common.StartApp}&nbsp;&nbsp;
             </Text>
-            <Skip />
+            <ThemedSvg name={'skip_icon'} />
           </TouchableOpacity>
         </Box>
       )}

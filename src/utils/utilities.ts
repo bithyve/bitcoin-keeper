@@ -11,7 +11,7 @@ import {
   XpubTypes,
 } from 'src/services/wallets/enums';
 
-import { Signer, VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isTestnet } from 'src/constants/Bitcoin';
 
@@ -19,6 +19,11 @@ import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import BIP32Factory from 'bip32';
 import { detectFileType, splitQRs } from 'src/services/qr/bbqr/split';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
+import _ from 'lodash';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getRandomBytes } from './service-utilities/encryption';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -691,4 +696,59 @@ export const getLocalizedDiscountedPrice = (price, localizedPrice, discount) => 
   const symbolMatch = localizedPrice.match(/^[^\d.,\s]+/);
   const currencySymbol = symbolMatch ? symbolMatch[0] : '';
   return `${currencySymbol}${finalPrice.toFixed(2)}`;
+};
+
+export const sanitizeSeedKeyForBackup = (signer: Signer) => {
+  // Remove xpriv from seed words if stored already
+  if (signer.type === SignerType.SEED_WORDS && signer.signerName !== RECOVERY_KEY_SIGNER_NAME) {
+    const updatedSigner = _.cloneDeep(signer);
+    updatedSigner.signerXpubs = Object.fromEntries(
+      Object.entries(updatedSigner.signerXpubs).map(([key, items]) => {
+        if (Array.isArray(items) && items.length > 0) {
+          const sanitizedItems = items.map((item) => ({
+            ...item,
+            xpriv: null,
+          }));
+          return [key, sanitizedItems];
+        }
+        return [key, items];
+      })
+    );
+    return updatedSigner;
+  }
+  return signer;
+};
+
+export const sanitizeVaultSignersForSeedKeyBackup = (vault: Vault) => {
+  let updatedVault = _.cloneDeep(vault);
+  let signer = dbManager.getCollection(RealmSchema.Signer);
+  updatedVault.signers = updatedVault.signers.map((vaultSigner) => {
+    const selectedSigner = signer.find(
+      (signer) => signer.masterFingerprint === vaultSigner.masterFingerprint
+    );
+    if (
+      selectedSigner.type === SignerType.SEED_WORDS &&
+      selectedSigner.signerName !== RECOVERY_KEY_SIGNER_NAME
+    ) {
+      return {
+        ...vaultSigner,
+        xpriv: null,
+      };
+    }
+    return vaultSigner;
+  });
+  return updatedVault;
+};
+
+export const generateAccountIdentifier = (noOfAccounts) => {
+  if (!noOfAccounts) return '';
+  return getRandomBytes(3);
+};
+
+export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
+  if (setA.size !== setB.size) return false;
+  for (const item of setA) {
+    if (!setB.has(item)) return false;
+  }
+  return true;
 };

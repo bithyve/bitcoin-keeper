@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 
 import { wp, hp, windowWidth } from 'src/constants/responsive';
 import Text from './KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function CameraUnauthorized() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { settings } = translations;
   const requestPermission = () => {
     Linking.openSettings();
   };
@@ -19,7 +22,7 @@ function CameraUnauthorized() {
           fontSize: 13,
         }}
       >
-        Camera access is turned off
+        {settings.cameraAccessoff}
       </Text>
       <Text
         color={`${colorMode}.white`}
@@ -27,7 +30,7 @@ function CameraUnauthorized() {
           fontSize: 11,
         }}
       >
-        Turn on the camera in your device settings
+        {settings.turnCameraOn}
       </Text>
       <TouchableOpacity
         onPress={requestPermission}
@@ -42,7 +45,7 @@ function CameraUnauthorized() {
           style={styles.learnMoreContainer}
         >
           <Text color={`${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
-            Tap to go to settings
+            {settings.tapToGoSetting}
           </Text>
         </Box>
       </TouchableOpacity>

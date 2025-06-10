@@ -43,6 +43,7 @@ import {
   healthCheckSatutsUpdateWatcher,
   backupAllSignersAndVaultsWatcher,
   deleteBackupWatcher,
+  validateSeverBackupWatcher,
 } from './bhr';
 import {
   calculateCustomFeeWatcher,
@@ -70,6 +71,7 @@ import {
   scheduleOnboardingCallWatcher,
 } from './concierge';
 import { changeBitcoinNetworkWatcher, setSubscriptionWatcher } from './settings';
+import { loadConciergeUserOnLoginWatcher, saveBackupMethodByAppIdWatcher } from './account';
 
 const rootSaga = function* () {
   const sagas = [
@@ -143,6 +145,8 @@ const rootSaga = function* () {
     deleteAppImageEntityWatcher,
     backupAllSignersAndVaultsWatcher,
     deleteBackupWatcher,
+    validateSeverBackupWatcher,
+
     // upgrade
     updateVersionHistoryWatcher,
     migrateLablesWatcher,
@@ -158,6 +162,9 @@ const rootSaga = function* () {
     // settings
     changeBitcoinNetworkWatcher,
     setSubscriptionWatcher,
+    // account
+    loadConciergeUserOnLoginWatcher,
+    saveBackupMethodByAppIdWatcher,
   ];
 
   yield all(

@@ -26,6 +26,8 @@ import IconGreySettings from 'src/assets/images/settings_grey.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Colors from 'src/theme/Colors';
 import { useIsFocused } from '@react-navigation/native';
+import Fonts from 'src/constants/Fonts';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -99,14 +101,14 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { appRecreated, appImageError } = useAppSelector((state) => state.bhr);
-  const appCreated = useAppSelector((state) => state.storage.appId);
+  const { appCreated } = useAppSelector((state) => state.storage);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [introModalVisible, setIntroModalVisible] = useState(false);
   const appCreationError = useAppSelector((state) => state.login.appCreationError);
   const { translations } = useContext(LocalizationContext);
-  const { login, common } = translations;
+  const { login, common, error: errorText, home } = translations;
   const isFocused = useIsFocused();
 
   useEffect(() => {
@@ -131,7 +133,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   useEffect(() => {
     if (appImageError && isFocused) {
-      showToast('Failed to get app image');
+      showToast(errorText.failedToGetAppImage);
     }
   }, [appImageError]);
 
@@ -166,10 +168,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }
 
   const getSignUpModalContent = () => ({
-    title: 'Setting up your app',
-    subTitle:
-      'Keeper lets you create single-key (singlesig) wallets and multi-key (multisig) wallets.',
-    message: 'Stack sats, hodl long term, and plan your inheritance with Keeper.',
+    title: home.settingUpYourApp,
+    subTitle: home.createSingleAndMultisig,
+    message: home.stackSats,
   });
 
   function SignUpModalContent() {
@@ -211,26 +212,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
             color={colorMode === 'light' ? Colors.secondaryLightGrey : Colors.bodyText}
             semiBold
           >
-            Server Settings
+            {common.serverSettings}
           </Text>
         </TouchableOpacity>
         <Box flex={1}>
-          <Pressable
-            backgroundColor={`${colorMode}.BrownNeedHelp`}
-            borderColor={`${colorMode}.BrownNeedHelp`}
-            style={styles.learnMoreContainer}
-            onPress={() => setIntroModalVisible(true)}
-          >
-            <Text style={styles.learnMoreText} medium color={`${colorMode}.buttonText`}>
-              {common.learnMore}
-            </Text>
+          <Pressable style={styles.learnMoreContainer} onPress={() => setIntroModalVisible(true)}>
+            <ThemedSvg name={'info_icon'} width={20} height={20} />
           </Pressable>
         </Box>
       </Box>
       <Box style={styles.contentContainer}>
         <Box>
           <Box style={styles.headingContainer}>
-            <Text color={`${colorMode}.textGreen`} fontSize={18}>
+            <Text color={`${colorMode}.textGreen`} style={styles.headingText} fontSize={18}>
               {login.welcomeToBitcoinKeeper}
             </Text>
             <Text fontSize={14} color={`${colorMode}.secondaryText`}>
@@ -238,7 +232,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Text>
           </Box>
           <Pressable
-            backgroundColor={`${colorMode}.seashellWhite`}
+            backgroundColor={`${colorMode}.thirdBackground`}
+            borderColor={`${colorMode}.separator`}
             style={styles.tileContainer}
             testID="view_startNewTile"
             onPress={() => {
@@ -248,7 +243,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <AppIcon />
             <Box>
               <Text fontSize={13} color={`${colorMode}.black`}>
-                Start New
+                {common.startNew}
               </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.newKeeperAppDesc}
@@ -256,7 +251,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Box>
           </Pressable>
           <Pressable
-            backgroundColor={`${colorMode}.seashellWhite`}
+            backgroundColor={`${colorMode}.thirdBackground`}
+            borderColor={`${colorMode}.separator`}
             style={styles.tileContainer}
             testID="view_recoverTile"
             onPress={() => {
@@ -266,7 +262,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             <Recover />
             <Box>
               <Text fontSize={13} color={`${colorMode}.black`}>
-                Recover an existing app
+                {login.RecoverApp}
               </Text>
               <Text fontSize={12} color={`${colorMode}.GreyText`}>
                 {login.Enter12WordsRecovery}
@@ -278,7 +274,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           <Text color={`${colorMode}.textGreen`} medium fontSize={14}>
             {login.Note}
           </Text>
-          <Text fontSize={12} color={`${colorMode}.GreenishGrey`}>
+          <Text fontSize={12} color={`${colorMode}.GreyText`}>
             {login.Agreement}
             <Text
               color={`${colorMode}.textGreen`}
@@ -306,13 +302,13 @@ function NewKeeperApp({ navigation }: { navigation }) {
         dismissible={false}
         close={() => {}}
         visible={appCreationError}
-        title="Something went wrong"
-        subTitle="Please check your internet connection and try again."
+        title={common.somethingWrong}
+        subTitle={login.checkinternetConnection}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={Box}
-        buttonText="Retry"
+        buttonText={common.retry}
         buttonCallback={() => {
           setInitiating(true);
         }}
@@ -329,7 +325,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText={appCreated ? 'Next' : null}
+        buttonText={appCreated ? common.next : null}
         buttonCallback={() => {
           setModalVisible(false);
           setTimeout(() => {
@@ -343,10 +339,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
         dismissible={false}
         close={() => {}}
         visible={appCreationError}
-        title="Something went wrong"
-        subTitle="Please check your internet connection and try again."
+        title={common.somethingWrong}
+        subTitle={login.checkinternetConnection}
         Content={Box}
-        buttonText="Retry"
+        buttonText={common.retry}
         buttonCallback={() => {
           setInitiating(true);
         }}
@@ -361,9 +357,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setIntroModalVisible(false);
         }}
         visible={introModalVisible}
-        title={'Start New:'}
+        title={`${common.startNew}:`}
         Content={StartNewModalContent}
-        buttonText={'Continue'}
+        buttonText={common.continue}
         buttonCallback={() => {
           setIntroModalVisible(false);
         }}
@@ -399,6 +395,7 @@ const styles = StyleSheet.create({
     gap: 10,
     justifyContent: 'center',
     borderRadius: 10,
+    borderWidth: 1,
   },
   title: {
     fontSize: 14,
@@ -431,8 +428,6 @@ const styles = StyleSheet.create({
   learnMoreContainer: {
     marginTop: hp(10),
     alignSelf: 'flex-end',
-    borderRadius: 5,
-    borderWidth: 0.5,
     paddingVertical: 2,
     paddingHorizontal: 5,
   },
@@ -453,6 +448,10 @@ const styles = StyleSheet.create({
   },
   note: {
     width: wp(280),
+  },
+  headingText: {
+    fontFamily: Fonts.LoraMedium,
+    marginBottom: 5,
   },
 });
 
