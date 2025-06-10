@@ -65,7 +65,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { BackupWallet, vault, common } = translations;
+  const { BackupWallet, vault: vaultText, common } = translations;
   const dispatch = useAppDispatch();
   const { primaryMnemonic, backup } = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -135,7 +135,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   const footerItems = [
     {
-      text: vault.healthCheck,
+      text: vaultText.healthCheck,
       Icon: () => <FooterIcon Icon={HealthCheck} />,
       onPress: () => {
         onPressConfirm();

@@ -32,7 +32,7 @@ const useSignerIntel = ({
   const { plan } = usePlan();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
   const { translations } = useContext(LocalizationContext);
-  const { signer } = translations;
+  const { signer: signerText } = translations;
 
   const amfSigners = [];
   for (const signerIdentifier of selectedSigners.keys()) {
@@ -50,10 +50,10 @@ const useSignerIntel = ({
       if (isSS) {
         if (isOnL1) {
           invalidSS = true;
-          invalidMessage = `${signerName} ${signer.isallowedfrom} ${SubscriptionTier.L2} ${signer.upgradeOrRemove}`;
+          invalidMessage = `${signerName} ${signerText.isallowedfrom} ${SubscriptionTier.L2} ${signerText.upgradeOrRemove}`;
         } else if (scheme.m < 2 || scheme.n < 3) {
           invalidSS = true;
-          invalidMessage = `${signer.RequiredSigners} ${signerName}. ${signer.addMoreSigners}`;
+          invalidMessage = `${signerText.RequiredSigners} ${signerName}. ${signerText.addMoreSigners}`;
         }
       }
     }

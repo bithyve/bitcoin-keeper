@@ -9,7 +9,7 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 function BackupModalContent() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common, signer } = translations;
+  const { common, signer: signerText } = translations;
 
   return (
     <Box style={styles.contentContainer}>
@@ -20,7 +20,7 @@ function BackupModalContent() {
         {common.Beware}
       </Text>
       <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-        {signer.accessKeyWarning}
+        {signerText.accessKeyWarning}
       </Text>
     </Box>
   );

@@ -16,27 +16,27 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet: walletTranslation } = translations;
   const selectedFooterColor = ThemedColor({ name: 'footer_selected_option' });
 
   const menuOptions = [
     {
-      name: wallet.homeWallets,
+      name: walletTranslation.homeWallets,
       defaultIcon: <WalletIcon />,
       selectedIcon: <ThemedSvg name={'footer_Wallet'} />,
     },
     {
-      name: wallet.keys,
+      name: walletTranslation.keys,
       defaultIcon: <KeyIcon />,
       selectedIcon: <ThemedSvg name={'footer_Key'} />,
     },
     {
-      name: wallet.concierge,
+      name: walletTranslation.concierge,
       defaultIcon: <ConciergeIcon />,
       selectedIcon: <ThemedSvg name={'footer_concierge'} />,
     },
     {
-      name: wallet.more,
+      name: walletTranslation.more,
       defaultIcon: <MoreIcon />,
       selectedIcon: <ThemedSvg name={'footer_more'} />,
     },

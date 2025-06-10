@@ -11,7 +11,7 @@ import KeeperTextInput from '../KeeperTextInput';
 function HealthCheckComponent(props) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
-  const { common, wallet } = translations;
+  const { common, wallet: walletText } = translations;
   const { type } = props;
   const [seedWord, setSeedWord] = useState('');
   const [strongPassword, setStrongPassword] = useState('');
@@ -100,7 +100,7 @@ function HealthCheckComponent(props) {
           {BackupWallet.healthCheck}
         </Text>
         <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
-          {wallet.RecoveryPhrase}
+          {walletText.RecoveryPhrase}
         </Text>
       </Box>
       <Box>
