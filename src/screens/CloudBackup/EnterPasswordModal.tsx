@@ -1,14 +1,17 @@
 import { StyleSheet, TextInput } from 'react-native';
 import { Box, useColorMode, VStack } from 'native-base';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useContext, useRef } from 'react';
 
 import { windowWidth } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Content({ descRef }: { descRef }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const updateDescription = useCallback((text) => {
     descRef.current = text.trim();
@@ -18,7 +21,7 @@ function Content({ descRef }: { descRef }) {
       <TextInput
         onChangeText={updateDescription}
         style={styles.descriptionEdit}
-        placeholder="Enter Password"
+        placeholder={common.enterPassword}
         secureTextEntry
         placeholderTextColor={Colors.SecondaryBlack}
         defaultValue={''}
@@ -39,6 +42,8 @@ function EnterPasswordModal({
 }) {
   const { colorMode } = useColorMode();
   const descRef = useRef();
+  const { translations } = useContext(LocalizationContext);
+  const { common, vault } = translations;
   const MemoisedContent = React.useCallback(() => <Content descRef={descRef} />, []);
   const onSave = () => {
     close();
@@ -51,9 +56,9 @@ function EnterPasswordModal({
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
-      title="Enter PDF File Password"
-      subTitle="Secure your BSMS PDF files by protecting them with a password of your choice."
-      buttonText="Backup"
+      title={vault.enterPdfPassword}
+      subTitle={vault.pdfPasswordDesc}
+      buttonText={common.backup}
       Content={MemoisedContent}
       buttonCallback={onSave}
     />

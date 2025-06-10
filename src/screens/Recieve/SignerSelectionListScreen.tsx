@@ -30,6 +30,7 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import WalletHeader from 'src/components/WalletHeader';
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const { width } = Dimensions.get('screen');
 
@@ -61,6 +62,8 @@ function SignerSelectionListScreen() {
   const { activeVault } = useVault({ vaultId, includeArchived: false });
   const [nfcVisible, setNfcVisible] = useState(false);
   const { session } = useContext(HCESessionContext);
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslations } = translations;
 
   const isAndroid = Platform.OS === 'android';
   const isIos = Platform.OS === 'ios';
@@ -139,18 +142,14 @@ function SignerSelectionListScreen() {
       <KeeperModal
         visible={registerSignerModal}
         close={() => setRegisterSignerModal(false)}
-        title="Register multisig"
-        subTitle="Register your active vault"
+        title={vaultTranslations.registerMultisig}
+        subTitle={vaultTranslations.registerActiveVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <RegisterMultisig
-            isUSBAvailable={
-              selectedSigner?.type === SignerType.COLDCARD ||
-              (selectedSigner?.type === SignerType.JADE &&
-                activeVault.type === VaultType.MINISCRIPT)
-            }
+            isUSBAvailable={activeVault.type === VaultType.MINISCRIPT}
             signer={selectedSigner || {}}
             vaultId={vaultId}
             vaultKey={vaultKey}

@@ -60,31 +60,28 @@ function AddEmergencyKey({ route }) {
     scheme,
     description,
     vaultId,
+    hasInitialTimelock,
     isAddInheritanceKey,
     isAddEmergencyKey,
     currentBlockHeight: currentBlockHeightParam,
     keyToRotate,
     inheritanceKeys = [],
+    initialTimelockDuration,
   } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultTranslations } = translations;
+  const { common, vault: vaultTranslations, wallet: walletTranslations } = translations;
   const [selectedOption, setSelectedOption] = useState(DEFAULT_EMERGENCY_KEY_TIMELOCK);
   const [selectedSigner, setSelectedSigner] = useState(null);
-  const { activeVault, allVaults } = useVault({ vaultId });
+  const { activeVault } = useVault({ vaultId });
   const vaultKeys = vaultKeysParam || activeVault?.signers || [];
   const [vaultCreating, setCreating] = useState(false);
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const [generatedVaultId, setGeneratedVaultId] = useState('');
-  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage, relayVaultUpdateLoading } =
-    useAppSelector((state) => state.bhr);
-  const { showToast } = useToastMessage();
+  const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
-
-  const dispatch = useDispatch();
 
   // TODO: Allow multiple inheritance keys
   const emergencyKey = useMemo(() => {
@@ -151,6 +148,7 @@ function AddEmergencyKey({ route }) {
       scheme,
       isAddInheritanceKey,
       isAddEmergencyKey,
+      hasInitialTimelock,
       currentBlockHeight,
       onGoBack: (signer) => setSelectedSigner(signer),
     });
@@ -162,6 +160,7 @@ function AddEmergencyKey({ route }) {
     scheme,
     isAddInheritanceKey,
     isAddEmergencyKey,
+    hasInitialTimelock,
     currentBlockHeight,
   ]);
 
@@ -233,9 +232,9 @@ function AddEmergencyKey({ route }) {
                 scheme,
                 isHotWallet: false,
                 vaultType: VaultType.MINISCRIPT,
-                isTimeLock: false,
                 isAddInheritanceKey,
                 isAddEmergencyKey,
+                hasInitialTimelock,
                 currentBlockHeight,
                 hotWalletInstanceNum: null,
                 reservedKeys: inheritanceKeys,
@@ -244,6 +243,7 @@ function AddEmergencyKey({ route }) {
                   : [],
                 selectedSigners: route.params.selectedSigners,
                 vaultId,
+                initialTimelockDuration,
               });
             }}
           />
@@ -253,10 +253,8 @@ function AddEmergencyKey({ route }) {
         dismissible
         close={() => {}}
         visible={vaultCreatedModalVisible}
-        title={'Key Replaced Successfully'}
-        subTitle={
-          'Your key was successfully replaced, you can continue to use your updated wallet.'
-        }
+        title={vaultTranslations.keyReplacedSuccessfully}
+        subTitle={vaultTranslations.replacedKeyMessage}
         Content={() => {
           return (
             <Box flex={1} alignItems={'center'}>
@@ -264,7 +262,7 @@ function AddEmergencyKey({ route }) {
             </Box>
           );
         }}
-        buttonText={'View Wallet'}
+        buttonText={walletTranslations.ViewWallet}
         buttonCallback={viewVault}
         secondaryCallback={viewVault}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -304,8 +302,10 @@ function AddEmergencyKey({ route }) {
         emergencyKeys={
           selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
         }
+        initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={[
+          ...(hasInitialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
           ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
           MiniscriptTypes.EMERGENCY,
         ]}

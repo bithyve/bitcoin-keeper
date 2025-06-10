@@ -51,7 +51,7 @@ const themeColors = {
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
   copyToClipboard: {
-    DARK: Colors.dullGreen,
+    DARK: Colors.separator,
     LIGHT: Colors.dullGreen,
     PRIVATE: Colors.separator,
     PRIVATE_LIGHT: Colors.separator,
@@ -171,13 +171,13 @@ const themeColors = {
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
   manage_signer_backGround: {
-    DARK: Colors.charcolBrown,
+    DARK: Colors.primaryGreen,
     LIGHT: Colors.primaryGreen,
     PRIVATE: Colors.goldenGradient,
     PRIVATE_LIGHT: Colors.goldenGradient,
   },
   signing_CircleIconWrapper: {
-    DARK: Colors.secondaryBlack,
+    DARK: Colors.primaryCream,
     LIGHT: Colors.primaryCream,
     PRIVATE: Colors.goldenGradient,
     PRIVATE_LIGHT: Colors.primaryCream,
@@ -235,6 +235,30 @@ const themeColors = {
     LIGHT: 'transparent',
     PRIVATE: Colors.charcolBrown,
     PRIVATE_LIGHT: 'transparent',
+  },
+  onBoardingSlides_background: {
+    DARK: Colors.primaryGreen,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.secondaryBlack,
+    PRIVATE_LIGHT: Colors.primaryCream,
+  },
+  start_Button_BackGround: {
+    DARK: Colors.primaryCream,
+    LIGHT: Colors.primaryCream,
+    PRIVATE: Colors.goldenGradient,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
+  start_Button_Text_Color: {
+    DARK: Colors.primaryGreen,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.headerWhite,
+  },
+  onBording_Text_Color: {
+    DARK: Colors.headerWhite,
+    LIGHT: Colors.headerWhite,
+    PRIVATE: Colors.headerWhite,
+    PRIVATE_LIGHT: Colors.charcolBrown,
   },
 };
 

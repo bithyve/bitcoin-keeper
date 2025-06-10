@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function TestnetIndicator() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Box backgroundColor={`${colorMode}.white`} style={styles.container}>
       <Text color={`${colorMode}.primaryGreen`} bold style={styles.text}>
-        TESTNET
+        {common.TESTNET}
       </Text>
     </Box>
   );

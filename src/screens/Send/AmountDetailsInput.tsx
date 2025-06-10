@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -10,6 +10,9 @@ import EquivalentGrey from 'src/assets/images/equivalent-grey.svg';
 import SwitchArrowsWhite from 'src/assets/images/switch-arrows-white.svg';
 import SwitchArrowGreen from 'src/assets/images/switch-arrows-green.svg';
 import useBalance from 'src/hooks/useBalance';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import { useDispatch } from 'react-redux';
 
 const AmountDetailsInput = ({
   amount,
@@ -27,6 +30,9 @@ const AmountDetailsInput = ({
   const { colorMode } = useColorMode();
   const { getCustomConvertedBalance } = useBalance();
   const isDarkMode = colorMode === 'dark';
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+  const dispatch = useDispatch();
 
   const convertAmount = (value, fromKind, toKind) => {
     return getCustomConvertedBalance(value, fromKind, toKind);
@@ -117,12 +123,14 @@ const AmountDetailsInput = ({
       localCurrencyKind === CurrencyKind.FIAT ? CurrencyKind.BITCOIN : CurrencyKind.FIAT;
     setLocalCurrencyKind(newCurrencyKind);
     if (!currentAmount || currentAmount === '0') {
+      dispatch(setCurrencyKind(newCurrencyKind));
       return;
     }
 
     const newEquivalentAmount = convertAmount(currentAmount, localCurrencyKind, newCurrencyKind);
     setEquivalentAmount(currentAmount);
     setCurrentAmount(newEquivalentAmount);
+    dispatch(setCurrencyKind(newCurrencyKind));
   };
 
   return (
@@ -167,7 +175,7 @@ const AmountDetailsInput = ({
                 color={`${colorMode}.buttonText`}
                 style={styles.sendMaxText}
               >
-                Send Max
+                {common.sendMax}
               </Text>
             </Pressable>
           )}

@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 
@@ -11,6 +11,7 @@ import WalletCopiableData from 'src/components/WalletCopiableData';
 import WalletHeader from 'src/components/WalletHeader';
 import Buttons from 'src/components/Buttons';
 import { useNavigation } from '@react-navigation/native';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupAdditionalServerKey({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -18,14 +19,16 @@ function SetupAdditionalServerKey({ route }: { route }) {
   const navigation = useNavigation();
 
   const { validationKey, label } = route.params;
+  const { translations } = useContext(LocalizationContext);
+  const { signingServer, common } = translations;
 
   return (
     <ScreenWrapper>
       <View style={styles.Container}>
         <Box>
           <WalletHeader
-            title="Set up Server Key 2FA"
-            subTitle="Share this code securely with the intended user to set up in their authenticator app. The server will require these 2FA codes for authorized actions."
+            title={signingServer.setupServer2FA}
+            subTitle={signingServer.setupServer2FASubTitle}
             subtitleColor={`${colorMode}.GreyText`}
           />
         </Box>
@@ -62,16 +65,12 @@ function SetupAdditionalServerKey({ route }: { route }) {
 
         <Box style={styles.bottomNoteContainer}>
           <Box marginBottom={hp(30)}>
-            <Note
-              title="Note"
-              subtitle="Important: Anyone with access to this code can perform permitted actions on the Server Key."
-              subtitleColor="GreyText"
-            />
+            <Note title={common.note} subtitle={signingServer.noteDesc} subtitleColor="GreyText" />
           </Box>
 
           <Buttons
             primaryCallback={() => navigation.goBack()}
-            primaryText="Finish Setup"
+            primaryText={common.fininshSetup}
             fullWidth
           />
         </Box>

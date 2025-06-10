@@ -62,7 +62,12 @@ function SetupTapsigner({ route }) {
   const [cvc, setCvc] = useState('');
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerTranslations, common } = translations;
+  const {
+    signer: signerTranslations,
+    common,
+    error: errorTranslations,
+    tapsigner: tapsignerTranslations,
+  } = translations;
   const card = useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
   const [openOptionModal, setOpenOptionModal] = useState(false);
@@ -123,7 +128,7 @@ function SetupTapsigner({ route }) {
         if (mode === InteracationMode.HEALTH_CHECK) verifyTapsginer();
         await start(addTapsigner);
       } else if (!(await DeviceInfo.isEmulator())) {
-        showToast('NFC not supported on this device', <ToastErrorIcon />);
+        showToast(errorTranslations.nfcNotSupported, <ToastErrorIcon />);
       }
     });
   };
@@ -198,13 +203,14 @@ function SetupTapsigner({ route }) {
         vaultKey = key;
       }
       if (mode === InteracationMode.RECOVERY) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER health check verified!`);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(tapsignerTranslations.tapsignerHealthCheck);
         dispatch(setSigningDevices(tapsigner));
         navigation.dispatch(
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER added successfully!`);
+        if (Platform.OS === 'ios')
+          NFC.showiOSMessage(tapsignerTranslations.tapsignerAddedSuccessfully);
         dispatch(addSigningDevice([tapsigner]));
         const navigationState = addSignerFlow
           ? {
@@ -244,12 +250,12 @@ function SetupTapsigner({ route }) {
           ])
         );
         navigation.dispatch(CommonActions.goBack());
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER verified successfully!`);
-        showToast('TAPSIGNER verified successfully', <TickIcon />);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(tapsignerTranslations.tapsignerVerified);
+        showToast(tapsignerTranslations.tapsignerVerified, <TickIcon />);
       };
 
       const handleFailure = () => {
-        const errorMessage = 'Something went wrong, please try again!';
+        const errorMessage = errorTranslations.somethingWentWrong;
         if (Platform.OS === 'ios') NFC.showiOSErrorMessage(errorMessage);
         else showToast(errorMessage);
       };
@@ -282,7 +288,7 @@ function SetupTapsigner({ route }) {
   const signWithTapsigner = useCallback(async () => {
     try {
       const signedSerializedPSBT = await signTransaction({ tapsignerCVC: cvc });
-      if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER signed successfully!`);
+      if (Platform.OS === 'ios') NFC.showiOSMessage(tapsignerTranslations.tapsignerSigned);
       if (isRemoteKey && signedSerializedPSBT) {
         setSignedPSBT(signedSerializedPSBT);
         setOpenOptionModal(true);
@@ -304,7 +310,7 @@ function SetupTapsigner({ route }) {
     try {
       const { backup, cardId } = await withModal(async () => downloadBackup(card, cvc))();
       if (backup) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`Backup retrieved successfully!`);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(tapsignerTranslations.backupRetrieved);
         closeNfc();
         card.endNfcSession();
 
@@ -319,11 +325,11 @@ function SetupTapsigner({ route }) {
           'base64'
         );
         navigation.dispatch(CommonActions.goBack());
-        showToast('TAPSIGNER backup saved successfully', <TickIcon />);
+        showToast(tapsignerTranslations.backupSavedSuccessfully, <TickIcon />);
       } else {
         if (Platform.OS === 'ios')
-          NFC.showiOSErrorMessage(`Error while downloading TAPSIGNER backup. Please try again`);
-        else showToast(`Error while downloading TAPSIGNER backup. Please try again`);
+          NFC.showiOSErrorMessage(tapsignerTranslations.errorWhileDownloading);
+        else showToast(tapsignerTranslations.errorWhileDownloading);
       }
     } catch (error) {
       const errorMessage = handleTapsignerError(error, navigation);
@@ -341,7 +347,7 @@ function SetupTapsigner({ route }) {
       const { cardId, path, backupsCount } = await withModal(async () => getCardInfo(card))();
 
       if (cardId) {
-        if (Platform.OS === 'ios') NFC.showiOSMessage(`TAPSIGNER information retrieved`);
+        if (Platform.OS === 'ios') NFC.showiOSMessage(tapsignerTranslations.tapsignerInfoRetrieved);
         closeNfc();
         card.endNfcSession();
 
@@ -355,8 +361,8 @@ function SetupTapsigner({ route }) {
         setStatusModalVisible(true);
       } else {
         if (Platform.OS === 'ios')
-          NFC.showiOSErrorMessage(`Error while checking TAPSIGNER information. Please try again`);
-        else showToast(`Error while checking TAPSIGNER information. Please try again`);
+          NFC.showiOSErrorMessage(tapsignerTranslations.errorFetchingTapsignerInfo);
+        else showToast(tapsignerTranslations.errorFetchingTapsignerInfo);
       }
     } catch (error) {
       const errorMessage = handleTapsignerError(error, navigation);
@@ -407,9 +413,9 @@ function SetupTapsigner({ route }) {
                 {colorMode === 'light' ? <ErrorIcon /> : <ErrorDarkIcon />}
               </Box>
               <Text style={styles.warningText}>
-                {`This TAPSIGNER has already been set up ${
-                  tapsignerBackupsCount ? 'and backed up ' : ''
-                }before. Proceed only if you trust its source.`}
+                {`${tapsignerTranslations.tapsigneralreadyexists} ${
+                  tapsignerBackupsCount ? tapsignerTranslations.andBackedUp : ''
+                }${tapsignerTranslations.proceedOnlyIfTrusted}`}
               </Text>
             </Box>
           ) : (
@@ -451,8 +457,8 @@ function SetupTapsigner({ route }) {
         params: {
           data: signedSerializedPSBT,
           encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
+          title: signerTranslations.PSBTSigned,
+          subtitle: signerTranslations.PSBTSignedDesc,
           type: SignerType.KEEPER,
           isSignedPSBT: false,
         },
@@ -506,7 +512,7 @@ function SetupTapsigner({ route }) {
             />
           </Box>
           <Text style={styles.heading} color={`${colorMode}.greenText`}>
-            You will be scanning the TAPSIGNER after this step
+            {tapsignerTranslations.scanTapsigneraftertheStep}
           </Text>
         </ScrollView>
       </MockWrapper>
@@ -519,7 +525,7 @@ function SetupTapsigner({ route }) {
         >
           <Box flexDirection="row">
             <Text color={`${colorMode}.textGreen`} style={styles.checkInitialStatus} medium>
-              Check Initial Setup Status
+              {tapsignerTranslations.checkInitialSetupStatus}
             </Text>
             <Box paddingTop={hp(1)}>{colorMode === 'light' ? <NFCIcon /> : <NFCIconWhite />}</Box>
           </Box>
@@ -537,11 +543,11 @@ function SetupTapsigner({ route }) {
           primaryText={(() => {
             switch (mode) {
               case InteracationMode.SIGN_TRANSACTION:
-                return 'Sign';
+                return common.sign;
               case InteracationMode.BACKUP_SIGNER:
-                return 'Save Backup';
+                return signerTranslations.saveBackup;
               default:
-                return 'Proceed';
+                return common.proceed;
             }
           })()}
           primaryCallback={() => {
@@ -577,7 +583,7 @@ function SetupTapsigner({ route }) {
           setInfoModal(false);
         }}
         title={signerTranslations.SettingUpTapsigner}
-        subTitle={`Get your TAPSIGNER ready before proceeding.`}
+        subTitle={tapsignerTranslations.SetupDescription}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -594,8 +600,8 @@ function SetupTapsigner({ route }) {
       <KeeperModal
         visible={openOptionModal}
         close={() => setOpenOptionModal(false)}
-        title="Sign Transaction"
-        subTitle="Select how you want to sign the transaction"
+        title={signerTranslations.signTransaction}
+        subTitle={signerTranslations.selectSignOption}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

@@ -40,7 +40,7 @@ import {
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BounceLoader from 'src/components/BounceLoader';
 import { fetchOneDayInsight } from 'src/store/sagaActions/send_and_receive';
-import { PasswordTimeout } from 'src/utils/PasswordTimeout';
+import { formatCoolDownTime, PasswordTimeout } from 'src/utils/PasswordTimeout';
 import Buttons from 'src/components/Buttons';
 import PinDotView from 'src/components/AppPinInput/PinDotView';
 import { setAutomaticCloudBackup } from 'src/store/reducers/bhr';
@@ -53,7 +53,6 @@ import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustrati
 import { uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 
-const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
@@ -98,6 +97,7 @@ function LoginScreen({ navigation, route }) {
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
+  const { allAccounts, biometricEnabledAppId } = useAppSelector((state) => state.account);
 
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [campaignDetails, setCampaignDetails] = useState(null);
@@ -142,7 +142,7 @@ function LoginScreen({ navigation, route }) {
 
       setTimeout(() => {
         setLoginError(true);
-        setErrMessage(`Please try after ${PasswordTimeout(failedAttempts) / TIMEOUT} minutes`);
+        setErrMessage(`Please try after ${formatCoolDownTime(PasswordTimeout(failedAttempts))}`);
         setCanLogin(false);
       }, 100);
 
@@ -179,21 +179,26 @@ function LoginScreen({ navigation, route }) {
   }, [recepitVerificationError]);
 
   const biometricAuth = async () => {
-    if (loginMethod === LoginMethod.BIOMETRIC) {
+    if (
+      (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
+      (allAccounts.length > 0 && biometricEnabledAppId !== null)
+    ) {
       try {
         setTimeout(async () => {
           if (canLogin) {
             const { success, signature } = await RNBiometrics.createSignature({
               promptMessage: 'Authenticate',
               payload: appId,
-              cancelButtonText: 'Use PIN',
+              cancelButtonText: common.usePin,
             });
             if (success) {
               setIsBiometric(true);
               setLoginModal(true);
               setLogging(true);
               setLoginError(false);
-              dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+              dispatch(
+                credsAuth(signature, LoginMethod.BIOMETRIC, false, biometricEnabledAppId ?? appId)
+              );
             }
           }
         }, 200);
@@ -242,13 +247,9 @@ function LoginScreen({ navigation, route }) {
 
       if (credsAuthenticatedError) {
         if (credsAuthenticatedError.toString().includes('Incorrect Passcode')) {
-          setErrMessage('Incorrect Passcode');
+          setErrMessage(login.Incorrect);
         } else {
-          setErrMessage(
-            credsAuthenticatedError +
-              '\n\n' +
-              'Please close and reopen the app. If the issue persists please contact support.'
-          );
+          setErrMessage(credsAuthenticatedError + '\n\n' + login.closeAndReopen);
         }
       }
 
@@ -321,7 +322,7 @@ function LoginScreen({ navigation, route }) {
       if (torStatus === TorStatus.ERROR) {
         return '';
       }
-      return 'It might take upto minute';
+      return login.takeUptoMin;
     }
     return loginData.message;
   }, [torEnbled, torStatus]);
@@ -334,7 +335,7 @@ function LoginScreen({ navigation, route }) {
       if (torStatus === TorStatus.ERROR) {
         return 'Error';
       }
-      return 'Connecting to Tor ';
+      return login.connectingToTor;
     }
     return loginData.title;
   }, [torEnbled, torStatus]);
@@ -345,9 +346,9 @@ function LoginScreen({ navigation, route }) {
         return loginData.subTitle;
       }
       if (torStatus === TorStatus.ERROR) {
-        return 'Failed to connect to tor';
+        return login.failedToConnectTor;
       }
-      return 'Network calls and some functions may work slower when the Tor is enabled  ';
+      return login.networkCallsAndTor;
     }
     return loginData.subTitle;
   }, [torEnbled, torStatus]);
@@ -362,14 +363,14 @@ function LoginScreen({ navigation, route }) {
       }
       if (torEnbled) {
         if (torStatus === TorStatus.CONNECTED) {
-          return 'Next';
+          return common.next;
         }
         if (torStatus === TorStatus.ERROR) {
           return 'Login w/o tor';
         }
         return null;
       }
-      return 'Next';
+      return common.next;
     }
     return null;
   }, [torEnbled, torStatus, isAuthenticated]);
@@ -456,7 +457,7 @@ function LoginScreen({ navigation, route }) {
         {
           name: 'App',
           state: {
-            routes: [{ name: 'Home' }, { name: 'ChoosePlan' }, { name: 'DiscountedPlanScreen' }],
+            routes: [{ name: 'Home' }, { name: 'ChoosePlan', params: { showDiscounted: true } }],
           },
         },
       ],
@@ -566,22 +567,22 @@ function LoginScreen({ navigation, route }) {
         dismissible={false}
         close={() => {}}
         visible={!isOnPleb && recepitVerificationError}
-        title="Something went wrong"
-        subTitle="Please check your internet connection and try again. If you continue offline, some features may not be available."
+        title={common.somethingWrong}
+        subTitle={login.checkConnection}
         Content={NoInternetModalContent}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         subTitleWidth={wp(230)}
         showCloseIcon={false}
-        buttonText={'Retry'}
+        buttonText={common.retry}
         buttonCallback={() => {
           setLoginError(false);
           setLogging(true);
           dispatch(setRecepitVerificationError(false));
           dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
         }}
-        secondaryButtonText={'Continue offline'}
+        secondaryButtonText={login.continueOffline}
         secondaryCallback={() => {
           setLoginError(false);
           setLogging(false);
@@ -592,13 +593,13 @@ function LoginScreen({ navigation, route }) {
       <KeeperModal
         visible={incorrectPassword}
         close={() => {}}
-        title="Incorrect Password"
-        subTitle="You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow"
+        title={login.incorrectPassword}
+        subTitle={login.youEnteredIncorrectPasscode}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
-        buttonText="Retry"
+        buttonText={common.retry}
         buttonCallback={() => setIncorrectPassword(false)}
         subTitleWidth={wp(250)}
       />

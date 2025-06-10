@@ -12,7 +12,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import Passwordlock from 'src/assets/images/passwordlock.svg';
 import BiometricIcon from 'src/assets/images/biometric-icon.svg';
 import { changeLoginMethod, storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 import KeeperModal from 'src/components/KeeperModal';
@@ -24,6 +23,8 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Fonts from 'src/constants/Fonts';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 enum PasscodeStages {
   CREATE = 'CREATE',
@@ -41,7 +42,7 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const { translations } = useContext(LocalizationContext);
-  const { login, common } = translations;
+  const { login, common, error: errorText } = translations;
   const { showToast } = useToastMessage();
 
   const createPin = pinState.value.slice(0, 4);
@@ -52,11 +53,17 @@ export default function CreatePin(props) {
   const [enableBiometric, setEnableBiometric] = useState(false);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const { allAccounts } = useAppSelector((state) => state.account);
   const RNBiometrics = new ReactNativeBiometrics();
+  const slider_background = ThemedColor({ name: 'slider_background' });
+  const login_button_backGround = ThemedColor({ name: 'login_button_backGround' });
+  const login_button_text_color = ThemedColor({ name: 'login_button_text_color' });
+  const login_text_color = ThemedColor({ name: 'login_text_color' });
 
   useEffect(() => {
     if (hasCreds) {
-      setEnableBiometric(true);
+      if (allAccounts.length) props.navigation.replace('OnBoardingSlides');
+      else setEnableBiometric(true);
     }
   }, [hasCreds]);
 
@@ -118,7 +125,7 @@ export default function CreatePin(props) {
 
   const handleNext = () => {
     dispatch(setIsInitialLogin(true));
-    dispatch(storeCreds(createPin));
+    dispatch(storeCreds(createPin, (error: string) => showToast(error)));
     setCreatePassword(false);
   };
 
@@ -126,11 +133,10 @@ export default function CreatePin(props) {
     return (
       <Box>
         <Box style={styles.passImg}>
-          <Passwordlock />
+          <ThemedSvg name={'AdditonalUserIcon'} />
         </Box>
         <Text color={`${colorMode}.secondaryText`} style={styles.modalMessageText}>
-          You will be locked out of the app if you forget your passcode and will have to recover it
-          using the Recovery Key.
+          {login.lockedOutOfApp}
         </Text>
       </Box>
     );
@@ -156,7 +162,7 @@ export default function CreatePin(props) {
           }
 
           const { success } = await RNBiometrics.simplePrompt({
-            promptMessage: 'Confirm your identity',
+            promptMessage: errorText.confirmIdentity,
           });
 
           if (success) {
@@ -164,10 +170,7 @@ export default function CreatePin(props) {
             dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
             props.navigation.replace('OnBoardingSlides');
           } else {
-            showToast(
-              'Biometric authentication failed.\nPlease try again or use PIN.',
-              <ToastErrorIcon />
-            );
+            showToast(errorText.biometicAuthFailed, <ToastErrorIcon />);
             setTimeout(() => {
               props.navigation.replace('OnBoardingSlides');
             }, 2000);
@@ -176,20 +179,14 @@ export default function CreatePin(props) {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        showToast(
-          'Biometrics not enabled.\nPlease go to settings and enable it.',
-          <ToastErrorIcon />
-        );
+        showToast(errorText.biometricNotEnabled, <ToastErrorIcon />);
         setTimeout(() => {
           props.navigation.replace('OnBoardingSlides');
         }, 2000);
       }
     } catch (error) {
       console.log(error);
-      showToast(
-        'An error occurred with biometrics.\nPlease use an alternative method.',
-        <ToastErrorIcon />
-      );
+      showToast(errorText.errorWithBiometrics, <ToastErrorIcon />);
       setTimeout(() => {
         props.navigation.replace('OnBoardingSlides');
       }, 2000);
@@ -197,35 +194,38 @@ export default function CreatePin(props) {
   };
 
   return (
-    <Box
-      safeAreaTop
-      testID="main"
-      style={styles.container}
-      backgroundColor={`${colorMode}.pantoneGreen`}
-    >
+    <Box safeAreaTop testID="main" style={styles.container} backgroundColor={slider_background}>
       <Box style={styles.wrapper}>
         <StatusBar barStyle="light-content" />
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} medium color={`${colorMode}.headerWhite`}>
+              <Text style={styles.welcomeText} medium color={login_text_color}>
                 {login.welcome}
               </Text>
             </Box>
             <Box style={styles.passCodeWrapper}>
               <Box style={styles.createPasscodeWrapper}>
-                <Text color={`${colorMode}.headerWhite`} style={styles.labelText}>
+                <Text color={login_text_color} style={styles.labelText}>
                   {login.Createpasscode}
                 </Text>
-                <PinDotView passCode={createPin} />
+                <PinDotView
+                  passCode={createPin}
+                  dotColor={login_text_color}
+                  borderColor={login_text_color}
+                />
               </Box>
               {isCreateComplete && (
                 <Box style={styles.confirmPasscodeWrapper}>
-                  <Text color={`${colorMode}.headerWhite`} style={styles.labelText}>
+                  <Text color={login_text_color} style={styles.labelText}>
                     {login.Confirmyourpasscode}
                   </Text>
                   <Box>
-                    <PinDotView passCode={confirmPin} />
+                    <PinDotView
+                      passCode={confirmPin}
+                      dotColor={login_text_color}
+                      borderColor={login_text_color}
+                    />
                     {isConfirmComplete && !isPinMatch && (
                       <Text color={`${colorMode}.error`} italic style={styles.errorText}>
                         {login.MismatchPasscode}
@@ -239,16 +239,17 @@ export default function CreatePin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            ClearIcon={<DeleteIcon />}
+            ClearIcon={<ThemedSvg name="delete_icon" />}
             bubbleEffect
+            keyColor={login_text_color}
           />
           <Box style={styles.btnWrapper}>
             <Buttons
               primaryCallback={() => setCreatePassword(true)}
               primaryText={common.create}
               primaryDisable={!isPinMatch}
-              primaryBackgroundColor={`${colorMode}.buttonText`}
-              primaryTextColor={`${colorMode}.pantoneGreen`}
+              primaryBackgroundColor={login_button_backGround}
+              primaryTextColor={login_button_text_color}
               fullWidth
             />
           </Box>
@@ -257,14 +258,14 @@ export default function CreatePin(props) {
       <KeeperModal
         visible={createPassword}
         close={() => {}}
-        title="Remember your passcode"
-        subTitle="Storing the devices securely is an important responsibility. Please ensure their safety and accessibility. Losing them may lead to permanent loss of your bitcoin."
+        title={login.rememberPasscode}
+        subTitle={login.storingDeviceSecure}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
-        buttonText="Continue"
-        secondaryButtonText="Back"
+        buttonText={common.continue}
+        secondaryButtonText={common.back}
         buttonCallback={handleNext}
         secondaryCallback={() => {
           setCreatePassword(false);
@@ -274,17 +275,15 @@ export default function CreatePin(props) {
       />
       <KeeperModal
         visible={enableBiometric}
-        close={() => {
-          setEnableBiometric(false);
-        }}
-        title="Enable Biometric Authentication"
-        subTitle="Use fingerprint or face recognition for quick and secure access."
+        close={() => {}}
+        title={login.enableBiometric}
+        subTitle={login.fingerprintOrFace}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon={false}
-        buttonText="Continue"
-        secondaryButtonText="Skip"
+        buttonText={common.continue}
+        secondaryButtonText={common.cancel}
         buttonCallback={() => {
           setEnableBiometric(false);
           onChangeLoginMethod();

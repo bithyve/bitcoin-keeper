@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
 import ShowQR from 'src/assets/images/qr-scan-icon.svg';
@@ -13,10 +13,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFromNFC }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { error: errorText, common, vault } = translations;
 
   const isIos = Platform.OS === 'ios';
 
@@ -31,7 +34,7 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
         setData(cosigner);
       } catch (err) {
         captureError(err);
-        showToast('Please pick a valid co-signer file', <ToastErrorIcon />);
+        showToast(errorText.validCoSignerFile, <ToastErrorIcon />);
       }
     } catch (err) {
       if (err.toString().includes('user canceled')) {
@@ -39,14 +42,14 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
         return;
       }
       captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
+      showToast(common.somethingWrong, <ToastErrorIcon />);
     }
   };
 
   const walletOptions = [
     {
       id: 1,
-      label: 'Scan QR',
+      label: vault.scanQR,
       icon: <ShowQR />,
       onPress: () => {
         navigatetoQR();
@@ -65,7 +68,7 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
     },
 
     {
-      id: 4,
+      id: 3,
       label: 'NFC',
       icon: <NFCIcon />,
       onPress: () => {
