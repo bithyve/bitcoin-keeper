@@ -101,7 +101,7 @@ import BackupModalContent from '../AppSettings/BackupModal';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
-import { manipulateKruxData } from 'src/hardware/krux';
+import { KRUX_LOAD_SEED, manipulateKruxData } from 'src/hardware/krux';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -596,14 +596,28 @@ const getSignerContent = (
       };
 
     case SignerType.KRUX:
+      const kruxLink = (
+        <Text
+          color={`${colorMode}.secondaryText`}
+          style={styles.infoText}
+          onPress={() => Linking.openURL(KRUX_LOAD_SEED)}
+        >
+          {signerText.kruxInstruction1}
+          <Text style={{ textDecorationLine: 'underline' }} color={`${colorMode}.hyperlink`}>
+            {signerText.learnHow}
+          </Text>
+        </Text>
+      );
+
       const kruxIns = [
-        signerText.kruxInstruction1,
+        kruxLink,
+        signerText.kruxInstruction2,
+        signerText.kruxInstruction3,
         formatString(
-          signerText.kruxInstruction2,
+          signerText.kruxInstruction4,
           keyGenerationMode === KeyGenerationMode.FILE ? 'XPUB-Text' : 'XPUB QR Code'
         ),
       ];
-      if (isTestnet()) kruxIns.push(signerText.kruxTestnet);
 
       return {
         type: SignerType.KRUX,

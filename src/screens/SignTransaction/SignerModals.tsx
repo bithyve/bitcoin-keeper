@@ -1,4 +1,4 @@
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -37,6 +37,7 @@ import MagicLinkIcon from 'src/assets/images/magic-link-icon.svg';
 import useVault from 'src/hooks/useVault';
 import RegisterSignerContent from '../Vault/components/RegisterSignerContent';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { KRUX_LOAD_SEED, KRUX_REGISTER } from 'src/hardware/krux';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -236,12 +237,32 @@ function PortalContent() {
 function KruxContent({ isMultisig }) {
   const { translations } = useContext(LocalizationContext);
   const { signer: signerText } = translations;
+  const { colorMode } = useColorMode();
+
+  const kruxSeed = (
+    <Text onPress={() => Linking.openURL(KRUX_LOAD_SEED)}>
+      {signerText.kruxInstruction1}
+      <Text style={{ textDecorationLine: 'underline' }} color={`${colorMode}.hyperlink`}>
+        {signerText.learnHow}
+      </Text>
+    </Text>
+  );
+  const kruxRegister = (
+    <Text onPress={() => Linking.openURL(KRUX_REGISTER)}>
+      {signerText.kruxSign1}
+      <Text style={{ textDecorationLine: 'underline' }} color={`${colorMode}.hyperlink`}>
+        {signerText.learnHow}
+      </Text>
+    </Text>
+  );
+
   return (
     <>
       <Box style={styles.portalIllustration}>
         <ThemedSvg name={'krux_illustration'} />
       </Box>
-      <Instruction text={isMultisig ? signerText.kruxSign1 : signerText.kruxSignSingleSig} />
+      <Instruction text={kruxSeed} />
+      {isMultisig && <Instruction text={kruxRegister} />}
       <Instruction text={signerText.kruxSign2} />
     </>
   );

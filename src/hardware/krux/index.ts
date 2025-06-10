@@ -16,3 +16,8 @@ export const manipulateKruxSingleFile = (data: string, callback: (details: strin
   const purpose = WalletUtilities.getPurpose(derivationPath);
   callback(JSON.stringify({ [purpose]: { mfp, derivationPath, xPub } }));
 };
+
+export const KRUX_LOAD_SEED =
+  'https://selfcustody.github.io/krux/getting-started/usage/loading-a-mnemonic/';
+export const KRUX_REGISTER =
+  'https://selfcustody.github.io/krux/getting-started/usage/navigating-the-main-menu/#wallet-descriptor';
