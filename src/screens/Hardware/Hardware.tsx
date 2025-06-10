@@ -9,13 +9,13 @@ import HardwareReseller from './components/HardwareReseller';
 
 const HardwareWallet = () => {
   const { translations } = useContext(LocalizationContext);
-  const { wallet, common } = translations;
+  const { wallet: walletText, common } = translations;
   const [isToggled, setIsToggled] = useState(false);
 
   return (
     <ScreenWrapper>
       <Box>
-        <WalletHeader title={wallet.hardwareShopWallet} />
+        <WalletHeader title={walletText.hardwareShopWallet} />
       </Box>
       {/* <MonthlyYearlySwitch
         title2="Resellers"
