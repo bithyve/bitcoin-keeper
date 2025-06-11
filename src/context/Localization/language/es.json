@@ -237,7 +237,9 @@
     "seletPermitedAction": "Select Permitted Actions",
     "remians": "Remains",
     "vaultTimelockActive": "Vault has an active timelock",
-    "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends."
+    "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends.",
+    "message": "Message",
+    "signature": "Signature"
   },
   "noInternet": {
     "no": "No Internet",
@@ -854,7 +856,12 @@
     "keepItPrivate": "Keep it private and secure",
     "currentBtcPrice": "Current BTC Price",
     "amountBeingSend": "Amount being sent",
-    "sendingAmount": "Sending Amount:"
+    "sendingAmount": "Sending Amount:",
+    "SignMessageHeader": "Sign/Verify Message",
+    "messageVerifiedTitle": "Message Verified Successfully",
+    "messageVerifiedSubTitle": "The signature is verified against the message successfully",
+    "walletSignMessageTitle": "Sign/Verify Message",
+    "walletSignMessageDesc": "Sign and verify a message against a bitcoin address"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",

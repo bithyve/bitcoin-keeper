@@ -138,6 +138,13 @@ function WalletSettings({ route }) {
         setConfirmPassVisible(true);
       },
     },
+    {
+      title: walletTranslation.walletSignMessageTitle,
+      description: walletTranslation.walletSignMessageDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => navigation.dispatch(CommonActions.navigate('SignMessageScreen', { wallet })),
+    },
   ].filter(Boolean);
 
   return (
