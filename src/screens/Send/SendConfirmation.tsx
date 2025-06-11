@@ -114,6 +114,8 @@ function SendConfirmation({ route }) {
   }: SendConfirmationRouteParams = route.params;
   const navigation = useNavigation();
   const exchangeRates = useExchangeRates();
+  const { currencyCode } = useAppSelector((state) => state.settings);
+  const BtcPrice = exchangeRates?.[currencyCode];
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const txRecipientsOptions = useAppSelector(
@@ -688,11 +690,7 @@ function SendConfirmation({ route }) {
                   {walletTranslations.currentBtcPrice}
                 </Text>
                 <Text fontSize={12} color={`${colorMode}.primaryText`}>
-                  {exchangeRates?.BMD?.symbol +
-                    new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }).format(exchangeRates?.BMD?.last)}
+                  {BtcPrice?.last + ` ${BtcPrice?.symbol}`}
                 </Text>
               </Box>
               {OneDayHistoricalFee.length > 0 && (

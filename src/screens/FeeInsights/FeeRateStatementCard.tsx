@@ -65,7 +65,7 @@ const FeerateStatement = (props: Props) => {
         </Box>
 
         <Box style={styles.statementWrapper}>
-          <Box style={styles.textWrapper}>
+          <Box style={styles.textWrapper} width={wp(97)}>
             {shortFeeStatement.includes('higher than usual') ||
             shortFeeStatement.includes('lower than usual') ? (
               <>
@@ -130,13 +130,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: hp(5),
-    width: '98%',
   },
   titleWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: hp(5),
     position: 'relative',
-    width: '98%',
+    width: '97%',
   },
 });
