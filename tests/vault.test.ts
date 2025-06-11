@@ -39,6 +39,10 @@ import {
   ENHANCED_VAULT_TIMELOCKS_BLOCK_HEIGHT_TESTNET,
   generateEnhancedVaultElements,
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
+import {
+  generateOutputDescriptors,
+  parseTextforVaultConfig,
+} from 'src/utils/service-utilities/utils';
 
 jest.mock('src/store/store', () => ({
   store: {
@@ -572,7 +576,7 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
     seedWordsKey = key2;
     signerMap[getKeyUID(seedWordsKey)] = singer2;
 
-    // configure 3rd singer: signing server
+    // configure 3rd signer: signing server
     signingServerConfig = {
       method: 'TWO_FA',
       verifier: 'NZDA2HBHGIQSSUCY',
@@ -937,5 +941,141 @@ describe('Miniscript Vault: 2-of-3 w/ Inheritance Key', () => {
     );
     expect(txid).toEqual('87e91c91d0b663f83d416f1c5b39786cc27fe9a5a5da4c24d391926648b4a868');
     broadcastSpy.mockRestore();
+  });
+});
+
+describe('Descriptor Parsing and Generation', () => {
+  const generateVaultFromDescriptor = async (descriptor: string) => {
+    const parsed = parseTextforVaultConfig(descriptor);
+
+    const vaultSigners: VaultSigner[] = [];
+    const signers: Signer[] = [];
+    parsed.signersDetails.forEach((config) => {
+      const { signer, key } = generateSignerFromMetaData({
+        xpub: config.xpub,
+        derivationPath: config.path,
+        masterFingerprint: config.masterFingerprint,
+        signerType: SignerType.UNKOWN_SIGNER,
+        storageType: SignerStorage.WARM,
+        isMultisig: config.isMultisig,
+      });
+      vaultSigners.push(key);
+      signers.push(signer);
+    });
+
+    const vaultInfo: NewVaultInfo = {
+      vaultType: parsed.miniscriptElements
+        ? VaultType.MINISCRIPT
+        : parsed.scheme.n === 1
+        ? VaultType.SINGE_SIG
+        : VaultType.DEFAULT,
+      vaultScheme: parsed.scheme,
+      vaultSigners: vaultSigners,
+      vaultDetails: {
+        name: 'Impoted Vault',
+        description: 'Imported Vault from descriptor',
+      },
+      miniscriptElements: parsed.miniscriptElements,
+    };
+
+    const vault = await generateVault({
+      type: vaultInfo.vaultType,
+      vaultName: vaultInfo.vaultDetails.name,
+      vaultDescription: vaultInfo.vaultDetails.description,
+      scheme: vaultInfo.vaultScheme,
+      signers: vaultSigners,
+      networkType: NetworkType.TESTNET,
+    });
+
+    return vault;
+  };
+
+  test('should parse a valid descriptor correctly', async () => {
+    const descriptor =
+      'wpkh([ED0DF249/84h/1h/13h]tpubDDFuHLb3bMZBQ4Y8PL2j8dUFqYZTp71C6JHo5tmGHuSr7oJ35C7HMNotFa7WpnghS7kdafgJWpL5zqxN7x1XKcpBpM3muMHRii1wLvCKoYT/<0;1>/*)#g0trtp5p';
+    const parsed = parseTextforVaultConfig(descriptor);
+    expect(parsed).toEqual({
+      isMultisig: false,
+      scheme: {
+        m: 1,
+        n: 1,
+      },
+      signersDetails: [
+        {
+          masterFingerprint: 'ED0DF249',
+          path: "m/84'/1'/13'",
+          xpub: 'tpubDDFuHLb3bMZBQ4Y8PL2j8dUFqYZTp71C6JHo5tmGHuSr7oJ35C7HMNotFa7WpnghS7kdafgJWpL5zqxN7x1XKcpBpM3muMHRii1wLvCKoYT',
+        },
+      ],
+    });
+  });
+
+  test('should return null for an invalid descriptor', () => {
+    const invalidDescriptor = 'wpkh([INVALID/84h/1h/13h]invalidxpub/<0;1>/*)#invalid';
+    const parsed = parseTextforVaultConfig(invalidDescriptor);
+    expect(parsed).toEqual({
+      isMultisig: false,
+      scheme: {
+        m: 1,
+        n: 1,
+      },
+      signersDetails: [null],
+    });
+  });
+
+  test('should throw an error for unsupported descriptor formats', () => {
+    expect(() => parseTextforVaultConfig('unsupported(descriptor)')).toThrow(
+      'Data provided does not match supported formats'
+    );
+  });
+
+  test('should create a single-sig vault using the descriptor and validate the 1st external address', async () => {
+    const descriptor =
+      'wpkh([ED0DF249/84h/1h/13h]tpubDDFuHLb3bMZBQ4Y8PL2j8dUFqYZTp71C6JHo5tmGHuSr7oJ35C7HMNotFa7WpnghS7kdafgJWpL5zqxN7x1XKcpBpM3muMHRii1wLvCKoYT/<0;1>/*)#g0trtp5p';
+
+    const vault = await generateVaultFromDescriptor(descriptor);
+    expect(vault.signers.length).toEqual(1);
+    expect(vault.isMultiSig).toEqual(false);
+    expect(vault.specs.receivingAddress).toBe('tb1qclvfyg5v9gahygk5la56afevcnpdxt203609gp');
+    expect(generateOutputDescriptors(vault)).toBe(descriptor);
+  });
+
+  test('should create a multi-sig vault(2-of-3) using the descriptor and validate the 1st external address', async () => {
+    const descriptor =
+      'wsh(sortedmulti(2,[4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<0;1>/*,[AE6E3031/48h/1h/0h/2h]tpubDEbEY1b4Rkaieyi2xUstuVy9ur1be16edv8DrpXqGke2ABqjxoUvxJDLqcdUQmEHyBvgutLwBJ9ciiUijg7cC1A1jKEcxN43xk2W9pMGaCJ/<0;1>/*,[C7D9EAF5/48h/1h/0h/2h]tpubDEFf521xjx9TGwajRXBca5bBRNmr9iqa4xLAAytgZ6weCNKKgErF8qgXFGifgYJGF9zLHvPHK6hZHWxeJd4kMkmqcbBMQmCSfnJmUgeNqJ8/<0;1>/*))#g47ywxzw';
+
+    const vault = await generateVaultFromDescriptor(descriptor);
+    expect(vault.signers.length).toEqual(3);
+    expect(vault.isMultiSig).toEqual(true);
+    expect(vault.specs.receivingAddress).toBe(
+      'tb1qfkv399k9knrjysqvfjt0s352c6pun9v4nmh9uxvacsz57m86cyfsz0runl'
+    );
+    expect(generateOutputDescriptors(vault)).toBe(descriptor);
+  });
+
+  test('should create a miniscript vault(2-of-3 + IK) using the descriptor and validate the 1st external address', async () => {
+    const descriptor =
+      'wsh(or_d(multi(2,[67DE5A35/48h/1h/0h/2h]tpubDFbgR5WkGxwREBbJ987KGmYErPuueGQ1uZnH4b3XthGo6ohwqfYe2uVt24KLewN4yJWMffXvnH5hZ6nPbwz2kWDT9CRidYamWXgXtD4UvrX/<0;1>/*,[C7D9EAF5/48h/1h/0h/2h]tpubDEFf521xjx9TGwajRXBca5bBRNmr9iqa4xLAAytgZ6weCNKKgErF8qgXFGifgYJGF9zLHvPHK6hZHWxeJd4kMkmqcbBMQmCSfnJmUgeNqJ8/<0;1>/*,[4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<0;1>/*),and_v(v:thresh(2,pkh([67DE5A35/48h/1h/0h/2h]tpubDFbgR5WkGxwREBbJ987KGmYErPuueGQ1uZnH4b3XthGo6ohwqfYe2uVt24KLewN4yJWMffXvnH5hZ6nPbwz2kWDT9CRidYamWXgXtD4UvrX/<2;3>/*),a:pkh([C7D9EAF5/48h/1h/0h/2h]tpubDEFf521xjx9TGwajRXBca5bBRNmr9iqa4xLAAytgZ6weCNKKgErF8qgXFGifgYJGF9zLHvPHK6hZHWxeJd4kMkmqcbBMQmCSfnJmUgeNqJ8/<2;3>/*),a:pkh([4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<2;3>/*),a:pkh([AE6E3031/48h/1h/0h/2h]tpubDEbEY1b4Rkaieyi2xUstuVy9ur1be16edv8DrpXqGke2ABqjxoUvxJDLqcdUQmEHyBvgutLwBJ9ciiUijg7cC1A1jKEcxN43xk2W9pMGaCJ/<0;1>/*)),after(85844))))#th8ln8u6';
+
+    const vault = await generateVaultFromDescriptor(descriptor);
+    expect(vault.signers.length).toEqual(4);
+    expect(vault.isMultiSig).toEqual(true);
+    expect(vault.specs.receivingAddress).toBe(
+      'tb1q5p9p2dcnvnkarnv594j9cfh3es6s79lfenswef7smt5q273d267qglh94h'
+    );
+    expect(generateOutputDescriptors(vault)).toBe(descriptor);
+  });
+
+  test('should create a miniscript vault(2-of-3 + IK + EK) using the descriptor and validate the 1st external address', async () => {
+    const descriptor =
+      'wsh(or_d(multi(2,[4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<0;1>/*,[67DE5A35/48h/1h/0h/2h]tpubDFbgR5WkGxwREBbJ987KGmYErPuueGQ1uZnH4b3XthGo6ohwqfYe2uVt24KLewN4yJWMffXvnH5hZ6nPbwz2kWDT9CRidYamWXgXtD4UvrX/<0;1>/*,[CB6FE460/48h/1h/123h/2h]tpubDFJbyzFGfyGhwjc2CP7YHjD3hK53AoQWU2Q5eABX2VXcnEBxWVVHjtZhzg9PQLnoHe6iKjR3TamW3N9RVAY5WBbK5DBAs1D86wi2DEgMwpN/<0;1>/*),or_i(and_v(v:pkh([C7D9EAF5/48h/1h/0h/2h]tpubDEFf521xjx9TGwajRXBca5bBRNmr9iqa4xLAAytgZ6weCNKKgErF8qgXFGifgYJGF9zLHvPHK6hZHWxeJd4kMkmqcbBMQmCSfnJmUgeNqJ8/<0;1>/*),after(85792)),and_v(v:thresh(2,pkh([4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<2;3>/*),a:pkh([67DE5A35/48h/1h/0h/2h]tpubDFbgR5WkGxwREBbJ987KGmYErPuueGQ1uZnH4b3XthGo6ohwqfYe2uVt24KLewN4yJWMffXvnH5hZ6nPbwz2kWDT9CRidYamWXgXtD4UvrX/<2;3>/*),a:pkh([CB6FE460/48h/1h/123h/2h]tpubDFJbyzFGfyGhwjc2CP7YHjD3hK53AoQWU2Q5eABX2VXcnEBxWVVHjtZhzg9PQLnoHe6iKjR3TamW3N9RVAY5WBbK5DBAs1D86wi2DEgMwpN/<2;3>/*),a:pkh([AE6E3031/48h/1h/0h/2h]tpubDEbEY1b4Rkaieyi2xUstuVy9ur1be16edv8DrpXqGke2ABqjxoUvxJDLqcdUQmEHyBvgutLwBJ9ciiUijg7cC1A1jKEcxN43xk2W9pMGaCJ/<0;1>/*)),after(85768)))))#04p4zsc7';
+
+    const vault = await generateVaultFromDescriptor(descriptor);
+    expect(vault.signers.length).toEqual(5);
+    expect(vault.isMultiSig).toEqual(true);
+    expect(vault.specs.receivingAddress).toBe(
+      'tb1qe52qy39s7p7uu4zyhljqx56x4wpze63h5n2hc6xt33zp9fzfvptsw3eavt'
+    );
+    expect(generateOutputDescriptors(vault)).toBe(descriptor);
   });
 });
