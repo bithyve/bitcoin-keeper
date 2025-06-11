@@ -149,11 +149,7 @@ function SignerSelectionListScreen() {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <RegisterMultisig
-            isUSBAvailable={
-              selectedSigner?.type === SignerType.COLDCARD ||
-              (selectedSigner?.type === SignerType.JADE &&
-                activeVault.type === VaultType.MINISCRIPT)
-            }
+            isUSBAvailable={activeVault.type === VaultType.MINISCRIPT}
             signer={selectedSigner || {}}
             vaultId={vaultId}
             vaultKey={vaultKey}
