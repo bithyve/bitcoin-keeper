@@ -15,12 +15,15 @@ import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import WalletOperations from 'src/services/wallets/operations';
+import useWallets from 'src/hooks/useWallets';
+import { useDispatch } from 'react-redux';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 
 export const SignMessageScreen = ({ route }) => {
-  const wallet = route.params?.wallet;
+  const walletId = route.params?.walletId;
+  const wallet = useWallets({ walletIds: [walletId] }).wallets[0];
   const { xpriv, addresses } = wallet.specs;
   const receiveAddressCache = addresses?.external;
-
   const { colorMode } = useColorMode();
   const [message, setMessage] = useState('');
   const [address, setAddress] = useState('');
@@ -30,9 +33,17 @@ export const SignMessageScreen = ({ route }) => {
   const { common, wallet: walletText } = useContext(LocalizationContext).translations;
   const { showToast } = useToastMessage();
   const { bitcoinNetwork } = useAppSelector((state) => state.settings);
+  const dispatch = useDispatch();
 
   const onSignMessage = () => {
     if (!message) return showToast('Please enter the message');
+
+    // if address cache is not loaded
+    if (!wallet.specs.addresses?.external) {
+      dispatch(refreshWallets([wallet], { hardRefresh: true }));
+      return;
+    }
+
     try {
       const { signature, messageAddress } = WalletOperations.signMessageWallet(
         address,
@@ -83,8 +94,8 @@ export const SignMessageScreen = ({ route }) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
         >
-          <Text>The Wallet configuration file is used restore the wallet on other devices.</Text>
-
+          <Text>The Wallet configuration file is used restore the wallet on other devices. </Text>
+          {/* // ! Move to string constant */}
           <KeeperTextInput
             testID="input_receive_address"
             placeholder={common.Address}

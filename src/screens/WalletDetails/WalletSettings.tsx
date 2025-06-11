@@ -31,6 +31,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -143,7 +144,11 @@ function WalletSettings({ route }) {
       description: walletTranslation.walletSignMessageDesc,
       icon: null,
       isDiamond: false,
-      onPress: () => navigation.dispatch(CommonActions.navigate('SignMessageScreen', { wallet })),
+      onPress: () => {
+        if (!wallet.specs.addresses?.external)
+          dispatch(refreshWallets([wallet], { hardRefresh: true }));
+        navigation.dispatch(CommonActions.navigate('SignMessageScreen', { walletId: wallet.id }));
+      },
     },
   ].filter(Boolean);
 
