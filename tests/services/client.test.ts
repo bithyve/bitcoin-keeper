@@ -1,6 +1,6 @@
 import assert from 'assert';
-import ElectrumClient from '../src/services/electrum/client';
-import { predefinedTestnetNodes } from '../src/services/electrum/predefinedNodes';
+import ElectrumClient from '../../src/services/electrum/client';
+import { predefinedTestnetNodes } from '../../src/services/electrum/predefinedNodes';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
 jest.mock('src/store/store', () => ({

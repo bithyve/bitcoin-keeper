@@ -3,8 +3,8 @@ jest.mock('src/components/KeeperText', () => {
 });
 
 import React from 'react';
-import { fireEvent, render } from '../utils/test-utils';
-import Buttons from '../components/Buttons';
+import Buttons from 'src/components/Buttons';
+import { fireEvent, render } from 'src/utils/test-utils';
 
 jest.mock('react-native-device-info', () => ({
   getVersion: () => '1.0.0',
