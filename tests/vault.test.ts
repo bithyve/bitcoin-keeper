@@ -1071,7 +1071,7 @@ describe('Descriptor Parsing and Generation', () => {
       'wsh(or_d(multi(2,[4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<0;1>/*,[67DE5A35/48h/1h/0h/2h]tpubDFbgR5WkGxwREBbJ987KGmYErPuueGQ1uZnH4b3XthGo6ohwqfYe2uVt24KLewN4yJWMffXvnH5hZ6nPbwz2kWDT9CRidYamWXgXtD4UvrX/<0;1>/*,[CB6FE460/48h/1h/123h/2h]tpubDFJbyzFGfyGhwjc2CP7YHjD3hK53AoQWU2Q5eABX2VXcnEBxWVVHjtZhzg9PQLnoHe6iKjR3TamW3N9RVAY5WBbK5DBAs1D86wi2DEgMwpN/<0;1>/*),or_i(and_v(v:pkh([C7D9EAF5/48h/1h/0h/2h]tpubDEFf521xjx9TGwajRXBca5bBRNmr9iqa4xLAAytgZ6weCNKKgErF8qgXFGifgYJGF9zLHvPHK6hZHWxeJd4kMkmqcbBMQmCSfnJmUgeNqJ8/<0;1>/*),after(85792)),and_v(v:thresh(2,pkh([4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<2;3>/*),a:pkh([67DE5A35/48h/1h/0h/2h]tpubDFbgR5WkGxwREBbJ987KGmYErPuueGQ1uZnH4b3XthGo6ohwqfYe2uVt24KLewN4yJWMffXvnH5hZ6nPbwz2kWDT9CRidYamWXgXtD4UvrX/<2;3>/*),a:pkh([CB6FE460/48h/1h/123h/2h]tpubDFJbyzFGfyGhwjc2CP7YHjD3hK53AoQWU2Q5eABX2VXcnEBxWVVHjtZhzg9PQLnoHe6iKjR3TamW3N9RVAY5WBbK5DBAs1D86wi2DEgMwpN/<2;3>/*),a:pkh([AE6E3031/48h/1h/0h/2h]tpubDEbEY1b4Rkaieyi2xUstuVy9ur1be16edv8DrpXqGke2ABqjxoUvxJDLqcdUQmEHyBvgutLwBJ9ciiUijg7cC1A1jKEcxN43xk2W9pMGaCJ/<0;1>/*)),after(85768)))))#04p4zsc7';
 
     const vault = await generateVaultFromDescriptor(descriptor);
-    expect(vault.signers.length).toEqual(6);
+    expect(vault.signers.length).toEqual(5);
     expect(vault.isMultiSig).toEqual(true);
     expect(vault.specs.receivingAddress).toBe(
       'tb1qe52qy39s7p7uu4zyhljqx56x4wpze63h5n2hc6xt33zp9fzfvptsw3eavt'
