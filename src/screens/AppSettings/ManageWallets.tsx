@@ -117,7 +117,7 @@ function ListItem({
 function ManageWallets() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { settings, error, common, wallet } = translations;
+  const { settings, error: errorText, common, wallet: walletText } = translations;
 
   const { wallets } = useWallets({ getAll: true });
 
@@ -151,10 +151,10 @@ function ManageWallets() {
   useEffect(() => {
     if (selectedWallet?.id) {
       if (relayVaultUpdate) {
-        showToast(error.vaultDeleted, <TickIcon />);
+        showToast(errorText.vaultDeleted, <TickIcon />);
       }
       if (relayVaultError) {
-        showToast(error.failedToDeleteVault, <ToastErrorIcon />);
+        showToast(errorText.failedToDeleteVault, <ToastErrorIcon />);
       }
       dispatch(resetRealyVaultState());
     }
@@ -165,18 +165,18 @@ function ManageWallets() {
   const onProceed = () => {
     if (passwordMode === PasswordMode.DEFAULT) {
       updateWalletVisibility(selectedWallet, false);
-      showToast(error.walletUnhidden, <TickIcon />);
+      showToast(errorText.walletUnhidden, <TickIcon />);
     }
     if (passwordMode === PasswordMode.SHOWALL) {
       setshowAll(true);
-      showToast(error.showingAllWallets, <TickIcon />);
+      showToast(errorText.showingAllWallets, <TickIcon />);
     }
   };
 
   const onForceProceed = () => {
     if (passwordMode === PasswordMode.SHOWALL) {
       setShowAllForced(true);
-      showToast(error.showingHiddenWallets, <TickIcon />);
+      showToast(errorText.showingHiddenWallets, <TickIcon />);
     }
   };
 
@@ -186,7 +186,7 @@ function ManageWallets() {
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
       dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
-      showToast(error.waletDeleted, <TickIcon />);
+      showToast(errorText.waletDeleted, <TickIcon />);
     }
   };
 
@@ -281,7 +281,7 @@ function ManageWallets() {
                   color={`${colorMode}.buttonText`}
                   bold
                 >
-                  {wallet.MoveFunds}
+                  {walletText.MoveFunds}
                 </Text>
               </Box>
             </Shadow>
@@ -381,7 +381,7 @@ function ManageWallets() {
           {showAll || showAllForced ? <HideAllIcon /> : <ShowAllIcon />}
         </Box>
         <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
-          {showAll || showAllForced ? wallet.hideHiddenWallets : wallet.showHiddenWallets}
+          {showAll || showAllForced ? walletText.hideHiddenWallets : walletText.showHiddenWallets}
         </Text>
       </Pressable>
       <KeeperModal

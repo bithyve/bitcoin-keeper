@@ -14,13 +14,13 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function LinkedWalletContent() {
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet: walletTranslation } = translations;
   return (
     <View style={styles.contentContainer}>
       <Box alignSelf="center">
         <ThemedSvg name={'VaultSetupIcon'} />
       </Box>
-      <Text style={styles.contentText}>{wallet.transactionStatus}</Text>
+      <Text style={styles.contentText}>{walletTranslation.transactionStatus}</Text>
     </View>
   );
 }

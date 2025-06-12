@@ -45,7 +45,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const navigtaion = useNavigation();
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { translations } = useContext(LocalizationContext);
-  const { wallet, common, error } = translations;
+  const { wallet: walletTranslation, common, error: errorTranslation } = translations;
   const { signerMap } = useSignerMap();
   const backgroundColor = ThemedColor({ name: 'homeScreen_header_background' });
   useFocusEffect(
@@ -122,7 +122,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
           })
         );
       } else {
-        showToast(error.PendingTransactionNotFound);
+        showToast(errorTranslation.PendingTransactionNotFound);
       }
     },
     [uaiType.POLICY_DELAY]: () => {
@@ -183,7 +183,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.headerWhite`}
               medium
             >
-              {capitalizeEachWord(title === wallet.more ? common.moreOptions : title)}
+              {capitalizeEachWord(title === walletTranslation.more ? common.moreOptions : title)}
             </Text>
           </Box>
 

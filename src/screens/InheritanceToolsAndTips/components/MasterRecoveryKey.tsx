@@ -22,7 +22,7 @@ import { useDispatch } from 'react-redux';
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning, common, settings, signer } = translations;
+  const { inheritancePlanning, common, settings, signer: signerText } = translations;
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const dispatch = useDispatch();
@@ -75,7 +75,7 @@ function MasterRecoveryKey({ navigation }) {
         close={() => setConfirmPassVisible(false)}
         title={common.confirmPassCode}
         subTitleWidth={wp(240)}
-        subTitle={signer.RKBackupPassSubTitle}
+        subTitle={signerText.RKBackupPassSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

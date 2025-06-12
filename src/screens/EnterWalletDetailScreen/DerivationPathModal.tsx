@@ -25,7 +25,7 @@ function DerivationPathModalContent({
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common, settings, wallet } = translations;
+  const { common, settings, wallet: walletText } = translations;
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const [purpose, setPurpose] = useState(initialPurpose);
@@ -81,7 +81,7 @@ function DerivationPathModalContent({
             <Text fontSize={12} bold color={`${colorMode}.textGreen`}>
               {purpose
                 ? purposeList.find((item) => item.value === purpose).label
-                : wallet.chooseWalletPurpose}
+                : walletText.chooseWalletPurpose}
             </Text>
             <Box
               style={[

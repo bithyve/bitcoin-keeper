@@ -30,7 +30,7 @@ const useConfigRecovery = () => {
   const [generatedVaultId, setGeneratedVaultId] = useState(null);
   const { translations } = useContext(LocalizationContext);
 
-  const { importWallet, wallet, error } = translations;
+  const { importWallet, wallet: walletText, error: errorText } = translations;
 
   const recoveryError = {
     failed: false,
@@ -41,7 +41,7 @@ const useConfigRecovery = () => {
     if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
       if (allVaults.find((vault) => vault.id === generatedVaultId)) {
-        Alert.alert(error.vaultAlreadyExists);
+        Alert.alert(errorText.vaultAlreadyExists);
         dispatch(resetRealyVaultState());
         setRecoveryLoading(false);
         navigation.goBack();
@@ -60,7 +60,7 @@ const useConfigRecovery = () => {
               vaultSigners: vaultSignersList,
               vaultDetails: {
                 name: importWallet.importedWalletTitle,
-                description: wallet.secureSats,
+                description: walletText.secureSats,
               },
               miniscriptElements,
             };
@@ -92,11 +92,11 @@ const useConfigRecovery = () => {
       setGeneratedVaultId(null);
       dispatch(resetRealyVaultState());
       setRecoveryLoading(false);
-      showToast(wallet.importSuccessful, <TickIcon />);
+      showToast(walletText.importSuccessful, <TickIcon />);
       navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {
-      showToast(error.importedWalletFailed);
+      showToast(errorText.importedWalletFailed);
       setRecoveryLoading(false);
     }
   }, [relayVaultUpdate, relayVaultError, generatedVaultId]);
@@ -114,7 +114,7 @@ const useConfigRecovery = () => {
             type: WalletType.IMPORTED,
             name: importWallet.importedWalletTitle,
             description: importedKeyDetails.watchOnly
-              ? wallet.watchOnly
+              ? walletText.watchOnly
               : importWallet.importedWalletTitle,
           });
           setRecoveryLoading(false);

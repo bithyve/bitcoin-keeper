@@ -19,7 +19,7 @@ const useTestSats = ({ wallet }) => {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet: walletText, error } = translations;
+  const { common, wallet: walletText, error: errorText } = translations;
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
 
@@ -32,7 +32,7 @@ const useTestSats = ({ wallet }) => {
         navigation.goBack();
       }, 3000);
     } else if (testCoinsFailed) {
-      showToast(error.processFailed);
+      showToast(errorText.processFailed);
       dispatch(setTestCoinsFailed(false));
     }
   }, [testCoinsReceived, testCoinsFailed]);

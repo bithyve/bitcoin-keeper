@@ -94,7 +94,7 @@ const Card = memo(({ uai }: CardProps) => {
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common, notification, error } = translations;
+  const { common, notification, error: errorTranslation } = translations;
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const backupHistory = useQuery(RealmSchema.BackupHistory);
@@ -249,7 +249,7 @@ const Card = memo(({ uai }: CardProps) => {
                     })
                   );
                 } else {
-                  showToast(error.pendingTransactionsNotFound);
+                  showToast(errorTranslation.pendingTransactionsNotFound);
                 }
               },
             },

@@ -16,7 +16,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 const InheritanceDocumentScreen = () => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer, inheritancePlanning } = translations;
+  const { signer: signerText, inheritancePlanning } = translations;
   const { inheritanceDocument } = useSettingKeeper();
   const { isOnL3Above } = usePlan();
   const navigation = useNavigation();
@@ -25,7 +25,7 @@ const InheritanceDocumentScreen = () => {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.header}>
-          <WalletHeader title={signer.inheritanceDocuments} />
+          <WalletHeader title={signerText.inheritanceDocuments} />
         </Box>
 
         {!isOnL3Above && (

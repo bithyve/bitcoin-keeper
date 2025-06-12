@@ -30,7 +30,7 @@ function DisplayQR({
   const [rotation, setRotation] = useState(100);
   const [coldCardQrData, setColdCardQrData] = useState(null);
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet: walletText } = translations;
   const { qrData } = useDynamicQrContent({
     data: isColdCard ? coldCardQrData : qrContents,
     toBytes,
@@ -79,7 +79,7 @@ function DisplayQR({
             </Slider.Track>
             <Slider.Thumb bg={`${colorMode}.pantoneGreen`} />
           </Slider>
-          <Text color={`${colorMode}.secondaryText`}>{wallet.rescanQrDensity}</Text>
+          <Text color={`${colorMode}.secondaryText`}>{walletText.rescanQrDensity}</Text>
         </VStack>
       )}
     </>
