@@ -84,6 +84,8 @@ import PortalIcon from 'src/assets/images/portalIcon.svg';
 import PortalIconLight from 'src/assets/images/portalIconLight.svg';
 import PortalGreenIconLight from 'src/assets/images/portal-green-light.svg';
 import PortalGreenIconDark from 'src/assets/images/portal-green-dark.svg';
+import KruxIcon from 'src/assets/images/KruxIcon.svg';
+import KruxIconLight from 'src/assets/images/KruxIconDark.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -239,6 +241,17 @@ export const SDIcons = ({ type, light = true, width = 20, height = 20 }: SDIconO
         ),
         type: SignerStorage.WARM,
       };
+
+    case SignerType.KRUX:
+      return {
+        Icon: getColouredIcon(<KruxIconLight />, <KruxIcon />, light, width, height),
+        Logo: (
+          <Text style={styles.text} color={`${colorMode}.modalWhiteContent`}>
+            Krux
+          </Text>
+        ),
+        type: SignerStorage.COLD,
+      };
     default:
       return {
         Icon: null,
@@ -378,6 +391,11 @@ export const SDColoredIcons = (type: SignerType, light = true, width = 20, heigh
           width,
           height
         ),
+        type: SignerStorage.COLD,
+      };
+    case SignerType.KRUX:
+      return {
+        Icon: getColouredIcon(<KruxIcon />, <KruxIcon />, light, width, height),
         type: SignerStorage.COLD,
       };
     default:

@@ -55,6 +55,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const [tapsignerModal, setTapsignerModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [portalModal, setPortalModal] = useState(false);
+  const [kruxModal, setKruxModal] = useState(false);
   const [openOptionModal, setOpenOptionModal] = useState(false);
   const [details, setDetails] = useState(null);
 
@@ -120,6 +121,9 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         break;
       case SignerType.PORTAL:
         setPortalModal(true);
+        break;
+      case SignerType.KRUX:
+        setKruxModal(true);
         break;
       case SignerType.SEED_WORDS:
         navigation.dispatch(
@@ -386,6 +390,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         otherSDModal={false}
         specterModal={specterModal}
         portalModal={portalModal}
+        kruxModal={kruxModal}
         setSpecterModal={setSpecterModal}
         setOtherSDModal={() => {}}
         setTrezorModal={setTrezorModal}
@@ -401,6 +406,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         setTapsignerModal={setTapsignerModal}
         showOTPModal={() => {}}
         setPortalModal={setPortalModal}
+        setKruxModal={setKruxModal}
         signTransaction={signTransaction}
         textRef={textRef}
         isMultisig={isMultisig}

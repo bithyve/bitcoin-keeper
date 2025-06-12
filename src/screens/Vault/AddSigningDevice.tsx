@@ -74,6 +74,7 @@ const MINISCRIPT_SIGNERS = [
   SignerType.SEED_WORDS,
   SignerType.KEEPER,
   SignerType.POLICY_SERVER,
+  SignerType.KRUX,
 ];
 
 const onSignerSelect = (

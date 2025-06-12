@@ -245,6 +245,8 @@ export const MOCK_SD_MNEMONIC_MAP = {
   [SignerType.SPECTER]:
     'journey invite inquiry day among poverty inquiry affair keen pave nasty position',
   [SignerType.PORTAL]: 'spring input elevator wire people floor scan weird weekend belt hip lava',
+  [SignerType.KRUX]:
+    'december punch famous wool oak remember quarter suspect violin sock invite round',
 };
 
 export const generateMockExtendedKeyForSigner = (

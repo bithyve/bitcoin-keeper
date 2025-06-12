@@ -127,6 +127,7 @@ function VaultMigrationController({
     SignerType.SEEDSIGNER,
     SignerType.SPECTER,
     SignerType.TREZOR,
+    SignerType.KRUX,
   ];
 
   useFocusEffect(

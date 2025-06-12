@@ -135,6 +135,7 @@ function SignTransactionScreen() {
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [portalModal, setPortalModal] = useState(false);
+  const [kruxModal, setKruxModal] = useState(false);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -584,6 +585,9 @@ function SignTransactionScreen() {
       case SignerType.PORTAL:
         setPortalModal(true);
         break;
+      case SignerType.KRUX:
+        setKruxModal(true);
+        break;
       default:
         showToast(`action not set for ${signer.type}`);
         break;
@@ -731,6 +735,7 @@ function SignTransactionScreen() {
         bitbox02Modal={bitbox02Modal}
         otherSDModal={otherSDModal}
         specterModal={specterModal}
+        kruxModal={kruxModal}
         setSpecterModal={setSpecterModal}
         setOtherSDModal={setOtherSDModal}
         setTrezorModal={setTrezorModal}
@@ -746,6 +751,7 @@ function SignTransactionScreen() {
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
         setPortalModal={setPortalModal}
+        setKruxModal={setKruxModal}
         signTransaction={signTransaction}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}

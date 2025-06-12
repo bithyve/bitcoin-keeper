@@ -129,6 +129,16 @@ function KeyAddedModal({ visible, close, signer }) {
           />
         );
         break;
+      case SignerType.KRUX:
+        Illustration = (
+          <ThemedSvg
+            name={'krux_success'}
+            width={wp(200)}
+            height={hp(200)}
+            style={styles.externalKeyIllustration}
+          />
+        );
+        break;
       default:
         Illustration = (
           <ThemedSvg

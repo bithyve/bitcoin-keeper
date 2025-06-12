@@ -108,6 +108,7 @@ export enum SignerType {
   SPECTER = 'SPECTER',
   ADVISOR_KEY = 'ADVISOR_KEY',
   PORTAL = 'PORTAL',
+  KRUX = 'KRUX',
 }
 
 export enum SignerCategory {

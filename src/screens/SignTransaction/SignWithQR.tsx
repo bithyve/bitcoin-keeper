@@ -27,6 +27,7 @@ import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfir
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 const { width } = Dimensions.get('window');
 
 function SignWithQR() {
@@ -57,6 +58,8 @@ function SignWithQR() {
     tnxDetails: tnxDetailsProps;
     signTransaction: ({ signedSerializedPSBT }: { signedSerializedPSBT: string }) => void;
   } = route.params as any;
+
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const serializedPSBTEnvelop = isRemoteKey
     ? serializedPSBTEnvelopFromProps
@@ -99,6 +102,25 @@ function SignWithQR() {
           }
         }
       } else {
+        const PSBT = Psbt.fromBase64(signedSerializedPSBT, {
+          network: WalletUtilities.getNetworkByType(bitcoinNetworkType),
+        });
+
+        const originalPSBT = Psbt.fromBase64(serializedPSBT, {
+          network: WalletUtilities.getNetworkByType(bitcoinNetworkType),
+        });
+
+        PSBT.data.inputs.forEach((input, index) => {
+          if (!input.bip32Derivation || input.bip32Derivation.length === 0) {
+            const originalInput = originalPSBT.data.inputs[index];
+            if (originalInput.bip32Derivation && originalInput.bip32Derivation.length > 0) {
+              input.bip32Derivation = originalInput.bip32Derivation;
+            }
+          }
+        });
+
+        signedSerializedPSBT = PSBT.toBase64();
+
         if (isRemoteKey) {
           signTransactionParent({ signedSerializedPSBT });
           navigation.goBack();

@@ -67,6 +67,7 @@ const SignerTypesNeedingRegistration = [
   SignerType.KEYSTONE,
   SignerType.SPECTER,
   SignerType.PORTAL,
+  SignerType.KRUX,
 ];
 
 function ReceiveScreen({ route }: { route }) {
@@ -171,18 +172,21 @@ function ReceiveScreen({ route }: { route }) {
 
   useEffect(() => {
     if (wallet.entityKind === 'VAULT' && (wallet as Vault).isMultiSig) {
-      const signersFingerprintsToCheck = vaultSigners
+      const unregisteredSigners = vaultSigners
         .filter((signer) => SignerTypesNeedingRegistration.includes(signer.type))
-        .map((signer) => signer.masterFingerprint);
-      const unregisteredSigners = (wallet as Vault).signers.filter((signer) => {
-        {
-          return (
-            signersFingerprintsToCheck.includes(signer.masterFingerprint) &&
-            signer.registeredVaults?.find((info) => info.vaultId === wallet.id)?.registered !== true
+        .map((signer) => {
+          const vaultSigner = (wallet as Vault).signers.find(
+            (vaultSigner) => vaultSigner.masterFingerprint === signer.masterFingerprint
           );
-        }
-      });
-
+          return { vaultSigner, type: signer.type };
+        })
+        .filter((signer) => {
+          if ([SignerType.KRUX].includes(signer.type)) return true;
+          return (
+            signer.vaultSigner.registeredVaults?.find((info) => info.vaultId === wallet.id)
+              ?.registered !== true
+          );
+        });
       setSignersNeedRegistration(unregisteredSigners);
     }
   }, [wallet]);
