@@ -379,7 +379,7 @@ export const parseTextforVaultConfig = (secret: string) => {
       if (line.startsWith('Policy')) {
         const [m, n] = line.split('Policy:')[1].split('of');
         scheme = { m: parseInt(m), n: parseInt(n) };
-        if (!isAllowedScheme(m, n)) {
+        if (!isAllowedScheme(scheme.m, scheme.n)) {
           throw Error('Unsupported scheme');
         }
       }
