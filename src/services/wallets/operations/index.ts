@@ -2364,13 +2364,37 @@ export default class WalletOperations {
 
   static verifySignedMessage = (message, address, signature, bitcoinNetwork) => {
     const verified = bitcoinMessage.verify(
-      message.trim(),
-      address.trim(),
-      signature.trim(),
+      message,
+      address,
+      signature,
       bitcoinNetwork.messagePrefix,
       true
     );
     if (verified) return true;
     else throw new Error('Signature is not valid for the provided message');
+  };
+
+  static createSignMessageString = (address, message, bitcoinNetwork, activeVault) => {
+    if (!address) throw new Error('Please enter the address');
+    // Need to find the child or derivation path index here also
+    const res = WalletUtilities.isValidAddress(address, bitcoinNetwork);
+    if (!res) throw new Error('Please enter a valid address');
+    // Check for address in cache
+    let addressIndex = null;
+    const receiveAddressCache = activeVault?.specs?.addresses?.external;
+    for (const key in activeVault?.specs?.addresses?.external) {
+      if (receiveAddressCache[key] === address) {
+        addressIndex = key;
+        break;
+      }
+    }
+    if (addressIndex == null)
+      throw new Error('Please enter a valid address from the select wallet');
+    const signer = activeVault.signers[0];
+    const qrData = `signmessage ${signer.derivationPath.replace(
+      /'/g,
+      'h'
+    )}/0/${addressIndex} ascii:${message}`;
+    return qrData;
   };
 }

@@ -15,7 +15,13 @@ import KeeperModal from 'src/components/KeeperModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  MiniscriptTypes,
+  SignerType,
+  VaultType,
+  VisibilityType,
+} from 'src/services/wallets/enums';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { trimCWDefaultName } from 'src/utils/utilities';
@@ -39,6 +45,12 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import useSigners from 'src/hooks/useSigners';
+const Signers_Support_Message_Signing = [
+  SignerType.JADE,
+  SignerType.SEEDSIGNER,
+  SignerType.COLDCARD,
+];
 
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -49,7 +61,7 @@ function VaultSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText, common } = translations;
+  const { vault: vaultText, common, wallet: walletText } = translations;
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
@@ -65,6 +77,7 @@ function VaultSettings({ route }) {
   const [visible, setVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
   const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
+  const { vaultSigners } = useSigners(vaultId);
 
   const walletDescriptor = generateAbbreviatedOutputDescriptors(vault);
   const labels = useQuery(RealmSchema.Tags, (tags) =>
@@ -78,6 +91,10 @@ function VaultSettings({ route }) {
   const hasInitialTimelock = vault?.scheme?.miniscriptScheme?.usedMiniscriptTypes.includes(
     MiniscriptTypes.TIMELOCKED
   );
+
+  const canSignMessage = () =>
+    vaultSigners.filter((signer) => Signers_Support_Message_Signing.includes(signer.type)).length >
+    0;
 
   const cleanUp = () => {
     setVisible(false);
@@ -302,6 +319,18 @@ function VaultSettings({ route }) {
             })
           ),
       },
+
+    canSignMessage() && {
+      title: walletText.walletSignMessageTitle,
+      description: walletText.walletSignMessageDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate('SignMessageScreen', { vaultId: vault.id, type: EntityKind.VAULT })
+        );
+      },
+    },
   ].filter(Boolean);
 
   return (

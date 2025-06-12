@@ -5,7 +5,6 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Buttons from 'src/components/Buttons';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -18,10 +17,16 @@ import WalletOperations from 'src/services/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
+import useVault from 'src/hooks/useVault';
+import { EntityKind } from 'src/services/wallets/enums';
+import ShowXPub from 'src/components/XPub/ShowXPub';
+import { CommonActions } from '@react-navigation/native';
+import { InteracationMode } from '../Vault/HardwareModalMap';
 
-export const SignMessageScreen = ({ route }) => {
-  const walletId = route.params?.walletId;
+export const SignMessageScreen = ({ route, navigation }) => {
+  const { walletId = null, vaultId = null, type } = route.params;
   const wallet = useWallets({ walletIds: [walletId] }).wallets[0];
+  const { activeVault } = useVault({ vaultId: vaultId ?? '' });
   const { xpriv, addresses } = wallet.specs;
   const receiveAddressCache = addresses?.external;
   const { colorMode } = useColorMode();
@@ -34,26 +39,37 @@ export const SignMessageScreen = ({ route }) => {
   const { showToast } = useToastMessage();
   const { bitcoinNetwork } = useAppSelector((state) => state.settings);
   const dispatch = useDispatch();
+  const [QrData, setQrData] = useState(null);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   const onSignMessage = () => {
     if (!message) return showToast('Please enter the message');
-
-    // if address cache is not loaded
-    if (!wallet.specs.addresses?.external) {
-      dispatch(refreshWallets([wallet], { hardRefresh: true }));
-      return;
-    }
-
     try {
-      const { signature, messageAddress } = WalletOperations.signMessageWallet(
-        address,
-        message,
-        bitcoinNetwork,
-        xpriv,
-        receiveAddressCache
-      );
-      setSignature(signature);
-      setAddress(messageAddress);
+      if (type == EntityKind.WALLET) {
+        // if address cache is not loaded
+        if (!wallet.specs.addresses?.external) {
+          dispatch(refreshWallets([wallet], { hardRefresh: true }));
+          return;
+        }
+        const { signature, messageAddress } = WalletOperations.signMessageWallet(
+          address,
+          message.trim(),
+          bitcoinNetwork,
+          xpriv,
+          receiveAddressCache
+        );
+        setSignature(signature);
+        setAddress(messageAddress);
+      } else {
+        const qrData = WalletOperations.createSignMessageString(
+          address,
+          message.trim(),
+          bitcoinNetwork,
+          activeVault
+        );
+        setQrData(qrData);
+        setShowQrModal(true);
+      }
     } catch (error) {
       console.log('🚀 ~ onSignMessage ~ error:', error);
       showToast(error.message);
@@ -65,7 +81,7 @@ export const SignMessageScreen = ({ route }) => {
       return showToast('Please provide message, address and signature for verification');
     try {
       const valid = WalletOperations.verifySignedMessage(
-        message,
+        message.trim(),
         address,
         signature,
         bitcoinNetwork
@@ -75,6 +91,11 @@ export const SignMessageScreen = ({ route }) => {
       console.log('🚀 ~ onVerifyMessage ~ error:', error);
       showToast(`Signature is not valid for the provided message`, <ToastErrorIcon />);
     }
+  };
+
+  const onQrScan = (data) => {
+    setSignature(data);
+    navigation.pop();
   };
 
   return (
@@ -131,28 +152,47 @@ export const SignMessageScreen = ({ route }) => {
             />
           </Box>
 
-          <Box
-            style={styles.inputWrapper}
-            backgroundColor={`${colorMode}.seashellWhite`}
-            borderColor={`${colorMode}.dullGreyBorder`}
-          >
-            <Input
-              testID="input_container"
-              placeholder={common.signature}
-              placeholderTextColor={`${colorMode}.placeHolderTextColor`}
-              style={styles.textInput}
-              variant="unstyled"
-              value={signature}
-              onChangeText={setSignature}
-              multiline
-              _input={
-                colorMode === 'dark' && {
-                  selectionColor: Colors.bodyText,
-                  cursorColor: Colors.bodyText,
+          <>
+            <Box
+              style={styles.inputWrapper}
+              backgroundColor={`${colorMode}.seashellWhite`}
+              borderColor={`${colorMode}.dullGreyBorder`}
+            >
+              <Input
+                testID="input_container"
+                placeholder={common.signature}
+                placeholderTextColor={`${colorMode}.placeHolderTextColor`}
+                style={styles.textInput}
+                variant="unstyled"
+                value={signature}
+                onChangeText={setSignature}
+                multiline
+                _input={
+                  colorMode === 'dark' && {
+                    selectionColor: Colors.bodyText,
+                    cursorColor: Colors.bodyText,
+                  }
                 }
-              }
-            />
-          </Box>
+              />
+            </Box>
+            {type == EntityKind.VAULT && (
+              <Buttons
+                secondaryText="Load Signature"
+                secondaryCallback={() =>
+                  navigation.dispatch(
+                    CommonActions.navigate('ScanQR', {
+                      title: 'Verify signed message',
+                      subtitle: 'Scan the signed message from hardware wallet',
+                      onQrScan,
+                      mode: InteracationMode.SIGNED_MESSAGE,
+                      illustration: null,
+                      instruction: ['Instruction 1', 'Instruction 2'],
+                    })
+                  )
+                }
+              />
+            )}
+          </>
         </ScrollView>
       </KeyboardAvoidingView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
@@ -173,8 +213,37 @@ export const SignMessageScreen = ({ route }) => {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.close}
         buttonCallback={() => setVerifiedModal(false)}
-        Content={() => <Box>{/* Illustration */}</Box>}
+        Content={() => <Box>{/* illustration */}</Box>}
       />
+      {QrData && (
+        <KeeperModal
+          visible={showQrModal}
+          title={'Scan this '}
+          subTitle={'Scan this '}
+          close={() => {
+            setShowQrModal(false);
+            setQrData(null);
+          }}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.textGreen`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
+          buttonText={common.close}
+          buttonCallback={() => {
+            setShowQrModal(false);
+            setQrData(null);
+          }}
+          Content={() => (
+            <Box>
+              <ShowXPub
+                data={QrData}
+                subText={'Scan this '}
+                noteSubText={'Scan this on device '}
+                copyable={false}
+              />
+            </Box>
+          )}
+        />
+      )}
     </ScreenWrapper>
   );
 };

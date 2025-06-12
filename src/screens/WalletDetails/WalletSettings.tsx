@@ -15,7 +15,7 @@ import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { captureError } from 'src/services/sentry';
 import BackupModalContent from '../AppSettings/BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
@@ -147,7 +147,12 @@ function WalletSettings({ route }) {
       onPress: () => {
         if (!wallet.specs.addresses?.external)
           dispatch(refreshWallets([wallet], { hardRefresh: true }));
-        navigation.dispatch(CommonActions.navigate('SignMessageScreen', { walletId: wallet.id }));
+        navigation.dispatch(
+          CommonActions.navigate('SignMessageScreen', {
+            walletId: wallet.id,
+            type: EntityKind.WALLET,
+          })
+        );
       },
     },
   ].filter(Boolean);
