@@ -74,7 +74,15 @@ export const useSettingKeeper = () => {
   const [hiddenKeyPass, setHiddenKeyPass] = useState(false);
   const [showDeleteBackup, setShowDeleteBackup] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault, wallet, inheritancePlanning, settings, common, signer, error } = translations;
+  const {
+    vault: vaultText,
+    wallet: walletText,
+    inheritancePlanning,
+    settings,
+    common,
+    signer: signerText,
+    error: errorText,
+  } = translations;
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -123,7 +131,7 @@ export const useSettingKeeper = () => {
   useEffect(() => {
     if (deleteBackupFailure && isFocused) {
       dispatch(setDeleteBackupFailure(false));
-      showToast(error.unableToDeleteAssistedServer, <ToastErrorIcon />);
+      showToast(errorText.unableToDeleteAssistedServer, <ToastErrorIcon />);
     }
   }, [deleteBackupFailure]);
 
@@ -149,33 +157,33 @@ export const useSettingKeeper = () => {
   const planData = [
     {
       plan: SubscriptionTier.L1.toUpperCase(),
-      title: signer.Pleb,
-      subtitle: signer.Beginner,
-      description: signer.plebDescription,
+      title: signerText.Pleb,
+      subtitle: signerText.Beginner,
+      description: signerText.plebDescription,
       icon: <PlebIcon width={30} height={30} />,
       sublightIcon: <PlebGreenSub width={24} height={24} />,
       subDarkIcon: <PlebWhiteSub width={24} height={24} />,
-      subDescription: signer.plebSubDescription,
+      subDescription: signerText.plebSubDescription,
     },
     {
       plan: SubscriptionTier.L2.toUpperCase(),
-      title: signer.hodler,
-      subtitle: signer.intermediate,
-      description: signer.hodlerDescription,
+      title: signerText.hodler,
+      subtitle: signerText.intermediate,
+      description: signerText.hodlerDescription,
       icon: <HodlerIcon width={30} height={30} />,
       sublightIcon: <HodlerGreenSub width={24} height={24} />,
       subDarkIcon: <HodlerWhiteSub width={24} height={24} />,
-      subDescription: signer.hodlerSubDescription,
+      subDescription: signerText.hodlerSubDescription,
     },
     {
       plan: SubscriptionTier.L3.toUpperCase(),
-      title: signer.diamondHands,
-      subtitle: signer.advanced,
-      description: signer.DiamondHandsDesciption,
+      title: signerText.diamondHands,
+      subtitle: signerText.advanced,
+      description: signerText.DiamondHandsDesciption,
       icon: <DiamondIcon width={30} height={30} />,
       sublightIcon: <DiamondGreenSub width={24} height={24} />,
       subDarkIcon: <DiamondWhiteSub width={24} height={24} />,
-      subDescription: signer.diamondHandSubDescription,
+      subDescription: signerText.diamondHandSubDescription,
     },
     {
       plan: SubscriptionTier.L4.toUpperCase(),
@@ -192,7 +200,7 @@ export const useSettingKeeper = () => {
 
   const BackAndRecovery = [
     {
-      title: wallet.RecoveryKeyReset,
+      title: walletText.RecoveryKeyReset,
       description: inheritancePlanning.masterKeyDescp,
       icon: <RecoveryKeyIcon width={14} height={14} />,
       onPress: () => {
@@ -280,14 +288,14 @@ export const useSettingKeeper = () => {
       isDiamond: false,
     },
     {
-      title: wallet.ManageWallets,
-      description: wallet.ManageWalletsDesc,
+      title: walletText.ManageWallets,
+      description: walletText.ManageWalletsDesc,
       icon: <ManageWalletIcon width={14} height={14} />,
       onPress: () => navigation.navigate('ManageWallets'),
       isDiamond: false,
     },
     {
-      title: vault.canaryWallet,
+      title: vaultText.canaryWallet,
       description: inheritancePlanning.canaryWalletDesp,
       icon: <CanaryIcon width={14} height={14} />,
       rightIcon: isOnL2Above ? null : <UpgradeIcon width={64} height={20} />,

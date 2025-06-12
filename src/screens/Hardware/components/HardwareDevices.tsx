@@ -24,7 +24,7 @@ import { useAppSelector } from 'src/store/hooks';
 const HardwareDevices = () => {
   const { isOnL1 } = usePlan();
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet } = translations;
+  const { common, wallet: walletText } = translations;
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
   const [coinkiteOpen, setCoinkiteOpen] = useState(false);
@@ -50,50 +50,50 @@ const HardwareDevices = () => {
   const data = [
     {
       id: 1,
-      title: wallet.hardwareBitBox,
+      title: walletText.hardwareBitBox,
       image: <BitBox width={hp(90)} height={hp(100)} />,
       flagIcon: <FlagSwizerland />,
-      country: wallet.hardwareBitBoxCountry,
+      country: walletText.hardwareBitBoxCountry,
       link: getSellerLink('bitbox'),
       subscribeText: '',
       unSubscribeText: '',
     },
     {
       id: 2,
-      title: wallet.hardwareColdcard,
+      title: walletText.hardwareColdcard,
       image: <ColdCard height={hp(100)} width={hp(70)} />,
       flagIcon: <FlagCanada />,
-      country: wallet.hardwareColdcardCountry,
-      subscribeText: wallet.hardwareSubscribeText,
-      unSubscribeText: wallet.hardwareSubscribeText,
+      country: walletText.hardwareColdcardCountry,
+      subscribeText: walletText.hardwareSubscribeText,
+      unSubscribeText: walletText.hardwareSubscribeText,
       onPress: () => setCoinkiteOpen(true),
     },
     {
       id: 3,
-      title: wallet.hardwareFoundation,
+      title: walletText.hardwareFoundation,
       image: <Passport height={hp(100)} width={hp(70)} />,
       flagIcon: <FlagUSA />,
-      country: wallet.hardwareFoundationCountry,
+      country: walletText.hardwareFoundationCountry,
       link: getSellerLink('foundation'),
-      subscribeText: wallet.hardwareFoundationSubscribeText,
-      unSubscribeText: wallet.hardwareFoundationSubscribeText,
+      subscribeText: walletText.hardwareFoundationSubscribeText,
+      unSubscribeText: walletText.hardwareFoundationSubscribeText,
     },
     {
       id: 4,
-      title: wallet.hardwareLedger,
+      title: walletText.hardwareLedger,
       image: <Legder height={hp(80)} width={hp(70)} />,
       flagIcon: <FlagFrance />,
-      country: wallet.hardwareLedgerCountry,
+      country: walletText.hardwareLedgerCountry,
       link: getSellerLink('leger'),
       subscribeText: '',
       unSubscribeText: '',
     },
     {
       id: 5,
-      title: wallet.hardwareTrezor,
+      title: walletText.hardwareTrezor,
       image: <Trezor />,
       flagIcon: <FlagRepublic />,
-      country: wallet.hardwareTrezorCountry,
+      country: walletText.hardwareTrezorCountry,
       onPress: () => setIsOpen(true),
       subscribeText: '',
       unSubscribeText: '',
@@ -114,32 +114,32 @@ const HardwareDevices = () => {
           subscribeText={item.subscribeText}
           unSubscribeText={item.unSubscribeText}
           link={item.link}
-          buttonText={wallet.hardwareDeviceButton}
+          buttonText={walletText.hardwareDeviceButton}
           onPress={item.onPress}
         />
       ))}
 
       <KeeperModal
         visible={isOpen}
-        title={wallet.hardwareTrezor}
-        subTitle={wallet.TrezorModalSub}
+        title={walletText.hardwareTrezor}
+        subTitle={walletText.TrezorModalSub}
         close={() => setIsOpen(false)}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={() => <TrezorDevices getSellerLink={getSellerLink} wallet={wallet} />}
+        Content={() => <TrezorDevices getSellerLink={getSellerLink} wallet={walletText} />}
       />
       <KeeperModal
         visible={coinkiteOpen}
-        title={wallet.hardwareColdcard}
-        subTitle={wallet.TrezorModalSub}
+        title={walletText.hardwareColdcard}
+        subTitle={walletText.TrezorModalSub}
         close={() => setCoinkiteOpen(false)}
         showCloseIcon
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={() => <CoinkiteDevices getSellerLink={getSellerLink} wallet={wallet} />}
+        Content={() => <CoinkiteDevices getSellerLink={getSellerLink} wallet={walletText} />}
       />
     </Box>
   );

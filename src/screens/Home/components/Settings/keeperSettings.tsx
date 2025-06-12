@@ -32,7 +32,7 @@ const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { signer, inheritancePlanning, settings, common } = translations;
+  const { signer: signerText, inheritancePlanning, settings, common } = translations;
   const {
     BackAndRecovery,
     General,
@@ -78,9 +78,9 @@ const KeeperSettings = ({ route }) => {
         showDot={false}
       />
       <InheritanceDocument
-        title={signer.inheritanceDocuments}
+        title={signerText.inheritanceDocuments}
         borderColor={InheritanceDocument_border}
-        description={signer.bitcoinSecurity}
+        description={signerText.bitcoinSecurity}
         subtitleColor={`${colorMode}.balanceText`}
         backgroundColor={`${colorMode}.textInputBackground`}
         icon={<InheritanceDocumentIcon width={14} height={14} />}

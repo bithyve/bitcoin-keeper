@@ -50,7 +50,7 @@ function AddContact({ route }) {
   const [disableSave, setDisableSave] = useState(true);
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { vault, common } = translations;
+  const { vault: vaultText, common } = translations;
 
   const saveContactDetails = () => {
     if (validateData()) {
@@ -97,7 +97,7 @@ function AddContact({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title={vault.addContact}
+        title={vaultText.addContact}
         titleColor={`${colorMode}.black`}
         rightComponent={
           showContactButton && <ContactButton signer={signer} isWalletFlow={isWalletFlow} />

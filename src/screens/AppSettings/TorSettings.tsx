@@ -34,7 +34,7 @@ function TorSettings() {
     globalTorStatus,
   } = useContext(TorContext);
   const { translations } = useContext(LocalizationContext);
-  const { settings, common, error } = translations;
+  const { settings, common, error: errorText } = translations;
   const dispatch = useDispatch();
   const [showTorModal, setShowTorModal] = useState(false);
   const [showOrbotTorModal, setShowOrbotTorModal] = useState(false);
@@ -96,7 +96,7 @@ function TorSettings() {
       dispatch(setTorEnabled(false));
       setShowTorModal(false);
     } else if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
-      showToast(error.switchOffOrbit);
+      showToast(errorText.switchOffOrbit);
       setTimeout(() => {
         openOrbotApp();
         setTorStatus(TorStatus.CHECK_STATUS);

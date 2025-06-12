@@ -17,7 +17,7 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 function SetupSeedWordSigner({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { login, seed: translationsSeed, common, signer } = translations;
+  const { login, seed: translationsSeed, common, signer: signerText } = translations;
   const { seed } = route.params;
   const [words] = useState(seed.split(' '));
   const { next } = route.params;
@@ -84,7 +84,7 @@ function SetupSeedWordSigner({ route }) {
         <Box style={styles.illustrationCTR}>
           <ThemedSvg name={'RememberSeedKey'} />
         </Box>
-        <Text color={green_modal_text_color}>{signer.seedKeyRememberDesc}</Text>
+        <Text color={green_modal_text_color}>{signerText.seedKeyRememberDesc}</Text>
       </>
     );
   };
@@ -149,8 +149,8 @@ function SetupSeedWordSigner({ route }) {
         showCloseIcon={false}
         dismissible={false}
         visible={rememberModal}
-        title={signer.seedKeyRememberTitle}
-        subTitle={signer.seedKeyRememberSubTitle}
+        title={signerText.seedKeyRememberTitle}
+        subTitle={signerText.seedKeyRememberSubTitle}
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
         Content={rememberModalContent}

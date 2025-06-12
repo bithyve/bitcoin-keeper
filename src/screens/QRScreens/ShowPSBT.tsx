@@ -28,7 +28,7 @@ function ShowPSBT() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { signer, common } = translations;
+  const { signer: signerText, common } = translations;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -38,7 +38,7 @@ function ShowPSBT() {
           <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
         </Box>
         <Box style={styles.fingerprint}>
-          <WalletCopiableData title={signer.transationPsbt} data={data} dataType="psbt" />
+          <WalletCopiableData title={signerText.transationPsbt} data={data} dataType="psbt" />
         </Box>
       </ScrollView>
       <Box style={styles.ctaContainer}>

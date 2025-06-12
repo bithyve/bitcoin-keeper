@@ -33,7 +33,7 @@ function CloudBackupScreen() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
-  const { cloudBackup: strings, common, error } = translations;
+  const { cloudBackup: strings, common, error: errorText } = translations;
   const data: BackupHistory = useQuery(RealmSchema.CloudBackupHistory);
   const history = useMemo(() => data.slice().reverse(), [data]);
   const { showToast } = useToastMessage();
@@ -151,7 +151,7 @@ function CloudBackupScreen() {
           primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
           primaryCallback={() => {
             if (allVaults.length === 0) {
-              showToast(error.noVaultsFound, <ToastErrorIcon />);
+              showToast(errorText.noVaultsFound, <ToastErrorIcon />);
             } else {
               setShowPasswordModal(true);
             }
