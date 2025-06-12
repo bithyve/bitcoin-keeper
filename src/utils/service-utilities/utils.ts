@@ -652,7 +652,13 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
   });
 
   return {
-    signers: uniqueKeys.filter((key) => regularFingerprints.includes(key.masterFingerprint)),
+    signers: uniqueKeys
+      .filter((key) => regularFingerprints.includes(key.masterFingerprint))
+      .sort(
+        (a, b) =>
+          regularFingerprints.indexOf(a.masterFingerprint) -
+          regularFingerprints.indexOf(b.masterFingerprint)
+      ),
     inheritanceKeys,
     emergencyKeys,
     importedKeyUsageCounts,
