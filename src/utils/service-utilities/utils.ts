@@ -373,6 +373,7 @@ export const parseTextforVaultConfig = (secret: string) => {
     const lines = text.split('\n');
     const signersDetailsList = [];
     let scheme;
+    let derivationPath;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (line.startsWith('Policy')) {
@@ -383,11 +384,15 @@ export const parseTextforVaultConfig = (secret: string) => {
         }
       }
       if (line.startsWith('Derivation:')) {
-        const path = line.split(':')[1].trim();
-        const masterFingerprintLine = lines[i + 1].trim();
-        const masterFingerprint = masterFingerprintLine.split(':')[0].trim();
-        const xpub = lines[i + 1].split(':')[1].trim();
-        signersDetailsList.push({ xpub, masterFingerprint: masterFingerprint.toUpperCase(), path });
+        derivationPath = line.split(':')[1].trim();
+      }
+      if (!['Name', 'Policy', 'Format', 'Derivation', '#'].some((kw) => line.startsWith(kw))) {
+        const [masterFingerprint, xpub] = line.split(':');
+        signersDetailsList.push({
+          xpub: xpub.trim(),
+          masterFingerprint: masterFingerprint.toUpperCase().trim(),
+          path: derivationPath,
+        });
       }
     }
 
