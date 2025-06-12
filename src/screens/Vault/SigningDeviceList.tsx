@@ -63,7 +63,7 @@ const SigningDeviceList = () => {
   const [signersLoaded, setSignersLoaded] = useState(false);
   const dispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
-  const { signer, common, settings } = translations;
+  const { signer: signerText, common, settings } = translations;
   const isMultisig = addSignerFlow
     ? true
     : scheme?.n !== 1 || scheme?.miniscriptScheme || vaultType === VaultType.MINISCRIPT;
@@ -121,7 +121,7 @@ const SigningDeviceList = () => {
           <ThemedSvg name={'diversify_hardware'} />
         </Box>
         <Text color={green_modal_text_color} style={styles.modalText}>
-          {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
+          {`${signerText.subscriptionTierL1} ${SubscriptionTier.L1} ${signerText.subscriptionTierL2} ${SubscriptionTier.L2} ${signerText.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signerText.notSupportedText}`}
         </Text>
       </Box>
     );
@@ -144,14 +144,14 @@ const SigningDeviceList = () => {
   function AdvancedSettingsContent() {
     return (
       <Box>
-        <Text>{signer.accountNumberoptional}</Text>
+        <Text>{signerText.accountNumberoptional}</Text>
         <Box
           style={styles.input}
           backgroundColor={`${colorMode}.seashellWhite`}
           borderColor={`${colorMode}.greyBorder`}
         >
           <Input
-            placeholder={signer.accountNumberoptionalDesc}
+            placeholder={signerText.accountNumberoptionalDesc}
             placeholderTextColor={`${colorMode}.placeHolderTextColor`}
             borderWidth={0}
             value={accountNumberText}
@@ -246,8 +246,8 @@ const SigningDeviceList = () => {
         close={() => {
           dispatch(setSdIntroModal(false));
         }}
-        title={signer.signers}
-        subTitle={signer.signerDescription}
+        title={signerText.signers}
+        subTitle={signerText.signerDescription}
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
         Content={LearnMoreModalContent}

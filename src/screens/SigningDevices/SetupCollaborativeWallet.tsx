@@ -74,7 +74,7 @@ function SignerItem({
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet, common } = translations;
+  const { wallet: walletText, common } = translations;
 
   const signerUID = vaultKey ? getKeyUID(vaultKey) : null;
   const signer = signerUID ? signerMap[signerUID] : null;
@@ -103,7 +103,7 @@ function SignerItem({
       <SignerCard
         name={
           index === 0
-            ? wallet.AddingKey
+            ? walletText.AddingKey
             : `${common.add} ${numberToOrdinal(index + 1)} ${common.contact}`
         }
         description={cardDescription}
@@ -178,7 +178,7 @@ function SetupCollaborativeWallet() {
   const { collaborativeWallets } = useCollaborativeWallet();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet, vault: vaultText, error: errorText } = translations;
+  const { common, wallet: walletText, vault: vaultText, error: errorText } = translations;
   const [learnMoreModal, setLearnMoreModal] = useState(false);
   const [selectedSigner, setSelectedSigner] = useState(null);
   const [addKeyModal, setAddKeyModal] = useState(false);
@@ -596,7 +596,7 @@ function SetupCollaborativeWallet() {
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
-      showToast(wallet.CollabWalletError, <ToastErrorIcon />);
+      showToast(walletText.CollabWalletError, <ToastErrorIcon />);
       captureError(error);
     }
   };
@@ -620,7 +620,7 @@ function SetupCollaborativeWallet() {
         vaultSigners: coSigners,
         vaultDetails: {
           name: `${common.collaborativeWallet} ${collaborativeWallets.length + 1}`,
-          description: wallet.Desc2of3,
+          description: walletText.Desc2of3,
         },
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));

@@ -19,7 +19,7 @@ function NfcPrompt({
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault } = translations;
+  const { vault: vaultText } = translations;
   const animation = React.useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'ios') {
@@ -74,7 +74,7 @@ function NfcPrompt({
           <View style={styles.center} backgroundColor={`${colorMode}.textInputBackground`}>
             <NFCSVG />
             <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>
-              {vault.Holduntilscanningiscomplete}
+              {vaultText.Holduntilscanningiscomplete}
             </Text>
             <Pressable style={styles.cancel} onPress={onCancel}>
               <Text color={`${colorMode}.greenText`} style={{ textAlign: 'center' }}>

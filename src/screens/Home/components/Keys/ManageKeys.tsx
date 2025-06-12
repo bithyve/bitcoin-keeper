@@ -19,7 +19,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 const ManageKeys = ({ addedSigner }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault } = translations;
+  const { vault: vaultText } = translations;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -97,8 +97,8 @@ const ManageKeys = ({ addedSigner }) => {
       <KeeperModal
         visible={modalVisible}
         close={handleModalClose}
-        title={vault.Addsigner}
-        subTitle={vault.SelectSignerSubtitle}
+        title={vaultText.Addsigner}
+        subTitle={vaultText.SelectSignerSubtitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

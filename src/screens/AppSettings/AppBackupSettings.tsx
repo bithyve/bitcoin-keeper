@@ -36,7 +36,7 @@ function AppBackupSettings() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { settings, common, error, home, wallet } = translations;
+  const { settings, common, error: errorText, home, wallet: walletText } = translations;
   const { primaryMnemonic, publicId } = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -62,7 +62,7 @@ function AppBackupSettings() {
       dispatch(resetRealyVaultState());
     }
     if (relayVaultError) {
-      showToast(`${error.canaryVaultFailed} ${realyVaultErrorMessage}`);
+      showToast(`${errorText.canaryVaultFailed} ${realyVaultErrorMessage}`);
       dispatch(resetRealyVaultState());
       setCanaryVaultLoading(false);
     }
@@ -75,7 +75,7 @@ function AppBackupSettings() {
         return _.signerXpubs[XpubTypes.P2WPKH][0];
       });
       if (!singleSigSigner) {
-        showToast(error.noSingleSigFound);
+        showToast(errorText.noSingleSigFound);
         setCanaryVaultLoading(false);
       } else {
         const ssVaultKey: VaultSigner = {
@@ -110,7 +110,7 @@ function AppBackupSettings() {
           vaultSigners: [ssVaultKey],
           vaultDetails: {
             name: common.CANARY + ' ' + home.wallet,
-            description: wallet.canaryWalletForRecoveryKey,
+            description: walletText.canaryWalletForRecoveryKey,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -142,7 +142,7 @@ function AppBackupSettings() {
         {isCanaryWalletAllowed && (
           <OptionCard
             title={common.CANARY + ' ' + home.wallet}
-            description={wallet.onChainKeyAlert}
+            description={walletText.onChainKeyAlert}
             callback={handleCanaryWallet}
           />
         )}

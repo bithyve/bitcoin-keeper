@@ -53,7 +53,7 @@ export const AddMultipleXpub = () => {
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { common, signer, error: ErrorText } = translations;
+  const { common, signer: SignerText, error: ErrorText } = translations;
 
   const renderContent = () => {
     const data = xpubs[options[selectedIndex].purpose];
@@ -92,13 +92,13 @@ export const AddMultipleXpub = () => {
     }
   };
   const modalSubtitle = {
-    [SignerType.PASSPORT]: signer.xPubPassPortSub,
-    [SignerType.SEEDSIGNER]: signer.xPubSeedSignerSub,
-    [SignerType.JADE]: signer.xPubJadeSub,
-    [SignerType.KRUX]: signer.kruxQrSub,
+    [SignerType.PASSPORT]: SignerText.xPubPassPortSub,
+    [SignerType.SEEDSIGNER]: SignerText.xPubSeedSignerSub,
+    [SignerType.JADE]: SignerText.xPubJadeSub,
+    [SignerType.KRUX]: SignerText.kruxQrSub,
   };
 
-  const subtitleModal = modalSubtitle[type] || signer.xPubDefaultSubtitle;
+  const subtitleModal = modalSubtitle[type] || SignerText.xPubDefaultSubtitle;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -203,15 +203,15 @@ const styles = StyleSheet.create({
 
 export const SuccessContainer = ({ type }) => {
   const { colorMode } = useColorMode();
-  const { signer } = useContext(LocalizationContext).translations;
+  const { signer: signerText } = useContext(LocalizationContext).translations;
 
   return (
     <Box alignItems={'center'}>
       <SuccessIllustration />
       <Text color={`${colorMode}.greenWhiteText`} semiBold style={styles.successTitle}>
-        {`${type} ${signer.keyAddedTitle}`}
+        {`${type} ${signerText.keyAddedTitle}`}
       </Text>
-      <Text style={styles.successSubTitle}>{`${type} ${signer.keyAddedSubTitle}`}</Text>
+      <Text style={styles.successSubTitle}>{`${type} ${signerText.keyAddedSubTitle}`}</Text>
     </Box>
   );
 };

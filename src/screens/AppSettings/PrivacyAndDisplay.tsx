@@ -198,7 +198,7 @@ function PrivacyAndDisplay({ route }) {
   const [passcodeHCModal, setPasscodeHCModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
-  const { settings, common, error } = translations;
+  const { settings, common, error: errorText } = translations;
   const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -211,7 +211,7 @@ function PrivacyAndDisplay({ route }) {
 
   useEffect(() => {
     if (credsChanged === 'changed') {
-      showToast(error.passcodeUpdated);
+      showToast(errorText.passcodeUpdated);
       dispatch(resetCredsChanged());
       setCredsChanged('');
     }
@@ -276,7 +276,7 @@ function PrivacyAndDisplay({ route }) {
             await RNBiometrics.deleteKeys();
           }
           const { success } = await RNBiometrics.simplePrompt({
-            promptMessage: error.confirmIdentity,
+            promptMessage: errorText.confirmIdentity,
           });
           if (success) {
             const { publicKey } = await RNBiometrics.createKeys();
@@ -287,7 +287,7 @@ function PrivacyAndDisplay({ route }) {
         }
       } else {
         setSensorAvailable(false);
-        showToast(error.biometricNotEnabled, <ToastErrorIcon />);
+        showToast(errorText.biometricNotEnabled, <ToastErrorIcon />);
       }
     } catch (error) {
       console.log(error);

@@ -14,7 +14,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
-  const { signer } = translations;
+  const { signer: signerText } = translations;
 
   const hardwareSigners = [
     {
@@ -52,20 +52,20 @@ const SignerContent = ({ navigation, handleModalClose }) => {
 
   const signerCategoriesData = [
     {
-      title: signer.addKeyHardware,
-      description: signer.connectHardware,
+      title: signerText.addKeyHardware,
+      description: signerText.connectHardware,
       signerCategory: SignerCategory.HARDWARE,
-      headerTitle: signer.hardwareKeysHeader,
-      headerSubtitle: signer.connectHardwareDevices,
+      headerTitle: signerText.hardwareKeysHeader,
+      headerSubtitle: signerText.connectHardwareDevices,
       Icon: <ThemedSvg name={'hardware_key_icon'} />,
       snippet: hardwareSnippet,
     },
     {
-      title: signer.addSoftwareKey,
-      description: signer.keysInApp,
+      title: signerText.addSoftwareKey,
+      description: signerText.keysInApp,
       signerCategory: SignerCategory.SOFTWARE,
-      headerTitle: signer.softwareKeysHeader,
-      headerSubtitle: signer.keysNoHardwareNeeded,
+      headerTitle: signerText.softwareKeysHeader,
+      headerSubtitle: signerText.keysNoHardwareNeeded,
       Icon: <ThemedSvg name={'software_key_icon'} />,
       snippet: [],
     },
@@ -105,7 +105,7 @@ const SignerContent = ({ navigation, handleModalClose }) => {
           backgroundColor={`${colorMode}.dullGreen`}
           borderColor={`${colorMode}.pantoneGreen`}
           textColor={`${colorMode}.greenWhiteText`}
-          name={signer.purchaseWallet}
+          name={signerText.purchaseWallet}
           cardStyles={styles.cardStyles}
           callback={() => {
             navigation.navigate('HardwareWallet');
