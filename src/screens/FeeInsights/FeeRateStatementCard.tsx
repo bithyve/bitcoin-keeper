@@ -9,6 +9,8 @@ import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import RightArrowGrey from 'src/assets/images/icon_arrow_grey.svg';
+import RightArrowWhite from 'src/assets/images/icon_arrow_white.svg';
 
 interface Props {
   showFeesInsightModal: () => void;
@@ -59,13 +61,17 @@ const FeerateStatement = (props: Props) => {
           </Text>
           {(shortFeeStatement.includes('low') || shortFeeStatement.includes('high')) && (
             <Box style={styles.arrowWrapper}>
-              {arrowPointer === 'lower' ? <ThemedSvg name={'btc_down_arrow'} /> : <BTC_UP />}
+              {arrowPointer === 'lower' ? (
+                <ThemedSvg name={'btc_down_arrow'} width={wp(14)} height={hp(14)} />
+              ) : (
+                <BTC_UP width={wp(14)} height={hp(14)} />
+              )}
             </Box>
           )}
         </Box>
 
         <Box style={styles.statementWrapper}>
-          <Box style={styles.textWrapper} width={wp(97)}>
+          <Box style={styles.textWrapper}>
             {shortFeeStatement.includes('higher than usual') ||
             shortFeeStatement.includes('lower than usual') ? (
               <>
@@ -90,6 +96,11 @@ const FeerateStatement = (props: Props) => {
               </Box>
             )}
           </Box>
+        </Box>
+      </Box>
+      <Box>
+        <Box style={styles.ctaContainer}>
+          {isDarkMode ? <RightArrowWhite /> : <RightArrowGrey />}
         </Box>
       </Box>
     </TouchableOpacity>
@@ -122,9 +133,10 @@ const styles = StyleSheet.create({
   arrowWrapper: {
     width: 15,
     height: 20,
-    position: 'absolute',
     right: 0,
     bottom: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
   textWrapper: {
     flexDirection: 'row',
@@ -133,9 +145,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: hp(5),
-    position: 'relative',
-    width: '97%',
+    alignItems: 'center',
+    gap: wp(10),
   },
 });

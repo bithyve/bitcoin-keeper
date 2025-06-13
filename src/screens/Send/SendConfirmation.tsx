@@ -186,6 +186,7 @@ function SendConfirmation({ route }) {
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [otp, setOtp] = useState('');
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
@@ -640,7 +641,12 @@ function SendConfirmation({ route }) {
         showsVerticalScrollIndicator={false}
       >
         <Box style={styles.receiptContainer}>
-          <ReceiptWrapper showThemedSvg>
+          <ReceiptWrapper
+            showThemedSvg
+            toggleVisibilityButton
+            setShowMore={setShowMore}
+            showMore={showMore}
+          >
             <SendingCard
               title={walletTranslations.sendingFrom}
               subTitle={sender?.presentationData?.name}
@@ -671,16 +677,8 @@ function SendConfirmation({ route }) {
                 estimationSign={estimationSign}
               />
             </TouchableOpacity>
-            <Box
-              style={{
-                flexDirection: 'row',
-              }}
-            >
-              <Box
-                style={{ flexBasis: '48%', marginRight: 18 }}
-                borderRightColor={`${colorMode}.separator`}
-                borderRightWidth={2}
-              >
+            {showMore && [
+              <Box key="btcBox">
                 <Text
                   medium
                   color={`${colorMode}.primaryText`}
@@ -690,16 +688,18 @@ function SendConfirmation({ route }) {
                   {walletTranslations.currentBtcPrice}
                 </Text>
                 <Text fontSize={12} color={`${colorMode}.primaryText`}>
-                  {BtcPrice?.last + ` ${BtcPrice?.symbol}`}
+                  {`${BtcPrice?.last} ${BtcPrice?.symbol}`}
                 </Text>
-              </Box>
-              {OneDayHistoricalFee.length > 0 && (
+              </Box>,
+
+              OneDayHistoricalFee.length > 0 && (
                 <FeeRateStatementCard
+                  key="feeCard"
                   showFeesInsightModal={toogleFeesInsightModal}
                   feeInsightData={OneDayHistoricalFee}
                 />
-              )}
-            </Box>
+              ),
+            ]}
           </ReceiptWrapper>
         </Box>
         <Box
@@ -1010,7 +1010,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(22),
     paddingHorizontal: wp(20),
     marginBottom: hp(10),
-    marginTop: hp(5),
+    marginTop: hp(15),
     borderWidth: 1,
     borderRadius: wp(20),
   },
