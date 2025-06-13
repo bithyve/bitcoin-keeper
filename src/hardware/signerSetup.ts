@@ -136,7 +136,7 @@ const setupKeeperSigner = (qrData) => {
   }
 };
 
-const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
+const setupMobileKey = async ({ primaryMnemonic, isMultisig, isMock = false }) => {
   const { bitcoinNetworkType: networkType } = store.getState().settings;
 
   // fetched multi-sig mobile key
@@ -174,6 +174,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
     isMultisig: true,
     xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
     xpubDetails,
+    isMock,
   });
   return { signer: mobileKey, key };
 };

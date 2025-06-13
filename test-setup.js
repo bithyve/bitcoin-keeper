@@ -55,3 +55,21 @@ jest.mock('@sentry/react-native', () => ({
   ReactNavigationInstrumentation: jest.fn(),
   ReactNativeTracing: jest.fn(),
 }));
+
+jest.mock('native-base', () => ({
+  useToast: () => ({ show: jest.fn() }),
+  useColorMode: () => ({ colorMode: 'light', toggleColorMode: jest.fn() }),
+  extendTheme: jest.fn(() => ({})),
+
+  Box: ({ children }) => <div>{children}</div>,
+  View: ({ children }) => <div>{children}</div>,
+  Pressable: ({ children, ...props }) => <button {...props}>{children}</button>,
+  Text: ({ children }) => <span>{children}</span>,
+  Button: ({ children, ...props }) => <button {...props}>{children}</button>,
+  Badge: ({ children }) => <span>{children}</span>,
+  Spinner: () => <div>Loading...</div>,
+
+  HStack: ({ children }) => <div style={{ display: 'flex', flexDirection: 'row' }}>{children}</div>,
+
+  NativeBaseProvider: ({ children }) => <>{children}</>,
+}));

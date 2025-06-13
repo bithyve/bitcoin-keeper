@@ -1,4 +1,3 @@
-import { green } from 'react-native-reanimated/lib/typescript/Colors';
 import Colors from 'src/theme/Colors';
 
 const themeColors = {
