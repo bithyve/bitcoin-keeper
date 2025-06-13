@@ -14,7 +14,7 @@ import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import ImportWalletIcon from 'src/assets/images/import.svg';
@@ -160,6 +160,7 @@ const HomeWallet = () => {
         icon={<ThemedSvg name={'add_wallet_plus_icon'} width={9} height={9} />}
         iconWidth={22}
         iconHeight={20}
+        cardStyles={styles.DashedCtaStyle}
       />
       <FlatList
         data={allWallets}
@@ -263,5 +264,8 @@ const styles = StyleSheet.create({
   },
   customStyle: {
     marginBottom: hp(10),
+  },
+  DashedCtaStyle: {
+    width: windowWidth * 0.88,
   },
 });

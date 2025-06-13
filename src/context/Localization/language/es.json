@@ -1493,7 +1493,11 @@
     "settingUpSigner": "To complete setting up the signer",
     "seedKeyRememberTitle": "Remember Seed Words?",
     "seedKeyRememberSubTitle": "Allow the app to securely store your seed words and sign transactions automatically when needed.",
-    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
+    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure.",
+    "allKeysHidden": "All the keys are hidden",
+    "clickToUnhide": "Click on the Button below to unhide the keys",
+    "hideSigner": "Hide signers",
+    "showSigner": "Show  signers"
   },
   "inheritancePlanning": {
     "canaryWallet": "Canary Wallets",
@@ -1833,6 +1837,9 @@
     "healthCheckDone": "Health check done successfully",
     "errorhealthCheck": "Error in Health check",
     "importFileFrom": "Please import a valid file from",
-    "actionNotImplemented": "Action not implemented yet"
+    "actionNotImplemented": "Action not implemented yet",
+    "noHiddenKey": "No Hidden Keys",
+    "hidingKeys": "Hiding Hidden Keys",
+    "showingKeys": "Showing Hidden Keys"
   }
 }
