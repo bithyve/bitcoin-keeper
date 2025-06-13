@@ -1231,9 +1231,9 @@ function HardwareModalMap({
     );
   };
 
-  const importSeedWordsBasedKey = (mnemonic) => {
+  const importSeedWordsBasedKey = (mnemonic, remember = false) => {
     try {
-      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig, remember);
       dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
         ? {
