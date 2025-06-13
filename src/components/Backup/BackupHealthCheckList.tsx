@@ -12,7 +12,7 @@ import {
   seedBackedConfirmed,
   validateServerBackup,
 } from 'src/store/sagaActions/bhr';
-import { setBackupAllFailure, setSeedConfirmed } from 'src/store/reducers/bhr';
+import { setBackupAllFailure, setBackupAllSuccess, setSeedConfirmed } from 'src/store/reducers/bhr';
 import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
@@ -65,7 +65,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { BackupWallet, vault, common } = translations;
+  const { BackupWallet, vault: vaultText, common } = translations;
   const dispatch = useAppDispatch();
   const { primaryMnemonic, backup } = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
@@ -112,7 +112,8 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   useEffect(() => {
     if (backupAllSuccess && isFocused) {
-      dispatch(setSeedConfirmed(true));
+      dispatch(setBackupAllSuccess(false));
+      dispatch(seedBackedConfirmed(true));
     }
   }, [backupAllSuccess]);
 
@@ -134,7 +135,7 @@ function BackupHealthCheckList({ isUaiFlow }) {
 
   const footerItems = [
     {
-      text: vault.healthCheck,
+      text: vaultText.healthCheck,
       Icon: () => <FooterIcon Icon={HealthCheck} />,
       onPress: () => {
         onPressConfirm();
@@ -247,7 +248,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
         buttonBackground={`${colorMode}.pantoneGreen`}
         buttonCallback={() => {
           navigtaion.dispatch(CommonActions.navigate('Home'));
-          dispatch(seedBackedConfirmed(true));
         }}
       />
       <KeeperModal
@@ -272,7 +272,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
         secondaryButtonText="Home"
         secondaryCallback={() => {
           navigtaion.dispatch(CommonActions.navigate('Home'));
-          dispatch(seedBackedConfirmed(true));
         }}
       />
 

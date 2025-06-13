@@ -11,7 +11,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 function TorConnectionContent() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet: walletText } = translations;
   // assert missing
   return (
     <Box width={wp(300)}>
@@ -20,7 +20,7 @@ function TorConnectionContent() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
-          {wallet.connectingViaTor}
+          {walletText.connectingViaTor}
         </Text>
       </Box>
     </Box>
@@ -30,7 +30,7 @@ function TorConnectionContent() {
 function TorConnectionFailed() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet: walletText } = translations;
   return (
     <Box width={wp(270)}>
       <Box alignItems="center">
@@ -38,7 +38,7 @@ function TorConnectionFailed() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color={`${colorMode}.greenText`} fontSize={14} padding={1} letterSpacing={0.65}>
-          {wallet.networkOrOtherConditions}
+          {walletText.networkOrOtherConditions}
         </Text>
       </Box>
     </Box>
@@ -49,15 +49,15 @@ function TorModalMap({ visible, close }) {
   const { colorMode } = useColorMode();
   const [torStatus] = useState<TorStatus>(TorStatus.CONNECTING);
   const { translations } = useContext(LocalizationContext);
-  const { wallet, common } = translations;
+  const { wallet: walletText, common } = translations;
 
   return (
     <>
       <KeeperModal
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
-        title={wallet.connectingToTor}
-        subTitle={wallet.connectingToTorDesc}
+        title={walletText.connectingToTor}
+        subTitle={walletText.connectingToTorDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={TorConnectionContent}
@@ -65,8 +65,8 @@ function TorModalMap({ visible, close }) {
       <KeeperModal
         visible={visible && torStatus === TorStatus.ERROR}
         close={close}
-        title={wallet.connectionError}
-        subTitle={wallet.connectionErrorDesc}
+        title={walletText.connectionError}
+        subTitle={walletText.connectionErrorDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={common.close}

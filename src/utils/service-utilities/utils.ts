@@ -373,21 +373,26 @@ export const parseTextforVaultConfig = (secret: string) => {
     const lines = text.split('\n');
     const signersDetailsList = [];
     let scheme;
+    let derivationPath;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (line.startsWith('Policy')) {
         const [m, n] = line.split('Policy:')[1].split('of');
         scheme = { m: parseInt(m), n: parseInt(n) };
-        if (!isAllowedScheme(m, n)) {
+        if (!isAllowedScheme(scheme.m, scheme.n)) {
           throw Error('Unsupported scheme');
         }
       }
       if (line.startsWith('Derivation:')) {
-        const path = line.split(':')[1].trim();
-        const masterFingerprintLine = lines[i + 1].trim();
-        const masterFingerprint = masterFingerprintLine.split(':')[0].trim();
-        const xpub = lines[i + 1].split(':')[1].trim();
-        signersDetailsList.push({ xpub, masterFingerprint: masterFingerprint.toUpperCase(), path });
+        derivationPath = line.split(':')[1].trim();
+      }
+      if (!['Name', 'Policy', 'Format', 'Derivation', '#'].some((kw) => line.startsWith(kw))) {
+        const [masterFingerprint, xpub] = line.split(':');
+        signersDetailsList.push({
+          xpub: xpub.trim(),
+          masterFingerprint: masterFingerprint.toUpperCase().trim(),
+          path: derivationPath,
+        });
       }
     }
 
@@ -401,8 +406,8 @@ export const parseTextforVaultConfig = (secret: string) => {
   if (secret.includes('after(')) {
     const { signers, inheritanceKeys, emergencyKeys, importedKeyUsageCounts, initialTimelock } =
       parseEnhancedVaultMiniscript(secret);
-    const multiMatch = secret.match(/thresh\((\d+),/);
-    const m = multiMatch ? parseInt(multiMatch[1]) : 1;
+    const multiMatch = secret.match(/(thresh|multi)\((\d+),/);
+    const m = multiMatch ? parseInt(multiMatch[2]) : 1;
 
     const miniscriptElements = generateEnhancedVaultElements(
       signers,
@@ -474,10 +479,13 @@ function extractStagesWithAfter(script: string): { stage: string; afterValue: nu
   const stagePattern = /and_v\((.*?),after\((\d+)\)\)/g;
   const matches = [...script.matchAll(stagePattern)];
 
-  return matches.map((match) => ({
+  const stages = matches.map((match) => ({
     stage: match[1].trim(),
     afterValue: parseInt(match[2], 10),
   }));
+
+  // Sort stages by afterValue in ascending order
+  return stages.sort((a, b) => a.afterValue - b.afterValue);
 }
 
 function categorizeKeys(
@@ -649,7 +657,13 @@ function parseEnhancedVaultMiniscript(miniscript: string): {
   });
 
   return {
-    signers: uniqueKeys.filter((key) => regularFingerprints.includes(key.masterFingerprint)),
+    signers: uniqueKeys
+      .filter((key) => regularFingerprints.includes(key.masterFingerprint))
+      .sort(
+        (a, b) =>
+          regularFingerprints.indexOf(a.masterFingerprint) -
+          regularFingerprints.indexOf(b.masterFingerprint)
+      ),
     inheritanceKeys,
     emergencyKeys,
     importedKeyUsageCounts,
@@ -799,3 +813,7 @@ export function findChangeFromReceiverAddresses(
 
   return receiverAddresses;
 }
+
+export const accountNoFromDerivationPath = (derivationPath) => {
+  return derivationPath.split('/')[3].replace("'", '');
+};

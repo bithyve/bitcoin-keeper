@@ -33,7 +33,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
   const [channelCreated, setChannelCreated] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault } = translations;
+  const { vault: vaultTranslation } = translations;
 
   const callback = (data) => {
     onBarCodeRead(data);
@@ -45,7 +45,7 @@ function ScanAndInstruct({ onBarCodeRead }) {
     // TODO: Move this to a component
     <VStack marginTop={'40%'}>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {vault.registerVaultFromDesktop}
+        {vaultTranslation.registerVaultFromDesktop}
       </Text>
       <ActivityIndicator style={{ marginTop: hp(20), alignSelf: 'center', padding: '2%' }} />
     </VStack>

@@ -46,7 +46,7 @@ export const MiniscriptPathSelector = forwardRef<
   const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation, error } = translations;
+  const { vault: vaultTranslation, error: errorTranslation } = translations;
 
   useEffect(() => {
     if (vault.type === VaultType.MINISCRIPT) {
@@ -204,10 +204,10 @@ export const MiniscriptPathSelector = forwardRef<
         currentSyncedBlockHeight = (await WalletUtilities.fetchCurrentBlockHeight())
           .currentBlockHeight;
       } catch (err) {
-        console.log(error.failedtoRefetchCurrentBlock + err);
+        console.log(errorTranslation.failedtoRefetchCurrentBlock + err);
       }
       if (!currentSyncedBlockHeight) {
-        throw Error(error.failedToFetchCurrentChain);
+        throw Error(errorTranslation.failedToFetchCurrentChain);
       }
     }
 
@@ -223,7 +223,7 @@ export const MiniscriptPathSelector = forwardRef<
     const { phases: availablePhasesOptions } = getAvailableMiniscriptPhase(vault, currentTime);
 
     if (!availablePhasesOptions || availablePhasesOptions.length === 0) {
-      onError(error.noSpendingPathTimeLockActive);
+      onError(errorTranslation.noSpendingPathTimeLockActive);
       return;
     }
 

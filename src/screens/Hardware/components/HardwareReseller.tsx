@@ -10,13 +10,13 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 const HardwareReseller = () => {
   const { isOnL1 } = usePlan();
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
+  const { wallet: walletText } = translations;
 
   const data = [
     {
-      title: wallet.hardwareBitSaga,
-      country: wallet.hardwareBitSagaCountry,
-      subTitle: wallet.hardwareBitSagaSubTitle,
+      title: walletText.hardwareBitSaga,
+      country: walletText.hardwareBitSagaCountry,
+      subTitle: walletText.hardwareBitSagaSubTitle,
       icon: <BitSaga />,
       subscribeText: '',
       unSubscribeText: '',
@@ -36,7 +36,7 @@ const HardwareReseller = () => {
           subscribeText={item.subscribeText}
           unSubscribeText={item.unSubscribeText}
           link={item.link}
-          buttonText={wallet.hardwareResellerButton}
+          buttonText={walletText.hardwareResellerButton}
         />
       ))}
     </Box>

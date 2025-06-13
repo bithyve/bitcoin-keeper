@@ -52,7 +52,7 @@ function ScanQR() {
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
-  const { common, signer: signerText, wallet } = translations;
+  const { common, signer: signerText, wallet: walletText } = translations;
   const { showToast } = useToastMessage();
   const [inputText, setInputText] = useState('');
 
@@ -167,7 +167,7 @@ function ScanQR() {
             close={() => {
               setVisibleModal(false);
             }}
-            title={wallet.AddCoSigner}
+            title={walletText.AddCoSigner}
             subTitle=""
             modalBackground={`${colorMode}.pantoneGreen`}
             textColor={`${colorMode}.headerWhite`}

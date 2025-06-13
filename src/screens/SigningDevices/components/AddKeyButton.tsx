@@ -12,11 +12,11 @@ export function AddKeyButton({ short = false, onPress }: { short?: boolean; onPr
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { vault } = translations;
+  const { vault: vaultTranslation } = translations;
   return (
     <TouchableOpacity onPress={onPress} style={styles.addNewBtn} testID="btn_add_new_key">
       <Text color={`${colorMode}.textGreen`} bold style={styles.addNew}>
-        {short ? vault.addAKey : vault.addNewKey}
+        {short ? vaultTranslation.addAKey : vaultTranslation.addNewKey}
       </Text>
       {isDarkMode ? <AddWhite /> : <AddGreen />}
     </TouchableOpacity>

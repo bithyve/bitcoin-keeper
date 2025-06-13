@@ -94,7 +94,7 @@ const Card = memo(({ uai }: CardProps) => {
   const snapshots = useAppSelector((state) => state.cachedTxn.snapshots);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common, notification, error } = translations;
+  const { common, notification, error: errorTranslation } = translations;
 
   const getUaiTypeDefinations = (uai: UAI): uaiDefinationInterface => {
     const backupHistory = useQuery(RealmSchema.BackupHistory);
@@ -249,7 +249,7 @@ const Card = memo(({ uai }: CardProps) => {
                     })
                   );
                 } else {
-                  showToast(error.pendingTransactionsNotFound);
+                  showToast(errorTranslation.pendingTransactionsNotFound);
                 }
               },
             },
@@ -470,49 +470,52 @@ function NotificationsCenter() {
           </Box>
         ) : (
           <Box height="95%">
-            <SectionList
-              sections={[
-                {
-                  title: common.New,
-                  data: unseenNotifications,
-                  show: unseenNotifications.length > 0,
-                },
-                {
-                  title: common.Seen,
-                  data: seenNotifications,
-                  show: seenNotifications.length > 0,
-                },
-              ].filter((section) => section.show)}
-              renderItem={({ item }) => renderNotificationCard({ uai: item })}
-              renderSectionHeader={({ section: { title } }) => (
-                <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
-                  <Text fontSize={16} semiBold>
-                    {title}
+            <Box height="95%">
+              {seenNotifications.length === 0 && unseenNotifications.length === 0 ? (
+                <Box
+                  style={styles.NonotificationsContainer}
+                  backgroundColor={`${colorMode}.textInputBackground`}
+                  borderColor={`${colorMode}.separator`}
+                >
+                  <ThemedSvg name={'no_notification_illustration'} />
+                  <Text fontSize={18} medium style={styles.text} color={`${colorMode}.primaryText`}>
+                    {notification.noNewNotification}
                   </Text>
-                  <Box
-                    style={{ borderBottomWidth: 1, marginTop: hp(8) }}
-                    borderColor={`${colorMode}.pantoneGreenLight`}
-                  />
+                  <Text fontSize={13} color={`${colorMode}.primaryText`} style={styles.subTitle}>
+                    {notification.noNotiSub}
+                  </Text>
                 </Box>
+              ) : (
+                <SectionList
+                  sections={[
+                    {
+                      title: common.New,
+                      data: unseenNotifications,
+                      show: unseenNotifications.length > 0,
+                    },
+                    {
+                      title: common.Seen,
+                      data: seenNotifications,
+                      show: seenNotifications.length > 0,
+                    },
+                  ].filter((section) => section.show)}
+                  renderItem={({ item }) => renderNotificationCard({ uai: item })}
+                  renderSectionHeader={({ section: { title } }) => (
+                    <Box style={styles.listHeader} backgroundColor={`${colorMode}.seashellWhite`}>
+                      <Text fontSize={16} semiBold>
+                        {title}
+                      </Text>
+                      <Box
+                        style={{ borderBottomWidth: 1, marginTop: hp(8) }}
+                        borderColor={`${colorMode}.pantoneGreenLight`}
+                      />
+                    </Box>
+                  )}
+                  keyExtractor={(item) => item.id}
+                  showsVerticalScrollIndicator={false}
+                />
               )}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-            />
-            {seenNotifications.length == 0 && unseenNotifications.length == 0 && (
-              <Box
-                style={styles.NonotificationsContainer}
-                backgroundColor={`${colorMode}.textInputBackground`}
-                borderColor={`${colorMode}.separator`}
-              >
-                <ThemedSvg name={'no_notification_illustration'} />
-                <Text fontSize={18} medium style={styles.text} color={`${colorMode}.primaryText`}>
-                  {notification.noNewNotification}
-                </Text>
-                <Text fontSize={13} color={`${colorMode}.primaryText`} style={styles.subTitle}>
-                  {notification.noNotiSub}
-                </Text>
-              </Box>
-            )}
+            </Box>
           </Box>
         )}
       </Box>

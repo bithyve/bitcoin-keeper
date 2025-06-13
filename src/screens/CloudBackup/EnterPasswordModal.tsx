@@ -43,7 +43,7 @@ function EnterPasswordModal({
   const { colorMode } = useColorMode();
   const descRef = useRef();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault } = translations;
+  const { common, vault: vaultText } = translations;
   const MemoisedContent = React.useCallback(() => <Content descRef={descRef} />, []);
   const onSave = () => {
     close();
@@ -56,8 +56,8 @@ function EnterPasswordModal({
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       close={close}
-      title={vault.enterPdfPassword}
-      subTitle={vault.pdfPasswordDesc}
+      title={vaultText.enterPdfPassword}
+      subTitle={vaultText.pdfPasswordDesc}
       buttonText={common.backup}
       Content={MemoisedContent}
       buttonCallback={onSave}

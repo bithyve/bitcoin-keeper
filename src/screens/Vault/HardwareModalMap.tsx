@@ -102,6 +102,12 @@ import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const RNBiometrics = new ReactNativeBiometrics();
+const SIGEERS_SUPPORT_MULTIPLE_XPUBS = [
+  SignerType.JADE,
+  SignerType.SEEDSIGNER,
+  SignerType.PASSPORT,
+  SignerType.SPECTER,
+];
 
 export const enum InteracationMode {
   VAULT_ADDITION = 'VAULT_ADDITION',
@@ -1044,7 +1050,7 @@ function HardwareModalMap({
   const navigateToAddQrBasedSigner = () => {
     let routeName = 'ScanQR';
     if (!isHealthcheck && !isCanaryAddition && !isExternalKey) {
-      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.PASSPORT].includes(type)) {
+      if (SIGEERS_SUPPORT_MULTIPLE_XPUBS.includes(type)) {
         routeName = 'AddMultipleXpub';
       }
     }
@@ -1225,9 +1231,9 @@ function HardwareModalMap({
     );
   };
 
-  const importSeedWordsBasedKey = (mnemonic) => {
+  const importSeedWordsBasedKey = (mnemonic, remember = false) => {
     try {
-      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig, remember);
       dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
         ? {

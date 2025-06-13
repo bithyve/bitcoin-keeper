@@ -66,7 +66,7 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
 function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslations, common, wallet: walletText, error } = translations;
+  const { vault: vaultTranslations, common, wallet: walletText, error: errorText } = translations;
   const [selectedWalletType, setSelectedWalletType] = useState('');
   const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
@@ -232,7 +232,7 @@ function AddNewWallet({ navigation, route }) {
           primaryCallback={() => {
             if (scheme.m === 1 && emergencyKeySelected) {
               showToast(
-                scheme.n === 1 ? error.singleKeyWalletMsg : error.MultiKeyWalletMsg,
+                scheme.n === 1 ? errorText.singleKeyWalletMsg : errorText.MultiKeyWalletMsg,
                 <ToastErrorIcon />
               );
               return;
@@ -377,7 +377,7 @@ const EnhancedSecurityModal = ({
   }, [isVisible, inheritanceKeySelected, emergencyKeySelected, initialTimelockSelected]);
 
   const { translations } = useContext(LocalizationContext);
-  const { common, wallet, signer } = translations;
+  const { common, wallet: walletText, signer: signerText } = translations;
   const { isOnL3Above } = usePlan();
 
   return (
@@ -388,8 +388,8 @@ const EnhancedSecurityModal = ({
       }}
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
-      title={wallet.enhancedSecurityOption}
-      subTitle={wallet.enhancedSecurityDesc2}
+      title={walletText.enhancedSecurityOption}
+      subTitle={walletText.enhancedSecurityDesc2}
       buttonText={common.saveChanges}
       buttonCallback={() => {
         onClose();
@@ -428,7 +428,7 @@ const EnhancedSecurityModal = ({
                       !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
-                    {signer.inheritanceKey}
+                    {signerText.inheritanceKey}
                   </Text>
                   {pendingInheritanceKeySelected ? (
                     <Box
@@ -452,7 +452,7 @@ const EnhancedSecurityModal = ({
                   fontSize={12}
                   color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
-                  {signer.extraKeyAddedAfterTime}
+                  {signerText.extraKeyAddedAfterTime}
                 </Text>
               </Box>
             </Pressable>
@@ -472,7 +472,7 @@ const EnhancedSecurityModal = ({
                       !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
-                    {signer.emergencyKey}
+                    {signerText.emergencyKey}
                   </Text>
                   {pendingEmergencyKeySelected ? (
                     <Box
@@ -496,7 +496,7 @@ const EnhancedSecurityModal = ({
                   fontSize={12}
                   color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
-                  {signer.keyDelayedFullControl}
+                  {signerText.keyDelayedFullControl}
                 </Text>
               </Box>
             </Pressable>

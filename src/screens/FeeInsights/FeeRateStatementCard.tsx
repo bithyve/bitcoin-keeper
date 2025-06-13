@@ -23,7 +23,7 @@ const FeerateStatement = (props: Props) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { error, common } = translations;
+  const { error: errorText, common } = translations;
 
   const { showFeesInsightModal, feeInsightData } = props;
   useEffect(() => {
@@ -34,7 +34,7 @@ const FeerateStatement = (props: Props) => {
 
   function updateFeeStatement(data: any[]) {
     if (data.length === 0) {
-      setShortFeeStatement(error.failedTofetchFeeStats);
+      setShortFeeStatement(errorText.failedTofetchFeeStats);
       return;
     }
 

@@ -44,7 +44,7 @@ function SignerCategoryList() {
   const dispatch = useAppDispatch();
   const reduxDispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
-  const { vault, signer, common } = translations;
+  const { vault: vaultText, signer: signerText, common } = translations;
 
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
@@ -72,20 +72,20 @@ function SignerCategoryList() {
 
   const signerCategoriesData = [
     {
-      title: signer.addKeyHardware,
-      description: signer.connectHardware,
+      title: signerText.addKeyHardware,
+      description: signerText.connectHardware,
       signerCategory: SignerCategory.HARDWARE,
-      headerTitle: signer.hardwareKeysHeader,
-      headerSubtitle: signer.connectHardwareDevices,
+      headerTitle: signerText.hardwareKeysHeader,
+      headerSubtitle: signerText.connectHardwareDevices,
       Icon: <ThemedSvg name={'hardware_key_icon'} />,
       snippet: hardwareSnippet,
     },
     {
-      title: signer.addSoftwareKey,
-      description: signer.keysInApp,
+      title: signerText.addSoftwareKey,
+      description: signerText.keysInApp,
       signerCategory: SignerCategory.SOFTWARE,
-      headerTitle: signer.softwareKeysHeader,
-      headerSubtitle: signer.keysNoHardwareNeeded,
+      headerTitle: signerText.softwareKeysHeader,
+      headerSubtitle: signerText.keysNoHardwareNeeded,
       Icon: <ThemedSvg name={'software_key_icon'} />,
       snippet: [],
     },
@@ -121,7 +121,7 @@ function SignerCategoryList() {
           <ThemedSvg name={'diversify_hardware'} />
         </Box>
         <Text color={green_modal_text_color} style={styles.modalText}>
-          {`${signer.subscriptionTierL1} ${SubscriptionTier.L1} ${signer.subscriptionTierL2} ${SubscriptionTier.L2} ${signer.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signer.notSupportedText}`}
+          {`${signerText.subscriptionTierL1} ${SubscriptionTier.L1} ${signerText.subscriptionTierL2} ${SubscriptionTier.L2} ${signerText.subscriptionTierL3} ${SubscriptionTier.L3}.\n\n${signerText.notSupportedText}`}
         </Text>
       </View>
     );
@@ -130,8 +130,8 @@ function SignerCategoryList() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title={vault.Addsigner}
-        subTitle={vault.SelectSignerSubtitle}
+        title={vaultText.Addsigner}
+        subTitle={vaultText.SelectSignerSubtitle}
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
@@ -159,7 +159,7 @@ function SignerCategoryList() {
               backgroundColor={`${colorMode}.dullGreen`}
               borderColor={`${colorMode}.pantoneGreen`}
               textColor={`${colorMode}.greenWhiteText`}
-              name={signer.purchaseWallet}
+              name={signerText.purchaseWallet}
               cardStyles={styles.cardStyles}
               callback={() => {
                 navigation.navigate('HardwareWallet');
@@ -173,8 +173,8 @@ function SignerCategoryList() {
         close={() => {
           dispatch(setSdIntroModal(false));
         }}
-        title={signer.signers}
-        subTitle={signer.signerDescription}
+        title={signerText.signers}
+        subTitle={signerText.signerDescription}
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
         Content={LearnMoreModalContent}
