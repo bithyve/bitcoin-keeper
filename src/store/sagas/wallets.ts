@@ -488,17 +488,16 @@ export function* addSigningDeviceWorker({
         for (let i = 0; i < signers.length; i++) {
           const signer = signers[i];
           if (signer.type == SignerType.SEED_WORDS) {
-            const sXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpriv);
-            const mXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
-            const tXpub = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
-            if (sXpub && mXpub && tXpub) {
+            const sXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpriv);
+            const mXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
+            const tXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
+            if (sXpriv && mXpriv && tXpriv) {
               const vaults: Vault[] = yield call(
                 dbManager.getObjectByIndex,
                 RealmSchema.Vault,
                 null,
                 true
               );
-
               const filteredVaults = vaults.filter(
                 (vault) => vault.networkType == bitcoinNetworkType
               );
@@ -506,20 +505,17 @@ export function* addSigningDeviceWorker({
                 const vault = filteredVaults[i];
                 for (let j = 0; j < vault.signers.length; j++) {
                   const vaultSigner = vault.signers[j];
-                  const generatedMfp =
-                    vaultSigner.masterFingerprint +
-                    accountNoFromDerivationPath(vaultSigner.derivationPath);
-                  if (signer.id.includes(generatedMfp)) {
+                  if (signer.id === getKeyUID(vaultSigner)) {
                     const purpose = parseInt(
                       WalletUtilities.getSignerPurposeFromPath(vaultSigner.derivationPath)
                     );
                     const uptXpriv =
                       purpose == DerivationPurpose.BIP84
-                        ? sXpub
+                        ? sXpriv
                         : purpose == DerivationPurpose.BIP48
-                        ? mXpub
+                        ? mXpriv
                         : purpose == DerivationPurpose.BIP86
-                        ? tXpub
+                        ? tXpriv
                         : null;
                     yield call(
                       dbManager.updateObjectByPrimaryId,
