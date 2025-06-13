@@ -678,6 +678,13 @@ function SendConfirmation({ route }) {
               />
             </TouchableOpacity>
             {showMore && [
+              OneDayHistoricalFee.length > 0 && (
+                <FeeRateStatementCard
+                  key="feeCard"
+                  showFeesInsightModal={toogleFeesInsightModal}
+                  feeInsightData={OneDayHistoricalFee}
+                />
+              ),
               <Box key="btcBox">
                 <Text
                   medium
@@ -688,17 +695,12 @@ function SendConfirmation({ route }) {
                   {walletTranslations.currentBtcPrice}
                 </Text>
                 <Text fontSize={12} color={`${colorMode}.primaryText`}>
-                  {`${BtcPrice?.last} ${BtcPrice?.symbol}`}
+                  {`${new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(BtcPrice?.last)} ${BtcPrice?.symbol}`}
                 </Text>
               </Box>,
-
-              OneDayHistoricalFee.length > 0 && (
-                <FeeRateStatementCard
-                  key="feeCard"
-                  showFeesInsightModal={toogleFeesInsightModal}
-                  feeInsightData={OneDayHistoricalFee}
-                />
-              ),
             ]}
           </ReceiptWrapper>
         </Box>
