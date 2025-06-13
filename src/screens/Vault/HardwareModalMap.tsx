@@ -538,7 +538,7 @@ const getSignerContent = (
       return {
         type: SignerType.SEED_WORDS,
         Illustration: <ThemedSvg name={'SeedSetupIllustration'} />,
-        Instructions: [signerText.seedWordInstruction, signerText.seedWordInstruction1],
+        Instructions: [signerText.seedWordInstruction],
         title: isHealthcheck ? signerText.verifySeed : signerText.addSeedKey,
         subTitle: signerText.seedKeyDesp,
         options: !isHealthcheck &&

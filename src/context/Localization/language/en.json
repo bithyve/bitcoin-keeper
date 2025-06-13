@@ -1448,7 +1448,6 @@
     "ledgerInstruction": "Please Make sure you have the BTC app downloaded on Ledger before this step.",
     "verifyLedger": "Verify Ledger",
     "seedWordInstruction": "Make sure you secure the 12-word phrase in a safe place.",
-    "seedWordInstruction1": "It is not advisable if you use this key frequently, as the whole seed will have to be input to sign a transaction.",
     "verifySeed": "Verify Seed Key",
     "addSeedKey": "Add a Seed Key",
     "seedKeyDesp": "Seed Key is a 12-word phrase that can be generated new or imported",
