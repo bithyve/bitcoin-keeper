@@ -813,3 +813,7 @@ export function findChangeFromReceiverAddresses(
 
   return receiverAddresses;
 }
+
+export const accountNoFromDerivationPath = (derivationPath) => {
+  return derivationPath.split('/')[3].replace("'", '');
+};
