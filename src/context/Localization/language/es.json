@@ -168,7 +168,9 @@
     "seletPermitedAction": "Select Permitted Actions",
     "remians": "Remains",
     "vaultTimelockActive": "Vault has an active timelock",
-    "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends."
+    "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends.",
+    "moreInfo": "More Info",
+    "lessInfo": "Less Info"
   },
   "login": {
     "welcomeback": "Welcome Back",
