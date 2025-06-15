@@ -419,10 +419,11 @@ export const parseTextforVaultConfig = (secret: string) => {
 
     const miniscriptScheme = generateMiniscriptScheme(
       miniscriptElements,
-      inheritanceKeys.length || emergencyKeys.length
+      inheritanceKeys.length || emergencyKeys.length || initialTimelock
         ? [
             ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
             ...(emergencyKeys.length ? [MiniscriptTypes.EMERGENCY] : []),
+            ...(initialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
           ]
         : [],
       null,
