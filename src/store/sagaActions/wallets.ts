@@ -17,6 +17,7 @@ export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const GENERATE_NEW_ADDRESS = 'GENERATE_NEW_ADDRESS';
 export const TESTCOINS_RECEIVED = 'TESTCOINS_RECEIVED';
 export const WALLETS_SYNCHED = 'WALLETS_SYNCHED';
+export const UPDATED_VAULT_SIGNERS_XPRIV = 'UPDATED_VAULT_SIGNERS_XPRIV';
 
 export const getTestcoins = (testWallet: Wallet) => ({
   type: GET_TESTCOINS,
@@ -139,4 +140,9 @@ export const updateKeyDetails = (signer: VaultSigner, key: string, value: any) =
 export const generateNewAddress = (wallet: Wallet | Vault) => ({
   type: GENERATE_NEW_ADDRESS,
   payload: { wallet },
+});
+
+export const updateVaultSignersXpriv = (signers: Signer[]) => ({
+  type: UPDATED_VAULT_SIGNERS_XPRIV,
+  signers,
 });
