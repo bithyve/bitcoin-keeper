@@ -476,7 +476,7 @@ function ConfirmWalletDetails({ route }) {
           <Box
             flexDirection={'row'}
             flex={1}
-            marginTop={isSmallDevice ? hp(4) : hp(20)}
+            marginTop={isSmallDevice ? hp(4) : hp(6)}
             flexWrap={'wrap'}
           >
             {route.params.selectedSigners.map((signer) => {
@@ -754,7 +754,7 @@ const styles = StyleSheet.create({
   },
   editKeysContainer: {
     flexDirection: 'row',
-    gap: hp(5),
+    // gap: hp(5),
     alignItems: 'center',
     paddingHorizontal: wp(16),
   },
