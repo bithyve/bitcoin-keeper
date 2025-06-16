@@ -38,6 +38,7 @@ import { resetCredsChanged } from 'src/store/reducers/login';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
 import usePlan from 'src/hooks/usePlan';
+import SettingCard from '../Home/components/Settings/Component/SettingCard';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -294,55 +295,83 @@ function PrivacyAndDisplay({ route }) {
       setSensorAvailable(false);
     }
   };
+  const PrivacyAndDisplay = [
+    {
+      title: sensorType || settings.Biometrics,
+      description: sensorType
+        ? formatString(settings.UseBiometricSubTitle, sensorType)
+        : settings.NoBiometricSubTitle,
+      onPress: onChangeLoginMethod,
+      disabled: !sensorType,
+      rightIcon:
+        sensorAvailable || !sensorType ? (
+          <Switch
+            onValueChange={onChangeLoginMethod}
+            value={loginMethod === LoginMethod.BIOMETRIC}
+            testID="switch_biometrics"
+            loading={!sensorType}
+          />
+        ) : (
+          <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
+            <Box style={styles.settingsCTA} backgroundColor={`${colorMode}.coffeeBackground`}>
+              <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
+                {common.Enable} {sensorType}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        ),
+    },
+  ];
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={settings.SecurityAndLogin} subTitle={settings.AppLevelSettings} />
-      <ScrollView>
-        <Box style={styles.wrapper}>
-          <Box>
-            <OptionCard
-              title={sensorType || settings.Biometrics}
-              description={
-                sensorType
-                  ? formatString(settings.UseBiometricSubTitle, sensorType)
-                  : settings.NoBiometricSubTitle
-              }
-              callback={() => onChangeLoginMethod()}
-              disabled={!sensorType}
-              Icon={
-                sensorAvailable || !sensorType ? (
-                  <Switch
-                    onValueChange={onChangeLoginMethod}
-                    value={loginMethod === LoginMethod.BIOMETRIC}
-                    testID="switch_biometrics"
-                    loading={!sensorType}
-                  />
-                ) : (
-                  <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
-                    <Box
-                      style={styles.settingsCTA}
-                      backgroundColor={`${colorMode}.coffeeBackground`}
-                    >
-                      <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
-                        {common.Enable} {sensorType}
-                      </Text>
-                    </Box>
-                  </TouchableOpacity>
-                )
-              }
-            />
-          </Box>
-
+      <WalletHeader title={settings.SecurityAndLogin} />
+      <Box style={styles.wrapper} borderColor={`${colorMode}.separator`}>
+        {/* <Box>
           <OptionCard
-            title={settings.changePasscode}
-            description={settings.changePasscodeDescription}
-            callback={() => {
-              setVisiblePassCode(true);
-            }}
+            title={sensorType || settings.Biometrics}
+            description={
+              sensorType
+                ? formatString(settings.UseBiometricSubTitle, sensorType)
+                : settings.NoBiometricSubTitle
+            }
+            callback={() => onChangeLoginMethod()}
+            disabled={!sensorType}
+            Icon={
+              sensorAvailable || !sensorType ? (
+                <Switch
+                  onValueChange={onChangeLoginMethod}
+                  value={loginMethod === LoginMethod.BIOMETRIC}
+                  testID="switch_biometrics"
+                  loading={!sensorType}
+                />
+              ) : (
+                <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
+                  <Box style={styles.settingsCTA} backgroundColor={`${colorMode}.coffeeBackground`}>
+                    <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
+                      {common.Enable} {sensorType}
+                    </Text>
+                  </Box>
+                </TouchableOpacity>
+              )
+            }
           />
-        </Box>
-      </ScrollView>
+        </Box> */}
+        <SettingCard
+          subtitleColor={`${colorMode}.balanceText`}
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
+          items={PrivacyAndDisplay}
+        />
+
+        <OptionCard
+          title={settings.changePasscode}
+          description={settings.changePasscodeDescription}
+          callback={() => {
+            setVisiblePassCode(true);
+          }}
+        />
+      </Box>
       <Box style={styles.note}>
         <Note
           title={common.note}
@@ -500,8 +529,16 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: hp(35),
     gap: 50,
+    // alignSelf: 'center',
+    // borderWidth: 1,
+    // borderRadius: 10,
+    // padding: 20,
+    // width: '95%',
+  },
+  container: {
     width: '95%',
-    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   note: {
     position: 'absolute',
