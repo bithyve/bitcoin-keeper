@@ -66,7 +66,7 @@ function SignWithQR() {
     : serializedPSBTEnvelops.filter((envelop) => vaultKey.xfp === envelop.xfp)[0];
   const { serializedPSBT } = serializedPSBTEnvelop;
   const { activeVault } = useVault({ vaultId });
-  const isSingleSig = isRemoteKey ? !isMultisig : activeVault.scheme.n === 1;
+  const isSingleSig = isRemoteKey ? !isMultisig : !activeVault.isMultiSig;
   const { signer } = isRemoteKey
     ? { signer: signerMap[getKeyUID(vaultKey)] }
     : useSignerFromKey(vaultKey);
