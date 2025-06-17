@@ -39,6 +39,9 @@ import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
 import usePlan from 'src/hooks/usePlan';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
+import BiometricIcon from 'src/assets/images/biometric-image.svg';
+import PasswordIcon from 'src/assets/images/password-ico.svg';
+import PinIcon from 'src/assets/images/pin-icon.svg';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -295,14 +298,30 @@ function PrivacyAndDisplay({ route }) {
       setSensorAvailable(false);
     }
   };
+
   const PrivacyAndDisplay = [
+    {
+      title: 'PIN',
+      description: 'Current Screen Lock',
+      onPress: () => setVisiblePassCode(true),
+      icon: <PinIcon />,
+    },
+    {
+      title: 'Password',
+      description: 'Enter 4 or more digits/letters',
+      onPress: () => setVisiblePassCode(true),
+      icon: <PasswordIcon />,
+    },
     {
       title: sensorType || settings.Biometrics,
       description: sensorType
         ? formatString(settings.UseBiometricSubTitle, sensorType)
         : settings.NoBiometricSubTitle,
       onPress: onChangeLoginMethod,
-      disabled: !sensorType,
+      isDisabled: !sensorType,
+      icon: <BiometricIcon />,
+      onRightPress: sensorAvailable || !sensorType ? onChangeLoginMethod : requestPermission,
+
       rightIcon:
         sensorAvailable || !sensorType ? (
           <Switch
@@ -362,14 +381,6 @@ function PrivacyAndDisplay({ route }) {
           backgroundColor={`${colorMode}.textInputBackground`}
           borderColor={`${colorMode}.separator`}
           items={PrivacyAndDisplay}
-        />
-
-        <OptionCard
-          title={settings.changePasscode}
-          description={settings.changePasscodeDescription}
-          callback={() => {
-            setVisiblePassCode(true);
-          }}
         />
       </Box>
       <Box style={styles.note}>
