@@ -463,6 +463,7 @@ function ConfirmWalletDetails({ route }) {
             }}
           >
             {isDarkMode ? <EditIconWhite /> : <EditIcon />}
+
             <Text
               color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
               semiBold
@@ -754,7 +755,7 @@ const styles = StyleSheet.create({
   },
   editKeysContainer: {
     flexDirection: 'row',
-    // gap: hp(5),
+    gap: hp(5),
     alignItems: 'center',
     paddingHorizontal: wp(16),
   },
