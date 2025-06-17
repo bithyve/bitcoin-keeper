@@ -35,7 +35,7 @@ function ShowXPub({
       <Box testID="view_xPub" justifyContent="center" alignItems="center">
         <Box>
           {details ? (
-            <KeeperQRCode qrData={details} logoBackgroundColor="transparent" size={hp(200)} />
+            <KeeperQRCode qrData={details} logoBackgroundColor="transparent" size={wp(220)} />
           ) : (
             <ActivityIndicator />
           )}
