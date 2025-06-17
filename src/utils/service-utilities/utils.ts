@@ -419,10 +419,11 @@ export const parseTextforVaultConfig = (secret: string) => {
 
     const miniscriptScheme = generateMiniscriptScheme(
       miniscriptElements,
-      inheritanceKeys.length || emergencyKeys.length
+      inheritanceKeys.length || emergencyKeys.length || initialTimelock
         ? [
             ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
             ...(emergencyKeys.length ? [MiniscriptTypes.EMERGENCY] : []),
+            ...(initialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
           ]
         : [],
       null,
@@ -813,3 +814,7 @@ export function findChangeFromReceiverAddresses(
 
   return receiverAddresses;
 }
+
+export const accountNoFromDerivationPath = (derivationPath) => {
+  return derivationPath.split('/')[3].replace("'", '');
+};
