@@ -194,6 +194,7 @@ function PrivacyAndDisplay({ route }) {
   const [sensorType, setSensorType] = useState(null);
   const [sensorAvailable, setSensorAvailable] = useState(false);
   const [visiblePasscode, setVisiblePassCode] = useState(false);
+  const [visiblePassword, setVisiblePassword] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const [confirmPasscode, setConfirmPasscode] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
@@ -309,7 +310,7 @@ function PrivacyAndDisplay({ route }) {
     {
       title: 'Password',
       description: 'Enter 4 or more digits/letters',
-      onPress: () => setVisiblePassCode(true),
+      onPress: () => setVisiblePassword(true),
       icon: <PasswordIcon />,
     },
     {
@@ -346,36 +347,6 @@ function PrivacyAndDisplay({ route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title={settings.SecurityAndLogin} />
       <Box style={styles.wrapper} borderColor={`${colorMode}.separator`}>
-        {/* <Box>
-          <OptionCard
-            title={sensorType || settings.Biometrics}
-            description={
-              sensorType
-                ? formatString(settings.UseBiometricSubTitle, sensorType)
-                : settings.NoBiometricSubTitle
-            }
-            callback={() => onChangeLoginMethod()}
-            disabled={!sensorType}
-            Icon={
-              sensorAvailable || !sensorType ? (
-                <Switch
-                  onValueChange={onChangeLoginMethod}
-                  value={loginMethod === LoginMethod.BIOMETRIC}
-                  testID="switch_biometrics"
-                  loading={!sensorType}
-                />
-              ) : (
-                <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
-                  <Box style={styles.settingsCTA} backgroundColor={`${colorMode}.coffeeBackground`}>
-                    <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
-                      {common.Enable} {sensorType}
-                    </Text>
-                  </Box>
-                </TouchableOpacity>
-              )
-            }
-          />
-        </Box> */}
         <SettingCard
           subtitleColor={`${colorMode}.balanceText`}
           backgroundColor={`${colorMode}.textInputBackground`}
