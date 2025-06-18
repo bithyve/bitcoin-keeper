@@ -6,6 +6,7 @@ import { LinearGradient, Stop } from 'react-native-svg';
 import Fonts from 'src/constants/Fonts';
 import { HistoricalInisightData } from 'src/nativemodules/interface';
 import customTheme from 'src/navigation/themes';
+import { getDayForGraph } from 'src/utils/utilities';
 
 interface Props {
   dataSet: HistoricalInisightData[];
@@ -20,29 +21,37 @@ const FeeGraph = (props: Props) => {
     generateSmoothedDatasetForGraph(dataSet);
   }, [dataSet]);
 
-  function generateSmoothedDatasetForGraph(historicalFeesData, targetCount = 12) {
-    const step = historicalFeesData.length / targetCount;
-    const adjustedDataPoints = [];
-
-    for (let i = 0; i < targetCount; i++) {
-      const index = Math.round(i * step);
-      if (index < historicalFeesData.length) {
-        adjustedDataPoints.push({ value: historicalFeesData[index].avgFee_75 });
+  function generateSmoothedDatasetForGraph(dataSet) {
+    const seenDates = new Set();
+    const uniqueDailyItems = [];
+    for (const item of dataSet) {
+      const dateStr = new Date(item.timestamp * 1000).toISOString().split('T')[0];
+      if (!seenDates.has(dateStr)) {
+        seenDates.add(dateStr);
+        uniqueDailyItems.push({
+          value: item.avgFee_75,
+          label: item == dataSet[0] ? '' : getDayForGraph(item.timestamp * 1000),
+        });
       }
     }
     const currentFeeRate = recentData[recentData.length - 1];
-    setGraphData([...adjustedDataPoints, { value: currentFeeRate.avgFee_75 }]);
+    uniqueDailyItems[uniqueDailyItems.length - 1] = {
+      value: currentFeeRate.avgFee_75,
+      label: getDayForGraph(currentFeeRate.timestamp * 1000),
+    };
+    setGraphData(uniqueDailyItems);
   }
 
   return (
     <View style={styles.container}>
       {graphData.length > 0 && (
         <LineChart
+          isAnimated={true}
           areaChart
           curved
           initialSpacing={0}
           data={graphData}
-          spacing={22.5}
+          spacing={42}
           thickness={5}
           hideOrigin
           hideDataPoints1
@@ -52,8 +61,12 @@ const FeeGraph = (props: Props) => {
           color={customTheme.colors[colorMode].Border}
           yAxisTextStyle={{
             color: customTheme.colors[colorMode].DarkSage,
-            fontSize: 12,
-            fontFamily: Fonts.LoraSemiBold,
+            ...styles.labelText,
+          }}
+          xAxisTextNumberOfLines={2}
+          xAxisLabelTextStyle={{
+            color: customTheme.colors[colorMode].DarkSage,
+            ...styles.labelText,
           }}
           areaGradientId="ag"
           areaGradientComponent={() => {
@@ -82,4 +95,5 @@ const styles = StyleSheet.create({
   graphHeader: {
     paddingVertical: 10,
   },
+  labelText: { fontSize: 12, fontFamily: Fonts.LoraSemiBold },
 });
