@@ -105,17 +105,17 @@ const styles = StyleSheet.create({
     width: '77%',
   },
   transTitleText: {
-    fontSize: 16,
+    fontSize: 13,
     marginBottom: hp(5),
   },
   transLabelText: {
-    fontSize: 14,
+    fontSize: 12,
   },
   transSatsFeeText: {
-    fontSize: 15,
+    fontSize: 12,
   },
   satsText: {
-    fontSize: 14,
+    fontSize: 12,
   },
   transSatsFeeWrapper: {
     alignItems: 'center',

@@ -2,6 +2,7 @@
 
 /* eslint-disable no-case-declarations */
 import {
+  DerivationPurpose,
   EntityKind,
   MiniscriptTypes,
   MultisigScriptType,
@@ -127,6 +128,7 @@ import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
 import { updateDelayedPolicyUpdate } from '../reducers/storage';
+import { accountNoFromDerivationPath } from 'src/utils/service-utilities/utils';
 
 export interface NewVaultDetails {
   name?: string;
@@ -482,6 +484,54 @@ export function* addSigningDeviceWorker({
               (signersToUpdate[0]?.extraData?.instanceNumber !== 1 && !signersToUpdate[0]?.hidden)
           )
         );
+
+        for (let i = 0; i < signers.length; i++) {
+          const signer = signers[i];
+          if (signer.type == SignerType.SEED_WORDS) {
+            const sXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpriv);
+            const mXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
+            const tXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
+            if (sXpriv && mXpriv && tXpriv) {
+              const vaults: Vault[] = yield call(
+                dbManager.getObjectByIndex,
+                RealmSchema.Vault,
+                null,
+                true
+              );
+              const filteredVaults = vaults.filter(
+                (vault) => vault.networkType == bitcoinNetworkType
+              );
+              for (let i = 0; i < filteredVaults.length; i++) {
+                const vault = filteredVaults[i];
+                for (let j = 0; j < vault.signers.length; j++) {
+                  const vaultSigner = vault.signers[j];
+                  if (signer.id === getKeyUID(vaultSigner)) {
+                    const purpose = parseInt(
+                      WalletUtilities.getSignerPurposeFromPath(vaultSigner.derivationPath)
+                    );
+                    const uptXpriv =
+                      purpose == DerivationPurpose.BIP84
+                        ? sXpriv
+                        : purpose == DerivationPurpose.BIP48
+                        ? mXpriv
+                        : purpose == DerivationPurpose.BIP86
+                        ? tXpriv
+                        : null;
+                    yield call(
+                      dbManager.updateObjectByPrimaryId,
+                      RealmSchema.VaultSigner,
+                      'xpub',
+                      vaultSigner.xpub,
+                      {
+                        xpriv: uptXpriv,
+                      }
+                    );
+                  }
+                }
+              }
+            }
+          }
+        }
       } else {
         const errorMsg = response.error?.message
           ? response.error.message.toString()
