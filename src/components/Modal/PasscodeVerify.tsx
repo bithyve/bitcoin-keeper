@@ -48,6 +48,10 @@ function PasscodeVerifyModal({
   const { loginMethod } = useAppSelector((state) => state.settings);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
 
+  console.log('isAuthenticated', isAuthenticated);
+  console.log('authenticationFailed', authenticationFailed);
+  console.log('loginError', loginError);
+
   useEffect(() => {
     if (useBiometrics) {
       if (processing) return;

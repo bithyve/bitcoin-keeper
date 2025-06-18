@@ -149,7 +149,7 @@ function* credentialsAuthWorker({ payload }) {
     yield put(setupLoading('authenticating'));
     let hash;
     let encryptedKey;
-    if (method === LoginMethod.PIN) {
+    if (method === LoginMethod.PIN || method === LoginMethod.PASSWORD) {
       hash = yield call(hash512, payload.passcode);
       if (payload.reLogin) encryptedKey = yield call(SecureStore.fetchSpecific, hash, appId);
       else encryptedKey = yield call(SecureStore.fetch, hash);
@@ -273,6 +273,7 @@ function* credentialsAuthWorker({ payload }) {
             RealmSchema.KeeperApp
           );
           if (updatedSubs.level > 2) yield put(setAllCampaigns(true));
+          console.log('method', method);
 
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
@@ -297,8 +298,17 @@ function* credentialsAuthWorker({ payload }) {
           }
           yield put(loadConciergeUserOnLogin({ appId: keeperApp.id }));
           yield put(
+            // setLoginMethod(
+            //   keeperApp.id === biometricEnabledAppId
+            //     ? LoginMethod.BIOMETRIC
+            //     : LoginMethod.PIN || LoginMethod.PASSWORD
+            // )
             setLoginMethod(
-              keeperApp.id === biometricEnabledAppId ? LoginMethod.BIOMETRIC : LoginMethod.PIN
+              keeperApp.id === biometricEnabledAppId
+                ? LoginMethod.BIOMETRIC
+                : method === LoginMethod.PIN
+                ? LoginMethod.PIN
+                : LoginMethod.PASSWORD
             )
           );
           if (backupMethodByAppId[keeperApp.id])

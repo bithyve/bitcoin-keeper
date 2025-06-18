@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Switch from 'src/components/Switch/Switch';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -42,10 +41,17 @@ import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import BiometricIcon from 'src/assets/images/biometric-image.svg';
 import PasswordIcon from 'src/assets/images/password-ico.svg';
 import PinIcon from 'src/assets/images/pin-icon.svg';
+import PasswordModalContent from './PasswordModalContent';
+import CreatePasswordContent from './CreatePasswordContent';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }) {
+function ConfirmPasscode({
+  oldPassword,
+  setConfirmPasscodeModal,
+  onCredsChange,
+  setShowSetPasscodeModal,
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
@@ -160,6 +166,8 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
                 primaryText={common.confirm}
                 primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
+                  dispatch(changeLoginMethod(LoginMethod.PIN));
+                  setShowSetPasscodeModal(false);
                 }}
                 fullWidth
               />
@@ -201,6 +209,8 @@ function PrivacyAndDisplay({ route }) {
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [RKHealthCheckModal, setRKHealthCheckModal] = useState(false);
   const [passcodeHCModal, setPasscodeHCModal] = useState(false);
+  const [showSetPasscodeModal, setShowSetPasscodeModal] = useState(false);
+  const [createPasswordModal, setCreatePasswordModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common, error: errorText } = translations;
@@ -225,10 +235,15 @@ function PrivacyAndDisplay({ route }) {
   useEffect(() => {
     init();
   }, []);
+  console.log('route?.params', route?.params);
 
   useEffect(() => {
     if (RKBackedUp) {
-      setConfirmPasscode(true);
+      if (showSetPasscodeModal) {
+        setConfirmPasscode(true);
+      } else {
+        setCreatePasswordModal(true);
+      }
       setOldPassword(oldPasscode);
     }
   }, [route?.params]);
@@ -266,6 +281,8 @@ function PrivacyAndDisplay({ route }) {
       console.log(error);
     }
   };
+  console.log('loginMethod', loginMethod);
+  console.log('showSetPasscodeModal', showSetPasscodeModal);
 
   const requestPermission = () => {
     Linking.openSettings();
@@ -275,7 +292,7 @@ function PrivacyAndDisplay({ route }) {
     try {
       const { available } = await RNBiometrics.isSensorAvailable();
       if (available) {
-        if (loginMethod === LoginMethod.PIN) {
+        if (loginMethod === LoginMethod.PIN || loginMethod === LoginMethod.PASSWORD) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
           if (keysExist) {
             await RNBiometrics.deleteKeys();
@@ -288,7 +305,7 @@ function PrivacyAndDisplay({ route }) {
             dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
           }
         } else {
-          dispatch(changeLoginMethod(LoginMethod.PIN));
+          dispatch(changeLoginMethod(LoginMethod.PIN || LoginMethod.PASSWORD));
         }
       } else {
         setSensorAvailable(false);
@@ -304,13 +321,28 @@ function PrivacyAndDisplay({ route }) {
     {
       title: 'PIN',
       description: 'Current Screen Lock',
-      onPress: () => setVisiblePassCode(true),
+      onPress: () => {
+        if (loginMethod === LoginMethod.PIN) {
+          setVisiblePassCode(true);
+        } else {
+          setVisiblePassword(true);
+        }
+        setShowSetPasscodeModal(true);
+      },
       icon: <PinIcon />,
     },
     {
       title: 'Password',
       description: 'Enter 4 or more digits/letters',
-      onPress: () => setVisiblePassword(true),
+      onPress: () => {
+        if (loginMethod === LoginMethod.PASSWORD) {
+          setVisiblePassword(true);
+          setShowSetPasscodeModal(false);
+        } else {
+          setVisiblePassCode(true);
+          setShowSetPasscodeModal(false);
+        }
+      },
       icon: <PasswordIcon />,
     },
     {
@@ -390,6 +422,29 @@ function PrivacyAndDisplay({ route }) {
         )}
       />
       <KeeperModal
+        visible={visiblePassword}
+        close={() => setVisiblePassword(false)}
+        title="Set password"
+        subTitle="Enter your existing password"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <PasswordModalContent
+            close={() => setVisiblePassword(false)}
+            onSuccess={(password) => {
+              if (data.length === 0) {
+                setRKHealthCheckModal(true);
+                setOldPassword(password);
+              } else {
+                setOldPassword(password);
+                setPasscodeHCModal(true);
+              }
+            }}
+          />
+        )}
+      />
+      <KeeperModal
         visible={passcodeHCModal}
         close={() => setPasscodeHCModal(false)}
         title={settings.passcodeHCModalTitle}
@@ -431,7 +486,11 @@ function PrivacyAndDisplay({ route }) {
             if (backupMethod === BackupType.SEED) {
               setShowConfirmSeedModal(false);
               dispatch(seedBackedConfirmed(true));
-              setConfirmPasscode(true);
+              if (showSetPasscodeModal) {
+                setConfirmPasscode(true);
+              } else {
+                setCreatePasswordModal(true);
+              }
             }
           }}
         />
@@ -451,6 +510,7 @@ function PrivacyAndDisplay({ route }) {
             setConfirmPasscodeModal={setConfirmPasscode}
             oldPassword={oldPassword}
             onCredsChange={() => setCredsChanged('changed')}
+            setShowSetPasscodeModal={setShowSetPasscodeModal}
           />
         )}
       />
@@ -499,10 +559,27 @@ function PrivacyAndDisplay({ route }) {
               next: true,
               parentScreen: PRIVACYANDDISPLAY,
               oldPasscode: oldPassword,
+              showSetPasscodeModal: showSetPasscodeModal,
             })
           );
         }}
         Content={BackupModalContent}
+      />
+      <KeeperModal
+        visible={createPasswordModal}
+        close={() => setCreatePasswordModal(false)}
+        title="Set Password"
+        subTitle="Enter Your new Password"
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        Content={() => (
+          <CreatePasswordContent
+            close={() => setCreatePasswordModal(false)}
+            onSuccess={() => setCredsChanged('changed')}
+            oldPassword={oldPassword}
+          />
+        )}
       />
     </ScreenWrapper>
   );
@@ -511,11 +588,6 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: hp(35),
     gap: 50,
-    // alignSelf: 'center',
-    // borderWidth: 1,
-    // borderRadius: 10,
-    // padding: 20,
-    // width: '95%',
   },
   container: {
     width: '95%',
