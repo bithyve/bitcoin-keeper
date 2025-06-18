@@ -477,6 +477,7 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
         ],
       };
     case SignerType.KEEPER:
+    case SignerType.UNKOWN_SIGNER:
       return {
         supportedSigningOptions: [
           {
@@ -702,7 +703,6 @@ function SignerModals({
   const [jadeModalContent, setJadeModalContent] = useState(false);
   const [keeperModalContent, setKeeperModalContent] = useState(false);
   const [otherModalContent, setOtherModalContent] = useState(false);
-  const [keeperContentModal, setKeeperContentModal] = useState(false);
   const [registerSignerModal, setRegisterSignerModal] = useState(false);
   const [kruxContentModal, setKruxContentModal] = useState(false);
 
@@ -799,7 +799,7 @@ function SignerModals({
                         } else if (signer.type === SignerType.JADE) {
                           setJadeModalContent(true);
                           setJadeModal(false);
-                        } else if (signer.type === SignerType.KEEPER) {
+                        } else if ([SignerType.UNKOWN_SIGNER, SignerType.KEEPER].includes(signer.type)) {
                           setKeeperModalContent(true);
                           setKeeperModal(false);
                         }
@@ -1315,6 +1315,41 @@ function SignerModals({
           );
         }
         if (signer.type === SignerType.UNKOWN_SIGNER) {
+          const navigateToSign = () => {
+            setKeeperModalContent(false);
+            if (signingMode === SigningMode.FILE) {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'HandleFile',
+                  params: {
+                    title: `${signerText.signingWith} ${getSignerNameFromType(signer.type)}`,
+                    subTitle: signerText.uploadAndPasteFile,
+                    ctaText: common.proceed,
+                    onFileExtract: onFileSign,
+                    fileData: serializedPSBTEnvelop.serializedPSBT,
+                    fileType: 'PSBT',
+                    signerType: signer.type,
+                    signingMode,
+                  },
+                })
+              );
+              return;
+            } else if (signingMode === SigningMode.QR) {
+              navigateToQrSigning(vaultKey);
+            } else {
+              navigation.dispatch(
+                CommonActions.navigate('SignWithColdCard', {
+                  signTransaction,
+                  vaultKey,
+                  isMultisig,
+                  vaultId,
+                  isRemoteKey,
+                  serializedPSBTEnvelop,
+                })
+              );
+            }
+          };
+
           return (
             <>
               <KeeperModal
@@ -1323,29 +1358,25 @@ function SignerModals({
                   setKeeperModal(false);
                 }}
                 title={signerText.getYourDeviceReady}
-                subTitle={signerText.chooseOneoftheFollowingOptions}
+                subTitle={signerText.selectSignOption}
                 modalBackground={`${colorMode}.modalWhiteBackground`}
                 textColor={`${colorMode}.textGreen`}
                 subTitleColor={`${colorMode}.modalSubtitleBlack`}
                 Content={() => (
-                  <ShareKeyModalContent
-                    navigation={navigation}
-                    signer={signer}
-                    vaultId={vaultId}
-                    vaultKey={vaultKey}
-                    setShareKeyModal={setKeeperModal}
-                    openmodal={setKeeperContentModal}
-                    data={serializedPSBTEnvelop}
-                    isPSBTSharing
-                    xfp={vaultKey?.xfp}
+                  <OptionModalContent
+                    supportedSigningOptions={supportedSigningOptions}
+                    onSelect={(mode) => {
+                      setSigningMode(mode);
+                    }}
+                    signingMode={signingMode}
                   />
                 )}
               />
               <KeeperModal
                 key={vaultKey.xfp}
-                visible={currentSigner && keeperContentModal}
+                visible={currentSigner && keeperModalContent}
                 close={() => {
-                  setKeeperContentModal(false);
+                  setKeeperModalContent(false);
                 }}
                 title={signerText.getYourDeviceReady}
                 subTitle={`Get your ${getSignerNameFromType(signer.type)} ready before proceeding`}
@@ -1355,10 +1386,7 @@ function SignerModals({
                   <KeeperContent masterFingerPrint={signer && signer.masterFingerprint} />
                 )}
                 buttonText={common.proceed}
-                buttonCallback={() => {
-                  setKeeperModal(false);
-                  navigateToQrSigning(vaultKey);
-                }}
+                buttonCallback={navigateToSign}
               />
             </>
           );
