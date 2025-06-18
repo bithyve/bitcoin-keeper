@@ -104,6 +104,13 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { KRUX_LOAD_SEED, manipulateKruxData } from 'src/hardware/krux';
 
 const RNBiometrics = new ReactNativeBiometrics();
+const SIGNERS_SUPPORT_MULTIPLE_XPUBS = [
+  SignerType.JADE,
+  SignerType.SEEDSIGNER,
+  SignerType.PASSPORT,
+  SignerType.SPECTER,
+  SignerType.KRUX,
+];
 
 export const enum InteracationMode {
   VAULT_ADDITION = 'VAULT_ADDITION',
@@ -535,7 +542,7 @@ const getSignerContent = (
       return {
         type: SignerType.SEED_WORDS,
         Illustration: <ThemedSvg name={'SeedSetupIllustration'} />,
-        Instructions: [signerText.seedWordInstruction, signerText.seedWordInstruction1],
+        Instructions: [signerText.seedWordInstruction],
         title: isHealthcheck ? signerText.verifySeed : signerText.addSeedKey,
         subTitle: signerText.seedKeyDesp,
         options: !isHealthcheck &&
@@ -1111,14 +1118,10 @@ function HardwareModalMap({
 
   const navigateToAddQrBasedSigner = () => {
     let routeName = 'ScanQR';
-    const multipleXpubSigners = [
-      SignerType.JADE,
-      SignerType.SEEDSIGNER,
-      SignerType.PASSPORT,
-      SignerType.KRUX,
-    ];
     if (!isHealthcheck && !isCanaryAddition && !isExternalKey) {
-      if (multipleXpubSigners.includes(type)) routeName = 'AddMultipleXpub';
+      if (SIGNERS_SUPPORT_MULTIPLE_XPUBS.includes(type)) {
+        routeName = 'AddMultipleXpub';
+      }
     }
     navigation.dispatch(
       CommonActions.navigate({
@@ -1298,9 +1301,9 @@ function HardwareModalMap({
     );
   };
 
-  const importSeedWordsBasedKey = (mnemonic) => {
+  const importSeedWordsBasedKey = (mnemonic, remember = false) => {
     try {
-      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
+      const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig, remember);
       dispatch(addSigningDevice([signer]));
       const navigationState = addSignerFlow
         ? {

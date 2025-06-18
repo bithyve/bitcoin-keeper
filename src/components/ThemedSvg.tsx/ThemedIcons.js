@@ -1003,6 +1003,12 @@ const themeIcons = {
     PRIVATE: KruxSuccessPrivate,
     PRIVATE_LIGHT: KruxSuccessPrivateDark,
   },
+  manage_keys_icon: {
+    DARK: KeysIcon,
+    LIGHT: KeysIcon,
+    PRIVATE: PrivateKeyLight,
+    PRIVATE_LIGHT: PrivateKeyLight,
+  },
 };
 
 export default themeIcons;

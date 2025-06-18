@@ -704,7 +704,7 @@ function SignerAdvanceSettings({ route }: any) {
         }}
       />
     ),
-    !(isPolicyServer || signersWithoutRegistration) && (
+    !(isPolicyServer || (signersWithoutRegistration && !isAppKey)) && (
       <OptionCard
         key="changeDeviceType"
         title={isOtherSD ? signerTranslation.deviceType : signerTranslation.changeDeviceType}

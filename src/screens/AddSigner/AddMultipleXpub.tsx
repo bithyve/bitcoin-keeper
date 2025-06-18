@@ -24,6 +24,7 @@ import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { manipulateKruxData } from 'src/hardware/krux';
+import { manipulateSpecterData } from 'src/hardware/specter';
 
 export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -69,12 +70,12 @@ export const AddMultipleXpub = () => {
     try {
       if (type === SignerType.SEEDSIGNER) data = manipulateSeedSignerData(data);
       else if (type === SignerType.KRUX) data = manipulateKruxData(data);
+      else if (type === SignerType.SPECTER) data = manipulateSpecterData(data);
       else if (type === SignerType.PASSPORT) {
         data = manipulatePassportDetails(getPassportDetails(data, true));
         passportTaproot = data?.taproot;
         delete data?.taproot;
       }
-
       const purpose = WalletUtilities.getPurpose(data.derivationPath);
       if (xpubs[purpose])
         showToast(
@@ -121,7 +122,7 @@ export const AddMultipleXpub = () => {
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
-              if ([SignerType.PASSPORT].includes(type)) {
+              if ([SignerType.PASSPORT, SignerType.SPECTER].includes(type)) {
                 return tab.label !== 'Taproot';
               }
               return true;

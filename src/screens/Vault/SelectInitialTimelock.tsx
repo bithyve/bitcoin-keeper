@@ -103,14 +103,12 @@ function SelectInitialTimelock({ route }) {
         </Box>
         <Box style={styles.bottomContainer}>
           <WarningNote noteText={vaultTranslations.selectWalletTimelockWarning} />
-          <Box flexDirection="row" alignItems="center">
-            <Text style={{ margin: wp(9) }}>{vaultTranslations.selectWalletTimelockAccept}</Text>
+          <Box style={styles.acceptContainer}>
             <Checkbox
               value={'acceptTerms'}
               isChecked={acceptedTerms}
               onChange={(isChecked) => setAcceptedTerms(isChecked)}
               accessibilityLabel={'acceptTerms'}
-              mr={wp(10)}
               _checked={{
                 bg: `${colorMode}.pantoneGreen`,
                 borderColor: `${colorMode}.pantoneGreen`,
@@ -119,6 +117,7 @@ function SelectInitialTimelock({ route }) {
                 },
               }}
             />
+            <Text fontSize={13}>{vaultTranslations.selectWalletTimelockAccept}</Text>
           </Box>
           <Buttons
             primaryLoading={vaultCreating || relayVaultUpdateLoading}
@@ -126,7 +125,7 @@ function SelectInitialTimelock({ route }) {
             fullWidth
             primaryDisable={!selectedOption || !acceptedTerms}
             primaryCallback={() => {
-              if (isAddEmergencyKey) {
+              if (isAddInheritanceKey) {
                 navigation.navigate('AddReserveKey', {
                   vaultKeys,
                   vaultId,
@@ -250,5 +249,10 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     gap: hp(20),
+  },
+  acceptContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(10),
   },
 });
