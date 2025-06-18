@@ -759,7 +759,7 @@ function SignerModals({
                         } else if (signer.type === SignerType.JADE) {
                           setJadeModalContent(true);
                           setJadeModal(false);
-                        } else if ([SignerType.UNKOWN_SIGNER].includes(signer.type)) {
+                        } else if ([SignerType.UNKOWN_SIGNER, SignerType.KEEPER].includes(signer.type)) {
                           setKeeperModalContent(true);
                           setKeeperModal(false);
                         } else {
