@@ -1496,8 +1496,8 @@
     "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure.",
     "allKeysHidden": "All the keys are hidden",
     "clickToUnhide": "Click on the Button below to unhide the keys",
-    "hideSigner": "Hide signers",
-    "showSigner": "Show  signers"
+    "hideSigner": "Hide hidden keys",
+    "showSigner": "Show hidden keys"
   },
   "inheritancePlanning": {
     "canaryWallet": "Canary Wallets",
