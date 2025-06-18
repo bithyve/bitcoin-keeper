@@ -142,6 +142,7 @@ import AdditionalUsers from 'src/screens/Vault/AdditionalUsers';
 import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditionalServerKey';
 import { DiscountedPlanScreen } from 'src/screens/ChoosePlanScreen/DiscountedPlanScreen';
 import { MultiUserScreen } from 'src/screens/AppSettings/MultiUserScreen';
+import { AddMultipleXpubFiles } from 'src/screens/AddSigner/AddMultipleXpubFiles';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -315,6 +316,7 @@ function AppStack() {
         <Stack.Screen name="AddMultipleXpub" component={AddMultipleXpub} />
         <Stack.Screen name="DiscountedPlanScreen" component={DiscountedPlanScreen} />
         <Stack.Screen name="MultiUserScreen" component={MultiUserScreen} />
+        <Stack.Screen name="AddMultipleXpubFiles" component={AddMultipleXpubFiles} />
       </Stack.Navigator>
     </RealmProvider>
   );
