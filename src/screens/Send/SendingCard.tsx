@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   title: {
-    fontSize: 15,
+    fontSize: 13,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 4,
     width: '85%',
   },

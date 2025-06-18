@@ -373,21 +373,26 @@ export const parseTextforVaultConfig = (secret: string) => {
     const lines = text.split('\n');
     const signersDetailsList = [];
     let scheme;
+    let derivationPath;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (line.startsWith('Policy')) {
         const [m, n] = line.split('Policy:')[1].split('of');
         scheme = { m: parseInt(m), n: parseInt(n) };
-        if (!isAllowedScheme(m, n)) {
+        if (!isAllowedScheme(scheme.m, scheme.n)) {
           throw Error('Unsupported scheme');
         }
       }
       if (line.startsWith('Derivation:')) {
-        const path = line.split(':')[1].trim();
-        const masterFingerprintLine = lines[i + 1].trim();
-        const masterFingerprint = masterFingerprintLine.split(':')[0].trim();
-        const xpub = lines[i + 1].split(':')[1].trim();
-        signersDetailsList.push({ xpub, masterFingerprint: masterFingerprint.toUpperCase(), path });
+        derivationPath = line.split(':')[1].trim();
+      }
+      if (!['Name', 'Policy', 'Format', 'Derivation', '#'].some((kw) => line.startsWith(kw))) {
+        const [masterFingerprint, xpub] = line.split(':');
+        signersDetailsList.push({
+          xpub: xpub.trim(),
+          masterFingerprint: masterFingerprint.toUpperCase().trim(),
+          path: derivationPath,
+        });
       }
     }
 
@@ -414,10 +419,11 @@ export const parseTextforVaultConfig = (secret: string) => {
 
     const miniscriptScheme = generateMiniscriptScheme(
       miniscriptElements,
-      inheritanceKeys.length || emergencyKeys.length
+      inheritanceKeys.length || emergencyKeys.length || initialTimelock
         ? [
             ...(inheritanceKeys.length ? [MiniscriptTypes.INHERITANCE] : []),
             ...(emergencyKeys.length ? [MiniscriptTypes.EMERGENCY] : []),
+            ...(initialTimelock ? [MiniscriptTypes.TIMELOCKED] : []),
           ]
         : [],
       null,
@@ -808,3 +814,7 @@ export function findChangeFromReceiverAddresses(
 
   return receiverAddresses;
 }
+
+export const accountNoFromDerivationPath = (derivationPath) => {
+  return derivationPath.split('/')[3].replace("'", '');
+};

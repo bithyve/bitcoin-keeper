@@ -43,7 +43,7 @@ function AssociateContact({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText, error } = translations;
+  const { common, vault: vaultText, error: errorText } = translations;
   const [contacts, setContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -66,7 +66,7 @@ function AssociateContact({ route }) {
     } catch (err) {
       console.log('Error loading contacts: ', err);
       captureError(err);
-      showToast(error.failedToLoadContacts, <ToastErrorIcon />);
+      showToast(errorText.failedToLoadContacts, <ToastErrorIcon />);
     }
   }, []);
 

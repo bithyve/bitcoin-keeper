@@ -17,7 +17,7 @@ function VaultCreatedModal({
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer } = translations;
+  const { signer: signerText } = translations;
   const subtitle =
     vault.scheme.n > 1
       ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup will be created`
@@ -27,7 +27,7 @@ function VaultCreatedModal({
       <Box>
         <Success />
         <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
-          {signer.sendingOutOfVault}
+          {signerText.sendingOutOfVault}
         </Text>
       </Box>
     ),
@@ -37,9 +37,9 @@ function VaultCreatedModal({
   return (
     <KeeperModal
       visible={vaultCreated}
-      title={signer.vaultCreated}
+      title={signerText.vaultCreated}
       subTitle={subtitle}
-      buttonText={signer.viewVault}
+      buttonText={signerText.viewVault}
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       buttonCallback={close}

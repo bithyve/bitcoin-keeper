@@ -23,6 +23,7 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { manipulateSpecterData } from 'src/hardware/specter';
 
 export const options = [
   { label: 'Singlesig', sub: 'BIP84', purpose: DerivationPurpose.BIP84 },
@@ -52,7 +53,7 @@ export const AddMultipleXpub = () => {
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { common, signer, error: ErrorText } = translations;
+  const { common, signer: SignerText, error: ErrorText } = translations;
 
   const renderContent = () => {
     const data = xpubs[options[selectedIndex].purpose];
@@ -67,12 +68,12 @@ export const AddMultipleXpub = () => {
     let passportTaproot;
     try {
       if (type === SignerType.SEEDSIGNER) data = manipulateSeedSignerData(data);
+      else if (type === SignerType.SPECTER) data = manipulateSpecterData(data);
       else if (type === SignerType.PASSPORT) {
         data = manipulatePassportDetails(getPassportDetails(data, true));
         passportTaproot = data?.taproot;
         delete data?.taproot;
       }
-
       const purpose = WalletUtilities.getPurpose(data.derivationPath);
       if (xpubs[purpose])
         showToast(
@@ -90,12 +91,12 @@ export const AddMultipleXpub = () => {
     }
   };
   const modalSubtitle = {
-    [SignerType.PASSPORT]: signer.xPubPassPortSub,
-    [SignerType.SEEDSIGNER]: signer.xPubSeedSignerSub,
-    [SignerType.JADE]: signer.xPubJadeSub,
+    [SignerType.PASSPORT]: SignerText.xPubPassPortSub,
+    [SignerType.SEEDSIGNER]: SignerText.xPubSeedSignerSub,
+    [SignerType.JADE]: SignerText.xPubJadeSub,
   };
 
-  const subtitleModal = modalSubtitle[type] || signer.xPubDefaultSubtitle;
+  const subtitleModal = modalSubtitle[type] || SignerText.xPubDefaultSubtitle;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper
@@ -118,7 +119,7 @@ export const AddMultipleXpub = () => {
         <Box style={styles.segmentController}>
           <SegmentedController
             options={options.filter((tab) => {
-              if ([SignerType.PASSPORT].includes(type)) {
+              if ([SignerType.PASSPORT, SignerType.SPECTER].includes(type)) {
                 return tab.label !== 'Taproot';
               }
               return true;
@@ -200,15 +201,15 @@ const styles = StyleSheet.create({
 
 export const SuccessContainer = ({ type }) => {
   const { colorMode } = useColorMode();
-  const { signer } = useContext(LocalizationContext).translations;
+  const { signer: signerText } = useContext(LocalizationContext).translations;
 
   return (
     <Box alignItems={'center'}>
       <SuccessIllustration />
       <Text color={`${colorMode}.greenWhiteText`} semiBold style={styles.successTitle}>
-        {`${type} ${signer.keyAddedTitle}`}
+        {`${type} ${signerText.keyAddedTitle}`}
       </Text>
-      <Text style={styles.successSubTitle}>{`${type} ${signer.keyAddedSubTitle}`}</Text>
+      <Text style={styles.successSubTitle}>{`${type} ${signerText.keyAddedSubTitle}`}</Text>
     </Box>
   );
 };

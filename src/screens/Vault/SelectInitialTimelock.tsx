@@ -126,7 +126,7 @@ function SelectInitialTimelock({ route }) {
             fullWidth
             primaryDisable={!selectedOption || !acceptedTerms}
             primaryCallback={() => {
-              if (isAddEmergencyKey) {
+              if (isAddInheritanceKey) {
                 navigation.navigate('AddReserveKey', {
                   vaultKeys,
                   vaultId,

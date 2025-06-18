@@ -20,7 +20,7 @@ const ImportContactFile = ({ route, navigation }) => {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { error: errorText, signer, vault } = translations;
+  const { error: errorText, signer: signerText, vault: vaultText } = translations;
   const importCallback = () => {
     importFile(
       (data) => {
@@ -46,7 +46,7 @@ const ImportContactFile = ({ route, navigation }) => {
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input
                 testID="input_container"
-                placeholder={signer.enterContentsOfTheFile}
+                placeholder={signerText.enterContentsOfTheFile}
                 placeholderTextColor={`${colorMode}.placeHolderTextColor`}
                 style={styles.textInput}
                 variant="unstyled"
@@ -64,7 +64,7 @@ const ImportContactFile = ({ route, navigation }) => {
               />
             </Box>
             <MenuOption
-              title={vault.addContactUsingFile}
+              title={vaultText.addContactUsingFile}
               Icon={<AddContactLight />}
               callback={importCallback}
             />

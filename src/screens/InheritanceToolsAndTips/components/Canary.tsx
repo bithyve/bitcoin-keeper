@@ -13,7 +13,7 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function CanaryWallets({ navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning, common, wallet } = translations;
+  const { inheritancePlanning, common, wallet: walletText } = translations;
   const slider_background = ThemedColor({ name: 'slider_background' });
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const inheritancePlanning_hexagonBackgroundColor = ThemedColor({
@@ -50,7 +50,7 @@ function CanaryWallets({ navigation }) {
                   routes: [
                     {
                       name: 'Home',
-                      params: { selectedOption: wallet.keys },
+                      params: { selectedOption: walletText.keys },
                     },
                   ],
                 })

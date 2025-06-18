@@ -33,10 +33,12 @@ import Fonts from 'src/constants/Fonts';
 import { SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24, seedWordItem } from './constants';
 import Colors from 'src/theme/Colors';
 import WalletHeader from 'src/components/WalletHeader';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { seed, common, healthcheck, cloudBackup } = translations;
+  const { seed, common, healthcheck, cloudBackup, signer: signerText } = translations;
 
   const {
     mode,
@@ -72,6 +74,7 @@ function EnterSeedScreen({ route, navigation }) {
     selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
   const [showNetworkModal, setShowNetworkModal] = useState(false);
+  const [rememberModal, setRememberModal] = useState(false);
   const options = [SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24];
   const numberOfWordsToScreensMap = {
     [SEED_WORDS_12]: 1,
@@ -85,6 +88,11 @@ function EnterSeedScreen({ route, navigation }) {
   const isSignTransaction = parentScreen === SIGNTRANSACTION;
   const isIdentification = mode === InteracationMode.IDENTIFICATION;
 
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
     setInvalidSeedsModal(true);
@@ -245,8 +253,7 @@ function EnterSeedScreen({ route, navigation }) {
           importSeedCta,
         });
       } else if (bip39.validateMnemonic(mnemonic)) {
-        importSeedCta(mnemonic);
-        dispatch(resetSeedWords());
+        setRememberModal(true);
       } else {
         openInvalidSeedsModal();
       }
@@ -535,6 +542,23 @@ function EnterSeedScreen({ route, navigation }) {
   };
   const isRecovery = !isHealthCheck && !isImport && !isSignTransaction && !isIdentification;
 
+  const rememberModalContent = () => {
+    return (
+      <>
+        <Box style={styles.illustrationCTR}>
+          <ThemedSvg name={'RememberSeedKey'} />
+        </Box>
+        <Text color={green_modal_text_color}>{signerText.seedKeyRememberDesc}</Text>
+      </>
+    );
+  };
+
+  const importSeed = (remember) => {
+    const mnemonic = seedWords.map((word) => word.name).join(' ');
+    importSeedCta(mnemonic, remember);
+    dispatch(resetSeedWords());
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -674,6 +698,25 @@ function EnterSeedScreen({ route, navigation }) {
           buttonText={'Try again'}
           buttonCallback={() => setShowNetworkModal(false)}
         />
+        <KeeperModal
+          close={() => {}}
+          showCloseIcon={false}
+          dismissible={false}
+          visible={rememberModal}
+          title={signerText.seedKeyRememberTitle}
+          subTitle={signerText.seedKeyRememberSubTitle}
+          modalBackground={green_modal_background}
+          textColor={green_modal_text_color}
+          Content={rememberModalContent}
+          subTitleWidth={wp(280)}
+          buttonText={common.save}
+          secondaryButtonText={common.skip}
+          buttonTextColor={green_modal_button_text}
+          buttonBackground={green_modal_button_background}
+          secButtonTextColor={green_modal_sec_button_text}
+          buttonCallback={() => importSeed(true)}
+          secondaryCallback={() => importSeed(false)}
+        />
       </KeyboardAvoidingView>
       <ActivityIndicatorView showLoader={true} visible={hcLoading || recoveryLoading} />
     </ScreenWrapper>
@@ -735,6 +778,10 @@ const styles = StyleSheet.create({
   },
   invalidSeedsIllustration: {
     alignSelf: 'center',
+    marginBottom: hp(30),
+  },
+  illustrationCTR: {
+    alignItems: 'center',
     marginBottom: hp(30),
   },
 });

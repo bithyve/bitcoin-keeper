@@ -36,9 +36,9 @@ function NewHomeScreen({ route }) {
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet } = translations;
+  const { home: homeTranslation, wallet: walletText } = translations;
   const [selectedOption, setSelectedOption] = useState(
-    selectedOptionFromRoute || wallet.homeWallets
+    selectedOptionFromRoute || walletText.homeWallets
   );
 
   useEffect(() => {
@@ -49,7 +49,7 @@ function NewHomeScreen({ route }) {
 
   const getContent = () => {
     switch (selectedOption) {
-      case wallet.homeWallets:
+      case walletText.homeWallets:
         return {
           content: (
             <Box>
@@ -64,7 +64,7 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case wallet.keys:
+      case walletText.keys:
         return {
           content: (
             <Box>
@@ -79,7 +79,7 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case wallet.concierge:
+      case walletText.concierge:
         return {
           content: (
             <Box>
@@ -101,7 +101,7 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case wallet.more:
+      case walletText.more:
         return {
           content: (
             <Box>
