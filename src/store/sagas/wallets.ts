@@ -85,6 +85,7 @@ import {
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
   GENERATE_NEW_ADDRESS,
+  UPDATED_VAULT_SIGNERS_XPRIV,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -484,54 +485,7 @@ export function* addSigningDeviceWorker({
               (signersToUpdate[0]?.extraData?.instanceNumber !== 1 && !signersToUpdate[0]?.hidden)
           )
         );
-
-        for (let i = 0; i < signers.length; i++) {
-          const signer = signers[i];
-          if (signer.type == SignerType.SEED_WORDS) {
-            const sXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpriv);
-            const mXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
-            const tXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
-            if (sXpriv && mXpriv && tXpriv) {
-              const vaults: Vault[] = yield call(
-                dbManager.getObjectByIndex,
-                RealmSchema.Vault,
-                null,
-                true
-              );
-              const filteredVaults = vaults.filter(
-                (vault) => vault.networkType == bitcoinNetworkType
-              );
-              for (let i = 0; i < filteredVaults.length; i++) {
-                const vault = filteredVaults[i];
-                for (let j = 0; j < vault.signers.length; j++) {
-                  const vaultSigner = vault.signers[j];
-                  if (signer.id === getKeyUID(vaultSigner)) {
-                    const purpose = parseInt(
-                      WalletUtilities.getSignerPurposeFromPath(vaultSigner.derivationPath)
-                    );
-                    const uptXpriv =
-                      purpose == DerivationPurpose.BIP84
-                        ? sXpriv
-                        : purpose == DerivationPurpose.BIP48
-                        ? mXpriv
-                        : purpose == DerivationPurpose.BIP86
-                        ? tXpriv
-                        : null;
-                    yield call(
-                      dbManager.updateObjectByPrimaryId,
-                      RealmSchema.VaultSigner,
-                      'xpub',
-                      vaultSigner.xpub,
-                      {
-                        xpriv: uptXpriv,
-                      }
-                    );
-                  }
-                }
-              }
-            }
-          }
-        }
+        yield call(updateVaultSignerXprivWorker, { signers });
       } else {
         const errorMsg = response.error?.message
           ? response.error.message.toString()
@@ -1349,4 +1303,58 @@ function* fetchCollaborativeChannelWorker({ payload }: { payload: { self: Signer
 export const fetchCollaborativeChannelWatcher = createWatcher(
   fetchCollaborativeChannelWorker,
   FETCH_COLLABORATIVE_CHANNEL
+);
+
+function* updateVaultSignerXprivWorker({ signers }) {
+  const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
+  for (let i = 0; i < signers.length; i++) {
+    const signer = signers[i];
+    if (signer.type == SignerType.SEED_WORDS) {
+      const sXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WPKH][0].xpriv);
+      const mXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
+      const tXpriv = idx(signer, (_) => _.signerXpubs[XpubTypes.P2WSH][0].xpriv);
+      if (sXpriv && mXpriv && tXpriv) {
+        const vaults: Vault[] = yield call(
+          dbManager.getObjectByIndex,
+          RealmSchema.Vault,
+          null,
+          true
+        );
+        const filteredVaults = vaults.filter((vault) => vault.networkType == bitcoinNetworkType);
+        for (let i = 0; i < filteredVaults.length; i++) {
+          const vault = filteredVaults[i];
+          for (let j = 0; j < vault.signers.length; j++) {
+            const vaultSigner = vault.signers[j];
+            if (signer.id === getKeyUID(vaultSigner)) {
+              const purpose = parseInt(
+                WalletUtilities.getSignerPurposeFromPath(vaultSigner.derivationPath)
+              );
+              const uptXpriv =
+                purpose == DerivationPurpose.BIP84
+                  ? sXpriv
+                  : purpose == DerivationPurpose.BIP48
+                  ? mXpriv
+                  : purpose == DerivationPurpose.BIP86
+                  ? tXpriv
+                  : null;
+              yield call(
+                dbManager.updateObjectByPrimaryId,
+                RealmSchema.VaultSigner,
+                'xpub',
+                vaultSigner.xpub,
+                {
+                  xpriv: uptXpriv,
+                }
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+export const updatedVaultSignerXprivWatcher = createWatcher(
+  updateVaultSignerXprivWorker,
+  UPDATED_VAULT_SIGNERS_XPRIV
 );

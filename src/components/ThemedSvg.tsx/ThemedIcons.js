@@ -277,6 +277,14 @@ import MultiUserPrivateIllustration from 'src/assets/privateImages/multiuser-pri
 import ManageKeysLight from 'src/assets/privateImages/manage-key-light.svg';
 import Skip from 'src/assets/images/skip.svg';
 import SkipBlack from 'src/assets/privateImages/skip-black.svg';
+import KruxIllustration from 'src/assets/images/krux_illustration.svg';
+import KruxIllustrationDark from 'src/assets/images/krux_illustration_dark.svg';
+import KruxSuccess from 'src/assets/images/krux_success.svg';
+import KruxSuccessDark from 'src/assets/images/krux_success_dark.svg';
+import KruxSuccessPrivate from 'src/assets/privateImages/kruxSuccessPrivate.svg';
+import KruxSuccessPrivateDark from 'src/assets/privateImages/kruxSuccessPrivateDark.svg';
+import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustration.svg';
+import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -982,6 +990,24 @@ const themeIcons = {
     LIGHT: Skip,
     PRIVATE: Skip,
     PRIVATE_LIGHT: SkipBlack,
+  },
+  krux_illustration: {
+    DARK: KruxIllustrationDark,
+    LIGHT: KruxIllustration,
+    PRIVATE: KruxPrivateIllustration,
+    PRIVATE_LIGHT: KruxPrivateIllustrationDark,
+  },
+  krux_success: {
+    DARK: KruxSuccessDark,
+    LIGHT: KruxSuccess,
+    PRIVATE: KruxSuccessPrivate,
+    PRIVATE_LIGHT: KruxSuccessPrivateDark,
+  },
+  manage_keys_icon: {
+    DARK: KeysIcon,
+    LIGHT: KeysIcon,
+    PRIVATE: PrivateKeyLight,
+    PRIVATE_LIGHT: PrivateKeyLight,
   },
 };
 
