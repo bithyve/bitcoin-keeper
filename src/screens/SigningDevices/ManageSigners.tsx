@@ -9,6 +9,7 @@ import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/
 import useSignerMap from 'src/hooks/useSignerMap';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
+import SignerIcon from 'src/assets/images/signer-icon-brown.svg';
 import { UNVERIFYING_SIGNERS, getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -211,7 +212,7 @@ function ManageSigners({ route }: ScreenProps) {
           icon={
             <CircleIconWrapper
               backgroundColor={`${colorMode}.seashellWhiteText`}
-              icon={<ThemedSvg name={'manage_keys_icon'} />}
+              icon={<SignerIcon />}
             />
           }
           contrastScreen

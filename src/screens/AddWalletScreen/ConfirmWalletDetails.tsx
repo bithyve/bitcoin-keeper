@@ -463,7 +463,6 @@ function ConfirmWalletDetails({ route }) {
             }}
           >
             {isDarkMode ? <EditIconWhite /> : <EditIcon />}
-
             <Text
               color={isDarkMode ? `${colorMode}.secondaryCreamWhite` : `${colorMode}.BrownNeedHelp`}
               semiBold
@@ -477,7 +476,7 @@ function ConfirmWalletDetails({ route }) {
           <Box
             flexDirection={'row'}
             flex={1}
-            marginTop={isSmallDevice ? hp(4) : hp(6)}
+            marginTop={isSmallDevice ? hp(4) : hp(20)}
             flexWrap={'wrap'}
           >
             {route.params.selectedSigners.map((signer) => {
