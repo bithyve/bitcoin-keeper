@@ -34,7 +34,7 @@ function SigningRequest() {
   const [otp, setOtp] = useState('');
   const [requestToCancel, setRequestToCancel] = useState('');
   const { translations } = useContext(LocalizationContext);
-  const { common, error: errorText, signer } = translations;
+  const { common, error: errorText, signer: signerText } = translations;
   const { showToast } = useToastMessage();
 
   const signingRequests = useMemo(() => {
@@ -168,7 +168,7 @@ function SigningRequest() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={signer.signingReq} />
+      <WalletHeader title={signerText.signingReq} />
       <ScrollView contentContainerStyle={styles.container}>
         <Box gap={hp(20)}>
           {signingRequests.length > 0 ? (
@@ -187,7 +187,7 @@ function SigningRequest() {
               />
             ))
           ) : (
-            <Text style={styles.noRequestsText}>{signer.noSigningReq}</Text>
+            <Text style={styles.noRequestsText}>{signerText.noSigningReq}</Text>
           )}
         </Box>
       </ScrollView>

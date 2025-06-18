@@ -52,7 +52,7 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
   const { showToast } = useToastMessage();
   const [canaryVaultId, setCanaryVaultId] = useState('');
   const { translations } = useContext(LocalizationContext);
-  const { wallet, error, common, home } = translations;
+  const { wallet: walletText, error: errorText, common, home } = translations;
   const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -60,13 +60,13 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
   useEffect(() => {
     if (canaryVaultId) {
       if (relayVaultUpdate) {
-        showToast(wallet.canaryWalletSuccess);
+        showToast(walletText.canaryWalletSuccess);
         if (setLoader) setLoader(false);
         dispatch(resetRealyVaultState());
         navigation.navigate('VaultDetails', { vaultId: canaryVaultId });
       }
       if (relayVaultError) {
-        showToast(`${error.canaryWalletFailed} ${realyVaultErrorMessage}`);
+        showToast(`${errorText.canaryWalletFailed} ${realyVaultErrorMessage}`);
         dispatch(resetRealyVaultState());
         if (setLoader) setLoader(false);
       }
@@ -86,7 +86,7 @@ const useCanaryWalletSetup = ({ setLoader }: Params) => {
           vaultSigners: [ssVaultKey],
           vaultDetails: {
             name: common.CANARY + ' ' + home.wallet,
-            description: `${wallet.canaryWalletFor} ${signer.signerName}`,
+            description: `${walletText.canaryWalletFor} ${signer.signerName}`,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));

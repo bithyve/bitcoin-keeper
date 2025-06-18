@@ -26,7 +26,7 @@ function EmptyStateView({
           </Text>
         )}
       </Box>
-      <IllustartionImage />
+      {IllustartionImage}
     </Box>
   );
 }

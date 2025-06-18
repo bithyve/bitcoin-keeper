@@ -19,7 +19,7 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { error: errorText, common, vault } = translations;
+  const { error: errorText, common, vault: vaultTranslation } = translations;
 
   const isIos = Platform.OS === 'ios';
 
@@ -49,7 +49,7 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
   const walletOptions = [
     {
       id: 1,
-      label: vault.scanQR,
+      label: vaultTranslation.scanQR,
       icon: <ShowQR />,
       onPress: () => {
         navigatetoQR();

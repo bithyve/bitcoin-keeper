@@ -1,12 +1,25 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const ReceiptWrapper = ({ children, itemContainerStyle = {}, showThemedSvg = false }) => {
+const ReceiptWrapper = ({
+  children,
+  itemContainerStyle = {},
+  showThemedSvg = false,
+  toggleVisibilityButton = false,
+  setShowMore,
+  showMore,
+}) => {
   const { colorMode } = useColorMode();
-  const itemCount = React.Children.count(children);
+  const [expanded, setExpanded] = useState(!toggleVisibilityButton);
+  const validChildren = React.Children.toArray(children).filter(Boolean);
+  const itemCount = validChildren.length;
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   return (
     <Box
@@ -14,38 +27,65 @@ const ReceiptWrapper = ({ children, itemContainerStyle = {}, showThemedSvg = fal
       borderColor={`${colorMode}.dullGreyBorder`}
       style={styles.container}
     >
-      {React.Children.map(children, (child, index) => {
-        const isFirst = index === 0 && showThemedSvg;
+      <View style={styles.innerContainer}>
+        {validChildren.map((child, index) => {
+          const isFirst = index === 0 && showThemedSvg;
 
-        return (
-          <View key={index}>
+          return (
+            <View key={index}>
+              <Box
+                style={[styles.item, isFirst && styles.firstItem, itemContainerStyle]}
+                borderColor={`${colorMode}.dullGreyBorder`}
+                borderBottomWidth={!isFirst && index !== itemCount - 1 ? 1 : 0}
+              >
+                {child}
+
+                {isFirst && (
+                  <View style={styles.borderWithSvgContainer}>
+                    <Box style={styles.lineLeft} borderColor={`${colorMode}.dullGreyBorder`} />
+                    <ThemedSvg name={'triple_arrow'} />
+                    <Box style={styles.lineRight} borderColor={`${colorMode}.dullGreyBorder`} />
+                  </View>
+                )}
+              </Box>
+            </View>
+          );
+        })}
+
+        {toggleVisibilityButton && (
+          <TouchableOpacity
+            onPress={() => {
+              setExpanded(!expanded);
+              setShowMore(!showMore);
+            }}
+            style={[styles.toggleButton]}
+          >
             <Box
-              style={[styles.item, isFirst && styles.firstItem, itemContainerStyle]}
-              borderColor={`${colorMode}.dullGreyBorder`}
-              borderBottomWidth={!isFirst && index !== itemCount - 1 ? 1 : 0}
+              style={styles.toggleButtonBackground}
+              borderColor={`${colorMode}.separator`}
+              backgroundColor={`${colorMode}.primaryBackground`}
             >
-              {child}
-
-              {isFirst && showThemedSvg && (
-                <View style={styles.borderWithSvgContainer}>
-                  <Box style={styles.lineLeft} borderColor={`${colorMode}.dullGreyBorder`} />
-                  <ThemedSvg name={'triple_arrow'} />
-                  <Box style={styles.lineRight} borderColor={`${colorMode}.dullGreyBorder`} />
-                </View>
-              )}
+              <Text style={styles.toggleButtonText} color={`${colorMode}.textGreen`} medium>
+                {expanded ? common.lessInfo : common.moreInfo}
+              </Text>
             </Box>
-          </View>
-        );
-      })}
+          </TouchableOpacity>
+        )}
+      </View>
     </Box>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    overflow: 'hidden',
+    overflow: 'visible',
     borderWidth: 1,
     borderRadius: 20,
+  },
+  innerContainer: {
+    overflow: 'visible',
+    paddingBottom: hp(20),
+    position: 'relative',
   },
   item: {
     paddingHorizontal: wp(18),
@@ -76,6 +116,22 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     marginLeft: wp(8),
+  },
+  toggleButton: {
+    position: 'absolute',
+    bottom: -hp(12),
+    left: '50%',
+    transform: [{ translateX: -wp(50) }],
+    zIndex: 10,
+  },
+  toggleButtonText: {
+    fontSize: 11,
+  },
+  toggleButtonBackground: {
+    borderWidth: 1,
+    paddingHorizontal: wp(20),
+    paddingVertical: hp(4),
+    borderRadius: 999,
   },
 });
 

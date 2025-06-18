@@ -163,6 +163,7 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const addWalletInfo = () => {
+    const keysSpacing = ' '.repeat(26);
     const heading = `\nI have ${allVaults?.length} ${
       allVaults.length > 1 ? 'vaults' : 'vault'
     } and ${wallets?.length} ${
@@ -173,14 +174,23 @@ const CreateTicket = ({ navigation, route }) => {
         `Vault Name:      ${vault.presentationData.name}\nLabels:              ${
           vault.scheme.m
         }-of-${vault.scheme.n} | Multisig\nKeys:                 ${vault.signers
-          .map((signer, index) => `${index + 1}. ${signerMap[getKeyUID(signer)].signerName}  `)
-          .join('')}\n${br}\n`
+          .map(
+            (signer, index) =>
+              `${index != 0 ? keysSpacing : ''}${index + 1}. ${
+                signerMap[getKeyUID(signer)].signerName
+              }  `
+          )
+          .join('\n')}\n${br}\n`
     );
     const walletDetails = wallets.map(
       (wallet) =>
         `Wallet Name:     ${wallet.presentationData.name}\nLabels:               1-of-1 | Singlesig`
     );
-    return heading + (vaultDetails.concat(walletDetails).join('') + '\n') + br;
+    return (
+      heading +
+      vaultDetails.concat(walletDetails).join('') +
+      (walletDetails.length ? `\n${br}` : '')
+    );
   };
 
   const addDeviceInfo = async () => {

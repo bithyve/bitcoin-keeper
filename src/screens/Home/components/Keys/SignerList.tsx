@@ -25,7 +25,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { signers } = useSigners('', false);
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer } = translations;
+  const { signer: signerText } = translations;
   const [showSSModal, setShowSSModal] = useState(false);
 
   const list = signers.filter((signer) => !signer.hidden);
@@ -98,7 +98,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
             backgroundColor={dashed_CTA_background}
             hexagonBackgroundColor={HexagonIcon}
             textColor={`${colorMode}.greenWhiteText`}
-            name={signer.addKey}
+            name={signerText.addKey}
             callback={handleModalOpen}
             icon={<Plus width={12.9} height={12.9} />}
             iconWidth={33}

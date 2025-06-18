@@ -28,7 +28,7 @@ function KeySecurity({ navigation }) {
   const { isOnL2Above } = usePlan();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { inheritancePlanning, vault } = translations;
+  const { inheritancePlanning, vault: vaultText } = translations;
 
   const { inheritanceToolVisitedHistory } = useAppSelector((state) => state.storage);
   const navigate = (path, value) => {
@@ -63,7 +63,7 @@ function KeySecurity({ navigation }) {
       <OptionCard
         disabled={!isOnL2Above}
         preTitle={`${getTimeDifferenceInWords(inheritanceToolVisitedHistory?.[CANARY_WALLETS])}`}
-        title={vault.canaryWallet}
+        title={vaultText.canaryWallet}
         description={inheritancePlanning.canaryWalletDesp}
         LeftIcon={!isOnL2Above ? <BirdDisabledIcon /> : <BirdIcon />}
         callback={() => navigate('CanaryWallets', CANARY_WALLETS)}
