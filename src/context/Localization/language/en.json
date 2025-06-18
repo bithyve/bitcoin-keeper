@@ -239,7 +239,9 @@
     "vaultTimelockActive": "Vault has an active timelock",
     "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends.",
     "message": "Message",
-    "signature": "Signature"
+    "signature": "Signature",
+    "loadSignature": "Load Signature",
+    "signMessage": "Sign Message"
   },
   "noInternet": {
     "no": "No Internet",
@@ -860,8 +862,10 @@
     "SignMessageHeader": "Sign/Verify Message",
     "messageVerifiedTitle": "Message Verified Successfully",
     "messageVerifiedSubTitle": "The signature is verified against the message successfully",
-    "walletSignMessageTitle": "Sign/Verify Message",
-    "walletSignMessageDesc": "Sign and verify a message against a bitcoin address"
+    "walletSignMessageDesc": "Have you ever signed or verified a message with a Bitcoin wallet?",
+    "signMessageSubtitle": "The Wallet configuration file is used restore the wallet on other devices.",
+    "verifyTitle": "Verify signed message",
+    "verifySubtitle": "Scan the signed message from hardware wallet"
   },
   "vault": {
     "SetupyourVault": "Setup a Vault",
@@ -2498,6 +2502,10 @@
     "healthCheckDone": "Health check done successfully",
     "errorhealthCheck": "Error in Health check",
     "importFileFrom": "Please import a valid file from",
-    "actionNotImplemented": "Action not implemented yet"
+    "actionNotImplemented": "Action not implemented yet",
+    "enterMessage": "Please enter the message",
+    "signMessageParameter": "Please provide message, address and signature for verification",
+    "signatureNotValid": "Signature is not valid for the provided message",
+    "invalidSignatureFormat": "Invalid signed message format"
   }
 }

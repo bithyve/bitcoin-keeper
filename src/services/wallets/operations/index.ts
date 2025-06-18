@@ -35,6 +35,7 @@ import {
 import {
   DerivationPurpose,
   EntityKind,
+  KeyGenerationMode,
   MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
@@ -2374,7 +2375,13 @@ export default class WalletOperations {
     else throw new Error('Signature is not valid for the provided message');
   };
 
-  static createSignMessageString = (address, message, bitcoinNetwork, activeVault) => {
+  static createSignMessageString = (
+    address,
+    message,
+    bitcoinNetwork,
+    activeVault,
+    type: KeyGenerationMode.FILE | KeyGenerationMode.QR
+  ) => {
     if (!address) throw new Error('Please enter the address');
     // Need to find the child or derivation path index here also
     const res = WalletUtilities.isValidAddress(address, bitcoinNetwork);
@@ -2391,10 +2398,18 @@ export default class WalletOperations {
     if (addressIndex == null)
       throw new Error('Please enter a valid address from the select wallet');
     const signer = activeVault.signers[0];
-    const qrData = `signmessage ${signer.derivationPath.replace(
-      /'/g,
-      'h'
-    )}/0/${addressIndex} ascii:${message}`;
-    return qrData;
+
+    if (type === KeyGenerationMode.QR) {
+      const qrData = `signmessage ${signer.derivationPath.replace(
+        /'/g,
+        'h'
+      )}/0/${addressIndex} ascii:${message}`;
+      return qrData;
+    }
+    if (type === KeyGenerationMode.FILE) {
+      const fileData = `${message}\n${signer.derivationPath}/0/${addressIndex}\n${activeVault.scriptType}`;
+      return fileData;
+    }
+    return null;
   };
 }

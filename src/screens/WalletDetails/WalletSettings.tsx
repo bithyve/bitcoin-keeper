@@ -140,7 +140,7 @@ function WalletSettings({ route }) {
       },
     },
     {
-      title: walletTranslation.walletSignMessageTitle,
+      title: walletTranslation.SignMessageHeader,
       description: walletTranslation.walletSignMessageDesc,
       icon: null,
       isDiamond: false,

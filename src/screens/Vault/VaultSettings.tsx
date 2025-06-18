@@ -46,12 +46,6 @@ import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import useSigners from 'src/hooks/useSigners';
-const Signers_Support_Message_Signing = [
-  SignerType.JADE,
-  SignerType.SEEDSIGNER,
-  SignerType.COLDCARD,
-];
-
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -77,7 +71,6 @@ function VaultSettings({ route }) {
   const [visible, setVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
   const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
-  const { vaultSigners } = useSigners(vaultId);
 
   const walletDescriptor = generateAbbreviatedOutputDescriptors(vault);
   const labels = useQuery(RealmSchema.Tags, (tags) =>
@@ -91,10 +84,6 @@ function VaultSettings({ route }) {
   const hasInitialTimelock = vault?.scheme?.miniscriptScheme?.usedMiniscriptTypes.includes(
     MiniscriptTypes.TIMELOCKED
   );
-
-  const canSignMessage = () =>
-    vaultSigners.filter((signer) => Signers_Support_Message_Signing.includes(signer.type)).length >
-    0;
 
   const cleanUp = () => {
     setVisible(false);
@@ -320,8 +309,8 @@ function VaultSettings({ route }) {
           ),
       },
 
-    canSignMessage() && {
-      title: walletText.walletSignMessageTitle,
+    vault.type === VaultType.SINGE_SIG && {
+      title: walletText.SignMessageHeader,
       description: walletText.walletSignMessageDesc,
       icon: null,
       isDiamond: false,
