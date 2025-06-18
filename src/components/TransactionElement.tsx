@@ -52,7 +52,7 @@ function TransactionElement({
         borderBottomColor={`${colorMode}.border`}
       >
         <Box style={styles.rowCenter}>
-          <Box style={styles.circle}>
+          <Box style={styles.circle} marginBottom={!isCached ? hp(12) : 0}>
             {transaction.confirmations === 0 && !isCached && (
               <Box style={styles.transaction}>
                 <TransactionPendingIcon />
@@ -151,7 +151,6 @@ const styles = StyleSheet.create({
     borderRadius: 30 / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: hp(10),
   },
   transaction: {
     position: 'absolute',

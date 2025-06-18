@@ -100,7 +100,7 @@ function SignerCard({
       {badgeText && (
         <Box
           position="absolute"
-          top={'12%'}
+          top={hp(10)}
           right={0}
           bg={badgeText_background}
           px={3}

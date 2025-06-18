@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -7,8 +7,8 @@ import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
-import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 
 type Props = {
   title?: string;
@@ -137,6 +137,9 @@ function KeeperHeader({
   enableBack = true,
   learnMore = false,
   learnMorePressed = () => {},
+  learnBackgroundColor = 'BrownNeedHelp',
+  learnMoreBorderColor,
+  learnTextColor,
   rightComponent = null,
   availableBalance = null,
   contrastScreen = false,
@@ -149,6 +152,8 @@ function KeeperHeader({
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const styles = useMemo(
     () =>
@@ -204,9 +209,15 @@ function KeeperHeader({
             styles={styles}
           />
           {learnMore && !topRightComponent && (
-            <TouchableOpacity onPress={learnMorePressed}>
-              <InfoDarkIcon />
-            </TouchableOpacity>
+            <LearnMoreButton
+              onPress={learnMorePressed}
+              learnBackgroundColor={learnBackgroundColor}
+              learnMoreBorderColor={learnMoreBorderColor}
+              learnTextColor={learnTextColor}
+              common={common}
+              styles={styles}
+              colorMode={colorMode}
+            />
           )}
           {topRightComponent && <Box style={styles.topRightContainer}>{topRightComponent}</Box>}
         </Box>
