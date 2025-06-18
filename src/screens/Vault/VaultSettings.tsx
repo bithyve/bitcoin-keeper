@@ -45,7 +45,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
-import useSigners from 'src/hooks/useSigners';
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';

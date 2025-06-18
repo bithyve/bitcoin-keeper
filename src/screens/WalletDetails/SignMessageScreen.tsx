@@ -313,7 +313,9 @@ export const SignMessageScreen = ({ route, navigation }) => {
       <KeeperModal
         visible={mediumModal}
         title={common.signMessage}
-        subTitle={'Choose how to sign message'}
+        subTitle={`Choose how ${
+          MEDIUM_MODES.EXPORT == mediumMode ? 'to sign message' : 'to import signature'
+        }`}
         close={() => setMediumModal(false)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
