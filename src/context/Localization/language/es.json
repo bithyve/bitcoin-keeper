@@ -1720,6 +1720,18 @@
     "scheduleCallWithExpert": "Schedule a call with our experts today.",
     "supportTeam": "Support Team"
   },
+  "buyBTC": {
+    "buyBtc": "Buy Bitcoin",
+    "bitCoin": "Bitcoin",
+    "marketInfo": "Market Info",
+    "high": "High",
+    "low": "Low",
+    "selectWallet": "Select Wallet",
+    "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
+    "inheritanceWallet": "Inheritance wallet",
+    "familyWallet": "Family wallet",
+    "dailyUseWallet": "Daily Use wallet"
+  },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
     "failedToFetchCurrentChain": "Failed to fetch current chain data, please check your connection and try again",

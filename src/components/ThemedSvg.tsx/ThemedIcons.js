@@ -285,6 +285,11 @@ import KruxSuccessPrivate from 'src/assets/privateImages/kruxSuccessPrivate.svg'
 import KruxSuccessPrivateDark from 'src/assets/privateImages/kruxSuccessPrivateDark.svg';
 import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustration.svg';
 import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
+import BtcLogo from 'src/assets/images/Btc-Logo.svg';
+import BtcLogoGold from 'src/assets/privateImages/Btc-Logo-gold.svg';
+import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
+import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
+import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -1008,6 +1013,18 @@ const themeIcons = {
     LIGHT: KeysIcon,
     PRIVATE: PrivateKeyLight,
     PRIVATE_LIGHT: PrivateKeyLight,
+  },
+  header_buy_btc: {
+    DARK: BtcLogo,
+    LIGHT: BtcLogo,
+    PRIVATE: BtcLogoGold,
+    PRIVATE_LIGHT: BtcLogoGold,
+  },
+  bitcoin_logo: {
+    DARK: BitCoinLogoDark,
+    LIGHT: BitCoinLogo,
+    PRIVATE: BitCoinLogoDark,
+    PRIVATE_LIGHT: BitCoinLogoGold,
   },
 };
 

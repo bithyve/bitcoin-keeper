@@ -11,6 +11,8 @@ import { getDayForGraph } from 'src/utils/utilities';
 interface Props {
   dataSet: HistoricalInisightData[];
   recentData: HistoricalInisightData[];
+  spacing?: number;
+  yAxisLabelWidth?: number;
 }
 
 const FeeGraph = (props: Props) => {
@@ -51,13 +53,13 @@ const FeeGraph = (props: Props) => {
           curved
           initialSpacing={0}
           data={graphData}
-          spacing={42}
+          spacing={props.spacing ? props.spacing : 42}
           thickness={5}
           hideOrigin
           hideDataPoints1
           yAxisColor={customTheme.colors[colorMode].lightSeashell}
           xAxisColor={customTheme.colors[colorMode].lightSeashell}
-          yAxisLabelWidth={18}
+          yAxisLabelWidth={props.yAxisLabelWidth ? props.yAxisLabelWidth : 18}
           color={customTheme.colors[colorMode].Border}
           yAxisTextStyle={{
             color: customTheme.colors[colorMode].DarkSage,
