@@ -44,20 +44,17 @@ const setupSeedSigner = (qrData, isMultisig) => {
 };
 
 const setupSpecter = (qrData, isMultisig) => {
-  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
-    getSpecterDetails(qrData);
-  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const { signer, key } = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
-      masterFingerprint,
-      signerType: SignerType.SPECTER,
-      storageType: SignerStorage.COLD,
-      isMultisig,
-    });
-    return { signer, key };
-  }
-  throw new HWError(HWErrorType.INVALID_SIG);
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
+  const { signer: specter, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    signerType: SignerType.SPECTER,
+    storageType: SignerStorage.COLD,
+    isMultisig,
+    xpubDetails,
+  });
+  return { signer: specter, key };
 };
 
 const setupKeystone = (qrData, isMultisig) => {
@@ -278,6 +275,20 @@ const setupUSBSigner = (signerType, data, isMultisig) => {
   return { signer, key };
 };
 
+const setupKrux = (qrData, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
+  const { signer: krux, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    signerType: SignerType.KRUX,
+    storageType: SignerStorage.COLD,
+    isMultisig,
+    xpubDetails,
+  });
+  return { signer: krux, key };
+};
+
 export {
   setupPassport,
   setupSeedSigner,
@@ -290,4 +301,5 @@ export {
   setupSeedWordsBasedKey,
   setupUSBSigner,
   setupRecoveryKeySigningKey,
+  setupKrux,
 };

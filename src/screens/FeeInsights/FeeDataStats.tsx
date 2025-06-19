@@ -10,6 +10,7 @@ import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hp } from 'src/constants/responsive';
 
 interface DataItem {
   btc_data: {
@@ -108,6 +109,7 @@ export default React.memo(FeeDataStats);
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    marginTop: hp(20),
   },
   boxWrapper: {
     flex: 1,

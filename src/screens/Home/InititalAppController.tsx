@@ -48,9 +48,10 @@ import { SignersReqVault } from '../Vault/SigningDeviceDetails';
 import useVault from 'src/hooks/useVault';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { setSubscription } from 'src/store/sagaActions/settings';
-import { setThemeMode } from 'src/store/reducers/settings';
+import { setAppWideLoading, setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import { getString, setItem } from 'src/storage';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 export const KEEPER_PRIVATE_LINK = 'KEEPER_PRIVATE_LINK';
 
 function InititalAppController({ navigation, electrumErrorVisible, setElectrumErrorVisible }) {
@@ -60,6 +61,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { isInitialLogin, hasDeepLink } = useAppSelector((state) => state.login);
+  const { appWideLoading } = useAppSelector((state) => state.settings);
   const appData: any = useQuery(RealmSchema.KeeperApp);
   const { allVaults } = useVault({ includeArchived: false });
   const { translations } = useContext(LocalizationContext);
@@ -92,6 +94,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { inProgress, start } = useAsync();
 
   const handleRemoteKeyDeepLink = async (initialUrl: string) => {
+    dispatch(setAppWideLoading(true));
     const encryptionKey = initialUrl.split('remote/')[1];
     const hash = getHashFromKey(encryptionKey);
     if (encryptionKey && hash) {
@@ -217,6 +220,8 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
       } catch (error) {
         console.log('🚀 ~ handleRemoteKeyDeepLink ~ error:', error);
         showToast(errorText.somethingWentWrong);
+      } finally {
+        dispatch(setAppWideLoading(false));
       }
     } else {
       showToast(errorText.invalidRemoteLink);
@@ -400,7 +405,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
     dispatch(resetVaultMigration());
   }, []);
 
-  return null;
+  return <ActivityIndicatorView visible={appWideLoading} showLoader />;
 }
 
 export default InititalAppController;

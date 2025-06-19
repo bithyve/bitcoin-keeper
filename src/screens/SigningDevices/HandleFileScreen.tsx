@@ -16,6 +16,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { manipulateKruxSingleFile } from 'src/hardware/krux';
 
 const HandleFileScreen = ({ route, navigation }) => {
   const {
@@ -53,7 +54,7 @@ const HandleFileScreen = ({ route, navigation }) => {
       (_) => {
         showToast(errorText.pickValidFile, <ToastErrorIcon />);
       },
-      signerType === SignerType.KEYSTONE ? 'base64' : 'utf8'
+      [SignerType.KEYSTONE, SignerType.KRUX].includes(signerType) ? 'base64' : 'utf8'
     );
   };
   const modalSubtitle = {
@@ -133,7 +134,9 @@ const HandleFileScreen = ({ route, navigation }) => {
             <Buttons
               primaryCallback={() => {
                 navigation.goBack();
-                onFileExtract(inputText);
+                signerType === SignerType.KRUX && isHealthcheck
+                  ? manipulateKruxSingleFile(inputText, onFileExtract)
+                  : onFileExtract(inputText);
               }}
               primaryText={ctaText}
               primaryDisable={!inputText}

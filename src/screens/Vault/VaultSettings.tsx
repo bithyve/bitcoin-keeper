@@ -15,7 +15,13 @@ import KeeperModal from 'src/components/KeeperModal';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { MiniscriptTypes, VaultType, VisibilityType } from 'src/services/wallets/enums';
+import {
+  EntityKind,
+  MiniscriptTypes,
+  SignerType,
+  VaultType,
+  VisibilityType,
+} from 'src/services/wallets/enums';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { trimCWDefaultName } from 'src/utils/utilities';
@@ -39,7 +45,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useSelector } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
-
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -49,7 +54,7 @@ function VaultSettings({ route }) {
   const TestSatsComponent = useTestSats({ wallet: vault });
   const [vaultDetailVisible, setVaultDetailVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultText, common } = translations;
+  const { vault: vaultText, common, wallet: walletText } = translations;
   const isCanaryWalletType = vault.type === VaultType.CANARY;
   const isCollaborativeWallet = vault.type === VaultType.COLLABORATIVE;
   const { showToast } = useToastMessage();
@@ -302,6 +307,18 @@ function VaultSettings({ route }) {
             })
           ),
       },
+
+    vault.type === VaultType.SINGE_SIG && {
+      title: walletText.SignMessageHeader,
+      description: walletText.walletSignMessageDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate('SignMessageScreen', { vaultId: vault.id, type: EntityKind.VAULT })
+        );
+      },
+    },
   ].filter(Boolean);
 
   return (

@@ -283,6 +283,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
       case SignerType.COLDCARD:
+      case SignerType.KRUX:
         setRegisterSignerModal(true);
         break;
       case SignerType.JADE:
@@ -703,7 +704,7 @@ function SignerAdvanceSettings({ route }: any) {
         }}
       />
     ),
-    !(isPolicyServer || signersWithoutRegistration) && (
+    !(isPolicyServer || (signersWithoutRegistration && !isAppKey)) && (
       <OptionCard
         key="changeDeviceType"
         title={isOtherSD ? signerTranslation.deviceType : signerTranslation.changeDeviceType}
@@ -907,6 +908,14 @@ function SignerAdvanceSettings({ route }: any) {
           assert: <ThemedSvg name={'specter_illustration'} />,
           description: signerTranslation.specterDesc,
           FAQ: 'https://docs.specter.solutions/diy/faq/',
+        };
+      case SignerType.KRUX:
+        return {
+          title: 'Krux',
+          subTitle: signerTranslation.kruxInfo,
+          assert: <ThemedSvg name={'krux_illustration'} />,
+          description: signerTranslation.kruxDesc,
+          FAQ: 'https://selfcustody.github.io/krux/faq/',
         };
       default:
         return {

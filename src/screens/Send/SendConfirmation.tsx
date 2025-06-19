@@ -114,6 +114,8 @@ function SendConfirmation({ route }) {
   }: SendConfirmationRouteParams = route.params;
   const navigation = useNavigation();
   const exchangeRates = useExchangeRates();
+  const { currencyCode } = useAppSelector((state) => state.settings);
+  const BtcPrice = exchangeRates?.[currencyCode];
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const txRecipientsOptions = useAppSelector(
@@ -184,6 +186,7 @@ function SendConfirmation({ route }) {
   const [isFeeHigh, setIsFeeHigh] = useState(false);
   const [isUsualFeeHigh, setIsUsualFeeHigh] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [otp, setOtp] = useState('');
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
@@ -638,7 +641,12 @@ function SendConfirmation({ route }) {
         showsVerticalScrollIndicator={false}
       >
         <Box style={styles.receiptContainer}>
-          <ReceiptWrapper showThemedSvg>
+          <ReceiptWrapper
+            showThemedSvg
+            toggleVisibilityButton
+            setShowMore={setShowMore}
+            showMore={showMore}
+          >
             <SendingCard
               title={walletTranslations.sendingFrom}
               subTitle={sender?.presentationData?.name}
@@ -669,29 +677,31 @@ function SendConfirmation({ route }) {
                 estimationSign={estimationSign}
               />
             </TouchableOpacity>
-            {OneDayHistoricalFee.length > 0 && (
-              <FeeRateStatementCard
-                showFeesInsightModal={toogleFeesInsightModal}
-                feeInsightData={OneDayHistoricalFee}
-              />
-            )}
-            <Box>
-              <Text
-                medium
-                color={`${colorMode}.primaryText`}
-                fontSize={16}
-                style={styles.currentBtcPrice}
-              >
-                {walletTranslations.currentBtcPrice}
-              </Text>
-              <Text fontSize={14} color={`${colorMode}.primaryText`}>
-                {exchangeRates?.BMD?.symbol +
-                  new Intl.NumberFormat('en-US', {
+            {showMore && [
+              OneDayHistoricalFee.length > 0 && (
+                <FeeRateStatementCard
+                  key="feeCard"
+                  showFeesInsightModal={toogleFeesInsightModal}
+                  feeInsightData={OneDayHistoricalFee}
+                />
+              ),
+              <Box key="btcBox">
+                <Text
+                  medium
+                  color={`${colorMode}.primaryText`}
+                  fontSize={13}
+                  style={styles.currentBtcPrice}
+                >
+                  {walletTranslations.currentBtcPrice}
+                </Text>
+                <Text fontSize={12} color={`${colorMode}.primaryText`}>
+                  {`${new Intl.NumberFormat('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
-                  }).format(exchangeRates?.BMD?.last)}
-              </Text>
-            </Box>
+                  }).format(BtcPrice?.last)} ${BtcPrice?.symbol}`}
+                </Text>
+              </Box>,
+            ]}
           </ReceiptWrapper>
         </Box>
         <Box
@@ -701,35 +711,35 @@ function SendConfirmation({ route }) {
         >
           <AmountDetails
             title={walletTranslations.networkFee}
-            titleFontSize={13}
+            titleFontSize={12}
             amount={txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
-            amountFontSize={13}
-            unitFontSize={13}
+            amountFontSize={12}
+            unitFontSize={12}
             titleColor={`${colorMode}.secondaryLightGrey`}
             amountColor={`${colorMode}.secondaryLightGrey`}
             unitColor={`${colorMode}.secondaryLightGrey`}
           />
           <AmountDetails
             title={walletTranslations.amountBeingSend}
-            titleFontSize={16}
+            titleFontSize={13}
             titleFontWeight={500}
             amount={amounts.reduce((sum, amount) => sum + amount, 0)}
-            amountFontSize={16}
-            unitFontSize={14}
+            amountFontSize={15}
+            unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
             title={walletTranslations.totalAmount}
-            titleFontSize={16}
+            titleFontSize={13}
             titleFontWeight={500}
             amount={
               txFeeInfo[transactionPriority?.toLowerCase()]?.amount +
               amounts.reduce((sum, amount) => sum + amount, 0)
             }
-            amountFontSize={18}
-            unitFontSize={14}
+            amountFontSize={15}
+            unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
           />
@@ -1004,7 +1014,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(22),
     paddingHorizontal: wp(20),
     marginBottom: hp(10),
-    marginTop: hp(5),
+    marginTop: hp(15),
     borderWidth: 1,
     borderRadius: wp(20),
   },

@@ -33,10 +33,13 @@ import Fonts from 'src/constants/Fonts';
 import { SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24, seedWordItem } from './constants';
 import Colors from 'src/theme/Colors';
 import WalletHeader from 'src/components/WalletHeader';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { updateSignerDetails, updateVaultSignersXpriv } from 'src/store/sagaActions/wallets';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { seed, common, healthcheck, cloudBackup } = translations;
+  const { seed, common, healthcheck, cloudBackup, signer: signerText } = translations;
 
   const {
     mode,
@@ -72,6 +75,7 @@ function EnterSeedScreen({ route, navigation }) {
     selectedNumberOfWordsFromParams || SEED_WORDS_12
   );
   const [showNetworkModal, setShowNetworkModal] = useState(false);
+  const [rememberModal, setRememberModal] = useState(false);
   const options = [SEED_WORDS_12, SEED_WORDS_18, SEED_WORDS_24];
   const numberOfWordsToScreensMap = {
     [SEED_WORDS_12]: 1,
@@ -85,6 +89,11 @@ function EnterSeedScreen({ route, navigation }) {
   const isSignTransaction = parentScreen === SIGNTRANSACTION;
   const isIdentification = mode === InteracationMode.IDENTIFICATION;
 
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+  const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
     setInvalidSeedsModal(true);
@@ -157,6 +166,36 @@ function EnterSeedScreen({ route, navigation }) {
     return true;
   };
 
+  const performHealthCheck = async (remember = false) => {
+    const mnemonic = seedWords.map((word) => word.name).join(' ');
+    const derivedSigner = await generateDerivedSigner(mnemonic, signer, isMultisig, remember);
+    const isHealthy = await healthCheckSigner(derivedSigner);
+
+    if (isHealthy) {
+      if (remember) {
+        const updatedXpub = {
+          ...signer.signerXpubs,
+          [XpubTypes.P2WSH]: derivedSigner.signerXpubs[XpubTypes.P2WSH],
+          [XpubTypes.P2TR]: derivedSigner.signerXpubs[XpubTypes.P2TR],
+          [XpubTypes.P2WPKH]: derivedSigner.signerXpubs[XpubTypes.P2WPKH],
+        };
+        dispatch(updateSignerDetails(signer, 'signerXpubs', updatedXpub));
+        dispatch(updateVaultSignersXpriv([signer]));
+      }
+
+      updateHealthCheckStatus(
+        derivedSigner.masterFingerprint,
+        hcStatusType.HEALTH_CHECK_SUCCESSFULL
+      );
+      dispatch(resetSeedWords());
+      navigateBack(step);
+      showToast(healthcheck.HealthCheckSuccessful, <TickIcon />);
+    } else {
+      updateHealthCheckStatus(derivedSigner.masterFingerprint, hcStatusType.HEALTH_CHECK_FAILED);
+      showToast(cloudBackup.CLOUD_BACKUP_HEALTH_FAILED);
+    }
+  };
+
   const handleNext = async () => {
     const mnemonic = seedWords.map((word) => word.name).join(' ');
 
@@ -185,24 +224,9 @@ function EnterSeedScreen({ route, navigation }) {
             signer,
           });
         } else {
-          const derivedSigner = await generateDerivedSigner(mnemonic, signer, isMultisig);
-          const isHealthy = await healthCheckSigner(derivedSigner);
-
-          if (isHealthy) {
-            updateHealthCheckStatus(
-              derivedSigner.masterFingerprint,
-              hcStatusType.HEALTH_CHECK_SUCCESSFULL
-            );
-            showToast(healthcheck.HealthCheckSuccessful, <TickIcon />);
-            dispatch(resetSeedWords());
-            navigateBack(step);
-          } else {
-            updateHealthCheckStatus(
-              derivedSigner.masterFingerprint,
-              hcStatusType.HEALTH_CHECK_FAILED
-            );
-            showToast(cloudBackup.CLOUD_BACKUP_HEALTH_FAILED);
-          }
+          const sXpriv = signer.signerXpubs[XpubTypes.P2WSH][0].xpriv;
+          if (!sXpriv) return setRememberModal(true);
+          await performHealthCheck();
         }
       } catch (err) {
         handleHealthCheckError(err);
@@ -245,8 +269,7 @@ function EnterSeedScreen({ route, navigation }) {
           importSeedCta,
         });
       } else if (bip39.validateMnemonic(mnemonic)) {
-        importSeedCta(mnemonic);
-        dispatch(resetSeedWords());
+        setRememberModal(true);
       } else {
         openInvalidSeedsModal();
       }
@@ -295,7 +318,7 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
-  const generateDerivedSigner = async (mnemonic, signer, isMultisig) => {
+  const generateDerivedSigner = async (mnemonic, signer, isMultisig, remember = false) => {
     if (signer?.type === SignerType.MY_KEEPER) {
       const details = await getCosignerDetails(mnemonic, signer.extraData?.instanceNumber - 1);
       return generateSignerFromMetaData({
@@ -308,7 +331,7 @@ function EnterSeedScreen({ route, navigation }) {
         isMultisig: true,
       }).signer;
     } else {
-      const { signer: newSigner } = setupSeedWordsBasedSigner(mnemonic, isMultisig);
+      const { signer: newSigner } = setupSeedWordsBasedSigner(mnemonic, isMultisig, remember);
       return newSigner;
     }
   };
@@ -535,6 +558,27 @@ function EnterSeedScreen({ route, navigation }) {
   };
   const isRecovery = !isHealthCheck && !isImport && !isSignTransaction && !isIdentification;
 
+  const rememberModalContent = () => {
+    return (
+      <>
+        <Box style={styles.illustrationCTR}>
+          <ThemedSvg name={'RememberSeedKey'} />
+        </Box>
+        <Text color={green_modal_text_color}>{signerText.seedKeyRememberDesc}</Text>
+      </>
+    );
+  };
+
+  const importSeed = async (remember) => {
+    const mnemonic = seedWords.map((word) => word.name).join(' ');
+    if (isHealthCheck) {
+      await performHealthCheck(remember);
+    } else {
+      importSeedCta(mnemonic, remember);
+      dispatch(resetSeedWords());
+    }
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -674,6 +718,25 @@ function EnterSeedScreen({ route, navigation }) {
           buttonText={'Try again'}
           buttonCallback={() => setShowNetworkModal(false)}
         />
+        <KeeperModal
+          close={() => {}}
+          showCloseIcon={false}
+          dismissible={false}
+          visible={rememberModal}
+          title={signerText.seedKeyRememberTitle}
+          subTitle={signerText.seedKeyRememberSubTitle}
+          modalBackground={green_modal_background}
+          textColor={green_modal_text_color}
+          Content={rememberModalContent}
+          subTitleWidth={wp(280)}
+          buttonText={common.save}
+          secondaryButtonText={common.skip}
+          buttonTextColor={green_modal_button_text}
+          buttonBackground={green_modal_button_background}
+          secButtonTextColor={green_modal_sec_button_text}
+          buttonCallback={() => importSeed(true)}
+          secondaryCallback={() => importSeed(false)}
+        />
       </KeyboardAvoidingView>
       <ActivityIndicatorView showLoader={true} visible={hcLoading || recoveryLoading} />
     </ScreenWrapper>
@@ -735,6 +798,10 @@ const styles = StyleSheet.create({
   },
   invalidSeedsIllustration: {
     alignSelf: 'center',
+    marginBottom: hp(30),
+  },
+  illustrationCTR: {
+    alignItems: 'center',
     marginBottom: hp(30),
   },
 });

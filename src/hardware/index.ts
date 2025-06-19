@@ -100,7 +100,7 @@ export const generateSignerFromMetaData = ({
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
       let { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
-      if ([SignerType.JADE, SignerType.SEEDSIGNER].includes(signerType)) {
+      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.SPECTER].includes(signerType)) {
         xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
       }
       signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
@@ -217,6 +217,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       break;
     case SignerType.PORTAL:
       name = 'Portal';
+      break;
+    case SignerType.KRUX:
+      name = 'Krux';
       break;
     default:
       name = type;
@@ -465,6 +468,9 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     }
     case SignerType.PORTAL: {
       return 'Mobile-specific signer from TwentyTwo';
+    }
+    case SignerType.KRUX: {
+      return 'A DIY Krux based signer';
     }
     default:
       return null;
