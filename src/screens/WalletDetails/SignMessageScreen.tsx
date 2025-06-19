@@ -312,10 +312,12 @@ export const SignMessageScreen = ({ route, navigation }) => {
       )}
       <KeeperModal
         visible={mediumModal}
-        title={common.signMessage}
-        subTitle={`Choose how ${
-          MEDIUM_MODES.EXPORT == mediumMode ? 'to sign message' : 'to import signature'
-        }`}
+        title={MEDIUM_MODES.EXPORT == mediumMode ? common.signMessage : common.loadSignature}
+        subTitle={
+          MEDIUM_MODES.EXPORT == mediumMode
+            ? walletText.chooseSignMessageMedium
+            : walletText.chooseImportSignatureMedium
+        }
         close={() => setMediumModal(false)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
@@ -365,6 +367,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     gap: wp(15),
+    marginVertical: hp(10),
   },
   mediumContainer: {
     width: 200,

@@ -490,13 +490,15 @@
     "currentBtcPrice": "Current BTC Price",
     "amountBeingSend": "Amount being sent",
     "sendingAmount": "Sending Amount:",
-    "SignMessageHeader": "Sign/Verify Message",
+    "SignMessageHeader": "Sign/ Verify Message",
     "messageVerifiedTitle": "Message Verified Successfully",
-    "messageVerifiedSubTitle": "The signature is verified against the message successfully",
-    "walletSignMessageDesc": "Have you ever signed or verified a message with a Bitcoin wallet?",
-    "signMessageSubtitle": "The Wallet configuration file is used restore the wallet on other devices.",
+    "messageVerifiedSubTitle": "The signature was verified against the message successfully",
+    "walletSignMessageDesc": "Sign or verify a message using your Bitcoin wallet",
+    "signMessageSubtitle": "Enter the data you would like to sign or verify",
+    "chooseSignMessageMedium": "Choose how to sign message",
+    "chooseImportSignatureMedium": "Choose how to import signature",
     "verifyTitle": "Verify signed message",
-    "verifySubtitle": "Scan the signed message from hardware wallet"
+    "verifySubtitle": "Scan the signed message from your hardware wallet"
   },
   "vault": {
     "Addsigner": "Add a Signer",
