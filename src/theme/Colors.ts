@@ -138,5 +138,8 @@ const Colors = {
   warmbeige: 'rgba(193, 167, 156, 1)',
   overlayDark: 'rgba(43, 41, 39, 0.5)',
   lightorange: 'rgba(227, 190, 150, 1)',
+  warm_off_white: 'rgba(246, 242, 237, 0.1)',
+  PersianGreen: 'rgba(0, 175, 146, 1)',
+  CrimsonRed: 'rgba(217, 44, 44, 1)',
 };
 export default Colors;

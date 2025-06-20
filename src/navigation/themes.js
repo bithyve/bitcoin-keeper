@@ -167,6 +167,7 @@ export const customTheme = extendTheme({
       tagColor10: Colors.TagLight10,
       warmbeige: Colors.warmbeige,
       hyperlink: Colors.darkBlue,
+      btcLogoBackground: Colors.MistSlate,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -286,6 +287,7 @@ export const customTheme = extendTheme({
       tagColor10: Colors.TagDark10,
       warmbeige: Colors.warmbeige,
       hyperlink: Colors.softBlue,
+      btcLogoBackground: Colors.warm_off_white,
     },
   },
   config: {

@@ -169,6 +169,7 @@ export const privateTheme = extendTheme({
       warmbeige: Colors.warmbeige,
       overlayDark: Colors.overlayDark,
       modalPrivateBackground: Colors.primaryCream,
+      btcLogoBackground: Colors.MistSlate,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -290,6 +291,7 @@ export const privateTheme = extendTheme({
       warmbeige: Colors.warmbeige,
       overlayDark: Colors.overlayDark,
       modalPrivateBackground: Colors.charcolBrown,
+      btcLogoBackground: Colors.warm_off_white,
     },
   },
   config: {
