@@ -774,3 +774,13 @@ export const getDayForGraph = (timestamp: number) => {
   }
   return '';
 };
+
+export const isPsbtFullySigned = (psbt) => {
+  try {
+    psbt = bitcoin.Psbt.fromBase64(psbt);
+    psbt.finalizeAllInputs();
+    return psbt.extractTransaction().toHex();
+  } catch (error) {
+    return null;
+  }
+};

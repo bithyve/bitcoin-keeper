@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Share } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box, ScrollView, useColorMode, VStack } from 'native-base';
@@ -17,6 +17,7 @@ import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import * as bitcoin from 'bitcoinjs-lib';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'RemoteSharing'>;
 
@@ -63,13 +64,28 @@ function RemoteSharing({ route }: ScreenProps) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const fcmToken = useAppSelector((state) => state.notifications.fcmToken);
-  const { isPSBTSharing = false, psbt, mode, signer = null, xfp = '' } = route.params;
+  let { isPSBTSharing = false, psbt, mode, signer = null, xfp = '' } = route.params;
   const { remoteLinkDetails } = useAppSelector((state) => state.vault);
   const cachedTxid = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.cachedTxid);
   const [primaryLoading, setPrimaryLoading] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { signer: signerTranslation, common } = translations;
   const RemoteShareText = getRemoteShareText(signerTranslation);
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+
+  useEffect(() => {
+    if (mode === RKInteractionMode.SHARE_PSBT) {
+      let combinedPSBT = bitcoin.Psbt.fromBase64(psbt);
+      for (const psbtEnvelop of serializedPSBTEnvelops) {
+        if (psbtEnvelop.isSigned) {
+          combinedPSBT.combine(bitcoin.Psbt.fromBase64(psbtEnvelop.serializedPSBT));
+        }
+      }
+      psbt = combinedPSBT.toBase64();
+    }
+  }, []);
 
   const handleShare = async () => {
     setPrimaryLoading(true);
