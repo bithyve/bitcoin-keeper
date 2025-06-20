@@ -10,15 +10,15 @@ export function enableAndroidFontFix() {
 
   const manufacturer = getManufacturerSync();
 
-  let styles;
-
-  if (manufacturer === 'OnePlus') {
-    styles = StyleSheet.create({
-      androidFontFixFontFamily: {
-        fontFamily: 'Roboto',
-      },
-    });
+  if (manufacturer !== 'OnePlus') {
+    return;
   }
+
+  const styles = StyleSheet.create({
+    androidFontFixFontFamily: {
+      fontFamily: 'Roboto',
+    },
+  });
 
   const __render = Text.render;
   Text.render = function (...args) {

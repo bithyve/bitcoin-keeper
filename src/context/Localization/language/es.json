@@ -169,6 +169,10 @@
     "remians": "Remains",
     "vaultTimelockActive": "Vault has an active timelock",
     "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends.",
+    "message": "Message",
+    "signature": "Signature",
+    "loadSignature": "Load Signature",
+    "signMessage": "Sign Message",
     "moreInfo": "More Info",
     "lessInfo": "Less Info"
   },
@@ -485,7 +489,16 @@
     "keepItPrivate": "Keep it private and secure",
     "currentBtcPrice": "Current BTC Price",
     "amountBeingSend": "Amount being sent",
-    "sendingAmount": "Sending Amount:"
+    "sendingAmount": "Sending Amount:",
+    "SignMessageHeader": "Sign/ Verify Message",
+    "messageVerifiedTitle": "Message Verified Successfully",
+    "messageVerifiedSubTitle": "The signature was verified against the message successfully",
+    "walletSignMessageDesc": "Sign or verify a message using your Bitcoin wallet",
+    "signMessageSubtitle": "Enter the data you would like to sign or verify",
+    "chooseSignMessageMedium": "Choose how to sign message",
+    "chooseImportSignatureMedium": "Choose how to import signature",
+    "verifyTitle": "Verify signed message",
+    "verifySubtitle": "Scan the signed message from your hardware wallet"
   },
   "vault": {
     "Addsigner": "Add a Signer",
@@ -1867,6 +1880,10 @@
     "healthCheckDone": "Health check done successfully",
     "errorhealthCheck": "Error in Health check",
     "importFileFrom": "Please import a valid file from",
-    "actionNotImplemented": "Action not implemented yet"
+    "actionNotImplemented": "Action not implemented yet",
+    "enterMessage": "Please enter the message",
+    "signMessageParameter": "Please provide message, address and signature for verification",
+    "signatureNotValid": "Signature is not valid for the provided message",
+    "invalidSignatureFormat": "Invalid signed message format"
   }
 }
