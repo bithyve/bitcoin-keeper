@@ -25,7 +25,6 @@ const BuyBtc = () => {
   const [visibleBuyBtc, setVisibleBuyBtc] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState(null);
   const navigation = useNavigation();
-  console.log('selectedWallet', selectedWallet);
 
   //   dummy data for graph
   const oneWeekFeeRate = [
