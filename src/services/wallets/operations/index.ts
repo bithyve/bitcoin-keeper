@@ -2005,7 +2005,7 @@ export default class WalletOperations {
   };
 
   static broadcastTransaction = async (
-    wallet: Wallet | Vault,
+    wallet: Wallet | Vault | null,
     txHex: string,
     inputs: InputUTXOs[]
   ) => {
@@ -2020,21 +2020,23 @@ export default class WalletOperations {
       throw new Error(err || txid);
     }
 
-    const changeOutput = WalletOperations.getOutputsFromTxHex(txHex).find((out) =>
-      Object.values(wallet.specs.addresses.internal).includes(out.address)
-    );
+    if (wallet) {
+      const changeOutput = WalletOperations.getOutputsFromTxHex(txHex).find((out) =>
+        Object.values(wallet.specs.addresses.internal).includes(out.address)
+      );
 
-    const changeUTXO: UTXO | null = changeOutput
-      ? {
-          txId: txid,
-          vout: changeOutput.index,
-          value: changeOutput.value,
-          address: changeOutput.address,
-          height: 0,
-        }
-      : null;
+      const changeUTXO: UTXO | null = changeOutput
+        ? {
+            txId: txid,
+            vout: changeOutput.index,
+            value: changeOutput.value,
+            address: changeOutput.address,
+            height: 0,
+          }
+        : null;
 
-    WalletOperations.removeConsumedUTXOs(wallet, inputs, changeUTXO); // chip consumed utxos
+      WalletOperations.removeConsumedUTXOs(wallet, inputs, changeUTXO); // chip consumed utxos
+    }
     return txid;
   };
 
