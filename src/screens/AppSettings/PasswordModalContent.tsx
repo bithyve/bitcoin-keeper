@@ -53,6 +53,7 @@ const PasswordModalContent = ({ close, onSuccess }: Props) => {
         placeholder={''}
         value={password}
         autoCorrect={false}
+        secureTextEntry
         autoComplete="off"
         onChangeText={(text) => setPassword(text.toLowerCase())}
         inpuBorderColor={`${colorMode}.separator`}
