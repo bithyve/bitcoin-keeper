@@ -1,7 +1,8 @@
 import { Box, ScrollView, useColorMode, View } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
+import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -10,6 +11,8 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import FeeGraph from 'src/screens/FeeInsights/FeeGraph';
 import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
+import BuyBtcModalContent from './BuyBtcModalContent';
+import { useNavigation } from '@react-navigation/native';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -18,7 +21,11 @@ const BuyBtc = () => {
   const { currencyCode } = useAppSelector((state) => state.settings);
   const BtcPrice = exchangeRates?.[currencyCode];
   const { translations } = useContext(LocalizationContext);
-  const { buyBTC: buyBTCText } = translations;
+  const { buyBTC: buyBTCText, common } = translations;
+  const [visibleBuyBtc, setVisibleBuyBtc] = useState(false);
+  const [selectedWallet, setSelectedWallet] = useState(null);
+  const navigation = useNavigation();
+  console.log('selectedWallet', selectedWallet);
 
   //   dummy data for graph
   const oneWeekFeeRate = [
@@ -91,8 +98,32 @@ const BuyBtc = () => {
         </Box>
       </ScrollView>
       <Box style={styles.button_container}>
-        <Buttons primaryText={buyBTCText.buyBtc} fullWidth />
+        <Buttons
+          primaryText={buyBTCText.buyBtc}
+          fullWidth
+          primaryCallback={() => setVisibleBuyBtc(true)}
+        />
       </Box>
+      <KeeperModal
+        visible={visibleBuyBtc}
+        close={() => setVisibleBuyBtc(false)}
+        title={buyBTCText.selectWallet}
+        subTitle={buyBTCText.selectWalletDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <BuyBtcModalContent
+            setSelectedWallet={setSelectedWallet}
+            selectedWallet={selectedWallet}
+          />
+        )}
+        buttonText={common.proceed}
+        buttonCallback={() => {
+          setVisibleBuyBtc(false);
+          navigation.navigate('BuyBtcRamp', { selectedWallet });
+        }}
+      />
     </View>
   );
 };
@@ -138,7 +169,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(16),
     paddingHorizontal: wp(16),
     borderWidth: 1,
-    width: windowWidth * 0.43,
+    width: wp(160),
     borderRadius: 8,
   },
   button_container: {

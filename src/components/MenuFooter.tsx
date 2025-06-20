@@ -34,7 +34,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
     {
       name: buyBTCTranslation.buyBtc,
       defaultIcon: <BtcLogoGrey width={wp(22)} height={hp(22)} />,
-      selectedIcon: <ThemedSvg name={'header_buy_btc'} width={wp(22)} height={hp(22)} />,
+      selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(22)} height={hp(22)} />,
     },
     {
       name: walletTranslation.concierge,

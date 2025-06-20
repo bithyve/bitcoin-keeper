@@ -260,6 +260,12 @@ const themeColors = {
     PRIVATE: Colors.headerWhite,
     PRIVATE_LIGHT: Colors.charcolBrown,
   },
+  buyBitCoinHexagonBackgroundColor: {
+    DARK: Colors.primaryBrown,
+    LIGHT: Colors.primaryBrown,
+    PRIVATE: Colors.primaryBrown,
+    PRIVATE_LIGHT: Colors.primaryBrown,
+  },
 };
 
 export default themeColors;

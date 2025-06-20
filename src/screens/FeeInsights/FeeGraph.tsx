@@ -62,12 +62,12 @@ const FeeGraph = (props: Props) => {
           yAxisLabelWidth={props.yAxisLabelWidth ? props.yAxisLabelWidth : 18}
           color={customTheme.colors[colorMode].Border}
           yAxisTextStyle={{
-            color: customTheme.colors[colorMode].DarkSage,
+            color: customTheme.colors[colorMode].primaryText,
             ...styles.labelText,
           }}
           xAxisTextNumberOfLines={2}
           xAxisLabelTextStyle={{
-            color: customTheme.colors[colorMode].DarkSage,
+            color: customTheme.colors[colorMode].primaryText,
             ...styles.labelText,
           }}
           areaGradientId="ag"

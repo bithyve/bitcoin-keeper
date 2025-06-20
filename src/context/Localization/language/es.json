@@ -1730,7 +1730,12 @@
     "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
     "inheritanceWallet": "Inheritance wallet",
     "familyWallet": "Family wallet",
-    "dailyUseWallet": "Daily Use wallet"
+    "dailyUseWallet": "Daily Use wallet",
+    "rampTitle": "Buy Bitcoin with Ramp",
+    "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
+    "addressForTransaction": "Address for the transaction",
+    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
+    "buyBTCWithoutExchange": "Buy Bitcoin without an exchange"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",

@@ -290,6 +290,7 @@ import BtcLogoGold from 'src/assets/privateImages/Btc-Logo-gold.svg';
 import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
 import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
 import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
+import BTCWhiteLOgo from 'src/assets/images/btc-white-logo.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -1016,6 +1017,12 @@ const themeIcons = {
   },
   header_buy_btc: {
     DARK: BtcLogo,
+    LIGHT: BtcLogo,
+    PRIVATE: BtcLogoGold,
+    PRIVATE_LIGHT: BtcLogoGold,
+  },
+  footer_buy_btc: {
+    DARK: BTCWhiteLOgo,
     LIGHT: BtcLogo,
     PRIVATE: BtcLogoGold,
     PRIVATE_LIGHT: BtcLogoGold,
