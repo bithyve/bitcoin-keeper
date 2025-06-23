@@ -252,7 +252,16 @@
     "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
     "transactionDetails": "Transaction Details",
     "addTransactionNote": "Add transaction note",
-    "scanSignedTransaction": "Scan Signed Transaction"
+    "scanSignedTransaction": "Scan Signed Transaction",
+    "broadcastTnxTitle": "Broadcast Transaction",
+    "broadcastTnxSubTitle": "The transaction was signed successfully",
+    "shareTnx": "Share Transaction",
+    "broadcastTnxText1": "The transaction was signed successfully with all the required signatures and is ready to be broadcasted.",
+    "broadcastTnxText2": "Do you want to broadcast the transaction?",
+    "broadcastSuccessTitle": "Broadcast Successful",
+    "broadcastSuccessSubTitle": "The transaction was broadcasted successfully",
+    "broadcastSuccessText1": "It is advised to let the originator of the transaction know that the transaction was successfully broadcasted.",
+    "broadcastSuccessText2": "The transaction should be visible on the wallet's transactions history."
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",

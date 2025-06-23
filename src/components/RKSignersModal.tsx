@@ -22,7 +22,7 @@ import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getCosignerDetails, signCosignerPSBT } from 'src/services/wallets/factories/WalletFactory';
-import { getInputsFromPSBT, getInputsToSignFromPSBT } from 'src/utils/utilities';
+import { getInputsFromPSBT, getInputsToSignFromPSBT, isPsbtFullySigned } from 'src/utils/utilities';
 import * as bitcoin from 'bitcoinjs-lib';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -30,6 +30,12 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppSelector } from 'src/store/hooks';
 import ShareKeyModalContent from 'src/screens/Vault/components/ShareKeyModalContent';
+import Text from './KeeperText';
+import WalletOperations from 'src/services/wallets/operations';
+import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
+import { hp } from 'src/constants/responsive';
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -41,7 +47,13 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
 
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { error: errorText, signer: signerText, settings } = translations;
+  const {
+    error: errorText,
+    signer: signerText,
+    settings,
+    common,
+    transactions: tnxText,
+  } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [passportModal, setPassportModal] = useState(false);
@@ -65,6 +77,10 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const [broadcastModal, setBroadcastModal] = useState(false);
+  const [tnxHex, setTnxHex] = useState(null);
+  const [broadcastSuccess, setBroadcastSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const textRef = useRef(null);
   const { signerMap } = useSignerMap();
@@ -201,7 +217,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             ])
           );
           setDetails(signedSerializedPSBT);
-          setOpenOptionModal(true);
+          checkIfPsbtIsFullySigned(signedSerializedPSBT);
         }
       } else if (SignerType.MY_KEEPER === signerType) {
         let signedSerializedPSBT: string;
@@ -223,7 +239,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         );
         if (signedSerializedPSBT) {
           setDetails(signedSerializedPSBT);
-          setOpenOptionModal(true);
+          checkIfPsbtIsFullySigned(signedSerializedPSBT);
         }
       } else if (SignerType.TAPSIGNER === signerType) {
         const currentKey = {
@@ -290,7 +306,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         );
         if (signedSerializedPSBT) {
           setDetails(signedSerializedPSBT);
-          setOpenOptionModal(true);
+          checkIfPsbtIsFullySigned(signedSerializedPSBT);
         } else throw new Error('Portal signing failed');
         return signedSerializedPSBT;
       } else if (SignerType.COLDCARD === signerType) {
@@ -303,7 +319,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       } else {
         if (signedSerializedPSBT) {
           setDetails(signedSerializedPSBT);
-          setOpenOptionModal(true);
+          checkIfPsbtIsFullySigned(signedSerializedPSBT);
         } else {
           throw new Error('Cannot get signed PSBT');
         }
@@ -312,6 +328,16 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       console.log('🚀 ~ signTransaction ~ error:', error);
       showToast(`${error}`);
     }
+  };
+
+  const checkIfPsbtIsFullySigned = (signedSerializedPSBT) => {
+    setLoading(true);
+    const hex = isPsbtFullySigned(signedSerializedPSBT);
+    if (hex) {
+      setBroadcastModal(true);
+      setTnxHex(hex);
+    } else setOpenOptionModal(true);
+    setLoading(false);
   };
 
   const onFileSign = (signedSerializedPSBT: string) => {
@@ -324,7 +350,21 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       ])
     );
     setDetails(signedSerializedPSBT);
-    setOpenOptionModal(true);
+    checkIfPsbtIsFullySigned(signedSerializedPSBT);
+  };
+
+  const onBroadcastTnx = async () => {
+    setLoading(true);
+    try {
+      await WalletOperations.broadcastTransaction(null, tnxHex, []);
+      setBroadcastSuccess(true);
+    } catch (error) {
+      console.log('🚀 ~ onBroadcastTnx ~ error:', error);
+      showToast(error.message, <ToastErrorIcon />);
+    } finally {
+      setBroadcastModal(false);
+      setLoading(false);
+    }
   };
 
   const vaultKeys = {
@@ -368,6 +408,58 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         Content={() => (
           <Box>
             <ShareKeyModalData />
+          </Box>
+        )}
+      />
+      <KeeperModal
+        visible={broadcastModal}
+        close={() => setBroadcastModal(false)}
+        title={tnxText.broadcastTnxTitle}
+        subTitle={tnxText.broadcastTnxSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        buttonText={common.broadCast}
+        buttonCallback={onBroadcastTnx}
+        secondaryButtonText={tnxText.shareTnx}
+        secondaryCallback={() => {
+          setBroadcastModal(false);
+          setOpenOptionModal(true);
+        }}
+        Content={() => (
+          <Box gap={hp(20)}>
+            <Box alignItems={'center'}>
+              <ThemedSvg name={'broadcastModal'} />
+            </Box>
+            <Box>
+              <Text>{tnxText.broadcastTnxText1}</Text>
+              <Text>{tnxText.broadcastTnxText2}</Text>
+            </Box>
+          </Box>
+        )}
+      />
+      <KeeperModal
+        visible={broadcastSuccess}
+        close={() => setBroadcastSuccess(false)}
+        title={tnxText.broadcastSuccessTitle}
+        subTitle={tnxText.broadcastSuccessSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        buttonText={common.close}
+        buttonCallback={async () => {
+          setBroadcastSuccess(false);
+          navigation.goBack();
+        }}
+        Content={() => (
+          <Box gap={hp(20)}>
+            <Box alignItems={'center'}>
+              <ThemedSvg name={'success_illustration'} />
+            </Box>
+            <Box>
+              <Text>{tnxText.broadcastSuccessText1}</Text>
+              <Text>{tnxText.broadcastSuccessText2}</Text>
+            </Box>
           </Box>
         )}
       />
@@ -421,6 +513,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           xfp: vaultKeys.xfp,
         }}
       />
+      <ActivityIndicatorView visible={loading} />
     </>
   );
 };
