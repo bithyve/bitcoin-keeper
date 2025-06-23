@@ -21,6 +21,7 @@ import { setInitialNodesSaved } from 'src/store/reducers/network';
 import { saveBackupMethodByAppId } from 'src/store/sagaActions/account';
 import { setBackupType } from 'src/store/reducers/bhr';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { setBiometricEnabledAppId } from 'src/store/reducers/account';
 
 export const MultiUserScreen = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
@@ -30,13 +31,14 @@ export const MultiUserScreen = ({ navigation }: any) => {
   const { loginMethod } = useAppSelector((state) => state.settings);
   const [showBiometricModal, setShowBiometricModal] = useState(false);
   const { showToast } = useToastMessage();
-  const { allAccounts } = useAppSelector((s) => s.account);
+  const { allAccounts, biometricEnabledAppId } = useAppSelector((s) => s.account);
 
   const onAddNewUser = () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       setShowBiometricModal(true);
       return;
     }
+    if (biometricEnabledAppId !== null) dispatch(setBiometricEnabledAppId(null)); // checks biometric for other accounts and disables in background
     dispatch(clearHasCreds());
     dispatch(setAppCreated(false));
     dispatch(setInitialNodesSaved(false));

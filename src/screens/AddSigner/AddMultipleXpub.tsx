@@ -23,6 +23,7 @@ import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { manipulateKruxData } from 'src/hardware/krux';
 import { manipulateSpecterData } from 'src/hardware/specter';
 
 export const options = [
@@ -68,6 +69,7 @@ export const AddMultipleXpub = () => {
     let passportTaproot;
     try {
       if (type === SignerType.SEEDSIGNER) data = manipulateSeedSignerData(data);
+      else if (type === SignerType.KRUX) data = manipulateKruxData(data);
       else if (type === SignerType.SPECTER) data = manipulateSpecterData(data);
       else if (type === SignerType.PASSPORT) {
         data = manipulatePassportDetails(getPassportDetails(data, true));
@@ -94,6 +96,7 @@ export const AddMultipleXpub = () => {
     [SignerType.PASSPORT]: SignerText.xPubPassPortSub,
     [SignerType.SEEDSIGNER]: SignerText.xPubSeedSignerSub,
     [SignerType.JADE]: SignerText.xPubJadeSub,
+    [SignerType.KRUX]: SignerText.kruxQrSub,
   };
 
   const subtitleModal = modalSubtitle[type] || SignerText.xPubDefaultSubtitle;

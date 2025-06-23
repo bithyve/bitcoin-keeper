@@ -35,6 +35,7 @@ import {
 import {
   DerivationPurpose,
   EntityKind,
+  KeyGenerationMode,
   MiniscriptTypes,
   MultisigScriptType,
   NetworkType,
@@ -58,6 +59,9 @@ import { generateScriptWitnesses, generateBitcoinScript } from './miniscript/min
 import { Phase } from './miniscript/policy-generator';
 import { coinselect } from './coinselectFixed';
 import { store } from 'src/store/store';
+import BIP32Factory from 'bip32';
+const bip32 = BIP32Factory(ecc);
+import bitcoinMessage from 'bitcoinjs-message';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -2001,7 +2005,7 @@ export default class WalletOperations {
   };
 
   static broadcastTransaction = async (
-    wallet: Wallet | Vault,
+    wallet: Wallet | Vault | null,
     txHex: string,
     inputs: InputUTXOs[]
   ) => {
@@ -2016,21 +2020,23 @@ export default class WalletOperations {
       throw new Error(err || txid);
     }
 
-    const changeOutput = WalletOperations.getOutputsFromTxHex(txHex).find((out) =>
-      Object.values(wallet.specs.addresses.internal).includes(out.address)
-    );
+    if (wallet) {
+      const changeOutput = WalletOperations.getOutputsFromTxHex(txHex).find((out) =>
+        Object.values(wallet.specs.addresses.internal).includes(out.address)
+      );
 
-    const changeUTXO: UTXO | null = changeOutput
-      ? {
-          txId: txid,
-          vout: changeOutput.index,
-          value: changeOutput.value,
-          address: changeOutput.address,
-          height: 0,
-        }
-      : null;
+      const changeUTXO: UTXO | null = changeOutput
+        ? {
+            txId: txid,
+            vout: changeOutput.index,
+            value: changeOutput.value,
+            address: changeOutput.address,
+            height: 0,
+          }
+        : null;
 
-    WalletOperations.removeConsumedUTXOs(wallet, inputs, changeUTXO); // chip consumed utxos
+      WalletOperations.removeConsumedUTXOs(wallet, inputs, changeUTXO); // chip consumed utxos
+    }
     return txid;
   };
 
@@ -2312,5 +2318,100 @@ export default class WalletOperations {
     }));
 
     return outputs;
+  };
+
+  static signMessageWallet = (
+    address: string,
+    message: string,
+    bitcoinNetwork: bitcoinJS.Network,
+    xpriv: string,
+    receiveAddressCache: { [key: string]: string }
+  ) => {
+    let messageAddress;
+    let child;
+    const root = bip32.fromBase58(xpriv, bitcoinNetwork);
+    if (address) {
+      // Check for valid address
+      const res = WalletUtilities.isValidAddress(address, bitcoinNetwork);
+      if (!res) throw new Error('Please enter a valid address');
+      // Check for address in cache
+      let found = false;
+      for (const key in receiveAddressCache) {
+        if (receiveAddressCache[key] === address) {
+          found = true;
+          child = root.derivePath(`0/${key}`);
+          messageAddress = address;
+          break;
+        }
+      }
+      if (!found) throw new Error('Please enter a valid address from the select wallet');
+    } else {
+      // Deriving address
+      child = root.derivePath('0/0');
+      messageAddress = bitcoinJS.payments.p2wpkh({
+        pubkey: child.publicKey,
+        network: bitcoinNetwork,
+      }).address;
+    }
+
+    // Creating signature
+    let signature: any = bitcoinMessage.sign(
+      message.trim(),
+      child.privateKey,
+      true, // compressed
+      bitcoinNetwork.messagePrefix
+    );
+    signature = signature.toString('base64');
+    return { signature, messageAddress };
+  };
+
+  static verifySignedMessage = (message, address, signature, bitcoinNetwork) => {
+    const verified = bitcoinMessage.verify(
+      message,
+      address,
+      signature,
+      bitcoinNetwork.messagePrefix,
+      true
+    );
+    if (verified) return true;
+    else throw new Error('Signature is not valid for the provided message');
+  };
+
+  static createSignMessageString = (
+    address,
+    message,
+    bitcoinNetwork,
+    activeVault,
+    type: KeyGenerationMode.FILE | KeyGenerationMode.QR
+  ) => {
+    if (!address) throw new Error('Please enter the address');
+    // Need to find the child or derivation path index here also
+    const res = WalletUtilities.isValidAddress(address, bitcoinNetwork);
+    if (!res) throw new Error('Please enter a valid address');
+    // Check for address in cache
+    let addressIndex = null;
+    const receiveAddressCache = activeVault?.specs?.addresses?.external;
+    for (const key in activeVault?.specs?.addresses?.external) {
+      if (receiveAddressCache[key] === address) {
+        addressIndex = key;
+        break;
+      }
+    }
+    if (addressIndex == null)
+      throw new Error('Please enter a valid address from the select wallet');
+    const signer = activeVault.signers[0];
+
+    if (type === KeyGenerationMode.QR) {
+      const qrData = `signmessage ${signer.derivationPath.replace(
+        /'/g,
+        'h'
+      )}/0/${addressIndex} ascii:${message}`;
+      return qrData;
+    }
+    if (type === KeyGenerationMode.FILE) {
+      const fileData = `${message}\n${signer.derivationPath}/0/${addressIndex}\n${activeVault.scriptType}`;
+      return fileData;
+    }
+    return null;
   };
 }

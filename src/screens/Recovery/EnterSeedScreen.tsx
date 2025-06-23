@@ -35,6 +35,7 @@ import Colors from 'src/theme/Colors';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { updateSignerDetails, updateVaultSignersXpriv } from 'src/store/sagaActions/wallets';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
@@ -165,6 +166,36 @@ function EnterSeedScreen({ route, navigation }) {
     return true;
   };
 
+  const performHealthCheck = async (remember = false) => {
+    const mnemonic = seedWords.map((word) => word.name).join(' ');
+    const derivedSigner = await generateDerivedSigner(mnemonic, signer, isMultisig, remember);
+    const isHealthy = await healthCheckSigner(derivedSigner);
+
+    if (isHealthy) {
+      if (remember) {
+        const updatedXpub = {
+          ...signer.signerXpubs,
+          [XpubTypes.P2WSH]: derivedSigner.signerXpubs[XpubTypes.P2WSH],
+          [XpubTypes.P2TR]: derivedSigner.signerXpubs[XpubTypes.P2TR],
+          [XpubTypes.P2WPKH]: derivedSigner.signerXpubs[XpubTypes.P2WPKH],
+        };
+        dispatch(updateSignerDetails(signer, 'signerXpubs', updatedXpub));
+        dispatch(updateVaultSignersXpriv([signer]));
+      }
+
+      updateHealthCheckStatus(
+        derivedSigner.masterFingerprint,
+        hcStatusType.HEALTH_CHECK_SUCCESSFULL
+      );
+      dispatch(resetSeedWords());
+      navigateBack(step);
+      showToast(healthcheck.HealthCheckSuccessful, <TickIcon />);
+    } else {
+      updateHealthCheckStatus(derivedSigner.masterFingerprint, hcStatusType.HEALTH_CHECK_FAILED);
+      showToast(cloudBackup.CLOUD_BACKUP_HEALTH_FAILED);
+    }
+  };
+
   const handleNext = async () => {
     const mnemonic = seedWords.map((word) => word.name).join(' ');
 
@@ -193,24 +224,9 @@ function EnterSeedScreen({ route, navigation }) {
             signer,
           });
         } else {
-          const derivedSigner = await generateDerivedSigner(mnemonic, signer, isMultisig);
-          const isHealthy = await healthCheckSigner(derivedSigner);
-
-          if (isHealthy) {
-            updateHealthCheckStatus(
-              derivedSigner.masterFingerprint,
-              hcStatusType.HEALTH_CHECK_SUCCESSFULL
-            );
-            showToast(healthcheck.HealthCheckSuccessful, <TickIcon />);
-            dispatch(resetSeedWords());
-            navigateBack(step);
-          } else {
-            updateHealthCheckStatus(
-              derivedSigner.masterFingerprint,
-              hcStatusType.HEALTH_CHECK_FAILED
-            );
-            showToast(cloudBackup.CLOUD_BACKUP_HEALTH_FAILED);
-          }
+          const sXpriv = signer.signerXpubs[XpubTypes.P2WSH][0].xpriv;
+          if (!sXpriv) return setRememberModal(true);
+          await performHealthCheck();
         }
       } catch (err) {
         handleHealthCheckError(err);
@@ -302,7 +318,7 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
-  const generateDerivedSigner = async (mnemonic, signer, isMultisig) => {
+  const generateDerivedSigner = async (mnemonic, signer, isMultisig, remember = false) => {
     if (signer?.type === SignerType.MY_KEEPER) {
       const details = await getCosignerDetails(mnemonic, signer.extraData?.instanceNumber - 1);
       return generateSignerFromMetaData({
@@ -315,7 +331,7 @@ function EnterSeedScreen({ route, navigation }) {
         isMultisig: true,
       }).signer;
     } else {
-      const { signer: newSigner } = setupSeedWordsBasedSigner(mnemonic, isMultisig);
+      const { signer: newSigner } = setupSeedWordsBasedSigner(mnemonic, isMultisig, remember);
       return newSigner;
     }
   };
@@ -553,10 +569,14 @@ function EnterSeedScreen({ route, navigation }) {
     );
   };
 
-  const importSeed = (remember) => {
+  const importSeed = async (remember) => {
     const mnemonic = seedWords.map((word) => word.name).join(' ');
-    importSeedCta(mnemonic, remember);
-    dispatch(resetSeedWords());
+    if (isHealthCheck) {
+      await performHealthCheck(remember);
+    } else {
+      importSeedCta(mnemonic, remember);
+      dispatch(resetSeedWords());
+    }
   };
 
   return (
