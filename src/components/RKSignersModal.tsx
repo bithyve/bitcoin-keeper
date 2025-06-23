@@ -34,6 +34,8 @@ import Text from './KeeperText';
 import WalletOperations from 'src/services/wallets/operations';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
+import { hp } from 'src/constants/responsive';
 
 const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
@@ -419,11 +421,17 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           setOpenOptionModal(true);
         }}
         Content={() => (
-          <Box>
-            <Text>
-              The transaction has been signed successfully and contains all the required signatures
-            </Text>
-            <Text>Do you want to broadcast the transaction directly?</Text>
+          <Box gap={hp(20)}>
+            <Box alignItems={'center'}>
+              <ThemedSvg name={'broadcastModal'} />
+            </Box>
+            <Box>
+              <Text>
+                The transaction has been signed successfully and contains all the required
+                signatures
+              </Text>
+              <Text>Do you want to broadcast the transaction directly?</Text>
+            </Box>
           </Box>
         )}
       />
@@ -441,12 +449,17 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
           navigation.goBack();
         }}
         Content={() => (
-          <Box>
-            <Text>
-              It is advised to let the originator of the transaction know that the transaction was
-              successfully broadcasted.
-            </Text>
-            <Text>The transaction should be visible on the wallet transaction</Text>
+          <Box gap={hp(20)}>
+            <Box alignItems={'center'}>
+              <ThemedSvg name={'success_illustration'} />
+            </Box>
+            <Box>
+              <Text>
+                It is advised to let the originator of the transaction know that the transaction was
+                successfully broadcasted.
+              </Text>
+              <Text>The transaction should be visible on the wallet transaction</Text>
+            </Box>
           </Box>
         )}
       />

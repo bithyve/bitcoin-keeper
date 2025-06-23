@@ -285,6 +285,8 @@ import KruxSuccessPrivate from 'src/assets/privateImages/kruxSuccessPrivate.svg'
 import KruxSuccessPrivateDark from 'src/assets/privateImages/kruxSuccessPrivateDark.svg';
 import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustration.svg';
 import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
+import Broadcast from 'src/assets/images/BroadCastIllustration.svg';
+import BroadCastPrivate from 'src/assets/privateImages/BroadCastPrivate.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -1008,6 +1010,12 @@ const themeIcons = {
     LIGHT: KeysIcon,
     PRIVATE: PrivateKeyLight,
     PRIVATE_LIGHT: PrivateKeyLight,
+  },
+  broadcastModal: {
+    DARK: Broadcast,
+    LIGHT: Broadcast,
+    PRIVATE: BroadCastPrivate,
+    PRIVATE_LIGHT: BroadCastPrivate,
   },
 };
 
