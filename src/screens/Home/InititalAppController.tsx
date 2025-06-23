@@ -1,5 +1,5 @@
 import { InteractionManager, Linking, Platform } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import {
   RKInteractionMode,
   SignerStorage,
@@ -120,7 +120,7 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
             if (serializedPSBT) {
               try {
                 try {
-                  const signer = signers.find((s) => keyUID == getKeyUID(s));
+                  const signer = signersRef.current.find((s) => keyUID == getKeyUID(s));
                   // TODO: Need to find a way to detect Miniscript in PSBT without having to import the vault
                   let isMiniscript = false;
                   if (!signer) throw { message: errorText.signerNotFound };
@@ -374,8 +374,13 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const { signers } = useSigners();
+  const signersRef = useRef(signers); // to get the latest value of signers in deep link handler
   const myAppKeys = signers.filter((signer) => signer.type === SignerType.MY_KEEPER);
   const myAppKeyCount = myAppKeys.length;
+
+  useEffect(() => {
+    signersRef.current = signers;
+  }, [signers]);
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
