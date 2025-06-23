@@ -409,7 +409,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         visible={broadcastModal}
         close={() => setBroadcastModal(false)}
         title="Broadcast Transaction"
-        subTitle="The transaction has been signed successfully"
+        subTitle="The transaction was signed successfully"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
@@ -427,10 +427,10 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
             </Box>
             <Box>
               <Text>
-                The transaction has been signed successfully and contains all the required
-                signatures
+                The transaction was signed successfully with all the required signatures and is
+                ready to be broadcasted.
               </Text>
-              <Text>Do you want to broadcast the transaction directly?</Text>
+              <Text>Do you want to broadcast the transaction?</Text>
             </Box>
           </Box>
         )}
@@ -458,7 +458,7 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
                 It is advised to let the originator of the transaction know that the transaction was
                 successfully broadcasted.
               </Text>
-              <Text>The transaction should be visible on the wallet transaction</Text>
+              <Text>The transaction should be visible on the wallet's transactions history.</Text>
             </Box>
           </Box>
         )}
