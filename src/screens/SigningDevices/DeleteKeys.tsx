@@ -39,6 +39,7 @@ import HideAllIcon from 'src/assets/images/hide_wallet.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -49,6 +50,7 @@ function DeleteKeys({ route }) {
   const [confirmPassForSigner, setConfirmPassForSigner] = useState(isUaiFlow);
   const { signers } = useSigners('', false);
   const { showToast } = useToastMessage();
+  const { isOnL2Above } = usePlan();
 
   const hiddenSigners = signers.filter(
     (signer) => signer.signerName !== RECOVERY_KEY_SIGNER_NAME && signer.hidden && !signer.archived
@@ -77,12 +79,10 @@ function DeleteKeys({ route }) {
     SHOWALL = 'SHOWALL',
   }
   const [showAll, setshowAll] = useState(false);
+  const [showAllForced, setShowAllForced] = useState(false);
   const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
 
-  const displaySigners =
-    passwordMode === PasswordMode.SHOWALL
-      ? [...allUnhideSigners, ...hiddenSigners]
-      : allUnhideSigners;
+  const displaySigners = showAll ? [...allUnhideSigners, ...hiddenSigners] : allUnhideSigners;
 
   const onSuccess = () => {
     if (signerToDelete) {
@@ -98,6 +98,12 @@ function DeleteKeys({ route }) {
       setSignerToDelete(null);
     }
   };
+  const onForceProceed = () => {
+    if (passwordMode === PasswordMode.SHOWALL) {
+      setShowAllForced(true);
+      showToast(errorText.showingHiddenWallets, <TickIcon />);
+    }
+  };
 
   const unhide = (signer: Signer) => {
     setUnhidingKeyUID(getKeyUID(signer));
@@ -108,10 +114,7 @@ function DeleteKeys({ route }) {
     dispatch(updateSignerDetails(signer, 'hidden', true));
   };
   const onSignerSuccess = () => {
-    if (hiddenSigners.length === 0) {
-      showToast(errorText.noHiddenKey, <TickIcon />);
-      return;
-    } else if (showAll) {
+    if (showAll) {
       setshowAll(false);
       setPasswordMode(PasswordMode.DEFAULT);
       showToast(errorText.hidingKeys, <TickIcon />);
@@ -264,15 +267,23 @@ function DeleteKeys({ route }) {
         <Box backgroundColor="#BABABA" height={0.9} width="100%" />
         <Pressable
           onPress={() => {
-            setConfirmPassForSigner(true);
+            if (showAll) {
+              setshowAll(!showAll);
+              setShowAllForced(false);
+            } else if (showAllForced) {
+              setShowAllForced(!showAllForced);
+            } else {
+              setConfirmPassForSigner(true);
+              setPasswordMode(PasswordMode.SHOWALL);
+            }
           }}
           style={styles.footer}
         >
           <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.bottomIcon}>
-            {showAll ? <HideAllIcon /> : <ShowAllIcon />}
+            {showAll || showAllForced ? <HideAllIcon /> : <ShowAllIcon />}
           </Box>
           <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
-            {showAll ? signerText.hideSigner : signerText.showSigner}
+            {showAll || showAllForced ? signerText.hideSigner : signerText.showSigner}
           </Text>
         </Pressable>
       </Box>
@@ -380,9 +391,11 @@ function DeleteKeys({ route }) {
         Content={() => (
           <Box>
             <PasscodeVerifyModal
+              forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
               useBiometrics={false}
               close={() => setConfirmPassForSigner(false)}
               onSuccess={onSignerSuccess}
+              onForceSuccess={onForceProceed}
             />
           </Box>
         )}
