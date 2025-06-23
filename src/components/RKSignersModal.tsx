@@ -47,7 +47,13 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
 
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { error: errorText, signer: signerText, settings } = translations;
+  const {
+    error: errorText,
+    signer: signerText,
+    settings,
+    common,
+    transactions: tnxText,
+  } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [passportModal, setPassportModal] = useState(false);
@@ -408,14 +414,14 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       <KeeperModal
         visible={broadcastModal}
         close={() => setBroadcastModal(false)}
-        title="Broadcast Transaction"
-        subTitle="The transaction was signed successfully"
+        title={tnxText.broadcastTnxTitle}
+        subTitle={tnxText.broadcastTnxSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Broadcast"
+        buttonText={common.broadCast}
         buttonCallback={onBroadcastTnx}
-        secondaryButtonText="Share Transaction"
+        secondaryButtonText={tnxText.shareTnx}
         secondaryCallback={() => {
           setBroadcastModal(false);
           setOpenOptionModal(true);
@@ -426,11 +432,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
               <ThemedSvg name={'broadcastModal'} />
             </Box>
             <Box>
-              <Text>
-                The transaction was signed successfully with all the required signatures and is
-                ready to be broadcasted.
-              </Text>
-              <Text>Do you want to broadcast the transaction?</Text>
+              <Text>{tnxText.broadcastTnxText1}</Text>
+              <Text>{tnxText.broadcastTnxText2}</Text>
             </Box>
           </Box>
         )}
@@ -438,12 +441,12 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       <KeeperModal
         visible={broadcastSuccess}
         close={() => setBroadcastSuccess(false)}
-        title="Broadcast Successful"
-        subTitle="The transaction was broadcasted successfully"
+        title={tnxText.broadcastSuccessTitle}
+        subTitle={tnxText.broadcastSuccessSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText="Close"
+        buttonText={common.close}
         buttonCallback={async () => {
           setBroadcastSuccess(false);
           navigation.goBack();
@@ -454,11 +457,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
               <ThemedSvg name={'success_illustration'} />
             </Box>
             <Box>
-              <Text>
-                It is advised to let the originator of the transaction know that the transaction was
-                successfully broadcasted.
-              </Text>
-              <Text>The transaction should be visible on the wallet's transactions history.</Text>
+              <Text>{tnxText.broadcastSuccessText1}</Text>
+              <Text>{tnxText.broadcastSuccessText2}</Text>
             </Box>
           </Box>
         )}
