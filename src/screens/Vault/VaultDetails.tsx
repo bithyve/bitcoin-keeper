@@ -435,6 +435,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         txid: cachedTxid,
         isCached: true,
         snapshot,
+        potentialTxId: snapshot.potentialTxId,
       };
       cached.push(cachedTx);
     }
@@ -535,9 +536,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   }, [transactions]);
 
   const validateCachedTnx = () => {
-    if (!cachedTransactions.length) return;
+    if (!cachedTransactions.length || !transactions.length) return;
     for (const tnx of cachedTransactions) {
-      const txid = getTnxIdFromCachedTnx(tnx);
+      const txid = tnx?.potentialTxId || getTnxIdFromCachedTnx(tnx);
       for (const broadcastedTnx of transactions) {
         if (broadcastedTnx.txid === txid) {
           dispatch(dropTransactionSnapshot({ cachedTxid: tnx.txid }));
