@@ -54,7 +54,7 @@ const HandleFileScreen = ({ route, navigation }) => {
       (_) => {
         showToast(errorText.pickValidFile, <ToastErrorIcon />);
       },
-      [SignerType.KEYSTONE, SignerType.KRUX].includes(signerType) ? 'base64' : 'utf8'
+      [SignerType.KEYSTONE].includes(signerType) ? 'base64' : 'utf8'
     );
   };
   const modalSubtitle = {

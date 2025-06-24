@@ -285,6 +285,8 @@ import KruxSuccessPrivate from 'src/assets/privateImages/kruxSuccessPrivate.svg'
 import KruxSuccessPrivateDark from 'src/assets/privateImages/kruxSuccessPrivateDark.svg';
 import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustration.svg';
 import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
+import Broadcast from 'src/assets/images/BroadCastIllustration.svg';
+import BroadCastPrivate from 'src/assets/privateImages/BroadCastPrivate.svg';
 import BtcLogo from 'src/assets/images/Btc-Logo.svg';
 import BtcLogoGold from 'src/assets/privateImages/Btc-Logo-gold.svg';
 import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
@@ -1014,6 +1016,12 @@ const themeIcons = {
     LIGHT: KeysIcon,
     PRIVATE: PrivateKeyLight,
     PRIVATE_LIGHT: PrivateKeyLight,
+  },
+  broadcastModal: {
+    DARK: Broadcast,
+    LIGHT: Broadcast,
+    PRIVATE: BroadCastPrivate,
+    PRIVATE_LIGHT: BroadCastPrivate,
   },
   header_buy_btc: {
     DARK: BtcLogo,

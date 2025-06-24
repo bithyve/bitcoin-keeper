@@ -252,7 +252,16 @@
     "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
     "transactionDetails": "Transaction Details",
     "addTransactionNote": "Add transaction note",
-    "scanSignedTransaction": "Scan Signed Transaction"
+    "scanSignedTransaction": "Scan Signed Transaction",
+    "broadcastTnxTitle": "Broadcast Transaction",
+    "broadcastTnxSubTitle": "The transaction was signed successfully",
+    "shareTnx": "Share Transaction",
+    "broadcastTnxText1": "The transaction was signed successfully with all the required signatures and is ready to be broadcasted.",
+    "broadcastTnxText2": "Do you want to broadcast the transaction?",
+    "broadcastSuccessTitle": "Broadcast Successful",
+    "broadcastSuccessSubTitle": "The transaction was broadcasted successfully",
+    "broadcastSuccessText1": "It is advised to let the originator of the transaction know that the transaction was successfully broadcasted.",
+    "broadcastSuccessText2": "The transaction should be visible on the wallet's transactions history."
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
@@ -1523,7 +1532,11 @@
     "settingUpSigner": "To complete setting up the signer",
     "seedKeyRememberTitle": "Remember Seed Words?",
     "seedKeyRememberSubTitle": "Allow the app to securely store your seed words and sign transactions automatically when needed.",
-    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
+    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure.",
+    "allKeysHidden": "All the keys are hidden",
+    "clickToUnhide": "Click on the Button below to unhide the keys",
+    "hideSigner": "Hide hidden keys",
+    "showSigner": "Show hidden keys"
   },
   "inheritancePlanning": {
     "canaryWallet": "Canary Wallets",
@@ -1878,6 +1891,9 @@
     "errorhealthCheck": "Error in Health check",
     "importFileFrom": "Please import a valid file from",
     "actionNotImplemented": "Action not implemented yet",
+    "noHiddenKey": "No Hidden Keys",
+    "hidingKeys": "Hiding Hidden Keys",
+    "showingKeys": "Showing Hidden Keys",
     "enterMessage": "Please enter the message",
     "signMessageParameter": "Please provide message, address and signature for verification",
     "signatureNotValid": "Signature is not valid for the provided message",

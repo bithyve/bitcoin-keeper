@@ -775,6 +775,16 @@ export const getDayForGraph = (timestamp: number) => {
   return '';
 };
 
+export const isPsbtFullySigned = (psbt) => {
+  try {
+    psbt = bitcoin.Psbt.fromBase64(psbt);
+    psbt.finalizeAllInputs();
+    return psbt.extractTransaction().toHex();
+  } catch (error) {
+    return null;
+  }
+};
+
 export const manipulateBitcoinPrices = (data) => {
   const seenDates = new Set(); // To track unique dates
   const dailyPrice = [];
