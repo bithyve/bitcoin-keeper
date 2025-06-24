@@ -33,7 +33,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
-import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
+import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -58,6 +58,8 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import Buttons from 'src/components/Buttons';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
+
+import { getTnxIdFromCachedTnx } from 'src/utils/utilities';
 
 function Footer({
   vault,
@@ -440,7 +442,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     if (cached.length) {
       cached.reverse(); // order from newest to oldest
       setCachedTransactions(cached);
-    }
+    } else setCachedTransactions([]);
   }, [snapshots]);
 
   useEffect(() => {
@@ -527,6 +529,22 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     ),
     [isCollaborativeWallet, isCanaryWallet]
   );
+
+  useEffect(() => {
+    validateCachedTnx();
+  }, [transactions]);
+
+  const validateCachedTnx = () => {
+    if (!cachedTransactions.length) return;
+    for (const tnx of cachedTransactions) {
+      const txid = getTnxIdFromCachedTnx(tnx);
+      for (const broadcastedTnx of transactions) {
+        if (broadcastedTnx.txid === txid) {
+          dispatch(dropTransactionSnapshot({ cachedTxid: tnx.txid }));
+        }
+      }
+    }
+  };
 
   return (
     <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.primaryBackground`}>

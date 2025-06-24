@@ -24,6 +24,7 @@ import _ from 'lodash';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getRandomBytes } from './service-utilities/encryption';
+import { createHash } from 'crypto';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -783,4 +784,13 @@ export const isPsbtFullySigned = (psbt) => {
   } catch (error) {
     return null;
   }
+};
+
+export const getTnxIdFromCachedTnx = (tnx) => {
+  const psbt = tnx.snapshot.state.sendPhaseTwo.serializedPSBTEnvelops[0].serializedPSBT;
+  const psbtObject = bitcoin.Psbt.fromBase64(psbt);
+  const tx = psbtObject.data.globalMap.unsignedTx;
+  const txBuffer = tx.toBuffer();
+  const hash = createHash('sha256').update(txBuffer).digest();
+  return createHash('sha256').update(hash).digest().reverse().toString('hex');
 };
