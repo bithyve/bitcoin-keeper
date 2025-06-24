@@ -43,7 +43,7 @@ import PinIcon from 'src/assets/images/pin-icon.svg';
 import PasswordModalContent from './PasswordModalContent';
 import CreatePasswordContent from './CreatePasswordContent';
 import { useSelector } from 'react-redux';
-import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -447,7 +447,7 @@ function PrivacyAndDisplay({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <ConfirmCredentialModal
+          <PasscodeVerifyModal
             primaryText={common.confirm}
             close={() => {
               setVisiblePassCode(false);
