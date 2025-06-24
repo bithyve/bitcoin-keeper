@@ -15,6 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import { manipulateBitcoinPrices } from 'src/utils/utilities';
 import BtcGraph from './BtcGraph';
 import Relay from 'src/services/backend/Relay';
+import useWallets from 'src/hooks/useWallets';
+import useVault from 'src/hooks/useVault';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -30,6 +34,11 @@ const BuyBtc = () => {
   const [graphData, setGraphData] = useState([]);
   const [error, setError] = useState(false);
   const [stats, setStats] = useState(null);
+
+  const { wallets } = useWallets();
+  const { allVaults } = useVault({ getHiddenWallets: false });
+  const { showToast } = useToastMessage();
+  const allWallets = [...wallets, ...allVaults];
 
   useEffect(() => {
     loadBtcPrice();
@@ -124,7 +133,10 @@ const BuyBtc = () => {
             <Buttons
               primaryText={buyBTCText.buyBtc}
               fullWidth
-              primaryCallback={() => setVisibleBuyBtc(true)}
+              primaryCallback={() => {
+                if (allWallets.length) setVisibleBuyBtc(true);
+                else showToast('Please create a wallet to proceed.', <ToastErrorIcon />);
+              }}
             />
           </Box>
         </>
@@ -143,6 +155,7 @@ const BuyBtc = () => {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <BuyBtcModalContent
+            allWallets={allWallets}
             setSelectedWallet={setSelectedWallet}
             selectedWallet={selectedWallet}
           />

@@ -1,49 +1,30 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
+import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import WalletWhite from 'src/assets/images/walletWhiteIcon.svg';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { EntityKind } from 'src/services/wallets/enums';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
+import VaultIcon from 'src/assets/images/vault_icon.svg';
 
-const BuyBtcModalContent = ({ setSelectedWallet, selectedWallet }) => {
+const BuyBtcModalContent = ({ allWallets, setSelectedWallet, selectedWallet }) => {
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { buyBTC: buyBTCText } = translations;
   const DashedCtaBorderColor = ThemedColor({ name: 'DashedCtaBorderColor' });
 
-  const buyBtcOptions = [
-    {
-      id: 1,
-      label: buyBTCText.inheritanceWallet,
-      walleticon: <WalletWhite width={wp(18)} height={wp(16)} />,
-      address: '3FZbgi29cpjq2GjdwV8eyHuJ3FZbgi29cxheyxpjq2GjdwV8eyHuJ',
-    },
-    {
-      id: 2,
-      label: buyBTCText.familyWallet,
-      walleticon: <WalletWhite width={wp(18)} height={wp(16)} />,
-      address: '3FZbgi29cpjq2GjdwV8eyHuJ3FZbgi29cpjqxvxvxvxvvx2GjdwV8eyHuJ',
-    },
-    {
-      id: 3,
-      label: buyBTCText.dailyUseWallet,
-      walleticon: <WalletWhite width={wp(18)} height={wp(16)} />,
-      address: '3FZbgi29cpjq2GjdwV8eyHuJ3FZbgi29cpjq2hshshshhsjdwV8eyHuJ',
-    },
-  ];
+  const getWalletIcon = (entityKind) =>
+    entityKind === EntityKind.VAULT ? <VaultIcon /> : <WalletIcon />;
 
   return (
     <Box>
-      {buyBtcOptions.map((option) => {
-        const isSelected = selectedWallet === option.address;
+      {allWallets.map((option) => {
+        const isSelected = selectedWallet === option.specs.receivingAddress;
         return (
           <TouchableOpacity
             key={option.id}
             onPress={() => {
-              setSelectedWallet(option.address);
+              setSelectedWallet(option.specs.receivingAddress);
             }}
           >
             <Box
@@ -54,10 +35,10 @@ const BuyBtcModalContent = ({ setSelectedWallet, selectedWallet }) => {
             >
               <CircleIconWrapper
                 width={40}
-                icon={option.walleticon}
+                icon={getWalletIcon(option.entityKind)}
                 backgroundColor={`${colorMode}.pantoneGreen`}
               />
-              <Text medium>{option.label}</Text>
+              <Text medium>{option.presentationData.name}</Text>
             </Box>
           </TouchableOpacity>
         );
