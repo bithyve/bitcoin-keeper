@@ -752,3 +752,35 @@ export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
   }
   return true;
 };
+
+export const getDayForGraph = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const dayNo = date.getDay();
+  switch (dayNo) {
+    case 0:
+      return `${date.getDate()}\nSun`;
+    case 1:
+      return `${date.getDate()}\nMon`;
+    case 2:
+      return `${date.getDate()}\nTue`;
+    case 3:
+      return `${date.getDate()}\nWed`;
+    case 4:
+      return `${date.getDate()}\nThu`;
+    case 5:
+      return `${date.getDate()}\nFri`;
+    case 6:
+      return `${date.getDate()}\nSat`;
+  }
+  return '';
+};
+
+export const isPsbtFullySigned = (psbt) => {
+  try {
+    psbt = bitcoin.Psbt.fromBase64(psbt);
+    psbt.finalizeAllInputs();
+    return psbt.extractTransaction().toHex();
+  } catch (error) {
+    return null;
+  }
+};

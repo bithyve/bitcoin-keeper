@@ -136,7 +136,7 @@ const setupKeeperSigner = (qrData) => {
   }
 };
 
-const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
+const setupMobileKey = async ({ primaryMnemonic, isMultisig, isMock = false }) => {
   const { bitcoinNetworkType: networkType } = store.getState().settings;
 
   // fetched multi-sig mobile key
@@ -174,6 +174,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
     isMultisig: true,
     xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
     xpubDetails,
+    isMock,
   });
   return { signer: mobileKey, key };
 };
@@ -275,6 +276,20 @@ const setupUSBSigner = (signerType, data, isMultisig) => {
   return { signer, key };
 };
 
+const setupKrux = (qrData, isMultisig) => {
+  const { xpub, derivationPath, masterFingerprint, xpubDetails } = createXpubDetails(qrData);
+  const { signer: krux, key } = generateSignerFromMetaData({
+    xpub,
+    derivationPath,
+    masterFingerprint,
+    signerType: SignerType.KRUX,
+    storageType: SignerStorage.COLD,
+    isMultisig,
+    xpubDetails,
+  });
+  return { signer: krux, key };
+};
+
 export {
   setupPassport,
   setupSeedSigner,
@@ -287,4 +302,5 @@ export {
   setupSeedWordsBasedKey,
   setupUSBSigner,
   setupRecoveryKeySigningKey,
+  setupKrux,
 };

@@ -24,9 +24,7 @@ import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
 import usePlan from 'src/hooks/usePlan';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { useAppSelector } from 'src/store/hooks';
-import KeeperModal from 'src/components/KeeperModal';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
-import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -41,8 +39,6 @@ const KeeperSettings = ({ route }) => {
     confirmPass,
     setConfirmPass,
     planData,
-    hiddenKeyPass,
-    setHiddenKeyPass,
     DeleteBackupModal,
   } = useSettingKeeper();
 
@@ -59,7 +55,6 @@ const KeeperSettings = ({ route }) => {
   const { plan } = usePlan();
   const currentPlan = planData.find((p) => p.plan === plan);
   const { backupAllLoading } = useAppSelector((state) => state.bhr);
-  const onSuccess = () => navigation.dispatch(CommonActions.navigate('DeleteKeys'));
   const InheritanceDocument_border = ThemedColor({ name: 'InheritanceDocument_border' });
 
   return (
@@ -167,26 +162,6 @@ const KeeperSettings = ({ route }) => {
       />
       {DeleteBackupModal}
       <ActivityIndicatorView visible={backupAllLoading} showLoader />
-      <KeeperModal
-        visible={hiddenKeyPass}
-        closeOnOverlayClick={false}
-        close={() => {
-          setHiddenKeyPass(false);
-        }}
-        title={settings.EnterPasscodeTitle}
-        subTitleWidth={wp(240)}
-        subTitle={settings.EnterPasscodeSubtitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={() => (
-          <ConfirmCredentialModal
-            close={() => setHiddenKeyPass(false)}
-            success={onSuccess}
-            useBiometrics={false}
-          />
-        )}
-      />
     </ScrollView>
   );
 };

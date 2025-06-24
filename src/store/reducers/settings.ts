@@ -22,6 +22,7 @@ const initialState: {
   subscription: string;
   bitcoinNetwork: bitcoinJS.Network;
   bitcoinNetworkType: NetworkType;
+  appWideLoading: boolean;
 } = {
   loginMethod: LoginMethod.PIN,
   fallbackLoginMethod: null,
@@ -38,6 +39,7 @@ const initialState: {
   subscription: SubscriptionTier.L1,
   bitcoinNetwork: null,
   bitcoinNetworkType: null,
+  appWideLoading: false,
 };
 
 const settingsSlice = createSlice({
@@ -84,6 +86,9 @@ const settingsSlice = createSlice({
           ? bitcoinJS.networks.bitcoin
           : bitcoinJS.networks.testnet;
     },
+    setAppWideLoading(state, action: PayloadAction<boolean>) {
+      state.appWideLoading = action.payload;
+    },
   },
 });
 
@@ -100,6 +105,7 @@ export const {
   setSubscription,
   setBitcoinNetwork,
   setFallbackLoginMethod,
+  setAppWideLoading,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
