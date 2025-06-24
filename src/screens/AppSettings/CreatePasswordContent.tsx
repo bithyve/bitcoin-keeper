@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Buttons from 'src/components/Buttons';
@@ -8,15 +8,22 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import { useAppSelector } from 'src/store/hooks';
 import { changeAuthCred, changeLoginMethod } from 'src/store/sagaActions/login';
 
 interface Props {
   close?: () => void;
   onSuccess?: () => void;
   oldPassword?: string;
+  updateBiometricAfterPasscodeChange?: () => void;
 }
 
-const CreatePasswordContent = ({ close, onSuccess, oldPassword }: Props) => {
+const CreatePasswordContent = ({
+  close,
+  onSuccess,
+  oldPassword,
+  updateBiometricAfterPasscodeChange,
+}: Props) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -25,6 +32,7 @@ const CreatePasswordContent = ({ close, onSuccess, oldPassword }: Props) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
 
   const handleContinue = () => {
     if (!password || !confirmPassword) {
@@ -34,7 +42,11 @@ const CreatePasswordContent = ({ close, onSuccess, oldPassword }: Props) => {
     } else {
       setError('');
       dispatch(changeAuthCred(oldPassword, password));
-      dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+      if (loginMethod === LoginMethod.BIOMETRIC) {
+        updateBiometricAfterPasscodeChange();
+      } else {
+        dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+      }
       onSuccess();
       close();
     }

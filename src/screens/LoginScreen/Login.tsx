@@ -53,6 +53,7 @@ import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustrati
 import { uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 import KeeperTextInput from 'src/components/KeeperTextInput';
+import { useSelector } from 'react-redux';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -99,6 +100,7 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
   const { allAccounts, biometricEnabledAppId } = useAppSelector((state) => state.account);
+  const fallbackLoginMethod = useSelector((state) => state.settings.fallbackLoginMethod);
 
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [campaignDetails, setCampaignDetails] = useState(null);
@@ -188,6 +190,8 @@ function LoginScreen({ navigation, route }) {
       try {
         setTimeout(async () => {
           if (canLogin) {
+            console.log('canLogin', canLogin);
+
             const { success, signature } = await RNBiometrics.createSignature({
               promptMessage: 'Authenticate',
               payload: appId,
@@ -305,9 +309,15 @@ function LoginScreen({ navigation, route }) {
 
   const attemptLogin = (passcode: string) => {
     setLoginModal(true);
-    if (loginMethod === LoginMethod.PIN) {
+    if (
+      loginMethod === LoginMethod.PIN ||
+      (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PIN')
+    ) {
       dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
-    } else if (loginMethod === LoginMethod.PASSWORD) {
+    } else if (
+      loginMethod === LoginMethod.PASSWORD ||
+      (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PASSWORD')
+    ) {
       dispatch(credsAuth(passcode, LoginMethod.PASSWORD, relogin));
     }
   };
@@ -474,7 +484,7 @@ function LoginScreen({ navigation, route }) {
     <Box style={styles.content} safeAreaTop backgroundColor={slider_background}>
       <Box flex={1}>
         <StatusBar />
-        {loginMethod === LoginMethod.PIN ? (
+        {loginMethod === LoginMethod.PIN || fallbackLoginMethod === 'PIN' ? (
           <Box flex={1}>
             <Box>
               <Box style={styles.testnetIndicatorWrapper}>

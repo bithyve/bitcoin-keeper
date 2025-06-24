@@ -9,7 +9,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import { changeAuthCred, changeLoginMethod } from 'src/store/sagaActions/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { setThemeMode } from 'src/store/reducers/settings';
+import { setFallbackLoginMethod, setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
@@ -43,6 +43,7 @@ import PasswordIcon from 'src/assets/images/password-ico.svg';
 import PinIcon from 'src/assets/images/pin-icon.svg';
 import PasswordModalContent from './PasswordModalContent';
 import CreatePasswordContent from './CreatePasswordContent';
+import { useSelector } from 'react-redux';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -51,6 +52,7 @@ function ConfirmPasscode({
   setConfirmPasscodeModal,
   onCredsChange,
   setShowSetPasscodeModal,
+  updateBiometricAfterPasscodeChange,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -62,6 +64,9 @@ function ConfirmPasscode({
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { credsChanged } = useAppSelector((state) => state.login);
+  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+
+  console.log('loginMethod in pin ', loginMethod);
 
   useEffect(() => {
     if (credsChanged === 'changed') {
@@ -166,7 +171,12 @@ function ConfirmPasscode({
                 primaryText={common.confirm}
                 primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
-                  dispatch(changeLoginMethod(LoginMethod.PIN));
+                  if (loginMethod === LoginMethod.BIOMETRIC) {
+                    // dispatch(setFallbackLoginMethod(LoginMethod.PIN));
+                    updateBiometricAfterPasscodeChange();
+                  } else {
+                    dispatch(changeLoginMethod(LoginMethod.PIN));
+                  }
                   setShowSetPasscodeModal(false);
                 }}
                 fullWidth
@@ -223,6 +233,8 @@ function PrivacyAndDisplay({ route }) {
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [credsChanged, setCredsChanged] = useState('');
   const { isOnL4 } = usePlan();
+  const fallbackLoginMethod = useSelector((state) => state.settings.fallbackLoginMethod);
+  console.log('fallbackLoginMethod', fallbackLoginMethod);
 
   useEffect(() => {
     if (credsChanged === 'changed') {
@@ -235,7 +247,6 @@ function PrivacyAndDisplay({ route }) {
   useEffect(() => {
     init();
   }, []);
-  console.log('route?.params', route?.params);
 
   useEffect(() => {
     if (RKBackedUp) {
@@ -282,7 +293,6 @@ function PrivacyAndDisplay({ route }) {
     }
   };
   console.log('loginMethod', loginMethod);
-  console.log('showSetPasscodeModal', showSetPasscodeModal);
 
   const requestPermission = () => {
     Linking.openSettings();
@@ -302,10 +312,10 @@ function PrivacyAndDisplay({ route }) {
           });
           if (success) {
             const { publicKey } = await RNBiometrics.createKeys();
-            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, loginMethod));
           }
-        } else {
-          dispatch(changeLoginMethod(LoginMethod.PIN || LoginMethod.PASSWORD));
+        } else if (loginMethod === LoginMethod.BIOMETRIC) {
+          dispatch(changeLoginMethod(fallbackLoginMethod || LoginMethod.PIN));
         }
       } else {
         setSensorAvailable(false);
@@ -317,12 +327,53 @@ function PrivacyAndDisplay({ route }) {
     }
   };
 
+  const updateBiometricAfterPasscodeChange = async () => {
+    try {
+      const { available } = await RNBiometrics.isSensorAvailable();
+
+      if (!available) {
+        setSensorAvailable(false);
+        showToast(errorText.biometricNotEnabled, <ToastErrorIcon />);
+        return;
+      }
+      const { keysExist } = await RNBiometrics.biometricKeysExist();
+      const { success } = await RNBiometrics.simplePrompt({
+        promptMessage: errorText.confirmIdentity,
+      });
+
+      if (!success) {
+        showToast('Failed to update biometric authentication.', <ToastErrorIcon />);
+        if (fallbackLoginMethod === 'PIN') {
+          dispatch(changeLoginMethod(LoginMethod.PIN));
+        } else if (fallbackLoginMethod === 'PASSWORD') {
+          dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+        }
+        return;
+      }
+      if (keysExist) {
+        await RNBiometrics.deleteKeys();
+      }
+      const { publicKey } = await RNBiometrics.createKeys();
+
+      dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, fallbackLoginMethod));
+      showToast('Biometric updated successfully');
+    } catch (error) {
+      console.log('Biometric update failed:', error);
+      showToast('Failed to update biometric authentication.', <ToastErrorIcon />);
+      setSensorAvailable(false);
+    }
+  };
+  console.log('loginMethod', loginMethod);
+
   const PrivacyAndDisplay = [
     {
       title: 'PIN',
       description: 'Current Screen Lock',
       onPress: () => {
-        if (loginMethod === LoginMethod.PIN) {
+        if (
+          loginMethod === LoginMethod.PIN ||
+          (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PIN')
+        ) {
           setVisiblePassCode(true);
         } else {
           setVisiblePassword(true);
@@ -335,7 +386,10 @@ function PrivacyAndDisplay({ route }) {
       title: 'Password',
       description: 'Enter 4 or more digits/letters',
       onPress: () => {
-        if (loginMethod === LoginMethod.PASSWORD) {
+        if (
+          loginMethod === LoginMethod.PASSWORD ||
+          (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PASSWORD')
+        ) {
           setVisiblePassword(true);
           setShowSetPasscodeModal(false);
         } else {
@@ -374,6 +428,7 @@ function PrivacyAndDisplay({ route }) {
         ),
     },
   ];
+  console.log('showSetPasscodeModal', showSetPasscodeModal);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -431,6 +486,7 @@ function PrivacyAndDisplay({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasswordModalContent
+            oldPassword={oldPassword}
             close={() => setVisiblePassword(false)}
             onSuccess={(password) => {
               if (data.length === 0) {
@@ -511,6 +567,7 @@ function PrivacyAndDisplay({ route }) {
             oldPassword={oldPassword}
             onCredsChange={() => setCredsChanged('changed')}
             setShowSetPasscodeModal={setShowSetPasscodeModal}
+            updateBiometricAfterPasscodeChange={updateBiometricAfterPasscodeChange}
           />
         )}
       />
@@ -578,6 +635,7 @@ function PrivacyAndDisplay({ route }) {
             close={() => setCreatePasswordModal(false)}
             onSuccess={() => setCredsChanged('changed')}
             oldPassword={oldPassword}
+            updateBiometricAfterPasscodeChange={updateBiometricAfterPasscodeChange}
           />
         )}
       />

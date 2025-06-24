@@ -19,11 +19,16 @@ export const storeCreds = (passcode, callback = null) => ({
   },
 });
 
-export const changeLoginMethod = (method: LoginMethod, pubKey: string = '') => ({
+export const changeLoginMethod = (
+  method: LoginMethod,
+  pubKey: string = '',
+  fallbackMethod = null
+) => ({
   type: CHANGE_LOGIN_METHOD,
   payload: {
     method,
     pubKey,
+    fallbackMethod,
   },
 });
 

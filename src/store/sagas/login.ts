@@ -49,7 +49,7 @@ import {
 import { RootState, store } from '../store';
 import { createWatcher } from '../utilities';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
-import { setLoginMethod } from '../reducers/settings';
+import { setLoginMethod, setFallbackLoginMethod } from '../reducers/settings';
 import { setSubscription } from 'src/store/sagaActions/settings';
 import { backupAllSignersAndVaults } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
@@ -410,20 +410,28 @@ export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_
 function* changeLoginMethodWorker({
   payload,
 }: {
-  payload: { method: LoginMethod; pubKey: string };
+  payload: {
+    method: LoginMethod;
+    pubKey: string;
+    fallbackMethod: LoginMethod.PIN | LoginMethod.PASSWORD;
+  };
 }) {
   try {
-    const { method, pubKey } = payload;
+    const { method, pubKey, fallbackMethod } = payload;
+    console.log('payload', payload);
+
     const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     if (method === LoginMethod.BIOMETRIC) {
       const savePubKey = yield call(SecureStore.storeBiometricPubKey, pubKey, keeperApp?.id);
       if (savePubKey) {
         yield put(setLoginMethod(method));
+        yield put(setFallbackLoginMethod(fallbackMethod));
         if (keeperApp?.id) yield put(setBiometricEnabledAppId(keeperApp?.id));
       }
     } else {
       yield put(setLoginMethod(method));
       yield put(setBiometricEnabledAppId(null));
+      yield put(setFallbackLoginMethod(null));
     }
   } catch (err) {
     console.log('🚀 ~ changeLoginMethodWorker:', err);
