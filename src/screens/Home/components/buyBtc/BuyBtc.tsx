@@ -11,7 +11,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
 import BuyBtcModalContent from './BuyBtcModalContent';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { manipulateBitcoinPrices } from 'src/utils/utilities';
 import BtcGraph from './BtcGraph';
 import Relay from 'src/services/backend/Relay';
@@ -163,7 +163,9 @@ const BuyBtc = () => {
         buttonText={common.proceed}
         buttonCallback={() => {
           setVisibleBuyBtc(false);
-          navigation.navigate('BuyBtcRamp', { selectedWallet });
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: selectedWallet } })
+          );
         }}
       />
     </View>

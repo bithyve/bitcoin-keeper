@@ -19,12 +19,13 @@ const BuyBtcModalContent = ({ allWallets, setSelectedWallet, selectedWallet }) =
   return (
     <Box>
       {allWallets.map((option) => {
-        const isSelected = selectedWallet === option.specs.receivingAddress;
+        const isSelected =
+          selectedWallet?.specs?.receivingAddress === option?.specs?.receivingAddress;
         return (
           <TouchableOpacity
             key={option.id}
             onPress={() => {
-              setSelectedWallet(option.specs.receivingAddress);
+              setSelectedWallet(option);
             }}
           >
             <Box
