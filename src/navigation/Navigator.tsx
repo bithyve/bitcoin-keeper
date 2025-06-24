@@ -143,9 +143,7 @@ import SetupAdditionalServerKey from 'src/screens/SigningDevices/SetupAdditional
 import { DiscountedPlanScreen } from 'src/screens/ChoosePlanScreen/DiscountedPlanScreen';
 import { MultiUserScreen } from 'src/screens/AppSettings/MultiUserScreen';
 import { AddMultipleXpubFiles } from 'src/screens/AddSigner/AddMultipleXpubFiles';
-import BuyBtcRamp from 'src/screens/Home/components/buyBtc/BuyBtcRamp';
 import { SignMessageScreen } from 'src/screens/WalletDetails/SignMessageScreen';
-
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -256,7 +254,6 @@ function AppStack() {
         <Stack.Screen name="AdditionalUsers" component={AdditionalUsers} />
         <Stack.Screen name="ServerKeySuccessScreen" component={ServerKeySuccessScreen} />
         <Stack.Screen name="SetupAdditionalServerKey" component={SetupAdditionalServerKey} />
-        <Stack.Screen name="BuyBtcRamp" component={BuyBtcRamp} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />
