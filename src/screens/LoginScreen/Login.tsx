@@ -189,8 +189,6 @@ function LoginScreen({ navigation, route }) {
       try {
         setTimeout(async () => {
           if (canLogin) {
-            console.log('canLogin', canLogin);
-
             const { success, signature } = await RNBiometrics.createSignature({
               promptMessage: 'Authenticate',
               payload: appId,

@@ -167,7 +167,7 @@ export default function CreatePin(props) {
 
           if (success) {
             const { publicKey } = await RNBiometrics.createKeys();
-            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, LoginMethod.PIN));
             props.navigation.replace('OnBoardingSlides');
           } else {
             showToast(errorText.biometicAuthFailed, <ToastErrorIcon />);

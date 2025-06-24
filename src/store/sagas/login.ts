@@ -273,8 +273,6 @@ function* credentialsAuthWorker({ payload }) {
             RealmSchema.KeeperApp
           );
           if (updatedSubs.level > 2) yield put(setAllCampaigns(true));
-          console.log('method', method);
-
           const { pendingAllBackup, automaticCloudBackup } = yield select(
             (state: RootState) => state.bhr
           );
@@ -418,8 +416,6 @@ function* changeLoginMethodWorker({
 }) {
   try {
     const { method, pubKey, fallbackMethod } = payload;
-    console.log('payload', payload);
-
     const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     if (method === LoginMethod.BIOMETRIC) {
       const savePubKey = yield call(SecureStore.storeBiometricPubKey, pubKey, keeperApp?.id);
