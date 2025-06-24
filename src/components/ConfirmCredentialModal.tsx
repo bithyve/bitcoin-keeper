@@ -26,8 +26,6 @@ const ConfirmCredentialModal = ({
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const fallbackLoginMethod = useSelector((state) => state.settings.fallbackLoginMethod);
 
-  console.log({ loginMethod, fallbackLoginMethod });
-
   return (
     <Box>
       {(loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PIN') ||
