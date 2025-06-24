@@ -1,6 +1,6 @@
 import { Box, ScrollView, useColorMode, View } from 'native-base';
-import React, { useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
@@ -8,11 +8,13 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useExchangeRates from 'src/hooks/useExchangeRates';
-import FeeGraph from 'src/screens/FeeInsights/FeeGraph';
 import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
 import BuyBtcModalContent from './BuyBtcModalContent';
 import { useNavigation } from '@react-navigation/native';
+import { manipulateBitcoinPrices } from 'src/utils/utilities';
+import BtcGraph from './BtcGraph';
+import Relay from 'src/services/backend/Relay';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -25,84 +27,112 @@ const BuyBtc = () => {
   const [visibleBuyBtc, setVisibleBuyBtc] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState(null);
   const navigation = useNavigation();
+  const [graphData, setGraphData] = useState([]);
+  const [error, setError] = useState(false);
+  const [stats, setStats] = useState(null);
 
-  //   dummy data for graph
-  const oneWeekFeeRate = [
-    { timestamp: 1718140800, avgFee_75: 15 },
-    { timestamp: 1718227200, avgFee_75: 20 },
-    { timestamp: 1718313600, avgFee_75: 25 },
-    { timestamp: 1718400000, avgFee_75: 18 },
-    { timestamp: 1718486400, avgFee_75: 22 },
-    { timestamp: 1718572800, avgFee_75: 30 },
-    { timestamp: 1718659200, avgFee_75: 28 },
-  ];
+  useEffect(() => {
+    loadBtcPrice();
+  }, []);
 
-  const oneDayFeeRate = [{ timestamp: 1718659200, avgFee_75: 28 }];
+  const loadBtcPrice = async () => {
+    try {
+      const data = await Relay.getBtcPrice(currencyCode);
+      const { dailyPrice, high24h, latestPrice, low24h } = manipulateBitcoinPrices(data?.prices);
+      setGraphData(dailyPrice);
+      setStats({ high24h, low24h, latestPrice });
+    } catch (error) {
+      console.log('🚀 ~ loadBtcPrice ~ error:', error);
+      setError(true);
+    }
+  };
+
+  if (error) {
+    return (
+      <View flex={1} backgroundColor={`${colorMode}.primaryBackground`}>
+        <Text>{common.somethingWrong}</Text>
+      </View>
+    );
+  }
 
   return (
     <View flex={1} backgroundColor={`${colorMode}.primaryBackground`}>
-      <ScrollView style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
-        <Box style={styles.header}>
-          <Box style={styles.btc_container}>
-            <Box style={styles.logo_container} backgroundColor={`${colorMode}.btcLogoBackground`}>
-              <ThemedSvg name={'bitcoin_logo'} width={wp(24)} height={wp(24)} />
+      {graphData.length > 0 ? (
+        <>
+          <ScrollView style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
+            <Box style={styles.header}>
+              <Box style={styles.btc_container}>
+                <Box
+                  style={styles.logo_container}
+                  backgroundColor={`${colorMode}.btcLogoBackground`}
+                >
+                  <ThemedSvg name={'bitcoin_logo'} width={wp(24)} height={wp(24)} />
+                </Box>
+                <Box>
+                  <Text fontSize={17} fontWeight="bold" color={`${colorMode}.primaryText`}>
+                    BTC
+                  </Text>
+                  <Text
+                    fontSize={15}
+                    color={
+                      isDarkMode ? `${colorMode}.buttonText` : `${colorMode}.secondaryLightGrey`
+                    }
+                  >
+                    {buyBTCText.bitCoin}
+                  </Text>
+                </Box>
+              </Box>
+              <Box>
+                <Text fontSize={16} fontWeight="bold" color={`${colorMode}.primaryText`}>
+                  {`${new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(stats?.latestPrice)} ${BtcPrice?.symbol}`}
+                </Text>
+              </Box>
+            </Box>
+            <Box style={styles.graph_container}>
+              <BtcGraph dataSet={graphData} spacing={52} yAxisLabelWidth={20} />
             </Box>
             <Box>
-              <Text fontSize={17} fontWeight="bold" color={`${colorMode}.primaryText`}>
-                BTC
+              <Text fontSize={16} semiBold>
+                {buyBTCText.marketInfo}
               </Text>
-              <Text
-                fontSize={15}
-                color={isDarkMode ? `${colorMode}.buttonText` : `${colorMode}.secondaryLightGrey`}
-              >
-                {buyBTCText.bitCoin}
-              </Text>
+              <Box style={styles.cards_container}>
+                <Box style={styles.card} borderColor={`${colorMode}.separator`}>
+                  <Text>{`24h ${buyBTCText.high}`}</Text>
+                  <Text fontSize={16} fontWeight="bold" color={Colors.PersianGreen}>
+                    {`${new Intl.NumberFormat('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(stats?.high24h)} ${BtcPrice?.symbol}`}
+                  </Text>
+                </Box>
+                <Box style={styles.card} borderColor={`${colorMode}.separator`}>
+                  <Text>{`24h ${buyBTCText.low}`}</Text>
+                  <Text fontSize={16} fontWeight="bold" color={Colors.CrimsonRed}>
+                    {`${new Intl.NumberFormat('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(stats?.low24h)} ${BtcPrice?.symbol}`}
+                  </Text>
+                </Box>
+              </Box>
             </Box>
+          </ScrollView>
+          <Box style={styles.button_container}>
+            <Buttons
+              primaryText={buyBTCText.buyBtc}
+              fullWidth
+              primaryCallback={() => setVisibleBuyBtc(true)}
+            />
           </Box>
-          <Box>
-            <Text fontSize={16} fontWeight="bold" color={`${colorMode}.primaryText`}>
-              {`${new Intl.NumberFormat('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }).format(BtcPrice?.last)} ${BtcPrice?.symbol}`}
-            </Text>
-          </Box>
+        </>
+      ) : (
+        <Box alignItems={'center'} justifyContent={'center'}>
+          <ActivityIndicator />
         </Box>
-        <Box style={styles.graph_container}>
-          <FeeGraph
-            dataSet={oneWeekFeeRate}
-            recentData={oneDayFeeRate}
-            spacing={52}
-            yAxisLabelWidth={20}
-          />
-        </Box>
-        <Box>
-          <Text fontSize={16} semiBold>
-            {buyBTCText.marketInfo}
-          </Text>
-          <Box style={styles.cards_container}>
-            <Box style={styles.card} borderColor={`${colorMode}.separator`}>
-              <Text>{`24h ${buyBTCText.high}`}</Text>
-              <Text fontSize={16} fontWeight="bold" color={Colors.PersianGreen}>
-                $106,807
-              </Text>
-            </Box>
-            <Box style={styles.card} borderColor={`${colorMode}.separator`}>
-              <Text>{`24h ${buyBTCText.low}`}</Text>
-              <Text fontSize={16} fontWeight="bold" color={Colors.CrimsonRed}>
-                $105,807
-              </Text>
-            </Box>
-          </Box>
-        </Box>
-      </ScrollView>
-      <Box style={styles.button_container}>
-        <Buttons
-          primaryText={buyBTCText.buyBtc}
-          fullWidth
-          primaryCallback={() => setVisibleBuyBtc(true)}
-        />
-      </Box>
+      )}
       <KeeperModal
         visible={visibleBuyBtc}
         close={() => setVisibleBuyBtc(false)}

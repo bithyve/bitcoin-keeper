@@ -774,3 +774,66 @@ export const getDayForGraph = (timestamp: number) => {
   }
   return '';
 };
+
+export const manipulateBitcoinPrices = (data) => {
+  const seenDates = new Set(); // To track unique dates
+  const dailyPrice = [];
+
+  let latestTimestamp = 0;
+  let latestPrice = null;
+
+  const now = Date.now();
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+
+  let high24h = -Infinity;
+  let low24h = Infinity;
+
+  // Temporary object to help pick the latest entry per day
+  const dateToEntry = {};
+
+  for (const [timestamp, price] of data) {
+    const dateObject = new Date(timestamp);
+    const date = dateObject.getMonth() + '/' + dateObject.getDate();
+
+    // Track the latest timestamp for each date
+    if (!dateToEntry[date] || timestamp > dateToEntry[date].timestamp) {
+      dateToEntry[date] = { timestamp, price };
+    }
+
+    // Track overall latest price
+    if (timestamp > latestTimestamp) {
+      latestTimestamp = timestamp;
+      latestPrice = price;
+    }
+
+    // 24h high and low
+    if (timestamp >= dayAgo) {
+      if (price > high24h) high24h = price;
+      if (price < low24h) low24h = price;
+    }
+  }
+
+  // Convert to array and use Set to ensure one entry per date
+  for (const date in dateToEntry) {
+    const { timestamp, price } = dateToEntry[date];
+    if (!seenDates.has(date)) {
+      seenDates.add(date);
+      dailyPrice.push({
+        label: getDayForGraph(timestamp),
+        value: price,
+      });
+    }
+  }
+
+  return { dailyPrice, latestPrice, high24h, low24h };
+};
+
+export const compactNumber = (value) => {
+  if (Math.abs(value) >= 1_000_000) {
+    return (value / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+  } else if (Math.abs(value) >= 1_000) {
+    return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+  } else {
+    return value.toString();
+  }
+};
