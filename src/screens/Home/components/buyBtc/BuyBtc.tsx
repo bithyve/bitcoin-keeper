@@ -101,7 +101,7 @@ const BuyBtc = () => {
               </Box>
             </Box>
             <Box style={styles.graph_container}>
-              <BtcGraph dataSet={graphData} spacing={52} yAxisLabelWidth={20} />
+              <BtcGraph dataSet={graphData} spacing={50} yAxisLabelWidth={40} />
             </Box>
             <Box>
               <Text fontSize={16} semiBold>

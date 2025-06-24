@@ -9,9 +9,8 @@ import { compactNumber } from 'src/utils/utilities';
 
 const NO_OF_SECTIONS_Y = 7;
 
-const BtcGraph = (props) => {
+const BtcGraph = ({ dataSet, yAxisLabelWidth, spacing }) => {
   const { colorMode } = useColorMode();
-  const { dataSet } = props;
   const yOffset = Math.floor(Math.min(...dataSet.map((item) => item.value)) * 0.99);
 
   function generateBufferedLabels(arr) {
@@ -67,15 +66,15 @@ const BtcGraph = (props) => {
           scrollAnimation
           initialSpacing={20}
           data={dataSet}
-          spacing={50}
-          thickness={5}
+          spacing={spacing}
+          thickness={3}
           hideOrigin
           hideDataPoints1
           noOfSections={NO_OF_SECTIONS_Y - 1}
           yAxisOffset={yOffset}
           yAxisColor={customTheme.colors[colorMode].lightSeashell}
           xAxisColor={customTheme.colors[colorMode].lightSeashell}
-          yAxisLabelWidth={50}
+          yAxisLabelWidth={yAxisLabelWidth}
           yAxisLabelTexts={generateBufferedLabels(dataSet.map((item) => item.value))}
           color={customTheme.colors[colorMode].Border}
           yAxisTextStyle={{
@@ -90,7 +89,7 @@ const BtcGraph = (props) => {
           areaGradientId="ag"
           areaGradientComponent={() => {
             return (
-              <LinearGradient id="ag" x1="1" y1="0" x2="0" y2="1">
+              <LinearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
                 <Stop offset="0" stopColor={customTheme.colors[colorMode].pantoneGreen} />
                 <Stop offset="1" stopColor={customTheme.colors[colorMode].seashellWhite} />
               </LinearGradient>
