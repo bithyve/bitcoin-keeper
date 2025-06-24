@@ -31,7 +31,6 @@ import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { getSignerNameFromType } from 'src/hardware';
 import { KEEPER_KNOWLEDGEBASE } from 'src/utils/service-utilities/config';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault, refillMobileKey } from 'src/store/sagaActions/vaults';
 import { generateVaultId } from 'src/services/wallets/factories/VaultFactory';
@@ -64,6 +63,7 @@ import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import RegisterSignerContent from './components/RegisterSignerContent';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 const { width } = Dimensions.get('screen');
 
@@ -1075,12 +1075,12 @@ function SignerAdvanceSettings({ route }: any) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={onSuccess}
+            success={onSuccess}
           />
         )}
       />

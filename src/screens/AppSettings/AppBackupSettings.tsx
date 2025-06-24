@@ -6,7 +6,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import OptionCard from 'src/components/OptionCard';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -31,6 +30,7 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import BackupModalContent from './BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import WalletHeader from 'src/components/WalletHeader';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 function AppBackupSettings() {
   const { colorMode } = useColorMode();
@@ -160,15 +160,15 @@ function AppBackupSettings() {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
+          <ConfirmCredentialModal
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={() => {
+            success={() => {
               setConfirmPassVisible(false);
               setBackupModalVisible(true);
             }}
+            useBiometrics={true}
           />
         )}
       />

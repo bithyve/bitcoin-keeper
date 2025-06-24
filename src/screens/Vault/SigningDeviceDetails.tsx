@@ -48,7 +48,6 @@ import { uaiType } from 'src/models/interfaces/Uai';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import BackupModalContent from 'src/screens/AppSettings/BackupModal';
 import { getPersistedDocument } from 'src/services/documents';
 import { generateDataFromPSBT, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
@@ -78,6 +77,7 @@ import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import HexagonIcon from 'src/components/HexagonIcon';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 export const SignersReqVault = [
   SignerType.LEDGER,
@@ -997,12 +997,12 @@ function SigningDeviceDetails({ route }) {
               textColor={`${colorMode}.textGreen`}
               subTitleColor={`${colorMode}.modalSubtitleBlack`}
               Content={() => (
-                <PasscodeVerifyModal
-                  useBiometrics
+                <ConfirmCredentialModal
+                  useBiometrics={true}
                   close={() => {
                     setConfirmPassVisible(false);
                   }}
-                  onSuccess={() => {
+                  success={() => {
                     setShowMobileKeyModal(false);
                     setBackupModalVisible(true);
                   }}

@@ -18,7 +18,6 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import HealthCheckComponent from 'src/components/Backup/HealthCheckComponent';
@@ -44,6 +43,7 @@ import PinIcon from 'src/assets/images/pin-icon.svg';
 import PasswordModalContent from './PasswordModalContent';
 import CreatePasswordContent from './CreatePasswordContent';
 import { useSelector } from 'react-redux';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -447,7 +447,7 @@ function PrivacyAndDisplay({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             primaryText={common.confirm}
             close={() => {
               setVisiblePassCode(false);
@@ -461,6 +461,7 @@ function PrivacyAndDisplay({ route }) {
                 setPasscodeHCModal(true);
               }
             }}
+            useBiometrics={false}
           />
         )}
       />
@@ -474,7 +475,6 @@ function PrivacyAndDisplay({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasswordModalContent
-            oldPassword={oldPassword}
             close={() => setVisiblePassword(false)}
             onSuccess={(password) => {
               if (data.length === 0) {

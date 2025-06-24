@@ -82,7 +82,6 @@ import {
   setupSpecter,
 } from 'src/hardware/signerSetup';
 import { extractColdCardExport } from 'src/hardware/coldcard';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import NFC from 'src/services/nfc';
@@ -100,6 +99,7 @@ import BackupModalContent from '../AppSettings/BackupModal';
 import SignerOptionCard from './components/signerOptionCard';
 import ColdCardUSBInstruction from './components/ColdCardUSBInstruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 const SIGEERS_SUPPORT_MULTIPLE_XPUBS = [
@@ -2209,11 +2209,11 @@ function HardwareModalMap({
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={() => {
+            success={() => {
               if (type === SignerType.MY_KEEPER && mode === InteracationMode.HEALTH_CHECK) {
                 setConfirmPassVisible(false);
                 setBackupModalVisible(true);

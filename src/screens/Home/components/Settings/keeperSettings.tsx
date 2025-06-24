@@ -25,8 +25,8 @@ import usePlan from 'src/hooks/usePlan';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { useAppSelector } from 'src/store/hooks';
 import KeeperModal from 'src/components/KeeperModal';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 const KeeperSettings = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -180,12 +180,10 @@ const KeeperSettings = ({ route }) => {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
+            close={() => setHiddenKeyPass(false)}
+            success={onSuccess}
             useBiometrics={false}
-            close={() => {
-              setHiddenKeyPass(false);
-            }}
-            onSuccess={onSuccess}
           />
         )}
       />

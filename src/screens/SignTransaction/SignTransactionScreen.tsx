@@ -30,7 +30,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSignerMap from 'src/hooks/useSignerMap';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { DelayedTransaction } from 'src/models/interfaces/AssistedKeys';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
@@ -60,6 +59,7 @@ import {
 } from './signWithSD';
 import SendSuccessfulContent from '../Send/SendSuccessfulContent';
 import WalletHeader from 'src/components/WalletHeader';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -799,12 +799,12 @@ function SignTransactionScreen() {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={onSuccess}
+            success={onSuccess}
           />
         )}
       />

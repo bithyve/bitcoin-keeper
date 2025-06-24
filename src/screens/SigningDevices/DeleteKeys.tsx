@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import HiddenKeyIcon from 'src/assets/images/hidden-key.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import useSigners from 'src/hooks/useSigners';
 import { StyleSheet, ScrollView } from 'react-native';
@@ -35,6 +33,7 @@ import TorAsset from 'src/components/Loader';
 import moment from 'moment';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -311,10 +310,11 @@ function DeleteKeys({ route }) {
                 </Box>
               </Box>
             )}
-            <PasscodeVerifyModal
+
+            <ConfirmCredentialModal
               useBiometrics={false}
               close={() => setConfirmPassVisible(false)}
-              onSuccess={onSuccess}
+              success={onSuccess}
             />
           </Box>
         )}

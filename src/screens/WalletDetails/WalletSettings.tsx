@@ -10,7 +10,6 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import useWallets from 'src/hooks/useWallets';
 import { Pressable, StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useTestSats from 'src/hooks/useTestSats';
 import idx from 'idx';
 import dbManager from 'src/storage/realm/dbManager';
@@ -31,6 +30,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -176,12 +176,12 @@ function WalletSettings({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
+          <ConfirmCredentialModal
+            useBiometrics={true}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={() => {
+            success={() => {
               setConfirmPassVisible(false);
               setBackupModalVisible(true);
             }}

@@ -14,9 +14,8 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 interface Props {
   close?: Function;
   onSuccess?: Function;
-  oldPassword?: any;
 }
-const PasswordModalContent = ({ close, onSuccess, oldPassword }: Props) => {
+const PasswordModalContent = ({ close, onSuccess }: Props) => {
   const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -24,8 +23,6 @@ const PasswordModalContent = ({ close, onSuccess, oldPassword }: Props) => {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
   const [errMessage, setErrMessage] = useState('');
-
-  console.log('passwordauth', password);
 
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 

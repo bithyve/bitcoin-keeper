@@ -11,12 +11,12 @@ import DashedButton from 'src/components/DashedButton';
 import GenerateLetterToAtternyPDFInheritanceTool from 'src/utils/GenerateLetterToAtternyPDFInheritanceTool';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 function LetterOfAttorney() {
   const { signers } = useSigners();
@@ -83,12 +83,12 @@ function LetterOfAttorney() {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
+          <ConfirmCredentialModal
+            useBiometrics={true}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={() => {
+            success={() => {
               setConfirmPassVisible(false);
               if (fingerPrints) {
                 GenerateLetterToAtternyPDFInheritanceTool(fingerPrints).then((res) => {
