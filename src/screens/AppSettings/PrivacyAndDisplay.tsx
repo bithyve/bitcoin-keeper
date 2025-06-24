@@ -52,7 +52,6 @@ function ConfirmPasscode({
   setConfirmPasscodeModal,
   onCredsChange,
   setShowSetPasscodeModal,
-  updateBiometricAfterPasscodeChange,
 }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -65,9 +64,6 @@ function ConfirmPasscode({
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { credsChanged } = useAppSelector((state) => state.login);
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
-
-  console.log('loginMethod in pin ', loginMethod);
-
   useEffect(() => {
     if (credsChanged === 'changed') {
       onCredsChange();
@@ -172,10 +168,7 @@ function ConfirmPasscode({
                 primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
                   if (loginMethod === LoginMethod.BIOMETRIC) {
-                    // dispatch(setFallbackLoginMethod(LoginMethod.PIN));
-                    updateBiometricAfterPasscodeChange();
-                  } else {
-                    dispatch(changeLoginMethod(LoginMethod.PIN));
+                    dispatch(setFallbackLoginMethod(LoginMethod.PIN));
                   }
                   setShowSetPasscodeModal(false);
                 }}
@@ -234,7 +227,6 @@ function PrivacyAndDisplay({ route }) {
   const [credsChanged, setCredsChanged] = useState('');
   const { isOnL4 } = usePlan();
   const fallbackLoginMethod = useSelector((state) => state.settings.fallbackLoginMethod);
-  console.log('fallbackLoginMethod', fallbackLoginMethod);
 
   useEffect(() => {
     if (credsChanged === 'changed') {
@@ -292,7 +284,6 @@ function PrivacyAndDisplay({ route }) {
       console.log(error);
     }
   };
-  console.log('loginMethod', loginMethod);
 
   const requestPermission = () => {
     Linking.openSettings();
@@ -327,7 +318,7 @@ function PrivacyAndDisplay({ route }) {
     }
   };
 
-  const updateBiometricAfterPasscodeChange = async () => {
+  const updateBiometricAfterPasscodeChange = async (newFallbackMethod) => {
     try {
       const { available } = await RNBiometrics.isSensorAvailable();
 
@@ -355,15 +346,13 @@ function PrivacyAndDisplay({ route }) {
       }
       const { publicKey } = await RNBiometrics.createKeys();
 
-      dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, fallbackLoginMethod));
+      dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, newFallbackMethod));
       showToast('Biometric updated successfully');
     } catch (error) {
-      console.log('Biometric update failed:', error);
       showToast('Failed to update biometric authentication.', <ToastErrorIcon />);
       setSensorAvailable(false);
     }
   };
-  console.log('loginMethod', loginMethod);
 
   const PrivacyAndDisplay = [
     {
@@ -428,7 +417,6 @@ function PrivacyAndDisplay({ route }) {
         ),
     },
   ];
-  console.log('showSetPasscodeModal', showSetPasscodeModal);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -565,9 +553,15 @@ function PrivacyAndDisplay({ route }) {
           <ConfirmPasscode
             setConfirmPasscodeModal={setConfirmPasscode}
             oldPassword={oldPassword}
-            onCredsChange={() => setCredsChanged('changed')}
+            onCredsChange={() => {
+              setCredsChanged('changed');
+              if (loginMethod === LoginMethod.BIOMETRIC) {
+                updateBiometricAfterPasscodeChange(LoginMethod.PIN);
+              } else {
+                dispatch(changeLoginMethod(LoginMethod.PIN));
+              }
+            }}
             setShowSetPasscodeModal={setShowSetPasscodeModal}
-            updateBiometricAfterPasscodeChange={updateBiometricAfterPasscodeChange}
           />
         )}
       />
@@ -633,9 +627,15 @@ function PrivacyAndDisplay({ route }) {
         Content={() => (
           <CreatePasswordContent
             close={() => setCreatePasswordModal(false)}
-            onSuccess={() => setCredsChanged('changed')}
+            onSuccess={(newFallbackMethod) => {
+              setCredsChanged('changed');
+              if (loginMethod === LoginMethod.BIOMETRIC) {
+                updateBiometricAfterPasscodeChange(newFallbackMethod);
+              } else {
+                dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+              }
+            }}
             oldPassword={oldPassword}
-            updateBiometricAfterPasscodeChange={updateBiometricAfterPasscodeChange}
           />
         )}
       />

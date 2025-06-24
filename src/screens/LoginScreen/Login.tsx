@@ -108,7 +108,6 @@ function LoginScreen({ navigation, route }) {
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
   };
-  console.log('loginScreen method', loginMethod);
 
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();

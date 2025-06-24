@@ -9,21 +9,16 @@ import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { useAppSelector } from 'src/store/hooks';
-import { changeAuthCred, changeLoginMethod } from 'src/store/sagaActions/login';
+import { setFallbackLoginMethod } from 'src/store/reducers/settings';
+import { changeAuthCred } from 'src/store/sagaActions/login';
 
 interface Props {
   close?: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (method: LoginMethod) => void;
   oldPassword?: string;
-  updateBiometricAfterPasscodeChange?: () => void;
 }
 
-const CreatePasswordContent = ({
-  close,
-  onSuccess,
-  oldPassword,
-  updateBiometricAfterPasscodeChange,
-}: Props) => {
+const CreatePasswordContent = ({ close, onSuccess, oldPassword }: Props) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -43,11 +38,9 @@ const CreatePasswordContent = ({
       setError('');
       dispatch(changeAuthCred(oldPassword, password));
       if (loginMethod === LoginMethod.BIOMETRIC) {
-        updateBiometricAfterPasscodeChange();
-      } else {
-        dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+        dispatch(setFallbackLoginMethod(LoginMethod.PASSWORD));
       }
-      onSuccess();
+      onSuccess(LoginMethod.PASSWORD);
       close();
     }
   };

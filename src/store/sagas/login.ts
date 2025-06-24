@@ -413,7 +413,7 @@ function* changeLoginMethodWorker({
   payload: {
     method: LoginMethod;
     pubKey: string;
-    fallbackMethod: LoginMethod.PIN | LoginMethod.PASSWORD;
+    fallbackMethod: any;
   };
 }) {
   try {
