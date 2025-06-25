@@ -472,7 +472,18 @@ function* discardBroadcastedTnxWorker({ payload }) {
       return { txId, vout };
     });
     const potentialTxId = snapshots[cachedTxid].potentialTxId;
+    const note = snapshots[cachedTxid].routeParams.note;
     yield call(handleChangeOutputLabels, finalOutputs, inputs, vault, potentialTxId);
+    if (note.length) {
+      yield call(addLabelsWorker, {
+        payload: {
+          txId: potentialTxId,
+          wallet: vault,
+          labels: [{ name: note, isSystem: false }],
+          type: LabelRefType.TXN,
+        },
+      });
+    }
     yield put(dropTransactionSnapshot({ cachedTxid }));
   }
 }
