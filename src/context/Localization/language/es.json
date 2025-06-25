@@ -1889,6 +1889,8 @@
     "pickWalletType": "Pick Your Wallet Type",
     "selectCurrency": "Select the currency you would like to use",
     "bitcoinWallet": "Bitcoin Wallet",
-    "dollarWallet": "Dollar Wallet"
+    "dollarWallet": "Dollar Wallet",
+    "addWalletDetails": "Add Your Wallet Details",
+    "dedicatedWalletSub": "A dedicated wallet for securely receiving, storing, and managing USDT on the Tron network. Enjoy fast, low-fee transactions for smooth and cost-effective transfers."
   }
 }

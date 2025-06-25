@@ -127,8 +127,9 @@ const HomeWallet = () => {
       subtitle: walletText.createWalletDesc,
       icon: <NewWalletIcon />,
       onPress: () => {
-        setShowAddWalletModal(false);
-        navigation.navigate('AddNewWallet');
+        false;
+        navigation.navigate('addUsdtWallet');
+        setCreateUsdtWallet(false);
       },
       id: 'usdtnewWallet',
     },
@@ -137,8 +138,8 @@ const HomeWallet = () => {
       subtitle: walletText.restoreExistingWallet,
       icon: <ImportWalletIcon />,
       onPress: () => {
-        setShowAddWalletModal(false);
-        navigation.navigate('VaultConfigurationCreation');
+        setCreateUsdtWallet(false);
+        // navigation.navigate('VaultConfigurationCreation');
       },
       id: 'usdtimportWallet',
     },
