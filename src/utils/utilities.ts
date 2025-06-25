@@ -363,16 +363,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     });
 
     // Extract outputs (receiver information)
-    const outputs = psbt.txOutputs.map((output) => {
-      return {
-        address: bitcoin.address.fromOutputScript(
-          output.script,
-          isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-        ), // Receiver address
-        amount: output.value, // Amount in satoshis
-        isChange: false,
-      };
-    });
+    const outputs = getOutputsFromPsbt(psbt);
 
     // Calculate the total input and output amounts
     let totalInput = 0;
@@ -793,4 +784,18 @@ export const getTnxIdFromCachedTnx = (tnx) => {
   const txBuffer = tx.toBuffer();
   const hash = createHash('sha256').update(txBuffer).digest();
   return createHash('sha256').update(hash).digest().reverse().toString('hex');
+};
+
+export const getOutputsFromPsbt = (psbt) => {
+  const outputs = psbt.txOutputs.map((output) => {
+    return {
+      address: bitcoin.address.fromOutputScript(
+        output.script,
+        isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+      ), // Receiver address
+      amount: output.value, // Amount in satoshis
+      isChange: false,
+    };
+  });
+  return outputs;
 };

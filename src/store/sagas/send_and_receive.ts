@@ -29,6 +29,7 @@ import {
   CALCULATE_SEND_MAX_FEE,
   CalculateCustomFeeAction,
   CalculateSendMaxFeeAction,
+  DISCARD_BROADCASTED_TNX,
   FETCH_EXCHANGE_RATES,
   FETCH_FEE_RATES,
   ONE_DAY_INSIGHT,
@@ -42,7 +43,9 @@ import {
 import { addLabelsWorker, bulkUpdateLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
-import { getKeyUID } from 'src/utils/utilities';
+import { getKeyUID, getOutputsFromPsbt } from 'src/utils/utilities';
+import { dropTransactionSnapshot } from '../reducers/cachedTxn';
+import * as bitcoin from 'bitcoinjs-lib';
 
 export function* fetchFeeRatesWorker() {
   try {
@@ -456,3 +459,25 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
 }
 
 export const calculateCustomFeeWatcher = createWatcher(calculateCustomFee, CALCULATE_CUSTOM_FEE);
+
+function* discardBroadcastedTnxWorker({ payload }) {
+  const { cachedTxid, vault } = payload;
+  const snapshots = yield select((state) => state.cachedTxn.snapshots);
+  if (snapshots[cachedTxid]) {
+    const psbt = snapshots[cachedTxid].state.sendPhaseTwo.serializedPSBTEnvelops[0].serializedPSBT;
+    const psbtObject = bitcoin.Psbt.fromBase64(psbt);
+    const finalOutputs = getOutputsFromPsbt(psbtObject);
+    const inputs = Object.keys(psbtObject.__CACHE.__TX_IN_CACHE).map((key) => {
+      const [txId, vout] = key.split(':');
+      return { txId, vout };
+    });
+    const potentialTxId = snapshots[cachedTxid].potentialTxId;
+    yield call(handleChangeOutputLabels, finalOutputs, inputs, vault, potentialTxId);
+    yield put(dropTransactionSnapshot({ cachedTxid }));
+  }
+}
+
+export const discardBroadcastedTnxWatcher = createWatcher(
+  discardBroadcastedTnxWorker,
+  DISCARD_BROADCASTED_TNX
+);

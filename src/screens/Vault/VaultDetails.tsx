@@ -60,6 +60,7 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
 
 import { getTnxIdFromCachedTnx } from 'src/utils/utilities';
+import { discardBroadcastedTnx } from 'src/store/sagaActions/send_and_receive';
 
 function Footer({
   vault,
@@ -541,7 +542,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       const txid = tnx?.potentialTxId || getTnxIdFromCachedTnx(tnx);
       for (const broadcastedTnx of transactions) {
         if (broadcastedTnx.txid === txid) {
-          dispatch(dropTransactionSnapshot({ cachedTxid: tnx.txid }));
+          dispatch(discardBroadcastedTnx({ cachedTxid: tnx.txid, vault }));
         }
       }
     }
