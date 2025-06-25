@@ -1884,5 +1884,11 @@
     "signMessageParameter": "Please provide message, address and signature for verification",
     "signatureNotValid": "Signature is not valid for the provided message",
     "invalidSignatureFormat": "Invalid signed message format"
+  },
+  "usdtWalletText": {
+    "pickWalletType": "Pick Your Wallet Type",
+    "selectCurrency": "Select the currency you would like to use",
+    "bitcoinWallet": "Bitcoin Wallet",
+    "dollarWallet": "Dollar Wallet"
   }
 }
