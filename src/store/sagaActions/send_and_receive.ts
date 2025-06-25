@@ -16,6 +16,7 @@ export const SEND_PHASE_THREE = 'SEND_PHASE_THREE';
 export const CALCULATE_SEND_MAX_FEE = 'CALCULATE_SEND_MAX_FEE';
 export const SEND_MAX_FEE_CALCULATED = 'SEND_MAX_FEE_CALCULATED';
 export const CALCULATE_CUSTOM_FEE = 'CALCULATE_CUSTOM_FEE';
+export const DISCARD_BROADCASTED_TNX = 'DISCARD_BROADCASTED_TNX';
 
 export const fetchExchangeRates = () => ({
   type: FETCH_EXCHANGE_RATES,
@@ -165,4 +166,9 @@ export const calculateCustomFee = (payload: {
 }): CalculateCustomFeeAction => ({
   type: CALCULATE_CUSTOM_FEE,
   payload,
+});
+
+export const discardBroadcastedTnx = ({ cachedTxid, vault }) => ({
+  type: DISCARD_BROADCASTED_TNX,
+  payload: { cachedTxid, vault },
 });

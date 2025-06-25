@@ -6,6 +6,7 @@ export interface cachedTxSnapshot {
   state: SendAndReceiveState; // state snapshot
   routeParams: SendConfirmationRouteParams; // cached route params(for confirmation screen)
   options?: any; // extra data for post transaction action
+  potentialTxId?: string;
 }
 
 const initialState: {
@@ -28,6 +29,7 @@ const cachedTxSlice = createSlice({
           state: SendAndReceiveState;
           routeParams: SendConfirmationRouteParams;
           options: any;
+          potentialTxId?: string;
         };
       }>
     ) => {

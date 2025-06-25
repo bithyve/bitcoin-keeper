@@ -24,6 +24,7 @@ import _ from 'lodash';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getRandomBytes } from './service-utilities/encryption';
+import { createHash } from 'crypto';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -362,16 +363,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     });
 
     // Extract outputs (receiver information)
-    const outputs = psbt.txOutputs.map((output) => {
-      return {
-        address: bitcoin.address.fromOutputScript(
-          output.script,
-          isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-        ), // Receiver address
-        amount: output.value, // Amount in satoshis
-        isChange: false,
-      };
-    });
+    const outputs = getOutputsFromPsbt(psbt);
 
     // Calculate the total input and output amounts
     let totalInput = 0;
@@ -783,4 +775,27 @@ export const isPsbtFullySigned = (psbt) => {
   } catch (error) {
     return null;
   }
+};
+
+export const getTnxIdFromCachedTnx = (tnx) => {
+  const psbt = tnx.snapshot.state.sendPhaseTwo.serializedPSBTEnvelops[0].serializedPSBT;
+  const psbtObject = bitcoin.Psbt.fromBase64(psbt);
+  const tx = psbtObject.data.globalMap.unsignedTx;
+  const txBuffer = tx.toBuffer();
+  const hash = createHash('sha256').update(txBuffer).digest();
+  return createHash('sha256').update(hash).digest().reverse().toString('hex');
+};
+
+export const getOutputsFromPsbt = (psbt) => {
+  const outputs = psbt.txOutputs.map((output) => {
+    return {
+      address: bitcoin.address.fromOutputScript(
+        output.script,
+        isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+      ), // Receiver address
+      amount: output.value, // Amount in satoshis
+      isChange: false,
+    };
+  });
+  return outputs;
 };
