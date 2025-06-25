@@ -3,8 +3,8 @@ import * as bip39 from 'bip39';
 import BIP32Factory from 'bip32';
 import ecc from '../taproot-utils/noble_ecc';
 import * as bitcoinJS from 'bitcoinjs-lib';
+import { TronWeb } from 'tronweb';
 const bip32 = BIP32Factory(ecc);
-const TronWeb = require('tronweb');
 
 // TRON network configurations
 const TRON_NETWORKS = {
@@ -53,22 +53,16 @@ export const createTronWalletFromPrivateKey = (
 ) => {
   try {
     const tronWeb = createTronWeb(networkType);
-
-    // Remove '0x' prefix if present
     const cleanPrivateKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
-
-    // Validate private key format (64 hex characters)
-    if (!/^[0-9a-fA-F]{64}$/.test(cleanPrivateKey)) {
+    // Ensure it's exactly 64 hex characters (32 bytes)
+    if (!/^[a-fA-F0-9]{64}$/.test(cleanPrivateKey)) {
       throw new Error('Invalid private key format. Must be 64 hex characters.');
     }
 
-    const address = tronWeb.address.fromPrivateKey(cleanPrivateKey);
-    const publicKey = tronWeb.utils.crypto.getPubKeyFromPriKey(cleanPrivateKey);
-
+    let address: string = tronWeb.address.fromPrivateKey(cleanPrivateKey);
     return {
       address,
       privateKey: cleanPrivateKey,
-      publicKey,
       isValid: true,
     };
   } catch (error) {
@@ -80,9 +74,9 @@ export const createTronWalletFromPrivateKey = (
  * Create TRON wallet from mnemonic using SLIP-0044 derivation path
  * TRON coin type: 195 (m/44'/195'/0'/0/0)
  */
-export const createTronWalletFromMnemonic = async (
+export const createTronWalletFromMnemonic = (
   mnemonic: string,
-  networkType: NetworkType = NetworkType.MAINNET,
+  networkType: NetworkType,
   accountIndex: number = 0
 ) => {
   try {
