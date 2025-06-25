@@ -3,6 +3,7 @@ import { NetworkType } from 'src/services/wallets/enums';
 import RestClient from '../../../rest/RestClient';
 import { store } from 'src/store/store';
 import * as crypto from 'crypto';
+import config from '../../../../utils/service-utilities/config';
 
 // GasFree API endpoints
 const GASFREE_ENDPOINTS = {
@@ -76,6 +77,14 @@ export interface GasFreeTransferRequest {
   sig: string;
 }
 
+export enum GasFreeTransferStatus {
+  WAITING = 'WAITING',
+  INPROGRESS = 'INPROGRESS',
+  CONFIRMING = 'CONFIRMING',
+  SUCCEED = 'SUCCEED',
+  FAILED = 'FAILED',
+}
+
 export interface GasFreeTransferResponse {
   id: string;
   createdAt: string;
@@ -91,7 +100,7 @@ export interface GasFreeTransferResponse {
   version: number;
   nonce: number;
   expiredAt: string;
-  state: 'WAITING' | 'INPROGRESS' | 'CONFIRMING' | 'SUCCEED' | 'FAILED';
+  state: GasFreeTransferStatus;
   estimatedActivateFee: number;
   estimatedTransferFee: number;
 }
@@ -135,13 +144,11 @@ export interface GasFreeAPICredentials {
 }
 
 export default class GasFree {
-  private static credentials: GasFreeAPICredentials | null = null;
-  /**
-   * Set API credentials for authenticated requests
-   */
-  public static setCredentials(apiKey: string, apiSecret: string): void {
-    GasFree.credentials = { apiKey, apiSecret };
-  }
+  private static credentials: GasFreeAPICredentials = {
+    // Mainnet ONLY – Testnet access is not available to end users
+    apiKey: config.GASFREE_API_KEY,
+    apiSecret: config.GASFREE_API_SECRET,
+  };
 
   /**
    * Get the appropriate endpoint URL based on network type
@@ -161,18 +168,19 @@ export default class GasFree {
 
   /**
    * Extract network path from baseURL
-   * e.g., 'https://open-test.gasfree.io/nile/' -> '/nile'
-   * e.g., 'https://open.gasfree.io/tron/' -> '/tron'
+   * e.g., 'https://open-test.gasfree.io/nile/' -> '/nile/'
+   * e.g., 'https://open.gasfree.io/tron/' -> '/tron/'
    */
   private static extractNetworkPath(baseURL: string): string {
     try {
-      const url = new URL(baseURL);
-      const pathname = url.pathname;
+      // Remove protocol and domain: 'https://open-test.gasfree.io/nile/' -> '/nile/'
+      const pathStartIndex = baseURL.indexOf('/', baseURL.indexOf('://') + 3);
+      if (pathStartIndex === -1) return '';
 
-      // Remove trailing slash: '/nile/' -> '/nile', '/tron/' -> '/tron'
-      return pathname.replace(/\/$/, '');
+      let pathname = baseURL.substring(pathStartIndex);
+      return pathname;
     } catch (error) {
-      return '';
+      throw new Error('Error extracting network path: ' + error?.message);
     }
   }
 

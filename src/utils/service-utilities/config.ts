@@ -100,6 +100,9 @@ class Configuration {
     android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
   });
 
+  public GASFREE_API_KEY: string = config.GASFREE_API_KEY?.trim();
+  public GASFREE_API_SECRET: string = config.GASFREE_API_SECRET?.trim();
+
   public RENEWAL_WINDOW: number;
 
   constructor() {
