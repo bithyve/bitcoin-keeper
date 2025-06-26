@@ -1,0 +1,103 @@
+import { Box, useColorMode } from 'native-base';
+import React, { useContext } from 'react';
+import { StyleSheet } from 'react-native';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import WalletHeader from 'src/components/WalletHeader';
+import RampNetwork from 'src/assets/images/ramp-network.svg';
+import RampNetworkDark from 'src/assets/images/ramp-dark-logo.svg';
+import { hp, wp } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
+import HexagonIcon from 'src/components/HexagonIcon';
+import MultiSendSvg from 'src/assets/images/@.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import Buttons from 'src/components/Buttons';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+
+type Props = {};
+
+const BuyUstd = ({}: Props) => {
+  const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
+  const buyBitCoinHexagonBackgroundColor = ThemedColor({
+    name: 'buyBitCoinHexagonBackgroundColor',
+  });
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+
+  return (
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <Box style={styles.container}>
+        <WalletHeader title={'Get USDT via Ramp'} />
+        <Text fontSize={13} color={`${colorMode}.primaryText`} style={{ marginTop: hp(15) }}>
+          {'Ramp allows you to acquire USDT using payment methods available in your country.'}
+        </Text>
+        <Box
+          style={styles.cardWrapper}
+          backgroundColor={`${colorMode}.primaryBackground`}
+          borderColor={`${colorMode}.separator`}
+        >
+          {isDarkMode ? <RampNetworkDark /> : <RampNetwork />}
+          <Text>{'Ramp offers multiple payment methods to acquire USDT.'}</Text>
+        </Box>
+        <Text color={`${colorMode}.primaryText`} medium style={{ marginBottom: hp(10) }}>
+          {'Address for the transaction'}
+        </Text>
+        <Box
+          style={styles.addressContainer}
+          backgroundColor={`${colorMode}.primaryBackground`}
+          borderColor={`${colorMode}.separator`}
+        >
+          <HexagonIcon
+            width={wp(39)}
+            height={hp(35)}
+            backgroundColor={buyBitCoinHexagonBackgroundColor}
+            icon={<MultiSendSvg />}
+          />
+          <Text color={`${colorMode}.primaryText`} fontSize={12} style={styles.addressText}>
+            {'3FZbgi29cpjq2GjdwV8eyHuJ3FZbgi29cpjq2GjdwV8eyHuJ'}
+          </Text>
+        </Box>
+      </Box>
+      <Box style={styles.ButtonContainer}>
+        <Text>
+          By proceeding, you understand that Ramp will process the payment and complete the
+          transaction. Keeper does not facilitate or handle the exchange.
+        </Text>
+        <Buttons primaryText={common.proceed} fullWidth />
+      </Box>
+    </ScreenWrapper>
+  );
+};
+
+export default BuyUstd;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  cardWrapper: {
+    paddingHorizontal: hp(20),
+    paddingVertical: hp(20),
+    borderRadius: 10,
+    borderWidth: 1,
+    marginVertical: hp(20),
+    gap: hp(10),
+  },
+  addressContainer: {
+    paddingHorizontal: hp(20),
+    paddingVertical: hp(20),
+    borderRadius: 10,
+    borderWidth: 1,
+    marginVertical: hp(20),
+    gap: hp(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addressText: {
+    width: '80%',
+  },
+  ButtonContainer: {
+    gap: hp(20),
+    paddingVertical: hp(20),
+  },
+});

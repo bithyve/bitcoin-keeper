@@ -30,7 +30,7 @@ const UsdtFooter = () => {
     {
       Icon: BuyIcon,
       text: common.Buy,
-      onPress: () => navigation.dispatch(CommonActions.navigate('Receive')),
+      onPress: () => navigation.dispatch(CommonActions.navigate('buyUstd')),
     },
   ];
   return (
