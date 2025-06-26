@@ -4,6 +4,7 @@ import RestClient from '../../../rest/RestClient';
 import { store } from 'src/store/store';
 import * as crypto from 'crypto';
 import config from '../../../../utils/service-utilities/config';
+import { createTronWeb } from './Tron';
 
 // GasFree API endpoints
 const GASFREE_ENDPOINTS = {
@@ -143,12 +144,70 @@ export interface GasFreeAPICredentials {
   apiSecret: string;
 }
 
+// TIP-712 Signing Types for GasFree
+export interface TIP712Domain {
+  name: string;
+  version: string;
+  chainId: number;
+  verifyingContract: string;
+}
+
+export interface TIP712TypeProperty {
+  name: string;
+  type: string;
+}
+
+export interface TIP712MessageTypes {
+  PermitTransfer: TIP712TypeProperty[];
+}
+
+export interface Permit712MessageDomain extends TIP712Domain {
+  name: 'GasFreeController';
+  version: 'V1.0.0';
+  chainId: number; // Network specific chain ID in decimal
+  verifyingContract: string; // GasFreeController contract address
+}
+
+export interface Permit712MessageTypes extends TIP712MessageTypes {
+  PermitTransfer: [
+    { name: 'token'; type: 'address' },
+    { name: 'serviceProvider'; type: 'address' },
+    { name: 'user'; type: 'address' },
+    { name: 'receiver'; type: 'address' },
+    { name: 'value'; type: 'uint256' },
+    { name: 'maxFee'; type: 'uint256' },
+    { name: 'deadline'; type: 'uint256' },
+    { name: 'version'; type: 'uint256' },
+    { name: 'nonce'; type: 'uint256' }
+  ];
+}
+
 export default class GasFree {
   private static credentials: GasFreeAPICredentials = {
     // Mainnet ONLY – Testnet access is not available to end users
     apiKey: config.GASFREE_API_KEY,
     apiSecret: config.GASFREE_API_SECRET,
   };
+
+  // TIP-712 Constants
+  private static readonly TIP712_MESSAGE_TYPES: Permit712MessageTypes = {
+    PermitTransfer: [
+      { name: 'token', type: 'address' },
+      { name: 'serviceProvider', type: 'address' },
+      { name: 'user', type: 'address' },
+      { name: 'receiver', type: 'address' },
+      { name: 'value', type: 'uint256' },
+      { name: 'maxFee', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+      { name: 'version', type: 'uint256' },
+      { name: 'nonce', type: 'uint256' },
+    ],
+  };
+
+  // Fixed values as per GasFree documentation
+  private static readonly TIP712_DOMAIN_NAME = 'GasFreeController';
+  private static readonly TIP712_DOMAIN_VERSION = 'V1.0.0';
+  private static readonly SIGNATURE_VERSION = 1;
 
   /**
    * Get the appropriate endpoint URL based on network type
@@ -308,45 +367,65 @@ export default class GasFree {
   }
 
   /**
-   * Generate signature payload for EIP-712 compatible signing
+   * Generate signature payload for TIP-712 compatible signing
    */
   public static generateSignaturePayload(
     transferRequest: Omit<GasFreeSignaturePayload, 'version'>,
     networkType?: NetworkType
   ): {
-    domain: any;
-    types: any;
+    domain: Permit712MessageDomain;
+    types: Permit712MessageTypes;
     message: GasFreeSignaturePayload;
   } {
     const params = GasFree.getNetworkParams(networkType);
 
-    const domain = {
-      name: 'GasFreeController',
-      version: 'V1.0.0',
+    const domain: Permit712MessageDomain = {
+      name: GasFree.TIP712_DOMAIN_NAME,
+      version: GasFree.TIP712_DOMAIN_VERSION,
       chainId: params.chainId,
       verifyingContract: params.verifyingContract,
     };
 
-    const types = {
-      PermitTransfer: [
-        { name: 'token', type: 'address' },
-        { name: 'serviceProvider', type: 'address' },
-        { name: 'user', type: 'address' },
-        { name: 'receiver', type: 'address' },
-        { name: 'value', type: 'uint256' },
-        { name: 'maxFee', type: 'uint256' },
-        { name: 'deadline', type: 'uint256' },
-        { name: 'version', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' },
-      ],
-    };
+    const types: Permit712MessageTypes = GasFree.TIP712_MESSAGE_TYPES;
 
     const message: GasFreeSignaturePayload = {
       ...transferRequest,
-      version: 1,
+      version: GasFree.SIGNATURE_VERSION,
     };
 
     return { domain, types, message };
+  }
+
+  /**
+   * Sign GasFree transfer payload using TIP-712 standard
+   * @param privateKey - Private key in hex format for signing
+   * @param signaturePayload - Signature payload containing domain, types, and message
+   * @param networkType - Network type (mainnet/testnet)
+   * @returns Promise<string> - Signature without 0x prefix
+   */
+  public static async signTransferPayload(
+    privateKey: string,
+    signaturePayload: {
+      domain: Permit712MessageDomain;
+      types: Permit712MessageTypes;
+      message: GasFreeSignaturePayload;
+    },
+    networkType: NetworkType
+  ): Promise<string> {
+    try {
+      const tronWeb = createTronWeb(networkType);
+      tronWeb.setPrivateKey(privateKey);
+
+      // Sign using TronWeb's TIP-712 implementation
+      const { domain, types, message } = signaturePayload;
+      const signature = await tronWeb.trx._signTypedData(domain, types, message);
+
+      // Remove 0x prefix if present (as per GasFree documentation)
+      const cleanSignature = signature.startsWith('0x') ? signature.slice(2) : signature;
+      return cleanSignature;
+    } catch (error) {
+      throw new Error(`Failed to sign transfer payload: ${error.message}`);
+    }
   }
 
   /**
