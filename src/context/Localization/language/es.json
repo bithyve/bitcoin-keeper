@@ -174,7 +174,8 @@
     "loadSignature": "Load Signature",
     "signMessage": "Sign Message",
     "moreInfo": "More Info",
-    "lessInfo": "Less Info"
+    "lessInfo": "Less Info",
+    "Buy": "Buy"
   },
   "login": {
     "welcomeback": "Welcome Back",

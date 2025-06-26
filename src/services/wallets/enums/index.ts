@@ -67,6 +67,7 @@ export enum WalletType {
   PRE_MIX = 'PRE_MIX', // DEPRECATED
   POST_MIX = 'POST_MIX', // DEPRECATED
   BAD_BANK = 'BAD_BANK', // DEPRECATED
+  USDT = 'USDT',
 }
 
 export enum VaultType {

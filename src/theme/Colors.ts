@@ -140,5 +140,7 @@ const Colors = {
   lightorange: 'rgba(227, 190, 150, 1)',
   BrightOrange: 'rgba(247, 147, 26, 1)',
   DesaturatedTeal: 'rgba(89, 175, 153, 1)',
+  CharcoalBlueGray: 'rgba(74, 79, 89, 1)',
+  DustyNavy: 'rgba(63, 93, 111, 1)',
 };
 export default Colors;

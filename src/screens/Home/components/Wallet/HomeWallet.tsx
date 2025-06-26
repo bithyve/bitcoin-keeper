@@ -10,7 +10,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
@@ -150,7 +150,12 @@ const HomeWallet = () => {
       if (item.entityKind === EntityKind.VAULT) {
         navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
       } else {
-        navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
+        if (item.type === WalletType.USDT) {
+          navigation.navigate('usdtDetails');
+        } else {
+          // navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
+          navigation.navigate('usdtDetails');
+        }
       }
     };
     return (

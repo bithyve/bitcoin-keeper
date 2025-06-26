@@ -111,7 +111,7 @@ import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import WhiteSettingIcon from 'src/assets/privateImages/setting_icon_white.svg';
 import BrownSettingIcon from 'src/assets/privateImages/setting_icon_brown.svg';
 import CopyIconWhite from 'src/assets/images/copy-icon-white.svg';
-import CopyIcon from 'src/assets/images/copy.svg';
+import CopyIcon from 'src/assets/images/copy-icon.svg';
 import CopyGoldIcon from 'src/assets/privateImages/copy-icon-gold.svg';
 import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
