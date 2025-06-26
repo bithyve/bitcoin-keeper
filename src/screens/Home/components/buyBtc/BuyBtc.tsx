@@ -101,9 +101,9 @@ const BuyBtc = () => {
               </Box>
             </Box>
             <Box style={styles.graph_container}>
-              <BtcGraph dataSet={graphData} spacing={50} yAxisLabelWidth={40} />
+              <BtcGraph dataSet={graphData} spacing={67} />
             </Box>
-            <Box>
+            <Box style={styles.info_container}>
               <Text fontSize={16} semiBold>
                 {buyBTCText.marketInfo}
               </Text>
@@ -182,7 +182,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: windowWidth * 0.88,
+    width: windowWidth,
+    paddingHorizontal: wp(12),
   },
   btc_container: {
     flexDirection: 'row',
@@ -197,17 +198,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   graph_container: {
-    width: windowWidth * 0.88,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: windowWidth,
     marginVertical: hp(16),
   },
   cards_container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: windowWidth * 0.88,
+    width: '100%',
     marginVertical: hp(16),
-    gap: wp(10),
   },
   card: {
     paddingVertical: hp(16),
@@ -217,7 +215,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   button_container: {
-    width: windowWidth * 0.88,
+    width: windowWidth,
     marginVertical: hp(10),
+    paddingHorizontal: wp(12),
+  },
+  info_container: {
+    maxWidth: windowWidth,
+    paddingHorizontal: wp(12),
   },
 });

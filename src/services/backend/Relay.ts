@@ -579,7 +579,7 @@ export default class Relay {
     let res;
     try {
       res = await axios.get(
-        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=${currencyCode}&days=7`
+        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=${currencyCode}&days=6`
       );
     } catch (err) {
       console.log('err', err);

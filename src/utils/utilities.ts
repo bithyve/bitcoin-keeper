@@ -745,26 +745,27 @@ export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
   return true;
 };
 
-export const getDayForGraph = (timestamp: number) => {
+export const getDayForGraph = (timestamp: number, onlyDay = false) => {
   const date = new Date(timestamp);
   const dayNo = date.getDay();
+  let day = '';
   switch (dayNo) {
     case 0:
-      return `${date.getDate()}\nSun`;
+      return (day = `Sun`);
     case 1:
-      return `${date.getDate()}\nMon`;
+      return (day = `Mon`);
     case 2:
-      return `${date.getDate()}\nTue`;
+      return (day = `Tue`);
     case 3:
-      return `${date.getDate()}\nWed`;
+      return (day = `Wed`);
     case 4:
-      return `${date.getDate()}\nThu`;
+      return (day = `Thu`);
     case 5:
-      return `${date.getDate()}\nFri`;
+      return (day = `Fri`);
     case 6:
-      return `${date.getDate()}\nSat`;
+      return (day = `Sat`);
   }
-  return '';
+  return onlyDay ? day : `${date.getDate()}\n${day}`;
 };
 
 export const isPsbtFullySigned = (psbt) => {
@@ -844,21 +845,11 @@ export const manipulateBitcoinPrices = (data) => {
     if (!seenDates.has(date)) {
       seenDates.add(date);
       dailyPrice.push({
-        label: getDayForGraph(timestamp),
+        label: dailyPrice.length === 0 ? null : getDayForGraph(timestamp),
         value: price,
       });
     }
   }
 
   return { dailyPrice, latestPrice, high24h, low24h };
-};
-
-export const compactNumber = (value) => {
-  if (Math.abs(value) >= 1_000_000) {
-    return (value / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
-  } else if (Math.abs(value) >= 1_000) {
-    return (value / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
-  } else {
-    return value.toString();
-  }
 };
