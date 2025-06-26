@@ -94,15 +94,7 @@ function CloudBackupScreen() {
           title={strings.cloudBackup}
           subTitle={`On your ${cloudName}`}
           learnMore={true}
-          // learnBackgroundColor={`${colorMode}.BrownNeedHelp`}
-          // learnTextColor={`${colorMode}.buttonText`}
           learnMorePressed={() => setShowModal(true)}
-          // icon={
-          //   <CircleIconWrapper
-          //     backgroundColor={`${colorMode}.primaryGreenBackground`}
-          //     icon={<CloudIcon />}
-          //   />
-          // }
         />
       </Box>
       <Text style={styles.textTitle}>{strings.recentHistory}</Text>

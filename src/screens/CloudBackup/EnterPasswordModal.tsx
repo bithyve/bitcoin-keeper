@@ -1,14 +1,15 @@
 import { StyleSheet, TextInput } from 'react-native';
-import { Box, useColorMode, VStack } from 'native-base';
-import React, { useCallback, useContext, useRef } from 'react';
+import { useColorMode, VStack } from 'native-base';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 
 import { windowWidth } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Text from 'src/components/KeeperText';
 
-function Content({ descRef }: { descRef }) {
+function Content({ descRef, errorText }: { descRef; errorText }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -27,6 +28,7 @@ function Content({ descRef }: { descRef }) {
         defaultValue={''}
         maxLength={20}
       />
+      {errorText && <Text color={`${colorMode}.alertRed`}>{errorText}</Text>}
     </VStack>
   );
 }
@@ -43,19 +45,35 @@ function EnterPasswordModal({
   const { colorMode } = useColorMode();
   const descRef = useRef();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultText } = translations;
-  const MemoisedContent = React.useCallback(() => <Content descRef={descRef} />, []);
+  const { common, vault: vaultText, error: errorStrings } = translations;
+  const [errorText, setErrorText] = useState('');
+
+  const MemoisedContent = React.useCallback(
+    () => <Content descRef={descRef} errorText={errorText} />,
+    [errorText]
+  );
   const onSave = () => {
-    close();
+    if (!descRef.current || !(descRef?.current as string).trim().length) {
+      setErrorText(errorStrings.passwordError);
+      return;
+    }
     callback(descRef.current);
+    onClose();
   };
+
+  const onClose = () => {
+    close();
+    setErrorText('');
+    descRef.current = undefined;
+  };
+
   return (
     <KeeperModal
       visible={visible}
       modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.textGreen`}
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
-      close={close}
+      close={onClose}
       title={vaultText.enterPdfPassword}
       subTitle={vaultText.pdfPasswordDesc}
       buttonText={common.backup}

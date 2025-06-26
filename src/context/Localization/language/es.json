@@ -1883,6 +1883,7 @@
     "enterMessage": "Please enter the message",
     "signMessageParameter": "Please provide message, address and signature for verification",
     "signatureNotValid": "Signature is not valid for the provided message",
-    "invalidSignatureFormat": "Invalid signed message format"
+    "invalidSignatureFormat": "Invalid signed message format",
+    "passwordError": "Please enter a valid password"
   }
 }
