@@ -148,6 +148,8 @@ import AddUsdtWallet from 'src/screens/USDT/UsdtAddWallet';
 import UsdtDetails from 'src/screens/USDT/UsdtDetails';
 import RecieveUsdt from 'src/screens/USDT/RecieveUsdt';
 import BuyUstd from 'src/screens/USDT/BuyUstd';
+import SendUsdt from 'src/screens/USDT/SendUsdt';
+import UsdtAmount from 'src/screens/USDT/UsdtAmount';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -262,6 +264,8 @@ function AppStack() {
         <Stack.Screen name="usdtDetails" component={UsdtDetails} />
         <Stack.Screen name="usdtReceive" component={RecieveUsdt} />
         <Stack.Screen name="buyUstd" component={BuyUstd} />
+        <Stack.Screen name="sendUsdt" component={SendUsdt} />
+        <Stack.Screen name="usdtAmount" component={UsdtAmount} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />

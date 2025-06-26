@@ -20,7 +20,7 @@ const UsdtFooter = () => {
     {
       Icon: SendIconWhite,
       text: common.send,
-      onPress: () => navigation.dispatch(CommonActions.navigate('Send')),
+      onPress: () => navigation.dispatch(CommonActions.navigate('sendUsdt')),
     },
     {
       Icon: RecieveIconWhite,
