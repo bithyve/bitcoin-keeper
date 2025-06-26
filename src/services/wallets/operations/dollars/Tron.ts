@@ -21,6 +21,26 @@ const TRON_NETWORKS = {
 };
 
 /**
+ * TRC20 Transaction interface
+ */
+export interface TRC20Transaction {
+  transactionId: string;
+  blockNumber: number;
+  blockTimestamp: number;
+  from: string;
+  to: string;
+  value: string; // Raw value in smallest unit
+  formattedValue: number; // Human readable value
+  contractAddress: string;
+  confirmed: boolean;
+  tokenInfo?: {
+    symbol: string;
+    name: string;
+    decimals: number;
+  };
+}
+
+/**
  * Create TronWeb instance for specified network
  */
 export function createTronWeb(networkType: NetworkType): any {
@@ -166,5 +186,104 @@ export async function getTrc20Balance(
     };
   } catch (error) {
     throw new Error(`Failed to get TRC20 balance: ${error.message}`);
+  }
+}
+
+/**
+ * Get TRC20 token transactions for an address
+ */
+export async function getTrc20Transactions(
+  address: string,
+  tokenContract: string,
+  networkType: NetworkType = NetworkType.MAINNET,
+  limit: number = 50,
+  fingerprint?: string // For pagination
+): Promise<{
+  transactions: TRC20Transaction[];
+  meta: {
+    fingerprint: string;
+    hasMore: boolean;
+  };
+}> {
+  try {
+    const tronWebInstance = createTronWeb(networkType);
+
+    // Validate addresses
+    if (!tronWebInstance.isAddress(address)) {
+      throw new Error('Invalid user address');
+    }
+    if (!tronWebInstance.isAddress(tokenContract)) {
+      throw new Error('Invalid token contract address');
+    }
+
+    // Use TronGrid API to get TRC20 transfers
+    const baseUrl =
+      networkType === NetworkType.TESTNET ? 'https://nile.trongrid.io' : 'https://api.trongrid.io';
+
+    // Build query parameters
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      contract_address: tokenContract,
+    });
+
+    if (fingerprint) {
+      params.append('fingerprint', fingerprint);
+    }
+
+    // Get transactions where address is either sender or receiver
+    const url = `${baseUrl}/v1/accounts/${address}/transactions/trc20?${params.toString()}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`TronGrid API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(`TronGrid API error: ${data.error || 'Unknown error'}`);
+    }
+
+    // Process transactions
+    const transactions: TRC20Transaction[] = (data.data || []).map((tx: any) => {
+      const decimals = tx.token_info?.decimals || 6;
+      const rawValue = tx.value || '0';
+      const formattedValue = parseInt(rawValue) / Math.pow(10, decimals);
+
+      return {
+        transactionId: tx.transaction_id,
+        blockNumber: tx.block_timestamp ? Math.floor(tx.block_timestamp / 1000) : 0,
+        blockTimestamp: tx.block_timestamp,
+        from: tx.from,
+        to: tx.to,
+        value: rawValue,
+        formattedValue,
+        contractAddress: tx.token_info?.address || tokenContract,
+        confirmed: tx.confirmed || false,
+        tokenInfo: tx.token_info
+          ? {
+              symbol: tx.token_info.symbol,
+              name: tx.token_info.name,
+              decimals: tx.token_info.decimals,
+            }
+          : undefined,
+      };
+    });
+
+    return {
+      transactions,
+      meta: {
+        fingerprint: data.meta?.fingerprint || '',
+        hasMore: (data.meta?.page_size || 0) === limit,
+      },
+    };
+  } catch (error) {
+    throw new Error(`Failed to get TRC20 transactions: ${error.message}`);
   }
 }

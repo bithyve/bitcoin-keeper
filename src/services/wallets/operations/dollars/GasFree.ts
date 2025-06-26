@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { NetworkType } from 'src/services/wallets/enums';
 import RestClient from '../../../rest/RestClient';
-import { store } from 'src/store/store';
 import * as crypto from 'crypto';
 import config from '../../../../utils/service-utilities/config';
 import { createTronWeb } from './Tron';
@@ -213,7 +212,7 @@ export default class GasFree {
    * Get the appropriate endpoint URL based on network type
    */
   private static getEndpointURL(networkType?: NetworkType): string {
-    const network = networkType || store.getState().settings.bitcoinNetworkType;
+    const network = networkType || NetworkType.MAINNET;
     return GASFREE_ENDPOINTS[network];
   }
 
@@ -221,7 +220,7 @@ export default class GasFree {
    * Get network parameters for signing
    */
   private static getNetworkParams(networkType?: NetworkType) {
-    const network = networkType || store.getState().settings.bitcoinNetworkType;
+    const network = networkType || NetworkType.MAINNET;
     return NETWORK_PARAMS[network];
   }
 
