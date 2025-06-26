@@ -93,10 +93,10 @@ const BuyBtc = () => {
               </Box>
               <Box>
                 <Text fontSize={16} fontWeight="bold" color={`${colorMode}.primaryText`}>
-                  {`${new Intl.NumberFormat('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }).format(stats?.latestPrice)} ${BtcPrice?.symbol}`}
+                  {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(stats?.latestPrice)}`}
                 </Text>
               </Box>
             </Box>
@@ -111,19 +111,19 @@ const BuyBtc = () => {
                 <Box style={styles.card} borderColor={`${colorMode}.separator`}>
                   <Text>{`24h ${buyBTCText.high}`}</Text>
                   <Text fontSize={16} fontWeight="bold" color={Colors.PersianGreen}>
-                    {`${new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }).format(stats?.high24h)} ${BtcPrice?.symbol}`}
+                    {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(stats?.high24h)}`}
                   </Text>
                 </Box>
                 <Box style={styles.card} borderColor={`${colorMode}.separator`}>
                   <Text>{`24h ${buyBTCText.low}`}</Text>
                   <Text fontSize={16} fontWeight="bold" color={Colors.CrimsonRed}>
-                    {`${new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }).format(stats?.low24h)} ${BtcPrice?.symbol}`}
+                    {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }).format(stats?.low24h)}`}
                   </Text>
                 </Box>
               </Box>
