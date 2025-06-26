@@ -510,6 +510,7 @@ export default class GasFree {
   public static validateTransferParams(
     accountInfo: GasFreeAccountInfo,
     tokenAddress: string,
+    balance: string,
     amount: string,
     maxFee: string
   ): { isValid: boolean; error?: string } {
@@ -535,7 +536,7 @@ export default class GasFree {
 
     // Check if account is active or if activation fee is covered
     const totalCost = parseInt(amount) + parseInt(maxFee);
-    const availableBalance = tokenAsset.frozen; // This should be the available balance minus frozen
+    const availableBalance = parseInt(balance) - tokenAsset.frozen;
 
     if (!accountInfo.active) {
       const totalWithActivation = totalCost + tokenAsset.activateFee;
