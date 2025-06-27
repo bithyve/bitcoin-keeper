@@ -357,7 +357,7 @@ function PrivacyAndDisplay({ route }) {
   const PrivacyAndDisplay = [
     {
       title: 'PIN',
-      description: 'Current Screen Lock',
+      description: 'Choose a 4 digits PIN code',
       onPress: () => {
         if (
           loginMethod === LoginMethod.PIN ||
@@ -373,7 +373,7 @@ function PrivacyAndDisplay({ route }) {
     },
     {
       title: 'Password',
-      description: 'Enter 4 or more digits/letters',
+      description: 'Choose a strong password',
       onPress: () => {
         if (
           loginMethod === LoginMethod.PASSWORD ||
