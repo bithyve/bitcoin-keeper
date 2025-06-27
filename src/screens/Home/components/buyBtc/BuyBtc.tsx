@@ -160,8 +160,9 @@ const BuyBtc = () => {
             selectedWallet={selectedWallet}
           />
         )}
-        buttonText={common.proceed}
+        buttonText={selectedWallet ? common.proceed : null}
         buttonCallback={() => {
+          if (!selectedWallet) return;
           setVisibleBuyBtc(false);
           navigation.dispatch(
             CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: selectedWallet } })
