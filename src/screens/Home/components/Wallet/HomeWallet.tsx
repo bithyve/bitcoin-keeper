@@ -153,8 +153,7 @@ const HomeWallet = () => {
         if (item.type === WalletType.USDT) {
           navigation.navigate('usdtDetails');
         } else {
-          // navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
-          navigation.navigate('usdtDetails');
+          navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
         }
       }
     };
