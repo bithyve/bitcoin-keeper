@@ -85,6 +85,7 @@ const UsdtDetails = () => {
       nextFreeChangeAddressIndex: 0,
       receivingAddress: 'bc1qreceivingaddress0001',
       totalExternalAddresses: 1,
+      address: 'ddjdddjjdjdjdj',
       transactions: [
         {
           amount: 500000,
@@ -102,13 +103,54 @@ const UsdtDetails = () => {
     type: 'USDT',
   };
 
+  // dummy trasaction
+  const dummyTransactions = [
+    {
+      address: 'tb1qfvtwh9xzll2uxtpenv9wkw84et3wehevp8msdmp3lelsuvpujl9sspgj28',
+      amount: 10000,
+      blockTime: null,
+      confirmations: 0,
+      date: 'Fri, 27 Jun 2025 07:06:26 GMT',
+      fee: 226,
+      recipientAddresses: [
+        '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8',
+        'tb1qfvtwh9xzll2uxtpenv9wkw84et3wehevp8msdmp3lelsuvpujl9sspgj28',
+      ],
+      senderAddresses: ['2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8'],
+      tags: [],
+      transactionType: 'Received',
+      txid: 'c18d64038e02eea6cbe333c64dde86bde643d98309ac1a1632f8bde45bdde314',
+    },
+    {
+      address: 'tb1qxyz9fzqvuj08xw2zjgy55dpylh0td8d3j4u4k0',
+      amount: 25000,
+      blockTime: null,
+      confirmations: 0,
+      date: 'Fri, 27 Jun 2025 08:15:00 GMT',
+      fee: 300,
+      recipientAddresses: [
+        'tb1qxyz9fzqvuj08xw2zjgy55dpylh0td8d3j4u4k0',
+        '2N3BxEhtnQtw3PazVTTcRyrTLzE7pqL8FgW',
+      ],
+      senderAddresses: ['2N3BxEhtnQtw3PazVTTcRyrTLzE7pqL8FgW'],
+      tags: [],
+      transactionType: 'Sent',
+      txid: 'a9d2b3c54fbaede83eec38a8ef2732d7184dfb4f295c74f00343a8d993ea4a5b',
+    },
+  ];
+
   return (
     <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Box style={styles.topContainer}>
         <WalletHeader
           rightComponent={
-            <TouchableOpacity style={styles.settingBtn} onPress={() => {}}>
+            <TouchableOpacity
+              style={styles.settingBtn}
+              onPress={() => {
+                navigation.navigate('usdtsetting');
+              }}
+            >
               <ThemedSvg name={'setting_icon'} width={25} height={25} />
             </TouchableOpacity>
           }
@@ -147,7 +189,10 @@ const UsdtDetails = () => {
                   style={styles.viewAllBtn}
                   onPress={() =>
                     navigation.dispatch(
-                      CommonActions.navigate({ name: 'TransactionHistory', params: { wallet } })
+                      CommonActions.navigate({
+                        name: 'usdtTransactionHistory',
+                        params: { wallet, dummyTransactions },
+                      })
                     )
                   }
                 >
@@ -158,7 +203,7 @@ const UsdtDetails = () => {
               </HStack>
             ) : null}
             <TransactionsAndUTXOs
-              transactions={wallet?.specs?.transactions}
+              transactions={dummyTransactions}
               setPullRefresh={setPullRefresh}
               pullRefresh={pullRefresh}
               wallet={wallet}

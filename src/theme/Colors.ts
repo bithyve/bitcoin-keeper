@@ -142,5 +142,11 @@ const Colors = {
   DesaturatedTeal: 'rgba(89, 175, 153, 1)',
   CharcoalBlueGray: 'rgba(74, 79, 89, 1)',
   DustyNavy: 'rgba(63, 93, 111, 1)',
+  lightindigoblue: 'rgba(63, 63, 205, 0.1)',
+  indigoblue: 'rgba(63, 63, 205, 1)',
+  lightOrange: 'rgba(248, 149, 33, 0.1)',
+  darkOrange: 'rgba(248, 149, 33, 1)',
+  PaleTropicalTeal: 'rgba(86, 191, 174, 0.1)',
+  TropicalTeal: 'rgba(86, 191, 174, 1)',
 };
 export default Colors;

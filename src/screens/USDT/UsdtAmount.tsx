@@ -14,13 +14,14 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useNavigation } from '@react-navigation/native';
 
 const UsdtAmount = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { showToast } = useToastMessage();
-
+  const navigation = useNavigation();
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
 
   const [amount, setAmount] = useState('0');
@@ -68,6 +69,7 @@ const UsdtAmount = ({ route }) => {
       showToast('Please enter a valid amount');
       return;
     }
+    navigation.navigate('usdtSendConfirmation', { amount: numericAmount });
   };
 
   return (
@@ -87,7 +89,7 @@ const UsdtAmount = ({ route }) => {
         />
         <Box>
           <Text bold>USDT Wallet</Text>
-          <Text color={`${colorMode}.greyText`}>Balance: 5000 USDT</Text>
+          <Text color={`${colorMode}.GreyText`}>Balance: 5000 USDT</Text>
         </Box>
       </Box>
 
@@ -95,7 +97,7 @@ const UsdtAmount = ({ route }) => {
         <Text fontSize={32} color={`${colorMode}.primaryText`}>
           {amount}{' '}
         </Text>
-        <Text fontSize={25} color={`${colorMode}.greyText`}>
+        <Text fontSize={25} color={`${colorMode}.GreyText`}>
           USDT
         </Text>
       </Box>
