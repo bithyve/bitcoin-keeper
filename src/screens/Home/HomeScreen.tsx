@@ -80,7 +80,7 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case buyBTCText.buyBtc:
+      case buyBTCText.acquire:
         return {
           content: (
             <Box>

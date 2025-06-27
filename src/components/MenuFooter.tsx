@@ -32,7 +32,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       selectedIcon: <ThemedSvg name={'footer_Key'} />,
     },
     {
-      name: buyBTCTranslation.buyBtc,
+      name: buyBTCTranslation.acquire,
       defaultIcon: <BtcLogoGrey width={wp(22)} height={hp(22)} />,
       selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(22)} height={hp(22)} />,
     },
