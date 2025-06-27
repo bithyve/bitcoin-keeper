@@ -13,7 +13,7 @@ import DotView from 'src/components/DotView';
 import moment from 'moment';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { backupBsmsOnCloud, bsmsCloudHealthCheck } from 'src/store/sagaActions/bhr';
-import { setBackupLoading, setLastBsmsBackup } from 'src/store/reducers/bhr';
+import { setBackupLoading } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
@@ -21,7 +21,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import { wp } from 'src/constants/responsive';
 import { setBackupModal } from 'src/store/reducers/settings';
-import EnterPasswordModal from './EnterPasswordModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
@@ -38,12 +37,11 @@ function CloudBackupScreen() {
   const data: BackupHistory = useQuery(RealmSchema.CloudBackupHistory);
   const history = useMemo(() => data.slice().reverse(), [data]);
   const { showToast } = useToastMessage();
-  const { loading, lastBsmsBackup } = useAppSelector((state) => state.bhr);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const { loading } = useAppSelector((state) => state.bhr);
   const { allVaults } = useVault({});
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
-  const isBackupAllowed = useMemo(() => lastBsmsBackup > 0, [lastBsmsBackup]);
+  const isBackupAllowed = useMemo(() => history.length > 0, [history]);
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
@@ -87,14 +85,6 @@ function CloudBackupScreen() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <EnterPasswordModal
-        visible={showPasswordModal}
-        close={() => setShowPasswordModal(false)}
-        callback={(value: any) => {
-          dispatch(setLastBsmsBackup(Date.now()));
-          dispatch(backupBsmsOnCloud(value || ''));
-        }}
-      />
       <Box width={'100%'}>
         <WalletHeader
           title={strings.cloudBackup}
@@ -159,10 +149,7 @@ function CloudBackupScreen() {
             primaryCallback={() => {
               if (allVaults.length === 0)
                 return showToast(errorText.noVaultsFound, <ToastErrorIcon />);
-              else {
-                dispatch(setLastBsmsBackup(Date.now()));
-                dispatch(backupBsmsOnCloud());
-              }
+              else dispatch(backupBsmsOnCloud());
             }}
             primaryLoading={loading}
             secondaryText={isBackupAllowed ? strings.healthCheck : ''}

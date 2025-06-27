@@ -49,10 +49,8 @@ import {
   setBackupType,
   setDeleteBackupFailure,
   setDeleteBackupSuccess,
-  setEncPassword,
   setHomeToastMessage,
   setIsCloudBsmsBackupRequired,
-  setLastBsmsBackup,
   setPendingAllBackup,
   setSeedConfirmed,
 } from '../reducers/bhr';
@@ -779,7 +777,6 @@ function* backupBsmsOnCloudWorker() {
               date: Date.now(),
             });
             yield put(setIsCloudBsmsBackupRequired(false));
-            yield put(setLastBsmsBackup(Date.now()));
           } else {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
               title: CloudBackupAction.CLOUD_BACKUP_FAILED,
@@ -819,7 +816,6 @@ function* backupBsmsOnCloudWorker() {
           date: Date.now(),
         });
         yield put(setIsCloudBsmsBackupRequired(false));
-        yield put(setLastBsmsBackup(Date.now()));
       } else {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,
