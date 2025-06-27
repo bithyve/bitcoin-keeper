@@ -1892,6 +1892,11 @@
     "bitcoinWallet": "Bitcoin Wallet",
     "dollarWallet": "Dollar Wallet",
     "addWalletDetails": "Add Your Wallet Details",
-    "dedicatedWalletSub": "A dedicated wallet for securely receiving, storing, and managing USDT on the Tron network. Enjoy fast, low-fee transactions for smooth and cost-effective transfers."
+    "dedicatedWalletSub": "A dedicated wallet for securely receiving, storing, and managing USDT on the Tron network. Enjoy fast, low-fee transactions for smooth and cost-effective transfers.",
+    "usdtRamp": "Get USDT via Ramp",
+    "rampSub": "Ramp allows you to acquire USDT using payment methods available in your country.",
+    "rampOffermultiple": "Ramp offers multiple payment methods to acquire USDT.",
+    "adressTransaction": "Address for the transaction",
+    "understandRampPayment": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange."
   }
 }

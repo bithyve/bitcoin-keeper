@@ -34,7 +34,11 @@ const UsdtFooter = () => {
     },
   ];
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.pantoneGreen`}>
+    <Box
+      style={styles.container}
+      borderColor={`${colorMode}.separator`}
+      backgroundColor={`${colorMode}.pantoneGreen`}
+    >
       {footerItems.map((item, index) => {
         return (
           <TouchableOpacity onPress={item.onPress}>

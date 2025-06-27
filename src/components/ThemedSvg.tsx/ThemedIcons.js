@@ -784,7 +784,7 @@ const themeIcons = {
     PRIVATE_LIGHT: InhertanceToolsPrivate,
   },
   add_circle: {
-    DARK: AddCircleLight,
+    DARK: AddCircleDark,
     LIGHT: AddCircleLight,
     PRIVATE: AddCircleDark,
     PRIVATE_LIGHT: AddCircleLight,

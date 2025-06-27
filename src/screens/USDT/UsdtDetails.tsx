@@ -159,14 +159,14 @@ const UsdtDetails = () => {
         <Box style={styles.card}>
           <WalletCard
             backgroundColor={getWalletCardGradient(wallet)}
-            hexagonBackgroundColor={Colors.CyanGreen}
+            hexagonBackgroundColor={Colors.aqualightMarine}
             icon={<UsdtWalletLogo />}
             iconWidth={42}
             iconHeight={38}
-            title={'USDT Wallet'}
+            title={'USDT Wallet'} //replace with wallet name
             tags={getWalletTags(wallet)}
             totalBalance={10000}
-            description={'USDT wallet desc'}
+            description={'USDT wallet desc'} //replace with wallet description
             wallet={wallet}
             allowHideBalance={false}
           />

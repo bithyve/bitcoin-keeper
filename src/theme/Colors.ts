@@ -148,5 +148,6 @@ const Colors = {
   darkOrange: 'rgba(248, 149, 33, 1)',
   PaleTropicalTeal: 'rgba(86, 191, 174, 0.1)',
   TropicalTeal: 'rgba(86, 191, 174, 1)',
+  aqualightMarine: 'rgba(136, 235, 220, 0.2)',
 };
 export default Colors;

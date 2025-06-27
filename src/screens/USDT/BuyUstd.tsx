@@ -22,29 +22,29 @@ const BuyUstd = ({}: Props) => {
     name: 'buyBitCoinHexagonBackgroundColor',
   });
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, usdtWalletText } = translations;
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.container}>
-        <WalletHeader title={'Get USDT via Ramp'} />
+        <WalletHeader title={usdtWalletText.usdtRamp} />
         <Text fontSize={13} color={`${colorMode}.primaryText`} style={{ marginTop: hp(15) }}>
-          {'Ramp allows you to acquire USDT using payment methods available in your country.'}
+          {usdtWalletText.rampSub}
         </Text>
         <Box
           style={styles.cardWrapper}
-          backgroundColor={`${colorMode}.primaryBackground`}
+          backgroundColor={`${colorMode}.thirdBackground`}
           borderColor={`${colorMode}.separator`}
         >
           {isDarkMode ? <RampNetworkDark /> : <RampNetwork />}
-          <Text>{'Ramp offers multiple payment methods to acquire USDT.'}</Text>
+          <Text>{usdtWalletText.rampOffermultiple}</Text>
         </Box>
         <Text color={`${colorMode}.primaryText`} medium style={{ marginBottom: hp(10) }}>
-          {'Address for the transaction'}
+          {usdtWalletText.adressTransaction}
         </Text>
         <Box
           style={styles.addressContainer}
-          backgroundColor={`${colorMode}.primaryBackground`}
+          backgroundColor={`${colorMode}.thirdBackground`}
           borderColor={`${colorMode}.separator`}
         >
           <HexagonIcon
@@ -59,10 +59,7 @@ const BuyUstd = ({}: Props) => {
         </Box>
       </Box>
       <Box style={styles.ButtonContainer}>
-        <Text>
-          By proceeding, you understand that Ramp will process the payment and complete the
-          transaction. Keeper does not facilitate or handle the exchange.
-        </Text>
+        <Text>{usdtWalletText.understandRampPayment}</Text>
         <Buttons primaryText={common.proceed} fullWidth />
       </Box>
     </ScreenWrapper>

@@ -164,7 +164,9 @@ const HomeWallet = () => {
       >
         <WalletCard
           backgroundColor={getWalletCardGradient(item)}
-          hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+          hexagonBackgroundColor={
+            item.type === WalletType.USDT ? Colors.aqualightMarine : Colors.CyanGreen
+          }
           iconWidth={42}
           iconHeight={38}
           title={item.presentationData.name}
