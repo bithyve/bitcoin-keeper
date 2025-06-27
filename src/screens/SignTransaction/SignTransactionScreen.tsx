@@ -42,7 +42,7 @@ import {
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
-import { getKeyUID } from 'src/utils/utilities';
+import { getKeyUID, getTnxIdFromCachedTnx } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { deleteDelayedTransaction, updateDelayedTransaction } from 'src/store/reducers/storage';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -181,6 +181,7 @@ function SignTransactionScreen() {
             state: sendAndReceive,
             routeParams: sendConfirmationRouteParams,
             options: snapshotOptions,
+            potentialTxId: getTnxIdFromCachedTnx({ snapshot: { state: sendAndReceive } }),
           },
         })
       );

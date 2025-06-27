@@ -49,6 +49,7 @@ import {
 import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
+  discardBroadcastedTnxWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
   fetchOneDayInsightWatcher,
@@ -127,6 +128,7 @@ const rootSaga = function* () {
     fetchDelayedPolicyUpdateWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
+    discardBroadcastedTnxWatcher,
 
     // UAI
     uaiChecksWatcher,
