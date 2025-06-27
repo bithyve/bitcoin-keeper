@@ -1078,11 +1078,11 @@
     "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data"
   },
   "ramp": {
-    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
+    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
     "bitcoinTransfer": "Bitcoin will be transferred to",
     "addressForRamp": "Address for Ramp transactions",
-    "buyBitcoinWithRamp": "Buy Bitcoin with Ramp",
-    "buyBitcoinWithRampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country"
+    "buyBitcoinWithRamp": "Get Bitcoin via Ramp",
+    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire BTC using payment methods available in your country."
   },
   "signer": {
     "addSigner": "Add Signer",
@@ -1746,6 +1746,21 @@
     "scheduleOnboardingCall": "Schedule Onboarding Call",
     "scheduleCallWithExpert": "Schedule a call with our experts today.",
     "supportTeam": "Support Team"
+  },
+  "buyBTC": {
+    "acquire": "Acquire",
+    "bitCoin": "Bitcoin",
+    "marketInfo": "Market Info",
+    "high": "High",
+    "low": "Low",
+    "selectWallet": "Select Wallet",
+    "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
+    "rampTitle": "Buy Bitcoin with Ramp",
+    "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
+    "addressForTransaction": "Address for the transaction",
+    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
+    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
+    "buyBtc": "Get Bitcoin"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",

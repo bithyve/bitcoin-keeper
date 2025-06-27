@@ -149,5 +149,8 @@ const Colors = {
   PaleTropicalTeal: 'rgba(86, 191, 174, 0.1)',
   TropicalTeal: 'rgba(86, 191, 174, 1)',
   aqualightMarine: 'rgba(136, 235, 220, 0.2)',
+  warm_off_white: 'rgba(246, 242, 237, 0.1)',
+  PersianGreen: 'rgba(0, 175, 146, 1)',
+  CrimsonRed: 'rgba(217, 44, 44, 1)',
 };
 export default Colors;
