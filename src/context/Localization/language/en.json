@@ -1747,7 +1747,7 @@
     "supportTeam": "Support Team"
   },
   "buyBTC": {
-    "buyBtc": "Acquire",
+    "acquire": "Acquire",
     "bitCoin": "Bitcoin",
     "marketInfo": "Market Info",
     "high": "High",
@@ -1758,7 +1758,8 @@
     "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
     "addressForTransaction": "Address for the transaction",
     "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
-    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC."
+    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
+    "buyBtc": "Get Bitcoin"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
