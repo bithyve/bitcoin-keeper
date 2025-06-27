@@ -1,6 +1,6 @@
 import { NetworkType } from 'src/services/wallets/enums';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import RestClient from '../rest/RestClient';
@@ -567,6 +567,20 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.get(`${RELAY}getActiveCampaign?appId=${appId}`);
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getBtcPrice = async (currencyCode): Promise<any> => {
+    let res;
+    try {
+      res = await axios.get(
+        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=${currencyCode}&days=6`
+      );
     } catch (err) {
       console.log('err', err);
       if (err.response) throw new Error(err.response.data.err);

@@ -745,26 +745,27 @@ export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
   return true;
 };
 
-export const getDayForGraph = (timestamp: number) => {
+export const getDayForGraph = (timestamp: number, onlyDay = false) => {
   const date = new Date(timestamp);
   const dayNo = date.getDay();
+  let day = '';
   switch (dayNo) {
     case 0:
-      return `${date.getDate()}\nSun`;
+      return (day = `Sun`);
     case 1:
-      return `${date.getDate()}\nMon`;
+      return (day = `Mon`);
     case 2:
-      return `${date.getDate()}\nTue`;
+      return (day = `Tue`);
     case 3:
-      return `${date.getDate()}\nWed`;
+      return (day = `Wed`);
     case 4:
-      return `${date.getDate()}\nThu`;
+      return (day = `Thu`);
     case 5:
-      return `${date.getDate()}\nFri`;
+      return (day = `Fri`);
     case 6:
-      return `${date.getDate()}\nSat`;
+      return (day = `Sat`);
   }
-  return '';
+  return onlyDay ? day : `${date.getDate()}\n${day}`;
 };
 
 export const isPsbtFullySigned = (psbt) => {
@@ -798,4 +799,57 @@ export const getOutputsFromPsbt = (psbt) => {
     };
   });
   return outputs;
+};
+
+export const manipulateBitcoinPrices = (data) => {
+  const seenDates = new Set(); // To track unique dates
+  const dailyPrice = [];
+
+  let latestTimestamp = 0;
+  let latestPrice = null;
+
+  const now = Date.now();
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+
+  let high24h = -Infinity;
+  let low24h = Infinity;
+
+  // Temporary object to help pick the latest entry per day
+  const dateToEntry = {};
+
+  for (const [timestamp, price] of data) {
+    const dateObject = new Date(timestamp);
+    const date = dateObject.getMonth() + '/' + dateObject.getDate();
+
+    // Track the latest timestamp for each date
+    if (!dateToEntry[date] || timestamp > dateToEntry[date].timestamp) {
+      dateToEntry[date] = { timestamp, price };
+    }
+
+    // Track overall latest price
+    if (timestamp > latestTimestamp) {
+      latestTimestamp = timestamp;
+      latestPrice = price;
+    }
+
+    // 24h high and low
+    if (timestamp >= dayAgo) {
+      if (price > high24h) high24h = price;
+      if (price < low24h) low24h = price;
+    }
+  }
+
+  // Convert to array and use Set to ensure one entry per date
+  for (const date in dateToEntry) {
+    const { timestamp, price } = dateToEntry[date];
+    if (!seenDates.has(date)) {
+      seenDates.add(date);
+      dailyPrice.push({
+        label: dailyPrice.length === 0 ? null : getDayForGraph(timestamp),
+        value: price,
+      });
+    }
+  }
+
+  return { dailyPrice, latestPrice, high24h, low24h };
 };

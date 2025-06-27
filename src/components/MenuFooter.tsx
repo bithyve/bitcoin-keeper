@@ -11,12 +11,13 @@ import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from './ThemedColor/ThemedColor';
+import BtcLogoGrey from 'src/assets/images/Btc-Logo-grey.svg';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation } = translations;
+  const { wallet: walletTranslation, buyBTC: buyBTCTranslation } = translations;
   const selectedFooterColor = ThemedColor({ name: 'footer_selected_option' });
 
   const menuOptions = [
@@ -29,6 +30,11 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       name: walletTranslation.keys,
       defaultIcon: <KeyIcon />,
       selectedIcon: <ThemedSvg name={'footer_Key'} />,
+    },
+    {
+      name: buyBTCTranslation.buyBtc,
+      defaultIcon: <BtcLogoGrey width={wp(22)} height={hp(22)} />,
+      selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(22)} height={hp(22)} />,
     },
     {
       name: walletTranslation.concierge,
