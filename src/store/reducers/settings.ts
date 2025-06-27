@@ -8,6 +8,7 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 
 const initialState: {
   loginMethod: LoginMethod;
+  fallbackLoginMethod: LoginMethod | null;
   themeMode: ThemeMode;
   currencyKind: CurrencyKind;
   currencyCode: string;
@@ -24,6 +25,7 @@ const initialState: {
   appWideLoading: boolean;
 } = {
   loginMethod: LoginMethod.PIN,
+  fallbackLoginMethod: null,
   themeMode: ThemeMode.LIGHT,
   currencyKind: CurrencyKind.BITCOIN,
   currencyCode: 'USD',
@@ -46,6 +48,9 @@ const settingsSlice = createSlice({
   reducers: {
     setLoginMethod: (state, action: PayloadAction<LoginMethod>) => {
       state.loginMethod = action.payload;
+    },
+    setFallbackLoginMethod: (state, action: PayloadAction<LoginMethod | null>) => {
+      state.fallbackLoginMethod = action.payload;
     },
     setThemeMode: (state, action: PayloadAction<ThemeMode>) => {
       state.themeMode = action.payload;
@@ -99,6 +104,7 @@ export const {
   setBackupModal,
   setSubscription,
   setBitcoinNetwork,
+  setFallbackLoginMethod,
   setAppWideLoading,
 } = settingsSlice.actions;
 

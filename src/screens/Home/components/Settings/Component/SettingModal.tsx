@@ -2,8 +2,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 import KeeperModal from 'src/components/KeeperModal';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -46,13 +46,13 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
+          <ConfirmCredentialModal
+            useBiometrics={true}
             close={() => {
               setConfirmPassVisible(false);
               setConfirmPass(false);
             }}
-            onSuccess={() => {
+            success={() => {
               setConfirmPassVisible(false);
               setBackupModalVisible(true);
             }}

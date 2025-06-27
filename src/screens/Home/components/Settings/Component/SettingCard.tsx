@@ -20,6 +20,7 @@ interface SettingCardItemProps {
   showDot?: boolean;
   onPress?: () => void;
   onRightPress?: () => void;
+  isDisabled?: boolean;
 }
 
 interface SettingCardProps {
@@ -64,11 +65,14 @@ const SettingCard: React.FC<SettingCardProps> = ({
         borderColor={borderColor}
       >
         {items.map((item, index) => {
-          const applyDiamondCheck = item?.isHodler
-            ? isOnL2Above
-            : item?.isDiamond
-            ? isOnL3Above
-            : true;
+          const applyDiamondCheck =
+            item?.isDisabled !== undefined
+              ? !item.isDisabled
+              : item?.isHodler
+              ? isOnL2Above
+              : item?.isDiamond
+              ? isOnL3Above
+              : true;
 
           return (
             <React.Fragment key={index}>
@@ -121,6 +125,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
                       <TouchableOpacity
                         onPress={item.onRightPress}
                         testID={`btn_right_${item.title}`}
+                        disabled={!applyDiamondCheck}
                       >
                         <Box>{item.rightIcon}</Box>
                       </TouchableOpacity>

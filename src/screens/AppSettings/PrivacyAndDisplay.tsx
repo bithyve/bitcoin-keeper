@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import OptionCard from 'src/components/OptionCard';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Switch from 'src/components/Switch/Switch';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -10,7 +9,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import { changeAuthCred, changeLoginMethod } from 'src/store/sagaActions/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { setThemeMode } from 'src/store/reducers/settings';
+import { setFallbackLoginMethod, setThemeMode } from 'src/store/reducers/settings';
 import ThemeMode from 'src/models/enums/ThemeMode';
 import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
@@ -19,7 +18,6 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import HealthCheckComponent from 'src/components/Backup/HealthCheckComponent';
@@ -38,10 +36,23 @@ import { resetCredsChanged } from 'src/store/reducers/login';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
 import usePlan from 'src/hooks/usePlan';
+import SettingCard from '../Home/components/Settings/Component/SettingCard';
+import BiometricIcon from 'src/assets/images/biometric-image.svg';
+import PasswordIcon from 'src/assets/images/password-ico.svg';
+import PinIcon from 'src/assets/images/pin-icon.svg';
+import PasswordModalContent from './PasswordModalContent';
+import CreatePasswordContent from './CreatePasswordContent';
+import { useSelector } from 'react-redux';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }) {
+function ConfirmPasscode({
+  oldPassword,
+  setConfirmPasscodeModal,
+  onCredsChange,
+  setShowSetPasscodeModal,
+}) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
 
@@ -52,7 +63,7 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
   const [passcodeFlag, setPasscodeFlag] = useState(true);
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { credsChanged } = useAppSelector((state) => state.login);
-
+  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   useEffect(() => {
     if (credsChanged === 'changed') {
       onCredsChange();
@@ -156,6 +167,10 @@ function ConfirmPasscode({ oldPassword, setConfirmPasscodeModal, onCredsChange }
                 primaryText={common.confirm}
                 primaryCallback={() => {
                   dispatch(changeAuthCred(oldPassword, passcode));
+                  if (loginMethod === LoginMethod.BIOMETRIC) {
+                    dispatch(setFallbackLoginMethod(LoginMethod.PIN));
+                  }
+                  setShowSetPasscodeModal(false);
                 }}
                 fullWidth
               />
@@ -190,12 +205,15 @@ function PrivacyAndDisplay({ route }) {
   const [sensorType, setSensorType] = useState(null);
   const [sensorAvailable, setSensorAvailable] = useState(false);
   const [visiblePasscode, setVisiblePassCode] = useState(false);
+  const [visiblePassword, setVisiblePassword] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const [confirmPasscode, setConfirmPasscode] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [RKHealthCheckModal, setRKHealthCheckModal] = useState(false);
   const [passcodeHCModal, setPasscodeHCModal] = useState(false);
+  const [showSetPasscodeModal, setShowSetPasscodeModal] = useState(false);
+  const [createPasswordModal, setCreatePasswordModal] = useState(false);
 
   const { translations, formatString } = useContext(LocalizationContext);
   const { settings, common, error: errorText } = translations;
@@ -208,6 +226,7 @@ function PrivacyAndDisplay({ route }) {
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [credsChanged, setCredsChanged] = useState('');
   const { isOnL4 } = usePlan();
+  const fallbackLoginMethod = useSelector((state) => state.settings.fallbackLoginMethod);
 
   useEffect(() => {
     if (credsChanged === 'changed') {
@@ -223,7 +242,11 @@ function PrivacyAndDisplay({ route }) {
 
   useEffect(() => {
     if (RKBackedUp) {
-      setConfirmPasscode(true);
+      if (showSetPasscodeModal) {
+        setConfirmPasscode(true);
+      } else {
+        setCreatePasswordModal(true);
+      }
       setOldPassword(oldPasscode);
     }
   }, [route?.params]);
@@ -270,7 +293,7 @@ function PrivacyAndDisplay({ route }) {
     try {
       const { available } = await RNBiometrics.isSensorAvailable();
       if (available) {
-        if (loginMethod === LoginMethod.PIN) {
+        if (loginMethod === LoginMethod.PIN || loginMethod === LoginMethod.PASSWORD) {
           const { keysExist } = await RNBiometrics.biometricKeysExist();
           if (keysExist) {
             await RNBiometrics.deleteKeys();
@@ -280,10 +303,10 @@ function PrivacyAndDisplay({ route }) {
           });
           if (success) {
             const { publicKey } = await RNBiometrics.createKeys();
-            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey));
+            dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, loginMethod));
           }
-        } else {
-          dispatch(changeLoginMethod(LoginMethod.PIN));
+        } else if (loginMethod === LoginMethod.BIOMETRIC) {
+          dispatch(changeLoginMethod(fallbackLoginMethod || LoginMethod.PIN));
         }
       } else {
         setSensorAvailable(false);
@@ -295,54 +318,117 @@ function PrivacyAndDisplay({ route }) {
     }
   };
 
+  const updateBiometricAfterPasscodeChange = async (newFallbackMethod) => {
+    try {
+      const { available } = await RNBiometrics.isSensorAvailable();
+
+      if (!available) {
+        setSensorAvailable(false);
+        showToast(errorText.biometricNotEnabled, <ToastErrorIcon />);
+        return;
+      }
+      const { keysExist } = await RNBiometrics.biometricKeysExist();
+      const { success } = await RNBiometrics.simplePrompt({
+        promptMessage: errorText.confirmIdentity,
+      });
+
+      if (!success) {
+        showToast('Failed to update biometric authentication.', <ToastErrorIcon />);
+        if (fallbackLoginMethod === 'PIN') {
+          dispatch(changeLoginMethod(LoginMethod.PIN));
+        } else if (fallbackLoginMethod === 'PASSWORD') {
+          dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+        }
+        return;
+      }
+      if (keysExist) {
+        await RNBiometrics.deleteKeys();
+      }
+      const { publicKey } = await RNBiometrics.createKeys();
+
+      dispatch(changeLoginMethod(LoginMethod.BIOMETRIC, publicKey, newFallbackMethod));
+      showToast('Biometric updated successfully');
+    } catch (error) {
+      showToast('Failed to update biometric authentication.', <ToastErrorIcon />);
+      setSensorAvailable(false);
+    }
+  };
+
+  const PrivacyAndDisplay = [
+    {
+      title: 'PIN',
+      description: 'Choose a 4 digits PIN code',
+      onPress: () => {
+        if (
+          loginMethod === LoginMethod.PIN ||
+          (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PIN')
+        ) {
+          setVisiblePassCode(true);
+        } else {
+          setVisiblePassword(true);
+        }
+        setShowSetPasscodeModal(true);
+      },
+      icon: <PinIcon />,
+    },
+    {
+      title: 'Password',
+      description: 'Choose a strong password',
+      onPress: () => {
+        if (
+          loginMethod === LoginMethod.PASSWORD ||
+          (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PASSWORD')
+        ) {
+          setVisiblePassword(true);
+          setShowSetPasscodeModal(false);
+        } else {
+          setVisiblePassCode(true);
+          setShowSetPasscodeModal(false);
+        }
+      },
+      icon: <PasswordIcon />,
+    },
+    {
+      title: sensorType || settings.Biometrics,
+      description: sensorType
+        ? formatString(settings.UseBiometricSubTitle, sensorType)
+        : settings.NoBiometricSubTitle,
+      onPress: onChangeLoginMethod,
+      isDisabled: !sensorType,
+      icon: <BiometricIcon />,
+      onRightPress: sensorAvailable || !sensorType ? onChangeLoginMethod : requestPermission,
+
+      rightIcon:
+        sensorAvailable || !sensorType ? (
+          <Switch
+            onValueChange={onChangeLoginMethod}
+            value={loginMethod === LoginMethod.BIOMETRIC}
+            testID="switch_biometrics"
+            loading={!sensorType}
+          />
+        ) : (
+          <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
+            <Box style={styles.settingsCTA} backgroundColor={`${colorMode}.coffeeBackground`}>
+              <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
+                {common.Enable} {sensorType}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        ),
+    },
+  ];
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={settings.SecurityAndLogin} subTitle={settings.AppLevelSettings} />
-      <ScrollView>
-        <Box style={styles.wrapper}>
-          <Box>
-            <OptionCard
-              title={sensorType || settings.Biometrics}
-              description={
-                sensorType
-                  ? formatString(settings.UseBiometricSubTitle, sensorType)
-                  : settings.NoBiometricSubTitle
-              }
-              callback={() => onChangeLoginMethod()}
-              disabled={!sensorType}
-              Icon={
-                sensorAvailable || !sensorType ? (
-                  <Switch
-                    onValueChange={onChangeLoginMethod}
-                    value={loginMethod === LoginMethod.BIOMETRIC}
-                    testID="switch_biometrics"
-                    loading={!sensorType}
-                  />
-                ) : (
-                  <TouchableOpacity onPress={requestPermission} testID="btn_biometricSettings">
-                    <Box
-                      style={styles.settingsCTA}
-                      backgroundColor={`${colorMode}.coffeeBackground`}
-                    >
-                      <Text style={styles.settingsCTAText} bold color={`${colorMode}.textColor`}>
-                        {common.Enable} {sensorType}
-                      </Text>
-                    </Box>
-                  </TouchableOpacity>
-                )
-              }
-            />
-          </Box>
-
-          <OptionCard
-            title={settings.changePasscode}
-            description={settings.changePasscodeDescription}
-            callback={() => {
-              setVisiblePassCode(true);
-            }}
-          />
-        </Box>
-      </ScrollView>
+      <WalletHeader title={settings.SecurityAndLogin} />
+      <Box style={styles.wrapper} borderColor={`${colorMode}.separator`}>
+        <SettingCard
+          subtitleColor={`${colorMode}.balanceText`}
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
+          items={PrivacyAndDisplay}
+        />
+      </Box>
       <Box style={styles.note}>
         <Note
           title={common.note}
@@ -366,6 +452,30 @@ function PrivacyAndDisplay({ route }) {
             close={() => {
               setVisiblePassCode(false);
             }}
+            onSuccess={(password) => {
+              if (data.length === 0) {
+                setRKHealthCheckModal(true);
+                setOldPassword(password);
+              } else {
+                setOldPassword(password);
+                setPasscodeHCModal(true);
+              }
+            }}
+            useBiometrics={false}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={visiblePassword}
+        close={() => setVisiblePassword(false)}
+        title="Set password"
+        subTitle="Enter your existing password"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <PasswordModalContent
+            close={() => setVisiblePassword(false)}
             onSuccess={(password) => {
               if (data.length === 0) {
                 setRKHealthCheckModal(true);
@@ -420,7 +530,11 @@ function PrivacyAndDisplay({ route }) {
             if (backupMethod === BackupType.SEED) {
               setShowConfirmSeedModal(false);
               dispatch(seedBackedConfirmed(true));
-              setConfirmPasscode(true);
+              if (showSetPasscodeModal) {
+                setConfirmPasscode(true);
+              } else {
+                setCreatePasswordModal(true);
+              }
             }
           }}
         />
@@ -439,7 +553,15 @@ function PrivacyAndDisplay({ route }) {
           <ConfirmPasscode
             setConfirmPasscodeModal={setConfirmPasscode}
             oldPassword={oldPassword}
-            onCredsChange={() => setCredsChanged('changed')}
+            onCredsChange={() => {
+              setCredsChanged('changed');
+              if (loginMethod === LoginMethod.BIOMETRIC) {
+                updateBiometricAfterPasscodeChange(LoginMethod.PIN);
+              } else {
+                dispatch(changeLoginMethod(LoginMethod.PIN));
+              }
+            }}
+            setShowSetPasscodeModal={setShowSetPasscodeModal}
           />
         )}
       />
@@ -488,10 +610,34 @@ function PrivacyAndDisplay({ route }) {
               next: true,
               parentScreen: PRIVACYANDDISPLAY,
               oldPasscode: oldPassword,
+              showSetPasscodeModal: showSetPasscodeModal,
             })
           );
         }}
         Content={BackupModalContent}
+      />
+      <KeeperModal
+        visible={createPasswordModal}
+        close={() => setCreatePasswordModal(false)}
+        title="Set Password"
+        subTitle="Enter Your new Password"
+        modalBackground={`${colorMode}.primaryBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        Content={() => (
+          <CreatePasswordContent
+            close={() => setCreatePasswordModal(false)}
+            onSuccess={(newFallbackMethod) => {
+              setCredsChanged('changed');
+              if (loginMethod === LoginMethod.BIOMETRIC) {
+                updateBiometricAfterPasscodeChange(newFallbackMethod);
+              } else {
+                dispatch(changeLoginMethod(LoginMethod.PASSWORD));
+              }
+            }}
+            oldPassword={oldPassword}
+          />
+        )}
       />
     </ScreenWrapper>
   );
@@ -500,8 +646,11 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: hp(35),
     gap: 50,
+  },
+  container: {
     width: '95%',
-    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   note: {
     position: 'absolute',

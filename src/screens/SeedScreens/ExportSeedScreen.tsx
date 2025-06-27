@@ -54,6 +54,7 @@ function ExportSeedScreen({ route, navigation }) {
     parentScreen,
     oldPasscode,
     isFromMobileKey = false,
+    showSetPasscodeModal,
   }: {
     vaultKey: string;
     vaultId: string;
@@ -68,6 +69,7 @@ function ExportSeedScreen({ route, navigation }) {
     parentScreen?: string;
     oldPasscode?: string;
     isFromMobileKey: boolean;
+    showSetPasscodeModal: boolean;
   } = route.params;
   const { showToast } = useToastMessage();
   const [words, setWords] = useState(seed.split(' '));
@@ -301,7 +303,12 @@ function ExportSeedScreen({ route, navigation }) {
           dismissible={false}
           close={
             isChangePassword
-              ? () => navigation.navigate('PrivacyAndDisplay', { RKBackedUp: true, oldPasscode })
+              ? () =>
+                  navigation.navigate('PrivacyAndDisplay', {
+                    RKBackedUp: true,
+                    oldPasscode,
+                    showSetPasscodeModal,
+                  })
               : () => {}
           }
           title={BackupWallet.backupSuccessTitle}

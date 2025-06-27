@@ -21,7 +21,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { captureError } from 'src/services/sentry';
 import useWallets from 'src/hooks/useWallets';
 import { useDispatch, useSelector } from 'react-redux';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -45,6 +44,7 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -413,13 +413,13 @@ function ManageWallets() {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
-            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={onProceed}
+            success={onProceed}
+            useBiometrics={false}
             onForceSuccess={onForceProceed}
           />
         )}
@@ -435,12 +435,12 @@ function ManageWallets() {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             useBiometrics={false}
             close={() => {
               setConfirmPasscodeVisible(false);
             }}
-            onSuccess={deleteSelectedEntity}
+            success={deleteSelectedEntity}
           />
         )}
       />

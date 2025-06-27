@@ -39,7 +39,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { setupKeeperSigner } from 'src/hardware/signerSetup';
 import { getKeyUID } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import EnhancedKeysSection from './components/EnhancedKeysSection';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import {
@@ -52,6 +51,7 @@ import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'ManageSigners'>;
 
@@ -307,12 +307,12 @@ function ManageSigners({ route }: ScreenProps) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
             useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={onSuccess}
+            success={onSuccess}
           />
         )}
       />

@@ -52,6 +52,8 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustration.svg';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import { useSelector } from 'react-redux';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -98,6 +100,7 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
   const { allAccounts, biometricEnabledAppId } = useAppSelector((state) => state.account);
+  const fallbackLoginMethod = useSelector((state) => state.settings.fallbackLoginMethod);
 
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [campaignDetails, setCampaignDetails] = useState(null);
@@ -303,8 +306,17 @@ function LoginScreen({ navigation, route }) {
 
   const attemptLogin = (passcode: string) => {
     setLoginModal(true);
-
-    dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
+    if (
+      loginMethod === LoginMethod.PIN ||
+      (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PIN')
+    ) {
+      dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
+    } else if (
+      loginMethod === LoginMethod.PASSWORD ||
+      (loginMethod === LoginMethod.BIOMETRIC && fallbackLoginMethod === 'PASSWORD')
+    ) {
+      dispatch(credsAuth(passcode, LoginMethod.PASSWORD, relogin));
+    }
   };
 
   const modelAsset = useMemo(() => {
@@ -469,55 +481,102 @@ function LoginScreen({ navigation, route }) {
     <Box style={styles.content} safeAreaTop backgroundColor={slider_background}>
       <Box flex={1}>
         <StatusBar />
-        <Box flex={1}>
-          <Box>
-            <Box style={styles.testnetIndicatorWrapper}>{isTestnet() && <TestnetIndicator />}</Box>
-            <Text color={login_text_color} fontSize={25} style={styles.welcomeText}>
-              {relogin ? title : login.welcomeback}
-            </Text>
+        {loginMethod === LoginMethod.PIN || fallbackLoginMethod === 'PIN' ? (
+          <Box flex={1}>
             <Box>
-              <Box style={styles.passcodeWrapper}>
-                <Text fontSize={14} color={login_text_color}>
-                  {login.enter_your}
-                  {login.passcode}
-                </Text>
-                <PinDotView
-                  passCode={passcode}
-                  dotColor={login_text_color}
-                  borderColor={login_text_color}
-                />
+              <Box style={styles.testnetIndicatorWrapper}>
+                {isTestnet() && <TestnetIndicator />}
+              </Box>
+              <Text color={login_text_color} fontSize={25} style={styles.welcomeText}>
+                {relogin ? title : login.welcomeback}
+              </Text>
+              <Box>
+                <Box style={styles.passcodeWrapper}>
+                  <Text fontSize={14} color={login_text_color}>
+                    {login.enter_your}
+                    {login.passcode}
+                  </Text>
+                  <PinDotView
+                    passCode={passcode}
+                    dotColor={login_text_color}
+                    borderColor={login_text_color}
+                  />
+                </Box>
+              </Box>
+              <Box>
+                {loginError && (
+                  <Text style={styles.errorMessage} color={`${colorMode}.error`}>
+                    {errMessage}
+                  </Text>
+                )}
               </Box>
             </Box>
-            <Box>
-              {loginError && (
-                <Text style={styles.errorMessage} color={`${colorMode}.error`}>
-                  {errMessage}
-                </Text>
-              )}
+            <KeyPadView
+              disabled={!canLogin}
+              onDeletePressed={onDeletePressed}
+              onPressNumber={onPressNumber}
+              ClearIcon={<ThemedSvg name="delete_icon" />}
+              bubbleEffect
+              keyColor={login_text_color}
+            />
+            <Box style={styles.btnWrapper}>
+              <Buttons
+                primaryCallback={() => {
+                  setLoginError(false);
+                  setLogging(true);
+                }}
+                primaryText={common.proceed}
+                primaryDisable={passcode.length !== 4}
+                primaryBackgroundColor={login_button_backGround}
+                primaryTextColor={login_button_text_color}
+                fullWidth
+              />
             </Box>
           </Box>
-          <KeyPadView
-            disabled={!canLogin}
-            onDeletePressed={onDeletePressed}
-            onPressNumber={onPressNumber}
-            ClearIcon={<ThemedSvg name="delete_icon" />}
-            bubbleEffect
-            keyColor={login_text_color}
-          />
-          <Box style={styles.btnWrapper}>
-            <Buttons
-              primaryCallback={() => {
-                setLoginError(false);
-                setLogging(true);
-              }}
-              primaryText={common.proceed}
-              primaryDisable={passcode.length !== 4}
-              primaryBackgroundColor={login_button_backGround}
-              primaryTextColor={login_button_text_color}
-              fullWidth
-            />
+        ) : (
+          <Box flex={1}>
+            <Box>
+              <Box style={styles.testnetIndicatorWrapper}>
+                {isTestnet() && <TestnetIndicator />}
+              </Box>
+              <Text color={login_text_color} fontSize={25} style={styles.welcomeText}>
+                {relogin ? title : login.welcomeback}
+              </Text>
+            </Box>
+            <Box style={styles.passwordWrapper}>
+              <Text color={login_text_color}>Unlock the app with your password</Text>
+              <Box style={styles.passwordInput}>
+                <KeeperTextInput
+                  placeholder={'Enter password'}
+                  value={passcode}
+                  autoCorrect={false}
+                  autoComplete="off"
+                  secureTextEntry
+                  onChangeText={setPasscode}
+                  inpuBorderColor={`${colorMode}.separator`}
+                  inpuBackgroundColor={`${colorMode}.boxSecondaryBackground`}
+                />
+              </Box>
+              <Box>
+                {loginError && (
+                  <Text style={styles.passwordError} color={`${colorMode}.error`}>
+                    {errMessage}
+                  </Text>
+                )}
+              </Box>
+              <Buttons
+                primaryCallback={() => {
+                  setLoginError(false);
+                  setLogging(true);
+                }}
+                primaryText={common.proceed}
+                primaryBackgroundColor={login_button_backGround}
+                primaryTextColor={login_button_text_color}
+                fullWidth
+              />
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
@@ -580,7 +639,11 @@ function LoginScreen({ navigation, route }) {
           setLoginError(false);
           setLogging(true);
           dispatch(setRecepitVerificationError(false));
-          dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
+          if (loginMethod === LoginMethod.PIN) {
+            dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
+          } else if (loginMethod === LoginMethod.PASSWORD) {
+            dispatch(credsAuth(passcode, LoginMethod.PASSWORD, relogin));
+          }
         }}
         secondaryButtonText={login.continueOffline}
         secondaryCallback={() => {
@@ -654,6 +717,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 18,
   },
+  passwordError: {
+    fontStyle: 'italic',
+    fontSize: 12,
+    textAlign: 'right',
+    marginBottom: 10,
+  },
   forgotPassWrapper: {
     flex: 0.8,
     margin: 20,
@@ -712,6 +781,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: hp(45),
     gap: hp(15),
+  },
+  passwordWrapper: {
+    justifyContent: 'center',
+    marginTop: hp(120),
+    paddingHorizontal: wp(15),
+  },
+  passwordInput: {
+    marginTop: hp(10),
   },
 });
 

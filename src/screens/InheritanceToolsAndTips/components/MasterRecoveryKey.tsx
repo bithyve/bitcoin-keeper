@@ -14,10 +14,10 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { CommonActions } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MasterKey from 'src/assets/images/master_key.svg';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { useDispatch } from 'react-redux';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 function MasterRecoveryKey({ navigation }) {
   const { colorMode } = useColorMode();
@@ -80,12 +80,12 @@ function MasterRecoveryKey({ navigation }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
+          <ConfirmCredentialModal
+            useBiometrics={true}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={() => {
+            success={() => {
               setConfirmPassVisible(false);
               navigation.dispatch(
                 CommonActions.navigate('ExportSeed', {

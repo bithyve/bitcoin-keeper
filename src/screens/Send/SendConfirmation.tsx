@@ -28,7 +28,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import useBalance from 'src/hooks/useBalance';
 import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { InputUTXOs, UTXO } from 'src/services/wallets/interfaces';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import FeeInsights from 'src/screens/FeeInsights/FeeInsightsContent';
@@ -67,6 +66,7 @@ import SendingCardIcon from 'src/assets/images/vault_icon.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import MultiSendSvg from 'src/assets/images/@.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
+import ConfirmCredentialModal from 'src/components/ConfirmCredentialModal';
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
@@ -797,12 +797,12 @@ function SendConfirmation({ route }) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
-            useBiometrics
+          <ConfirmCredentialModal
+            useBiometrics={true}
             close={() => {
               setConfirmPassVisible(false);
             }}
-            onSuccess={onProceed}
+            success={onProceed}
           />
         )}
       />

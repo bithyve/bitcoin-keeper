@@ -14,7 +14,6 @@ import { CKTapCard } from 'cktap-protocol-react-native';
 import useNfcModal from 'src/hooks/useNfcModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import KeeperModal from 'src/components/KeeperModal';
-import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { Box, useColorMode } from 'native-base';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { useDispatch } from 'react-redux';
@@ -30,6 +29,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppSelector } from 'src/store/hooks';
 import ShareKeyModalContent from 'src/screens/Vault/components/ShareKeyModalContent';
+import ConfirmCredentialModal from './ConfirmCredentialModal';
 import Text from './KeeperText';
 import WalletOperations from 'src/services/wallets/operations';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
@@ -388,12 +388,10 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
-          <PasscodeVerifyModal
+          <ConfirmCredentialModal
+            close={() => setConfirmPassVisible(false)}
+            success={signTransaction}
             useBiometrics={false}
-            close={() => {
-              setConfirmPassVisible(false);
-            }}
-            onSuccess={signTransaction}
           />
         )}
       />
