@@ -750,7 +750,7 @@ function* backupBsmsOnCloudWorker() {
     }
     vaults.forEach((vault) => {
       if (!excludeVaultTypesForBackup.includes(vault.type)) {
-        const bsms = 'BSMS 1.0\n' + generateOutputDescriptors(vault, true);
+        const bsms = generateOutputDescriptors(vault);
         bsmsToBackup.push({
           bsms,
           name: vault.presentationData.name,
