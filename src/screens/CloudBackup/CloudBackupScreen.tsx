@@ -27,6 +27,7 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import dbManager from 'src/storage/realm/dbManager';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -48,6 +49,11 @@ function CloudBackupScreen() {
   const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
+  const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const personalBackupPassword = useAppSelector(
+    (state) => state.account.personalBackupPasswordByAppId[appId]
+  );
+  const isPasswordCreated = !!personalBackupPassword;
 
   useEffect(() => {
     if (loading) {
@@ -139,20 +145,31 @@ function CloudBackupScreen() {
         alignSelf={!isBackupAllowed ? 'center' : 'flex-end'}
         width={!isBackupAllowed ? '93%' : '100%'}
       >
-        <Buttons
-          primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
-          primaryCallback={() => {
-            if (allVaults.length === 0) {
-              showToast(errorText.noVaultsFound, <ToastErrorIcon />);
-            } else {
-              setShowPasswordModal(true);
+        {!isPasswordCreated ? (
+          <Buttons
+            primaryText="Create Password" // !
+            primaryCallback={() =>
+              navigation.dispatch(CommonActions.navigate('PersonalCloudBackupPassword'))
             }
-          }}
-          primaryLoading={loading}
-          secondaryText={isBackupAllowed ? strings.healthCheck : ''}
-          secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
-          fullWidth
-        />
+            fullWidth
+          />
+        ) : (
+          <Buttons
+            primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
+            primaryCallback={() => {
+              if (allVaults.length === 0)
+                return showToast(errorText.noVaultsFound, <ToastErrorIcon />);
+              else {
+                dispatch(setLastBsmsBackup(Date.now()));
+                dispatch(backupBsmsOnCloud());
+              }
+            }}
+            primaryLoading={loading}
+            secondaryText={isBackupAllowed ? strings.healthCheck : ''}
+            secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
+            fullWidth
+          />
+        )}
       </Box>
       <KeeperModal
         visible={showModal}
