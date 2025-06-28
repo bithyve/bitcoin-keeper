@@ -122,7 +122,6 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
     importDetails,
   } = params;
 
-  const walletType = WalletType.USDT;
   let address: string;
   let privateKey: string;
   let derivationDetails: USDTWalletDerivationDetails;
@@ -132,7 +131,7 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
       if (!primaryMnemonic)
         throw new Error('Primary Mnemonic required for default USDT wallet type');
       // BIP85 derivation: primary mnemonic to bip85-child mnemonic
-      const bip85Config = BIP85.generateBIP85Configuration(walletType, instanceNum);
+      const bip85Config = BIP85.generateBIP85Configuration(EntityKind.USDT_WALLET, instanceNum);
       const entropy = await BIP85.bip39MnemonicToEntropy(
         bip85Config.derivationPath,
         primaryMnemonic

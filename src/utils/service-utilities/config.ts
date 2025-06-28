@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import config from 'react-native-config';
-import { WalletType } from '../../services/wallets/enums';
+import { EntityKind, WalletType } from '../../services/wallets/enums';
 
 export enum APP_STAGE {
   DEVELOPMENT = 'DEVELOPMENT',
@@ -70,12 +70,18 @@ class Configuration {
     ? config.SENTRY_DNS.trim()
     : DEFAULT_CONFIG.SENTRY_DNS;
 
-  public WALLET_INSTANCE_SERIES = {
+  public WALLET_INSTANCE_SERIES: {
+    [WalletType.DEFAULT]: { series: number; upperBound: number };
+    [EntityKind.USDT_WALLET]: { series: number; upperBound: number };
+  } = {
     [WalletType.DEFAULT]: {
-      series: 0,
+      series: 0, // 0-99 BIP-85 child indexes reserved for default wallets
       upperBound: 100,
     },
-
+    [EntityKind.USDT_WALLET]: {
+      series: 100, // 100-199 BIP-85 child indexes reserved for USDT wallets
+      upperBound: 200,
+    },
     // exception: Read-only and Imported(non-bip85 wallets)
   };
 
