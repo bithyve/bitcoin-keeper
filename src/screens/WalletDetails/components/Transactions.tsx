@@ -18,7 +18,16 @@ function TransactionItem({ item, wallet, navigation, index }) {
       index={index}
       isCached={item?.isCached}
       onPress={
-        !item?.isCached
+        wallet?.type === 'USDT'
+          ? () => {
+              navigation.dispatch(
+                CommonActions.navigate('usdtTransactionDetail', {
+                  transaction: item,
+                  wallet,
+                })
+              );
+            }
+          : !item?.isCached
           ? () => {
               navigation.dispatch(
                 CommonActions.navigate('TransactionDetails', {

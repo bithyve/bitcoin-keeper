@@ -188,7 +188,7 @@ function LoginScreen({ navigation, route }) {
           if (canLogin) {
             const { success, signature } = await RNBiometrics.createSignature({
               promptMessage: 'Authenticate',
-              payload: appId,
+              payload: biometricEnabledAppId ?? appId,
               cancelButtonText: common.usePin,
             });
             if (success) {

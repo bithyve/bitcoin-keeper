@@ -477,6 +477,7 @@ const getSupportedSigningOptions = (signerType: SignerType, colorMode) => {
         ],
       };
     case SignerType.KEEPER:
+    case SignerType.OTHER_SD:
     case SignerType.UNKOWN_SIGNER:
       return {
         supportedSigningOptions: [
@@ -788,8 +789,11 @@ function SignerModals({
                     icon={option.icon}
                     onCardSelect={() => {
                       onSelect(option.name);
-
                       if (option.name !== 'MAGIC_LINK') {
+                        if (signer.type === SignerType.OTHER_SD) {
+                          setOtherModalContent(true);
+                          setOtherSDModal(false);
+                        }
                         if (signer.type === SignerType.PASSPORT) {
                           setPassportContentModal(true);
                           setPassportModal(false);
@@ -799,7 +803,9 @@ function SignerModals({
                         } else if (signer.type === SignerType.JADE) {
                           setJadeModalContent(true);
                           setJadeModal(false);
-                        } else if ([SignerType.UNKOWN_SIGNER, SignerType.KEEPER].includes(signer.type)) {
+                        } else if (
+                          [SignerType.UNKOWN_SIGNER, SignerType.KEEPER].includes(signer.type)
+                        ) {
                           setKeeperModalContent(true);
                           setKeeperModal(false);
                         }
@@ -812,6 +818,7 @@ function SignerModals({
                         }
                       } else {
                         setKeeperModal(false);
+                        setOtherSDModal(false);
                         navigation.dispatch(
                           CommonActions.navigate('RemoteSharing', {
                             psbt: serializedPSBTEnvelop.serializedPSBT,
@@ -1268,48 +1275,70 @@ function SignerModals({
           );
         }
         if (signer.type === SignerType.OTHER_SD) {
+          const navigateToSign = () => {
+            setOtherModalContent(false);
+            if (signingMode === SigningMode.FILE) {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'HandleFile',
+                  params: {
+                    title: `${signerText.signingWith} ${getSignerNameFromType(signer.type)}`,
+                    subTitle: signerText.uploadAndPasteFile,
+                    ctaText: common.proceed,
+                    onFileExtract: onFileSign,
+                    fileData: serializedPSBTEnvelop.serializedPSBT,
+                    fileType: 'PSBT',
+                    signerType: signer.type,
+                    signingMode,
+                  },
+                })
+              );
+              return;
+            } else if (signingMode === SigningMode.QR) {
+              navigateToQrSigning(vaultKey);
+            } else {
+              navigation.dispatch(
+                CommonActions.navigate('SignWithColdCard', {
+                  signTransaction,
+                  vaultKey,
+                  isMultisig,
+                  vaultId,
+                  isRemoteKey,
+                  serializedPSBTEnvelop,
+                })
+              );
+            }
+          };
+
           return (
             <>
               <KeeperModal
                 visible={currentSigner && otherSDModal}
-                close={() => {
-                  setOtherSDModal(false);
-                }}
+                close={() => setOtherSDModal(false)}
                 title={signerText.keepSignerReady}
                 subTitle={signerText.chooseOneoftheFollowingOptions}
                 modalBackground={`${colorMode}.modalWhiteBackground`}
                 textColor={`${colorMode}.textGreen`}
                 subTitleColor={`${colorMode}.modalSubtitleBlack`}
                 Content={() => (
-                  <ShareKeyModalContent
-                    navigation={navigation}
-                    signer={signer}
-                    vaultId={vaultId}
-                    vaultKey={vaultKey}
-                    setShareKeyModal={setOtherSDModal}
-                    openmodal={setOtherModalContent}
-                    data={serializedPSBTEnvelop}
-                    isPSBTSharing
-                    xfp={vaultKey?.xfp}
+                  <OptionModalContent
+                    supportedSigningOptions={supportedSigningOptions}
+                    onSelect={setSigningMode}
+                    signingMode={signingMode}
                   />
                 )}
               />
               <KeeperModal
                 key={vaultKey.xfp}
                 visible={currentSigner && otherModalContent}
-                close={() => {
-                  setOtherModalContent(false);
-                }}
+                close={() => setOtherModalContent(false)}
                 title={signerText.keepSignerReady}
                 subTitle={signerText.signerReady}
                 textColor={`${colorMode}.textGreen`}
                 subTitleColor={`${colorMode}.modalSubtitleBlack`}
                 Content={() => <OtherSDContent />}
                 buttonText={common.proceed}
-                buttonCallback={() => {
-                  setOtherSDModal(false);
-                  navigateToQrSigning(vaultKey);
-                }}
+                buttonCallback={navigateToSign}
               />
             </>
           );

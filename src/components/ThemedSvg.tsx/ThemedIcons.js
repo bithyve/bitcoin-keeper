@@ -111,7 +111,7 @@ import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import WhiteSettingIcon from 'src/assets/privateImages/setting_icon_white.svg';
 import BrownSettingIcon from 'src/assets/privateImages/setting_icon_brown.svg';
 import CopyIconWhite from 'src/assets/images/copy-icon-white.svg';
-import CopyIcon from 'src/assets/images/copy.svg';
+import CopyIcon from 'src/assets/images/copy-icon.svg';
 import CopyGoldIcon from 'src/assets/privateImages/copy-icon-gold.svg';
 import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
@@ -287,6 +287,12 @@ import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustr
 import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
 import Broadcast from 'src/assets/images/BroadCastIllustration.svg';
 import BroadCastPrivate from 'src/assets/privateImages/BroadCastPrivate.svg';
+import BtcLogo from 'src/assets/images/Btc-Logo.svg';
+import BtcLogoGold from 'src/assets/privateImages/Btc-Logo-gold.svg';
+import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
+import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
+import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
+import BTCWhiteLOgo from 'src/assets/images/btc-white-logo.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -784,7 +790,7 @@ const themeIcons = {
     PRIVATE_LIGHT: InhertanceToolsPrivate,
   },
   add_circle: {
-    DARK: AddCircleLight,
+    DARK: AddCircleDark,
     LIGHT: AddCircleLight,
     PRIVATE: AddCircleDark,
     PRIVATE_LIGHT: AddCircleLight,
@@ -1016,6 +1022,24 @@ const themeIcons = {
     LIGHT: Broadcast,
     PRIVATE: BroadCastPrivate,
     PRIVATE_LIGHT: BroadCastPrivate,
+  },
+  header_buy_btc: {
+    DARK: BtcLogo,
+    LIGHT: BtcLogo,
+    PRIVATE: BtcLogoGold,
+    PRIVATE_LIGHT: BtcLogoGold,
+  },
+  footer_buy_btc: {
+    DARK: BTCWhiteLOgo,
+    LIGHT: BtcLogo,
+    PRIVATE: BtcLogoGold,
+    PRIVATE_LIGHT: BtcLogoGold,
+  },
+  bitcoin_logo: {
+    DARK: BitCoinLogoDark,
+    LIGHT: BitCoinLogo,
+    PRIVATE: BitCoinLogoDark,
+    PRIVATE_LIGHT: BitCoinLogoGold,
   },
 };
 

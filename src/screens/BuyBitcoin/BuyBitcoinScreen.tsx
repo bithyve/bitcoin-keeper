@@ -9,25 +9,26 @@ import { getCountry } from 'react-native-localize';
 import { fetchRampReservation } from 'src/services/thirdparty/ramp';
 import { hp, wp } from 'src/constants/responsive';
 import HexagonIcon from 'src/components/HexagonIcon';
-import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
-import WalletIcon from 'src/assets/images/daily_wallet.svg';
-import VaultIcon from 'src/assets/images/vault_icon.svg';
-import CurrencyInfo from '../Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import WalletHeader from 'src/components/WalletHeader';
+import RampNetwork from 'src/assets/images/ramp-network.svg';
+import RampNetworkDark from 'src/assets/images/ramp-dark-logo.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import MultiSendSvg from 'src/assets/images/@.svg';
 
 function BuyBitcoinScreen({ route }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { currencyCode } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
-  const { common, ramp: rampTranslations } = translations;
+  const { common, ramp: rampTranslations, buyBTC: buyBTCText } = translations;
 
   const { wallet } = route.params;
   const receivingAddress = wallet.specs.receivingAddress;
-  const balance = wallet.specs.balances.confirmed;
-  const name = wallet.presentationData.name;
 
+  const buyBitCoinHexagonBackgroundColor = ThemedColor({
+    name: 'buyBitCoinHexagonBackgroundColor',
+  });
   const buyWithRamp = (address: string) => {
     try {
       if (currencyCode === 'GBP' || getCountry() === 'UK') {
@@ -40,14 +41,6 @@ function BuyBitcoinScreen({ route }) {
     }
   };
 
-  const getWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
-    } else {
-      return <WalletIcon />;
-    }
-  };
-
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -55,58 +48,32 @@ function BuyBitcoinScreen({ route }) {
         subTitle={rampTranslations.buyBitcoinWithRampSubTitle}
         // To-Do-Learn-More
       />
-      <Box style={styles.container}>
-        <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            {rampTranslations.bitcoinTransfer}
-          </Text>
-          <Box style={styles.iconContainer}>
-            <HexagonIcon
-              width={40}
-              height={35}
-              backgroundColor={'rgba(47, 79, 79, 1)'}
-              icon={getWalletIcon(wallet)}
-            />
-            <Box>
-              <Text style={styles.presentationName} color={`${colorMode}.primaryText`}>
-                {name}
-              </Text>
-              <CurrencyInfo
-                amount={balance}
-                hideAmounts={false}
-                fontSize={14}
-                color={`${colorMode}.primaryText`}
-                variation={colorMode === 'light' ? 'dark' : 'light'}
-              />
-            </Box>
-          </Box>
-        </Box>
 
-        <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            {rampTranslations.addressForRamp}
-          </Text>
-          <Box style={styles.iconContainer}>
-            <HexagonIcon
-              width={40}
-              height={35}
-              backgroundColor={'rgba(145, 120, 93, 1)'}
-              icon={
-                <Text color={`${colorMode}.primaryBackground`} fontSize={16}>
-                  @
-                </Text>
-              }
-            />
-            <Text
-              style={styles.addressTextView}
-              color={`${colorMode}.black`}
-              ellipsizeMode="middle"
-              numberOfLines={2}
-            >
-              {receivingAddress}
-            </Text>
-          </Box>
-        </Box>
+      <Box
+        style={styles.cardWrapper}
+        backgroundColor={`${colorMode}.primaryBackground`}
+        borderColor={`${colorMode}.separator`}
+      >
+        {isDarkMode ? <RampNetworkDark /> : <RampNetwork />}
+        <Text>{buyBTCText.buyBTCWithoutExchange}</Text>
+      </Box>
+      <Text color={`${colorMode}.primaryText`} semiBold>
+        {buyBTCText.addressForTransaction}
+      </Text>
+      <Box
+        style={styles.addressContainer}
+        backgroundColor={`${colorMode}.primaryBackground`}
+        borderColor={`${colorMode}.separator`}
+      >
+        <HexagonIcon
+          width={wp(39)}
+          height={hp(35)}
+          backgroundColor={buyBitCoinHexagonBackgroundColor}
+          icon={<MultiSendSvg />}
+        />
+        <Text color={`${colorMode}.primaryText`} fontSize={12} style={styles.addressText}>
+          {receivingAddress}
+        </Text>
       </Box>
       <Box style={styles.flexSpacer} />
 
@@ -172,5 +139,27 @@ const styles = StyleSheet.create({
   },
   flexSpacer: {
     flex: 1,
+  },
+  cardWrapper: {
+    paddingHorizontal: hp(20),
+    paddingVertical: hp(20),
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: hp(20),
+    marginTop: hp(30),
+    gap: hp(10),
+  },
+  addressContainer: {
+    paddingHorizontal: hp(20),
+    paddingVertical: hp(20),
+    borderRadius: 10,
+    borderWidth: 1,
+    marginVertical: hp(20),
+    gap: hp(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addressText: {
+    width: '80%',
   },
 });

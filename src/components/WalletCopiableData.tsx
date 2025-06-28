@@ -42,7 +42,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
             {title}
           </Text>
         )}
-        <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.value}>
+        <Text color={`${colorMode}.GreyText`} numberOfLines={3} style={styles.value}>
           {data}
         </Text>
       </Box>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   value: {
-    fontSize: 16,
+    fontSize: 15,
   },
   iconContainer: {
     borderRadius: 10,

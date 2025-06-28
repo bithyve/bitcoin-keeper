@@ -174,7 +174,8 @@
     "loadSignature": "Load Signature",
     "signMessage": "Sign Message",
     "moreInfo": "More Info",
-    "lessInfo": "Less Info"
+    "lessInfo": "Less Info",
+    "Buy": "Buy"
   },
   "login": {
     "welcomeback": "Welcome Back",
@@ -1077,11 +1078,11 @@
     "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data"
   },
   "ramp": {
-    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
+    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
     "bitcoinTransfer": "Bitcoin will be transferred to",
     "addressForRamp": "Address for Ramp transactions",
-    "buyBitcoinWithRamp": "Buy Bitcoin with Ramp",
-    "buyBitcoinWithRampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country"
+    "buyBitcoinWithRamp": "Get Bitcoin via Ramp",
+    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire BTC using payment methods available in your country."
   },
   "signer": {
     "addSigner": "Add Signer",
@@ -1746,6 +1747,21 @@
     "scheduleCallWithExpert": "Schedule a call with our experts today.",
     "supportTeam": "Support Team"
   },
+  "buyBTC": {
+    "acquire": "Acquire",
+    "bitCoin": "Bitcoin",
+    "marketInfo": "Market Info",
+    "high": "High",
+    "low": "Low",
+    "selectWallet": "Select Wallet",
+    "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
+    "rampTitle": "Buy Bitcoin with Ramp",
+    "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
+    "addressForTransaction": "Address for the transaction",
+    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
+    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
+    "buyBtc": "Get Bitcoin"
+  },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
     "failedToFetchCurrentChain": "Failed to fetch current chain data, please check your connection and try again",
@@ -1884,5 +1900,18 @@
     "signMessageParameter": "Please provide message, address and signature for verification",
     "signatureNotValid": "Signature is not valid for the provided message",
     "invalidSignatureFormat": "Invalid signed message format"
+  },
+  "usdtWalletText": {
+    "pickWalletType": "Pick Your Wallet Type",
+    "selectCurrency": "Select the currency you would like to use",
+    "bitcoinWallet": "Bitcoin Wallet",
+    "dollarWallet": "Dollar Wallet",
+    "addWalletDetails": "Add Your Wallet Details",
+    "dedicatedWalletSub": "A dedicated wallet for securely receiving, storing, and managing USDT on the Tron network. Enjoy fast, low-fee transactions for smooth and cost-effective transfers.",
+    "usdtRamp": "Get USDT via Ramp",
+    "rampSub": "Ramp allows you to acquire USDT using payment methods available in your country.",
+    "rampOffermultiple": "Ramp offers multiple payment methods to acquire USDT.",
+    "adressTransaction": "Address for the transaction",
+    "understandRampPayment": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange."
   }
 }

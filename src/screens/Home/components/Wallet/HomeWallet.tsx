@@ -10,7 +10,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
@@ -31,6 +31,8 @@ import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BitCoinWalletLogo from 'src/assets/images/bitcoin-wallet-logo.svg';
+import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -38,7 +40,7 @@ const HomeWallet = () => {
   const navigation = useNavigation();
   const { wallets } = useWallets({ getAll: true });
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletText, home, common } = translations;
+  const { wallet: walletText, home, common, usdtWalletText } = translations;
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
   const { allVaults } = useVault({
     includeArchived: false,
@@ -51,6 +53,8 @@ const HomeWallet = () => {
   const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const [pickWalletType, setPickWalletType] = useState(false);
+  const [createUsdtWallet, setCreateUsdtWallet] = useState(false);
   const syncing =
     ELECTRUM_CLIENT.isClientConnected &&
     Object.values(walletSyncing).some((isSyncing) => isSyncing);
@@ -117,13 +121,40 @@ const HomeWallet = () => {
       id: 'collaborativeWallet',
     },
   ];
+  const CREATE_USDT_WALLET_OPTIONS = [
+    {
+      title: walletText.createWallet,
+      subtitle: walletText.createWalletDesc,
+      icon: <NewWalletIcon />,
+      onPress: () => {
+        false;
+        navigation.navigate('addUsdtWallet');
+        setCreateUsdtWallet(false);
+      },
+      id: 'usdtnewWallet',
+    },
+    {
+      title: home.ImportWallet,
+      subtitle: walletText.restoreExistingWallet,
+      icon: <ImportWalletIcon />,
+      onPress: () => {
+        setCreateUsdtWallet(false);
+        // navigation.navigate('VaultConfigurationCreation');
+      },
+      id: 'usdtimportWallet',
+    },
+  ];
 
   const renderWalletCard = ({ item }: { item: Wallet | Vault }) => {
     const handleWalletPress = (item, navigation) => {
       if (item.entityKind === EntityKind.VAULT) {
         navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
       } else {
-        navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
+        if (item.type === WalletType.USDT) {
+          navigation.navigate('usdtDetails');
+        } else {
+          navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
+        }
       }
     };
     return (
@@ -133,7 +164,9 @@ const HomeWallet = () => {
       >
         <WalletCard
           backgroundColor={getWalletCardGradient(item)}
-          hexagonBackgroundColor={isDarkMode ? Colors.CyanGreen : Colors.CyanGreen}
+          hexagonBackgroundColor={
+            item.type === WalletType.USDT ? Colors.aqualightMarine : Colors.CyanGreen
+          }
           iconWidth={42}
           iconHeight={38}
           title={item.presentationData.name}
@@ -156,7 +189,7 @@ const HomeWallet = () => {
         hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
         textColor={`${colorMode}.greenWhiteText`}
         name={walletText.addWallet}
-        callback={() => setShowAddWalletModal(true)}
+        callback={() => setPickWalletType(true)}
         icon={<ThemedSvg name={'add_wallet_plus_icon'} width={9} height={9} />}
         iconWidth={22}
         iconHeight={20}
@@ -187,6 +220,22 @@ const HomeWallet = () => {
         )}
       />
       <KeeperModal
+        visible={createUsdtWallet}
+        title={walletText.addNewWallet}
+        subTitle={walletText.createOrImportWallet}
+        close={() => setCreateUsdtWallet(false)}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        showCloseIcon
+        Content={() => (
+          <Box style={styles.addWalletOptionsList}>
+            {CREATE_USDT_WALLET_OPTIONS.map((option, index) => (
+              <OptionItem key={index} option={option} colorMode={colorMode} />
+            ))}
+          </Box>
+        )}
+      />
+      <KeeperModal
         visible={collabSessionExistsModalVisible}
         close={() => setCollabSessionExistsModalVisible(false)}
         title={walletText.collaborativeSessionExists}
@@ -204,6 +253,61 @@ const HomeWallet = () => {
           setCollabSessionExistsModalVisible(false);
           navigation.navigate('SetupCollaborativeWallet');
         }}
+      />
+      <KeeperModal
+        visible={pickWalletType}
+        close={() => setPickWalletType(false)}
+        title={usdtWalletText.pickWalletType}
+        subTitle={usdtWalletText.selectCurrency}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Content={() => (
+          <Box style={styles.walletTypeContainer}>
+            <TouchableOpacity
+              onPress={() => {
+                setShowAddWalletModal(true);
+                setPickWalletType(false);
+              }}
+            >
+              <Box
+                borderColor={`${colorMode}.separator`}
+                backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                style={styles.typeCard}
+              >
+                <CircleIconWrapper
+                  width={wp(40)}
+                  icon={<BitCoinWalletLogo />}
+                  backgroundColor={Colors.BrightOrange}
+                />
+                <Text color={`${colorMode}.primaryText`} medium>
+                  {usdtWalletText.bitcoinWallet}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setCreateUsdtWallet(true);
+                setPickWalletType(false);
+              }}
+            >
+              <Box
+                borderColor={`${colorMode}.separator`}
+                backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                style={styles.typeCard}
+              >
+                <CircleIconWrapper
+                  width={wp(40)}
+                  icon={<UsdtWalletLogo />}
+                  backgroundColor={Colors.DesaturatedTeal}
+                />
+                <Text color={`${colorMode}.primaryText`} medium>
+                  {usdtWalletText.dollarWallet}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          </Box>
+        )}
       />
     </Box>
   );
@@ -267,5 +371,21 @@ const styles = StyleSheet.create({
   },
   DashedCtaStyle: {
     width: windowWidth * 0.88,
+  },
+  walletTypeContainer: {
+    gap: wp(15),
+    marginBottom: hp(10),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  typeCard: {
+    width: wp(148),
+    height: hp(104),
+    alignItems: 'center',
+    borderWidth: 1,
+    justifyContent: 'center',
+    borderRadius: 12,
+    gap: wp(10),
   },
 });

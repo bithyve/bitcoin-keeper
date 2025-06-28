@@ -14,6 +14,7 @@ import {
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import Colors from 'src/theme/Colors';
+import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 
 const useWalletAsset = () => {
   const getWalletIcon = (wallet: Wallet | Vault) => {
@@ -27,7 +28,11 @@ const useWalletAsset = () => {
           return VaultIcon;
       }
     } else {
-      return WalletIcon;
+      if (wallet.type === WalletType.USDT) {
+        return UsdtWalletLogo;
+      } else {
+        return WalletIcon;
+      }
     }
   };
 
@@ -39,7 +44,9 @@ const useWalletAsset = () => {
         ? [Colors.DeepTeal, Colors.OceanSage]
         : ['#24312E', '#3E524D'];
     } else {
-      return [Colors.DarkSlateGray, Colors.primaryGreen];
+      return wallet.type === WalletType.USDT
+        ? [Colors.CharcoalBlueGray, Colors.DustyNavy]
+        : [Colors.DarkSlateGray, Colors.primaryGreen];
     }
   };
 
@@ -97,6 +104,7 @@ const useWalletAsset = () => {
       if ((wallet as Vault).isMigrating) tags.push({ tag: 'In-Transition' });
     } else {
       let walletKind = wallet.type === WalletType.DEFAULT ? 'Hot Wallet' : 'Imported Wallet';
+      walletKind = wallet.type === WalletType.USDT ? 'USDT' : 'Hot Wallet';
       const isWatchOnly = wallet.type === WalletType.IMPORTED && !idx(wallet, (_) => _.specs.xpriv);
       if (isWatchOnly) walletKind = 'Watch Only';
 
