@@ -49,6 +49,17 @@ export const USDTWalletPresentationDataSchema: ObjectSchema = {
   },
 };
 
+export const USDTWalletDerivationDetailsSchema: ObjectSchema = {
+  name: RealmSchema.USDTWalletDerivationDetails,
+  embedded: true,
+  properties: {
+    instanceNum: 'int?',
+    mnemonic: 'string?',
+    bip85Config: `${RealmSchema.BIP85Config}?`,
+    xDerivationPath: 'string',
+  },
+};
+
 export const USDTWalletSchema: ObjectSchema = {
   name: RealmSchema.USDTWallet,
   properties: {
@@ -56,6 +67,7 @@ export const USDTWalletSchema: ObjectSchema = {
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
+    derivationDetails: `${RealmSchema.USDTWalletDerivationDetails}?`,
     presentationData: RealmSchema.USDTWalletPresentationData,
     specs: RealmSchema.USDTWalletSpecs,
     createdAt: 'int',

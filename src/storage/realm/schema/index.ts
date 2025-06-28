@@ -47,6 +47,7 @@ import {
   USDTWalletSpecsSchema,
   USDTTransactionSchema,
   USDTWalletPresentationDataSchema,
+  USDTWalletDerivationDetailsSchema,
 } from './usdtWallet';
 
 export default [
@@ -95,5 +96,6 @@ export default [
   USDTWalletSchema,
   USDTWalletSpecsSchema,
   USDTTransactionSchema,
+  USDTWalletDerivationDetailsSchema,
   USDTWalletPresentationDataSchema,
 ];

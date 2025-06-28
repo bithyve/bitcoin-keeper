@@ -1,7 +1,12 @@
 import * as CryptoJS from 'crypto-js';
-import { NetworkType, EntityKind, VisibilityType } from '../enums';
-import { createTronWalletFromMnemonic } from '../operations/dollars/Tron';
+import { NetworkType, EntityKind, VisibilityType, WalletType } from '../enums';
+import {
+  createTronWalletFromMnemonic,
+  DEFAULT_TRON_DERIVATION_PATH,
+} from '../operations/dollars/Tron';
 import USDT, { USDTTransaction } from '../operations/dollars/USDT';
+import BIP85 from '../operations/BIP85';
+import { BIP85Config } from '../interfaces';
 
 export enum USDTWalletType {
   DEFAULT = 'DEFAULT',
@@ -32,11 +37,19 @@ export interface USDTWalletPresentationData {
   visibility: VisibilityType; // Visibility setting
 }
 
+export interface USDTWalletDerivationDetails {
+  instanceNum?: number; // instance number of this particular walletType
+  mnemonic?: string; // mnemonic of the wallet
+  bip85Config?: BIP85Config; // bip85 configuration leading to the derivation path for the corresponding entropy
+  xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
+}
+
 export interface USDTWallet {
   id: string;
   entityKind: EntityKind.USDT_WALLET;
   type: USDTWalletType;
   networkType: NetworkType;
+  derivationDetails: USDTWalletDerivationDetails;
   presentationData: USDTWalletPresentationData;
   specs: USDTWalletSpecs;
   createdAt: number;
@@ -48,11 +61,12 @@ export interface USDTWalletImportDetails {
 }
 
 export interface USDTWalletCreationParams {
-  type: USDTWalletType;
+  usdtWalletType: USDTWalletType;
   walletName: string;
   walletDescription: string;
+  instanceNum: number;
   networkType: NetworkType;
-  mnemonic?: string;
+  primaryMnemonic?: string;
   importDetails?: USDTWalletImportDetails;
 }
 
@@ -98,18 +112,41 @@ export const generateWalletId = (address: string): string => {
  * Main factory function to generate USDT wallets
  */
 export const generateUSDTWallet = async (params: USDTWalletCreationParams): Promise<USDTWallet> => {
-  const { type, mnemonic, walletName, walletDescription, networkType, importDetails } = params;
+  const {
+    usdtWalletType,
+    primaryMnemonic,
+    walletName,
+    walletDescription,
+    instanceNum,
+    networkType,
+    importDetails,
+  } = params;
 
+  const walletType = WalletType.USDT;
   let address: string;
   let privateKey: string;
-
+  let derivationDetails: USDTWalletDerivationDetails;
   // Generate or import wallet based on type
-  switch (type) {
+  switch (usdtWalletType) {
     case USDTWalletType.DEFAULT: {
-      if (!mnemonic) throw new Error('Mnemonic required for default wallet type');
+      if (!primaryMnemonic)
+        throw new Error('Primary Mnemonic required for default USDT wallet type');
+      // BIP85 derivation: primary mnemonic to bip85-child mnemonic
+      const bip85Config = BIP85.generateBIP85Configuration(walletType, instanceNum);
+      const entropy = await BIP85.bip39MnemonicToEntropy(
+        bip85Config.derivationPath,
+        primaryMnemonic
+      );
+      const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
       const newWallet = createTronWalletFromMnemonic(mnemonic, networkType);
       address = newWallet.address;
       privateKey = newWallet.privateKey;
+      derivationDetails = {
+        instanceNum,
+        mnemonic,
+        bip85Config,
+        xDerivationPath: DEFAULT_TRON_DERIVATION_PATH,
+      };
       break;
     }
 
@@ -129,11 +166,17 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
     //   }
     //   address = importedWallet.address;
     //   privateKey = importedWallet.privateKey;
+    //   derivationDetails = {
+    //      instanceNum, // null
+    //      mnemonic: null, // null
+    //      bip85Config: null, // null
+    //      xDerivationPath: DEFAULT_TRON_DERIVATION_PATH,
+    //   };
     //   break;
     // }
 
     default:
-      throw new Error(`Unsupported wallet type: ${type}`);
+      throw new Error(`Unsupported wallet type: ${usdtWalletType}`);
   }
 
   // Generate wallet specs
@@ -150,9 +193,10 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
   const usdtWallet: USDTWallet = {
     id: generateWalletId(address),
     entityKind: EntityKind.USDT_WALLET,
-    type,
+    type: usdtWalletType,
     networkType,
     presentationData,
+    derivationDetails,
     specs,
     createdAt: Date.now(),
   };
@@ -174,6 +218,7 @@ export const checkUSDTWalletExists = (address: string, existingWallets: USDTWall
 export const updateUSDTWalletStatus = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
   try {
     const accountStatus = await USDT.getAccountStatus(wallet.specs.address, wallet.networkType);
+    const { transactions } = await USDT.getUSDTTransactions(wallet);
     const updatedSpecs: USDTWalletSpecs = {
       ...wallet.specs,
       balance: accountStatus.balance,
@@ -182,6 +227,7 @@ export const updateUSDTWalletStatus = async (wallet: USDTWallet): Promise<USDTWa
       canTransfer: accountStatus.canTransfer,
       nextNonce: accountStatus.nextNonce,
       fees: accountStatus.fees,
+      transactions,
       hasNewUpdates: true,
       lastSynched: Date.now(),
     };

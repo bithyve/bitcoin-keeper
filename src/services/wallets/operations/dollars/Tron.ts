@@ -20,6 +20,10 @@ const TRON_NETWORKS = {
   },
 };
 
+// TRON derivation path: m/44'/195'/account'/0/0
+// 195 is TRON's coin type from SLIP-0044
+export const DEFAULT_TRON_DERIVATION_PATH = `m/44'/195'/0'/0/0`;
+
 /**
  * TRC20 Transaction interface
  */
@@ -94,11 +98,7 @@ export const createTronWalletFromPrivateKey = (
  * Create TRON wallet from mnemonic using SLIP-0044 derivation path
  * TRON coin type: 195 (m/44'/195'/0'/0/0)
  */
-export const createTronWalletFromMnemonic = (
-  mnemonic: string,
-  networkType: NetworkType,
-  accountIndex: number = 0
-) => {
+export const createTronWalletFromMnemonic = (mnemonic: string, networkType: NetworkType) => {
   try {
     // Validate mnemonic
     if (!bip39.validateMnemonic(mnemonic)) {
@@ -111,10 +111,7 @@ export const createTronWalletFromMnemonic = (
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed, network);
 
-    // TRON derivation path: m/44'/195'/account'/0/0
-    // 195 is TRON's coin type from SLIP-0044
-    const derivationPath = `m/44'/195'/${accountIndex}'/0/0`;
-    const child = root.derivePath(derivationPath);
+    const child = root.derivePath(DEFAULT_TRON_DERIVATION_PATH);
 
     // Get private key from derived child
     const privateKey = child.privateKey.toString('hex');
