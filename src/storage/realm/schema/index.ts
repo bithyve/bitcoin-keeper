@@ -42,6 +42,12 @@ import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
 import { DefualtNodeConnectSchema, NodeConnectSchema } from './nodeConnect';
+import {
+  USDTWalletSchema,
+  USDTWalletSpecsSchema,
+  USDTTransactionSchema,
+  USDTWalletPresentationDataSchema,
+} from './usdtWallet';
 
 export default [
   KeeperAppSchema,
@@ -86,4 +92,8 @@ export default [
   SignerPolicyExceptionsSchema,
   SignerPolicyRestrictionsSchema,
   SignerPolicyVerificationSchema,
+  USDTWalletSchema,
+  USDTWalletSpecsSchema,
+  USDTTransactionSchema,
+  USDTWalletPresentationDataSchema,
 ];

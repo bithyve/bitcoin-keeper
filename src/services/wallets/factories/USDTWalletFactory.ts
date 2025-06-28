@@ -196,6 +196,5 @@ export const updateUSDTWalletStatus = async (wallet: USDTWallet): Promise<USDTWa
  * Get private key for signing (if available)
  */
 export const getPrivateKeyForSigning = (wallet: USDTWallet): string => {
-  // All USDT wallets now have private keys since we removed WATCH_ONLY support
   return wallet.specs.privateKey;
 };
