@@ -10,7 +10,7 @@ export class RealmDatabase {
 
   public static file = REALM_FILE;
 
-  public static schemaVersion = 101;
+  public static schemaVersion = 103;
 
   /**
    * initializes/opens realm w/ appropriate configuration

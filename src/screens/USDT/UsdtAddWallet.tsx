@@ -11,11 +11,18 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Buttons from 'src/components/Buttons';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { USDTWalletType } from 'src/services/wallets/factories/USDTWalletFactory';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 const AddUsdtWallet = () => {
   const { colorMode } = useColorMode();
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const { translations } = useContext(LocalizationContext);
   const {
     usdtWalletText,
@@ -26,23 +33,53 @@ const AddUsdtWallet = () => {
   } = translations;
   const [walletName, setWalletName] = useState('');
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-  const descriptionInputRef = useRef('ustd wallet');
+  const [isCreating, setIsCreating] = useState(false);
+  const descriptionInputRef = useRef('USDT wallet');
   const initialDescription = useRef(descriptionInputRef.current);
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
+  const { createWallet, loading, error } = useUSDTWallets();
 
   const onDescriptionChange = (value) => {
     descriptionInputRef.current = value;
   };
+
   const navigationState = {
     name: 'Home',
     params: { selectedOption: 'Wallets' },
   };
 
-  //   states to use
-  // For wallet name {walletName}
-  // For description {descriptionInputRef.current}
-  // For navigation {navigationState}
+  const handleCreateWallet = async () => {
+    if (!walletName.trim()) {
+      showToast('Please enter a wallet name');
+      return;
+    }
+
+    try {
+      setIsCreating(true);
+
+      const newWallet = await createWallet({
+        type: USDTWalletType.DEFAULT,
+        name: walletName.trim(),
+        description: descriptionInputRef.current || 'USDT wallet',
+        primaryMnemonic,
+      });
+
+      if (newWallet) {
+        showToast('USDT wallet created successfully!', <TickIcon />);
+        setTimeout(() => {
+          navigation.dispatch(CommonActions.navigate(navigationState));
+          setIsCreating(false);
+        }, 900);
+      } else {
+        showToast('Failed to create wallet', <ToastErrorIcon />);
+        setIsCreating(false);
+      }
+    } catch (err) {
+      showToast(err.message || 'Failed to create wallet', <ToastErrorIcon />);
+      setIsCreating(false);
+    }
+  };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -81,12 +118,9 @@ const AddUsdtWallet = () => {
       </Box>
       <Box style={styles.footer}>
         <Buttons
-          primaryText={walletText.createYourWallet}
-          primaryCallback={() => {
-            navigation.dispatch(CommonActions.navigate(navigationState));
-            showToast(<TickIcon />);
-          }}
-          primaryDisable={!walletName}
+          primaryText={isCreating ? 'Creating Wallet...' : walletText.createYourWallet}
+          primaryCallback={handleCreateWallet}
+          primaryDisable={!walletName.trim() || isCreating || loading}
           fullWidth
         />
       </Box>

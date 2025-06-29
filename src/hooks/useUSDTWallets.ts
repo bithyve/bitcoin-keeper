@@ -62,8 +62,8 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         });
       }
 
-      // Sort by creation date (newest first)
-      filteredWallets.sort((a, b) => b.createdAt - a.createdAt);
+      // Sort by creation date (old first)
+      filteredWallets.sort((a, b) => a.createdAt - b.createdAt);
 
       setUsdtWallets(filteredWallets);
     } catch (err) {
@@ -88,7 +88,12 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       try {
         setError(null);
         const walletNetworkType = NetworkType.MAINNET;
-
+        const allUSDTWallets: USDTWallet[] = (await dbManager.getObjectByIndex(
+          // includes hidden wallets as well
+          RealmSchema.USDTWallet,
+          null,
+          getAll
+        )) as any;
         // // Validate required parameters
         // if (params.type === USDTWalletType.IMPORTED && !params.privateKey) {
         //   throw new Error('Private key is required for imported wallets');
@@ -101,7 +106,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
           walletDescription: params.description,
           networkType: walletNetworkType,
           primaryMnemonic: params.primaryMnemonic,
-          instanceNum: usdtWallets.length,
+          instanceNum: allUSDTWallets.length,
           // importDetails: params.privateKey
           //   ? {
           //       privateKey: params.privateKey,
