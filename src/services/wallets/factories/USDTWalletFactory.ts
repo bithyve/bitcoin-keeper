@@ -4,7 +4,7 @@ import {
   createTronWalletFromMnemonic,
   DEFAULT_TRON_DERIVATION_PATH,
 } from '../operations/dollars/Tron';
-import USDT, { USDTTransaction } from '../operations/dollars/USDT';
+import USDT, { USDTAccountStatus, USDTTransaction } from '../operations/dollars/USDT';
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 
@@ -16,16 +16,7 @@ export enum USDTWalletType {
 export interface USDTWalletSpecs {
   address: string; // TRON address (TR...)
   privateKey: string; // Private key
-  gasFreeAddress: string; // GasFree service proxy address
   balance: number; // Available USDT balance
-  frozen: number; // Frozen amount in pending transfers
-  isActive: boolean; // GasFree activation status
-  canTransfer: boolean; // Whether transfers are allowed
-  nextNonce: number; // Next transaction nonce
-  fees: {
-    transferFee: number;
-    activateFee: number;
-  };
   transactions: USDTTransaction[];
   hasNewUpdates: boolean;
   lastSynched: number; // Last sync timestamp
@@ -44,6 +35,8 @@ export interface USDTWalletDerivationDetails {
   xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
 }
 
+export interface USDTWalletAccountStatus extends USDTAccountStatus {}
+
 export interface USDTWallet {
   id: string;
   entityKind: EntityKind.USDT_WALLET;
@@ -52,6 +45,7 @@ export interface USDTWallet {
   derivationDetails: USDTWalletDerivationDetails;
   presentationData: USDTWalletPresentationData;
   specs: USDTWalletSpecs;
+  accountStatus: USDTWalletAccountStatus;
   createdAt: number;
 }
 
@@ -69,37 +63,6 @@ export interface USDTWalletCreationParams {
   primaryMnemonic?: string;
   importDetails?: USDTWalletImportDetails;
 }
-
-/**
- * Generate USDT wallet specs from TRON account data
- */
-export const generateUSDTWalletSpecs = async (
-  address: string,
-  privateKey: string,
-  networkType: NetworkType
-): Promise<USDTWalletSpecs> => {
-  const accountStatus = await USDT.getAccountStatus(address, networkType);
-  console.log({ accountStatus });
-  if (!accountStatus?.gasFreeAddress)
-    throw new Error(`Failed to initiate specs for USDT wallet, missing gasFreeAddress`);
-
-  const specs: USDTWalletSpecs = {
-    address: accountStatus.address,
-    privateKey,
-    gasFreeAddress: accountStatus.gasFreeAddress,
-    balance: accountStatus.balance,
-    frozen: accountStatus.frozen,
-    isActive: accountStatus.isActive,
-    canTransfer: accountStatus.canTransfer,
-    nextNonce: accountStatus.nextNonce,
-    fees: accountStatus.fees,
-    transactions: [],
-    hasNewUpdates: true,
-    lastSynched: Date.now(),
-  };
-
-  return specs;
-};
 
 /**
  * Generate wallet ID from address
@@ -178,9 +141,6 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
       throw new Error(`Unsupported wallet type: ${usdtWalletType}`);
   }
 
-  // Generate wallet specs
-  const specs = await generateUSDTWalletSpecs(address, privateKey, networkType);
-
   // Create presentation data with the provided name and description
   const presentationData: USDTWalletPresentationData = {
     name: walletName,
@@ -188,7 +148,21 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
     visibility: VisibilityType.DEFAULT,
   };
 
-  // Create the USDT wallet object
+  // Generate wallet specs
+  const specs: USDTWalletSpecs = {
+    address: address,
+    privateKey,
+    balance: 0,
+    transactions: [],
+    hasNewUpdates: true,
+    lastSynched: Date.now(),
+  };
+
+  const accountStatus = await USDT.getAccountStatus(address, networkType);
+  if (!accountStatus?.gasFreeAddress)
+    throw new Error(`Failed to initiate specs for USDT wallet, missing gasFreeAddress`);
+
+  // Create the USDT wallet
   const usdtWallet: USDTWallet = {
     id: generateWalletId(address),
     entityKind: EntityKind.USDT_WALLET,
@@ -197,6 +171,7 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
     presentationData,
     derivationDetails,
     specs,
+    accountStatus,
     createdAt: Date.now(),
   };
 
@@ -212,7 +187,17 @@ export const checkUSDTWalletExists = (address: string, existingWallets: USDTWall
 };
 
 /**
- * Update USDT wallet specs with latest data, except transactions
+ * Update USDT wallet specs with latest account status
+ */
+export const updateUSDTWalletAccountStatus = async (
+  wallet: USDTWallet
+): Promise<USDTAccountStatus> => {
+  try {
+    return USDT.getAccountStatus(wallet.specs.address, wallet.networkType);
+  } catch (error) {
+    return wallet.accountStatus;
+  }
+};
  */
 export const updateUSDTWalletStatus = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
   try {

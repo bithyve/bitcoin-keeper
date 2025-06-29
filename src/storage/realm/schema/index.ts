@@ -48,6 +48,7 @@ import {
   USDTTransactionSchema,
   USDTWalletPresentationDataSchema,
   USDTWalletDerivationDetailsSchema,
+  USDTWalletAccountStatusSchema,
 } from './usdtWallet';
 
 export default [
@@ -98,4 +99,5 @@ export default [
   USDTTransactionSchema,
   USDTWalletDerivationDetailsSchema,
   USDTWalletPresentationDataSchema,
+  USDTWalletAccountStatusSchema,
 ];

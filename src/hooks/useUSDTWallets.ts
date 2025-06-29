@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   generateUSDTWallet,
-  updateUSDTWalletStatus,
+  updateUSDTWalletAccountStatus,
+  updateUSDTWalletBalanceTxs,
   USDTWallet,
   USDTWalletType,
 } from '../services/wallets/factories/USDTWalletFactory';
@@ -28,6 +29,7 @@ export interface UseUSDTWalletsReturn {
     privateKey?: string; // Required for IMPORTED type
   }) => Promise<USDTWallet | null>;
   deleteWallet: (walletId: string) => Promise<boolean>;
+  syncAccountStatus: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncWallet: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncAllWallets: () => Promise<void>;
   getWalletById: (walletId: string) => USDTWallet | null;
@@ -57,7 +59,6 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       // Filter hidden wallets if not included
       if (!includeHidden) {
         filteredWallets = filteredWallets.filter((wallet) => {
-          console.log({ wallet: wallet.presentationData });
           return wallet.presentationData.visibility !== VisibilityType.HIDDEN;
         });
       }
@@ -87,7 +88,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     }): Promise<USDTWallet | null> => {
       try {
         setError(null);
-        const walletNetworkType = NetworkType.MAINNET;
+        const walletNetworkType = NetworkType.TESTNET; // TODO: Only MAINNET supported for USDT wallets
         const allUSDTWallets: USDTWallet[] = (await dbManager.getObjectByIndex(
           // includes hidden wallets as well
           RealmSchema.USDTWallet,
@@ -150,15 +151,33 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   );
 
   /**
-   * Sync a single wallet with latest data
+   * Syncs a single wallet account status with latest data
+   */
+  const syncAccountStatus = useCallback(async (wallet: USDTWallet): Promise<USDTWallet> => {
+    try {
+      const updatedAccountStatus = await updateUSDTWalletAccountStatus(wallet);
+      const syncedWallet = {
+        ...wallet,
+        accountStatus: updatedAccountStatus,
+      };
+
+      await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, syncedWallet);
+      return syncedWallet;
+    } catch (err) {
+      captureError(err);
+      return wallet;
+    }
+  }, []);
+
+  /**
+   * Syncs a single wallet with latest data
    */
   const syncWallet = useCallback(async (wallet: USDTWallet): Promise<USDTWallet> => {
     try {
-      const updatedStatus = await updateUSDTWalletStatus(wallet);
+      const updatedSpecs = await updateUSDTWalletBalanceTxs(wallet);
       const syncedWallet = {
         ...wallet,
-        specs: updatedStatus,
-        updatedAt: Date.now(),
+        specs: updatedSpecs,
       };
 
       await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, syncedWallet);
@@ -214,6 +233,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     error,
     createWallet,
     deleteWallet,
+    syncAccountStatus,
     syncWallet,
     syncAllWallets,
     getWalletById,

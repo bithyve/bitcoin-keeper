@@ -26,16 +26,24 @@ export const USDTWalletSpecsSchema: ObjectSchema = {
   properties: {
     address: 'string',
     privateKey: 'string',
-    gasFreeAddress: 'string',
     balance: 'double',
-    frozen: 'double',
-    isActive: 'bool',
-    canTransfer: 'bool',
-    nextNonce: 'int',
-    fees: 'mixed', // Store as JSON: { transferFee: number, activateFee: number }
     transactions: `${RealmSchema.USDTTransaction}[]`,
     hasNewUpdates: 'bool',
     lastSynched: 'int',
+  },
+};
+
+export const USDTWalletAccountStatusSchema: ObjectSchema = {
+  name: RealmSchema.USDTWalletAccountStatus,
+  embedded: true,
+  properties: {
+    address: 'string',
+    gasFreeAddress: 'string',
+    isActive: 'bool',
+    frozen: 'double',
+    canTransfer: 'bool',
+    nextNonce: 'int',
+    fees: 'mixed', // Store as JSON: { transferFee: number, activateFee: number }
   },
 };
 
@@ -70,6 +78,7 @@ export const USDTWalletSchema: ObjectSchema = {
     derivationDetails: `${RealmSchema.USDTWalletDerivationDetails}?`,
     presentationData: RealmSchema.USDTWalletPresentationData,
     specs: RealmSchema.USDTWalletSpecs,
+    accountStatus: RealmSchema.USDTWalletAccountStatus,
     createdAt: 'int',
   },
   primaryKey: 'id',
