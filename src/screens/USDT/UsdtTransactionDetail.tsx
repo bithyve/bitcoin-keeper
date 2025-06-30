@@ -182,18 +182,6 @@ const UsdtTransactionDetail = ({ route }) => {
                 Content={() => <StatusContent status={status} />}
               />
               <InfoCard
-                title={usdtWalletText.sendingAmount}
-                describtion={'91.575 USDT'}
-                showIcon={false}
-                letterSpacing={2.4}
-              />
-              <InfoCard
-                title={usdtWalletText.transactionFee}
-                describtion={'~1 USDT'}
-                showIcon={false}
-                letterSpacing={2.4}
-              />
-              <InfoCard
                 title={
                   transactionType === 'Received'
                     ? usdtWalletText.recievedAmount
