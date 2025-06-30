@@ -33,6 +33,8 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitCoinWalletLogo from 'src/assets/images/bitcoin-wallet-logo.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -47,6 +49,7 @@ const HomeWallet = () => {
     getFirst: true,
     getHiddenWallets: false,
   });
+  const { usdtWallets } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
@@ -62,9 +65,11 @@ const HomeWallet = () => {
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
-  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
-    (item) => item !== null
-  );
+  const allWallets: (Wallet | Vault | USDTWallet)[] = [
+    ...nonHiddenWallets,
+    ...allVaults,
+    ...usdtWallets,
+  ].filter((item) => item !== null);
   const [isShowAmount, setIsShowAmount] = useState(false);
   const DashedCta_hexagonBackgroundColor = ThemedColor({
     name: 'DashedCta_hexagonBackgroundColor',
@@ -133,28 +138,26 @@ const HomeWallet = () => {
       },
       id: 'usdtnewWallet',
     },
-    {
-      title: home.ImportWallet,
-      subtitle: walletText.restoreExistingWallet,
-      icon: <ImportWalletIcon />,
-      onPress: () => {
-        setCreateUsdtWallet(false);
-        // navigation.navigate('VaultConfigurationCreation');
-      },
-      id: 'usdtimportWallet',
-    },
+    // {
+    //   title: home.ImportWallet,
+    //   subtitle: walletText.restoreExistingWallet,
+    //   icon: <ImportWalletIcon />,
+    //   onPress: () => {
+    //     setCreateUsdtWallet(false);
+    //     // navigation.navigate('VaultConfigurationCreation');
+    //   },
+    //   id: 'usdtimportWallet',
+    // },
   ];
 
-  const renderWalletCard = ({ item }: { item: Wallet | Vault }) => {
+  const renderWalletCard = ({ item }: { item: Wallet | Vault | USDTWallet }) => {
     const handleWalletPress = (item, navigation) => {
       if (item.entityKind === EntityKind.VAULT) {
         navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
+      } else if (item.entityKind === EntityKind.USDT_WALLET) {
+        navigation.navigate('usdtDetails', { usdtWalletId: item.id, autoRefresh: true });
       } else {
-        if (item.type === WalletType.USDT) {
-          navigation.navigate('usdtDetails');
-        } else {
-          navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
-        }
+        navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
       }
     };
     return (
@@ -165,13 +168,17 @@ const HomeWallet = () => {
         <WalletCard
           backgroundColor={getWalletCardGradient(item)}
           hexagonBackgroundColor={
-            item.type === WalletType.USDT ? Colors.aqualightMarine : Colors.CyanGreen
+            item.entityKind === EntityKind.USDT_WALLET ? Colors.aqualightMarine : Colors.CyanGreen
           }
           iconWidth={42}
           iconHeight={38}
           title={item.presentationData.name}
-          tags={getWalletTags(item)}
-          totalBalance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
+          tags={item.entityKind === EntityKind.USDT_WALLET ? null : getWalletTags(item)}
+          totalBalance={
+            item.entityKind === EntityKind.USDT_WALLET
+              ? (item as USDTWallet).specs.balance
+              : item.specs.balances.confirmed + item.specs.balances.unconfirmed
+          }
           description={item.presentationData.description}
           wallet={item}
           isShowAmount={isShowAmount}

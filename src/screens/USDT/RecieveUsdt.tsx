@@ -8,9 +8,11 @@ import WalletCopiableData from 'src/components/WalletCopiableData';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
-const RecieveUsdt = () => {
-  const details = 'sbhb44uhncduedue3wqduebdyegd73hdeybd37db3b';
+const RecieveUsdt = ({ route }) => {
+  const { usdtWallet }: { usdtWallet: USDTWallet } = route.params;
+  const details = usdtWallet.accountStatus.gasFreeAddress;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { usdtWalletText, common } = translations;
@@ -29,7 +31,12 @@ const RecieveUsdt = () => {
             {details && <KeeperQRCode qrData={details} size={windowWidth * 0.7} showLogo />}
           </Box>
           <Box>
-            <WalletCopiableData data={details} width={windowWidth * 0.8} height={hp(60)} />
+            <WalletCopiableData
+              data={details}
+              width={windowWidth * 0.8}
+              height={hp(60)}
+              dataType="address"
+            />
           </Box>
         </Box>
 

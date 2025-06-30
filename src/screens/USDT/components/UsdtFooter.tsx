@@ -9,28 +9,33 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
-const UsdtFooter = () => {
+const UsdtFooter = ({ usdtWallet }: { usdtWallet: USDTWallet }) => {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { colorMode } = useColorMode();
 
+  // If usdtWallet is not provided, we can handle it gracefully
+  if (!usdtWallet) {
+    return null; // or return a placeholder component
+  }
   const footerItems = [
     {
       Icon: SendIconWhite,
       text: common.send,
-      onPress: () => navigation.dispatch(CommonActions.navigate('sendUsdt')),
+      onPress: () => navigation.dispatch(CommonActions.navigate('sendUsdt', { usdtWallet })),
     },
     {
       Icon: RecieveIconWhite,
       text: common.receive,
-      onPress: () => navigation.dispatch(CommonActions.navigate('usdtReceive')),
+      onPress: () => navigation.dispatch(CommonActions.navigate('usdtReceive', { usdtWallet })),
     },
     {
       Icon: BuyIcon,
       text: common.Buy,
-      onPress: () => navigation.dispatch(CommonActions.navigate('buyUstd')),
+      onPress: () => navigation.dispatch(CommonActions.navigate('buyUstd', { usdtWallet })),
     },
   ];
   return (

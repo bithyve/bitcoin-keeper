@@ -17,6 +17,7 @@ import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Transactions from '../WalletDetails/components/Transactions';
 import UsdtFooter from './components/UsdtFooter';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -35,7 +36,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
   );
 }
 
-const UsdtDetails = () => {
+const UsdtDetails = ({ route }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
@@ -43,101 +44,14 @@ const UsdtDetails = () => {
   const { common } = translations;
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
   const [pullRefresh, setPullRefresh] = useState(false);
+  const { autoRefresh, usdtWalletId } = route.params || {};
 
-  // dummy usdt wallet
-  const wallet = {
-    entityKind: 'WALLET',
-    id: 'dummy-id-001',
-    networkType: 'MAINNET',
-    presentationData: {
-      description: 'Dummy wallet for testing',
-      name: 'Test Wallet',
-      visibility: 'DEFAULT',
-    },
-    scriptType: 'P2WPKH',
-    specs: {
-      addressPubs: {
-        bc1qexampleaddress0001:
-          '02abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
-      },
-      addresses: {
-        external: [
-          {
-            address: 'bc1qexternaladdress0001',
-            index: 0,
-          },
-        ],
-        internal: [
-          {
-            address: 'bc1qinternaladdress0001',
-            index: 0,
-          },
-        ],
-      },
-      balances: {
-        confirmed: 500000,
-        unconfirmed: 0,
-      },
-      confirmedUTXOs: [],
-      hasNewUpdates: false,
-      lastSynched: 1750325128253,
-      nextFreeAddressIndex: 1,
-      nextFreeChangeAddressIndex: 0,
-      receivingAddress: 'bc1qreceivingaddress0001',
-      totalExternalAddresses: 1,
-      address: 'ddjdddjjdjdjdj',
-      transactions: [
-        {
-          amount: 500000,
-          blockHeight: 0,
-          blockHash: '0000000000000000000000000000000000000000000000000000000000000000',
-          blockIndex: 0,
-          confirmations: 0,
-          date: 1750325128253,
-        },
-      ],
-      unconfirmedUTXOs: [],
-      xpriv: 'xprv9s21ZrQH143K3dummyprivatekey',
-      xpub: 'xpub661MyMwAqRbcFdummypublickey',
-    },
-    type: 'USDT',
-  };
-
-  // dummy trasaction
-  const dummyTransactions = [
-    {
-      address: 'tb1qfvtwh9xzll2uxtpenv9wkw84et3wehevp8msdmp3lelsuvpujl9sspgj28',
-      amount: 10000,
-      blockTime: null,
-      confirmations: 0,
-      date: 'Fri, 27 Jun 2025 07:06:26 GMT',
-      fee: 226,
-      recipientAddresses: [
-        '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8',
-        'tb1qfvtwh9xzll2uxtpenv9wkw84et3wehevp8msdmp3lelsuvpujl9sspgj28',
-      ],
-      senderAddresses: ['2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8'],
-      tags: [],
-      transactionType: 'Received',
-      txid: 'c18d64038e02eea6cbe333c64dde86bde643d98309ac1a1632f8bde45bdde314',
-    },
-    {
-      address: 'tb1qxyz9fzqvuj08xw2zjgy55dpylh0td8d3j4u4k0',
-      amount: 25000,
-      blockTime: null,
-      confirmations: 0,
-      date: 'Fri, 27 Jun 2025 08:15:00 GMT',
-      fee: 300,
-      recipientAddresses: [
-        'tb1qxyz9fzqvuj08xw2zjgy55dpylh0td8d3j4u4k0',
-        '2N3BxEhtnQtw3PazVTTcRyrTLzE7pqL8FgW',
-      ],
-      senderAddresses: ['2N3BxEhtnQtw3PazVTTcRyrTLzE7pqL8FgW'],
-      tags: [],
-      transactionType: 'Sent',
-      txid: 'a9d2b3c54fbaede83eec38a8ef2732d7184dfb4f295c74f00343a8d993ea4a5b',
-    },
-  ];
+  const { getWalletById, usdtWallets, loading } = useUSDTWallets();
+  const usdtWallet = getWalletById(usdtWalletId);
+  if (!usdtWallet) {
+    // might not be available immediately if the wallet is being fetched
+    return null;
+  }
 
   return (
     <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
@@ -158,29 +72,29 @@ const UsdtDetails = () => {
 
         <Box style={styles.card}>
           <WalletCard
-            backgroundColor={getWalletCardGradient(wallet)}
+            backgroundColor={getWalletCardGradient(usdtWallet)}
             hexagonBackgroundColor={Colors.aqualightMarine}
             icon={<UsdtWalletLogo />}
             iconWidth={42}
             iconHeight={38}
-            title={'USDT Wallet'} //replace with wallet name
-            tags={getWalletTags(wallet)}
-            totalBalance={10000}
-            description={'USDT wallet desc'} //replace with wallet description
-            wallet={wallet}
+            title={usdtWallet.presentationData.name}
+            tags={getWalletTags(usdtWallet)}
+            totalBalance={usdtWallet.specs.balance || 0}
+            description={usdtWallet.presentationData.description}
+            wallet={usdtWallet}
             allowHideBalance={false}
           />
         </Box>
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
-        {wallet ? (
+        {usdtWallet ? (
           <Box
             flex={1}
             style={styles.transactionsContainer}
             backgroundColor={`${colorMode}.thirdBackground`}
             borderColor={`${colorMode}.separator`}
           >
-            {wallet?.specs?.transactions?.length ? (
+            {usdtWallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
                 <Text color={`${colorMode}.black`} medium fontSize={wp(14)}>
                   {common.recentTransactions}
@@ -191,7 +105,7 @@ const UsdtDetails = () => {
                     navigation.dispatch(
                       CommonActions.navigate({
                         name: 'usdtTransactionHistory',
-                        params: { wallet, dummyTransactions },
+                        params: { wallet: usdtWallet, transactions: usdtWallet.specs.transactions },
                       })
                     )
                   }
@@ -203,13 +117,13 @@ const UsdtDetails = () => {
               </HStack>
             ) : null}
             <TransactionsAndUTXOs
-              transactions={dummyTransactions}
+              transactions={usdtWallet.specs.transactions}
               setPullRefresh={setPullRefresh}
               pullRefresh={pullRefresh}
-              wallet={wallet}
+              wallet={usdtWallet}
             />
             <Box style={styles.footerContainer}>
-              <UsdtFooter />
+              <UsdtFooter usdtWallet={usdtWallet} />
             </Box>
           </Box>
         ) : (

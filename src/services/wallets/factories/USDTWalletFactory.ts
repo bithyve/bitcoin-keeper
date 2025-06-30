@@ -1,0 +1,234 @@
+import * as CryptoJS from 'crypto-js';
+import { NetworkType, EntityKind, VisibilityType, WalletType } from '../enums';
+import {
+  createTronWalletFromMnemonic,
+  DEFAULT_TRON_DERIVATION_PATH,
+} from '../operations/dollars/Tron';
+import USDT, { USDTAccountStatus, USDTTransaction } from '../operations/dollars/USDT';
+import BIP85 from '../operations/BIP85';
+import { BIP85Config } from '../interfaces';
+
+export enum USDTWalletType {
+  DEFAULT = 'DEFAULT',
+  IMPORTED = 'IMPORTED',
+}
+
+export interface USDTWalletSpecs {
+  address: string; // TRON address (TR...)
+  privateKey: string; // Private key
+  balance: number; // Available USDT balance
+  transactions: USDTTransaction[];
+  hasNewUpdates: boolean;
+  lastSynched: number; // Last sync timestamp
+}
+
+export interface USDTWalletPresentationData {
+  name: string; // Custom wallet name
+  description: string; // Custom description
+  visibility: VisibilityType; // Visibility setting
+}
+
+export interface USDTWalletDerivationDetails {
+  instanceNum?: number; // instance number of this particular walletType
+  mnemonic?: string; // mnemonic of the wallet
+  bip85Config?: BIP85Config; // bip85 configuration leading to the derivation path for the corresponding entropy
+  xDerivationPath: string; // derivation path of the extended keys belonging to this wallet
+}
+
+export interface USDTWalletAccountStatus extends USDTAccountStatus {}
+
+export interface USDTWallet {
+  id: string;
+  entityKind: EntityKind.USDT_WALLET;
+  type: USDTWalletType;
+  networkType: NetworkType;
+  derivationDetails: USDTWalletDerivationDetails;
+  presentationData: USDTWalletPresentationData;
+  specs: USDTWalletSpecs;
+  accountStatus: USDTWalletAccountStatus;
+  createdAt: number;
+}
+
+export interface USDTWalletImportDetails {
+  privateKey: string;
+  address: string;
+}
+
+export interface USDTWalletCreationParams {
+  usdtWalletType: USDTWalletType;
+  walletName: string;
+  walletDescription: string;
+  instanceNum: number;
+  networkType: NetworkType;
+  primaryMnemonic?: string;
+  importDetails?: USDTWalletImportDetails;
+}
+
+/**
+ * Generate wallet ID from address
+ */
+export const generateWalletId = (address: string): string => {
+  return CryptoJS.SHA256(address).toString();
+};
+
+/**
+ * Main factory function to generate USDT wallets
+ */
+export const generateUSDTWallet = async (params: USDTWalletCreationParams): Promise<USDTWallet> => {
+  const {
+    usdtWalletType,
+    primaryMnemonic,
+    walletName,
+    walletDescription,
+    instanceNum,
+    networkType,
+    importDetails,
+  } = params;
+
+  let address: string;
+  let privateKey: string;
+  let derivationDetails: USDTWalletDerivationDetails;
+  // Generate or import wallet based on type
+  switch (usdtWalletType) {
+    case USDTWalletType.DEFAULT: {
+      if (!primaryMnemonic)
+        throw new Error('Primary Mnemonic required for default USDT wallet type');
+      // BIP85 derivation: primary mnemonic to bip85-child mnemonic
+      const bip85Config = BIP85.generateBIP85Configuration(EntityKind.USDT_WALLET, instanceNum);
+      const entropy = await BIP85.bip39MnemonicToEntropy(
+        bip85Config.derivationPath,
+        primaryMnemonic
+      );
+      const mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+      const newWallet = createTronWalletFromMnemonic(mnemonic, networkType);
+      address = newWallet.address;
+      privateKey = newWallet.privateKey;
+      derivationDetails = {
+        instanceNum,
+        mnemonic,
+        bip85Config,
+        xDerivationPath: DEFAULT_TRON_DERIVATION_PATH,
+      };
+      break;
+    }
+
+    // case USDTWalletType.IMPORTED: {
+    //   if (!importDetails) {
+    //     throw new Error('Import details required for imported wallet');
+    //   }
+
+    //   if (!importDetails.privateKey) {
+    //     throw new Error('Private key required for imported wallet');
+    //   }
+
+    //   // Create wallet from private key
+    //   const importedWallet = createTronWalletFromPrivateKey(importDetails.privateKey, networkType);
+    //   if (!importedWallet.isValid) {
+    //     throw new Error(`Failed to import USDT wallet using private key`);
+    //   }
+    //   address = importedWallet.address;
+    //   privateKey = importedWallet.privateKey;
+    //   derivationDetails = {
+    //      instanceNum, // null
+    //      mnemonic: null, // null
+    //      bip85Config: null, // null
+    //      xDerivationPath: DEFAULT_TRON_DERIVATION_PATH,
+    //   };
+    //   break;
+    // }
+
+    default:
+      throw new Error(`Unsupported wallet type: ${usdtWalletType}`);
+  }
+
+  // Create presentation data with the provided name and description
+  const presentationData: USDTWalletPresentationData = {
+    name: walletName,
+    description: walletDescription,
+    visibility: VisibilityType.DEFAULT,
+  };
+
+  // Generate wallet specs
+  const specs: USDTWalletSpecs = {
+    address: address,
+    privateKey,
+    balance: 0,
+    transactions: [],
+    hasNewUpdates: true,
+    lastSynched: Date.now(),
+  };
+
+  const accountStatus = await USDT.getAccountStatus(address, networkType);
+  if (!accountStatus?.gasFreeAddress)
+    throw new Error(`Failed to initiate specs for USDT wallet, missing gasFreeAddress`);
+
+  // Create the USDT wallet
+  const usdtWallet: USDTWallet = {
+    id: generateWalletId(address),
+    entityKind: EntityKind.USDT_WALLET,
+    type: usdtWalletType,
+    networkType,
+    presentationData,
+    derivationDetails,
+    specs,
+    accountStatus,
+    createdAt: Date.now(),
+  };
+
+  return usdtWallet;
+};
+
+/**
+ * Check if USDT wallet already exists
+ */
+export const checkUSDTWalletExists = (address: string, existingWallets: USDTWallet[]): boolean => {
+  const walletId = generateWalletId(address);
+  return existingWallets.some((wallet) => wallet.id === walletId);
+};
+
+/**
+ * Update USDT wallet specs with latest account status
+ */
+export const updateUSDTWalletAccountStatus = async (
+  wallet: USDTWallet
+): Promise<USDTAccountStatus> => {
+  try {
+    return USDT.getAccountStatus(wallet.specs.address, wallet.networkType);
+  } catch (error) {
+    return wallet.accountStatus;
+  }
+};
+
+/**
+ * Syncs USDT wallet specs with latest balance and transactions.
+ */
+export const updateUSDTWalletBalanceTxs = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
+  try {
+    const balance = await USDT.getUSDTBalance(
+      wallet.accountStatus.gasFreeAddress,
+      wallet.networkType
+    );
+    const { transactions } = await USDT.getUSDTTransactions(
+      wallet.accountStatus.gasFreeAddress,
+      wallet.networkType
+    ); // TODO: only update for transactions which are not already existing or are not confirmed
+
+    const updatedSpecs: USDTWalletSpecs = {
+      ...wallet.specs,
+      balance,
+      transactions,
+      lastSynched: Date.now(),
+    };
+
+    return updatedSpecs;
+  } catch (error) {
+    return wallet.specs;
+  }
+};
+
+/**
+ * Get private key for signing (if available)
+ */
+export const getPrivateKeyForSigning = (wallet: USDTWallet): string => {
+  return wallet.specs.privateKey;
+};

@@ -38,4 +38,10 @@ export enum RealmSchema {
   StoreSubscription = 'StoreSubscription',
   CloudBackupHistory = 'CloudBackupHistory',
   Balances = 'Balances',
+  USDTWallet = 'USDTWallet',
+  USDTWalletSpecs = 'USDTWalletSpecs',
+  USDTTransaction = 'USDTTransaction',
+  USDTWalletPresentationData = 'USDTWalletPresentationData',
+  USDTWalletDerivationDetails = 'USDTWalletDerivationDetails',
+  USDTWalletAccountStatus = 'USDTWalletAccountStatus',
 }
