@@ -15,17 +15,93 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import UsdtIllustration from 'src/assets/images/ustd-illustration.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import USDT, {
+  DEFAULT_DEADLINE_SECONDS,
+  USDTTransferOptions,
+} from 'src/services/wallets/operations/dollars/USDT';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import TickIcon from 'src/assets/images/icon_check.svg';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { useNavigation } from '@react-navigation/native';
 
 const UsdtSendConfirmation = ({ route }) => {
-  const { amount } = route.params;
+  const {
+    recipientAddress,
+    sender,
+    amount,
+    fees,
+  }: {
+    recipientAddress: string;
+    sender: USDTWallet;
+    amount: number;
+    fees: { activateFee: number; transferFee: number; totalFee: number };
+  } = route.params;
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common } = translations;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const [inProgress, setProgress] = useState(false);
   const [learnMore, setLearnMore] = useState(false);
+  const { showToast } = useToastMessage();
+  const { updateWallet } = useUSDTWallets();
+  const navigation: any = useNavigation();
 
-  console.log('amount', amount);
+  const processPermitTransaction = async () => {
+    try {
+      setProgress(true);
+
+      const transferOptions: USDTTransferOptions = {
+        source: sender,
+        toAddress: recipientAddress,
+        amount,
+        networkType: sender.networkType,
+        deadlineInSeconds: DEFAULT_DEADLINE_SECONDS,
+      };
+
+      // Step 1: Prepare the transfer
+      const preparation = await USDT.prepareTransfer(transferOptions);
+
+      if (!preparation?.isValid) {
+        throw new Error(preparation?.error || 'Transfer preparation failed');
+      }
+
+      // Step 2: Submit the transfer
+      const transferResult = await USDT.submitTransfer(
+        transferOptions.source,
+        preparation.signaturePayload
+      );
+
+      if (transferResult?.success) {
+        // Transaction successful - show success modal
+        showToast('Permit Transfer successful!', <TickIcon />);
+
+        const updatedWallet: USDTWallet = {
+          ...sender,
+          specs: {
+            ...sender.specs,
+            transactions: [
+              transferResult.transaction, // transfer w/ the trace id(missing txid); to be processed and confirmed
+              ...sender.specs.transactions,
+            ],
+          },
+        };
+        await updateWallet(updatedWallet);
+        setTimeout(() => {
+          // Navigate back to the home screen or any other screen
+          navigation.navigate('usdtDetails', { usdtWalletId: sender.id, autoRefresh: true });
+          setProgress(false);
+        }, 1000);
+      } else {
+        throw new Error(transferResult?.error || 'Transfer failed');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      showToast(`Permit Transfer failed: ${errorMessage}`, <ToastErrorIcon />);
+      setProgress(false);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -46,55 +122,59 @@ const UsdtSendConfirmation = ({ route }) => {
           <ReceiptWrapper showThemedSvg>
             <SendingCard
               title={walletTranslations.sendingFrom}
-              subTitle={'USDT'}
+              subTitle={sender.accountStatus.gasFreeAddress}
               icon={<UsdtWalletLogo width={20} height={20} />}
             />
             <SendingCard
               title={walletTranslations.sendingTo}
-              subTitle={'usdt'}
+              subTitle={recipientAddress}
               icon={<UsdtWalletLogo width={20} height={20} />}
               amount={amount}
-              multiItem={amount.length > 1 ? true : false}
+              multiItem={false}
             />
           </ReceiptWrapper>
         </Box>
-        <Box
-          style={styles.infoWrapper}
-          borderColor={`${colorMode}.separator`}
-          backgroundColor={`${colorMode}.separator`}
-        >
-          <Box style={styles.iconWrapper}>
-            {isDarkMode ? (
-              <InfoDarkIcon width={16} height={16} />
-            ) : (
-              <InfoBrownIcon width={16} height={16} />
-            )}
+        {fees.activateFee && (
+          <Box
+            style={styles.infoWrapper}
+            borderColor={`${colorMode}.separator`}
+            backgroundColor={`${colorMode}.separator`}
+          >
+            <Box style={styles.iconWrapper}>
+              {isDarkMode ? (
+                <InfoDarkIcon width={16} height={16} />
+              ) : (
+                <InfoBrownIcon width={16} height={16} />
+              )}
+            </Box>
+            <Text style={styles.textContainer}>
+              Since the GasFree wallet is not activated, an activation fee will be charged along
+              with the current permit transfer
+            </Text>
           </Box>
-          <Text style={styles.textContainer}>
-            Since the GasFree wallet is not activated, an activation fee will be charged along with
-            the current permit transfer
-          </Text>
-        </Box>
+        )}
         <Box
           style={styles.totalAmountWrapper}
           borderColor={`${colorMode}.separator`}
           backgroundColor={`${colorMode}.textInputBackground`}
         >
-          <AmountDetails
-            title={'Activation Fee'}
-            titleFontSize={12}
-            amount={1}
-            amountFontSize={12}
-            unitFontSize={12}
-            titleColor={`${colorMode}.secondaryLightGrey`}
-            amountColor={`${colorMode}.secondaryLightGrey`}
-            unitColor={`${colorMode}.secondaryLightGrey`}
-            customUnit="USTD"
-          />
+          {fees.activateFee && (
+            <AmountDetails
+              title={'Activation Fee'}
+              titleFontSize={12}
+              amount={fees.activateFee}
+              amountFontSize={12}
+              unitFontSize={12}
+              titleColor={`${colorMode}.secondaryLightGrey`}
+              amountColor={`${colorMode}.secondaryLightGrey`}
+              unitColor={`${colorMode}.secondaryLightGrey`}
+              customUnit="USTD"
+            />
+          )}
           <AmountDetails
             title={'Transaction Fee'}
             titleFontSize={12}
-            amount={1}
+            amount={fees.transferFee}
             amountFontSize={12}
             unitFontSize={12}
             titleColor={`${colorMode}.secondaryLightGrey`}
@@ -118,7 +198,7 @@ const UsdtSendConfirmation = ({ route }) => {
             title={walletTranslations.totalAmount}
             titleFontSize={13}
             titleFontWeight={500}
-            amount={amount + 1 + 1}
+            amount={amount + fees.totalFee}
             amountFontSize={15}
             unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
@@ -130,7 +210,7 @@ const UsdtSendConfirmation = ({ route }) => {
       <Box marginTop={hp(15)}>
         <Buttons
           primaryText={common.confirmProceed}
-          primaryCallback={() => {}}
+          primaryCallback={processPermitTransaction}
           primaryLoading={inProgress}
           fullWidth
         />
