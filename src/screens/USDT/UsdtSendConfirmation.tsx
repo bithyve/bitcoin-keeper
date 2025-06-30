@@ -81,6 +81,7 @@ const UsdtSendConfirmation = ({ route }) => {
           ...sender,
           specs: {
             ...sender.specs,
+            balance: sender.specs.balance - (amount + fees.totalFee),
             transactions: [
               transferResult.transaction, // transfer w/ the trace id(missing txid); to be processed and confirmed
               ...sender.specs.transactions,
