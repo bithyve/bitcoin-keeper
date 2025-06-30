@@ -15,6 +15,9 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useNavigation } from '@react-navigation/native';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import USDT from 'src/services/wallets/operations/dollars/USDT';
 
 const UsdtAmount = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -23,7 +26,8 @@ const UsdtAmount = ({ route }) => {
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
-
+  const { recipientAddress, sender }: { recipientAddress: string; sender: USDTWallet } =
+    route.params || {};
   const [amount, setAmount] = useState('0');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -62,14 +66,33 @@ const UsdtAmount = ({ route }) => {
     }
   };
 
-  const handleSend = () => {
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
+  const handleSend = async () => {
+    const amountToSend = parseFloat(amount);
+    if (isNaN(amountToSend) || amountToSend <= 0) {
       setErrorMessage('Invalid amount');
-      showToast('Please enter a valid amount');
+      showToast('Please enter a valid amount', <ToastErrorIcon />);
       return;
     }
-    navigation.navigate('usdtSendConfirmation', { amount: numericAmount });
+
+    const fees = await USDT.estimateTransferFee(recipientAddress, sender.networkType);
+    if (!fees) {
+      showToast('Failed to estimate fees', <ToastErrorIcon />);
+      return;
+    }
+    if (sender.specs.balance < amountToSend + fees.totalFee) {
+      showToast(
+        `Insufficient balance for this transaction (fee: ${fees.totalFee})`,
+        <ToastErrorIcon />
+      );
+      return;
+    }
+
+    navigation.navigate('usdtSendConfirmation', {
+      sender,
+      recipientAddress,
+      amount: amountToSend,
+      fees,
+    });
   };
 
   return (
@@ -90,7 +113,9 @@ const UsdtAmount = ({ route }) => {
         <Box>
           {/* Add wallet name  */}
           <Text bold>USDT Wallet</Text>
-          <Text color={`${colorMode}.GreyText`}>{usdtWalletText.balance}: 5000 USDT</Text>
+          <Text color={`${colorMode}.GreyText`}>
+            {usdtWalletText.balance}: {sender.specs.balance} USDT
+          </Text>
         </Box>
       </Box>
 
