@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
 import { Box, useColorMode } from 'native-base';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import idx from 'idx';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
@@ -13,11 +14,13 @@ const Usdtsetting = ({ route }) => {
   const { usdtWallet }: { usdtWallet: USDTWallet } = route.params;
   const seedWords = idx(usdtWallet, (_) => _.derivationDetails.mnemonic);
   const { updateWallet } = useUSDTWallets();
+  const { translations } = useContext(LocalizationContext);
+  const { usdtWalletText } = translations;
 
   const actions = [
     {
-      title: 'Wallet Details',
-      description: 'Wallet name and description',
+      title: usdtWalletText.walletDetails,
+      description: usdtWalletText.walletNameAndDescription,
       onPress: () => {
         console.log(
           `USDT wallet details: ${usdtWallet.presentationData.name}, ${usdtWallet.presentationData.description}`
@@ -25,8 +28,8 @@ const Usdtsetting = ({ route }) => {
       },
     },
     {
-      title: 'Hide Wallet',
-      description: 'Hidden wallets can be managed from Manage Wallets in settings',
+      title: usdtWalletText.hideWallet,
+      description: usdtWalletText.hideWalletDesc,
       onPress: () => {
         const updatedWallet: USDTWallet = {
           ...usdtWallet,
@@ -42,8 +45,8 @@ const Usdtsetting = ({ route }) => {
 
   if (seedWords) {
     actions.push({
-      title: 'Wallet Seed Words',
-      description: 'Use to back up or export the wallet private key',
+      title: usdtWalletText.walletSeedWords,
+      description: usdtWalletText.backupWalletOrExport,
       onPress: () => {
         console.log(`USDT wallet seed words: ${seedWords}`);
       },
@@ -52,7 +55,7 @@ const Usdtsetting = ({ route }) => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Wallet Settings" />
+      <WalletHeader title={usdtWalletText.walletSetting} />
       <Box>
         {' '}
         <SettingCard

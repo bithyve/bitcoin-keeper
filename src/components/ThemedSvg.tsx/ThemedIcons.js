@@ -293,6 +293,8 @@ import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
 import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
 import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
 import BTCWhiteLOgo from 'src/assets/images/btc-white-logo.svg';
+import UsdtIllustration from 'src/assets/images/ustd-illustration.svg';
+import UsdtPrivateIllustration from 'src/assets/privateImages/usdt-private-illustration.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -1040,6 +1042,12 @@ const themeIcons = {
     LIGHT: BitCoinLogo,
     PRIVATE: BitCoinLogoDark,
     PRIVATE_LIGHT: BitCoinLogoGold,
+  },
+  usdt_illustration: {
+    DARK: UsdtIllustration,
+    LIGHT: UsdtIllustration,
+    PRIVATE: UsdtPrivateIllustration,
+    PRIVATE_LIGHT: UsdtPrivateIllustration,
   },
 };
 

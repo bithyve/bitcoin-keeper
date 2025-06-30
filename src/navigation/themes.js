@@ -168,6 +168,7 @@ export const customTheme = extendTheme({
       warmbeige: Colors.warmbeige,
       hyperlink: Colors.darkBlue,
       btcLogoBackground: Colors.MistSlate,
+      activationFeeText: Colors.secondaryLightGrey,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -288,6 +289,7 @@ export const customTheme = extendTheme({
       warmbeige: Colors.warmbeige,
       hyperlink: Colors.softBlue,
       btcLogoBackground: Colors.warm_off_white,
+      activationFeeText: Colors.bodyText,
     },
   },
   config: {

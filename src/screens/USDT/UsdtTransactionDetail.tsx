@@ -60,7 +60,7 @@ const UsdtTransactionDetail = ({ route }) => {
 
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common, transactions } = translations;
+  const { common, transactions, usdtWalletText } = translations;
   const { labels } = useLabelsNew({ txid: transactionId });
   const noteRef = useRef();
   const [visible, setVisible] = useState(false);
@@ -115,8 +115,8 @@ const UsdtTransactionDetail = ({ route }) => {
     <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.headerContainer}>
         <WalletHeader
-          title="Transaction Details"
-          subTitle="Detailed information for this transaction"
+          title={usdtWalletText.transactionDetails}
+          subTitle={usdtWalletText.transactionDetailsSubTitle}
         />
         <Box style={styles.transViewWrapper}>
           <Box style={styles.transViewIcon}>
@@ -176,13 +176,17 @@ const UsdtTransactionDetail = ({ route }) => {
                 />
               </TouchableOpacity>
               <InfoCard
-                title={'Status'}
+                title={usdtWalletText.status}
                 showIcon={false}
                 letterSpacing={2.4}
                 Content={() => <StatusContent status={status} />}
               />
               <InfoCard
-                title={transactionType === 'Received' ? 'Received Amount' : 'Sending Amount'}
+                title={
+                  transactionType === 'Received'
+                    ? usdtWalletText.recievedAmount
+                    : usdtWalletText.sendingAmount
+                }
                 describtion={`${amount} USDT`}
                 showIcon={false}
                 letterSpacing={2.4}

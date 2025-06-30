@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import Text from 'src/components/KeeperText';
@@ -7,19 +7,26 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, windowWidth } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 const RecieveUsdt = ({ route }) => {
   const { usdtWallet }: { usdtWallet: USDTWallet } = route.params;
   const details = usdtWallet.accountStatus.gasFreeAddress;
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { usdtWalletText, common } = translations;
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1} justifyContent="flex-start">
-        <WalletHeader title="Receive" />
+        <WalletHeader title={usdtWalletText.receive} />
 
-        <Box style={styles.container} borderColor={`${colorMode}.separator`}>
+        <Box
+          style={styles.container}
+          backgroundColor={`${colorMode}.thirdBackground`}
+          borderColor={`${colorMode}.separator`}
+        >
           <Box borderWidth={15} borderColor={`${colorMode}.buttonText`}>
             {details && <KeeperQRCode qrData={details} size={windowWidth * 0.7} showLogo />}
           </Box>
@@ -35,12 +42,9 @@ const RecieveUsdt = ({ route }) => {
 
         <Box mt="auto" p={4}>
           <Text bold mb={2} color={`${colorMode}.dashedButtonBorderColor`}>
-            Note
+            {common.note}
           </Text>
-          <Text color={`${colorMode}.primaryText`}>
-            Please send only USDT on the Tron network to this address. Any other assets or networks
-            may result in a loss of funds.
-          </Text>
+          <Text color={`${colorMode}.primaryText`}>{usdtWalletText.sendOnlyUsdt}</Text>
         </Box>
       </Box>
     </ScreenWrapper>
@@ -55,5 +59,6 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
     borderWidth: 1,
     paddingTop: 20,
+    borderRadius: 10,
   },
 });

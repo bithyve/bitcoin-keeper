@@ -22,7 +22,7 @@ import USDT from 'src/services/wallets/operations/dollars/USDT';
 const UsdtAmount = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, usdtWalletText } = translations;
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
@@ -97,7 +97,7 @@ const UsdtAmount = ({ route }) => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Enter Amount" />
+      <WalletHeader title={usdtWalletText.enterAmount} />
 
       <Box
         style={styles.container}
@@ -111,8 +111,11 @@ const UsdtAmount = ({ route }) => {
           height={30}
         />
         <Box>
+          {/* Add wallet name  */}
           <Text bold>USDT Wallet</Text>
-          <Text color={`${colorMode}.GreyText`}>Balance: {sender.specs.balance} USDT</Text>
+          <Text color={`${colorMode}.GreyText`}>
+            {usdtWalletText.balance}: {sender.specs.balance} USDT
+          </Text>
         </Box>
       </Box>
 
