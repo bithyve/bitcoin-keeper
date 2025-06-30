@@ -18,6 +18,8 @@ import Edit from 'src/assets/images/edit.svg';
 import EditDark from 'src/assets/images/edit-white.svg';
 import { current } from '@reduxjs/toolkit';
 import StatusContent from './components/StatusContent';
+import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
     noteRef.current = text;
@@ -44,16 +46,26 @@ export enum TransactionStatusEnum {
 }
 
 const UsdtTransactionDetail = ({ route }) => {
-  const { transaction, wallet } = route.params;
+  const { transaction, wallet }: { transaction: USDTTransaction; wallet: USDTWallet } =
+    route.params;
+
+  const transactionId = transaction.txId;
+  const date = transaction.timestamp;
+  const amount = parseFloat(transaction.amount);
+  const status = transaction.status;
+  let transactionType: string;
+  if (transaction.to === wallet.accountStatus.gasFreeAddress) {
+    transactionType = 'Received';
+  } else transactionType = 'Sent';
+
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common, transactions, usdtWalletText } = translations;
-  const { labels } = useLabelsNew({ txid: transaction.txid });
+  const { labels } = useLabelsNew({ txid: transactionId });
   const noteRef = useRef();
   const [visible, setVisible] = useState(false);
   const [updatingLabel, setUpdatingLabel] = useState(false);
   const close = () => setVisible(false);
-  console.log('noteRef', noteRef);
 
   function InfoCard({
     title,
@@ -108,7 +120,7 @@ const UsdtTransactionDetail = ({ route }) => {
         />
         <Box style={styles.transViewWrapper}>
           <Box style={styles.transViewIcon}>
-            {transaction.transactionType === 'Received' ? (
+            {transactionType === 'Received' ? (
               colorMode === 'dark' ? (
                 <IconRecieveDark />
               ) : (
@@ -121,16 +133,16 @@ const UsdtTransactionDetail = ({ route }) => {
             )}
             <Box style={styles.transView}>
               <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.transIDText}>
-                {transaction.txid}
+                {transactionId}
               </Text>
               <Text style={styles.transDateText} color={`${colorMode}.GreyText`}>
-                {moment(transaction?.date).format('DD MMM YY • HH:mm A')}
+                {moment(date).format('DD MMM YY • HH:mm A')}
               </Text>
             </Box>
           </Box>
           <Box style={styles.amountWrapper}>
             <Text style={styles.amountText} semiBold>
-              {transaction.amount} <Text style={styles.unitText}>USDT</Text>
+              {amount} <Text style={styles.unitText}>USDT</Text>
             </Text>
           </Box>
         </Box>
@@ -167,7 +179,7 @@ const UsdtTransactionDetail = ({ route }) => {
                 title={usdtWalletText.status}
                 showIcon={false}
                 letterSpacing={2.4}
-                Content={() => <StatusContent status={TransactionStatusEnum.SUCCESS} />}
+                Content={() => <StatusContent status={status} />}
               />
               <InfoCard
                 title={usdtWalletText.sendingAmount}
@@ -182,11 +194,27 @@ const UsdtTransactionDetail = ({ route }) => {
                 letterSpacing={2.4}
               />
               <InfoCard
-                title={usdtWalletText.activationFee}
-                describtion={'~1 USDT'}
+                title={transactionType === 'Received' ? 'Received Amount' : 'Sending Amount'}
+                describtion={`${amount} USDT`}
                 showIcon={false}
                 letterSpacing={2.4}
               />
+              {(transaction.transferFee || transaction.fee) && (
+                <InfoCard
+                  title={'Transaction Fee'}
+                  describtion={`~${transaction.transferFee || transaction.fee} USDT`}
+                  showIcon={false}
+                  letterSpacing={2.4}
+                />
+              )}
+              {transaction.activateFee && (
+                <InfoCard
+                  title={'Activation Fee'}
+                  describtion={`~${transaction.activateFee} USDT`}
+                  showIcon={false}
+                  letterSpacing={2.4}
+                />
+              )}
             </Box>
           </Box>
           <KeeperModal
