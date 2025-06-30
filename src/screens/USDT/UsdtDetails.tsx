@@ -62,7 +62,7 @@ const UsdtDetails = ({ route }) => {
             <TouchableOpacity
               style={styles.settingBtn}
               onPress={() => {
-                navigation.navigate('usdtsetting');
+                navigation.navigate('usdtsetting', { usdtWallet });
               }}
             >
               <ThemedSvg name={'setting_icon'} width={25} height={25} />
