@@ -7,19 +7,29 @@ import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 const UsdtTransactionHistory = ({ route }) => {
   const { colorMode } = useColorMode();
-  const { wallet, dummyTransactions } = route.params;
+  const { wallet, transactions } = route.params;
   const { translations } = useContext(LocalizationContext);
   const { common, usdtWalletText } = translations;
+  const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
       wallet={wallet}
       isCached={item?.isCached}
-      onPress={() => {}}
+      onPress={() => {
+        navigation.dispatch(
+          CommonActions.navigate('usdtTransactionDetail', {
+            transaction: item,
+            wallet,
+          })
+        );
+      }}
     />
   );
   return (
@@ -36,9 +46,9 @@ const UsdtTransactionHistory = ({ route }) => {
           <FlatList
             testID="view_TransactionList"
             // refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
-            data={dummyTransactions}
+            data={transactions}
             renderItem={renderTransactionElement}
-            keyExtractor={(item) => item.txid}
+            keyExtractor={(item: USDTTransaction) => item.txId || item.traceId}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.contentContainerStyle}
             ListEmptyComponent={

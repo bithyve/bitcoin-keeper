@@ -46,7 +46,7 @@ const UsdtDetails = ({ route }) => {
   const [pullRefresh, setPullRefresh] = useState(false);
   const { autoRefresh, usdtWalletId } = route.params || {};
 
-  const { getWalletById, usdtWallets, loading } = useUSDTWallets();
+  const { getWalletById } = useUSDTWallets();
   const usdtWallet = getWalletById(usdtWalletId);
   if (!usdtWallet) {
     // might not be available immediately if the wallet is being fetched
