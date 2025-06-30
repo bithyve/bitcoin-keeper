@@ -44,7 +44,8 @@ function TransactionElement({
   let confirmations: number;
   let transactionType: string;
   if (wallet.entityKind === EntityKind.USDT_WALLET) {
-    transactionId = (transaction as USDTTransaction).txId;
+    transactionId =
+      (transaction as USDTTransaction).txId || (transaction as USDTTransaction).traceId;
     date = (transaction as USDTTransaction).timestamp;
     amount = parseFloat((transaction as USDTTransaction).amount);
     confirmations = (transaction as USDTTransaction).blockNumber ? 6 : 0; // Assuming 6 confirmations for USDT transactions(no. of conf on Tron doesn't really make any finality sense)

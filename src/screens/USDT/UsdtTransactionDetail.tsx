@@ -49,7 +49,7 @@ const UsdtTransactionDetail = ({ route }) => {
   const { transaction, wallet }: { transaction: USDTTransaction; wallet: USDTWallet } =
     route.params;
 
-  const transactionId = transaction.txId;
+  const transactionId = transaction.txId || transaction.traceId;
   const date = transaction.timestamp;
   const amount = parseFloat(transaction.amount);
   const status = transaction.status;

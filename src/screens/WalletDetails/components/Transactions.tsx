@@ -12,6 +12,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { EntityKind } from 'src/services/wallets/enums';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { captureError } from 'src/services/sentry';
+import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
 
 function TransactionItem({ item, wallet, navigation, index }) {
   return (
@@ -85,6 +86,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
+
   return (
     <FlatList
       testID="list_transactions"
@@ -101,7 +103,11 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
         );
       }}
       refreshing={syncing}
-      keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}
+      keyExtractor={(item: Transaction | USDTTransaction) => {
+        if ((item as USDTTransaction).txId || (item as USDTTransaction).traceId) {
+          return `${(item as USDTTransaction).txId || (item as USDTTransaction).traceId}`;
+        } else return `${(item as Transaction).txid}${(item as Transaction).transactionType}`;
+      }}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <EmptyStateView IllustartionImage={NoTransactionIcon} title={common.noTransYet} />
