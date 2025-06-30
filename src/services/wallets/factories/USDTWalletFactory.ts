@@ -201,6 +201,18 @@ export const updateUSDTWalletAccountStatus = async (
 };
 
 /**
+ * Syncs USDT wallet w/ latest balance
+ */
+export const syncUSDTWalletBalance = async (wallet: USDTWallet) => {
+  const balance = await USDT.getUSDTBalance(
+    wallet.accountStatus.gasFreeAddress,
+    wallet.networkType
+  );
+
+  return balance;
+};
+
+/**
  * Syncs USDT wallet specs with latest state of transactions.
  */
 export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
@@ -297,10 +309,7 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
  */
 export const updateUSDTWalletBalanceTxs = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
   try {
-    const balance = await USDT.getUSDTBalance(
-      wallet.accountStatus.gasFreeAddress,
-      wallet.networkType
-    );
+    const balance = await syncUSDTWalletBalance(wallet);
     const transactions = await syncUSDTWalletTransactions(wallet);
 
     const updatedSpecs: USDTWalletSpecs = {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   generateUSDTWallet,
+  syncUSDTWalletBalance,
   updateUSDTWalletAccountStatus,
   updateUSDTWalletBalanceTxs,
   USDTWallet,
@@ -31,6 +32,7 @@ export interface UseUSDTWalletsReturn {
   deleteWallet: (walletId: string) => Promise<boolean>;
   updateWallet: (wallet: USDTWallet) => Promise<boolean>;
   syncAccountStatus: (wallet: USDTWallet) => Promise<USDTWallet>;
+  syncWalletBalance: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncWallet: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncAllWallets: () => Promise<void>;
   getWalletById: (walletId: string) => USDTWallet | null;
@@ -191,6 +193,28 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   }, []);
 
   /**
+   * Syncs wallet balance
+   */
+  const syncWalletBalance = useCallback(async (wallet: USDTWallet): Promise<USDTWallet> => {
+    try {
+      const balance = await syncUSDTWalletBalance(wallet);
+      const syncedWallet = {
+        ...wallet,
+        specs: {
+          ...wallet.specs,
+          balance,
+        },
+      };
+
+      await updateWallet(syncedWallet);
+      return syncedWallet;
+    } catch (err) {
+      captureError(err);
+      return wallet;
+    }
+  }, []);
+
+  /**
    * Syncs a single wallet with latest data
    */
   const syncWallet = useCallback(async (wallet: USDTWallet): Promise<USDTWallet> => {
@@ -256,6 +280,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     deleteWallet,
     updateWallet,
     syncAccountStatus,
+    syncWalletBalance,
     syncWallet,
     syncAllWallets,
     getWalletById,

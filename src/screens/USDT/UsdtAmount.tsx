@@ -31,7 +31,7 @@ const UsdtAmount = ({ route }) => {
     route.params || {};
   const [amount, setAmount] = useState('0');
   const [errorMessage, setErrorMessage] = useState('');
-  const { syncAccountStatus } = useUSDTWallets();
+  const { syncAccountStatus, syncWalletBalance } = useUSDTWallets();
 
   const onPressNumber = (text) => {
     if (errorMessage) {
@@ -70,17 +70,22 @@ const UsdtAmount = ({ route }) => {
 
   const processSend = async (amountToSend: number) => {
     try {
-      const updatedSender = await syncAccountStatus(sender);
+      let updatedSender = await syncAccountStatus(sender);
       const fees = USDT.evaluateTransferFee(updatedSender.accountStatus);
-
       if (!fees) {
         showToast('Failed to estimate fees', <ToastErrorIcon />);
         return;
       }
 
-      if (updatedSender.specs.balance < amountToSend + fees.totalFee) {
+      updatedSender = await syncWalletBalance(updatedSender); // to remove (once we're able to sync wallet on the details page)
+      const { availableBalance, hasSufficientBalance } = USDT.hasSufficientBalance(
+        updatedSender,
+        amountToSend,
+        fees
+      );
+      if (!hasSufficientBalance) {
         showToast(
-          `Insufficient balance for this transaction (fee: ${fees.totalFee})`,
+          `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
           <ToastErrorIcon />
         );
         return;

@@ -504,58 +504,6 @@ export default class GasFree {
   }
 
   /**
-   * Validate transfer parameters before submission
-   */
-  public static validateTransferParams(
-    accountInfo: GasFreeAccountInfo,
-    tokenAddress: string,
-    balance: string,
-    amount: string,
-    maxFee: string
-  ): { isValid: boolean; error?: string } {
-    // Check if account allows submission
-    if (!accountInfo.allowSubmit) {
-      return {
-        isValid: false,
-        error: 'Account is not allowed to submit transfers at this time',
-      };
-    }
-
-    // Find token in account assets
-    const tokenAsset = accountInfo.assets.find(
-      (asset) => asset.tokenAddress.toLowerCase() === tokenAddress.toLowerCase()
-    );
-
-    if (!tokenAsset) {
-      return {
-        isValid: false,
-        error: 'Token not found in account assets',
-      };
-    }
-
-    // Check if account is active or if activation fee is covered
-    const totalCost = parseInt(amount) + parseInt(maxFee);
-    const availableBalance = parseInt(balance) - tokenAsset.frozen;
-
-    if (!accountInfo.active) {
-      const totalWithActivation = totalCost + tokenAsset.activateFee;
-      if (availableBalance < totalWithActivation) {
-        return {
-          isValid: false,
-          error: 'Insufficient balance including activation fee',
-        };
-      }
-    } else if (availableBalance < totalCost) {
-      return {
-        isValid: false,
-        error: 'Insufficient balance for transfer',
-      };
-    }
-
-    return { isValid: true };
-  }
-
-  /**
    * Format token amount to smallest unit (e.g., USDT to 6 decimal places)
    */
   public static formatTokenAmount(amount: number, decimals: number): string {
@@ -567,28 +515,6 @@ export default class GasFree {
    */
   public static parseTokenAmount(amount: string, decimals: number): number {
     return parseInt(amount) / Math.pow(10, decimals);
-  }
-
-  /**
-   * Get recommended fee for a token transfer
-   */
-  public static getRecommendedFee(
-    accountInfo: GasFreeAccountInfo,
-    tokenAddress: string
-  ): { transferFee: number; activateFee: number; totalFee: number } {
-    const tokenAsset = accountInfo.assets.find(
-      (asset) => asset.tokenAddress.toLowerCase() === tokenAddress.toLowerCase()
-    );
-
-    if (!tokenAsset) {
-      throw new Error('Token not found in account assets');
-    }
-
-    const transferFee = tokenAsset.transferFee;
-    const activateFee = accountInfo.active ? 0 : tokenAsset.activateFee;
-    const totalFee = transferFee + activateFee;
-
-    return { transferFee, activateFee, totalFee };
   }
 
   /**
