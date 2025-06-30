@@ -220,7 +220,6 @@ export default class USDT {
       };
 
       const signaturePayload = GasFree.generateSignaturePayload(transferData, options.networkType);
-      console.log({ signaturePayload });
       return {
         isValid: true,
         signaturePayload,
@@ -261,14 +260,16 @@ export default class USDT {
       const response = await GasFree.submitTransfer(transferRequest, source.networkType);
       const transferFee = GasFree.parseTokenAmount(response.estimatedTransferFee.toString(), 6);
       const activateFee = GasFree.parseTokenAmount(response.estimatedActivateFee.toString(), 6);
+      const fee = transferFee + activateFee;
+      const amount = GasFree.parseTokenAmount(response.amount.toString(), 6);
       const transaction: USDTTransaction = {
         traceId: response.id,
         from: transferRequest.user,
         to: transferRequest.receiver,
-        amount: response.amount,
-        transferFee,
-        activateFee,
-        fee: (transferFee + activateFee).toString(),
+        amount: amount.toString(),
+        transferFee: transferFee,
+        activateFee: activateFee,
+        fee: fee.toString(),
         status: response.state,
         timestamp: Date.now(),
         isGasFree: true,
