@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import HiddenKeyIcon from 'src/assets/images/hidden-key.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
@@ -35,17 +34,31 @@ import TorAsset from 'src/components/Loader';
 import moment from 'moment';
 import { getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
+import ShowAllIcon from 'src/assets/images/show_wallet.svg';
+import HideAllIcon from 'src/assets/images/hide_wallet.svg';
+import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import usePlan from 'src/hooks/usePlan';
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { signer: signerText } = translations;
+  const { signer: signerText, error: errorText } = translations;
   const isUaiFlow: boolean = route.params?.isUaiFlow ?? false;
   const [confirmPassVisible, setConfirmPassVisible] = useState(isUaiFlow);
+  const [confirmPassForSigner, setConfirmPassForSigner] = useState(isUaiFlow);
   const { signers } = useSigners('', false);
+  const { showToast } = useToastMessage();
+  const { isOnL2Above } = usePlan();
+
   const hiddenSigners = signers.filter(
     (signer) => signer.signerName !== RECOVERY_KEY_SIGNER_NAME && signer.hidden && !signer.archived
   );
+  const allUnhideSigners = signers.filter(
+    (signer) => signer.signerName !== RECOVERY_KEY_SIGNER_NAME && !signer.hidden && !signer.archived
+  );
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [unhidingKeyUID, setUnhidingKeyUID] = useState('');
@@ -61,6 +74,16 @@ function DeleteKeys({ route }) {
     (state) => state.bhr.keyDeletedSuccessModalVisible
   );
 
+  enum PasswordMode {
+    DEFAULT = 'DEFAULT',
+    SHOWALL = 'SHOWALL',
+  }
+  const [showAll, setshowAll] = useState(false);
+  const [showAllForced, setShowAllForced] = useState(false);
+  const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
+
+  const displaySigners = showAll ? [...allUnhideSigners, ...hiddenSigners] : allUnhideSigners;
+
   const onSuccess = () => {
     if (signerToDelete) {
       const involvedArchivedVaults = archivedVaults.filter((vault) =>
@@ -75,10 +98,31 @@ function DeleteKeys({ route }) {
       setSignerToDelete(null);
     }
   };
+  const onForceProceed = () => {
+    if (passwordMode === PasswordMode.SHOWALL) {
+      setShowAllForced(true);
+      showToast(errorText.showingHiddenWallets, <TickIcon />);
+    }
+  };
 
   const unhide = (signer: Signer) => {
     setUnhidingKeyUID(getKeyUID(signer));
     dispatch(updateSignerDetails(signer, 'hidden', false));
+  };
+  const hideSigner = (signer: Signer) => {
+    setUnhidingKeyUID(getKeyUID(signer));
+    dispatch(updateSignerDetails(signer, 'hidden', true));
+  };
+  const onSignerSuccess = () => {
+    if (showAll) {
+      setshowAll(false);
+      setPasswordMode(PasswordMode.DEFAULT);
+      showToast(errorText.hidingKeys, <TickIcon />);
+    } else {
+      showToast(errorText.showingKeys, <TickIcon />);
+      setPasswordMode(PasswordMode.SHOWALL);
+      setshowAll(true);
+    }
   };
 
   const handleDelete = (signer: Signer) => {
@@ -173,26 +217,15 @@ function DeleteKeys({ route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader
-        title={signerText.hiddenKeys}
-        subTitle={signerText.showingHiddenKeys}
-        // icon={
-        //   <HexagonIcon
-        //     width={49}
-        //     height={44}
-        //     backgroundColor={colorMode === 'dark' ? Colors.TagLight2 : Colors.primaryGreen}
-        //     icon={<HiddenKeyIcon style={{ marginLeft: wp(4) }} />}
-        //   />
-        // }
-      />
+      <WalletHeader title={signerText.hiddenKeys} subTitle={signerText.showingHiddenKeys} />
       <Box style={styles.container}>
-        {hiddenSigners.length === 0 ? (
+        {allUnhideSigners.length === 0 && !showAll ? (
           <Box style={styles.emptyWrapper}>
             <Text color={`${colorMode}.greenishGreyText`} style={styles.emptyText} medium>
-              {signerText.hideSignerTitle}
+              {signerText.allKeysHidden}
             </Text>
             <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
-              {signerText.hideSignerSubtitle}
+              {signerText.clickToUnhide}
             </Text>
             <EmptyState />
           </Box>
@@ -201,19 +234,23 @@ function DeleteKeys({ route }) {
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
           >
-            {hiddenSigners.map((signer) => {
+            {displaySigners.map((signer) => {
               const showDelete = signer.type !== SignerType.POLICY_SERVER;
 
               return (
                 <KeyCard
                   key={getKeyUID(signer)}
-                  isLoading={getKeyUID(signer) === unhidingKeyUID}
-                  primaryAction={showDelete ? () => handleDelete(signer) : null}
-                  secondaryAction={() => unhide(signer)}
-                  primaryText={showDelete ? signerText.delete : null}
-                  secondaryText={signerText.unhide}
+                  isLoading={getKeyUID(signer) === unhidingKeyUID && !showAll}
+                  primaryAction={
+                    signer.hidden === true && showDelete ? () => handleDelete(signer) : null
+                  }
+                  secondaryAction={() =>
+                    signer.hidden === true ? unhide(signer) : hideSigner(signer)
+                  }
+                  primaryText={signer.hidden === true && showDelete ? signerText.delete : null}
+                  secondaryText={signer.hidden === true ? signerText.unhide : 'Hide'}
                   primaryIcon={showDelete ? <DeleteIcon /> : null}
-                  secondaryIcon={<ShowIcon />}
+                  secondaryIcon={signer.hidden === true ? <ShowIcon /> : <HideWalletIcon />}
                   icon={{
                     element: SDIcons({ type: signer.type, light: true }).Icon,
                     backgroundColor: 'pantoneGreen',
@@ -227,6 +264,28 @@ function DeleteKeys({ route }) {
             })}
           </ScrollView>
         )}
+        <Box backgroundColor="#BABABA" height={0.9} width="100%" />
+        <Pressable
+          onPress={() => {
+            if (showAll) {
+              setshowAll(!showAll);
+              setShowAllForced(false);
+            } else if (showAllForced) {
+              setShowAllForced(!showAllForced);
+            } else {
+              setConfirmPassForSigner(true);
+              setPasswordMode(PasswordMode.SHOWALL);
+            }
+          }}
+          style={styles.footer}
+        >
+          <Box backgroundColor={`${colorMode}.BrownNeedHelp`} style={styles.bottomIcon}>
+            {showAll || showAllForced ? <HideAllIcon /> : <ShowAllIcon />}
+          </Box>
+          <Text style={{ fontWeight: '500' }} color={`${colorMode}.primaryText`}>
+            {showAll || showAllForced ? signerText.hideSigner : signerText.showSigner}
+          </Text>
+        </Pressable>
       </Box>
       <KeeperModal
         visible={warningEnabled && !!vaultsUsed}
@@ -319,6 +378,28 @@ function DeleteKeys({ route }) {
           </Box>
         )}
       />
+      <KeeperModal
+        visible={confirmPassForSigner}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassForSigner(false)}
+        title={signerText.enterPasscode}
+        subTitleWidth={wp(240)}
+        subTitle={signerText.confirmPasscodeToDeleteKey}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Box>
+            <PasscodeVerifyModal
+              forcedMode={passwordMode === PasswordMode.SHOWALL && isOnL2Above}
+              useBiometrics={false}
+              close={() => setConfirmPassForSigner(false)}
+              onSuccess={onSignerSuccess}
+              onForceSuccess={onForceProceed}
+            />
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -333,7 +414,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
   },
   emptyWrapper: {
-    height: '80%',
+    height: '85%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -377,6 +458,19 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingVertical: 30,
+  },
+  footer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 15,
+    gap: 10,
+  },
+  bottomIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 38 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

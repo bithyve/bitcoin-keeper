@@ -43,7 +43,7 @@ import {
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
-import { getKeyUID } from 'src/utils/utilities';
+import { getKeyUID, getTnxIdFromCachedTnx } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { deleteDelayedTransaction, updateDelayedTransaction } from 'src/store/reducers/storage';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -135,6 +135,7 @@ function SignTransactionScreen() {
   const [passwordModal, setPasswordModal] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [portalModal, setPortalModal] = useState(false);
+  const [kruxModal, setKruxModal] = useState(false);
   const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
@@ -180,6 +181,7 @@ function SignTransactionScreen() {
             state: sendAndReceive,
             routeParams: sendConfirmationRouteParams,
             options: snapshotOptions,
+            potentialTxId: getTnxIdFromCachedTnx({ snapshot: { state: sendAndReceive } }),
           },
         })
       );
@@ -584,6 +586,9 @@ function SignTransactionScreen() {
       case SignerType.PORTAL:
         setPortalModal(true);
         break;
+      case SignerType.KRUX:
+        setKruxModal(true);
+        break;
       default:
         showToast(`action not set for ${signer.type}`);
         break;
@@ -731,6 +736,7 @@ function SignTransactionScreen() {
         bitbox02Modal={bitbox02Modal}
         otherSDModal={otherSDModal}
         specterModal={specterModal}
+        kruxModal={kruxModal}
         setSpecterModal={setSpecterModal}
         setOtherSDModal={setOtherSDModal}
         setTrezorModal={setTrezorModal}
@@ -746,6 +752,7 @@ function SignTransactionScreen() {
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
         setPortalModal={setPortalModal}
+        setKruxModal={setKruxModal}
         signTransaction={signTransaction}
         isMultisig={defaultVault.isMultiSig}
         signerMap={signerMap}

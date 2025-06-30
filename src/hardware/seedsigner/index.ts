@@ -26,7 +26,11 @@ export const updateInputsForSeedSigner = ({ serializedPSBT, signedSerializedPSBT
   const unsignedInputs = unsignedPsbt.data.inputs;
   const signedPsbt = Psbt.fromBase64(signedSerializedPSBT);
   signedPsbt.data.inputs.forEach((_, index) => {
-    signedPsbt.updateInput(index, unsignedInputs[index]);
+    try {
+      signedPsbt.updateInput(index, unsignedInputs[index]);
+    } catch (error) {
+      console.error(`Error updating input at index ${index}:`, error);
+    }
   });
   return { signedPsbt: signedPsbt.toBase64() };
 };

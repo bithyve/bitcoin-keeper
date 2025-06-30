@@ -22,6 +22,7 @@ import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import BuyBtc from './components/buyBtc/BuyBtc';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -36,7 +37,7 @@ function NewHomeScreen({ route }) {
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet: walletText } = translations;
+  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText } = translations;
   const [selectedOption, setSelectedOption] = useState(
     selectedOptionFromRoute || walletText.homeWallets
   );
@@ -75,6 +76,21 @@ function NewHomeScreen({ route }) {
             <CircleIconWrapper
               width={wp(39)}
               icon={<ThemedSvg name={'header_key'} />}
+              backgroundColor={home_header_circle_background}
+            />
+          ),
+        };
+      case buyBTCText.acquire:
+        return {
+          content: (
+            <Box>
+              <BuyBtc />
+            </Box>
+          ),
+          icon: (
+            <CircleIconWrapper
+              width={wp(39)}
+              icon={<ThemedSvg name={'header_buy_btc'} width={wp(22)} height={hp(22)} />}
               backgroundColor={home_header_circle_background}
             />
           ),

@@ -75,7 +75,7 @@ function CosignerDetails({ route }: ScreenProps) {
             <ShowXPub
               data={details}
               copy={() => showToast(signerText.cosignerDetails, <TickIcon />)}
-              subText={signerText.cosignerDetailsCopied}
+              subText={signerText.cosignerDetails}
               copyable
             />
           </Box>

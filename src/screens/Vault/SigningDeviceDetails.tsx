@@ -222,6 +222,14 @@ const getSignerContent = (type: SignerType) => {
         description: signerTranslations.specterDesc,
         FAQ: 'https://docs.specter.solutions/diy/faq/',
       };
+    case SignerType.KRUX:
+      return {
+        title: 'Krux',
+        subTitle: signerTranslations.kruxInfo,
+        assert: <ThemedSvg name={'krux_illustration'} />,
+        description: signerTranslations.kruxDesc,
+        FAQ: 'https://selfcustody.github.io/krux/faq/',
+      };
     default:
       return {
         title: '',

@@ -1,4 +1,3 @@
-import { green } from 'react-native-reanimated/lib/typescript/Colors';
 import Colors from 'src/theme/Colors';
 
 const themeColors = {
@@ -259,6 +258,12 @@ const themeColors = {
     LIGHT: Colors.headerWhite,
     PRIVATE: Colors.headerWhite,
     PRIVATE_LIGHT: Colors.charcolBrown,
+  },
+  buyBitCoinHexagonBackgroundColor: {
+    DARK: Colors.primaryBrown,
+    LIGHT: Colors.primaryBrown,
+    PRIVATE: Colors.primaryBrown,
+    PRIVATE_LIGHT: Colors.primaryBrown,
   },
 };
 
