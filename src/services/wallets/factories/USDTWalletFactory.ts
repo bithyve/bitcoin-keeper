@@ -7,6 +7,7 @@ import {
 import USDT, { USDTAccountStatus, USDTTransaction } from '../operations/dollars/USDT';
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
+import { GasFreeTransferStatus } from '../operations/dollars/GasFree';
 
 export enum USDTWalletType {
   DEFAULT = 'DEFAULT',
@@ -200,6 +201,98 @@ export const updateUSDTWalletAccountStatus = async (
 };
 
 /**
+ * Syncs USDT wallet specs with latest state of transactions.
+ */
+export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
+  const existingTransactions = wallet.specs.transactions || [];
+
+  // Step 1: Update existing transactions that have traceId but no txId
+  const updatedExistingTransactions = await Promise.all(
+    existingTransactions.map(async (existingTx) => {
+      // If transaction has traceId but no txId, try to fetch the txId
+      if (existingTx.traceId && !existingTx.txId) {
+        try {
+          const transferStatus = await USDT.getTransferStatus(
+            existingTx.traceId,
+            wallet.networkType
+          );
+          // Update transaction with new information if available
+          if (transferStatus.transactionHash) {
+            return {
+              ...existingTx,
+              txId: transferStatus.transactionHash || existingTx.txId,
+              status: transferStatus.status || existingTx.status,
+              blockNumber: transferStatus.blockInfo?.blockNumber || existingTx.blockNumber,
+              // Update timestamp if we got block timestamp
+              timestamp: transferStatus.blockInfo?.blockTimestamp
+                ? transferStatus.blockInfo.blockTimestamp
+                : existingTx.timestamp,
+            };
+          }
+        } catch (error) {
+          // If fetch fails, keep the original transaction
+          console.warn(`Failed to update transaction with traceId ${existingTx.traceId}:`, error);
+        }
+      }
+
+      // Return original transaction if no update needed or failed
+      return existingTx;
+    })
+  );
+
+  // Step 2: Fetch new transactions from USDT service
+  const { transactions: newTransactions } = await USDT.getUSDTTransactions(
+    wallet.accountStatus.gasFreeAddress,
+    wallet.networkType
+  );
+
+  // Step 3: Merge transactions using updated existing transactions
+  const mergedTransactions = [...updatedExistingTransactions];
+
+  // Process each new transaction
+  newTransactions.forEach((newTx) => {
+    const existingIndex = updatedExistingTransactions.findIndex((existingTx) => {
+      return newTx.txId && existingTx.txId && newTx.txId === existingTx.txId;
+    });
+
+    if (existingIndex >= 0) {
+      // Transaction exists - update it if the new one has more complete info
+      const existingTx = updatedExistingTransactions[existingIndex];
+
+      if (existingTx.amount === newTx.amount) {
+        // there are two transactions for every gas-free transfer, one for the actual transfer and one for paying the fee(both of them have the same txid, skipping the fee transfer)
+
+        const shouldUpdate =
+          // Update if new transaction has blockNumber but existing doesn't (confirmed)
+          newTx.blockNumber && !existingTx.blockNumber;
+
+        if (shouldUpdate) {
+          mergedTransactions[existingIndex] = {
+            ...existingTx,
+            txId: newTx.txId,
+            from: newTx.from,
+            to: newTx.to,
+            timestamp: newTx.timestamp,
+            blockNumber: newTx.blockNumber,
+            status: newTx.blockNumber
+              ? GasFreeTransferStatus.SUCCEED
+              : GasFreeTransferStatus.CONFIRMING,
+          };
+        }
+      }
+    } else {
+      // New transaction - add it to the list
+      mergedTransactions.push(newTx);
+    }
+  });
+
+  // Sort transactions by timestamp (newest first)
+  mergedTransactions.sort((a, b) => b.timestamp - a.timestamp);
+
+  return mergedTransactions;
+};
+
+/**
  * Syncs USDT wallet specs with latest balance and transactions.
  */
 export const updateUSDTWalletBalanceTxs = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
@@ -208,10 +301,7 @@ export const updateUSDTWalletBalanceTxs = async (wallet: USDTWallet): Promise<US
       wallet.accountStatus.gasFreeAddress,
       wallet.networkType
     );
-    const { transactions } = await USDT.getUSDTTransactions(
-      wallet.accountStatus.gasFreeAddress,
-      wallet.networkType
-    ); // TODO: only update for transactions which are not already existing or are not confirmed
+    const transactions = await syncUSDTWalletTransactions(wallet);
 
     const updatedSpecs: USDTWalletSpecs = {
       ...wallet.specs,

@@ -464,7 +464,7 @@ export default class USDT {
   public static async getUSDTTransactions(
     address: string,
     networkType: NetworkType,
-    limit: number = 50,
+    limit: number = 100,
     fingerprint?: string
   ): Promise<{
     transactions: USDTTransaction[];
@@ -489,7 +489,7 @@ export default class USDT {
     );
 
     const updatedTransactions = trc20Transactions.transactions.map((txn) => ({
-      txid: txn.transactionId,
+      txId: txn.transactionId,
       from: txn.from,
       to: txn.to,
       amount: txn.formattedValue.toString(),
