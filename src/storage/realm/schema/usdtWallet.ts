@@ -10,8 +10,8 @@ export const USDTTransactionSchema: ObjectSchema = {
     from: 'string',
     to: 'string',
     amount: 'string',
-    transferFee: 'int?',
-    activateFee: 'int?',
+    transferFee: 'double?',
+    activateFee: 'double?',
     fee: 'string?',
     status: 'string',
     timestamp: 'int',
@@ -43,7 +43,7 @@ export const USDTWalletAccountStatusSchema: ObjectSchema = {
     frozen: 'double',
     canTransfer: 'bool',
     nextNonce: 'int',
-    fees: 'mixed', // Store as JSON: { transferFee: number, activateFee: number }
+    fees: 'mixed', // Store as JSON: { transferFee: double, activateFee: double }
   },
 };
 
