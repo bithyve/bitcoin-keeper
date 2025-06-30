@@ -11,6 +11,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { EntityKind } from 'src/services/wallets/enums';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { captureError } from 'src/services/sentry';
 
 function TransactionItem({ item, wallet, navigation, index }) {
   return (
@@ -38,15 +39,7 @@ function TransactionItem({ item, wallet, navigation, index }) {
                 })
               );
             }
-          : () => {
-              //TODO: For Parsh - To naviagate with original data
-              // navigation.dispatch(
-              //   CommonActions.navigate('TransactionDetails', {
-              //     transaction: item,
-              //     wallet,
-              //   })
-              // );
-            }
+          : () => {}
       }
     />
   );
@@ -78,10 +71,16 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
 
   const pullDownRefresh = async () => {
     setPullRefresh(true);
-    if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
-      syncWallet(currentWallet);
-    } else dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
-    setPullRefresh(false);
+
+    try {
+      if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
+        syncWallet(currentWallet);
+      } else dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
+    } catch (error) {
+      captureError(error);
+    } finally {
+      setPullRefresh(false);
+    }
   };
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);

@@ -193,7 +193,7 @@ export async function getTrc20Transactions(
   address: string,
   tokenContract: string,
   networkType: NetworkType = NetworkType.MAINNET,
-  limit: number = 50,
+  limit: number = 100,
   fingerprint?: string // For pagination
 ): Promise<{
   transactions: TRC20Transaction[];
