@@ -160,11 +160,6 @@ export default class USDT {
     };
   }> {
     try {
-      // Get latest account information
-      const accountInfo = await GasFree.getAccountInfo(
-        options.source.specs.address,
-        options.networkType
-      );
       const usdtAddress = USDT.getUSDTAddress(options.networkType);
 
       // Get service providers if not specified
@@ -178,28 +173,19 @@ export default class USDT {
       }
 
       // Calculate fees
-      const fees = GasFree.getRecommendedFee(accountInfo, usdtAddress);
-      const maxFee = options.maxFeeInUSDT
-        ? GasFree.formatTokenAmount(options.maxFeeInUSDT, 6)
-        : fees.totalFee.toString();
+      const { source } = options;
+      const fees = USDT.evaluateTransferFee(source.accountStatus);
+      const maxFee = GasFree.formatTokenAmount(options.maxFeeInUSDT || fees.totalFee, 6);
 
       // Format amount to smallest unit
       const formattedAmount = GasFree.formatTokenAmount(options.amount, 6);
 
-      const balance = await USDT.getUSDTBalance(accountInfo.gasFreeAddress, options.networkType);
-      const formattedBalance = GasFree.formatTokenAmount(balance, 6);
-
-      // Validate transfer parameters
-      const validation = GasFree.validateTransferParams(
-        accountInfo,
-        usdtAddress,
-        formattedBalance,
-        formattedAmount,
-        maxFee
-      );
-
-      if (!validation.isValid) {
-        return { isValid: false, error: validation.error };
+      // Check if account allows submission
+      if (!source.accountStatus.canTransfer) {
+        return {
+          isValid: false,
+          error: 'Account is not allowed to submit transfers at this time',
+        };
       }
 
       // Generate signature payload
@@ -215,7 +201,7 @@ export default class USDT {
         value: formattedAmount,
         maxFee,
         deadline,
-        nonce: accountInfo.nonce,
+        nonce: source.accountStatus.nextNonce,
       };
 
       const signaturePayload = GasFree.generateSignaturePayload(transferData, options.networkType);
@@ -411,6 +397,22 @@ export default class USDT {
     } catch (err) {
       throw new Error('Failed to estimate transfer fees');
     }
+  }
+
+  /**
+   * Evaluates balance sufficiency
+   */
+  public static hasSufficientBalance(
+    wallet: USDTWallet,
+    toSend: number,
+    fees: { transferFee: number; activateFee: number; totalFee: number }
+  ) {
+    const availableBalance = wallet.specs.balance - wallet.accountStatus.frozen;
+    if (availableBalance < toSend + fees.totalFee) {
+      return { availableBalance, hasSufficientBalance: false };
+    }
+
+    return { availableBalance, hasSufficientBalance: true };
   }
 
   /**
