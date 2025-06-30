@@ -29,6 +29,7 @@ export interface UseUSDTWalletsReturn {
     privateKey?: string; // Required for IMPORTED type
   }) => Promise<USDTWallet | null>;
   deleteWallet: (walletId: string) => Promise<boolean>;
+  updateWallet: (wallet: USDTWallet) => Promise<boolean>;
   syncAccountStatus: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncWallet: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncAllWallets: () => Promise<void>;
@@ -151,6 +152,26 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   );
 
   /**
+   * Update a wallet in the database
+   */
+  const updateWallet = useCallback(
+    async (wallet: USDTWallet): Promise<boolean> => {
+      try {
+        const { id, ...walletUpdateData } = wallet;
+        await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, walletUpdateData); // Remove the primary key 'id' from the update object to avoid Realm primary key change error
+
+        await loadWallets();
+        return true;
+      } catch (err) {
+        setError(err.message || 'Failed to update wallet');
+        captureError(err);
+        return false;
+      }
+    },
+    [loadWallets]
+  );
+
+  /**
    * Syncs a single wallet account status with latest data
    */
   const syncAccountStatus = useCallback(async (wallet: USDTWallet): Promise<USDTWallet> => {
@@ -161,7 +182,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         accountStatus: updatedAccountStatus,
       };
 
-      await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, syncedWallet);
+      await updateWallet(syncedWallet);
       return syncedWallet;
     } catch (err) {
       captureError(err);
@@ -180,7 +201,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         specs: updatedSpecs,
       };
 
-      await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, syncedWallet);
+      await updateWallet(syncedWallet);
       return syncedWallet;
     } catch (err) {
       captureError(err);
@@ -233,6 +254,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     error,
     createWallet,
     deleteWallet,
+    updateWallet,
     syncAccountStatus,
     syncWallet,
     syncAllWallets,
