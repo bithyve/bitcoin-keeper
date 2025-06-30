@@ -22,6 +22,7 @@ import {
   generateNewExternalAddressWatcher,
   updateCollaborativeChannelWatcher,
   fetchCollaborativeChannelWatcher,
+  updatedVaultSignerXprivWatcher,
 } from './wallets';
 import { addUaiStackWatcher, uaiActionedWatcher, uaiChecksWatcher, uaisSeenWatcher } from './uai';
 import {
@@ -48,6 +49,7 @@ import {
 import {
   calculateCustomFeeWatcher,
   calculateSendMaxFeeWatcher,
+  discardBroadcastedTnxWatcher,
   fetchExchangeRatesWatcher,
   fetchFeeRatesWatcher,
   fetchOneDayInsightWatcher,
@@ -97,6 +99,7 @@ const rootSaga = function* () {
     testcoinsWatcher,
     updateWalletDetailWatcher,
     generateNewExternalAddressWatcher,
+    updatedVaultSignerXprivWatcher,
 
     // vaults
     addNewVaultWatcher,
@@ -125,6 +128,7 @@ const rootSaga = function* () {
     fetchDelayedPolicyUpdateWatcher,
     calculateSendMaxFeeWatcher,
     calculateCustomFeeWatcher,
+    discardBroadcastedTnxWatcher,
 
     // UAI
     uaiChecksWatcher,

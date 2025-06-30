@@ -277,6 +277,22 @@ import MultiUserPrivateIllustration from 'src/assets/privateImages/multiuser-pri
 import ManageKeysLight from 'src/assets/privateImages/manage-key-light.svg';
 import Skip from 'src/assets/images/skip.svg';
 import SkipBlack from 'src/assets/privateImages/skip-black.svg';
+import KruxIllustration from 'src/assets/images/krux_illustration.svg';
+import KruxIllustrationDark from 'src/assets/images/krux_illustration_dark.svg';
+import KruxSuccess from 'src/assets/images/krux_success.svg';
+import KruxSuccessDark from 'src/assets/images/krux_success_dark.svg';
+import KruxSuccessPrivate from 'src/assets/privateImages/kruxSuccessPrivate.svg';
+import KruxSuccessPrivateDark from 'src/assets/privateImages/kruxSuccessPrivateDark.svg';
+import KruxPrivateIllustration from 'src/assets/privateImages/kruxPrivateIllustration.svg';
+import KruxPrivateIllustrationDark from 'src/assets/privateImages/kruxPrivateIllustrationDark.svg';
+import Broadcast from 'src/assets/images/BroadCastIllustration.svg';
+import BroadCastPrivate from 'src/assets/privateImages/BroadCastPrivate.svg';
+import BtcLogo from 'src/assets/images/Btc-Logo.svg';
+import BtcLogoGold from 'src/assets/privateImages/Btc-Logo-gold.svg';
+import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
+import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
+import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
+import BTCWhiteLOgo from 'src/assets/images/btc-white-logo.svg';
 
 const themeIcons = {
   keeperLogo: {
@@ -982,6 +998,48 @@ const themeIcons = {
     LIGHT: Skip,
     PRIVATE: Skip,
     PRIVATE_LIGHT: SkipBlack,
+  },
+  krux_illustration: {
+    DARK: KruxIllustrationDark,
+    LIGHT: KruxIllustration,
+    PRIVATE: KruxPrivateIllustration,
+    PRIVATE_LIGHT: KruxPrivateIllustrationDark,
+  },
+  krux_success: {
+    DARK: KruxSuccessDark,
+    LIGHT: KruxSuccess,
+    PRIVATE: KruxSuccessPrivate,
+    PRIVATE_LIGHT: KruxSuccessPrivateDark,
+  },
+  manage_keys_icon: {
+    DARK: KeysIcon,
+    LIGHT: KeysIcon,
+    PRIVATE: PrivateKeyLight,
+    PRIVATE_LIGHT: PrivateKeyLight,
+  },
+  broadcastModal: {
+    DARK: Broadcast,
+    LIGHT: Broadcast,
+    PRIVATE: BroadCastPrivate,
+    PRIVATE_LIGHT: BroadCastPrivate,
+  },
+  header_buy_btc: {
+    DARK: BtcLogo,
+    LIGHT: BtcLogo,
+    PRIVATE: BtcLogoGold,
+    PRIVATE_LIGHT: BtcLogoGold,
+  },
+  footer_buy_btc: {
+    DARK: BTCWhiteLOgo,
+    LIGHT: BtcLogo,
+    PRIVATE: BtcLogoGold,
+    PRIVATE_LIGHT: BtcLogoGold,
+  },
+  bitcoin_logo: {
+    DARK: BitCoinLogoDark,
+    LIGHT: BitCoinLogo,
+    PRIVATE: BitCoinLogoDark,
+    PRIVATE_LIGHT: BitCoinLogoGold,
   },
 };
 

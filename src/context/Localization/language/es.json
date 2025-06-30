@@ -169,6 +169,10 @@
     "remians": "Remains",
     "vaultTimelockActive": "Vault has an active timelock",
     "vaultTimelockActiveDesc": "The vault has an active timelock. Funds cannot be spent until the timelock period ends.",
+    "message": "Message",
+    "signature": "Signature",
+    "loadSignature": "Load Signature",
+    "signMessage": "Sign Message",
     "moreInfo": "More Info",
     "lessInfo": "Less Info"
   },
@@ -248,7 +252,16 @@
     "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
     "transactionDetails": "Transaction Details",
     "addTransactionNote": "Add transaction note",
-    "scanSignedTransaction": "Scan Signed Transaction"
+    "scanSignedTransaction": "Scan Signed Transaction",
+    "broadcastTnxTitle": "Broadcast Transaction",
+    "broadcastTnxSubTitle": "The transaction was signed successfully",
+    "shareTnx": "Share Transaction",
+    "broadcastTnxText1": "The transaction was signed successfully with all the required signatures and is ready to be broadcasted.",
+    "broadcastTnxText2": "Do you want to broadcast the transaction?",
+    "broadcastSuccessTitle": "Broadcast Successful",
+    "broadcastSuccessSubTitle": "The transaction was broadcasted successfully",
+    "broadcastSuccessText1": "It is advised to let the originator of the transaction know that the transaction was successfully broadcasted.",
+    "broadcastSuccessText2": "The transaction should be visible on the wallet's transactions history."
   },
   "DiscountCodes": {
     "DiscountCodesTitle": "Buy new Hardware Signers",
@@ -485,7 +498,16 @@
     "keepItPrivate": "Keep it private and secure",
     "currentBtcPrice": "Current BTC Price",
     "amountBeingSend": "Amount being sent",
-    "sendingAmount": "Sending Amount:"
+    "sendingAmount": "Sending Amount:",
+    "SignMessageHeader": "Sign/ Verify Message",
+    "messageVerifiedTitle": "Message Verified Successfully",
+    "messageVerifiedSubTitle": "The signature was verified against the message successfully",
+    "walletSignMessageDesc": "Sign or verify a message using your Bitcoin wallet",
+    "signMessageSubtitle": "Enter the data you would like to sign or verify",
+    "chooseSignMessageMedium": "Choose how to sign message",
+    "chooseImportSignatureMedium": "Choose how to import signature",
+    "verifyTitle": "Verify signed message",
+    "verifySubtitle": "Scan the signed message from your hardware wallet"
   },
   "vault": {
     "Addsigner": "Add a Signer",
@@ -1055,11 +1077,11 @@
     "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data"
   },
   "ramp": {
-    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
+    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
     "bitcoinTransfer": "Bitcoin will be transferred to",
     "addressForRamp": "Address for Ramp transactions",
-    "buyBitcoinWithRamp": "Buy Bitcoin with Ramp",
-    "buyBitcoinWithRampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country"
+    "buyBitcoinWithRamp": "Get Bitcoin via Ramp",
+    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire BTC using payment methods available in your country."
   },
   "signer": {
     "addSigner": "Add Signer",
@@ -1288,7 +1310,7 @@
     "findAlluserDocumentation": "Here you will find all of our User Documentation for the",
     "uploadAndPasteFile": "Please upload or paste the file containing the signed transaction",
     "getColdCardReady": "Get your Coldcard ready",
-    "signingWith": "Signing with",
+    "signingWith": "Signing with ",
     "startSigning": "Start Signing",
     "keepPortalReady": "Keep your Portal ready",
     "portalReadySub": "Keep your Portal ready before proceeding",
@@ -1482,6 +1504,22 @@
     "pasportQr": "Use Passport with QR",
     "pasportQrSub": "Get Your Passport Ready and powered up before proceeding",
     "pasporfile": "Use Passport via file",
+    "kruxFile": "Use Krux via file",
+    "kruxQr": "Use Krux with QR",
+    "kruxQrSub": "Get your Krux ready and powered up before proceeding",
+    "kruxInstruction1": "Make sure the seed is loaded. ",
+    "kruxInstruction2": "To add Krux as a key, go to Wallet > Customize > Policy Type > Choose Singlesig/ Multisig.",
+    "kruxInstruction3": "If setting up Singlesig, choose - Script Type > Native Segwit - 84",
+    "kruxInstruction4": "To export the corresponding xPub go to Extended Public Key > Select {0}",
+    "kruxTestnet": "Make sure to enable Testnet mode on Krux if you are running the app in Testnet mode from Wallet > Customize > Network > Testnet and enable it.",
+    "kruxVerify": "Verify Krux",
+    "kruxAdd": "Add your Krux",
+    "kruxSub": "Choose how to add your Krux to Keeper",
+    "kruxReady": "Keep Krux Ready",
+    "kruxSign1": "Please register the multisig wallet. ",
+    "kruxSign2": "To sign the transaction, from Krux’s Home Screen select Sign > PSBT > Load from camera / Load from SD card.",
+    "kruxInfo": "An open-source firmware that transforms off-the-shelf Kendryte K210 devices, such as the Maix Amigo, M5StickV and more, into versatile bitcoin transaction signers.",
+    "kruxDesc": "Interacting seamlessly with leading coordinator wallets through QR codes, SD cards, and even thermal printers, the user-friendly firmware offers unique features to support transactions and mnemonic backups in an offline environment.",
     "seedKeyTiltle": "Import a Seed Key",
     "seedKeySub": "Seed Key is a 12-word phrase that can be generated new or imported",
     "createSeedKey": "Create a Seed Key",
@@ -1494,7 +1532,11 @@
     "settingUpSigner": "To complete setting up the signer",
     "seedKeyRememberTitle": "Remember Seed Words?",
     "seedKeyRememberSubTitle": "Allow the app to securely store your seed words and sign transactions automatically when needed.",
-    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure."
+    "seedKeyRememberDesc": "By remembering your seed words, the app can sign transactions without asking you to re-enter your seed words each time. This saves time but increases responsibility—enable only if you're sure this device is secure.",
+    "allKeysHidden": "All the keys are hidden",
+    "clickToUnhide": "Click on the Button below to unhide the keys",
+    "hideSigner": "Hide hidden keys",
+    "showSigner": "Show hidden keys"
   },
   "inheritancePlanning": {
     "canaryWallet": "Canary Wallets",
@@ -1704,6 +1746,21 @@
     "scheduleCallWithExpert": "Schedule a call with our experts today.",
     "supportTeam": "Support Team"
   },
+  "buyBTC": {
+    "acquire": "Acquire",
+    "bitCoin": "Bitcoin",
+    "marketInfo": "Market Info",
+    "high": "High",
+    "low": "Low",
+    "selectWallet": "Select Wallet",
+    "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
+    "rampTitle": "Buy Bitcoin with Ramp",
+    "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
+    "addressForTransaction": "Address for the transaction",
+    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
+    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
+    "buyBtc": "Get Bitcoin"
+  },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
     "failedToFetchCurrentChain": "Failed to fetch current chain data, please check your connection and try again",
@@ -1834,6 +1891,13 @@
     "healthCheckDone": "Health check done successfully",
     "errorhealthCheck": "Error in Health check",
     "importFileFrom": "Please import a valid file from",
-    "actionNotImplemented": "Action not implemented yet"
+    "actionNotImplemented": "Action not implemented yet",
+    "noHiddenKey": "No Hidden Keys",
+    "hidingKeys": "Hiding Hidden Keys",
+    "showingKeys": "Showing Hidden Keys",
+    "enterMessage": "Please enter the message",
+    "signMessageParameter": "Please provide message, address and signature for verification",
+    "signatureNotValid": "Signature is not valid for the provided message",
+    "invalidSignatureFormat": "Invalid signed message format"
   }
 }

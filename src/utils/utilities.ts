@@ -24,6 +24,7 @@ import _ from 'lodash';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getRandomBytes } from './service-utilities/encryption';
+import { createHash } from 'crypto';
 const bip32 = BIP32Factory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -362,16 +363,7 @@ export const generateDataFromPSBT = (base64Str: string, signer: Signer) => {
     });
 
     // Extract outputs (receiver information)
-    const outputs = psbt.txOutputs.map((output) => {
-      return {
-        address: bitcoin.address.fromOutputScript(
-          output.script,
-          isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-        ), // Receiver address
-        amount: output.value, // Amount in satoshis
-        isChange: false,
-      };
-    });
+    const outputs = getOutputsFromPsbt(psbt);
 
     // Calculate the total input and output amounts
     let totalInput = 0;
@@ -751,4 +743,125 @@ export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
     if (!setB.has(item)) return false;
   }
   return true;
+};
+
+export const getDayForGraph = (timestamp: number, hideDate = false, hideDay = false) => {
+  const date = new Date(timestamp);
+  const dayNo = date.getDay();
+  let day = '';
+  switch (dayNo) {
+    case 0:
+      day = `Sun`;
+      break;
+    case 1:
+      day = `Mon`;
+      break;
+    case 2:
+      day = `Tue`;
+      break;
+    case 3:
+      day = `Wed`;
+      break;
+    case 4:
+      day = `Thu`;
+      break;
+    case 5:
+      day = `Fri`;
+      break;
+    case 6:
+      day = `Sat`;
+      break;
+  }
+  return `${hideDate ? null : `${date.getDate()}\n`}${hideDay ? '' : day}`;
+};
+
+export const isPsbtFullySigned = (psbt) => {
+  try {
+    psbt = bitcoin.Psbt.fromBase64(psbt);
+    psbt.finalizeAllInputs();
+    return psbt.extractTransaction().toHex();
+  } catch (error) {
+    return null;
+  }
+};
+
+export const getTnxIdFromCachedTnx = (tnx) => {
+  const psbt = tnx.snapshot.state.sendPhaseTwo.serializedPSBTEnvelops[0].serializedPSBT;
+  const psbtObject = bitcoin.Psbt.fromBase64(psbt);
+  const tx = psbtObject.data.globalMap.unsignedTx;
+  const txBuffer = tx.toBuffer();
+  const hash = createHash('sha256').update(txBuffer).digest();
+  return createHash('sha256').update(hash).digest().reverse().toString('hex');
+};
+
+export const getOutputsFromPsbt = (psbt) => {
+  const outputs = psbt.txOutputs.map((output) => {
+    return {
+      address: bitcoin.address.fromOutputScript(
+        output.script,
+        isTestnet() ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
+      ), // Receiver address
+      amount: output.value, // Amount in satoshis
+      isChange: false,
+    };
+  });
+  return outputs;
+};
+
+export const manipulateBitcoinPrices = (data) => {
+  const seenDates = new Set(); // To track unique dates
+  const dailyPrice = [];
+
+  let latestTimestamp = 0;
+  let latestPrice = null;
+
+  const now = Date.now();
+  const dayAgo = now - 24 * 60 * 60 * 1000;
+
+  let high24h = -Infinity;
+  let low24h = Infinity;
+  let yesterday;
+
+  // Temporary object to help pick the latest entry per day
+  const dateToEntry = {};
+
+  for (const [timestamp, price] of data) {
+    const dateObject = new Date(timestamp);
+    const date = dateObject.getMonth() + '/' + dateObject.getDate();
+
+    // Track the latest timestamp for each date
+    if (!dateToEntry[date] || timestamp > dateToEntry[date].timestamp) {
+      dateToEntry[date] = { timestamp, price };
+    }
+
+    // Track overall latest price
+    if (timestamp > latestTimestamp) {
+      latestTimestamp = timestamp;
+      latestPrice = price;
+    }
+
+    // 24h high and low
+    if (timestamp >= dayAgo) {
+      if (!yesterday) yesterday = price;
+      if (price > high24h) high24h = price;
+      if (price < low24h) low24h = price;
+    }
+  }
+
+  // Convert to array and use Set to ensure one entry per date
+  for (const date in dateToEntry) {
+    const { timestamp, price } = dateToEntry[date];
+    if (!seenDates.has(date)) {
+      seenDates.add(date);
+      dailyPrice.push({
+        label: dailyPrice.length === 0 ? null : getDayForGraph(timestamp, false, true),
+        value: price,
+      });
+    }
+  }
+
+  const valueChange = Math.round(latestPrice - yesterday);
+  const percentChange = ((valueChange / yesterday) * 100).toFixed(2);
+
+  return { dailyPrice, latestPrice, high24h, low24h, percentChange, valueChange };
 };

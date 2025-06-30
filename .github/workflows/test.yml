@@ -1,0 +1,32 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - sprint
+      - dev
+      - main
+  pull_request:
+    branches:
+      - sprint
+      - dev
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run tests
+        run: npm run test

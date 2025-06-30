@@ -178,6 +178,8 @@ export type AppStackParams = {
   AddMultipleXpub: undefined;
   DiscountedPlanScreen: undefined;
   MultiUserScreen: undefined;
+  AddMultipleXpubFiles: undefined;
+  SignMessageScreen: undefined;
 };
 
 // Usage:

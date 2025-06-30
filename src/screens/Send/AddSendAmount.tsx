@@ -544,7 +544,7 @@ function AddSendAmount({ route }) {
         // }
       />
 
-      <Box flexDirection={'row'} marginTop={hp(6)} marginBottom={hp(20)}>
+      <Box flexDirection={'row'} marginTop={hp(6)} marginBottom={hp(3)}>
         <Text fontSize={14} style={{ alignSelf: 'center', marginBottom: hp(1) }}>
           {selectedUTXOs && selectedUTXOs.length
             ? common.Available
@@ -560,7 +560,6 @@ function AddSendAmount({ route }) {
           variation={!isDarkMode ? 'dark' : 'light'}
         />
       </Box>
-
       <AmountDetailsInput
         amount={amount}
         currentAmount={currentAmount}
@@ -574,6 +573,7 @@ function AddSendAmount({ route }) {
         currencyCode={currencyCode}
         specificBitcoinAmount={maxAmountToSend}
       />
+
       {currentRecipientIdx === totalRecipients ? (
         <TouchableOpacity
           onPress={() => setTransPriorityModalVisible(true)}
