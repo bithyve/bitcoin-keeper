@@ -194,7 +194,11 @@ const UsdtTransactionDetail = ({ route }) => {
                 letterSpacing={2.4}
               />
               <InfoCard
-                title={transactionType === 'Received' ? 'Received Amount' : 'Sending Amount'}
+                title={
+                  transactionType === 'Received'
+                    ? usdtWalletText.recievedAmount
+                    : usdtWalletText.sendingAmount
+                }
                 describtion={`${amount} USDT`}
                 showIcon={false}
                 letterSpacing={2.4}

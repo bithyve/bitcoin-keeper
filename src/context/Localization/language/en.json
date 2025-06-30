@@ -1939,6 +1939,7 @@
     "transactionDetails": "Transaction Details",
     "transactionDetailsSubTitle": "Detailed information for this transaction",
     "status": "Status",
-    "sendingAmount": "Sending Amount"
+    "sendingAmount": "Sending Amount",
+    "recievedAmount": "Received Amount"
   }
 }

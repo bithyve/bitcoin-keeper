@@ -45,8 +45,8 @@ const Usdtsetting = ({ route }) => {
 
   if (seedWords) {
     actions.push({
-      title: 'Wallet Seed Words',
-      description: 'Use to back up or export the wallet private key',
+      title: usdtWalletText.walletSeedWords,
+      description: usdtWalletText.backupWalletOrExport,
       onPress: () => {
         console.log(`USDT wallet seed words: ${seedWords}`);
       },
