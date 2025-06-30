@@ -19,7 +19,7 @@ import { useNavigation } from '@react-navigation/native';
 const UsdtAmount = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, usdtWalletText } = translations;
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
@@ -74,7 +74,7 @@ const UsdtAmount = ({ route }) => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title="Enter Amount" />
+      <WalletHeader title={usdtWalletText.enterAmount} />
 
       <Box
         style={styles.container}
@@ -88,8 +88,9 @@ const UsdtAmount = ({ route }) => {
           height={30}
         />
         <Box>
+          {/* Add wallet name  */}
           <Text bold>USDT Wallet</Text>
-          <Text color={`${colorMode}.GreyText`}>Balance: 5000 USDT</Text>
+          <Text color={`${colorMode}.GreyText`}>{usdtWalletText.balance}: 5000 USDT</Text>
         </Box>
       </Box>
 

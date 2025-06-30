@@ -12,7 +12,7 @@ const UsdtTransactionHistory = ({ route }) => {
   const { colorMode } = useColorMode();
   const { wallet, dummyTransactions } = route.params;
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, usdtWalletText } = translations;
 
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
@@ -29,7 +29,7 @@ const UsdtTransactionHistory = ({ route }) => {
         backgroundColor="transparent"
       />
       <Box style={styles.topSection}>
-        <WalletHeader title={'USDT Transactions History'} />
+        <WalletHeader title={usdtWalletText.usdtTransactionHistory} />
       </Box>
       <Box style={styles.bottomSection} backgroundColor={`${colorMode}.boxSecondaryBackground`}>
         <Box style={styles.transactionList}>

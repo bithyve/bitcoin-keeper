@@ -26,7 +26,7 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const SendUsdt = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation, common } = translations;
+  const { wallet: walletTranslation, common, usdtWalletText } = translations;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const isSmallDevice = useIsSmallDevices();
@@ -186,7 +186,7 @@ const SendUsdt = ({ route }) => {
                       isSendToWalletDisabled && styles.disabledButton,
                     ]}
                   >
-                    <Text color={`${colorMode}.primaryText`}>Send to one of your wallets</Text>
+                    <Text color={`${colorMode}.primaryText`}>{usdtWalletText.sendToWallet}</Text>
                     {!selectedWallet ? (
                       <ArrowIcon opacity={isSendToWalletDisabled ? 0.5 : 1} />
                     ) : isDarkMode ? (
@@ -217,7 +217,7 @@ const SendUsdt = ({ route }) => {
                           {selectedWallet?.presentationData.name}
                         </Text>
                       </Box>
-                      <Text color={`${colorMode}.greenText`}>Change Wallet</Text>
+                      <Text color={`${colorMode}.greenText`}>{usdtWalletText.chnageWallet}</Text>
                     </Box>
                   </Pressable>
                 )}
@@ -229,12 +229,9 @@ const SendUsdt = ({ route }) => {
 
       <Box mt="auto" p={4}>
         <Text bold mb={2} color={`${colorMode}.dashedButtonBorderColor`}>
-          Note
+          {common.note}
         </Text>
-        <Text color={`${colorMode}.primaryText`}>
-          Only send to a TRON (TRC-20) address that supports USDT. Sending to an incompatible
-          address may result in loss of funds.
-        </Text>
+        <Text color={`${colorMode}.primaryText`}>{usdtWalletText.sendtoTron}</Text>
       </Box>
 
       <Box backgroundColor={`${colorMode}.primaryBackground`}>

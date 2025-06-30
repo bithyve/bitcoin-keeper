@@ -13,24 +13,22 @@ import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import InfoBrownIcon from 'src/assets/images/info-brown-icon.svg';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
-import UsdtIllustration from 'src/assets/images/ustd-illustration.svg';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const UsdtSendConfirmation = ({ route }) => {
   const { amount } = route.params;
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations, common } = translations;
+  const { wallet: walletTranslations, common, usdtWalletText } = translations;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const [inProgress, setProgress] = useState(false);
   const [learnMore, setLearnMore] = useState(false);
 
-  console.log('amount', amount);
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Send Confirmation"
+        title={usdtWalletText.sendConfirmation}
         learnMore
         learnMorePressed={() => {
           setLearnMore(true);
@@ -70,10 +68,7 @@ const UsdtSendConfirmation = ({ route }) => {
               <InfoBrownIcon width={16} height={16} />
             )}
           </Box>
-          <Text style={styles.textContainer}>
-            Since the GasFree wallet is not activated, an activation fee will be charged along with
-            the current permit transfer
-          </Text>
+          <Text style={styles.textContainer}>{usdtWalletText.gasFreeWallet}</Text>
         </Box>
         <Box
           style={styles.totalAmountWrapper}
@@ -81,25 +76,25 @@ const UsdtSendConfirmation = ({ route }) => {
           backgroundColor={`${colorMode}.textInputBackground`}
         >
           <AmountDetails
-            title={'Activation Fee'}
+            title={usdtWalletText.activationFee}
             titleFontSize={12}
             amount={1}
             amountFontSize={12}
             unitFontSize={12}
-            titleColor={`${colorMode}.secondaryLightGrey`}
-            amountColor={`${colorMode}.secondaryLightGrey`}
-            unitColor={`${colorMode}.secondaryLightGrey`}
+            titleColor={`${colorMode}.activationFeeText`}
+            amountColor={`${colorMode}.activationFeeText`}
+            unitColor={`${colorMode}.activationFeeText`}
             customUnit="USTD"
           />
           <AmountDetails
-            title={'Transaction Fee'}
+            title={usdtWalletText.transactionFee}
             titleFontSize={12}
             amount={1}
             amountFontSize={12}
             unitFontSize={12}
-            titleColor={`${colorMode}.secondaryLightGrey`}
-            amountColor={`${colorMode}.secondaryLightGrey`}
-            unitColor={`${colorMode}.secondaryLightGrey`}
+            titleColor={`${colorMode}.activationFeeText`}
+            amountColor={`${colorMode}.activationFeeText`}
+            unitColor={`${colorMode}.activationFeeText`}
             customUnit="USTD"
           />
           <AmountDetails
@@ -140,22 +135,19 @@ const UsdtSendConfirmation = ({ route }) => {
         close={() => {
           setLearnMore(false);
         }}
-        title="Gas-Free Wallet"
-        subTitle="A Gas-Free Wallet lets you send USDT without needing TRX in your wallet. It works by covering the transaction fee in USDT instead of TRX. You’ll be charged a one-time activation fee the first time you use it."
+        title={usdtWalletText.gasFreeWalletTitle}
+        subTitle={usdtWalletText.gasFreeWalletDesc}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <Box>
             <Box alignItems={'center'}>
-              <UsdtIllustration width={wp(185)} height={wp(145)} />
+              <ThemedSvg name={'usdt_illustration'} width={wp(185)} height={wp(145)} />
             </Box>
             <Box style={styles.textwrapper}>
-              <Text medium>Permit Transfer</Text>
-              <Text>
-                Permit Transfer allows you to authorize USDT transfers using just your signature.
-                It’s efficient, secure, and keeps your wallet interaction simple.
-              </Text>
+              <Text medium>{usdtWalletText.permitTransfer}</Text>
+              <Text>{usdtWalletText.permitTransferDesc}</Text>
             </Box>
           </Box>
         )}
@@ -184,7 +176,7 @@ const styles = StyleSheet.create({
   },
 
   receiptContainer: {
-    paddingTop: hp(30),
+    paddingTop: hp(20),
     paddingBottom: hp(10),
   },
   totalAmountWrapper: {
