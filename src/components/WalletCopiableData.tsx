@@ -14,7 +14,7 @@ type Props = {
   data: string;
   title?: string;
   copy?: Function;
-  dataType?: 'fingerprint' | 'psbt' | 'xpub' | '2fa';
+  dataType?: 'fingerprint' | 'psbt' | 'xpub' | '2fa' | 'address';
   width?: number | string;
   height?: number | string;
 };
@@ -62,6 +62,9 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
               break;
             case '2fa':
               msg = walletTranslation['2faCopied'];
+              break;
+            case 'address':
+              msg = walletTranslation.addressCopied;
               break;
             default:
               msg = walletTranslation.walletIdCopied;

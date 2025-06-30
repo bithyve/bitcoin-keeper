@@ -198,21 +198,25 @@ export const updateUSDTWalletAccountStatus = async (
     return wallet.accountStatus;
   }
 };
+
+/**
+ * Syncs USDT wallet specs with latest balance and transactions.
  */
-export const updateUSDTWalletStatus = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
+export const updateUSDTWalletBalanceTxs = async (wallet: USDTWallet): Promise<USDTWalletSpecs> => {
   try {
-    const accountStatus = await USDT.getAccountStatus(wallet.specs.address, wallet.networkType);
-    const { transactions } = await USDT.getUSDTTransactions(wallet);
+    const balance = await USDT.getUSDTBalance(
+      wallet.accountStatus.gasFreeAddress,
+      wallet.networkType
+    );
+    const { transactions } = await USDT.getUSDTTransactions(
+      wallet.accountStatus.gasFreeAddress,
+      wallet.networkType
+    ); // TODO: only update for transactions which are not already existing or are not confirmed
+
     const updatedSpecs: USDTWalletSpecs = {
       ...wallet.specs,
-      balance: accountStatus.balance,
-      frozen: accountStatus.frozen,
-      isActive: accountStatus.isActive,
-      canTransfer: accountStatus.canTransfer,
-      nextNonce: accountStatus.nextNonce,
-      fees: accountStatus.fees,
+      balance,
       transactions,
-      hasNewUpdates: true,
       lastSynched: Date.now(),
     };
 

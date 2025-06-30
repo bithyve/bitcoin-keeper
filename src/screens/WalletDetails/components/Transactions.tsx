@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from 'react-native';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -9,6 +9,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/services/wallets/interfaces';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { EntityKind } from 'src/services/wallets/enums';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 
 function TransactionItem({ item, wallet, navigation, index }) {
   return (
@@ -18,7 +20,7 @@ function TransactionItem({ item, wallet, navigation, index }) {
       index={index}
       isCached={item?.isCached}
       onPress={
-        wallet?.type === 'USDT'
+        wallet?.entityKind === EntityKind.USDT_WALLET
           ? () => {
               navigation.dispatch(
                 CommonActions.navigate('usdtTransactionDetail', {
@@ -55,6 +57,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { syncWallet } = useUSDTWallets();
   const sortedTransactions = useMemo(
     () =>
       [...transactions]
@@ -73,9 +76,11 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
     [transactions]
   );
 
-  const pullDownRefresh = () => {
+  const pullDownRefresh = async () => {
     setPullRefresh(true);
-    dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
+    if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
+      syncWallet(currentWallet);
+    } else dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
     setPullRefresh(false);
   };
 

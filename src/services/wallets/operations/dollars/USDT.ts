@@ -40,7 +40,6 @@ export interface USDTAccountStatus {
   address: string;
   gasFreeAddress: string;
   isActive: boolean;
-  balance: number; // Available USDT balance
   frozen: number; // Frozen amount in pending transfers
   canTransfer: boolean;
   nextNonce: number;
@@ -118,15 +117,12 @@ export default class USDT {
       );
 
       if (!usdtAsset) throw new Error('USDT asset not found in account');
-
-      const balance = await USDT.getUSDTBalance(accountInfo.gasFreeAddress, networkType);
       const frozen = GasFree.parseTokenAmount(usdtAsset.frozen.toString(), usdtAsset.decimal);
 
       return {
         address: accountInfo.accountAddress,
         gasFreeAddress: accountInfo.gasFreeAddress,
         isActive: accountInfo.active,
-        balance,
         frozen,
         canTransfer: accountInfo.allowSubmit,
         nextNonce: accountInfo.nonce,
@@ -463,11 +459,11 @@ export default class USDT {
   }
 
   /**
-   * Get USDT transactions for an address
+   * Get USDT transactions for a USDT wallet
    */
   public static async getUSDTTransactions(
     address: string,
-    networkType: NetworkType = NetworkType.MAINNET,
+    networkType: NetworkType,
     limit: number = 50,
     fingerprint?: string
   ): Promise<{
@@ -491,17 +487,20 @@ export default class USDT {
       limit,
       fingerprint
     );
+
+    const updatedTransactions = trc20Transactions.transactions.map((txn) => ({
+      txid: txn.transactionId,
+      from: txn.from,
+      to: txn.to,
+      amount: txn.formattedValue.toString(),
+      status: txn.confirmed ? GasFreeTransferStatus.SUCCEED : GasFreeTransferStatus.CONFIRMING,
+      timestamp: txn.blockTimestamp,
+      blockNumber: txn.blockNumber,
+      isGasFree: txn.to === address ? false : true, // incoming transactions are not GasFree in the similar sense as outgoing
+    }));
+
     return {
-      transactions: trc20Transactions.transactions.map((txn) => ({
-        txid: txn.transactionId,
-        from: txn.from,
-        to: txn.to,
-        amount: txn.formattedValue.toString(),
-        status: txn.confirmed ? GasFreeTransferStatus.SUCCEED : GasFreeTransferStatus.CONFIRMING,
-        timestamp: txn.blockTimestamp,
-        blockNumber: txn.blockNumber,
-        isGasFree: txn.to === address ? false : true, // incoming transactions are not GasFree
-      })),
+      transactions: updatedTransactions,
       meta: trc20Transactions.meta,
     };
   }
