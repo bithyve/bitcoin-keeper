@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, KeyboardAvoidingView, ScrollView, useColorMode } from 'native-base';
+import { Box, KeyboardAvoidingView, ScrollView, useColorMode, useToast } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { Platform, Pressable, StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
@@ -23,6 +23,10 @@ import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import RemoveIcon from 'src/assets/images/remove-green-icon.svg';
 import RemoveIconDark from 'src/assets/images/remove-white-icon.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { isValidTronAddress } from 'src/services/wallets/operations/dollars/Tron';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const SendUsdt = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
@@ -31,78 +35,82 @@ const SendUsdt = ({ route }) => {
   const isDarkMode = colorMode === 'dark';
   const isSmallDevice = useIsSmallDevices();
   const navigation = useNavigation();
-  const [paymentInfo, setPaymentInfo] = useState('');
+  const [recipientAddress, setRecipientAddress] = useState('');
   const [note, setNote] = useState('');
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
+  const { showToast } = useToastMessage();
   const [isSendToWalletDisabled, setIsSendToWalletDisabled] = useState(false);
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
+  const sender: USDTWallet = route.params?.usdtWallet;
+  if (!sender) {
+    showToast('USDT Wallet not found', <ToastErrorIcon />);
+    return null;
+  }
 
-  //   const { sender, recipients: finalRecipients = [] } = route.params as {
-  //     sender: Wallet | Vault;
-  //     recipients?: Array<{
-  //       address: string;
-  //       amount: number;
-  //       name?: string;
-  //     }>;
-  //   };
+  // const getSmallWalletIcon = (wallet) => {
+  //   if (wallet.entityKind === EntityKind.VAULT) {
+  //     return wallet.type === VaultType.COLLABORATIVE ? (
+  //       <CollaborativeSmallIcon />
+  //     ) : (
+  //       <VaultSmallIcon />
+  //     );
+  //   } else {
+  //     return <WalletSmallIcon />;
+  //   }
+  // };
+  // const handleSelectWallet = (wallet) => {
+  //   setPaymentInfo('');
+  //   setSelectedWallet(wallet);
+  // };
+  // const handleSelectWalletPress = () => {
+  //   if (isSendToWalletDisabled) {
+  //     return;
+  //   }
 
-  //   dummy data
-  const sender = 'usdt';
+  //   if (!selectedWallet) {
+  //     navigation.dispatch(
+  //       CommonActions.navigate({
+  //         name: 'SelectWallet',
+  //         params: {
+  //           sender,
+  //           handleSelectWallet,
+  //         },
+  //       })
+  //     );
+  //   } else {
+  //     setSelectedWallet(null);
+  //   }
+  // };
 
-  const getSmallWalletIcon = (wallet) => {
-    if (wallet.entityKind === EntityKind.VAULT) {
-      return wallet.type === VaultType.COLLABORATIVE ? (
-        <CollaborativeSmallIcon />
-      ) : (
-        <VaultSmallIcon />
-      );
-    } else {
-      return <WalletSmallIcon />;
-    }
-  };
-  const handleSelectWallet = (wallet) => {
-    setPaymentInfo('');
-    setSelectedWallet(wallet);
-  };
-  const handleSelectWalletPress = () => {
-    if (isSendToWalletDisabled) {
-      return;
-    }
-
-    if (!selectedWallet) {
-      navigation.dispatch(
-        CommonActions.navigate({
-          name: 'SelectWallet',
-          params: {
-            sender,
-            handleSelectWallet,
-          },
-        })
-      );
-    } else {
-      setSelectedWallet(null);
-    }
-  };
-
-  const navigateToSelectWallet = () => {
-    navigation.dispatch(
-      CommonActions.navigate('SelectWallet', {
-        sender,
-        handleSelectWallet,
-        selectedWalletIdFromParams: selectedWallet?.id,
-      })
-    );
-  };
+  // const navigateToSelectWallet = () => {
+  //   navigation.dispatch(
+  //     CommonActions.navigate('SelectWallet', {
+  //       sender,
+  //       handleSelectWallet,
+  //       selectedWalletIdFromParams: selectedWallet?.id,
+  //     })
+  //   );
+  // };
 
   const handleProcess = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'usdtAmount',
-        params: {
-          selectedWallet: selectedWallet,
-        },
-      })
-    );
+    if (recipientAddress) {
+      if (isValidTronAddress(recipientAddress.trim(), sender.networkType)) {
+        if (recipientAddress === sender.accountStatus.gasFreeAddress) {
+          showToast('Self transfers are not supported', <ToastErrorIcon />);
+          return;
+        }
+
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'usdtAmount',
+            params: {
+              recipientAddress: recipientAddress.trim(),
+              sender,
+            },
+          })
+        );
+      } else showToast('Invalid TRON address', <ToastErrorIcon />);
+    } else showToast('Missing receive address', <ToastErrorIcon />);
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -130,9 +138,9 @@ const SendUsdt = ({ route }) => {
                 inpuBackgroundColor={`${colorMode}.textInputBackground`}
                 inpuBorderColor={`${colorMode}.dullGreyBorder`}
                 height={50}
-                value={paymentInfo}
+                value={recipientAddress}
                 onChangeText={(data: string) => {
-                  setPaymentInfo(data);
+                  setRecipientAddress(data);
                 }}
                 paddingLeft={5}
                 isDisabled={selectedWallet}
@@ -160,7 +168,6 @@ const SendUsdt = ({ route }) => {
                   </Pressable>
                 }
               />
-
               <KeeperTextInput
                 testID="input_receive_address"
                 placeholder={`${common.addNote} (${common.optional})`}
@@ -174,8 +181,7 @@ const SendUsdt = ({ route }) => {
                 blurOnSubmit={true}
                 paddingLeft={5}
               />
-
-              <Box style={styles.sendToWalletContainer}>
+              {/* <Box style={styles.sendToWalletContainer}>    // TODO: integrate later
                 <Pressable onPress={handleSelectWalletPress} disabled={isSendToWalletDisabled}>
                   <Box
                     flexDirection="row"
@@ -221,7 +227,7 @@ const SendUsdt = ({ route }) => {
                     </Box>
                   </Pressable>
                 )}
-              </Box>
+              </Box> */}
             </Box>
           </Box>
         </ScrollView>
@@ -241,7 +247,7 @@ const SendUsdt = ({ route }) => {
         <Buttons
           primaryCallback={handleProcess}
           primaryText={common.proceed}
-          primaryDisable={!paymentInfo.trim() && !selectedWallet}
+          primaryDisable={!recipientAddress.trim() && !selectedWallet}
           fullWidth
         />
       </Box>
