@@ -186,7 +186,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       return syncedWallet;
     } catch (err) {
       captureError(err);
-      return wallet;
+      throw new Error('Failed to sync account status');
     }
   }, []);
 

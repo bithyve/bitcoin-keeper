@@ -166,7 +166,7 @@ export default class USDT {
         options.networkType
       );
       const usdtAddress = USDT.getUSDTAddress(options.networkType);
-      console.log({ accountInfo });
+
       // Get service providers if not specified
       let serviceProviderAddress = options.serviceProviderAddress;
       if (!serviceProviderAddress) {
@@ -176,16 +176,15 @@ export default class USDT {
         }
         serviceProviderAddress = providers[0].address;
       }
-      console.log({ serviceProviderAddress });
+
       // Calculate fees
       const fees = GasFree.getRecommendedFee(accountInfo, usdtAddress);
       const maxFee = options.maxFeeInUSDT
         ? GasFree.formatTokenAmount(options.maxFeeInUSDT, 6)
         : fees.totalFee.toString();
-      console.log({ fees, maxFee });
+
       // Format amount to smallest unit
       const formattedAmount = GasFree.formatTokenAmount(options.amount, 6);
-      console.log({ formattedAmount });
 
       const balance = await USDT.getUSDTBalance(accountInfo.gasFreeAddress, options.networkType);
       const formattedBalance = GasFree.formatTokenAmount(balance, 6);
@@ -198,7 +197,7 @@ export default class USDT {
         formattedAmount,
         maxFee
       );
-      console.log({ validation });
+
       if (!validation.isValid) {
         return { isValid: false, error: validation.error };
       }
@@ -207,7 +206,7 @@ export default class USDT {
       const deadline = GasFree.calculateDeadline(
         options.deadlineInSeconds || DEFAULT_DEADLINE_SECONDS
       ); // Default to 5 minutes
-      console.log({ deadline });
+
       const transferData = {
         token: usdtAddress,
         serviceProvider: serviceProviderAddress,
@@ -393,25 +392,21 @@ export default class USDT {
   }
 
   /**
-   * Estimate transfer fees
+   * Evaluates transfer fees
    */
-  public static async estimateTransferFee(
-    fromAddress: string,
-    networkType?: NetworkType
-  ): Promise<{
+  public static evaluateTransferFee(accountStatus: USDTAccountStatus): {
     transferFee: number;
     activateFee: number;
     totalFee: number;
-  }> {
+  } {
     try {
-      const accountInfo = await GasFree.getAccountInfo(fromAddress, networkType);
-      const usdtAddress = USDT.getUSDTAddress(networkType);
-      const fees = GasFree.getRecommendedFee(accountInfo, usdtAddress);
-
+      const { activateFee, transferFee } = accountStatus.fees;
+      const activationFee = accountStatus.isActive ? 0 : activateFee;
+      const totalFee = activationFee + transferFee;
       return {
-        transferFee: GasFree.parseTokenAmount(fees.transferFee.toString(), 6),
-        activateFee: GasFree.parseTokenAmount(fees.activateFee.toString(), 6),
-        totalFee: GasFree.parseTokenAmount(fees.totalFee.toString(), 6),
+        transferFee: transferFee,
+        activateFee: activationFee,
+        totalFee: totalFee,
       };
     } catch (err) {
       throw new Error('Failed to estimate transfer fees');

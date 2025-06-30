@@ -134,7 +134,7 @@ const UsdtSendConfirmation = ({ route }) => {
             />
           </ReceiptWrapper>
         </Box>
-        {fees.activateFee && (
+        {fees.activateFee ? (
           <Box
             style={styles.infoWrapper}
             borderColor={`${colorMode}.separator`}
@@ -149,13 +149,13 @@ const UsdtSendConfirmation = ({ route }) => {
             </Box>
             <Text style={styles.textContainer}>{usdtWalletText.gasFreeWallet}</Text>
           </Box>
-        )}
+        ) : null}
         <Box
           style={styles.totalAmountWrapper}
           borderColor={`${colorMode}.separator`}
           backgroundColor={`${colorMode}.textInputBackground`}
         >
-          {fees.activateFee && (
+          {fees.activateFee ? (
             <AmountDetails
               title={usdtWalletText.activationFee}
               titleFontSize={12}
@@ -167,7 +167,7 @@ const UsdtSendConfirmation = ({ route }) => {
               unitColor={`${colorMode}.activationFeeText`}
               customUnit="USTD"
             />
-          )}
+          ) : null}
           <AmountDetails
             title={usdtWalletText.transactionFee}
             titleFontSize={12}

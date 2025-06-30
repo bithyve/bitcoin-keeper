@@ -17,6 +17,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { useNavigation } from '@react-navigation/native';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import USDT from 'src/services/wallets/operations/dollars/USDT';
 
 const UsdtAmount = ({ route }) => {
@@ -26,10 +27,11 @@ const UsdtAmount = ({ route }) => {
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
-  const { recipientAddress, sender }: { recipientAddress: string; sender: USDTWallet } =
+  let { recipientAddress, sender }: { recipientAddress: string; sender: USDTWallet } =
     route.params || {};
   const [amount, setAmount] = useState('0');
   const [errorMessage, setErrorMessage] = useState('');
+  const { syncAccountStatus } = useUSDTWallets();
 
   const onPressNumber = (text) => {
     if (errorMessage) {
@@ -66,6 +68,35 @@ const UsdtAmount = ({ route }) => {
     }
   };
 
+  const processSend = async (amountToSend: number) => {
+    try {
+      const updatedSender = await syncAccountStatus(sender);
+      const fees = USDT.evaluateTransferFee(updatedSender.accountStatus);
+
+      if (!fees) {
+        showToast('Failed to estimate fees', <ToastErrorIcon />);
+        return;
+      }
+
+      if (updatedSender.specs.balance < amountToSend + fees.totalFee) {
+        showToast(
+          `Insufficient balance for this transaction (fee: ${fees.totalFee})`,
+          <ToastErrorIcon />
+        );
+        return;
+      }
+
+      navigation.navigate('usdtSendConfirmation', {
+        sender: updatedSender,
+        recipientAddress,
+        amount: amountToSend,
+        fees,
+      });
+    } catch (error) {
+      showToast(error.message || 'Failed to process transaction', <ToastErrorIcon />);
+    }
+  };
+
   const handleSend = async () => {
     const amountToSend = parseFloat(amount);
     if (isNaN(amountToSend) || amountToSend <= 0) {
@@ -74,25 +105,7 @@ const UsdtAmount = ({ route }) => {
       return;
     }
 
-    const fees = await USDT.estimateTransferFee(recipientAddress, sender.networkType);
-    if (!fees) {
-      showToast('Failed to estimate fees', <ToastErrorIcon />);
-      return;
-    }
-    if (sender.specs.balance < amountToSend + fees.totalFee) {
-      showToast(
-        `Insufficient balance for this transaction (fee: ${fees.totalFee})`,
-        <ToastErrorIcon />
-      );
-      return;
-    }
-
-    navigation.navigate('usdtSendConfirmation', {
-      sender,
-      recipientAddress,
-      amount: amountToSend,
-      fees,
-    });
+    processSend(amountToSend);
   };
 
   return (
