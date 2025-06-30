@@ -48,8 +48,8 @@ function CloudBackupScreen() {
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
   const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-  const personalBackupPassword = useAppSelector(
-    (state) => state.account.personalBackupPasswordByAppId[appId]
+  let personalBackupPassword = useAppSelector(
+    (state) => state.account.personalBackupPasswordByAppId?.[appId]
   );
   const isPasswordCreated = !!personalBackupPassword;
 

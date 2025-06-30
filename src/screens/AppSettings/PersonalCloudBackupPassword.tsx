@@ -19,7 +19,6 @@ import dbManager from 'src/storage/realm/dbManager';
 
 export const PersonalCloudBackupPassword = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const [password, setPassword] = useState(null);
@@ -29,7 +28,7 @@ export const PersonalCloudBackupPassword = ({ navigation }: any) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const personalBackupPassword = useAppSelector(
-    (state) => state.account.personalBackupPasswordByAppId[appId]
+    (state) => state.account.personalBackupPasswordByAppId?.[appId]
   );
   const isNew = !personalBackupPassword;
 
@@ -64,6 +63,7 @@ export const PersonalCloudBackupPassword = ({ navigation }: any) => {
         >
           <Box gap={hp(10)}>
             <Text>{`${isNew ? 'Create' : 'Update'} password for personal cloud backup file`}</Text>
+            {/* // ! */}
             <Text>{'This password will be used to encrypt the personal cloud backup file'}</Text>
           </Box>
 
@@ -83,7 +83,7 @@ export const PersonalCloudBackupPassword = ({ navigation }: any) => {
             <KeyboardInputWithLabel
               testId={'input_conf_password'}
               label={'Confirm password'}
-              placeholder={'Confirm password'}
+              placeholder={'Confirm password'} // !
               value={confPassword}
               onChangeText={setConfPassword}
             />

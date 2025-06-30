@@ -731,7 +731,7 @@ function* healthCheckSignerWorker({
 function* backupBsmsOnCloudWorker() {
   const { id: appId }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const password = yield select(
-    (state: RootState) => state.account.personalBackupPasswordByAppId[appId]
+    (state: RootState) => state.account.personalBackupPasswordByAppId?.[appId]
   );
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
