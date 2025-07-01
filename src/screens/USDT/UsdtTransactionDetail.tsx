@@ -200,23 +200,23 @@ const UsdtTransactionDetail = ({ route }) => {
                 showIcon={false}
                 letterSpacing={2.4}
               />
+              {transaction.transferFee || transaction.fee ? (
 
-              {(transaction.transferFee || transaction.fee) && (
                 <InfoCard
                   title={'Transaction Fee'}
                   describtion={`~${transaction.transferFee || transaction.fee} USDT`}
                   showIcon={false}
                   letterSpacing={2.4}
                 />
-              )}
-              {transaction.activateFee && (
+              ) : null}
+              {transaction.activateFee ? (
                 <InfoCard
                   title={'Activation Fee'}
                   describtion={`~${transaction.activateFee} USDT`}
                   showIcon={false}
                   letterSpacing={2.4}
                 />
-              )}
+              ) : null}
             </Box>
           </Box>
           <KeeperModal

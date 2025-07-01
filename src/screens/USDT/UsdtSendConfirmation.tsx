@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import ReceiptWrapper from '../Send/ReceiptWrapper';
@@ -25,6 +25,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { useNavigation } from '@react-navigation/native';
+import GasFree from 'src/services/wallets/operations/dollars/GasFree';
 
 const UsdtSendConfirmation = ({ route }) => {
   const {
@@ -81,6 +82,7 @@ const UsdtSendConfirmation = ({ route }) => {
           ...sender,
           specs: {
             ...sender.specs,
+            balance: Number((sender.specs.balance - (amount + fees.totalFee)).toFixed(3)),
             transactions: [
               transferResult.transaction, // transfer w/ the trace id(missing txid); to be processed and confirmed
               ...sender.specs.transactions,
@@ -134,7 +136,7 @@ const UsdtSendConfirmation = ({ route }) => {
             />
           </ReceiptWrapper>
         </Box>
-        {fees.activateFee && (
+        {!sender.accountStatus.isActive ? (
           <Box
             style={styles.infoWrapper}
             borderColor={`${colorMode}.separator`}
@@ -149,13 +151,13 @@ const UsdtSendConfirmation = ({ route }) => {
             </Box>
             <Text style={styles.textContainer}>{usdtWalletText.gasFreeWallet}</Text>
           </Box>
-        )}
+        ) : null}
         <Box
           style={styles.totalAmountWrapper}
           borderColor={`${colorMode}.separator`}
           backgroundColor={`${colorMode}.textInputBackground`}
         >
-          {fees.activateFee && (
+          {!sender.accountStatus.isActive ? (
             <AmountDetails
               title={usdtWalletText.activationFee}
               titleFontSize={12}
@@ -167,7 +169,7 @@ const UsdtSendConfirmation = ({ route }) => {
               unitColor={`${colorMode}.activationFeeText`}
               customUnit="USTD"
             />
-          )}
+          ) : null}
           <AmountDetails
             title={usdtWalletText.transactionFee}
             titleFontSize={12}
