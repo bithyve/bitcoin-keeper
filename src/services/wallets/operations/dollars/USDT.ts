@@ -268,7 +268,7 @@ export default class USDT {
     } catch (err) {
       return {
         success: false,
-        error: err.message || 'Failed to submit transfer',
+        error: err || 'Failed to submit transfer',
       };
     }
   }

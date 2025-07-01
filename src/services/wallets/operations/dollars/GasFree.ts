@@ -448,25 +448,7 @@ export default class GasFree {
 
       return response.data;
     } catch (err) {
-      // Handle specific error types from API
-      if (err.response?.data?.reason) {
-        const errorReasons = {
-          ProviderAddressNotMatchException: 'Provider address does not match',
-          DeadlineExceededException: 'Transfer authorization has expired',
-          InvalidSignatureException: 'Invalid signature provided',
-          UnsupportedTokenException: 'Token is not supported',
-          TooManyPendingTransferException: 'Too many pending transfers',
-          VersionNotSupportedException: 'Signature version not supported',
-          NonceNotMatchException: 'Nonce does not match',
-          MaxFeeExceededException: 'Estimated fee exceeds maximum limit',
-          InsufficientBalanceException: 'Insufficient balance',
-        };
-
-        const errorMessage = errorReasons[err.response.data.reason] || err.response.data.message;
-        throw new Error(errorMessage);
-      }
-
-      throw new Error('Failed to submit GasFree transfer');
+      throw new Error(err.message || 'Failed to submit GasFree transfer');
     }
   }
 
@@ -507,7 +489,7 @@ export default class GasFree {
    * Format token amount to smallest unit (e.g., USDT to 6 decimal places)
    */
   public static formatTokenAmount(amount: number, decimals: number): string {
-    return Math.floor(amount * Math.pow(10, decimals)).toString();
+    return Math.ceil(amount * Math.pow(10, decimals)).toString();
   }
 
   /**
