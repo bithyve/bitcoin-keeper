@@ -213,6 +213,13 @@ export const syncUSDTWalletBalance = async (wallet: USDTWallet) => {
 };
 
 /**
+ * Evaluates USDT wallet's available balance
+ */
+export const getAvailableBalanceUSDTWallet = (wallet: USDTWallet): number => {
+  return wallet.specs.balance - wallet.accountStatus.frozen; // frozen amount is currently under process w/ the GasFree service provider(in-process permit transfers)
+};
+
+/**
  * Syncs USDT wallet specs with latest state of transactions.
  */
 export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {

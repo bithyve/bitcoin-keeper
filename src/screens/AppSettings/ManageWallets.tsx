@@ -25,7 +25,10 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
-import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import {
+  getAvailableBalanceUSDTWallet,
+  USDTWallet,
+} from 'src/services/wallets/factories/USDTWalletFactory';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import useBalance from 'src/hooks/useBalance';
@@ -253,7 +256,7 @@ function ManageWallets() {
 
   const getWalletBalance = (wallet) => {
     if (wallet.entityKind === EntityKind.USDT_WALLET) {
-      return wallet.specs.balance; // USDT balance is a single number
+      return getAvailableBalanceUSDTWallet(wallet);
     } else {
       return wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed;
     }

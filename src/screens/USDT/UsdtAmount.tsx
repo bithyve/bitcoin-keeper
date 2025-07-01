@@ -15,7 +15,10 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useNavigation } from '@react-navigation/native';
-import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import {
+  getAvailableBalanceUSDTWallet,
+  USDTWallet,
+} from 'src/services/wallets/factories/USDTWalletFactory';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import USDT from 'src/services/wallets/operations/dollars/USDT';
@@ -79,12 +82,9 @@ const UsdtAmount = ({ route }) => {
       }
 
       updatedSender = await syncWalletBalance(updatedSender); // to remove (once we're able to sync wallet on the details page)
-      const { availableBalance, hasSufficientBalance } = USDT.hasSufficientBalance(
-        updatedSender,
-        amountToSend,
-        fees
-      );
-      if (!hasSufficientBalance) {
+      const availableBalance = getAvailableBalanceUSDTWallet(updatedSender);
+
+      if (availableBalance < amountToSend + fees.totalFee) {
         showToast(
           `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
           <ToastErrorIcon />
@@ -136,7 +136,7 @@ const UsdtAmount = ({ route }) => {
           {/* Add wallet name  */}
           <Text bold>USDT Wallet</Text>
           <Text color={`${colorMode}.GreyText`}>
-            {usdtWalletText.balance}: {sender.specs.balance} USDT
+            {usdtWalletText.balance}: {getAvailableBalanceUSDTWallet(sender)} USDT
           </Text>
         </Box>
       </Box>

@@ -15,7 +15,10 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
-import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import {
+  getAvailableBalanceUSDTWallet,
+  USDTWallet,
+} from 'src/services/wallets/factories/USDTWalletFactory';
 import USDT, {
   DEFAULT_DEADLINE_SECONDS,
   USDTTransferOptions,
@@ -82,7 +85,9 @@ const UsdtSendConfirmation = ({ route }) => {
           ...sender,
           specs: {
             ...sender.specs,
-            balance: Number((sender.specs.balance - (amount + fees.totalFee)).toFixed(3)),
+            balance: Number(
+              (getAvailableBalanceUSDTWallet(sender) - (amount + fees.totalFee)).toFixed(3)
+            ),
             transactions: [
               transferResult.transaction, // transfer w/ the trace id(missing txid); to be processed and confirmed
               ...sender.specs.transactions,

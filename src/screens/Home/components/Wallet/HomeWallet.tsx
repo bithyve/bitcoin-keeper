@@ -34,7 +34,10 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitCoinWalletLogo from 'src/assets/images/bitcoin-wallet-logo.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
-import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import {
+  getAvailableBalanceUSDTWallet,
+  USDTWallet,
+} from 'src/services/wallets/factories/USDTWalletFactory';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -176,7 +179,7 @@ const HomeWallet = () => {
           tags={item.entityKind === EntityKind.USDT_WALLET ? null : getWalletTags(item)}
           totalBalance={
             item.entityKind === EntityKind.USDT_WALLET
-              ? (item as USDTWallet).specs.balance
+              ? getAvailableBalanceUSDTWallet(item as USDTWallet)
               : item.specs.balances.confirmed + item.specs.balances.unconfirmed
           }
           description={item.presentationData.description}

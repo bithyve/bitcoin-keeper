@@ -400,22 +400,6 @@ export default class USDT {
   }
 
   /**
-   * Evaluates balance sufficiency
-   */
-  public static hasSufficientBalance(
-    wallet: USDTWallet,
-    toSend: number,
-    fees: { transferFee: number; activateFee: number; totalFee: number }
-  ) {
-    const availableBalance = wallet.specs.balance - wallet.accountStatus.frozen;
-    if (availableBalance < toSend + fees.totalFee) {
-      return { availableBalance, hasSufficientBalance: false };
-    }
-
-    return { availableBalance, hasSufficientBalance: true };
-  }
-
-  /**
    * Validate address format using TronWeb
    */
   public static isValidAddress(address: string, networkType: NetworkType): boolean {

@@ -18,6 +18,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import Transactions from '../WalletDetails/components/Transactions';
 import UsdtFooter from './components/UsdtFooter';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -79,7 +80,7 @@ const UsdtDetails = ({ route }) => {
             iconHeight={38}
             title={usdtWallet.presentationData.name}
             tags={getWalletTags(usdtWallet)}
-            totalBalance={usdtWallet.specs.balance || 0}
+            totalBalance={getAvailableBalanceUSDTWallet(usdtWallet)}
             description={usdtWallet.presentationData.description}
             wallet={usdtWallet}
             allowHideBalance={false}
