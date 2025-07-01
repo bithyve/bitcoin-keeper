@@ -161,7 +161,7 @@ function AppBackupSettings() {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
             }}
