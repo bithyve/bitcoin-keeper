@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     flex: 1,
-    paddingTop: hp(10),
   },
   transactionList: {
     paddingLeft: wp(22),

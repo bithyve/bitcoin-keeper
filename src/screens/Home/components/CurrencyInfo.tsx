@@ -48,9 +48,9 @@ function CurrencyInfo({
                 numberOfLines={1}
                 testID="text_balance"
               >
-                {` ${getBalance(amount)} ${
-                  wallet?.entityKind === EntityKind?.USDT_WALLET ? 'USDT' : getSatUnit()
-                }`}
+                {` ${
+                  wallet?.entityKind === EntityKind?.USDT_WALLET ? amount : getBalance(amount)
+                } ${wallet?.entityKind === EntityKind?.USDT_WALLET ? 'USDT' : getSatUnit()}`}
               </Text>
             </Box>
           </>

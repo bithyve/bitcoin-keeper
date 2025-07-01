@@ -125,6 +125,7 @@ function TransactionElement({
             color={`${colorMode}.primaryText`}
             balanceMaxWidth={wp(90)}
             variation={colorMode === 'light' ? 'richBlack' : 'light'}
+            wallet={wallet}
           />
           <Box style={[styles.arrowIconWrapper]}>
             {colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}

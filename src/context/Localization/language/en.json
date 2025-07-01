@@ -1940,6 +1940,7 @@
     "transactionDetailsSubTitle": "Detailed information for this transaction",
     "status": "Status",
     "sendingAmount": "Sending Amount",
-    "recievedAmount": "Received Amount"
+    "recievedAmount": "Received Amount",
+    "recipientAddress": "Recipient’s address"
   }
 }
