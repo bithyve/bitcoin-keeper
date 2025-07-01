@@ -10,7 +10,7 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 
 const UsdtTransactionHistory = ({ route }) => {
   const { colorMode } = useColorMode();
-  const { wallet, dummyTransactions } = route.params;
+  const { wallet, transactions } = route.params;
   const { translations } = useContext(LocalizationContext);
   const { common, usdtWalletText } = translations;
 
@@ -36,7 +36,7 @@ const UsdtTransactionHistory = ({ route }) => {
           <FlatList
             testID="view_TransactionList"
             // refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
-            data={dummyTransactions}
+            data={transactions}
             renderItem={renderTransactionElement}
             keyExtractor={(item) => item.txid}
             showsVerticalScrollIndicator={false}
@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     flex: 1,
-    paddingTop: hp(10),
   },
   transactionList: {
     paddingLeft: wp(22),
