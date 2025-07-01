@@ -37,7 +37,7 @@ function CurrencyInfo({
       <Box style={styles.rowCenter}>
         {!hideAmounts ? (
           <>
-            {wallet.entityKind === EntityKind.USDT_WALLET
+            {wallet?.entityKind === EntityKind?.USDT_WALLET
               ? null
               : !getSatUnit() && getCurrencyIcon(BTC, variation)}
             <Box style={styles.rowCenter}>
@@ -49,7 +49,7 @@ function CurrencyInfo({
                 testID="text_balance"
               >
                 {` ${getBalance(amount)} ${
-                  wallet.entityKind === EntityKind.USDT_WALLET ? 'USDT' : getSatUnit()
+                  wallet?.entityKind === EntityKind?.USDT_WALLET ? 'USDT' : getSatUnit()
                 }`}
               </Text>
             </Box>
