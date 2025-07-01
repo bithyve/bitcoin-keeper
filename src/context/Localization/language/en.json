@@ -1074,7 +1074,9 @@
     "bsmsFile": "Please note that we are calling a BSMS file (also known as Output Descriptor), as the Wallet Configuration File within Keeper.",
     "importVaultforKeeper": "If you are importing a vault that you had created in Keeper previously, note that only a specific vault will get imported. Not that complete Keeper app with all its wallets.",
     "importCompleteKeeper": "To import a complete Keeper app, please use that app’s Recovery Key",
-    "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data"
+    "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data",
+    "editWalletName": "Edit your wallet name",
+    "editWalletDesc": "Edit your wallet description"
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",

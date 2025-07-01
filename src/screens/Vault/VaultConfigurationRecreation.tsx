@@ -35,7 +35,7 @@ function VaultConfigurationCreation() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [inputText, setInputText] = useState('');
-  const { recoveryLoading, initateRecovery } = useConfigRecovery();
+  const { recoveryLoading, initateRecovery, checkIfVaultExists } = useConfigRecovery();
 
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet, signer: signerTranslation } = translations;
@@ -55,7 +55,7 @@ function VaultConfigurationCreation() {
         allowMultiSelection: false,
       });
       const content = await RNFS.readFile(response[0].uri, 'utf8');
-      initateRecovery(content);
+      navigateToSetup(content);
     } catch (err) {
       console.log(err);
     }
@@ -80,6 +80,13 @@ function VaultConfigurationCreation() {
     );
   }
 
+  const navigateToSetup = (vaultConfig) => {
+    initateRecovery(vaultConfig, (vaultConfig) => {
+      if (!checkIfVaultExists(vaultConfig.vaultSigners, vaultConfig.scheme))
+        navigation.replace('ImportedWalletSetup', { vaultConfig });
+    });
+  };
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       {recoveryLoading && <ActivityIndicatorView visible={recoveryLoading} />}
@@ -100,7 +107,7 @@ function VaultConfigurationCreation() {
           <Box marginTop={hp(10)}>
             <QRScanner
               onScanCompleted={(data) => {
-                if (!recoveryLoading) initateRecovery(data);
+                navigateToSetup(data);
               }}
             />
             <Box style={styles.optionsWrapper}>
@@ -156,7 +163,7 @@ function VaultConfigurationCreation() {
           <Buttons
             primaryCallback={() => {
               Keyboard.dismiss();
-              initateRecovery(inputText);
+              navigateToSetup(inputText);
             }}
             primaryText={common.proceed}
             primaryLoading={recoveryLoading}
