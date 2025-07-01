@@ -6,9 +6,8 @@ import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
-import { hp, wp } from 'src/constants/responsive';
+import { hp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import { setPersonalBackupPassword } from 'src/store/reducers/account';
@@ -17,73 +16,60 @@ import useIsSmallDevices from 'src/hooks/useSmallDevices';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 
-export const PersonalCloudBackupPassword = ({ navigation }: any) => {
+export const CloudBackupPassword = ({ navigation }: any) => {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const [password, setPassword] = useState(null);
   const [confPassword, setConfPassword] = useState(null);
   const isSmallDevice = useIsSmallDevices();
-  const { common } = useContext(LocalizationContext).translations;
+  const { common, cloudBackup, error: errorText } = useContext(LocalizationContext).translations;
   const [errorMessage, setErrorMessage] = useState(null);
   const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-  const personalBackupPassword = useAppSelector(
-    (state) => state.account.personalBackupPasswordByAppId?.[appId]
-  );
-  const isNew = !personalBackupPassword;
 
   const onSavePassword = () => {
     try {
       setErrorMessage(null);
       validatePassword();
       dispatch(setPersonalBackupPassword({ appId, password }));
-      showToast('Password updated successfully', <TickIcon />);
-      setTimeout(() => navigation.goBack(), 100);
+      setTimeout(() => showToast(cloudBackup.passwordUpdate, <TickIcon />), 0);
+      navigation.goBack();
     } catch (error) {
       setErrorMessage(error.message);
     }
   };
 
   const validatePassword = () => {
-    if (!password) throw new Error('Password is required');
-    if (!confPassword) throw new Error('Confirm password is required');
-    if (password != confPassword) throw new Error('Password does not match');
+    if (!password) throw new Error(errorText.passwordError);
+    if (!confPassword) throw new Error(errorText.confirmPasswordError);
+    if (password != confPassword) throw new Error(errorText.passwordMatchError);
   };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.header}>
-          <WalletHeader title={'Personal Cloud Backup Password'} />
+          <WalletHeader title={cloudBackup.passwordTitle} />
         </Box>
         <ScrollView
           style={styles.scrollViewWrapper}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={isSmallDevice && { paddingBottom: hp(100) }}
         >
-          <Box gap={hp(10)}>
-            <Text>{`${isNew ? 'Create' : 'Update'} password for personal cloud backup file`}</Text>
-            {/* // ! */}
-            <Text>{'This password will be used to encrypt the personal cloud backup file'}</Text>
+          <Box>
+            <Text>{cloudBackup.passwordDesc}</Text>{' '}
           </Box>
 
-          <Box
-            style={{
-              marginTop: hp(30),
-              gap: hp(10),
-            }}
-          >
+          <Box style={styles.inputContainer}>
             <KeyboardInputWithLabel
               testId={'input_password'}
-              label={'Enter password'}
-              placeholder={'Enter password'}
+              label={common.enterPassword}
               value={password}
               onChangeText={setPassword}
             />
             <KeyboardInputWithLabel
               testId={'input_conf_password'}
-              label={'Confirm password'}
-              placeholder={'Confirm password'} // !
+              label={common.confirmPassword}
               value={confPassword}
               onChangeText={setConfPassword}
             />
@@ -91,24 +77,20 @@ export const PersonalCloudBackupPassword = ({ navigation }: any) => {
           {errorMessage && <Text color={`${colorMode}.alertRed`}>{errorMessage}</Text>}
         </ScrollView>
 
-        <Buttons
-          primaryCallback={onSavePassword}
-          primaryText={isNew ? common.create : common.update}
-          fullWidth
-        />
+        <Buttons primaryCallback={onSavePassword} primaryText={common.confirm} fullWidth />
       </Box>
     </ScreenWrapper>
   );
 };
 
-export const KeyboardInputWithLabel = ({ testId, label, placeholder, value, onChangeText }) => {
+export const KeyboardInputWithLabel = ({ testId, label, value, onChangeText }) => {
   const { colorMode } = useColorMode();
   return (
     <Box>
       {label?.length > 0 && <Text>{label}</Text>}
       <KeeperTextInput
         testID={testId}
-        placeholder={placeholder}
+        placeholder={''}
         inpuBackgroundColor={`${colorMode}.textInputBackground`}
         inpuBorderColor={`${colorMode}.dullGreyBorder`}
         value={value}
@@ -129,5 +111,9 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     flex: 1,
+  },
+  inputContainer: {
+    marginTop: hp(30),
+    gap: hp(10),
   },
 });

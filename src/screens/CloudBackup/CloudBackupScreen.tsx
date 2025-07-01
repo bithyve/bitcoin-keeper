@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState } from 'react';
-import { StyleSheet, Platform, FlatList } from 'react-native';
+import { StyleSheet, Platform, FlatList, Pressable } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -83,6 +83,17 @@ function CloudBackupScreen() {
     );
   }
 
+  const navigateToPassword = () =>
+    navigation.dispatch(CommonActions.navigate('CloudBackupPassword'));
+
+  const SettingsComponent = () => {
+    return (
+      <Pressable onPress={navigateToPassword}>
+        <ThemedSvg name={'setting_icon'} />
+      </Pressable>
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box width={'100%'}>
@@ -91,6 +102,7 @@ function CloudBackupScreen() {
           subTitle={`On your ${cloudName}`}
           learnMore={true}
           learnMorePressed={() => setShowModal(true)}
+          rightComponent={<SettingsComponent />}
         />
       </Box>
       <Text style={styles.textTitle}>{strings.recentHistory}</Text>
@@ -135,28 +147,19 @@ function CloudBackupScreen() {
         alignSelf={!isBackupAllowed ? 'center' : 'flex-end'}
         width={!isBackupAllowed ? '93%' : '100%'}
       >
-        {!isPasswordCreated ? (
-          <Buttons
-            primaryText="Create Password" // !
-            primaryCallback={() =>
-              navigation.dispatch(CommonActions.navigate('PersonalCloudBackupPassword'))
-            }
-            fullWidth
-          />
-        ) : (
-          <Buttons
-            primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
-            primaryCallback={() => {
-              if (allVaults.length === 0)
-                return showToast(errorText.noVaultsFound, <ToastErrorIcon />);
-              else dispatch(backupBsmsOnCloud());
-            }}
-            primaryLoading={loading}
-            secondaryText={isBackupAllowed ? strings.healthCheck : ''}
-            secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
-            fullWidth
-          />
-        )}
+        <Buttons
+          primaryText={isBackupAllowed ? strings.backupNow : strings.allowBackup}
+          primaryCallback={() => {
+            if (!isPasswordCreated) return navigateToPassword();
+            if (allVaults.length === 0)
+              return showToast(errorText.noVaultsFound, <ToastErrorIcon />);
+            else dispatch(backupBsmsOnCloud());
+          }}
+          primaryLoading={loading}
+          secondaryText={isBackupAllowed ? strings.healthCheck : ''}
+          secondaryCallback={() => dispatch(bsmsCloudHealthCheck())}
+          fullWidth
+        />
       </Box>
       <KeeperModal
         visible={showModal}

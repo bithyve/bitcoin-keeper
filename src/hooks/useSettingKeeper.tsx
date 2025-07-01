@@ -363,14 +363,6 @@ export const useSettingKeeper = () => {
       onPress: () => navigation.dispatch(CommonActions.navigate('MultiUserScreen')),
       isDiamond: false,
     },
-    {
-      title: 'Personal Cloud Backup Password', // !
-      description: 'Update personal cloud backup password', // !
-      icon: <MultiUserIcon width={14} height={14} />,
-      onPress: () => navigation.dispatch(CommonActions.navigate('PersonalCloudBackupPassword')),
-      isDiamond: true,
-      isHodler: true,
-    },
   ];
   const inheritanceDocument = [
     {
