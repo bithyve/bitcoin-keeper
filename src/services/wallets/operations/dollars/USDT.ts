@@ -390,8 +390,8 @@ export default class USDT {
       const activationFee = accountStatus.isActive ? 0 : activateFee;
       const totalFee = activationFee + transferFee;
       return {
-        transferFee: transferFee,
-        activateFee: activationFee,
+        transferFee,
+        activateFee,
         totalFee: totalFee,
       };
     } catch (err) {

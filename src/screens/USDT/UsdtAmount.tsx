@@ -25,12 +25,13 @@ const UsdtAmount = ({ route }) => {
   const { translations } = useContext(LocalizationContext);
   const { common, usdtWalletText } = translations;
   const { showToast } = useToastMessage();
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
   let { recipientAddress, sender }: { recipientAddress: string; sender: USDTWallet } =
     route.params || {};
   const [amount, setAmount] = useState('0');
   const [errorMessage, setErrorMessage] = useState('');
+  const [inProgress, setInProgress] = useState(false);
   const { syncAccountStatus, syncWalletBalance } = useUSDTWallets();
 
   const onPressNumber = (text) => {
@@ -103,6 +104,8 @@ const UsdtAmount = ({ route }) => {
   };
 
   const handleSend = async () => {
+    setInProgress(true);
+
     const amountToSend = parseFloat(amount);
     if (isNaN(amountToSend) || amountToSend <= 0) {
       setErrorMessage('Invalid amount');
@@ -110,7 +113,8 @@ const UsdtAmount = ({ route }) => {
       return;
     }
 
-    processSend(amountToSend);
+    await processSend(amountToSend);
+    setInProgress(false);
   };
 
   return (
@@ -159,6 +163,7 @@ const UsdtAmount = ({ route }) => {
           primaryText={common.done}
           primaryDisable={parseFloat(amount) <= 0 || !!errorMessage}
           primaryCallback={handleSend}
+          primaryLoading={inProgress}
           fullWidth
         />
       </Box>
