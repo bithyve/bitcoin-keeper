@@ -7,6 +7,7 @@ import useBalance from 'src/hooks/useBalance';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import { hp, wp } from 'src/constants/responsive';
+import { EntityKind } from 'src/services/wallets/enums';
 
 interface ICurrencyInfo {
   hideAmounts: boolean;
@@ -16,6 +17,7 @@ interface ICurrencyInfo {
   bold?: boolean;
   color?: string;
   balanceMaxWidth?: number;
+  wallet?: any;
   variation?: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen' | 'richBlack';
 }
 function CurrencyInfo({
@@ -26,6 +28,7 @@ function CurrencyInfo({
   bold,
   color = Colors.headerWhite,
   balanceMaxWidth,
+  wallet,
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -34,7 +37,9 @@ function CurrencyInfo({
       <Box style={styles.rowCenter}>
         {!hideAmounts ? (
           <>
-            {!getSatUnit() && getCurrencyIcon(BTC, variation)}
+            {wallet?.entityKind === EntityKind?.USDT_WALLET
+              ? null
+              : !getSatUnit() && getCurrencyIcon(BTC, variation)}
             <Box style={styles.rowCenter}>
               <Text
                 color={color}
@@ -43,7 +48,9 @@ function CurrencyInfo({
                 numberOfLines={1}
                 testID="text_balance"
               >
-                {` ${getBalance(amount)} ${getSatUnit()}`}
+                {` ${getBalance(amount)} ${
+                  wallet?.entityKind === EntityKind?.USDT_WALLET ? 'USDT' : getSatUnit()
+                }`}
               </Text>
             </Box>
           </>
