@@ -70,7 +70,7 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
         <WalletHeader title={walletText.confirmWalletDetail} />
 
         <ScrollView
-          contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}
+          contentContainerStyle={{ justifyContent: 'space-between' }}
           showsVerticalScrollIndicator={false}
         >
           <FieldWithLabel
@@ -88,10 +88,9 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
             maxLength={20}
           />
 
-          <Box flexDirection={'row'}>
+          <Box flexDirection={'row'} mt={hp(12)}>
             <Text fontSize={14} medium style={{ flex: 1 }}>
-              {walletText.yourWalletKey}
-              {vaultDetails?.signers?.length > 1 ? 's' : ''}
+              {importWallet.updateSignerType}
             </Text>
           </Box>
           <Box
@@ -146,7 +145,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fieldsContainer: {
-    marginTop: hp(10),
+    marginTop: hp(7),
   },
   inputFieldWrapper: {
     borderRadius: 10,

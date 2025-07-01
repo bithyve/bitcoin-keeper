@@ -1076,7 +1076,8 @@
     "importCompleteKeeper": "To import a complete Keeper app, please use that app’s Recovery Key",
     "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data",
     "editWalletName": "Edit your wallet name",
-    "editWalletDesc": "Edit your wallet description"
+    "editWalletDesc": "Edit your wallet description",
+    "updateSignerType": "Update signer type"
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
