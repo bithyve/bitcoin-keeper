@@ -9,7 +9,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import Colors from 'src/theme/Colors';
 
-function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
+function BalanceComponent({ balance, isShowAmount, setIsShowAmount, wallet }) {
   const dispatch = useDispatch();
   const { currencyKind } = useAppSelector((state) => state.settings);
 
@@ -48,6 +48,7 @@ function BalanceComponent({ balance, isShowAmount, setIsShowAmount }) {
           fontSize={19}
           color={Colors.bodyText}
           variation="light"
+          wallet={wallet}
         />
       </TouchableOpacity>
     </Box>
