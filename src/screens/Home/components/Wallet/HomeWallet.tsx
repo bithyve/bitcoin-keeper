@@ -1,5 +1,5 @@
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import DashedCta from 'src/components/DashedCta';
 import WalletCard from './WalletCard';
@@ -11,7 +11,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -52,7 +52,7 @@ const HomeWallet = () => {
     getFirst: true,
     getHiddenWallets: false,
   });
-  const { usdtWallets } = useUSDTWallets();
+  const { usdtWallets, refreshWallets } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
@@ -64,6 +64,13 @@ const HomeWallet = () => {
   const syncing =
     ELECTRUM_CLIENT.isClientConnected &&
     Object.values(walletSyncing).some((isSyncing) => isSyncing);
+
+  useFocusEffect(
+    // Refresh USDT wallets when screen comes into focus
+    React.useCallback(() => {
+      refreshWallets();
+    }, [refreshWallets])
+  );
 
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
@@ -158,7 +165,7 @@ const HomeWallet = () => {
       if (item.entityKind === EntityKind.VAULT) {
         navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
       } else if (item.entityKind === EntityKind.USDT_WALLET) {
-        navigation.navigate('usdtDetails', { usdtWalletId: item.id, autoRefresh: true });
+        navigation.navigate('usdtDetails', { usdtWalletId: item.id });
       } else {
         navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
       }
