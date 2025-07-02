@@ -36,16 +36,13 @@ const Usdtsetting = ({ route }) => {
       title: usdtWalletText.walletDetails,
       description: usdtWalletText.walletNameAndDescription,
       onPress: () => {
-        console.log(
-          `USDT wallet details: ${usdtWallet.presentationData.name}, ${usdtWallet.presentationData.description}`
-        );
         navigation.navigate('WalletDetailsSettings', { wallet: usdtWallet });
       },
     },
     {
       title: usdtWalletText.hideWallet,
       description: usdtWalletText.hideWalletDesc,
-      onPress: () => {
+      onPress: async () => {
         try {
           const updatedWallet: USDTWallet = {
             ...usdtWallet,
@@ -54,16 +51,21 @@ const Usdtsetting = ({ route }) => {
               visibility: VisibilityType.HIDDEN,
             },
           };
-          updateWallet(updatedWallet);
-          showToast(
-            walletTranslation.walletHiddenSuccessMessage,
-            <TickIcon />,
-            IToastCategory.DEFAULT,
-            5000
-          );
-          navigation.navigate('Home');
+          const updated = await updateWallet(updatedWallet);
+          if (updated) {
+            showToast(
+              walletTranslation.walletHiddenSuccessMessage,
+              <TickIcon />,
+              IToastCategory.DEFAULT,
+              5000
+            );
+            setTimeout(() => {
+              navigation.navigate('Home');
+            }, 1000);
+          } else {
+            showToast(walletTranslation.somethingWentWrong);
+          }
         } catch (error) {
-          console.log(error);
           showToast(walletTranslation.somethingWentWrong);
         }
       },
@@ -75,7 +77,6 @@ const Usdtsetting = ({ route }) => {
       title: usdtWalletText.walletSeedWords,
       description: usdtWalletText.backupWalletOrExport,
       onPress: () => {
-        console.log(`USDT wallet seed words: ${seedWords}`);
         dispatch(credsAuthenticated(false));
         setConfirmPassVisible(true);
       },

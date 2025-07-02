@@ -15,10 +15,12 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import EditWalletDetailsModal from './EditWalletDetailsModal';
 import WalletHeader from 'src/components/WalletHeader';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import { EntityKind } from 'src/services/wallets/enums';
 
 function WalletDetailsSettings({ route }) {
   const { colorMode } = useColorMode();
-  const { wallet }: { wallet: Wallet } = route.params || {};
+  const { wallet }: { wallet: Wallet | USDTWallet } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
@@ -27,6 +29,7 @@ function WalletDetailsSettings({ route }) {
   const walletTranslation = translations.wallet;
   const { importWallet, common } = translations;
 
+  const isUSDTWallet = wallet.entityKind === EntityKind.USDT_WALLET;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -45,13 +48,15 @@ function WalletDetailsSettings({ route }) {
             setWalletDetailVisible(true);
           }}
         />
-        <OptionCard
-          title={walletTranslation.showXPub}
-          description={walletTranslation.showXPubSubTitle}
-          callback={() => {
-            setXPubVisible(true);
-          }}
-        />
+        {isUSDTWallet ? null : (
+          <OptionCard
+            title={walletTranslation.showXPub}
+            description={walletTranslation.showXPubSubTitle}
+            callback={() => {
+              setXPubVisible(true);
+            }}
+          />
+        )}
         <OptionCard
           title={importWallet.derivationPath}
           description={walletTranslation.viewDerivationPath}
