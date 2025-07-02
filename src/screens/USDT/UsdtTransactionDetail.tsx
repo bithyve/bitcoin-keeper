@@ -20,6 +20,12 @@ import { current } from '@reduxjs/toolkit';
 import StatusContent from './components/StatusContent';
 import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import Link from 'src/assets/images/link.svg';
+import LinkDark from 'src/assets/images/link-white.svg';
+import openLink from 'src/utils/OpenLink';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
     noteRef.current = text;
@@ -37,12 +43,6 @@ export function EditNoteContent({ existingNote, noteRef }: { existingNote: strin
       />
     </VStack>
   );
-}
-
-export enum TransactionStatusEnum {
-  PROCESSING = 'Processing',
-  CONFIRMING = 'Confirming',
-  SUCCESS = 'Success',
 }
 
 const UsdtTransactionDetail = ({ route }) => {
@@ -66,6 +66,7 @@ const UsdtTransactionDetail = ({ route }) => {
   const [visible, setVisible] = useState(false);
   const [updatingLabel, setUpdatingLabel] = useState(false);
   const close = () => setVisible(false);
+  const { showToast } = useToastMessage();
 
   function InfoCard({
     title,
@@ -110,6 +111,10 @@ const UsdtTransactionDetail = ({ route }) => {
     () => <EditNoteContent existingNote={noteRef.current} noteRef={noteRef} />,
     [transaction, labels]
   );
+
+  const redirectToBlockExplorer = (txId: string) => {
+    openLink(`https://tronscan.org/#/transaction/${txId}`);
+  };
 
   return (
     <ScreenWrapper paddingHorizontal={0} backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -175,6 +180,35 @@ const UsdtTransactionDetail = ({ route }) => {
                   }
                 />
               </TouchableOpacity>
+              <TouchableOpacity
+                testID="btn_transactionId"
+                onPress={() => {
+                  if (transaction.txId) {
+                    redirectToBlockExplorer(transaction.txId);
+                  } else if (transaction.traceId) {
+                    showToast(
+                      'Transaction is being processed and does not have a Transaction ID yet.',
+                      <ToastErrorIcon />
+                    );
+                  }
+                }}
+              >
+                <InfoCard
+                  title={transaction.txId ? transactions.transactionID : 'Trace ID'}
+                  describtion={transaction.txId ? transaction.txId : transaction.traceId}
+                  showIcon
+                  letterSpacing={2.4}
+                  Icon={
+                    transaction.txId ? (
+                      colorMode === 'dark' ? (
+                        <LinkDark width={18} height={18} />
+                      ) : (
+                        <Link width={18} height={18} />
+                      )
+                    ) : null
+                  }
+                />
+              </TouchableOpacity>
               <InfoCard
                 title={usdtWalletText.status}
                 showIcon={false}
@@ -201,7 +235,6 @@ const UsdtTransactionDetail = ({ route }) => {
                 letterSpacing={2.4}
               />
               {transaction.transferFee || transaction.fee ? (
-
                 <InfoCard
                   title={'Transaction Fee'}
                   describtion={`~${transaction.transferFee || transaction.fee} USDT`}
