@@ -237,11 +237,15 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
           );
           // Update transaction with new information if available
           if (transferStatus.transactionHash) {
+            const blockNumber = transferStatus.blockInfo?.blockNumber || existingTx.blockNumber;
+            const status = blockNumber
+              ? GasFreeTransferStatus.SUCCEED
+              : transferStatus.status || existingTx.status;
             return {
               ...existingTx,
               txId: transferStatus.transactionHash || existingTx.txId,
-              status: transferStatus.status || existingTx.status,
-              blockNumber: transferStatus.blockInfo?.blockNumber || existingTx.blockNumber,
+              status,
+              blockNumber: blockNumber,
               // Update timestamp if we got block timestamp
               timestamp: transferStatus.blockInfo?.blockTimestamp
                 ? transferStatus.blockInfo.blockTimestamp

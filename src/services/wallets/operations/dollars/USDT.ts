@@ -475,7 +475,7 @@ export default class USDT {
       from: txn.from,
       to: txn.to,
       amount: txn.formattedValue.toString(),
-      status: txn.confirmed ? GasFreeTransferStatus.SUCCEED : GasFreeTransferStatus.CONFIRMING,
+      status: txn.blockNumber ? GasFreeTransferStatus.SUCCEED : GasFreeTransferStatus.CONFIRMING,
       timestamp: txn.blockTimestamp,
       blockNumber: txn.blockNumber,
       isGasFree: txn.to === address ? false : true, // incoming transactions are not GasFree in the similar sense as outgoing

@@ -3,24 +3,24 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import { GasFreeTransferStatus } from 'src/services/wallets/operations/dollars/GasFree';
 import Colors from 'src/theme/Colors';
-import { TransactionStatusEnum } from '../UsdtTransactionDetail';
 
 const StatusContent = ({ status }) => {
   const { colorMode } = useColorMode();
   const containerbackgroundColor =
-    status === TransactionStatusEnum.PROCESSING
-      ? Colors.lightindigoblue
-      : status === TransactionStatusEnum.CONFIRMING
+    status === GasFreeTransferStatus.SUCCEED
+      ? Colors.PaleTropicalTeal
+      : status === GasFreeTransferStatus.CONFIRMING
       ? Colors.lightOrange
-      : Colors.PaleTropicalTeal;
+      : Colors.lightindigoblue;
 
   const textColor =
-    status === TransactionStatusEnum.PROCESSING
-      ? Colors.indigoblue
-      : status === TransactionStatusEnum.CONFIRMING
+    status === GasFreeTransferStatus.SUCCEED
+      ? Colors.TropicalTeal
+      : status === GasFreeTransferStatus.CONFIRMING
       ? Colors.darkOrange
-      : Colors.TropicalTeal;
+      : Colors.indigoblue;
   return (
     <Box
       backgroundColor={containerbackgroundColor}
