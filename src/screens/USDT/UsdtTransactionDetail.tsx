@@ -237,7 +237,7 @@ const UsdtTransactionDetail = ({ route }) => {
               {transaction.transferFee || transaction.fee ? (
                 <InfoCard
                   title={'Transaction Fee'}
-                  describtion={`~${transaction.transferFee || transaction.fee} USDT`}
+                  describtion={`${transaction.transferFee || transaction.fee} USDT`}
                   showIcon={false}
                   letterSpacing={2.4}
                 />
@@ -245,7 +245,7 @@ const UsdtTransactionDetail = ({ route }) => {
               {transaction.activateFee ? (
                 <InfoCard
                   title={'Activation Fee'}
-                  describtion={`~${transaction.activateFee} USDT`}
+                  describtion={`${transaction.activateFee} USDT`}
                   showIcon={false}
                   letterSpacing={2.4}
                 />

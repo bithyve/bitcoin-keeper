@@ -1,6 +1,6 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -45,13 +45,28 @@ const UsdtDetails = ({ route }) => {
   const { common } = translations;
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
   const [pullRefresh, setPullRefresh] = useState(false);
-  const { autoRefresh, usdtWalletId } = route.params || {};
+  const { usdtWalletId } = route.params || {};
+  const hasRefreshed = useRef(false);
 
-  const { getWalletById } = useUSDTWallets();
+  const { getWalletById, refreshWallets } = useUSDTWallets();
+
+  useFocusEffect(
+    // Refresh USDT wallets when screen comes into focus
+    React.useCallback(() => {
+      refreshWallets();
+    }, [refreshWallets])
+  );
+
   const usdtWallet = getWalletById(usdtWalletId);
+
   if (!usdtWallet) {
-    // might not be available immediately if the wallet is being fetched
-    return null;
+    // Show loading state instead of blank screen
+    return (
+      <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <ActivityIndicatorView visible={true} showLoader />
+      </Box>
+    );
   }
 
   return (
