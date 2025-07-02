@@ -6,11 +6,16 @@ import {
   updateUSDTWalletBalanceTxs,
   USDTWallet,
   USDTWalletType,
+  getAvailableBalanceUSDTWallet,
 } from '../services/wallets/factories/USDTWalletFactory';
 import { NetworkType, VisibilityType } from '../services/wallets/enums';
 import dbManager from '../storage/realm/dbManager';
 import { RealmSchema } from '../storage/realm/enum';
 import { captureError } from '../services/sentry';
+import USDT, {
+  DEFAULT_DEADLINE_SECONDS,
+  USDTTransferOptions,
+} from '../services/wallets/operations/dollars/USDT';
 
 export interface UseUSDTWalletsOptions {
   getAll?: boolean;
@@ -37,6 +42,12 @@ export interface UseUSDTWalletsReturn {
   syncAllWallets: () => Promise<void>;
   getWalletById: (walletId: string) => USDTWallet | null;
   refreshWallets: () => void;
+  processPermitTransaction: (params: {
+    sender: USDTWallet;
+    recipientAddress: string;
+    amount: number;
+    fees: { activateFee: number; transferFee: number; totalFee: number };
+  }) => Promise<{ success: boolean; transaction?: any; error?: string }>;
 }
 
 export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWalletsReturn => {
@@ -267,6 +278,82 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     loadWallets();
   }, [loadWallets]);
 
+  /**
+   * Process permit transaction for USDT transfer
+   */
+  const processPermitTransaction = useCallback(
+    async (params: {
+      sender: USDTWallet;
+      recipientAddress: string;
+      amount: number;
+      fees: { activateFee: number; transferFee: number; totalFee: number };
+    }): Promise<{ success: boolean; transaction?: any; error?: string }> => {
+      try {
+        const { sender, recipientAddress, amount, fees } = params;
+
+        const transferOptions: USDTTransferOptions = {
+          source: sender,
+          toAddress: recipientAddress,
+          amount,
+          networkType: sender.networkType,
+          deadlineInSeconds: DEFAULT_DEADLINE_SECONDS,
+        };
+
+        // Step 1: Prepare the transfer
+        const preparation = await USDT.prepareTransfer(transferOptions);
+
+        if (!preparation?.isValid) {
+          return {
+            success: false,
+            error: preparation?.error || 'Transfer preparation failed',
+          };
+        }
+
+        // Step 2: Submit the transfer
+        const transferResult = await USDT.submitTransfer(
+          transferOptions.source,
+          preparation.signaturePayload
+        );
+
+        if (transferResult?.success) {
+          // Update wallet with new balance and transaction
+          const updatedWallet: USDTWallet = {
+            ...sender,
+            specs: {
+              ...sender.specs,
+              balance: Number(
+                (getAvailableBalanceUSDTWallet(sender) - (amount + fees.totalFee)).toFixed(3)
+              ),
+              transactions: [
+                transferResult.transaction, // transfer w/ the trace id(missing txid); to be processed and confirmed
+                ...sender.specs.transactions,
+              ],
+            },
+          };
+
+          await updateWallet(updatedWallet);
+
+          return {
+            success: true,
+            transaction: transferResult.transaction,
+          };
+        } else {
+          return {
+            success: false,
+            error: transferResult?.error || 'Transfer failed',
+          };
+        }
+      } catch (err) {
+        captureError(err);
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : 'An unexpected error occurred',
+        };
+      }
+    },
+    [updateWallet]
+  );
+
   // Load wallets on mount and when options change
   useEffect(() => {
     loadWallets();
@@ -285,5 +372,6 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     syncAllWallets,
     getWalletById,
     refreshWallets,
+    processPermitTransaction,
   };
 };

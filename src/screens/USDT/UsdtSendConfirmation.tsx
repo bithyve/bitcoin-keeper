@@ -15,20 +15,12 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import InfoDarkIcon from 'src/assets/images/info-Dark-icon.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
-import {
-  getAvailableBalanceUSDTWallet,
-  USDTWallet,
-} from 'src/services/wallets/factories/USDTWalletFactory';
-import USDT, {
-  DEFAULT_DEADLINE_SECONDS,
-  USDTTransferOptions,
-} from 'src/services/wallets/operations/dollars/USDT';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_check.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { useNavigation } from '@react-navigation/native';
-import GasFree from 'src/services/wallets/operations/dollars/GasFree';
 
 const UsdtSendConfirmation = ({ route }) => {
   const {
@@ -49,59 +41,31 @@ const UsdtSendConfirmation = ({ route }) => {
   const [inProgress, setProgress] = useState(false);
   const [learnMore, setLearnMore] = useState(false);
   const { showToast } = useToastMessage();
-  const { updateWallet } = useUSDTWallets();
+  const { processPermitTransaction } = useUSDTWallets();
   const navigation: any = useNavigation();
 
-  const processPermitTransaction = async () => {
+  const handlePermitTransaction = async () => {
     try {
       setProgress(true);
 
-      const transferOptions: USDTTransferOptions = {
-        source: sender,
-        toAddress: recipientAddress,
+      const result = await processPermitTransaction({
+        sender,
+        recipientAddress,
         amount,
-        networkType: sender.networkType,
-        deadlineInSeconds: DEFAULT_DEADLINE_SECONDS,
-      };
+        fees,
+      });
 
-      // Step 1: Prepare the transfer
-      const preparation = await USDT.prepareTransfer(transferOptions);
-
-      if (!preparation?.isValid) {
-        throw new Error(preparation?.error || 'Transfer preparation failed');
-      }
-
-      // Step 2: Submit the transfer
-      const transferResult = await USDT.submitTransfer(
-        transferOptions.source,
-        preparation.signaturePayload
-      );
-
-      if (transferResult?.success) {
+      if (result.success) {
         // Transaction successful - show success modal
         showToast('Permit Transfer successful!', <TickIcon />);
 
-        const updatedWallet: USDTWallet = {
-          ...sender,
-          specs: {
-            ...sender.specs,
-            balance: Number(
-              (getAvailableBalanceUSDTWallet(sender) - (amount + fees.totalFee)).toFixed(3)
-            ),
-            transactions: [
-              transferResult.transaction, // transfer w/ the trace id(missing txid); to be processed and confirmed
-              ...sender.specs.transactions,
-            ],
-          },
-        };
-        await updateWallet(updatedWallet);
         setTimeout(() => {
-          // Navigate back to the home screen or any other screen
-          navigation.navigate('usdtDetails', { usdtWalletId: sender.id, autoRefresh: true });
+          // Navigate back to the wallet details screen
+          navigation.navigate('usdtDetails', { usdtWalletId: sender.id });
           setProgress(false);
         }, 1000);
       } else {
-        throw new Error(transferResult?.error || 'Transfer failed');
+        throw new Error(result.error || 'Transfer failed');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
@@ -214,7 +178,7 @@ const UsdtSendConfirmation = ({ route }) => {
       <Box marginTop={hp(15)}>
         <Buttons
           primaryText={common.confirmProceed}
-          primaryCallback={processPermitTransaction}
+          primaryCallback={handlePermitTransaction}
           primaryLoading={inProgress}
           fullWidth
         />
