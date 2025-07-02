@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from 'react-native';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -75,7 +75,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
 
     try {
       if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
-        syncWallet(currentWallet);
+        await syncWallet(currentWallet); // awaiting so that we can force perform an internal re-load of wallets in the useUSDTWallets hook after the sync is complete(check: hasRefreshed ref in UsdtDetails.tsx)
       } else dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
     } catch (error) {
       captureError(error);
@@ -83,6 +83,12 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       setPullRefresh(false);
     }
   };
+
+  useEffect(() => {
+    if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
+      pullDownRefresh(); // Bitcoin wallets/vaults have a prop-based `autoRefresh` sync mechanism; however USDT wallets do not, so we need to manually trigger a sync when the component mounts
+    }
+  }, []);
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;

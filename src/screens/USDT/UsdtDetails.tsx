@@ -57,6 +57,23 @@ const UsdtDetails = ({ route }) => {
     }, [refreshWallets])
   );
 
+  useEffect(() => {
+    // Handle pull-to-refresh: track when refresh operation starts and completes
+
+    if (pullRefresh) {
+      // Refresh operation started
+      hasRefreshed.current = true;
+    } else if (hasRefreshed.current) {
+      // Refresh operation completed, reload wallet data
+      hasRefreshed.current = false;
+      const timer = setTimeout(() => {
+        refreshWallets();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [pullRefresh, refreshWallets]);
+
   const usdtWallet = getWalletById(usdtWalletId);
 
   if (!usdtWallet) {

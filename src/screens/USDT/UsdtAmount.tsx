@@ -74,16 +74,15 @@ const UsdtAmount = ({ route }) => {
 
   const processSend = async (amountToSend: number) => {
     try {
-      let updatedSender = await syncAccountStatus(sender);
+      const updatedSender = await syncAccountStatus(sender);
       const fees = USDT.evaluateTransferFee(updatedSender.accountStatus);
       if (!fees) {
         showToast('Failed to estimate fees', <ToastErrorIcon />);
         return;
       }
 
-      updatedSender = await syncWalletBalance(updatedSender); // to remove (once we're able to sync wallet on the details page)
+      // updatedSender = await syncWalletBalance(updatedSender); // discarded; since we're able to sync wallet on the details page itself therefore we effectively will have the latest balance
       const availableBalance = getAvailableBalanceUSDTWallet(updatedSender);
-
       if (availableBalance < amountToSend + fees.totalFee) {
         showToast(
           `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
