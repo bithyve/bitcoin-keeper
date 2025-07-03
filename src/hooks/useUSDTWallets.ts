@@ -9,6 +9,7 @@ import {
   USDTWalletType,
   getAvailableBalanceUSDTWallet,
   USDTWalletImportDetails,
+  USDTWalletSupportedNetwork,
 } from '../services/wallets/factories/USDTWalletFactory';
 import { NetworkType, VisibilityType } from '../services/wallets/enums';
 import dbManager from '../storage/realm/dbManager';
@@ -87,7 +88,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     }): Promise<{ newWallet?: USDTWallet; error?: string }> => {
       try {
         setError(null);
-        const walletNetworkType = NetworkType.TESTNET; // TODO: Only MAINNET supported for USDT wallets
+        const walletNetworkType = USDTWalletSupportedNetwork;
         const allUSDTWallets: USDTWallet[] = (await dbManager.getObjectByIndex(
           // includes hidden and imported wallets as well
           RealmSchema.USDTWallet,

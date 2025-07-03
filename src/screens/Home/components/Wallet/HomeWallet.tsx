@@ -37,6 +37,7 @@ import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import {
   getAvailableBalanceUSDTWallet,
   USDTWallet,
+  USDTWalletSupportedNetwork,
 } from 'src/services/wallets/factories/USDTWalletFactory';
 
 const HomeWallet = () => {
@@ -54,6 +55,8 @@ const HomeWallet = () => {
   });
   const { usdtWallets } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
   const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
@@ -295,27 +298,29 @@ const HomeWallet = () => {
                 </Text>
               </Box>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setCreateUsdtWallet(true);
-                setPickWalletType(false);
-              }}
-            >
-              <Box
-                borderColor={`${colorMode}.separator`}
-                backgroundColor={`${colorMode}.boxSecondaryBackground`}
-                style={styles.typeCard}
+            {bitcoinNetworkType === USDTWalletSupportedNetwork ? (
+              <TouchableOpacity
+                onPress={() => {
+                  setCreateUsdtWallet(true);
+                  setPickWalletType(false);
+                }}
               >
-                <CircleIconWrapper
-                  width={wp(40)}
-                  icon={<UsdtWalletLogo />}
-                  backgroundColor={Colors.DesaturatedTeal}
-                />
-                <Text color={`${colorMode}.primaryText`} medium>
-                  {usdtWalletText.dollarWallet}
-                </Text>
-              </Box>
-            </TouchableOpacity>
+                <Box
+                  borderColor={`${colorMode}.separator`}
+                  backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                  style={styles.typeCard}
+                >
+                  <CircleIconWrapper
+                    width={wp(40)}
+                    icon={<UsdtWalletLogo />}
+                    backgroundColor={Colors.DesaturatedTeal}
+                  />
+                  <Text color={`${colorMode}.primaryText`} medium>
+                    {usdtWalletText.dollarWallet}
+                  </Text>
+                </Box>
+              </TouchableOpacity>
+            ) : null}
           </Box>
         )}
       />

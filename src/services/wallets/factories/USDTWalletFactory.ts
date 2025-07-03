@@ -9,6 +9,8 @@ import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import { GasFreeTransferStatus } from '../operations/dollars/GasFree';
 
+export const USDTWalletSupportedNetwork = NetworkType.TESTNET;
+
 export enum USDTWalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
