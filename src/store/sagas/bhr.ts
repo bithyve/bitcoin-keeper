@@ -29,7 +29,13 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { DerivationPurpose, NetworkType, VaultType, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  NetworkType,
+  VaultType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
@@ -482,8 +488,10 @@ function* recoverApp(
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
       try {
-        const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
-        yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+        const decryptedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+        if (decryptedWallet.entityKind === EntityKind.USDT_WALLET)
+          yield call(dbManager.createObject, RealmSchema.USDTWallet, decryptedWallet);
+        else yield call(dbManager.createObject, RealmSchema.Wallet, decryptedWallet);
       } catch (err) {
         console.log('Error recovering a wallet: ', err);
         continue;
