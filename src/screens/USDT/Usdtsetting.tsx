@@ -51,20 +51,19 @@ const Usdtsetting = ({ route }) => {
               visibility: VisibilityType.HIDDEN,
             },
           };
-          const updated = await updateWallet(updatedWallet);
-          if (updated) {
-            showToast(
-              walletTranslation.walletHiddenSuccessMessage,
-              <TickIcon />,
-              IToastCategory.DEFAULT,
-              5000
-            );
-            setTimeout(() => {
-              navigation.navigate('Home');
-            }, 1000);
-          } else {
-            showToast(walletTranslation.somethingWentWrong);
-          }
+          const updated = updateWallet(updatedWallet);
+          navigation.navigate('Home');
+
+          // if (updated) {
+          //   showToast(
+          //     walletTranslation.walletHiddenSuccessMessage,
+          //     <TickIcon />,
+          //     IToastCategory.DEFAULT,
+          //     5000
+          //   );
+          // } else {
+          //   showToast(walletTranslation.somethingWentWrong);
+          // }
         } catch (error) {
           showToast(walletTranslation.somethingWentWrong);
         }
