@@ -1077,7 +1077,8 @@
     "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data",
     "editWalletName": "Edit your wallet name",
     "editWalletDesc": "Edit your wallet description",
-    "updateSignerType": "Update signer type"
+    "updateSignerType": "Update signer type",
+    "updateSignerSubText": "Select signer to assign type"
   },
   "ramp": {
     "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",

@@ -16,6 +16,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import { CommonActions } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 export const ImportedWalletSetup = ({ navigation, route }) => {
   const { vaultConfig } = route?.params;
@@ -27,11 +28,16 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
   const [vaultDesc, setVaultDesc] = useState('Secure your sats');
   const isSmallDevice = useIsSmallDevices();
   const [signers, setSigners] = useState([]);
+  const { signerMap } = useSignerMap();
+
   const dispatch = useDispatch();
 
   useEffect(() => {
     const { signers, miniscriptElements, scheme, vaultSigners } = vaultConfig;
-    setSigners(signers);
+    const updatedSigners = signers.map(
+      (signer) => signerMap[signer.id] ?? { ...signer, isTemp: true }
+    );
+    setSigners(updatedSigners);
     setVaultDetails({ miniscriptElements, scheme, vaultSigners });
   }, []);
 
@@ -88,9 +94,12 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
             maxLength={20}
           />
 
-          <Box flexDirection={'row'} mt={hp(12)}>
+          <Box mt={hp(12)}>
             <Text fontSize={14} medium style={{ flex: 1 }}>
               {importWallet.updateSignerType}
+            </Text>
+            <Text fontSize={12} style={{ flex: 1, marginTop: hp(4) }}>
+              {importWallet.updateSignerSubText}
             </Text>
           </Box>
           <Box
@@ -114,6 +123,7 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
                     colorMode={colorMode}
                     onCardSelect={(signer) => updateSignerType(signer)}
                     isSelected={signer}
+                    disabled={!signer?.isTemp}
                   />
                 );
               })}
