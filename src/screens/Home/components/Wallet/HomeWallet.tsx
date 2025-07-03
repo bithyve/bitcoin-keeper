@@ -132,7 +132,7 @@ const HomeWallet = () => {
   const CREATE_USDT_WALLET_OPTIONS = [
     {
       title: walletText.createWallet,
-      subtitle: walletText.createWalletDesc,
+      subtitle: 'Create a new USDT wallet',
       icon: <NewWalletIcon />,
       onPress: () => {
         false;
@@ -141,16 +141,16 @@ const HomeWallet = () => {
       },
       id: 'usdtnewWallet',
     },
-    // {
-    //   title: home.ImportWallet,
-    //   subtitle: walletText.restoreExistingWallet,
-    //   icon: <ImportWalletIcon />,
-    //   onPress: () => {
-    //     setCreateUsdtWallet(false);
-    //     // navigation.navigate('VaultConfigurationCreation');
-    //   },
-    //   id: 'usdtimportWallet',
-    // },
+    {
+      title: home.ImportWallet,
+      subtitle: walletText.restoreExistingWallet,
+      icon: <ImportWalletIcon />,
+      onPress: () => {
+        setCreateUsdtWallet(false);
+        navigation.navigate('VaultConfigurationCreation', { entityKind: EntityKind.USDT_WALLET });
+      },
+      id: 'usdtimportWallet',
+    },
   ];
 
   const renderWalletCard = ({ item }: { item: Wallet | Vault | USDTWallet }) => {

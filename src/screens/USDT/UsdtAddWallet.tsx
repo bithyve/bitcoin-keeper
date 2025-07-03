@@ -58,7 +58,7 @@ const AddUsdtWallet = () => {
     try {
       setIsCreating(true);
 
-      const newWallet = await createWallet({
+      const { newWallet, error } = await createWallet({
         type: USDTWalletType.DEFAULT,
         name: walletName.trim(),
         description: descriptionInputRef.current || 'USDT wallet',
@@ -72,7 +72,7 @@ const AddUsdtWallet = () => {
           setIsCreating(false);
         }, 900);
       } else {
-        showToast('Failed to create wallet', <ToastErrorIcon />);
+        showToast(`Failed to create wallet: ${error}`, <ToastErrorIcon />);
         setIsCreating(false);
       }
     } catch (err) {
