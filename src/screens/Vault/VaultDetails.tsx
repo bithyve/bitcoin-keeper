@@ -569,7 +569,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                     }
               }
             >
-              <ThemedSvg name={'setting_icon'} width={30} height={30} />
+              <ThemedSvg name={'setting_icon'} width={25} height={25} />
             </TouchableOpacity>
           }
         />
