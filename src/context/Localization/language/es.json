@@ -1700,7 +1700,8 @@
     "identificanFailed": "Identification failed!",
     "passwordTitle": "Cloud Backup Password",
     "passwordDesc": "Choose a password for encrypting your personal cloud backup files. Only the wallet configuration files will be backed up, without any private keys or other information.",
-    "passwordUpdate": "Password updated successfully"
+    "passwordUpdate": "Password updated successfully",
+    "passcodeSubTitle": "To update cloud backup password"
   },
   "notification": {
     "Balance": "Balance",

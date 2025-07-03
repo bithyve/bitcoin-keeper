@@ -27,6 +27,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import dbManager from 'src/storage/realm/dbManager';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function CloudBackupScreen() {
   const navigation = useNavigation();
@@ -41,6 +42,7 @@ function CloudBackupScreen() {
   const { allVaults } = useVault({});
   const backupModal = useAppSelector((state) => state.settings.backupModal);
   const [showModal, setShowModal] = useState(backupModal);
+  const [showPasscode, setShowPasscode] = useState(false);
   const isBackupAllowed = useMemo(() => history.length > 0, [history]);
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
@@ -86,13 +88,11 @@ function CloudBackupScreen() {
   const navigateToPassword = () =>
     navigation.dispatch(CommonActions.navigate('CloudBackupPassword'));
 
-  const SettingsComponent = () => {
-    return (
-      <Pressable onPress={navigateToPassword}>
-        <ThemedSvg name={'setting_icon'} />
-      </Pressable>
-    );
-  };
+  const SettingsComponent = () => (
+    <Pressable onPress={() => setShowPasscode(true)}>
+      <ThemedSvg name={'setting_icon'} />
+    </Pressable>
+  );
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -200,6 +200,29 @@ function CloudBackupScreen() {
           }
         }}
         Content={() => modalContent()}
+      />
+      <KeeperModal
+        visible={showPasscode}
+        closeOnOverlayClick={false}
+        close={() => {
+          setShowPasscode(false);
+        }}
+        title={common.confirmPassCode}
+        subTitleWidth={wp(240)}
+        subTitle={strings.passcodeSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {}}
+            onSuccess={() => {
+              setShowPasscode(false);
+              navigateToPassword();
+            }}
+          />
+        )}
       />
     </ScreenWrapper>
   );
