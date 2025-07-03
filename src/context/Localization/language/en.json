@@ -174,7 +174,8 @@
     "loadSignature": "Load Signature",
     "signMessage": "Sign Message",
     "moreInfo": "More Info",
-    "lessInfo": "Less Info"
+    "lessInfo": "Less Info",
+    "update": "Update"
   },
   "login": {
     "welcomeback": "Welcome Back",
@@ -1696,7 +1697,11 @@
     "cloudBackupModalSubitle": "Easily access your wallet configuration files from anywhere on any bitcoin wallet.",
     "cloudBackupModalDesc": "Once initiated, the backups are updated automatically. Rest assured of having the latest wallet configurations.",
     "identificanSuccessful": "Identification successful!",
-    "identificanFailed": "Identification failed!"
+    "identificanFailed": "Identification failed!",
+    "passwordTitle": "Cloud Backup Password",
+    "passwordDesc": "Choose a password for encrypting your personal cloud backup files. Only the wallet configuration files will be backed up, without any private keys or other information.",
+    "passwordUpdate": "Password updated successfully",
+    "passcodeSubTitle": "To update cloud backup password"
   },
   "notification": {
     "Balance": "Balance",
@@ -1898,6 +1903,9 @@
     "enterMessage": "Please enter the message",
     "signMessageParameter": "Please provide message, address and signature for verification",
     "signatureNotValid": "Signature is not valid for the provided message",
-    "invalidSignatureFormat": "Invalid signed message format"
+    "invalidSignatureFormat": "Invalid signed message format",
+    "passwordError": "Please enter a valid password",
+    "confirmPasswordError": "Confirm password is required",
+    "passwordMatchError": "Password does not match"
   }
 }

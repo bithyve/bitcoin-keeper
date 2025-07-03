@@ -81,11 +81,8 @@ export const healthCheckStatusUpdate = (signerUpdates: { signerId: string; statu
   },
 });
 
-export const backupBsmsOnCloud = (password?: string) => ({
+export const backupBsmsOnCloud = () => ({
   type: BACKUP_BSMS_ON_CLOUD,
-  payload: {
-    password,
-  },
 });
 
 export const bsmsCloudHealthCheck = () => ({
