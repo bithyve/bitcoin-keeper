@@ -1,6 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
-import { StyleSheet } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import RampNetwork from 'src/assets/images/ramp-network.svg';
@@ -12,10 +12,13 @@ import MultiSendSvg from 'src/assets/images/@.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import Buttons from 'src/components/Buttons';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useAppSelector } from 'src/store/hooks';
+import { getCountry } from 'react-native-localize';
+import { fetchBuyUsdtLink } from 'src/services/thirdparty/ramp';
 
-type Props = {};
-
-const BuyUstd = ({}: Props) => {
+const BuyUstd = ({ route }) => {
+  const { usdtWallet } = route.params;
+  const receiveAddress = usdtWallet?.accountStatus?.gasFreeAddress ?? '';
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const buyBitCoinHexagonBackgroundColor = ThemedColor({
@@ -23,6 +26,20 @@ const BuyUstd = ({}: Props) => {
   });
   const { translations } = useContext(LocalizationContext);
   const { common, usdtWalletText } = translations;
+  const { currencyCode } = useAppSelector((state) => state.settings);
+
+  const onProceed = () => {
+    receiveAddress;
+    try {
+      if (currencyCode === 'GBP' || getCountry() === 'UK') {
+        Linking.openURL('https://ramp.network/buy#');
+      } else {
+        Linking.openURL(fetchBuyUsdtLink({ receiveAddress }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -54,13 +71,13 @@ const BuyUstd = ({}: Props) => {
             icon={<MultiSendSvg />}
           />
           <Text color={`${colorMode}.primaryText`} fontSize={12} style={styles.addressText}>
-            {'3FZbgi29cpjq2GjdwV8eyHuJ3FZbgi29cpjq2GjdwV8eyHuJ'}
+            {receiveAddress}
           </Text>
         </Box>
       </Box>
       <Box style={styles.ButtonContainer}>
         <Text>{usdtWalletText.understandRampPayment}</Text>
-        <Buttons primaryText={common.proceed} fullWidth />
+        <Buttons primaryText={common.proceed} primaryCallback={onProceed} fullWidth />
       </Box>
     </ScreenWrapper>
   );
