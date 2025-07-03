@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery } from '@realm/react';
 import {
   generateUSDTWallet,
   syncUSDTWalletBalance,
@@ -7,6 +8,7 @@ import {
   USDTWallet,
   USDTWalletType,
   getAvailableBalanceUSDTWallet,
+  USDTWalletImportDetails,
 } from '../services/wallets/factories/USDTWalletFactory';
 import { NetworkType, VisibilityType } from '../services/wallets/enums';
 import dbManager from '../storage/realm/dbManager';
@@ -29,7 +31,6 @@ export interface UseUSDTWalletsOptions {
 
 export interface UseUSDTWalletsReturn {
   usdtWallets: USDTWallet[];
-  loading: boolean;
   error: string | null;
   createWallet: (params: {
     type: USDTWalletType;
@@ -55,45 +56,26 @@ export interface UseUSDTWalletsReturn {
 }
 
 export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWalletsReturn => {
-  const { getAll = true, networkType, includeHidden = false } = options;
-
-  const [usdtWallets, setUsdtWallets] = useState<USDTWallet[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { includeHidden = false } = options;
+  const allWallets = useQuery(RealmSchema.USDTWallet);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
-  /**
-   * Load USDT wallets from Realm database
-   */
-  const loadWallets = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  const usdtWallets = useMemo(() => {
+    const wallets: USDTWallet[] = allWallets.map((w) => (w.toJSON ? w.toJSON() : w)) as any;
 
-      const walletsResult = await dbManager.getObjectByIndex(RealmSchema.USDTWallet, null, getAll);
-      const wallets: USDTWallet[] = walletsResult.map((w) => (w.toJSON ? w.toJSON() : w)) as any;
+    let filteredWallets = wallets;
 
-      let filteredWallets = wallets;
-
-      // Filter hidden wallets if not included
-      if (!includeHidden) {
-        filteredWallets = filteredWallets.filter((wallet) => {
-          return wallet.presentationData.visibility !== VisibilityType.HIDDEN;
-        });
-      }
-
-      // Sort by creation date (old first)
-      filteredWallets.sort((a, b) => a.createdAt - b.createdAt);
-
-      setUsdtWallets(filteredWallets);
-    } catch (err) {
-      setError('Failed to load USDT wallets');
-      captureError(err);
-    } finally {
-      setLoading(false);
+    // Filter hidden wallets if not included
+    if (!includeHidden) {
+      filteredWallets = filteredWallets.filter((wallet) => {
+        return wallet.presentationData.visibility !== VisibilityType.HIDDEN;
+      });
     }
-  }, [getAll, networkType, includeHidden]);
+
+    return filteredWallets;
+  }, [allWallets, includeHidden]);
 
   /**
    * Create a new USDT wallet
@@ -158,46 +140,39 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   /**
    * Delete a wallet
    */
-  const deleteWallet = useCallback(
-    async (walletId: string): Promise<boolean> => {
-      try {
-        const response = await Relay.deleteAppImageEntity({
-          appId,
-          signers: null,
-          walletIds: [walletId],
-        });
-        if (!response.updated) throw new Error('Failed to delete wallet');
-        await dbManager.deleteObjectById(RealmSchema.USDTWallet, walletId);
-        await loadWallets();
-        return true;
-      } catch (err) {
-        setError(err.message || 'Failed to delete wallet');
-        captureError(err);
-        return false;
-      }
-    },
-    [loadWallets]
-  );
+  const deleteWallet = useCallback(async (walletId: string): Promise<boolean> => {
+    try {
+      const response = await Relay.deleteAppImageEntity({
+        appId,
+        signers: null,
+        walletIds: [walletId],
+      });
+      if (!response.updated) throw new Error('Failed to delete wallet');
+
+      await dbManager.deleteObjectById(RealmSchema.USDTWallet, walletId);
+      return true;
+    } catch (err) {
+      setError(err.message || 'Failed to delete wallet');
+      captureError(err);
+      return false;
+    }
+  }, []);
 
   /**
    * Update a wallet in the database
    */
-  const updateWallet = useCallback(
-    async (wallet: USDTWallet): Promise<boolean> => {
-      try {
-        const { id, ...walletUpdateData } = wallet;
-        await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, walletUpdateData); // Remove the primary key 'id' from the update object to avoid Realm primary key change error
+  const updateWallet = useCallback(async (wallet: USDTWallet): Promise<boolean> => {
+    try {
+      const { id, ...walletUpdateData } = wallet;
+      await dbManager.updateObjectById(RealmSchema.USDTWallet, wallet.id, walletUpdateData); // Remove the primary key 'id' from the update object to avoid Realm primary key change error
 
-        await loadWallets();
-        return true;
-      } catch (err) {
-        setError(err.message || 'Failed to update wallet');
-        captureError(err);
-        return false;
-      }
-    },
-    [loadWallets]
-  );
+      return true;
+    } catch (err) {
+      setError(err.message || 'Failed to update wallet');
+      captureError(err);
+      return false;
+    }
+  }, []);
 
   /**
    * Syncs a single wallet account status with latest data
@@ -260,23 +235,6 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   }, []);
 
   /**
-   * Sync all wallets with latest data
-   */
-  const syncAllWallets = useCallback(async () => {
-    try {
-      setError(null);
-
-      const syncPromises = usdtWallets.map((wallet) => syncWallet(wallet));
-      await Promise.allSettled(syncPromises);
-
-      await loadWallets();
-    } catch (err) {
-      setError('Failed to sync wallets');
-      captureError(err);
-    }
-  }, [usdtWallets, syncWallet, loadWallets]);
-
-  /**
    * Get wallet by ID
    */
   const getWalletById = useCallback(
@@ -285,13 +243,6 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     },
     [usdtWallets]
   );
-
-  /**
-   * Refresh wallet list
-   */
-  const refreshWallets = useCallback(() => {
-    loadWallets();
-  }, [loadWallets]);
 
   /**
    * Process permit transaction for USDT transfer
@@ -369,14 +320,8 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     [updateWallet]
   );
 
-  // Load wallets on mount and when options change
-  useEffect(() => {
-    loadWallets();
-  }, [loadWallets]);
-
   return {
     usdtWallets,
-    loading,
     error,
     createWallet,
     deleteWallet,
@@ -384,9 +329,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     syncAccountStatus,
     syncWalletBalance,
     syncWallet,
-    syncAllWallets,
     getWalletById,
-    refreshWallets,
     processPermitTransaction,
   };
 };

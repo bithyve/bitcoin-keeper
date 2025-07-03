@@ -75,7 +75,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
 
     try {
       if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
-        await syncWallet(currentWallet); // awaiting so that we can force perform an internal re-load of wallets in the useUSDTWallets hook after the sync is complete(check: hasRefreshed ref in UsdtDetails.tsx)
+        await syncWallet(currentWallet);
       } else dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
     } catch (error) {
       captureError(error);

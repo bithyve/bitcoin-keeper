@@ -35,7 +35,7 @@ const UsdtAmount = ({ route }) => {
   const [amount, setAmount] = useState('0');
   const [errorMessage, setErrorMessage] = useState('');
   const [inProgress, setInProgress] = useState(false);
-  const { syncAccountStatus, syncWalletBalance } = useUSDTWallets();
+  const { syncAccountStatus } = useUSDTWallets();
 
   const onPressNumber = (text) => {
     if (errorMessage) {

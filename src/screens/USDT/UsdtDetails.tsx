@@ -1,6 +1,6 @@
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -46,45 +46,9 @@ const UsdtDetails = ({ route }) => {
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
   const [pullRefresh, setPullRefresh] = useState(false);
   const { usdtWalletId } = route.params || {};
-  const hasRefreshed = useRef(false);
-
-  const { getWalletById, refreshWallets } = useUSDTWallets();
-
-  useFocusEffect(
-    // Refresh USDT wallets when screen comes into focus
-    React.useCallback(() => {
-      refreshWallets();
-    }, [refreshWallets])
-  );
-
-  useEffect(() => {
-    // Handle pull-to-refresh: track when refresh operation starts and completes
-
-    if (pullRefresh) {
-      // Refresh operation started
-      hasRefreshed.current = true;
-    } else if (hasRefreshed.current) {
-      // Refresh operation completed, reload wallet data
-      hasRefreshed.current = false;
-      const timer = setTimeout(() => {
-        refreshWallets();
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [pullRefresh, refreshWallets]);
+  const { getWalletById } = useUSDTWallets();
 
   const usdtWallet = getWalletById(usdtWalletId);
-
-  if (!usdtWallet) {
-    // Show loading state instead of blank screen
-    return (
-      <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <ActivityIndicatorView visible={true} showLoader />
-      </Box>
-    );
-  }
 
   return (
     <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>

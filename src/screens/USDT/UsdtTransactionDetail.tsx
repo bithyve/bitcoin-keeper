@@ -160,7 +160,7 @@ const UsdtTransactionDetail = ({ route }) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.infoCardsWrapper}>
-              <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
+              {/* <TouchableOpacity testID="btn_transactionNote" onPress={() => setVisible(true)}>
                 <InfoCard
                   title={common.note}
                   describtion={
@@ -179,7 +179,7 @@ const UsdtTransactionDetail = ({ route }) => {
                     )
                   }
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 testID="btn_transactionId"
                 onPress={() => {

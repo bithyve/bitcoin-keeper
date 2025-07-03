@@ -38,7 +38,7 @@ const AddUsdtWallet = () => {
   const initialDescription = useRef(descriptionInputRef.current);
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
-  const { createWallet, loading, error } = useUSDTWallets();
+  const { createWallet } = useUSDTWallets();
 
   const onDescriptionChange = (value) => {
     descriptionInputRef.current = value;
@@ -120,7 +120,7 @@ const AddUsdtWallet = () => {
         <Buttons
           primaryText={isCreating ? 'Creating Wallet...' : walletText.createYourWallet}
           primaryCallback={handleCreateWallet}
-          primaryDisable={!walletName.trim() || isCreating || loading}
+          primaryDisable={!walletName.trim() || isCreating}
           fullWidth
         />
       </Box>

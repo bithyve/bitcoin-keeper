@@ -52,7 +52,7 @@ const HomeWallet = () => {
     getFirst: true,
     getHiddenWallets: false,
   });
-  const { usdtWallets, refreshWallets } = useUSDTWallets();
+  const { usdtWallets } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
@@ -64,13 +64,6 @@ const HomeWallet = () => {
   const syncing =
     ELECTRUM_CLIENT.isClientConnected &&
     Object.values(walletSyncing).some((isSyncing) => isSyncing);
-
-  useFocusEffect(
-    // Refresh USDT wallets when screen comes into focus
-    React.useCallback(() => {
-      refreshWallets();
-    }, [refreshWallets])
-  );
 
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
