@@ -51,17 +51,16 @@ export interface USDTWallet {
 }
 
 export interface USDTWalletImportDetails {
-  privateKey: string;
-  address: string;
+  mnemonic: string; // Mnemonic for the imported wallet
 }
 
 export interface USDTWalletCreationParams {
   usdtWalletType: USDTWalletType;
   walletName: string;
   walletDescription: string;
-  instanceNum: number;
   networkType: NetworkType;
   primaryMnemonic?: string;
+  instanceNum?: number;
   importDetails?: USDTWalletImportDetails;
 }
 
@@ -113,30 +112,25 @@ export const generateUSDTWallet = async (params: USDTWalletCreationParams): Prom
       break;
     }
 
-    // case USDTWalletType.IMPORTED: {
-    //   if (!importDetails) {
-    //     throw new Error('Import details required for imported wallet');
-    //   }
+    case USDTWalletType.IMPORTED: {
+      if (!importDetails) {
+        throw new Error('Import details required for imported wallet');
+      }
 
-    //   if (!importDetails.privateKey) {
-    //     throw new Error('Private key required for imported wallet');
-    //   }
+      // Create wallet from imported mnemonic
+      const importedWallet = createTronWalletFromMnemonic(importDetails.mnemonic, networkType);
+      if (!importedWallet.isValid) throw new Error(`Failed to import USDT wallet using mnemonic`);
 
-    //   // Create wallet from private key
-    //   const importedWallet = createTronWalletFromPrivateKey(importDetails.privateKey, networkType);
-    //   if (!importedWallet.isValid) {
-    //     throw new Error(`Failed to import USDT wallet using private key`);
-    //   }
-    //   address = importedWallet.address;
-    //   privateKey = importedWallet.privateKey;
-    //   derivationDetails = {
-    //      instanceNum, // null
-    //      mnemonic: null, // null
-    //      bip85Config: null, // null
-    //      xDerivationPath: DEFAULT_TRON_DERIVATION_PATH,
-    //   };
-    //   break;
-    // }
+      address = importedWallet.address;
+      privateKey = importedWallet.privateKey;
+      derivationDetails = {
+        instanceNum: null,
+        mnemonic: importDetails.mnemonic,
+        bip85Config: null,
+        xDerivationPath: DEFAULT_TRON_DERIVATION_PATH,
+      };
+      break;
+    }
 
     default:
       throw new Error(`Unsupported wallet type: ${usdtWalletType}`);

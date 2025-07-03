@@ -21,7 +21,6 @@ import USDT, {
 import { useDispatch } from 'react-redux';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import Relay from 'src/services/backend/Relay';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 export interface UseUSDTWalletsOptions {
   getAll?: boolean;
@@ -37,16 +36,14 @@ export interface UseUSDTWalletsReturn {
     name: string;
     description: string;
     primaryMnemonic?: string;
-    privateKey?: string; // Required for IMPORTED type
-  }) => Promise<USDTWallet | null>;
+    importDetails?: USDTWalletImportDetails;
+  }) => Promise<{ newWallet?: USDTWallet; error?: string }>;
   deleteWallet: (walletId: string) => Promise<boolean>;
   updateWallet: (wallet: USDTWallet) => Promise<boolean>;
   syncAccountStatus: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncWalletBalance: (wallet: USDTWallet) => Promise<USDTWallet>;
   syncWallet: (wallet: USDTWallet) => Promise<USDTWallet>;
-  syncAllWallets: () => Promise<void>;
   getWalletById: (walletId: string) => USDTWallet | null;
-  refreshWallets: () => void;
   processPermitTransaction: (params: {
     sender: USDTWallet;
     recipientAddress: string;
@@ -86,21 +83,22 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       name: string;
       description: string;
       primaryMnemonic?: string;
-      privateKey?: string;
-    }): Promise<USDTWallet | null> => {
+      importDetails?: USDTWalletImportDetails;
+    }): Promise<{ newWallet?: USDTWallet; error?: string }> => {
       try {
         setError(null);
         const walletNetworkType = NetworkType.TESTNET; // TODO: Only MAINNET supported for USDT wallets
         const allUSDTWallets: USDTWallet[] = (await dbManager.getObjectByIndex(
-          // includes hidden wallets as well
+          // includes hidden and imported wallets as well
           RealmSchema.USDTWallet,
           null,
-          getAll
+          true // get all wallets
         )) as any;
-        // // Validate required parameters
-        // if (params.type === USDTWalletType.IMPORTED && !params.privateKey) {
-        //   throw new Error('Private key is required for imported wallets');
-        // }
+
+        // Filter out default wallets
+        const defaultUSDTWallets = allUSDTWallets.filter(
+          (wallet) => wallet.type === USDTWalletType.DEFAULT
+        );
 
         // Generate the wallet
         const newWallet = await generateUSDTWallet({
@@ -109,32 +107,31 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
           walletDescription: params.description,
           networkType: walletNetworkType,
           primaryMnemonic: params.primaryMnemonic,
-          instanceNum: allUSDTWallets.length,
-          // importDetails: params.privateKey
-          //   ? {
-          //       privateKey: params.privateKey,
-          //       address: '', // Will be derived from private key
-          //     }
-          //   : undefined,
+          instanceNum: params.type === USDTWalletType.DEFAULT ? defaultUSDTWallets.length : null,
+          importDetails: params.importDetails,
         });
 
-        // Save to Realm
+        if (newWallet.type === USDTWalletType.IMPORTED) {
+          // check if a USDT wallet already exists with the same mnemonic
+          const existingWallet = allUSDTWallets.find((wallet) => wallet.id === newWallet.id);
+          if (existingWallet) {
+            throw new Error('USDT wallet already exists with the same ID');
+          }
+        }
+
         await dbManager.createObject(RealmSchema.USDTWallet, newWallet);
 
         //  Create usdt wallet backup
-        await dispatch(updateAppImage({ wallets: [newWallet], signers: null, updateNodes: false }));
+        dispatch(updateAppImage({ wallets: [newWallet], signers: null, updateNodes: false }));
 
-        // Refresh wallet list
-        await loadWallets();
-
-        return newWallet;
+        return { newWallet };
       } catch (err) {
         setError(err.message || 'Failed to create wallet');
         captureError(err);
-        return null;
+        return { error: err.message || 'Failed to create wallet' };
       }
     },
-    [loadWallets]
+    []
   );
 
   /**
