@@ -105,7 +105,9 @@ function ListItem({
         </Box>
         <HStack>
           {isHidden &&
-            (type == 'VAULT' || (type == 'WALLET' && (balance === 0 || isWatchOnly))) && (
+            (type == 'VAULT' ||
+              (type == 'WALLET' && (balance === 0 || isWatchOnly)) ||
+              isUSDTWallet) && (
               <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
             )}
           <ActionChip
@@ -125,7 +127,12 @@ function ManageWallets() {
   const { settings, error: errorText, common, wallet: walletText } = translations;
 
   const { wallets } = useWallets({ getAll: true });
-  const { usdtWallets, updateWallet: updateUSDTWallet } = useUSDTWallets({
+
+  const {
+    usdtWallets,
+    updateWallet: updateUSDTWallet,
+    deleteWallet: deleteUSDTWallet,
+  } = useUSDTWallets({
     getAll: true,
     includeHidden: true,
   });
@@ -194,7 +201,7 @@ function ManageWallets() {
     }
   };
 
-  const deleteSelectedEntity = () => {
+  const deleteSelectedEntity = async () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
       dispatch(deleteVault(selectedWallet.id));
     }
@@ -203,12 +210,13 @@ function ManageWallets() {
       showToast(errorText.waletDeleted, <TickIcon />);
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.USDT_WALLET) {
-      // TODO: Implement USDT wallet deletion(once USDT wallet import is supported)
-      showToast('USDT wallet deletion not yet implemented', <ToastErrorIcon />);
+      const success = await deleteUSDTWallet(selectedWallet.id);
+      if (success) showToast(errorText.waletDeleted, <TickIcon />);
+      else showToast('Failed to delete USDT wallet', <ToastErrorIcon />);
     }
   };
 
-  const updateWalletVisibility = (wallet: Wallet | Vault | USDTWallet, hide: boolean) => {
+  const updateWalletVisibility = async (wallet: Wallet | Vault | USDTWallet, hide: boolean) => {
     const { id, entityKind } = wallet;
     const isWallet = entityKind === EntityKind.WALLET;
     const isUSDTWallet = entityKind === EntityKind.USDT_WALLET;
@@ -227,7 +235,7 @@ function ManageWallets() {
             visibility: visibilityType,
           },
         };
-        updateUSDTWallet(updatedUSDTWallet);
+        await updateUSDTWallet(updatedUSDTWallet);
       } else {
         // case: regular wallet/vault update
         const schema = isWallet ? RealmSchema.Wallet : RealmSchema.Vault;
@@ -306,9 +314,13 @@ function ManageWallets() {
             testID="manageWallets_moveFunds"
             onPress={() => {
               setShowDeleteVaultBalanceAlert(false);
+
               if (isUSDTWallet) {
-                // Navigate to USDT send screen
-                navigation.navigate('sendUsdt', { sender: selectedWallet });
+                // navigation.navigate('usdtDetails', { usdtWalletId: selectedWallet.id }); // navigation crashing
+                showToast(
+                  'Please move your funds and empty this USDT wallet first',
+                  <ToastErrorIcon />
+                );
               } else if (selectedWallet.type === VaultType.MINISCRIPT) {
                 try {
                   selectVaultSpendingPaths();
