@@ -49,10 +49,8 @@ import {
   setBackupType,
   setDeleteBackupFailure,
   setDeleteBackupSuccess,
-  setEncPassword,
   setHomeToastMessage,
   setIsCloudBsmsBackupRequired,
-  setLastBsmsBackup,
   setPendingAllBackup,
   setSeedConfirmed,
 } from '../reducers/bhr';
@@ -730,22 +728,14 @@ function* healthCheckSignerWorker({
   }
 }
 
-function* backupBsmsOnCloudWorker({
-  payload,
-}: {
-  payload?: {
-    password: string;
-  };
-}) {
-  const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
-  if (!lastBsmsBackup) return;
-  const { password } = payload;
-  if (password) yield put(setEncPassword(password));
+function* backupBsmsOnCloudWorker() {
+  const { id: appId }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const password = yield select(
+    (state: RootState) => state.account.personalBackupPasswordByAppId?.[appId]
+  );
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
-    const { encPassword } = yield select((state: RootState) => state.bhr);
-    if (!password && !encPassword)
-      throw Error('Personal cloud backup failed, no password provided');
+    if (!password) throw Error('Personal cloud backup failed, no password provided');
     const bsmsToBackup = [];
     const vaultsCollection = yield call(dbManager.getCollection, RealmSchema.Vault);
     const vaults = vaultsCollection.filter((vault) => vault.archived === false);
@@ -760,7 +750,7 @@ function* backupBsmsOnCloudWorker({
     }
     vaults.forEach((vault) => {
       if (!excludeVaultTypesForBackup.includes(vault.type)) {
-        const bsms = 'BSMS 1.0\n' + generateOutputDescriptors(vault, true);
+        const bsms = generateOutputDescriptors(vault);
         bsmsToBackup.push({
           bsms,
           name: vault.presentationData.name,
@@ -777,7 +767,7 @@ function* backupBsmsOnCloudWorker({
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),
-            password || encPassword
+            password
           );
           if (response.status) {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -787,7 +777,6 @@ function* backupBsmsOnCloudWorker({
               date: Date.now(),
             });
             yield put(setIsCloudBsmsBackupRequired(false));
-            yield put(setLastBsmsBackup(Date.now()));
           } else {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
               title: CloudBackupAction.CLOUD_BACKUP_FAILED,
@@ -817,7 +806,7 @@ function* backupBsmsOnCloudWorker({
       const response = yield call(
         CloudBackupModule.backupBsms,
         JSON.stringify(bsmsToBackup),
-        password || encPassword
+        password
       );
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -827,7 +816,6 @@ function* backupBsmsOnCloudWorker({
           date: Date.now(),
         });
         yield put(setIsCloudBsmsBackupRequired(false));
-        yield put(setLastBsmsBackup(Date.now()));
       } else {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,

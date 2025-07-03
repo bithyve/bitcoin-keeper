@@ -144,6 +144,7 @@ import { DiscountedPlanScreen } from 'src/screens/ChoosePlanScreen/DiscountedPla
 import { MultiUserScreen } from 'src/screens/AppSettings/MultiUserScreen';
 import { AddMultipleXpubFiles } from 'src/screens/AddSigner/AddMultipleXpubFiles';
 import { SignMessageScreen } from 'src/screens/WalletDetails/SignMessageScreen';
+import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
 
 function LoginStack() {
@@ -320,6 +321,7 @@ function AppStack() {
         <Stack.Screen name="MultiUserScreen" component={MultiUserScreen} />
         <Stack.Screen name="AddMultipleXpubFiles" component={AddMultipleXpubFiles} />
         <Stack.Screen name="SignMessageScreen" component={SignMessageScreen} />
+        <Stack.Screen name="CloudBackupPassword" component={CloudBackupPassword} />
         <Stack.Screen name="ImportedWalletSetup" component={ImportedWalletSetup} />
       </Stack.Navigator>
     </RealmProvider>
