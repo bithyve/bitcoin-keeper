@@ -88,12 +88,13 @@ import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 import { addAccount, saveDefaultWalletState } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 export function* updateAppImageWorker({
   payload,
 }: {
   payload: {
-    wallets?: Wallet[];
+    wallets?: Wallet[] | USDTWallet[];
     signers?: Signer[];
     updateNodes?: boolean;
   };
@@ -963,7 +964,10 @@ function* backupAllSignersAndVaultsWorker() {
     const vaultObject = {};
 
     // update all wallets and signers
-    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const btcWallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const usdtWallets = yield call(dbManager.getObjectByIndex, RealmSchema.USDTWallet, null, true);
+    const wallets = [...btcWallets, ...usdtWallets];
+
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
