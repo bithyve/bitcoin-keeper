@@ -745,27 +745,34 @@ export const areSetsEqual = (setA: Set<any>, setB: Set<any>) => {
   return true;
 };
 
-export const getDayForGraph = (timestamp: number, onlyDay = false) => {
+export const getDayForGraph = (timestamp: number, hideDate = false, hideDay = false) => {
   const date = new Date(timestamp);
   const dayNo = date.getDay();
   let day = '';
   switch (dayNo) {
     case 0:
-      return (day = `Sun`);
+      day = `Sun`;
+      break;
     case 1:
-      return (day = `Mon`);
+      day = `Mon`;
+      break;
     case 2:
-      return (day = `Tue`);
+      day = `Tue`;
+      break;
     case 3:
-      return (day = `Wed`);
+      day = `Wed`;
+      break;
     case 4:
-      return (day = `Thu`);
+      day = `Thu`;
+      break;
     case 5:
-      return (day = `Fri`);
+      day = `Fri`;
+      break;
     case 6:
-      return (day = `Sat`);
+      day = `Sat`;
+      break;
   }
-  return onlyDay ? day : `${date.getDate()}\n${day}`;
+  return `${hideDate ? null : `${date.getDate()}\n`}${hideDay ? '' : day}`;
 };
 
 export const isPsbtFullySigned = (psbt) => {
@@ -813,6 +820,7 @@ export const manipulateBitcoinPrices = (data) => {
 
   let high24h = -Infinity;
   let low24h = Infinity;
+  let yesterday;
 
   // Temporary object to help pick the latest entry per day
   const dateToEntry = {};
@@ -834,6 +842,7 @@ export const manipulateBitcoinPrices = (data) => {
 
     // 24h high and low
     if (timestamp >= dayAgo) {
+      if (!yesterday) yesterday = price;
       if (price > high24h) high24h = price;
       if (price < low24h) low24h = price;
     }
@@ -845,11 +854,14 @@ export const manipulateBitcoinPrices = (data) => {
     if (!seenDates.has(date)) {
       seenDates.add(date);
       dailyPrice.push({
-        label: dailyPrice.length === 0 ? null : getDayForGraph(timestamp),
+        label: dailyPrice.length === 0 ? null : getDayForGraph(timestamp, false, true),
         value: price,
       });
     }
   }
 
-  return { dailyPrice, latestPrice, high24h, low24h };
+  const valueChange = Math.round(latestPrice - yesterday);
+  const percentChange = ((valueChange / yesterday) * 100).toFixed(2);
+
+  return { dailyPrice, latestPrice, high24h, low24h, percentChange, valueChange };
 };

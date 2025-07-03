@@ -20,7 +20,6 @@ const BtcGraph = ({ dataSet, spacing }) => {
           width={windowWidth}
           isAnimated={true}
           areaChart
-          curved
           scrollToIndex={1}
           data={dataSet}
           spacing={spacing}

@@ -47,9 +47,10 @@ const BuyBtc = () => {
   const loadBtcPrice = async () => {
     try {
       const data = await Relay.getBtcPrice(currencyCode);
-      const { dailyPrice, high24h, latestPrice, low24h } = manipulateBitcoinPrices(data?.prices);
+      const { dailyPrice, high24h, latestPrice, low24h, percentChange, valueChange } =
+        manipulateBitcoinPrices(data?.prices);
       setGraphData(dailyPrice);
-      setStats({ high24h, low24h, latestPrice });
+      setStats({ high24h, low24h, latestPrice, percentChange, valueChange });
     } catch (error) {
       console.log('🚀 ~ loadBtcPrice ~ error:', error);
       setError(true);
@@ -91,12 +92,18 @@ const BuyBtc = () => {
                   </Text>
                 </Box>
               </Box>
-              <Box>
+              <Box alignItems={'flex-end'}>
                 <Text fontSize={16} fontWeight="bold" color={`${colorMode}.primaryText`}>
                   {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0,
                   }).format(stats?.latestPrice)}`}
+                </Text>
+                <Text
+                  fontSize={14}
+                  color={stats?.valueChange < 0 ? Colors.CrimsonRed : Colors.PersianGreen}
+                >
+                  {`${BtcPrice?.symbol}${stats?.valueChange} (${stats?.percentChange}%) 24 hours`}
                 </Text>
               </Box>
             </Box>
@@ -160,8 +167,9 @@ const BuyBtc = () => {
             selectedWallet={selectedWallet}
           />
         )}
-        buttonText={common.proceed}
+        buttonText={selectedWallet ? common.proceed : null}
         buttonCallback={() => {
+          if (!selectedWallet) return;
           setVisibleBuyBtc(false);
           navigation.dispatch(
             CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: selectedWallet } })
