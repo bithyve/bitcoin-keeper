@@ -32,8 +32,6 @@ const initialState: {
   relayVaultError: boolean;
   realyVaultErrorMessage: string;
   isCloudBsmsBackupRequired: boolean;
-  lastBsmsBackup?: number;
-  encPassword?: string;
 
   deletingKeyModalVisible: boolean;
   keyDeletedSuccessModalVisible: boolean;
@@ -77,8 +75,6 @@ const initialState: {
   realySignersAdded: false,
 
   isCloudBsmsBackupRequired: false,
-  lastBsmsBackup: null,
-  encPassword: '',
   deletingKeyModalVisible: false,
   keyDeletedSuccessModalVisible: false,
   seedWords: [],
@@ -191,12 +187,6 @@ const bhrSlice = createSlice({
     setIsCloudBsmsBackupRequired: (state, action: PayloadAction<boolean>) => {
       state.isCloudBsmsBackupRequired = action.payload;
     },
-    setLastBsmsBackup: (state, action: PayloadAction<number>) => {
-      state.lastBsmsBackup = action.payload;
-    },
-    setEncPassword: (state, action: PayloadAction<string>) => {
-      state.encPassword = action.payload;
-    },
     showDeletingKeyModal: (state) => {
       state.deletingKeyModalVisible = true;
     },
@@ -281,8 +271,6 @@ export const {
   resetRealyVaultState,
 
   setIsCloudBsmsBackupRequired,
-  setLastBsmsBackup,
-  setEncPassword,
 
   showDeletingKeyModal,
   hideDeletingKeyModal,

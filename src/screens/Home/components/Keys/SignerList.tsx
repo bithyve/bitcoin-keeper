@@ -71,7 +71,7 @@ const SignerList = ({ navigation, handleModalOpen }) => {
 
             const showDot =
               signer.type !== SignerType.MY_KEEPER &&
-              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.masterFingerprint];
+              typeBasedIndicator?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]?.[item.id];
 
             return (
               <SignerCard

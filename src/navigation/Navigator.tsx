@@ -154,6 +154,7 @@ import UsdtSendConfirmation from 'src/screens/USDT/UsdtSendConfirmation';
 import UsdtTransactionDetail from 'src/screens/USDT/UsdtTransactionDetail';
 import UsdtTransactionHistory from 'src/screens/USDT/UsdtTransactionHistory';
 import Usdtsetting from 'src/screens/USDT/Usdtsetting';
+import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -339,6 +340,7 @@ function AppStack() {
         <Stack.Screen name="MultiUserScreen" component={MultiUserScreen} />
         <Stack.Screen name="AddMultipleXpubFiles" component={AddMultipleXpubFiles} />
         <Stack.Screen name="SignMessageScreen" component={SignMessageScreen} />
+        <Stack.Screen name="CloudBackupPassword" component={CloudBackupPassword} />
       </Stack.Navigator>
     </RealmProvider>
   );

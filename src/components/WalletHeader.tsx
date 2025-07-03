@@ -93,13 +93,12 @@ const WalletHeader: React.FC<Props> = ({
             </Text>
           )}
         </Box>
-        {rightComponent && <Box>{rightComponent}</Box>}
-
         {learnMore && (
           <TouchableOpacity style={styles.infoIcon} onPress={learnMorePressed}>
             <ThemedSvg name={'info_icon'} />
           </TouchableOpacity>
         )}
+        {rightComponent && <Box>{rightComponent}</Box>}
       </Box>
       {subTitle && (
         <Text color={subtitleColor} style={styles.subTitle}>
