@@ -61,6 +61,8 @@ import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/
 
 import { getTnxIdFromCachedTnx } from 'src/utils/utilities';
 import { discardBroadcastedTnx } from 'src/store/sagaActions/send_and_receive';
+import WalletDetailHeader from '../WalletDetails/components/WalletDetailHeader';
+import DetailCards from '../WalletDetails/components/DetailCards';
 
 function Footer({
   vault,
@@ -549,10 +551,31 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   };
 
   return (
-    <Box style={styles.wrapper} safeAreaTop backgroundColor={`${colorMode}.primaryBackground`}>
+    <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <VStack style={styles.topSection}>
+      <WalletDetailHeader
+        settingCallBack={() => {
+          if (!vault.archived) {
+            console.log('clicked');
+
+            navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }));
+          } else {
+            navigation.push('VaultSettings', { vaultId: vault.id });
+          }
+        }}
+        backgroundColor={getWalletCardGradient(vault)}
+        title={vault.presentationData.name}
+        tags={getWalletTags(vault)}
+        totalBalance={vault.specs.balances.confirmed + vault.specs.balances.unconfirmed}
+        description={vault.presentationData.description}
+        wallet={vault}
+      />
+      <Box style={styles.detailCardsContainer}>
+        <Box style={styles.detailCards}>
+          <DetailCards wallet={vault} />
+        </Box>
+      </Box>
+      {/* <VStack style={styles.topSection}>
         <WalletHeader
           data={vault}
           rightComponent={
@@ -632,13 +655,12 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             />
           )}
         </HStack>
-      )}
+      )} */}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <Box
           flex={1}
           style={styles.transactionsContainer}
           backgroundColor={`${colorMode}.thirdBackground`}
-          borderColor={`${colorMode}.separator`}
         >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
@@ -769,10 +791,7 @@ const styles = StyleSheet.create({
   transactionsContainer: {
     paddingHorizontal: wp(22),
     marginTop: hp(5),
-    paddingTop: hp(24),
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1,
+    paddingTop: hp(10),
     borderBottomWidth: 0,
   },
 
@@ -988,6 +1007,17 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: hp(15),
+  },
+  detailCardsContainer: {
+    zIndex: 1000,
+  },
+  detailCards: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    transform: [{ translateY: hp(50) }],
   },
 });
 

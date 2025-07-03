@@ -30,6 +30,8 @@ import useWalletAsset from 'src/hooks/useWalletAsset';
 import FeatureCard from 'src/components/FeatureCard';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import WalletDetailHeader from './components/WalletDetailHeader';
+import DetailCards from './components/DetailCards';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -123,8 +125,24 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+    <Box style={styles.wrapper}>
+      <WalletDetailHeader
+        settingCallBack={() =>
+          navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
+        }
+        backgroundColor={getWalletCardGradient(wallet)}
+        title={wallet.presentationData.name}
+        tags={getWalletTags(wallet)}
+        totalBalance={wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed}
+        description={wallet.presentationData.description}
+        wallet={wallet}
+      />
+      <Box style={styles.detailCardsContainer}>
+        <Box style={styles.detailCards}>
+          <DetailCards wallet={wallet} />
+        </Box>
+      </Box>
+      {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Box style={styles.topContainer}>
         <WalletHeader
           rightComponent={
@@ -175,14 +193,13 @@ function WalletDetails({ route }: ScreenProps) {
           icon={<CoinsIcon />}
           customStyle={{ justifyContent: 'flex-end' }}
         />
-      </Box>
+      </Box> */}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
         {wallet ? (
           <Box
             flex={1}
             style={styles.transactionsContainer}
             backgroundColor={`${colorMode}.thirdBackground`}
-            borderColor={`${colorMode}.separator`}
           >
             {wallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
@@ -209,7 +226,7 @@ function WalletDetails({ route }: ScreenProps) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <TransactionFooter currentWallet={wallet} />
+            {/* <TransactionFooter currentWallet={wallet} /> */}
           </Box>
         ) : (
           <Box
@@ -261,10 +278,7 @@ const styles = StyleSheet.create({
   transactionsContainer: {
     paddingHorizontal: wp(22),
     marginTop: hp(5),
-    paddingTop: hp(24),
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1,
+    paddingTop: hp(10),
     borderBottomWidth: 0,
   },
   transTitleWrapper: {
@@ -297,6 +311,17 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  detailCardsContainer: {
+    zIndex: 1000,
+  },
+  detailCards: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    transform: [{ translateY: hp(50) }],
   },
 });
 export default SentryErrorBoundary(WalletDetails);
