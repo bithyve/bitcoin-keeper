@@ -16,6 +16,10 @@ import USDT, {
   DEFAULT_DEADLINE_SECONDS,
   USDTTransferOptions,
 } from '../services/wallets/operations/dollars/USDT';
+import { useDispatch } from 'react-redux';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
+import Relay from 'src/services/backend/Relay';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 export interface UseUSDTWalletsOptions {
   getAll?: boolean;
@@ -56,6 +60,8 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   const [usdtWallets, setUsdtWallets] = useState<USDTWallet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
   /**
    * Load USDT wallets from Realm database
@@ -133,6 +139,9 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         // Save to Realm
         await dbManager.createObject(RealmSchema.USDTWallet, newWallet);
 
+        //  Create usdt wallet backup
+        await dispatch(updateAppImage({ wallets: [newWallet], signers: null, updateNodes: false }));
+
         // Refresh wallet list
         await loadWallets();
 
@@ -152,6 +161,12 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   const deleteWallet = useCallback(
     async (walletId: string): Promise<boolean> => {
       try {
+        const response = await Relay.deleteAppImageEntity({
+          appId,
+          signers: null,
+          walletIds: [walletId],
+        });
+        if (!response.updated) throw new Error('Failed to delete wallet');
         await dbManager.deleteObjectById(RealmSchema.USDTWallet, walletId);
         await loadWallets();
         return true;

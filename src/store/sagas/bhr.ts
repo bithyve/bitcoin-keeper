@@ -29,7 +29,13 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { DerivationPurpose, NetworkType, VaultType, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  NetworkType,
+  VaultType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
@@ -88,12 +94,13 @@ import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 import { addAccount, saveDefaultWalletState } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 export function* updateAppImageWorker({
   payload,
 }: {
   payload: {
-    wallets?: Wallet[];
+    wallets?: Wallet[] | USDTWallet[];
     signers?: Signer[];
     updateNodes?: boolean;
   };
@@ -481,8 +488,10 @@ function* recoverApp(
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
       try {
-        const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
-        yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+        const decryptedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+        if (decryptedWallet.entityKind === EntityKind.USDT_WALLET)
+          yield call(dbManager.createObject, RealmSchema.USDTWallet, decryptedWallet);
+        else yield call(dbManager.createObject, RealmSchema.Wallet, decryptedWallet);
       } catch (err) {
         console.log('Error recovering a wallet: ', err);
         continue;
@@ -963,7 +972,10 @@ function* backupAllSignersAndVaultsWorker() {
     const vaultObject = {};
 
     // update all wallets and signers
-    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const btcWallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const usdtWallets = yield call(dbManager.getObjectByIndex, RealmSchema.USDTWallet, null, true);
+    const wallets = [...btcWallets, ...usdtWallets];
+
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
