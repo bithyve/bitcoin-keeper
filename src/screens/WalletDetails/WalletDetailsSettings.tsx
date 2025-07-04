@@ -17,6 +17,7 @@ import EditWalletDetailsModal from './EditWalletDetailsModal';
 import WalletHeader from 'src/components/WalletHeader';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import { EntityKind } from 'src/services/wallets/enums';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 
 function WalletDetailsSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -28,6 +29,8 @@ function WalletDetailsSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
   const { importWallet, common } = translations;
+
+  const { updateWallet } = useUSDTWallets();
 
   const isUSDTWallet = wallet.entityKind === EntityKind.USDT_WALLET;
   return (
@@ -107,7 +110,12 @@ function WalletDetailsSettings({ route }) {
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           showCloseIcon={false}
           Content={() => (
-            <EditWalletDetailsModal wallet={wallet} close={() => setWalletDetailVisible(false)} />
+            <EditWalletDetailsModal
+              wallet={wallet}
+              updateWallet={updateWallet}
+              navigation={navigation}
+              close={() => setWalletDetailVisible(false)}
+            />
           )}
         />
       </Box>

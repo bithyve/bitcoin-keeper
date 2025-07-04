@@ -14,15 +14,16 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { EntityKind } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 type Props = {
   wallet: Wallet | Vault | USDTWallet | {};
+  updateWallet?: (wallet: USDTWallet) => Promise<boolean>;
+  navigation?: any;
   close: () => void;
 };
 
-function EditWalletDetailsModal({ wallet = {}, close }: Props) {
+function EditWalletDetailsModal({ wallet = {}, updateWallet, navigation, close }: Props) {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -36,7 +37,6 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
-  const { updateWallet } = useUSDTWallets();
 
   const editWallet = async () => {
     const details = {
@@ -55,10 +55,13 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
         },
       };
       const updated = await updateWallet(updatedWallet);
+
       if (updated) {
-        showToast(walletText.walletDeatilsUpdated, <TickIcon />);
         close();
+        showToast(walletText.walletDeatilsUpdated, <TickIcon />);
+        navigation.navigate('usdtDetails', { usdtWalletId: wallet.id });
       } else {
+        close();
         showToast('Failed to update the details', <ToastErrorIcon />);
       }
     } else {
