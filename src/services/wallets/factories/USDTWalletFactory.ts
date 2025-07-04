@@ -9,7 +9,7 @@ import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import { GasFreeTransferStatus } from '../operations/dollars/GasFree';
 
-export const USDTWalletSupportedNetwork = NetworkType.TESTNET;
+export const USDTWalletSupportedNetwork = NetworkType.MAINNET; // NOTE: Only MAINNET supported for USDT wallets(GasFree testnet API is restricted for development purposes)
 
 export enum USDTWalletType {
   DEFAULT = 'DEFAULT',
