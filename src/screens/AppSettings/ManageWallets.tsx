@@ -51,6 +51,7 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import USDTGreenLogo from 'src/assets/images/usdt-gree-logo.svg';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -68,6 +69,7 @@ function ListItem({
   isWatchOnly,
 }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
@@ -95,7 +97,11 @@ function ListItem({
       <Box style={styles.justifyContent}>
         <Box style={styles.alignCenter}>
           {isUSDTWallet ? (
-            <UsdtWalletLogo width={16} height={16} />
+            !isDarkMode ? (
+              <USDTGreenLogo width={13} height={13} />
+            ) : (
+              <UsdtWalletLogo width={16} height={16} />
+            )
           ) : (
             getCurrencyIcon(BTC, privateTheme ? 'light' : 'green')
           )}
