@@ -4,6 +4,7 @@ import RestClient from '../../../rest/RestClient';
 import * as crypto from 'crypto';
 import config from '../../../../utils/service-utilities/config';
 import { createTronWeb } from './Tron';
+import idx from 'idx';
 
 // GasFree API endpoints
 const GASFREE_ENDPOINTS = {
@@ -292,7 +293,8 @@ export default class GasFree {
 
       return response.data;
     } catch (err) {
-      throw new Error(`GasFree API request failed: ${err.message || err}`);
+      const errorMessage = idx(err, (_) => _.response.data);
+      throw new Error(`GasFree API request failed: ${errorMessage || err.message || err}`);
     }
   }
 
@@ -314,7 +316,7 @@ export default class GasFree {
 
       return response.data.tokens;
     } catch (err) {
-      throw new Error('Failed to fetch supported tokens');
+      throw new Error(`Failed to fetch supported tokens: ${err.message || err}`);
     }
   }
 
@@ -336,7 +338,7 @@ export default class GasFree {
 
       return response.data.providers;
     } catch (err) {
-      throw new Error('Failed to fetch service providers');
+      throw new Error(`Failed to fetch service providers: ${err.message || err}`);
     }
   }
 
@@ -361,7 +363,7 @@ export default class GasFree {
 
       return response.data;
     } catch (err) {
-      throw new Error('Failed to fetch account information');
+      throw new Error(`Failed to fetch account info: ${err.message || err}`);
     }
   }
 
@@ -448,7 +450,7 @@ export default class GasFree {
 
       return response.data;
     } catch (err) {
-      throw new Error(err.message || 'Failed to submit GasFree transfer');
+      throw new Error(`Failed to submit transfer: ${err.message || err}`);
     }
   }
 
@@ -473,7 +475,7 @@ export default class GasFree {
 
       return response.data;
     } catch (err) {
-      throw new Error('Failed to fetch transfer status');
+      throw new Error(`Failed to fetch transfer status: ${err.message || err}`);
     }
   }
 

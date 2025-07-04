@@ -138,7 +138,7 @@ export default class USDT {
         },
       };
     } catch (err) {
-      throw new Error('Failed to fetch account status');
+      throw err;
     }
   }
 
@@ -395,7 +395,7 @@ export default class USDT {
         totalFee: totalFee,
       };
     } catch (err) {
-      throw new Error('Failed to estimate transfer fees');
+      throw new Error(`Failed to evaluate transfer fees: ${err.message || err}`);
     }
   }
 
@@ -436,7 +436,7 @@ export default class USDT {
       const balanceResult = await getTrc20Balance(address, usdtAddress, networkType);
       return balanceResult.balance;
     } catch (error) {
-      throw new Error('Failed to fetch USDT balance');
+      throw new Error(`Failed to fetch USDT balance: ${error.message || error}`);
     }
   }
 
