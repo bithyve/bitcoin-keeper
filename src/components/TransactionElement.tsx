@@ -21,6 +21,7 @@ import Colors from 'src/theme/Colors';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 function TransactionElement({
   transaction,
@@ -38,6 +39,7 @@ function TransactionElement({
   const { labels } = useLabelsNew({ txid: transaction.txid });
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  .  HH:mm A');
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
     <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transaction?.txid}`}>
@@ -81,11 +83,7 @@ function TransactionElement({
             >
               {labels[transaction.txid]?.[0]?.name || transaction?.txid}
             </Text>
-            <Text
-              color={`${colorMode}.secondaryText`}
-              style={styles.transactionDate}
-              numberOfLines={1}
-            >
+            <Text color={viewAll_color} style={styles.transactionDate} numberOfLines={1}>
               {date}
             </Text>
           </Box>

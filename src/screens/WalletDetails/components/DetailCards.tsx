@@ -1,27 +1,20 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import SendBtcArrow from 'src/assets/images/send-btc-arrow.svg';
-import RecieveBtcArrow from 'src/assets/images/recieve-btc-arrow.svg';
-import BuyBtcIcon from 'src/assets/images/buy-btc-icon.svg';
-import MoreBtcIcon from 'src/assets/images/more-btc-icon.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import SendWhiteIcon from 'src/assets/images/send-btc-white-arrow.svg';
-import RecieveWhiteIcon from 'src/assets/images/recieve-btc-white-arrow.svg';
-import BuyBtcWhiteIcon from 'src/assets/images/buy-btc-icon-white.svg';
-import MoreBtcIconWhite from 'src/assets/images/more-option-white-icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }) => {
   const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common } = translations;
+
   const CardsData = [
     {
       id: 1,
-      icon: isDarkMode ? SendWhiteIcon : SendBtcArrow,
+      icon: 'send_Btc_arrow',
       title: walletTranslations.sendBitcoin,
       callback: () => {
         sendCallback();
@@ -29,7 +22,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
     },
     {
       id: 2,
-      icon: isDarkMode ? RecieveWhiteIcon : RecieveBtcArrow,
+      icon: 'recieve_Btc_arrow',
       title: walletTranslations.receiveBitcoin,
       callback: () => {
         receiveCallback();
@@ -37,7 +30,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
     },
     {
       id: 3,
-      icon: isDarkMode ? BuyBtcWhiteIcon : BuyBtcIcon,
+      icon: 'buy_Btc_icon',
       title: walletTranslations.buyBitCoin,
       callback: () => {
         buyCallback();
@@ -45,7 +38,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
     },
     {
       id: 4,
-      icon: isDarkMode ? MoreBtcIconWhite : MoreBtcIcon,
+      icon: 'more_Btc_icon',
       title: common.moreOptions,
       callback: () => {
         setShowMore(true);
@@ -63,7 +56,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
             borderColor={`${colorMode}.separator`}
             style={styles.card}
           >
-            <Icon width={18} height={18} />
+            <ThemedSvg name={Icon} width={18} height={18} />
             <Text fontSize={11} style={styles.title}>
               {title}
             </Text>

@@ -29,6 +29,7 @@ import MoreCard from './components/MoreCard';
 import SwapSvg from 'src/assets/images/swap.svg';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import { setCurrencyKind } from 'src/store/reducers/settings';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -76,6 +77,7 @@ function WalletDetails({ route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
   const [showmore, setShowMore] = useState(false);
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   useEffect(() => {
     dispatch(sendPhaseOneReset());
@@ -181,7 +183,7 @@ function WalletDetails({ route }: ScreenProps) {
                     )
                   }
                 >
-                  <Text color={`${colorMode}.greenText`} medium fontSize={wp(14)}>
+                  <Text color={viewAll_color} medium fontSize={wp(14)}>
                     {common.viewAll}
                   </Text>
                 </Pressable>
