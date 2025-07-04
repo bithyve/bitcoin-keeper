@@ -6,7 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
-const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }) => {
+const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback, disabled }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, common } = translations;
@@ -19,6 +19,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
       callback: () => {
         sendCallback();
       },
+      disableOption: disabled,
     },
     {
       id: 2,
@@ -27,6 +28,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
       callback: () => {
         receiveCallback();
       },
+      disableOption: disabled,
     },
     {
       id: 3,
@@ -35,6 +37,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
       callback: () => {
         buyCallback();
       },
+      disableOption: false,
     },
     {
       id: 4,
@@ -43,13 +46,19 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }
       callback: () => {
         setShowMore(true);
       },
+      disableOption: false,
     },
   ];
 
   return (
     <Box style={styles.container} backgroundColor={'transparent'}>
-      {CardsData.map(({ id, icon: Icon, title, callback }) => (
-        <TouchableOpacity key={id} onPress={callback}>
+      {CardsData.map(({ id, icon: Icon, title, callback, disableOption }) => (
+        <TouchableOpacity
+          key={id}
+          onPress={callback}
+          disabled={disableOption}
+          style={{ opacity: disableOption ? 0.8 : 1 }}
+        >
           <Box
             backgroundColor={`${colorMode}.primaryBackground`}
             borderWidth={1}

@@ -18,10 +18,11 @@ import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
-
+import { reinstateVault } from 'src/store/sagaActions/vaults';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
-import BTC from 'src/assets/images/icon_bitcoin_white.svg';
+import ImportIcon from 'src/assets/images/import.svg';
+
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
@@ -492,6 +493,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         <Box style={styles.detailCards}>
           <DetailCards
             setShowMore={setShowMore}
+            disabled={vault.archived}
             sendCallback={async () => {
               if (timeUntilTimelockExpires) {
                 setShowTimelockModal(true);
@@ -641,7 +643,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                 }}
                 Icon={<CoinIcon />}
               />
-              {!isCanaryWallet && !vault.archived && (
+              {!isCanaryWallet && (
                 <MoreCard
                   title={common.manageKeys}
                   callBack={() => {
@@ -658,21 +660,17 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                   Icon={<SignerIcon />}
                 />
               )}
-              {!isCanaryWallet && !vault.archived && (
+              {vault.archived && (
                 <MoreCard
-                  title={common.buyBitCoin}
+                  title={common.reinstate}
                   callBack={() => {
                     setShowMore(false);
                     setTimeout(() => {
-                      navigation.dispatch(
-                        CommonActions.navigate({
-                          name: 'BuyBitcoin',
-                          params: { wallet: vault },
-                        })
-                      );
+                      dispatch(reinstateVault(vault.id));
+                      showToast('Vault reinstated successfully', <TickIcon />);
                     }, 300);
                   }}
-                  Icon={<BTC />}
+                  Icon={<ImportIcon />}
                 />
               )}
             </Box>

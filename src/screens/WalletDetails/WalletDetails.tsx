@@ -149,6 +149,7 @@ function WalletDetails({ route }: ScreenProps) {
         <Box style={styles.detailCards}>
           <DetailCards
             setShowMore={setShowMore}
+            disabled={false}
             sendCallback={() =>
               navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }))
             }
