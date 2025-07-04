@@ -65,7 +65,7 @@ function TransactionElement({
 
   const { labels } = useLabelsNew({ txid: transactionId });
   const { colorMode } = useColorMode();
-  const date = moment(transaction?.date)?.format('DD MMM YY  .  HH:mm A');
+  const formattedDate = moment(date)?.format('DD MMM YY  .  HH:mm A');
   const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
@@ -111,7 +111,7 @@ function TransactionElement({
               {labels[transactionId]?.[0]?.name || transactionId}
             </Text>
             <Text color={viewAll_color} style={styles.transactionDate} numberOfLines={1}>
-              {date}
+              {formattedDate}
             </Text>
           </Box>
         </Box>
