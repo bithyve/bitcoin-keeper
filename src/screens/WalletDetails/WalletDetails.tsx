@@ -1,11 +1,10 @@
 import { Pressable, StyleSheet } from 'react-native';
-import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import CoinsIcon from 'src/assets/images/coins.svg';
-import BTC from 'src/assets/images/icon_bitcoin_white.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -17,19 +16,20 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Colors from 'src/theme/Colors';
 import LearnMoreModal from './components/LearnMoreModal';
-import TransactionFooter from './components/TransactionFooter';
 import Transactions from './components/Transactions';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SentryErrorBoundary } from 'src/services/sentry';
-import WalletHeader from 'src/components/WalletHeader';
-import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import FeatureCard from 'src/components/FeatureCard';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import WalletDetailHeader from './components/WalletDetailHeader';
+import DetailCards from './components/DetailCards';
+import KeeperModal from 'src/components/KeeperModal';
+import MoreCard from './components/MoreCard';
+import SwapSvg from 'src/assets/images/swap.svg';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -70,11 +70,14 @@ function WalletDetails({ route }: ScreenProps) {
 
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(wallet);
+  const { currencyKind } = useAppSelector((state) => state.settings);
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [showmore, setShowMore] = useState(false);
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   useEffect(() => {
     dispatch(sendPhaseOneReset());
@@ -121,68 +124,52 @@ function WalletDetails({ route }: ScreenProps) {
     dispatch(refreshWallets([wallet], { hardRefresh }));
     setPullRefresh(false);
   };
+  const changeType = () => {
+    if (currencyKind === CurrencyKind.BITCOIN) {
+      dispatch(setCurrencyKind(CurrencyKind.FIAT));
+    } else {
+      dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+    }
+  };
 
   return (
-    <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Box style={styles.topContainer}>
-        <WalletHeader
-          rightComponent={
-            <TouchableOpacity
-              style={styles.settingBtn}
-              onPress={() =>
-                navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
-              }
-            >
-              <ThemedSvg name={'setting_icon'} width={25} height={25} />
-            </TouchableOpacity>
-          }
-        />
-
-        <Box style={styles.card}>
-          <WalletCard
-            backgroundColor={getWalletCardGradient(wallet)}
-            hexagonBackgroundColor={Colors.CyanGreen}
-            icon={<WalletIcon />}
-            iconWidth={42}
-            iconHeight={38}
-            title={wallet.presentationData.name}
-            tags={getWalletTags(wallet)}
-            totalBalance={wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed}
-            description={wallet.presentationData.description}
-            wallet={wallet}
-            allowHideBalance={false}
+    <Box style={styles.wrapper}>
+      <WalletDetailHeader
+        settingCallBack={() =>
+          navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
+        }
+        backgroundColor={getWalletCardGradient(wallet)}
+        title={wallet.presentationData.name}
+        tags={getWalletTags(wallet)}
+        totalBalance={wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed}
+        description={wallet.presentationData.description}
+        wallet={wallet}
+      />
+      <Box style={styles.detailCardsContainer}>
+        <Box style={styles.detailCards}>
+          <DetailCards
+            setShowMore={setShowMore}
+            disabled={false}
+            sendCallback={() =>
+              navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }))
+            }
+            receiveCallback={() =>
+              navigation.dispatch(CommonActions.navigate('Receive', { wallet }))
+            }
+            buyCallback={() =>
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } })
+              )
+            }
           />
         </Box>
-      </Box>
-      <Box style={styles.actionCard}>
-        <FeatureCard
-          cardName={common.buyBitCoin}
-          callback={() =>
-            navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }))
-          }
-          icon={<BTC />}
-          customStyle={{ justifyContent: 'flex-end' }}
-        />
-        <FeatureCard
-          cardName={common.viewAllCoins}
-          callback={() =>
-            navigation.navigate('UTXOManagement', {
-              data: wallet,
-              routeName: 'Wallet',
-            })
-          }
-          icon={<CoinsIcon />}
-          customStyle={{ justifyContent: 'flex-end' }}
-        />
       </Box>
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
         {wallet ? (
           <Box
             flex={1}
             style={styles.transactionsContainer}
-            backgroundColor={`${colorMode}.thirdBackground`}
-            borderColor={`${colorMode}.separator`}
+            backgroundColor={`${colorMode}.primaryBackground`}
           >
             {wallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
@@ -197,7 +184,7 @@ function WalletDetails({ route }: ScreenProps) {
                     )
                   }
                 >
-                  <Text color={`${colorMode}.greenText`} medium fontSize={wp(14)}>
+                  <Text color={viewAll_color} medium fontSize={wp(14)}>
                     {common.viewAll}
                   </Text>
                 </Pressable>
@@ -209,7 +196,6 @@ function WalletDetails({ route }: ScreenProps) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <TransactionFooter currentWallet={wallet} />
           </Box>
         ) : (
           <Box
@@ -229,6 +215,41 @@ function WalletDetails({ route }: ScreenProps) {
         )}
       </VStack>
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
+      <KeeperModal
+        visible={showmore}
+        close={() => setShowMore(false)}
+        title={common.moreOptions}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        textColor={`${colorMode}.textGreen`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Content={() => {
+          return (
+            <Box>
+              <MoreCard
+                title={common.swapBtc}
+                callBack={() => {
+                  setShowMore(false);
+                  changeType();
+                }}
+                Icon={<SwapSvg />}
+              />
+              <MoreCard
+                title={common.viewAllCoins}
+                callBack={() => {
+                  setShowMore(false);
+                  setTimeout(() => {
+                    navigation.navigate('UTXOManagement', {
+                      data: wallet,
+                      routeName: 'Wallet',
+                    });
+                  }, 300);
+                }}
+                Icon={<CoinsIcon />}
+              />
+            </Box>
+          );
+        }}
+      />
     </Box>
   );
 }
@@ -261,10 +282,7 @@ const styles = StyleSheet.create({
   transactionsContainer: {
     paddingHorizontal: wp(22),
     marginTop: hp(5),
-    paddingTop: hp(24),
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1,
+    paddingTop: hp(10),
     borderBottomWidth: 0,
   },
   transTitleWrapper: {
@@ -297,6 +315,17 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  detailCardsContainer: {
+    zIndex: 1000,
+  },
+  detailCards: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    transform: [{ translateY: hp(50) }],
   },
 });
 export default SentryErrorBoundary(WalletDetails);

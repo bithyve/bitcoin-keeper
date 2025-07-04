@@ -9,7 +9,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import Colors from 'src/theme/Colors';
 
-function BalanceComponent({ balance, isShowAmount, setIsShowAmount, wallet }) {
+function BalanceComponent({ balance, isShowAmount, setIsShowAmount, BalanceFontSize }) {
   const dispatch = useDispatch();
   const { currencyKind } = useAppSelector((state) => state.settings);
 
@@ -45,7 +45,7 @@ function BalanceComponent({ balance, isShowAmount, setIsShowAmount, wallet }) {
         <CurrencyInfo
           amount={balance}
           hideAmounts={!isShowAmount}
-          fontSize={19}
+          fontSize={BalanceFontSize ? BalanceFontSize : 19}
           color={Colors.bodyText}
           variation="light"
           wallet={wallet}

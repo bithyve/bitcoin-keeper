@@ -24,6 +24,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
 import { EntityKind } from 'src/services/wallets/enums';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 function TransactionElement({
   transaction,
@@ -64,7 +65,8 @@ function TransactionElement({
 
   const { labels } = useLabelsNew({ txid: transactionId });
   const { colorMode } = useColorMode();
-  const formattedDate = moment(date)?.format('DD MMM YY  .  HH:mm A');
+  const date = moment(transaction?.date)?.format('DD MMM YY  .  HH:mm A');
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
     <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transactionId}`}>
@@ -108,12 +110,8 @@ function TransactionElement({
             >
               {labels[transactionId]?.[0]?.name || transactionId}
             </Text>
-            <Text
-              color={`${colorMode}.secondaryText`}
-              style={styles.transactionDate}
-              numberOfLines={1}
-            >
-              {formattedDate}
+            <Text color={viewAll_color} style={styles.transactionDate} numberOfLines={1}>
+              {date}
             </Text>
           </Box>
         </Box>
