@@ -17,6 +17,7 @@ import { CommonActions } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import useSignerMap from 'src/hooks/useSignerMap';
+import { SignerType } from 'src/services/wallets/enums';
 
 export const ImportedWalletSetup = ({ navigation, route }) => {
   const { vaultConfig } = route?.params;
@@ -34,14 +35,17 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
 
   useEffect(() => {
     const { signers, miniscriptElements, scheme, vaultSigners } = vaultConfig;
-    const updatedSigners = signers.map(
-      (signer) => signerMap[signer.id] ?? { ...signer, isTemp: true }
-    );
+    const updatedSigners = signers.map((signer) => {
+      if (signerMap[signer.id]?.type && signerMap[signer.id]?.type !== SignerType.UNKOWN_SIGNER)
+        return signerMap[signer.id];
+      return { ...signer, isTemp: true };
+    });
     setSigners(updatedSigners);
     setVaultDetails({ miniscriptElements, scheme, vaultSigners });
   }, []);
 
   const updateSignerType = (selectedSigner) => {
+    if (!selectedSigner.isTemp) return;
     dispatch(resetSignersUpdateState());
     navigation.dispatch(
       CommonActions.navigate({
@@ -123,7 +127,6 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
                     colorMode={colorMode}
                     onCardSelect={(signer) => updateSignerType(signer)}
                     isSelected={signer}
-                    disabled={!signer?.isTemp}
                   />
                 );
               })}
