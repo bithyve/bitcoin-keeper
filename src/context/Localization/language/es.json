@@ -175,7 +175,8 @@
     "signMessage": "Sign Message",
     "moreInfo": "More Info",
     "lessInfo": "Less Info",
-    "update": "Update"
+    "update": "Update",
+    "swapBtc": "Swap BTC"
   },
   "login": {
     "welcomeback": "Welcome Back",
@@ -508,7 +509,10 @@
     "chooseSignMessageMedium": "Choose how to sign message",
     "chooseImportSignatureMedium": "Choose how to import signature",
     "verifyTitle": "Verify signed message",
-    "verifySubtitle": "Scan the signed message from your hardware wallet"
+    "verifySubtitle": "Scan the signed message from your hardware wallet",
+    "sendBitcoin": "Send Bitcoin",
+    "receiveBitcoin": "Receive Bitcoin",
+    "buyBitCoin": "Buy Bitcoin with Ramp"
   },
   "vault": {
     "Addsigner": "Add a Signer",

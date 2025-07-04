@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, StatusBar } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -7,17 +7,12 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CoinIcon from 'src/assets/images/coins.svg';
 import SignerIcon from 'src/assets/images/keys-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import SendIcon from 'src/assets/images/send-diagonal-arrow-up.svg';
-import SendIconWhite from 'src/assets/images/send-diagonal-arrow-up.svg';
-import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
-import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault } from 'src/services/wallets/interfaces/vault';
 import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
@@ -27,25 +22,17 @@ import useSigners from 'src/hooks/useSigners';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import BTC from 'src/assets/images/icon_bitcoin_white.svg';
-import ImportIcon from 'src/assets/images/import.svg';
-import { reinstateVault } from 'src/store/sagaActions/vaults';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { ConciergeTag } from 'src/store/sagaActions/concierge';
-import { cachedTxSnapshot, dropTransactionSnapshot } from 'src/store/reducers/cachedTxn';
+import { cachedTxSnapshot } from 'src/store/reducers/cachedTxn';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import PendingHealthCheckModal from 'src/components/PendingHealthCheckModal';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
-import WalletHeader from 'src/components/WalletHeader';
-import FooterActions from 'src/components/FooterActions';
-import FeatureCard from 'src/components/FeatureCard';
-import WalletCard from '../Home/components/Wallet/WalletCard';
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import Colors from 'src/theme/Colors';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
@@ -63,105 +50,10 @@ import { getTnxIdFromCachedTnx } from 'src/utils/utilities';
 import { discardBroadcastedTnx } from 'src/store/sagaActions/send_and_receive';
 import WalletDetailHeader from '../WalletDetails/components/WalletDetailHeader';
 import DetailCards from '../WalletDetails/components/DetailCards';
-
-function Footer({
-  vault,
-  isCollaborativeWallet,
-  pendingHealthCheckCount,
-  setShowHealthCheckModal,
-  setShowTimelockModal,
-  timeUntilTimelockExpires,
-}: {
-  vault: Vault;
-  isCollaborativeWallet: boolean;
-  pendingHealthCheckCount: number;
-  setShowHealthCheckModal: any;
-  setShowTimelockModal: any;
-  timeUntilTimelockExpires: any;
-}) {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { colorMode } = useColorMode();
-  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
-
-  const handlePathSelected = (miniscriptSelectedSatisfier) => {
-    navigation.dispatch(
-      CommonActions.navigate('Send', {
-        sender: vault,
-        miniscriptSelectedSatisfier,
-      })
-    );
-  };
-
-  const selectVaultSpendingPaths = async () => {
-    if (miniscriptPathSelectorRef.current) {
-      await miniscriptPathSelectorRef.current.selectVaultSpendingPaths();
-    }
-  };
-
-  const footerItems = vault.archived
-    ? [
-        {
-          Icon: ImportIcon,
-          text: common.reinstate,
-          onPress: () => {
-            dispatch(reinstateVault(vault.id));
-            showToast('Vault reinstated successfully', <TickIcon />);
-          },
-        },
-      ]
-    : [
-        {
-          Icon: colorMode === 'light' ? SendIcon : SendIconWhite,
-          text: common.send,
-          onPress: async () => {
-            if (timeUntilTimelockExpires) {
-              setShowTimelockModal(true);
-              return;
-            }
-            if (vault.type === VaultType.MINISCRIPT) {
-              try {
-                await selectVaultSpendingPaths();
-              } catch (err) {
-                showToast(err, <ToastErrorIcon />);
-              }
-            } else {
-              navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-            }
-          },
-        },
-        {
-          Icon: colorMode === 'light' ? RecieveIcon : RecieveIconWhite,
-          text: common.receive,
-          onPress: () => {
-            if (pendingHealthCheckCount >= vault.scheme.m) {
-              setShowHealthCheckModal(true);
-            } else {
-              navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
-            }
-          },
-        },
-      ];
-  return (
-    <>
-      <FooterActions
-        items={footerItems}
-        wrappedScreen={false}
-        backgroundColor={`${colorMode}.thirdBackground`}
-      />
-      <MiniscriptPathSelector
-        ref={miniscriptPathSelectorRef}
-        vault={vault}
-        onPathSelected={handlePathSelected}
-        onError={(err) => showToast(err, <ToastErrorIcon />)}
-        onCancel={() => {}}
-      />
-    </>
-  );
-}
+import MoreCard from '../WalletDetails/components/MoreCard';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import { setCurrencyKind } from 'src/store/reducers/settings';
+import SwapSvg from 'src/assets/images/swap.svg';
 
 function TransactionList({
   transactions,
@@ -309,6 +201,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [currentBlockHeight, setCurrentBlockHeight] = useState<number | null>(null);
   const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
+  const [showmore, setShowMore] = useState(false);
+
+  const { currencyKind } = useAppSelector((state) => state.settings);
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
   useEffect(() => {
     if (vault?.type === VaultType.MINISCRIPT) {
@@ -549,6 +445,28 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       }
     }
   };
+  const changeType = () => {
+    if (currencyKind === CurrencyKind.BITCOIN) {
+      dispatch(setCurrencyKind(CurrencyKind.FIAT));
+    } else {
+      dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
+    }
+  };
+
+  const selectVaultSpendingPaths = async () => {
+    if (miniscriptPathSelectorRef.current) {
+      await miniscriptPathSelectorRef.current.selectVaultSpendingPaths();
+    }
+  };
+
+  const handlePathSelected = (miniscriptSelectedSatisfier) => {
+    navigation.dispatch(
+      CommonActions.navigate('Send', {
+        sender: vault,
+        miniscriptSelectedSatisfier,
+      })
+    );
+  };
 
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
@@ -572,95 +490,43 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       />
       <Box style={styles.detailCardsContainer}>
         <Box style={styles.detailCards}>
-          <DetailCards wallet={vault} />
+          <DetailCards
+            setShowMore={setShowMore}
+            sendCallback={async () => {
+              if (timeUntilTimelockExpires) {
+                setShowTimelockModal(true);
+                return;
+              }
+              if (vault.type === VaultType.MINISCRIPT) {
+                try {
+                  await selectVaultSpendingPaths();
+                } catch (err) {
+                  showToast(err, <ToastErrorIcon />);
+                }
+              } else {
+                navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+              }
+            }}
+            receiveCallback={() => {
+              if (pendingHealthCheckCount >= vault.scheme.m) {
+                setShowHealthCheckModal(true);
+              } else {
+                navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+              }
+            }}
+            buyCallback={() =>
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
+              )
+            }
+          />
         </Box>
       </Box>
-      {/* <VStack style={styles.topSection}>
-        <WalletHeader
-          data={vault}
-          rightComponent={
-            <TouchableOpacity
-              style={styles.settingBtn}
-              onPress={
-                !vault.archived
-                  ? () =>
-                      navigation.dispatch(
-                        CommonActions.navigate('VaultSettings', { vaultId: vault.id })
-                      )
-                  : () => {
-                      navigation.push('VaultSettings', { vaultId: vault.id });
-                    }
-              }
-            >
-              <ThemedSvg name={'setting_icon'} width={25} height={25} />
-            </TouchableOpacity>
-          }
-        />
-
-        <Box style={styles.card}>
-          <WalletCard
-            backgroundColor={getWalletCardGradient(vault)}
-            hexagonBackgroundColor={Colors.CyanGreen}
-            icon={<WalletIcon />}
-            iconWidth={42}
-            iconHeight={38}
-            title={vault.presentationData.name}
-            tags={getWalletTags(vault)}
-            totalBalance={vault.specs.balances.confirmed + vault.specs.balances.unconfirmed}
-            description={vault.presentationData.description}
-            wallet={vault}
-            allowHideBalance={false}
-          />
-        </Box>
-      </VStack>
-      {!vault.archived && (
-        <HStack style={styles.actionCardContainer}>
-          {!isCanaryWallet && (
-            <FeatureCard
-              cardName={common.buyBitCoin}
-              callback={() =>
-                navigation.dispatch(
-                  CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
-                )
-              }
-              icon={<BTC />}
-              customStyle={{ justifyContent: 'flex-end' }}
-            />
-          )}
-          <FeatureCard
-            cardName={common.viewAllCoins}
-            callback={() =>
-              navigation.navigate('UTXOManagement', {
-                data: vault,
-                routeName: 'Vault',
-                vaultId,
-              })
-            }
-            icon={<CoinIcon />}
-            customStyle={{ justifyContent: 'flex-end' }}
-          />
-          {!isCanaryWallet && (
-            <FeatureCard
-              cardName={common.manageKeys}
-              callback={() =>
-                navigation.dispatch(
-                  CommonActions.navigate({
-                    name: 'ManageSigners',
-                    params: { vaultId, vaultKeys: vault.signers },
-                  })
-                )
-              }
-              icon={<SignerIcon />}
-              customStyle={{ justifyContent: 'flex-end' }}
-            />
-          )}
-        </HStack>
-      )} */}
       <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.bottomSection}>
         <Box
           flex={1}
           style={styles.transactionsContainer}
-          backgroundColor={`${colorMode}.thirdBackground`}
+          backgroundColor={`${colorMode}.primaryBackground`}
         >
           <TransactionList
             transactions={[...cachedTransactions, ...transactions]}
@@ -670,17 +536,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             isCollaborativeWallet={isCollaborativeWallet}
           />
         </Box>
-        <Box>
-          <Footer
-            vault={vault}
-            isCollaborativeWallet={isCollaborativeWallet}
-            pendingHealthCheckCount={pendingHealthCheckCount}
-            isCanaryWallet={isCanaryWallet}
-            setShowHealthCheckModal={setShowHealthCheckModal}
-            setShowTimelockModal={setShowTimelockModal}
-            timeUntilTimelockExpires={timeUntilTimelockExpires}
-          />
-        </Box>
+        <Box></Box>
       </VStack>
       <KeeperModal
         visible={introModal}
@@ -752,6 +608,84 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={showTimelockModalContent}
+      />
+      <KeeperModal
+        visible={showmore}
+        close={() => setShowMore(false)}
+        title={common.moreOptions}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        textColor={`${colorMode}.textGreen`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Content={() => {
+          return (
+            <Box>
+              <MoreCard
+                title={common.swapBtc}
+                callBack={() => {
+                  setShowMore(false);
+                  changeType();
+                }}
+                Icon={<SwapSvg />}
+              />
+              <MoreCard
+                title={common.viewAllCoins}
+                callBack={() => {
+                  setShowMore(false);
+                  setTimeout(() => {
+                    navigation.navigate('UTXOManagement', {
+                      data: vault,
+                      routeName: 'Vault',
+                      vaultId,
+                    });
+                  }, 300);
+                }}
+                Icon={<CoinIcon />}
+              />
+              {!isCanaryWallet && !vault.archived && (
+                <MoreCard
+                  title={common.manageKeys}
+                  callBack={() => {
+                    setShowMore(false);
+                    setTimeout(() => {
+                      navigation.dispatch(
+                        CommonActions.navigate({
+                          name: 'ManageSigners',
+                          params: { vaultId, vaultKeys: vault.signers },
+                        })
+                      );
+                    }, 300);
+                  }}
+                  Icon={<SignerIcon />}
+                />
+              )}
+              {!isCanaryWallet && !vault.archived && (
+                <MoreCard
+                  title={common.buyBitCoin}
+                  callBack={() => {
+                    setShowMore(false);
+                    setTimeout(() => {
+                      navigation.dispatch(
+                        CommonActions.navigate({
+                          name: 'BuyBitcoin',
+                          params: { wallet: vault },
+                        })
+                      );
+                    }, 300);
+                  }}
+                  Icon={<BTC />}
+                />
+              )}
+            </Box>
+          );
+        }}
+      />
+
+      <MiniscriptPathSelector
+        ref={miniscriptPathSelectorRef}
+        vault={vault}
+        onPathSelected={handlePathSelected}
+        onError={(err) => showToast(err, <ToastErrorIcon />)}
+        onCancel={() => {}}
       />
     </Box>
   );

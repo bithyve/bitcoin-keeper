@@ -1,6 +1,5 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import SendBtcArrow from 'src/assets/images/send-btc-arrow.svg';
 import RecieveBtcArrow from 'src/assets/images/recieve-btc-arrow.svg';
@@ -8,40 +7,49 @@ import BuyBtcIcon from 'src/assets/images/buy-btc-icon.svg';
 import MoreBtcIcon from 'src/assets/images/more-btc-icon.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import SendWhiteIcon from 'src/assets/images/send-btc-white-arrow.svg';
+import RecieveWhiteIcon from 'src/assets/images/recieve-btc-white-arrow.svg';
+import BuyBtcWhiteIcon from 'src/assets/images/buy-btc-icon-white.svg';
+import MoreBtcIconWhite from 'src/assets/images/more-option-white-icon.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const DetailCards = ({ wallet }) => {
+const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback }) => {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
+  const isDarkMode = colorMode === 'dark';
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslations, common } = translations;
   const CardsData = [
     {
       id: 1,
-      icon: SendBtcArrow,
-      title: 'Send Bitcoin',
+      icon: isDarkMode ? SendWhiteIcon : SendBtcArrow,
+      title: walletTranslations.sendBitcoin,
       callback: () => {
-        navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }));
+        sendCallback();
       },
     },
     {
       id: 2,
-      icon: RecieveBtcArrow,
-      title: 'Received Bitcoin',
+      icon: isDarkMode ? RecieveWhiteIcon : RecieveBtcArrow,
+      title: walletTranslations.receiveBitcoin,
       callback: () => {
-        navigation.dispatch(CommonActions.navigate('Receive', { wallet }));
+        receiveCallback();
       },
     },
     {
       id: 3,
-      icon: BuyBtcIcon,
-      title: 'Buy Bitcoin with Ramp',
+      icon: isDarkMode ? BuyBtcWhiteIcon : BuyBtcIcon,
+      title: walletTranslations.buyBitCoin,
       callback: () => {
-        navigation.dispatch(CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } }));
+        buyCallback();
       },
     },
     {
       id: 4,
-      icon: MoreBtcIcon,
-      title: 'More Options',
-      callback: () => {},
+      icon: isDarkMode ? MoreBtcIconWhite : MoreBtcIcon,
+      title: common.moreOptions,
+      callback: () => {
+        setShowMore(true);
+      },
     },
   ];
 
@@ -50,7 +58,7 @@ const DetailCards = ({ wallet }) => {
       {CardsData.map(({ id, icon: Icon, title, callback }) => (
         <TouchableOpacity key={id} onPress={callback}>
           <Box
-            backgroundColor={`${colorMode}.textInputBackground`}
+            backgroundColor={`${colorMode}.primaryBackground`}
             borderWidth={1}
             borderColor={`${colorMode}.separator`}
             style={styles.card}
