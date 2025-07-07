@@ -124,13 +124,6 @@ function WalletDetails({ route }: ScreenProps) {
     dispatch(refreshWallets([wallet], { hardRefresh }));
     setPullRefresh(false);
   };
-  const changeType = () => {
-    if (currencyKind === CurrencyKind.BITCOIN) {
-      dispatch(setCurrencyKind(CurrencyKind.FIAT));
-    } else {
-      dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
-    }
-  };
 
   return (
     <Box style={styles.wrapper}>
@@ -225,14 +218,13 @@ function WalletDetails({ route }: ScreenProps) {
         Content={() => {
           return (
             <Box>
-              <MoreCard
+              {/* <MoreCard
                 title={common.swapBtc}
                 callBack={() => {
                   setShowMore(false);
-                  changeType();
                 }}
                 Icon={<SwapSvg />}
-              />
+              /> */}
               <MoreCard
                 title={common.viewAllCoins}
                 callBack={() => {

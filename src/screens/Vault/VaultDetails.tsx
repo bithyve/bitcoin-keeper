@@ -446,13 +446,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       }
     }
   };
-  const changeType = () => {
-    if (currencyKind === CurrencyKind.BITCOIN) {
-      dispatch(setCurrencyKind(CurrencyKind.FIAT));
-    } else {
-      dispatch(setCurrencyKind(CurrencyKind.BITCOIN));
-    }
-  };
 
   const selectVaultSpendingPaths = async () => {
     if (miniscriptPathSelectorRef.current) {
@@ -621,14 +614,13 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         Content={() => {
           return (
             <Box>
-              <MoreCard
+              {/* <MoreCard
                 title={common.swapBtc}
                 callBack={() => {
                   setShowMore(false);
-                  changeType();
                 }}
                 Icon={<SwapSvg />}
-              />
+              /> */}
               <MoreCard
                 title={common.viewAllCoins}
                 callBack={() => {
