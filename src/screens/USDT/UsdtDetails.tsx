@@ -1,24 +1,23 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, HStack, StatusBar, useColorMode, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import WalletCard from '../Home/components/Wallet/WalletCard';
-import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import WalletHeader from 'src/components/WalletHeader';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
-import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { useAppSelector } from 'src/store/hooks';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Transactions from '../WalletDetails/components/Transactions';
-import UsdtFooter from './components/UsdtFooter';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import WalletDetailHeader from '../WalletDetails/components/WalletDetailHeader';
+import DetailCards from '../WalletDetails/components/DetailCards';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import MoreCard from '../WalletDetails/components/MoreCard';
+import KeeperModal from 'src/components/KeeperModal';
+import SwapSvg from 'src/assets/images/swap.svg';
 
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -39,7 +38,6 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
 
 const UsdtDetails = ({ route }) => {
   const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -47,39 +45,37 @@ const UsdtDetails = ({ route }) => {
   const [pullRefresh, setPullRefresh] = useState(false);
   const { usdtWalletId } = route.params || {};
   const { getWalletById } = useUSDTWallets();
-
   const usdtWallet = getWalletById(usdtWalletId);
+  const [showmore, setShowMore] = useState(false);
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
-    <Box safeAreaTop style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Box style={styles.topContainer}>
-        <WalletHeader
-          rightComponent={
-            <TouchableOpacity
-              style={styles.settingBtn}
-              onPress={() => {
-                navigation.navigate('usdtsetting', { usdtWallet });
-              }}
-            >
-              <ThemedSvg name={'setting_icon'} width={25} height={25} />
-            </TouchableOpacity>
-          }
-        />
-
-        <Box style={styles.card}>
-          <WalletCard
-            backgroundColor={getWalletCardGradient(usdtWallet)}
-            hexagonBackgroundColor={Colors.aqualightMarine}
-            icon={<UsdtWalletLogo />}
-            iconWidth={42}
-            iconHeight={38}
-            title={usdtWallet.presentationData.name}
-            tags={getWalletTags(usdtWallet)}
-            totalBalance={getAvailableBalanceUSDTWallet(usdtWallet)}
-            description={usdtWallet.presentationData.description}
-            wallet={usdtWallet}
-            allowHideBalance={false}
+    <Box style={styles.wrapper}>
+      <WalletDetailHeader
+        settingCallBack={() =>
+          navigation.dispatch(CommonActions.navigate('usdtsetting', { usdtWallet }))
+        }
+        backgroundColor={getWalletCardGradient(usdtWallet)}
+        title={usdtWallet.presentationData.name}
+        tags={getWalletTags(usdtWallet)}
+        totalBalance={getAvailableBalanceUSDTWallet(usdtWallet)}
+        description={usdtWallet.presentationData.description}
+        wallet={usdtWallet}
+      />
+      <Box style={styles.detailCardsContainer}>
+        <Box style={styles.detailCards}>
+          <DetailCards
+            setShowMore={setShowMore}
+            disabled={false}
+            sendCallback={() =>
+              navigation.dispatch(CommonActions.navigate('sendUsdt', { usdtWallet }))
+            }
+            receiveCallback={() =>
+              navigation.dispatch(CommonActions.navigate('usdtReceive', { usdtWallet }))
+            }
+            buyCallback={() =>
+              navigation.dispatch(CommonActions.navigate('buyUstd', { usdtWallet }))
+            }
           />
         </Box>
       </Box>
@@ -89,7 +85,6 @@ const UsdtDetails = ({ route }) => {
             flex={1}
             style={styles.transactionsContainer}
             backgroundColor={`${colorMode}.thirdBackground`}
-            borderColor={`${colorMode}.separator`}
           >
             {usdtWallet?.specs?.transactions?.length ? (
               <HStack style={styles.transTitleWrapper}>
@@ -107,7 +102,7 @@ const UsdtDetails = ({ route }) => {
                     )
                   }
                 >
-                  <Text color={`${colorMode}.greenText`} medium fontSize={wp(14)}>
+                  <Text color={viewAll_color} medium fontSize={wp(14)}>
                     {common.viewAll}
                   </Text>
                 </Pressable>
@@ -119,9 +114,7 @@ const UsdtDetails = ({ route }) => {
               pullRefresh={pullRefresh}
               wallet={usdtWallet}
             />
-            <Box style={styles.footerContainer}>
-              <UsdtFooter usdtWallet={usdtWallet} />
-            </Box>
+            <Box style={styles.footerContainer}></Box>
           </Box>
         ) : (
           <Box
@@ -140,6 +133,27 @@ const UsdtDetails = ({ route }) => {
           </Box>
         )}
       </VStack>
+      <KeeperModal
+        visible={showmore}
+        close={() => setShowMore(false)}
+        title={common.moreOptions}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        textColor={`${colorMode}.textGreen`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Content={() => {
+          return (
+            <Box>
+              <MoreCard
+                title={common.swapBtc}
+                callBack={() => {
+                  setShowMore(false);
+                }}
+                Icon={<SwapSvg />}
+              />
+            </Box>
+          );
+        }}
+      />
     </Box>
   );
 };
@@ -175,9 +189,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(22),
     marginTop: hp(5),
     paddingTop: hp(24),
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderWidth: 1,
     borderBottomWidth: 0,
   },
   transTitleWrapper: {
@@ -215,5 +226,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: hp(20),
+  },
+  detailCardsContainer: {
+    zIndex: 1000,
+  },
+  detailCards: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    transform: [{ translateY: hp(50) }],
   },
 });
