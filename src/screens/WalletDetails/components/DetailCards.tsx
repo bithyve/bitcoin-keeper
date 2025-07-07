@@ -5,17 +5,37 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { EntityKind } from 'src/services/wallets/enums';
 
-const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback, disabled }) => {
+interface Props {
+  setShowMore?: (value: boolean) => void;
+  sendCallback?: () => void;
+  receiveCallback?: () => void;
+  buyCallback?: () => void;
+  disabled?: boolean;
+  wallet?: any;
+}
+
+const DetailCards = ({
+  setShowMore,
+  sendCallback,
+  receiveCallback,
+  buyCallback,
+  disabled,
+  wallet,
+}: Props) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations, common } = translations;
+  const { wallet: walletTranslations, common, usdtWalletText } = translations;
 
   const CardsData = [
     {
       id: 1,
       icon: 'send_Btc_arrow',
-      title: walletTranslations.sendBitcoin,
+      title:
+        wallet?.entityKind === EntityKind.USDT_WALLET
+          ? usdtWalletText.sendUsdt
+          : walletTranslations.sendBitcoin,
       callback: () => {
         sendCallback();
       },
@@ -24,7 +44,10 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback, 
     {
       id: 2,
       icon: 'recieve_Btc_arrow',
-      title: walletTranslations.receiveBitcoin,
+      title:
+        wallet?.entityKind === EntityKind.USDT_WALLET
+          ? usdtWalletText.recieveUSdt
+          : walletTranslations.receiveBitcoin,
       callback: () => {
         receiveCallback();
       },
@@ -33,7 +56,10 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback, 
     {
       id: 3,
       icon: 'buy_Btc_icon',
-      title: walletTranslations.buyBitCoin,
+      title:
+        wallet?.entityKind === EntityKind.USDT_WALLET
+          ? usdtWalletText.buyUSdt
+          : walletTranslations.buyBitCoin,
       callback: () => {
         buyCallback();
       },
@@ -44,7 +70,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback, 
       icon: 'more_Btc_icon',
       title: common.moreOptions,
       callback: () => {
-        // setShowMore(true);
+        setShowMore(true);
       },
       disableOption: false,
     },

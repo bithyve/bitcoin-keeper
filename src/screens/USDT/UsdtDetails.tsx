@@ -65,7 +65,7 @@ const UsdtDetails = ({ route }) => {
       <Box style={styles.detailCardsContainer}>
         <Box style={styles.detailCards}>
           <DetailCards
-            setShowMore={setShowMore}
+            // setShowMore={setShowMore}
             disabled={false}
             sendCallback={() =>
               navigation.dispatch(CommonActions.navigate('sendUsdt', { usdtWallet }))
@@ -76,6 +76,7 @@ const UsdtDetails = ({ route }) => {
             buyCallback={() =>
               navigation.dispatch(CommonActions.navigate('buyUstd', { usdtWallet }))
             }
+            wallet={usdtWallet}
           />
         </Box>
       </Box>

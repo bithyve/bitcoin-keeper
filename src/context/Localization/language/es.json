@@ -1953,6 +1953,9 @@
     "status": "Status",
     "sendingAmount": "Sending Amount",
     "recievedAmount": "Received Amount",
-    "recipientAddress": "Recipient’s address"
+    "recipientAddress": "Recipient’s address",
+    "sendUsdt": "Send   USDT",
+    "recieveUSdt": "Receive USDT",
+    "buyUSdt": "Buy USDT with  Ramp"
   }
 }
