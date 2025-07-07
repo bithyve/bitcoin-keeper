@@ -1906,6 +1906,8 @@
     "invalidSignatureFormat": "Invalid signed message format",
     "passwordError": "Please enter a valid password",
     "confirmPasswordError": "Confirm password is required",
-    "passwordMatchError": "Password does not match"
+    "passwordMatchError": "Password does not match",
+    "psbtNotMatch": "This PSBT does not match the current transaction",
+    "psbtMissingSignature": "This PSBT does not include a signature for the selected signer"
   }
 }

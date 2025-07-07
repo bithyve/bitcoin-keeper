@@ -865,3 +865,27 @@ export const manipulateBitcoinPrices = (data) => {
 
   return { dailyPrice, latestPrice, high24h, low24h, percentChange, valueChange };
 };
+
+export const validatePSBT = (unsigned, signed, signer, errorText) => {
+  const unsignedHex = bitcoin.Psbt.fromBase64(unsigned).__CACHE.__TX.toHex();
+  const signedPsbtObj = bitcoin.Psbt.fromBase64(signed);
+  const signedHex = signedPsbtObj.__CACHE.__TX.toHex();
+  if (signedHex !== unsignedHex) {
+    throw new Error(errorText.psbtNotMatch);
+  }
+  const signerPublicKey = getInputsToSignFromPSBT(signed, signer).map((data) => data.publicKey)[0];
+  let isSigned = false;
+  for (const [_, input] of signedPsbtObj.data.inputs.entries()) {
+    if (input.partialSig) {
+      for (const sig of input.partialSig) {
+        if (sig.pubkey.toString('hex') === signerPublicKey) {
+          isSigned = true;
+          break;
+        }
+      }
+    }
+  }
+  if (!isSigned) {
+    throw new Error(errorText.psbtMissingSignature);
+  }
+};
