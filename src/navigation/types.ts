@@ -181,6 +181,7 @@ export type AppStackParams = {
   AddMultipleXpubFiles: undefined;
   SignMessageScreen: undefined;
   CloudBackupPassword: undefined;
+  ImportedWalletSetup: undefined;
 };
 
 // Usage:

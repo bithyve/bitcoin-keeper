@@ -432,16 +432,20 @@ export function* addSigningDeviceWorker({
         multiSigMatch ||
         taprootMatch;
 
-      if (signerMergeCondition) {
-        signersToUpdate.push({
-          ...existingSigner,
-          type: [SignerType.UNKOWN_SIGNER, SignerType.OTHER_SD].includes(existingSigner.type)
-            ? newSigner.type
-            : existingSigner.type,
-          signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
-        });
-        continue;
-      }
+        if (signerMergeCondition) {
+          const { type, signerName } = [SignerType.UNKOWN_SIGNER, SignerType.OTHER_SD].includes(
+            existingSigner.type
+          )
+            ? newSigner
+            : existingSigner;
+          signersToUpdate.push({
+            ...existingSigner,
+            type,
+            signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
+            signerName,
+          });
+          continue;
+        }
 
       const singleSigDifferent = keysDifferent(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigDifferent = keysDifferent(XpubTypes.P2WSH, newSigner, existingSigner);

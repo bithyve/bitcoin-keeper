@@ -36,7 +36,7 @@ function VaultConfigurationCreation({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [inputText, setInputText] = useState('');
-  const { recoveryLoading, initateRecovery } = useConfigRecovery();
+  const { recoveryLoading, initateRecovery, checkIfVaultExists } = useConfigRecovery();
 
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet, signer: signerTranslation } = translations;
@@ -58,7 +58,7 @@ function VaultConfigurationCreation({ route }) {
         allowMultiSelection: false,
       });
       const content = await RNFS.readFile(response[0].uri, 'utf8');
-      initateRecovery(content);
+      navigateToSetup(content);
     } catch (err) {
       console.log(err);
     }
@@ -82,6 +82,14 @@ function VaultConfigurationCreation({ route }) {
       </View>
     );
   }
+
+  const navigateToSetup = (vaultConfig, entityKind?: EntityKind) => {
+    const callback = (vaultConfig) => {
+      if (!checkIfVaultExists(vaultConfig.vaultSigners, vaultConfig.scheme))
+        navigation.replace('ImportedWalletSetup', { vaultConfig });
+    };
+    initateRecovery(vaultConfig, callback, entityKind);
+  };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -107,7 +115,7 @@ function VaultConfigurationCreation({ route }) {
           <Box marginTop={hp(10)}>
             <QRScanner
               onScanCompleted={(data) => {
-                if (!recoveryLoading) initateRecovery(data, entityKind);
+                navigateToSetup(data, entityKind);
               }}
             />
             <Box style={styles.optionsWrapper}>
@@ -169,7 +177,7 @@ function VaultConfigurationCreation({ route }) {
           <Buttons
             primaryCallback={() => {
               Keyboard.dismiss();
-              initateRecovery(inputText, entityKind);
+              navigateToSetup(inputText, entityKind);
             }}
             primaryText={common.proceed}
             primaryLoading={recoveryLoading}

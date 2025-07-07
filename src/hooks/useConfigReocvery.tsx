@@ -46,16 +46,18 @@ const useConfigRecovery = () => {
     message: '',
   };
 
-  const createVault = (scheme, signersList, vaultSignersList, miniscriptElements) => {
+  const createVault = (
+    scheme,
+    signersList,
+    vaultSignersList,
+    miniscriptElements,
+    vaultName = importWallet.importedWalletTitle,
+    vaultDescription = walletText.secureSats
+  ) => {
+    setRecoveryLoading(true);
     if (scheme && signersList?.length >= 1 && vaultSignersList?.length >= 1) {
       const generatedVaultId = generateVaultId(vaultSignersList, scheme);
-      if (allVaults.find((vault) => vault.id === generatedVaultId)) {
-        Alert.alert(errorText.vaultAlreadyExists);
-        dispatch(resetRealyVaultState());
-        setRecoveryLoading(false);
-        navigation.goBack();
-        return;
-      }
+      if (checkIfVaultExists(vaultSignersList, scheme)) return;
       try {
         dispatch(
           addSigningDevice(signersList, () => {
@@ -68,8 +70,8 @@ const useConfigRecovery = () => {
               vaultScheme: scheme,
               vaultSigners: vaultSignersList,
               vaultDetails: {
-                name: importWallet.importedWalletTitle,
-                description: walletText.secureSats,
+                name: vaultName,
+                description: vaultDescription,
               },
               miniscriptElements,
             };
@@ -80,8 +82,9 @@ const useConfigRecovery = () => {
       } catch (err) {
         captureError(err);
         Alert.alert(err);
-        setRecoveryLoading(false);
         navigation.goBack();
+      } finally {
+        setRecoveryLoading(false);
       }
     }
   };
@@ -110,7 +113,7 @@ const useConfigRecovery = () => {
     }
   }, [relayVaultUpdate, relayVaultError, generatedVaultId]);
 
-  const initateRecovery = (text, entityKind?: EntityKind) => {
+  const initateRecovery = (text, callback = null, entityKind?: EntityKind) => {
     setRecoveryLoading(true);
     setTimeout(async () => {
       if (entityKind === EntityKind.USDT_WALLET) {
@@ -186,7 +189,17 @@ const useConfigRecovery = () => {
             vaultSigners.push(key);
             signers.push(signer);
           });
-          createVault(parsedText.scheme, signers, vaultSigners, parsedText.miniscriptElements);
+          if (callback) {
+            setRecoveryLoading(false);
+            callback({
+              scheme: parsedText.scheme,
+              signers,
+              vaultSigners,
+              miniscriptElements: parsedText.miniscriptElements,
+            });
+            return;
+          } else
+            createVault(parsedText.scheme, signers, vaultSigners, parsedText.miniscriptElements);
         }
       } catch (err) {
         setRecoveryLoading(false);
@@ -197,7 +210,19 @@ const useConfigRecovery = () => {
     }, 100);
   };
 
-  return { recoveryLoading, recoveryError, initateRecovery };
+  const checkIfVaultExists = (vaultSigners, scheme) => {
+    const generatedVaultId = generateVaultId(vaultSigners, scheme);
+    if (allVaults.find((vault) => vault.id === generatedVaultId)) {
+      Alert.alert(errorText.vaultAlreadyExists);
+      dispatch(resetRealyVaultState());
+      setRecoveryLoading(false);
+      navigation.goBack();
+      return true;
+    }
+    return false;
+  };
+
+  return { recoveryLoading, recoveryError, initateRecovery, createVault, checkIfVaultExists };
 };
 
 export default useConfigRecovery;
