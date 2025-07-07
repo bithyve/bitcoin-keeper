@@ -44,7 +44,7 @@ const DetailCards = ({ setShowMore, sendCallback, receiveCallback, buyCallback, 
       icon: 'more_Btc_icon',
       title: common.moreOptions,
       callback: () => {
-        setShowMore(true);
+        // setShowMore(true);
       },
       disableOption: false,
     },
