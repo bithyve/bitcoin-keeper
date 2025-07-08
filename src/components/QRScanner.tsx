@@ -36,6 +36,7 @@ function QRScanner({
   const bbqrArray = useRef([]);
   const { translations } = useContext(LocalizationContext);
   const { error: errorText } = translations;
+  const hasScannedRef = useRef(false);
 
   const { showToast } = useToastMessage();
 
@@ -66,14 +67,15 @@ function QRScanner({
   );
 
   useEffect(() => {
-    if (qrData) {
+    if (qrData && !hasScannedRef.current) {
+      hasScannedRef.current = true;
       onScanCompleted(qrData);
       resetQR();
     }
     return () => {
       decoder = new URRegistryDecoder();
     };
-  }, [qrData]);
+  }, [qrData && !hasScannedRef.current]);
 
   const onBarCodeRead = useCallback(
     (data) => {

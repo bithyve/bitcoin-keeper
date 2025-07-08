@@ -4,7 +4,7 @@ import * as bip39 from 'bip39';
 import crypto from 'crypto';
 import config from 'src/utils/service-utilities/config';
 import BIP32Factory from 'bip32';
-import { WalletType, BIP85Languages, BIP85Words } from '../enums';
+import { WalletType, BIP85Languages, BIP85Words, EntityKind } from '../enums';
 import { BIP85Config } from '../interfaces';
 import ecc from './taproot-utils/noble_ecc';
 
@@ -121,7 +121,7 @@ export default class BIP85 {
   };
 
   public static generateBIP85Configuration = (
-    walletType: WalletType,
+    walletType: WalletType | EntityKind,
     instanceNumber: number,
     words: number = BIP85Words.TWELVE,
     language: string = BIP85Languages.ENGLISH

@@ -111,7 +111,7 @@ import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import WhiteSettingIcon from 'src/assets/privateImages/setting_icon_white.svg';
 import BrownSettingIcon from 'src/assets/privateImages/setting_icon_brown.svg';
 import CopyIconWhite from 'src/assets/images/copy-icon-white.svg';
-import CopyIcon from 'src/assets/images/copy.svg';
+import CopyIcon from 'src/assets/images/copy-icon.svg';
 import CopyGoldIcon from 'src/assets/privateImages/copy-icon-gold.svg';
 import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
@@ -293,8 +293,47 @@ import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
 import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
 import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
 import BTCWhiteLOgo from 'src/assets/images/btc-white-logo.svg';
+import UsdtIllustration from 'src/assets/images/ustd-illustration.svg';
+import UsdtPrivateIllustration from 'src/assets/privateImages/usdt-private-illustration.svg';
+import SendBTCGold from 'src/assets/privateImages/send-btc-gold-arrow.svg';
+import RecieveBTCGold from 'src/assets/privateImages/recieve-btc-gold-arrow.svg';
+import BuyBTCGold from 'src/assets/privateImages/buy-btc-gold-icon.svg';
+import MoreOptionBTCGold from 'src/assets/privateImages/more-gold-icon.svg';
+import SendWhiteIcon from 'src/assets/images/send-btc-white-arrow.svg';
+import RecieveWhiteIcon from 'src/assets/images/recieve-btc-white-arrow.svg';
+import BuyBtcWhiteIcon from 'src/assets/images/buy-btc-icon-white.svg';
+import MoreBtcIconWhite from 'src/assets/images/more-option-white-icon.svg';
+import SendBtcArrow from 'src/assets/images/send-btc-arrow.svg';
+import RecieveBtcArrow from 'src/assets/images/recieve-btc-arrow.svg';
+import BuyBtcIcon from 'src/assets/images/buy-btc-icon.svg';
+import MoreBtcIcon from 'src/assets/images/more-btc-icon.svg';
 
 const themeIcons = {
+  send_Btc_arrow: {
+    DARK: SendWhiteIcon,
+    LIGHT: SendBtcArrow,
+    PRIVATE: SendWhiteIcon,
+    PRIVATE_LIGHT: SendBTCGold,
+  },
+
+  recieve_Btc_arrow: {
+    DARK: RecieveWhiteIcon,
+    LIGHT: RecieveBtcArrow,
+    PRIVATE: RecieveWhiteIcon,
+    PRIVATE_LIGHT: RecieveBTCGold,
+  },
+  buy_Btc_icon: {
+    DARK: BuyBtcWhiteIcon,
+    LIGHT: BuyBtcIcon,
+    PRIVATE: BuyBtcWhiteIcon,
+    PRIVATE_LIGHT: BuyBTCGold,
+  },
+  more_Btc_icon: {
+    DARK: MoreBtcIconWhite,
+    LIGHT: MoreBtcIcon,
+    PRIVATE: MoreBtcIconWhite,
+    PRIVATE_LIGHT: MoreOptionBTCGold,
+  },
   keeperLogo: {
     DARK: KeeperLogo,
     LIGHT: KeeperLogo,
@@ -790,7 +829,7 @@ const themeIcons = {
     PRIVATE_LIGHT: InhertanceToolsPrivate,
   },
   add_circle: {
-    DARK: AddCircleLight,
+    DARK: AddCircleDark,
     LIGHT: AddCircleLight,
     PRIVATE: AddCircleDark,
     PRIVATE_LIGHT: AddCircleLight,
@@ -1040,6 +1079,12 @@ const themeIcons = {
     LIGHT: BitCoinLogo,
     PRIVATE: BitCoinLogoDark,
     PRIVATE_LIGHT: BitCoinLogoGold,
+  },
+  usdt_illustration: {
+    DARK: UsdtIllustration,
+    LIGHT: UsdtIllustration,
+    PRIVATE: UsdtPrivateIllustration,
+    PRIVATE_LIGHT: UsdtPrivateIllustration,
   },
 };
 

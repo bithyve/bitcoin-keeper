@@ -14,9 +14,11 @@ import {
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import Colors from 'src/theme/Colors';
+import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 const useWalletAsset = () => {
-  const getWalletIcon = (wallet: Wallet | Vault) => {
+  const getWalletIcon = (wallet: Wallet | Vault | USDTWallet) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
       switch (wallet.type) {
         case VaultType.COLLABORATIVE:
@@ -26,18 +28,22 @@ const useWalletAsset = () => {
         default:
           return VaultIcon;
       }
+    } else if (wallet?.entityKind === EntityKind.USDT_WALLET) {
+      return UsdtWalletLogo;
     } else {
       return WalletIcon;
     }
   };
 
-  const getWalletCardGradient = (wallet: Wallet | Vault) => {
+  const getWalletCardGradient = (wallet: Wallet | Vault | USDTWallet) => {
     if (wallet?.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.MINISCRIPT
         ? [Colors.EarthBrown, Colors.LabelLight1]
         : wallet.type === VaultType.SINGE_SIG
         ? [Colors.DeepTeal, Colors.OceanSage]
         : ['#24312E', '#3E524D'];
+    } else if (wallet?.entityKind === EntityKind.USDT_WALLET) {
+      return [Colors.CharcoalBlueGray, Colors.DustyNavy];
     } else {
       return [Colors.DarkSlateGray, Colors.primaryGreen];
     }
@@ -56,7 +62,7 @@ const useWalletAsset = () => {
     Colors.TagLight7,
   ];
 
-  const getWalletTags = (wallet: Wallet | Vault) => {
+  const getWalletTags = (wallet: Wallet | Vault | USDTWallet) => {
     let tags: { tag: string; color?: string }[] = [];
 
     if (wallet.entityKind === EntityKind.VAULT) {
@@ -95,6 +101,9 @@ const useWalletAsset = () => {
           tags = [{ tag: 'Multi-key' }, { tag: getSchemeTag(wallet as Vault) }];
       }
       if ((wallet as Vault).isMigrating) tags.push({ tag: 'In-Transition' });
+    } else if (wallet.entityKind === EntityKind.USDT_WALLET) {
+      const walletKind = 'USDT';
+      tags = [{ tag: walletKind }, { tag: 'Hot Wallet' }];
     } else {
       let walletKind = wallet.type === WalletType.DEFAULT ? 'Hot Wallet' : 'Imported Wallet';
       const isWatchOnly = wallet.type === WalletType.IMPORTED && !idx(wallet, (_) => _.specs.xpriv);
