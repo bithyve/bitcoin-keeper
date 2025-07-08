@@ -1773,7 +1773,10 @@
     "addressForTransaction": "Address for the transaction",
     "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
     "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
-    "buyBtc": "Get Bitcoin"
+    "buyBtc": "Get Bitcoin",
+    "sendBtc": "Send\nBitcoin",
+    "recieveBtc": "Receive\nBitcoin",
+    "moreOptions": "More\nOptions"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
@@ -1958,8 +1961,9 @@
     "sendingAmount": "Sending Amount",
     "recievedAmount": "Received Amount",
     "recipientAddress": "Recipient’s address",
-    "sendUsdt": "Send   USDT",
-    "recieveUSdt": "Receive USDT",
+    "sendUsdt": "Send\nUSDT",
+    "recieveUSdt": "Receive\nUSDT",
+    "moreOption": "More\nOptions",
     "buyUSdt": "Buy USDT with  Ramp"
   }
 }

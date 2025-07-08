@@ -103,7 +103,7 @@ const useWalletAsset = () => {
       if ((wallet as Vault).isMigrating) tags.push({ tag: 'In-Transition' });
     } else if (wallet.entityKind === EntityKind.USDT_WALLET) {
       const walletKind = 'USDT';
-      tags = [{ tag: walletKind }];
+      tags = [{ tag: walletKind }, { tag: 'Hot Wallet' }];
     } else {
       let walletKind = wallet.type === WalletType.DEFAULT ? 'Hot Wallet' : 'Imported Wallet';
       const isWatchOnly = wallet.type === WalletType.IMPORTED && !idx(wallet, (_) => _.specs.xpriv);

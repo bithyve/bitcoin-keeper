@@ -179,7 +179,7 @@ const HomeWallet = () => {
           iconWidth={42}
           iconHeight={38}
           title={item.presentationData.name}
-          tags={item.entityKind === EntityKind.USDT_WALLET ? null : getWalletTags(item)}
+          tags={getWalletTags(item)}
           totalBalance={
             item.entityKind === EntityKind.USDT_WALLET
               ? getAvailableBalanceUSDTWallet(item as USDTWallet)
