@@ -8,8 +8,11 @@ import USDT, { USDTAccountStatus, USDTTransaction } from '../operations/dollars/
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import { GasFreeTransferStatus } from '../operations/dollars/GasFree';
+import config from 'src/utils/service-utilities/config';
 
-export const USDTWalletSupportedNetwork = NetworkType.MAINNET; // NOTE: Only MAINNET supported for USDT wallets(GasFree testnet API is restricted for development purposes)
+export const USDTWalletSupportedNetwork = config.isDevMode()
+  ? NetworkType.TESTNET
+  : NetworkType.MAINNET; // NOTE: Only MAINNET supported for USDT wallets on Keeper Live(GasFree testnet API is restricted for development purposes)
 
 export enum USDTWalletType {
   DEFAULT = 'DEFAULT',
