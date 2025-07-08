@@ -730,7 +730,7 @@ function* healthCheckSignerWorker({
     for (const signer of signers) {
       const date = new Date();
       yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-      yield put(uaiActioned({ entityId: signer.masterFingerprint, action: true }));
+      yield put(uaiActioned({ entityId: signer.id, action: true }));
     }
   } catch (err) {
     console.log(err);
