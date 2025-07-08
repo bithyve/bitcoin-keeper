@@ -1,6 +1,6 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useRef, useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Linking, Pressable, StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -116,6 +116,30 @@ const AddUsdtWallet = () => {
           </Pressable>
         </Box>
       </Box>
+      <Box style={styles.noteContainer}>
+        <Text
+          color={`${colorMode}.dashedButtonBorderColor`}
+          style={styles.noteTitle}
+          fontSize={14}
+          medium
+        >
+          {common.note}
+        </Text>
+
+        <Text color={`${colorMode}.primaryText`} fontSize={12}>
+          {usdtWalletText.UsdtPowerdBy}
+          <Text bold style={styles.link} onPress={() => Linking.openURL('https://gasfree.io/home')}>
+            {' '}
+            GasFree.io{' '}
+          </Text>
+          {usdtWalletText.keeperDontControl}
+          <Text style={styles.link} bold onPress={() => Linking.openURL('https://gasfree.io/home')}>
+            {' '}
+            GasFree.io
+          </Text>{' '}
+          {usdtWalletText.becomesUnavailable}
+        </Text>
+      </Box>
       <Box style={styles.footer}>
         <Buttons
           primaryText={isCreating ? 'Creating Wallet...' : walletText.createYourWallet}
@@ -196,5 +220,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  noteContainer: {
+    marginHorizontal: wp(10),
+    marginBottom: 10,
+  },
+  noteTitle: {
+    marginBottom: hp(5),
+  },
+  link: {
+    textDecorationLine: 'underline',
   },
 });

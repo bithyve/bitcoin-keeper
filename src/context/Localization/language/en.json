@@ -1964,6 +1964,9 @@
     "sendUsdt": "Send\nUSDT",
     "recieveUSdt": "Receive\nUSDT",
     "moreOption": "More\nOptions",
-    "buyUSdt": "Buy USDT with  Ramp"
+    "buyUSdt": "Buy USDT with  Ramp",
+    "UsdtPowerdBy": "This USDT wallet is powered by ",
+    "keeperDontControl": "Bitcoin Keeper does not control or manage this wallet. If",
+    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk."
   }
 }
