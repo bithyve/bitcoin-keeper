@@ -14,13 +14,16 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { EntityKind } from 'src/services/wallets/enums';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 type Props = {
-  wallet: Wallet | Vault | {};
+  wallet: Wallet | Vault | USDTWallet | {};
+  updateWallet?: (wallet: USDTWallet) => Promise<boolean>;
+  navigation?: any;
   close: () => void;
 };
 
-function EditWalletDetailsModal({ wallet = {}, close }: Props) {
+function EditWalletDetailsModal({ wallet = {}, updateWallet, navigation, close }: Props) {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -35,13 +38,32 @@ function EditWalletDetailsModal({ wallet = {}, close }: Props) {
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
 
-  const editWallet = () => {
+  const editWallet = async () => {
     const details = {
       name: walletName,
       description: walletDescription,
     };
-    if (wallet.entityKind === EntityKind.VAULT) {
+    if ((wallet as Vault).entityKind === EntityKind.VAULT) {
       dispatch(updateVaultDetails(wallet as Vault, details));
+    } else if ((wallet as USDTWallet).entityKind === EntityKind.USDT_WALLET) {
+      const updatedWallet: USDTWallet = {
+        ...(wallet as USDTWallet),
+        presentationData: {
+          ...(wallet as USDTWallet).presentationData,
+          name: walletName,
+          description: walletDescription,
+        },
+      };
+      const updated = await updateWallet(updatedWallet);
+
+      if (updated) {
+        close();
+        showToast(walletText.walletDeatilsUpdated, <TickIcon />);
+        navigation.navigate('usdtDetails', { usdtWalletId: wallet.id });
+      } else {
+        close();
+        showToast('Failed to update the details', <ToastErrorIcon />);
+      }
     } else {
       dispatch(updateWalletDetails(wallet as Wallet, details));
     }

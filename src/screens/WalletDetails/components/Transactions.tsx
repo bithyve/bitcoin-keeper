@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from 'react-native';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -9,6 +9,10 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/services/wallets/interfaces';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { EntityKind } from 'src/services/wallets/enums';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { captureError } from 'src/services/sentry';
+import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
 
 function TransactionItem({ item, wallet, navigation, index }) {
   return (
@@ -18,7 +22,16 @@ function TransactionItem({ item, wallet, navigation, index }) {
       index={index}
       isCached={item?.isCached}
       onPress={
-        !item?.isCached
+        wallet?.entityKind === EntityKind.USDT_WALLET
+          ? () => {
+              navigation.dispatch(
+                CommonActions.navigate('usdtTransactionDetail', {
+                  transaction: item,
+                  wallet,
+                })
+              );
+            }
+          : !item?.isCached
           ? () => {
               navigation.dispatch(
                 CommonActions.navigate('TransactionDetails', {
@@ -27,15 +40,7 @@ function TransactionItem({ item, wallet, navigation, index }) {
                 })
               );
             }
-          : () => {
-              //TODO: For Parsh - To naviagate with original data
-              // navigation.dispatch(
-              //   CommonActions.navigate('TransactionDetails', {
-              //     transaction: item,
-              //     wallet,
-              //   })
-              // );
-            }
+          : () => {}
       }
     />
   );
@@ -46,6 +51,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { syncWallet } = useUSDTWallets();
   const sortedTransactions = useMemo(
     () =>
       [...transactions]
@@ -64,14 +70,29 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
     [transactions]
   );
 
-  const pullDownRefresh = () => {
+  const pullDownRefresh = async () => {
     setPullRefresh(true);
-    dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
-    setPullRefresh(false);
+
+    try {
+      if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
+        await syncWallet(currentWallet);
+      } else dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
+    } catch (error) {
+      captureError(error);
+    } finally {
+      setPullRefresh(false);
+    }
   };
+
+  useEffect(() => {
+    if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
+      pullDownRefresh(); // Bitcoin wallets/vaults have a prop-based `autoRefresh` sync mechanism; however USDT wallets do not, so we need to manually trigger a sync when the component mounts
+    }
+  }, []);
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
+
   return (
     <FlatList
       testID="list_transactions"
@@ -88,7 +109,11 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
         );
       }}
       refreshing={syncing}
-      keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}
+      keyExtractor={(item: Transaction | USDTTransaction) => {
+        if ((item as USDTTransaction).txId || (item as USDTTransaction).traceId) {
+          return `${(item as USDTTransaction).txId || (item as USDTTransaction).traceId}`;
+        } else return `${(item as Transaction).txid}${(item as Transaction).transactionType}`;
+      }}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <EmptyStateView IllustartionImage={NoTransactionIcon} title={common.noTransYet} />

@@ -21,6 +21,7 @@ interface Props {
   description?: string;
   totalBalance?: number;
   allowHideBalance?: boolean;
+  wallet?: any;
 }
 
 const WalletDetailHeader = ({
@@ -33,6 +34,7 @@ const WalletDetailHeader = ({
   description,
   totalBalance,
   allowHideBalance,
+  wallet,
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -81,6 +83,7 @@ const WalletDetailHeader = ({
               isShowAmount={allowHideBalance ? isShowAmount : true}
               balance={totalBalance}
               BalanceFontSize={22}
+              wallet={wallet}
             />
           </Box>
         </Box>
