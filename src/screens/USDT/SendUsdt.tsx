@@ -91,6 +91,17 @@ const SendUsdt = ({ route }) => {
   //     })
   //   );
   // };
+  const onQrScan = async (qrData) => {
+    try {
+      if (qrData) {
+        setRecipientAddress(qrData);
+      }
+
+      navigation.goBack();
+    } catch (error) {
+      showToast(error.message, <ToastErrorIcon />);
+    }
+  };
 
   const handleProcess = () => {
     if (recipientAddress) {
@@ -156,6 +167,7 @@ const SendUsdt = ({ route }) => {
                               subtitle: walletTranslation.recipientAddress,
                               importOptions: false,
                               isSingning: true,
+                              onQrScan,
                             },
                           })
                         );
