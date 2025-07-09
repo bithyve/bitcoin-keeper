@@ -97,8 +97,6 @@ const BuyBtc = () => {
             />
             <AcquireCard
               name={'USDT'}
-              analysis={`${BtcPrice?.symbol}${stats?.valueChange} (${stats?.percentChange}%) 24 hours`}
-              analysisColor={stats?.valueChange < 0 ? Colors.CrimsonRed : Colors.PersianGreen}
               circleBackground={Colors.DesaturatedTeal}
               icon={<UsdtWalletLogo />}
               amount={`$ 1.00`}
