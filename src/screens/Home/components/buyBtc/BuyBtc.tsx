@@ -1,10 +1,8 @@
 import { Box, ScrollView, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import Buttons from 'src/components/Buttons';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useExchangeRates from 'src/hooks/useExchangeRates';
