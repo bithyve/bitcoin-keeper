@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
-import Colors from 'src/theme/Colors';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 interface AcquireCardProps {
   icon?: React.ReactElement;
@@ -31,6 +31,8 @@ const AcquireCard: React.FC<AcquireCardProps> = ({
   sellCallback = () => {},
 }) => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { buyBTC: buyBTCText } = translations;
   return (
     <Box
       style={styles.container}
@@ -52,7 +54,7 @@ const AcquireCard: React.FC<AcquireCardProps> = ({
           </Box>
         </Box>
       </Box>
-      {graphContent ? <Box>{graphContent}</Box> : null}
+      {graphContent ? <Box style={styles.graph}>{graphContent}</Box> : null}
       {/* footer  */}
       <Box style={styles.footer}>
         <TouchableOpacity
@@ -67,7 +69,7 @@ const AcquireCard: React.FC<AcquireCardProps> = ({
           >
             <ThemedSvg name={'acquire_send_arrow'} />
             <Text semiBold color={`${colorMode}.AcquireText`}>
-              Buy*
+              {buyBTCText.buy}*
             </Text>
           </Box>
         </TouchableOpacity>
@@ -83,7 +85,7 @@ const AcquireCard: React.FC<AcquireCardProps> = ({
           >
             <ThemedSvg name={'acquire_sell_arrow'} />
             <Text semiBold color={`${colorMode}.AcquireText`}>
-              Sell*
+              {buyBTCText.sell}*
             </Text>
           </Box>
         </TouchableOpacity>
@@ -100,6 +102,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: wp(10),
     paddingVertical: wp(20),
+    marginBottom: wp(20),
   },
   header: {
     flexDirection: 'row',
@@ -125,5 +128,11 @@ const styles = StyleSheet.create({
     width: wp(135),
     height: wp(50),
     alignItems: 'center',
+  },
+  graph: {
+    marginTop: wp(10),
+    paddingVertical: wp(10),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(10),
   },
 });

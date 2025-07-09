@@ -21,6 +21,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import AcquireCard from './AcquireCard';
 import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
+import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -32,15 +34,19 @@ const BuyBtc = () => {
   const { buyBTC: buyBTCText, common } = translations;
   const [visibleBuyBtc, setVisibleBuyBtc] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState(null);
+  const [selectedUsdtWallet, setSelectedUsdtWallet] = useState(null);
   const navigation = useNavigation();
   const [graphData, setGraphData] = useState([]);
   const [error, setError] = useState(false);
   const [stats, setStats] = useState(null);
+  const [visibleSellBtc, setVisibleSellBtc] = useState(false);
+  const [visibleBuyUsdt, setVisibleBuyUsdt] = useState(false);
 
   const { wallets } = useWallets();
   const { allVaults } = useVault({ getHiddenWallets: false });
   const { showToast } = useToastMessage();
   const allWallets = [...wallets, ...allVaults];
+  const { usdtWallets } = useUSDTWallets();
 
   useEffect(() => {
     loadBtcPrice();
@@ -87,85 +93,31 @@ const BuyBtc = () => {
                 else showToast('Please create a wallet to proceed.', <ToastErrorIcon />);
               }}
               sellCallback={() => {
-                showToast('This feature is not available yet.', <ToastErrorIcon />);
+                setVisibleSellBtc(true);
+              }}
+              graphContent={<BtcGraph dataSet={graphData} spacing={50} />}
+            />
+            <AcquireCard
+              name={'USDT'}
+              analysis={`${BtcPrice?.symbol}${stats?.valueChange} (${stats?.percentChange}%) 24 hours`}
+              analysisColor={stats?.valueChange < 0 ? Colors.CrimsonRed : Colors.PersianGreen}
+              circleBackground={Colors.DesaturatedTeal}
+              icon={<UsdtWalletLogo />}
+              amount={`$ 1.00`}
+              buyCallback={() => {
+                if (usdtWallets.length) setVisibleBuyUsdt(true);
+                else showToast('Please create a USDT wallet to proceed.', <ToastErrorIcon />);
+              }}
+              sellCallback={() => {
+                setVisibleSellBtc(true);
               }}
             />
-            {/* <Box style={styles.header}>
-              <Box style={styles.btc_container}>
-                <Box
-                  style={styles.logo_container}
-                  backgroundColor={`${colorMode}.btcLogoBackground`}
-                >
-                  <ThemedSvg name={'bitcoin_logo'} width={wp(24)} height={wp(24)} />
-                </Box>
-                <Box>
-                  <Text fontSize={17} fontWeight="bold" color={`${colorMode}.primaryText`}>
-                    BTC
-                  </Text>
-                  <Text
-                    fontSize={15}
-                    color={
-                      isDarkMode ? `${colorMode}.buttonText` : `${colorMode}.secondaryLightGrey`
-                    }
-                  >
-                    {buyBTCText.bitCoin}
-                  </Text>
-                </Box>
-              </Box>
-              <Box alignItems={'flex-end'}>
-                <Text fontSize={16} fontWeight="bold" color={`${colorMode}.primaryText`}>
-                  {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  }).format(stats?.latestPrice)}`}
-                </Text>
-                <Text
-                  fontSize={14}
-                  color={stats?.valueChange < 0 ? Colors.CrimsonRed : Colors.PersianGreen}
-                >
-                  {`${BtcPrice?.symbol}${stats?.valueChange} (${stats?.percentChange}%) 24 hours`}
-                </Text>
-              </Box>
-            </Box>
-            <Box style={styles.graph_container}>
-              <BtcGraph dataSet={graphData} spacing={67} />
-            </Box>
-            <Box style={styles.info_container}>
-              <Text fontSize={16} semiBold>
-                {buyBTCText.marketInfo}
+            <Box style={styles.button_container}>
+              <Text color={`${colorMode}.secondaryText`} fontSize={12}>
+                {buyBTCText.transactionOnRamp}
               </Text>
-              <Box style={styles.cards_container}>
-                <Box style={styles.card} borderColor={`${colorMode}.separator`}>
-                  <Text>{`24h ${buyBTCText.high}`}</Text>
-                  <Text fontSize={16} fontWeight="bold" color={Colors.PersianGreen}>
-                    {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(stats?.high24h)}`}
-                  </Text>
-                </Box>
-                <Box style={styles.card} borderColor={`${colorMode}.separator`}>
-                  <Text>{`24h ${buyBTCText.low}`}</Text>
-                  <Text fontSize={16} fontWeight="bold" color={Colors.CrimsonRed}>
-                    {`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(stats?.low24h)}`}
-                  </Text>
-                </Box>
-              </Box>
-            </Box> */}
+            </Box>
           </ScrollView>
-          <Box style={styles.button_container}>
-            <Buttons
-              primaryText={buyBTCText.buyBtc}
-              fullWidth
-              primaryCallback={() => {
-                if (allWallets.length) setVisibleBuyBtc(true);
-                else showToast('Please create a wallet to proceed.', <ToastErrorIcon />);
-              }}
-            />
-          </Box>
         </>
       ) : (
         <Box alignItems={'center'} justifyContent={'center'}>
@@ -194,6 +146,51 @@ const BuyBtc = () => {
           navigation.dispatch(
             CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: selectedWallet } })
           );
+        }}
+      />
+      <KeeperModal
+        visible={visibleBuyUsdt}
+        close={() => setVisibleBuyUsdt(false)}
+        title={buyBTCText.selectWallet}
+        subTitle={buyBTCText.selectWalletDesc}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <BuyBtcModalContent
+            allWallets={usdtWallets}
+            setSelectedWallet={setSelectedUsdtWallet}
+            selectedWallet={selectedUsdtWallet}
+          />
+        )}
+        buttonText={selectedUsdtWallet ? common.proceed : null}
+        buttonCallback={() => {
+          if (!selectedUsdtWallet) return;
+          setVisibleBuyUsdt(false);
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'buyUstd', params: { usdtWallet: selectedUsdtWallet } })
+          );
+        }}
+      />
+      <KeeperModal
+        visible={visibleSellBtc}
+        close={() => setVisibleSellBtc(false)}
+        title={buyBTCText.proceedToRamp}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Text
+            color={isDarkMode ? `${colorMode}.buttonText` : `${colorMode}.BrownNeedHelp`}
+            fontSize={14}
+            style={styles.sellBtcText}
+          >
+            {buyBTCText.rediredctToRampPage}
+          </Text>
+        )}
+        buttonText={common.confirm}
+        buttonCallback={() => {
+          setVisibleSellBtc(false);
         }}
       />
     </View>
@@ -251,5 +248,9 @@ const styles = StyleSheet.create({
   info_container: {
     maxWidth: windowWidth,
     paddingHorizontal: wp(12),
+  },
+  sellBtcText: {
+    marginTop: hp(-10),
+    marginBottom: hp(5),
   },
 });
