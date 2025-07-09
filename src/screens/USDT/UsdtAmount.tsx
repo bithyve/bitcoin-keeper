@@ -75,6 +75,29 @@ const UsdtAmount = ({ route }) => {
   const processSend = async (amountToSend: number) => {
     try {
       const updatedSender = await syncAccountStatus(sender);
+
+      const isActive = updatedSender.accountStatus.isActive;
+      if (!isActive) {
+        // If the account is not active and there is an outgoing transaction, show a warning
+        // (GasFree account activation may take a couple of minutes at times, due to longer permit transaction processing queue on provider's end)
+
+        const hasOutgoingTransaction = updatedSender.specs.transactions.some(
+          (tx) =>
+            tx.from === updatedSender.accountStatus.gasFreeAddress ||
+            tx.from === updatedSender.accountStatus.address
+        );
+
+        if (hasOutgoingTransaction) {
+          showToast(
+            'Your account is not yet active. Please wait a moment before making another transaction to avoid being charged the activation fee again.',
+            <ToastErrorIcon />
+          );
+
+          // await for a few seconds to allow the user to read the message
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+
       const fees = USDT.evaluateTransferFee(updatedSender.accountStatus);
       if (!fees) {
         showToast('Failed to estimate fees', <ToastErrorIcon />);
