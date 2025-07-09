@@ -117,7 +117,9 @@ const BuyBtc = () => {
               }}
             />
           </ScrollView>
-          <Note title={common.note} subtitle={buyBTCText.transactionOnRamp} />
+          <Box style={styles.button_container}>
+            <Note title={common.note} subtitle={buyBTCText.transactionOnRamp} />
+          </Box>
         </>
       ) : (
         <Box alignItems={'center'} justifyContent={'center'}>
