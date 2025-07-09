@@ -18,6 +18,7 @@ const BtcGraph = ({ dataSet, spacing }) => {
       {dataSet.length > 0 && (
         <LineChart
           width={300}
+          height={80}
           isAnimated={true}
           areaChart
           scrollToIndex={1}
@@ -26,7 +27,7 @@ const BtcGraph = ({ dataSet, spacing }) => {
           thickness={2}
           hideOrigin
           hideDataPoints1
-          noOfSections={NO_OF_SECTIONS_Y - 1}
+          noOfSections={NO_OF_SECTIONS_Y - 4}
           yAxisOffset={yOffset}
           yAxisColor={customTheme.colors[colorMode].lightSeashell}
           xAxisColor={customTheme.colors[colorMode].lightSeashell}
@@ -44,9 +45,9 @@ const BtcGraph = ({ dataSet, spacing }) => {
           areaGradientId="ag"
           areaGradientComponent={() => {
             return (
-              <LinearGradient id="ag" x1="0" y1="0" x2="0" y2="0.4">
-                <Stop offset="0" stopColor={Colors.darkOrange} />
-                <Stop offset="1" stopColor={customTheme.colors[colorMode].seashellWhite} />
+              <LinearGradient id="ag" x1="0" y1="0" x2="0" y2="0.6">
+                <Stop offset="0" stopColor={Colors.darkOrange} stopOpacity={0.2} />
+                <Stop offset="1" stopColor={Colors.darkOrange} stopOpacity={0} />
               </LinearGradient>
             );
           }}

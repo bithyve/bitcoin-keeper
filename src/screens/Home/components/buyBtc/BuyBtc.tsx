@@ -109,12 +109,12 @@ const BuyBtc = () => {
                 setVisibleSellUsdt(true);
               }}
             />
-            <Box style={styles.button_container}>
-              <Text color={`${colorMode}.secondaryText`} fontSize={12}>
-                {buyBTCText.transactionOnRamp}
-              </Text>
-            </Box>
           </ScrollView>
+          <Box style={styles.button_container}>
+            <Text color={`${colorMode}.secondaryText`} fontSize={12}>
+              {buyBTCText.transactionOnRamp}
+            </Text>
+          </Box>
         </>
       ) : (
         <Box alignItems={'center'} justifyContent={'center'}>
