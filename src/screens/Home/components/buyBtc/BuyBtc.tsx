@@ -41,7 +41,7 @@ const BuyBtc = () => {
   const allWallets = [...wallets, ...allVaults];
 
   useEffect(() => {
-    loadBtcPrice();
+    // loadBtcPrice();
   }, []);
 
   const loadBtcPrice = async () => {
@@ -174,6 +174,12 @@ const BuyBtc = () => {
           navigation.dispatch(
             CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: selectedWallet } })
           );
+        }}
+      />
+      <Buttons
+        primaryText="Swaps"
+        primaryCallback={() => {
+          navigation.dispatch(CommonActions.navigate('Swaps'));
         }}
       />
     </View>

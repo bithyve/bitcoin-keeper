@@ -146,6 +146,8 @@ import { AddMultipleXpubFiles } from 'src/screens/AddSigner/AddMultipleXpubFiles
 import { SignMessageScreen } from 'src/screens/WalletDetails/SignMessageScreen';
 import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
+import { Swaps } from 'src/screens/Home/components/buyBtc/Swap/Swaps';
+import { SwapDetails } from 'src/screens/Home/components/buyBtc/Swap/SwapDetails';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -323,6 +325,8 @@ function AppStack() {
         <Stack.Screen name="SignMessageScreen" component={SignMessageScreen} />
         <Stack.Screen name="CloudBackupPassword" component={CloudBackupPassword} />
         <Stack.Screen name="ImportedWalletSetup" component={ImportedWalletSetup} />
+        <Stack.Screen name="Swaps" component={Swaps} />
+        <Stack.Screen name="SwapDetails" component={SwapDetails} />
       </Stack.Navigator>
     </RealmProvider>
   );

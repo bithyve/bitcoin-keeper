@@ -103,6 +103,7 @@ function AddSendAmount({ route }) {
     currentRecipientIdx: number;
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   } = route.params;
+  console.log('🚀 ~ AddSendAmount ~ route.params:', route.params);
   const [amount, setAmount] = useState(prefillAmount || '0');
   const [amountToSend, setAmountToSend] = useState('0');
   const [currentAmount, setCurrentAmount] = useState(amount);
