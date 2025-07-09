@@ -38,6 +38,7 @@ const BuyBtc = () => {
   const [error, setError] = useState(false);
   const [stats, setStats] = useState(null);
   const [visibleSellBtc, setVisibleSellBtc] = useState(false);
+  const [visibleSellUsdt, setVisibleSellUsdt] = useState(false);
   const [visibleBuyUsdt, setVisibleBuyUsdt] = useState(false);
 
   const { wallets } = useWallets();
@@ -105,7 +106,7 @@ const BuyBtc = () => {
                 else showToast('Please create a USDT wallet to proceed.', <ToastErrorIcon />);
               }}
               sellCallback={() => {
-                setVisibleSellBtc(true);
+                setVisibleSellUsdt(true);
               }}
             />
             <Box style={styles.button_container}>
@@ -187,6 +188,27 @@ const BuyBtc = () => {
         buttonText={common.confirm}
         buttonCallback={() => {
           setVisibleSellBtc(false);
+        }}
+      />
+      <KeeperModal
+        visible={visibleSellUsdt}
+        close={() => setVisibleSellUsdt(false)}
+        title={buyBTCText.proceedToRamp}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Text
+            color={isDarkMode ? `${colorMode}.buttonText` : `${colorMode}.BrownNeedHelp`}
+            fontSize={14}
+            style={styles.sellBtcText}
+          >
+            {buyBTCText.rediredctToRampPage}
+          </Text>
+        )}
+        buttonText={common.confirm}
+        buttonCallback={() => {
+          setVisibleSellUsdt(false);
         }}
       />
     </View>
