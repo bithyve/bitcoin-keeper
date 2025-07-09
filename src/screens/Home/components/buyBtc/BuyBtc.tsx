@@ -19,6 +19,8 @@ import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import AcquireCard from './AcquireCard';
+import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -70,7 +72,25 @@ const BuyBtc = () => {
       {graphData.length > 0 ? (
         <>
           <ScrollView style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
-            <Box style={styles.header}>
+            <AcquireCard
+              name={buyBTCText.bitCoin}
+              analysis={`${BtcPrice?.symbol}${stats?.valueChange} (${stats?.percentChange}%) 24 hours`}
+              analysisColor={stats?.valueChange < 0 ? Colors.CrimsonRed : Colors.PersianGreen}
+              circleBackground={Colors.BrightOrange}
+              icon={<BtcAcquireIcon />}
+              amount={`${BtcPrice?.symbol} ${new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(stats?.latestPrice)}`}
+              buyCallback={() => {
+                if (allWallets.length) setVisibleBuyBtc(true);
+                else showToast('Please create a wallet to proceed.', <ToastErrorIcon />);
+              }}
+              sellCallback={() => {
+                showToast('This feature is not available yet.', <ToastErrorIcon />);
+              }}
+            />
+            {/* <Box style={styles.header}>
               <Box style={styles.btc_container}>
                 <Box
                   style={styles.logo_container}
@@ -134,7 +154,7 @@ const BuyBtc = () => {
                   </Text>
                 </Box>
               </Box>
-            </Box>
+            </Box> */}
           </ScrollView>
           <Box style={styles.button_container}>
             <Buttons
@@ -185,6 +205,7 @@ export default BuyBtc;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: wp(20),
   },
   header: {
     flexDirection: 'row',
