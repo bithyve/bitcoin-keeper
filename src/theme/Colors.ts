@@ -152,5 +152,6 @@ const Colors = {
   warm_off_white: 'rgba(246, 242, 237, 0.1)',
   PersianGreen: 'rgba(0, 175, 146, 1)',
   CrimsonRed: 'rgba(217, 44, 44, 1)',
+  graybeige: 'rgba(211, 209, 206, 0.15)',
 };
 export default Colors;
