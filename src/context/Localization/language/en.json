@@ -1779,7 +1779,7 @@
     "moreOptions": "More\nOptions",
     "rediredctToRampPage": " You will be redirected to Ramp’s page where you will be liable to their User Agreement and Privacy Policy. Confirm to proceed.",
     "proceedToRamp": "Proceed to Ramp?",
-    "transactionOnRamp": "*Transactions would be processed on the Ramp Network",
+    "transactionOnRamp": "* Transactions will be processed by Ramp Network",
     "buy": "Buy",
     "sell": "Sell"
   },
