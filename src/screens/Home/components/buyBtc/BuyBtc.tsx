@@ -1,6 +1,6 @@
 import { Box, ScrollView, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -21,6 +21,7 @@ import AcquireCard from './AcquireCard';
 import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { fetchSellBtcLink, fetchSellUsdtLink } from 'src/services/thirdparty/ramp';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -46,6 +47,7 @@ const BuyBtc = () => {
   const { showToast } = useToastMessage();
   const allWallets = [...wallets, ...allVaults];
   const { usdtWallets } = useUSDTWallets();
+  const [usdtPrice, setUsdtPrice] = useState(null);
 
   useEffect(() => {
     loadBtcPrice();
@@ -53,9 +55,13 @@ const BuyBtc = () => {
 
   const loadBtcPrice = async () => {
     try {
-      const data = await Relay.getBtcPrice(currencyCode);
+      let [usdtData, btcPrice] = await Promise.all([
+        Relay.getUsdtPrice(currencyCode),
+        Relay.getBtcPrice(currencyCode),
+      ]);
       const { dailyPrice, high24h, latestPrice, low24h, percentChange, valueChange } =
-        manipulateBitcoinPrices(data?.prices);
+        manipulateBitcoinPrices(btcPrice?.prices);
+      setUsdtPrice(usdtData[0].current_price.toFixed(2));
       setGraphData(dailyPrice);
       setStats({ high24h, low24h, latestPrice, percentChange, valueChange });
     } catch (error) {
@@ -100,7 +106,7 @@ const BuyBtc = () => {
               name={'USDT'}
               circleBackground={Colors.DesaturatedTeal}
               icon={<UsdtWalletLogo />}
-              amount={`$ 1.00`}
+              amount={`${BtcPrice?.symbol}  ${usdtPrice ?? '--'} `}
               buyCallback={() => {
                 if (usdtWallets.length) setVisibleBuyUsdt(true);
                 else showToast('Please create a USDT wallet to proceed.', <ToastErrorIcon />);
@@ -187,6 +193,7 @@ const BuyBtc = () => {
         )}
         buttonText={common.confirm}
         buttonCallback={() => {
+          Linking.openURL(fetchSellBtcLink());
           setVisibleSellBtc(false);
         }}
       />
@@ -208,6 +215,7 @@ const BuyBtc = () => {
         )}
         buttonText={common.confirm}
         buttonCallback={() => {
+          Linking.openURL(fetchSellUsdtLink());
           setVisibleSellUsdt(false);
         }}
       />
