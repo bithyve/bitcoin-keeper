@@ -10,6 +10,7 @@ import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Buttons from 'src/components/Buttons';
@@ -39,6 +40,7 @@ const AddUsdtWallet = () => {
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const { createWallet } = useUSDTWallets();
+  const isKeyboardVisible = useKeyboard();
 
   const onDescriptionChange = (value) => {
     descriptionInputRef.current = value;
@@ -116,30 +118,40 @@ const AddUsdtWallet = () => {
           </Pressable>
         </Box>
       </Box>
-      <Box style={styles.noteContainer}>
-        <Text
-          color={`${colorMode}.dashedButtonBorderColor`}
-          style={styles.noteTitle}
-          fontSize={14}
-          medium
-        >
-          {common.note}
-        </Text>
-
-        <Text color={`${colorMode}.primaryText`} fontSize={12}>
-          {usdtWalletText.UsdtPowerdBy}
-          <Text bold style={styles.link} onPress={() => Linking.openURL('https://gasfree.io/home')}>
-            {' '}
-            GasFree.io{' '}
+      {!isKeyboardVisible && (
+        <Box style={styles.noteContainer}>
+          <Text
+            color={`${colorMode}.dashedButtonBorderColor`}
+            style={styles.noteTitle}
+            fontSize={14}
+            medium
+          >
+            {common.note}
           </Text>
-          {usdtWalletText.keeperDontControl}
-          <Text style={styles.link} bold onPress={() => Linking.openURL('https://gasfree.io/home')}>
-            {' '}
-            GasFree.io
-          </Text>{' '}
-          {usdtWalletText.becomesUnavailable}
-        </Text>
-      </Box>
+
+          <Text color={`${colorMode}.primaryText`} fontSize={12}>
+            {usdtWalletText.UsdtPowerdBy}
+            <Text
+              bold
+              style={styles.link}
+              onPress={() => Linking.openURL('https://gasfree.io/home')}
+            >
+              {' '}
+              GasFree.io{' '}
+            </Text>
+            {usdtWalletText.keeperDontControl}
+            <Text
+              style={styles.link}
+              bold
+              onPress={() => Linking.openURL('https://gasfree.io/home')}
+            >
+              {' '}
+              GasFree.io
+            </Text>{' '}
+            {usdtWalletText.becomesUnavailable}
+          </Text>
+        </Box>
+      )}
       <Box style={styles.footer}>
         <Buttons
           primaryText={isCreating ? 'Creating Wallet...' : walletText.createYourWallet}
@@ -223,7 +235,7 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     marginHorizontal: wp(10),
-    marginBottom: 10,
+    marginBottom: hp(10),
   },
   noteTitle: {
     marginBottom: hp(5),
