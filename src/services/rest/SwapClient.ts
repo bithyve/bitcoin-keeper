@@ -43,5 +43,5 @@ export const swapEndpoints = {
   coins: 'v1/coins',
   coinsInfo: 'v1/info/bulk',
   quote: '/v1/info',
-  createTnx: 'v1/transaction',
+  tnx: 'v1/transaction',
 };

@@ -32,14 +32,27 @@ export default class Swap {
     let res;
     try {
       body.withdrawal_extra_id = ''; // required field
-      res = await swapApi.post(swapEndpoints.createTnx, body);
+      res = await swapApi.post(swapEndpoints.tnx, body);
     } catch (err) {
       console.log('🚀 ~ Swap ~ createTnx= ~ err:', err);
       throw handleError(err);
     }
     return res.data || res.json;
   };
+
+  public static getTnxDetails = async (tnxId: string): Promise<any> => {
+    let res;
+    try {
+      res = await swapApi.get(swapEndpoints.tnx + `/${tnxId}`);
+    } catch (err) {
+      console.log('🚀 ~ Swap ~ getTnxDetails=async ~ err:', err);
+      throw handleError(err);
+    }
+    return res.data || res.json;
+  };
 }
+
+
 
 const handleError = (err: any) => {
   const errorStrings = {

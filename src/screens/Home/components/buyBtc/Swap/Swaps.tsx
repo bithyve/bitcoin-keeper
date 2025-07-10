@@ -17,6 +17,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { setCoinDetails } from 'src/store/reducers/swap';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Checked from 'src/assets/images/tick_icon.svg';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
 
 const COINS = {
   btc: {
@@ -125,8 +127,24 @@ export const Swaps = ({ navigation }) => {
         return: details.return, // btc sent from(spending wallet address)
         rate_id: rateIdRef.current, // only required for fixed rate tnx
       };
-      console.log('🚀 ~ createTnx ~ body:', body);
       const tnx = await Swap.createTnx(body);
+      const realmObject = {
+        coin_from: tnx.coin_from,
+        coin_from_name: tnx.coin_from_name,
+        coin_from_network: tnx.coin_from_network,
+        coin_to: tnx.coin_to,
+        coin_to_name: tnx.coin_to_name,
+        coin_to_network: tnx.coin_to_network,
+        created_at: Date.now(),
+        deposit_amount: tnx.deposit_amount,
+        expired_at: tnx.expired_at,
+        is_float: tnx.is_float,
+        status: tnx.status,
+        transaction_id: tnx.transaction_id,
+        withdrawal_amount: tnx.withdrawal_amount,
+      };
+      dbManager.createObject(RealmSchema.SwapHistory, realmObject);
+
       navigation.dispatch(CommonActions.navigate('SwapDetails', tnx));
     } catch (error) {
       console.log('🚀 ~ createTnx ~ error:', error);

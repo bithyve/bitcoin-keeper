@@ -224,6 +224,10 @@ const BuyBtc = () => {
         primaryCallback={() => {
           navigation.dispatch(CommonActions.navigate('Swaps'));
         }}
+        secondaryCallback={() => {
+          navigation.dispatch(CommonActions.navigate('SwapHistory'));
+        }}
+        secondaryText="SwapHistory"
       />
     </View>
   );
