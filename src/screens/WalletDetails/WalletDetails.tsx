@@ -26,9 +26,6 @@ import WalletDetailHeader from './components/WalletDetailHeader';
 import DetailCards from './components/DetailCards';
 import KeeperModal from 'src/components/KeeperModal';
 import MoreCard from './components/MoreCard';
-import SwapSvg from 'src/assets/images/swap.svg';
-import CurrencyKind from 'src/models/enums/CurrencyKind';
-import { setCurrencyKind } from 'src/store/reducers/settings';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 // TODO: add type definitions to all components
@@ -68,9 +65,7 @@ function WalletDetails({ route }: ScreenProps) {
   const [syncingCompleted, setSyncingCompleted] = useState(false);
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
 
-  const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
-  const WalletIcon = getWalletIcon(wallet);
-  const { currencyKind } = useAppSelector((state) => state.settings);
+  const { getWalletCardGradient, getWalletTags } = useWalletAsset();
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
