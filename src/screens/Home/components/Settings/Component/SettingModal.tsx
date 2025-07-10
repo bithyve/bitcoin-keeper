@@ -47,7 +47,7 @@ const SettingModal = ({ isUaiFlow, confirmPass, setConfirmPass }) => {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={() => (
           <PasscodeVerifyModal
-            useBiometrics
+            useBiometrics={false}
             close={() => {
               setConfirmPassVisible(false);
               setConfirmPass(false);

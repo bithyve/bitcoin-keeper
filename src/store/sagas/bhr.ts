@@ -29,7 +29,13 @@ import { NodeDetail } from 'src/services/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { BackupAction, BackupType, CloudBackupAction } from 'src/models/enums/BHR';
 import { getSignerNameFromType } from 'src/hardware';
-import { DerivationPurpose, NetworkType, VaultType, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  NetworkType,
+  VaultType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { Platform } from 'react-native';
 import CloudBackupModule from 'src/nativemodules/CloudBackup';
@@ -49,10 +55,8 @@ import {
   setBackupType,
   setDeleteBackupFailure,
   setDeleteBackupSuccess,
-  setEncPassword,
   setHomeToastMessage,
   setIsCloudBsmsBackupRequired,
-  setLastBsmsBackup,
   setPendingAllBackup,
   setSeedConfirmed,
 } from '../reducers/bhr';
@@ -88,12 +92,13 @@ import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 import { addAccount, saveDefaultWalletState } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 export function* updateAppImageWorker({
   payload,
 }: {
   payload: {
-    wallets?: Wallet[];
+    wallets?: Wallet[] | USDTWallet[];
     signers?: Signer[];
     updateNodes?: boolean;
   };
@@ -481,8 +486,10 @@ function* recoverApp(
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
       try {
-        const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
-        yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+        const decryptedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+        if (decryptedWallet.entityKind === EntityKind.USDT_WALLET)
+          yield call(dbManager.createObject, RealmSchema.USDTWallet, decryptedWallet);
+        else yield call(dbManager.createObject, RealmSchema.Wallet, decryptedWallet);
       } catch (err) {
         console.log('Error recovering a wallet: ', err);
         continue;
@@ -723,29 +730,21 @@ function* healthCheckSignerWorker({
     for (const signer of signers) {
       const date = new Date();
       yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-      yield put(uaiActioned({ entityId: signer.masterFingerprint, action: true }));
+      yield put(uaiActioned({ entityId: signer.id, action: true }));
     }
   } catch (err) {
     console.log(err);
   }
 }
 
-function* backupBsmsOnCloudWorker({
-  payload,
-}: {
-  payload?: {
-    password: string;
-  };
-}) {
-  const { lastBsmsBackup } = yield select((state: RootState) => state.bhr);
-  if (!lastBsmsBackup) return;
-  const { password } = payload;
-  if (password) yield put(setEncPassword(password));
+function* backupBsmsOnCloudWorker() {
+  const { id: appId }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const password = yield select(
+    (state: RootState) => state.account.personalBackupPasswordByAppId?.[appId]
+  );
   const excludeVaultTypesForBackup = [VaultType.CANARY];
   try {
-    const { encPassword } = yield select((state: RootState) => state.bhr);
-    if (!password && !encPassword)
-      throw Error('Personal cloud backup failed, no password provided');
+    if (!password) throw Error('Personal cloud backup failed, no password provided');
     const bsmsToBackup = [];
     const vaultsCollection = yield call(dbManager.getCollection, RealmSchema.Vault);
     const vaults = vaultsCollection.filter((vault) => vault.archived === false);
@@ -760,7 +759,7 @@ function* backupBsmsOnCloudWorker({
     }
     vaults.forEach((vault) => {
       if (!excludeVaultTypesForBackup.includes(vault.type)) {
-        const bsms = 'BSMS 1.0\n' + generateOutputDescriptors(vault, true);
+        const bsms = generateOutputDescriptors(vault);
         bsmsToBackup.push({
           bsms,
           name: vault.presentationData.name,
@@ -777,7 +776,7 @@ function* backupBsmsOnCloudWorker({
           const response = yield call(
             CloudBackupModule.backupBsms,
             JSON.stringify(bsmsToBackup),
-            password || encPassword
+            password
           );
           if (response.status) {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -787,7 +786,6 @@ function* backupBsmsOnCloudWorker({
               date: Date.now(),
             });
             yield put(setIsCloudBsmsBackupRequired(false));
-            yield put(setLastBsmsBackup(Date.now()));
           } else {
             yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
               title: CloudBackupAction.CLOUD_BACKUP_FAILED,
@@ -817,7 +815,7 @@ function* backupBsmsOnCloudWorker({
       const response = yield call(
         CloudBackupModule.backupBsms,
         JSON.stringify(bsmsToBackup),
-        password || encPassword
+        password
       );
       if (response.status) {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
@@ -827,7 +825,6 @@ function* backupBsmsOnCloudWorker({
           date: Date.now(),
         });
         yield put(setIsCloudBsmsBackupRequired(false));
-        yield put(setLastBsmsBackup(Date.now()));
       } else {
         yield call(dbManager.createObject, RealmSchema.CloudBackupHistory, {
           title: CloudBackupAction.CLOUD_BACKUP_FAILED,
@@ -963,7 +960,10 @@ function* backupAllSignersAndVaultsWorker() {
     const vaultObject = {};
 
     // update all wallets and signers
-    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const btcWallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+    const usdtWallets = yield call(dbManager.getObjectByIndex, RealmSchema.USDTWallet, null, true);
+    const wallets = [...btcWallets, ...usdtWallets];
+
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));

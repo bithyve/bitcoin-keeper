@@ -3,7 +3,9 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Box, useColorMode } from 'native-base';
-import KeeperIcon from 'src/assets/images/keeper-new-logo.png';
+import { useSelector } from 'react-redux';
+import KeeperNewLogo from 'src/assets/images/keeper-new-logo.png';
+import KeeperPrivateNewLogo from 'src/assets/privateImages/keeper-private-new-logo.png';
 
 function KeeperQRCode({
   qrData,
@@ -19,7 +21,8 @@ function KeeperQRCode({
   showLogo?: boolean;
 }) {
   const { colorMode } = useColorMode();
-
+  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
+  const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   return (
     <Box style={styles.qrWrapper} borderColor={`${colorMode}.headerWhite`}>
       {qrData && (
@@ -28,7 +31,7 @@ function KeeperQRCode({
           {...(logoBackgroundColor ? { logoBackgroundColor } : {})}
           size={size}
           ecl={ecl}
-          logo={KeeperIcon}
+          logo={privateTheme ? KeeperPrivateNewLogo : KeeperNewLogo}
           logoSize={showLogo ? size * 0.2 : 0}
         />
       )}

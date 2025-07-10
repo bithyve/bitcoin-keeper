@@ -9,6 +9,7 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import WalletHeader from 'src/components/WalletHeader';
+import { EntityKind } from 'src/services/wallets/enums';
 
 function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -17,6 +18,7 @@ function UpdateWalletDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation, seed: seedTranslation, common } = translations;
 
+  const isUSDTWallet = (wallet as Wallet)?.entityKind === EntityKind.USDT_WALLET;
   const getPurpose = (key) => {
     switch (key) {
       case 'P2WPKH':
@@ -60,7 +62,9 @@ function UpdateWalletDetails({ route }) {
               {common.purpose}
             </KeeperText>
             <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <Text medium>{getPurpose(wallet?.scriptType)}</Text>
+              <Text medium>
+                {isUSDTWallet ? 'GasFree USDT Wallet' : getPurpose(wallet?.scriptType)}
+              </Text>
             </Box>
             {isFromSeed ? (
               <Box style={{ marginTop: wp(20) }}>

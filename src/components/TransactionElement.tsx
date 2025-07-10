@@ -21,6 +21,10 @@ import Colors from 'src/theme/Colors';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import { USDTTransaction } from 'src/services/wallets/operations/dollars/USDT';
+import { EntityKind } from 'src/services/wallets/enums';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import ThemedColor from './ThemedColor/ThemedColor';
 
 function TransactionElement({
   transaction,
@@ -29,18 +33,43 @@ function TransactionElement({
   index,
   isCached,
 }: {
-  transaction: Transaction;
-  wallet: Wallet | Vault;
+  transaction: Transaction | USDTTransaction;
+  wallet: Wallet | Vault | USDTWallet;
   onPress?: () => void;
   index?: number;
   isCached: boolean;
 }) {
-  const { labels } = useLabelsNew({ txid: transaction.txid });
+  let transactionId: string;
+  let date: string | number;
+  let amount: number;
+  let confirmations: number;
+  let transactionType: string;
+  if (wallet.entityKind === EntityKind.USDT_WALLET) {
+    transactionId =
+      (transaction as USDTTransaction).txId || (transaction as USDTTransaction).traceId;
+    date = (transaction as USDTTransaction).timestamp;
+    amount = parseFloat((transaction as USDTTransaction).amount);
+    confirmations = (transaction as USDTTransaction).blockNumber ? 6 : 0; // Assuming 6 confirmations for USDT transactions(no. of conf on Tron doesn't really make any finality sense)
+    if (
+      (transaction as USDTTransaction).to === (wallet as USDTWallet).accountStatus.gasFreeAddress
+    ) {
+      transactionType = 'Received';
+    } else transactionType = 'Sent';
+  } else {
+    transactionId = (transaction as Transaction).txid;
+    date = (transaction as Transaction).date;
+    amount = (transaction as Transaction).amount;
+    confirmations = (transaction as Transaction).confirmations;
+    transactionType = (transaction as Transaction).transactionType;
+  }
+
+  const { labels } = useLabelsNew({ txid: transactionId });
   const { colorMode } = useColorMode();
-  const date = moment(transaction?.date)?.format('DD MMM YY  .  HH:mm A');
+  const formattedDate = moment(date)?.format('DD MMM YY  .  HH:mm A');
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
-    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transaction?.txid}`}>
+    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${transactionId}`}>
       <Box
         style={[
           styles.container,
@@ -53,14 +82,14 @@ function TransactionElement({
       >
         <Box style={styles.rowCenter}>
           <Box style={styles.circle}>
-            {transaction.confirmations === 0 && !isCached && (
+            {confirmations === 0 && !isCached && (
               <Box style={styles.transaction}>
                 <TransactionPendingIcon />
               </Box>
             )}
             {isCached ? (
               <IconCache />
-            ) : transaction?.transactionType === 'Received' ? (
+            ) : transactionType === 'Received' ? (
               colorMode === 'light' ? (
                 <IconRecieve />
               ) : (
@@ -79,25 +108,22 @@ function TransactionElement({
               style={styles.transactionIdText}
               medium
             >
-              {labels[transaction.txid]?.[0]?.name || transaction?.txid}
+              {labels[transactionId]?.[0]?.name || transactionId}
             </Text>
-            <Text
-              color={`${colorMode}.secondaryText`}
-              style={styles.transactionDate}
-              numberOfLines={1}
-            >
-              {date}
+            <Text color={viewAll_color} style={styles.transactionDate} numberOfLines={1}>
+              {formattedDate}
             </Text>
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
           <CurrencyInfo
             hideAmounts={false}
-            amount={transaction?.amount}
+            amount={amount}
             fontSize={15}
             color={`${colorMode}.primaryText`}
             balanceMaxWidth={wp(90)}
             variation={colorMode === 'light' ? 'richBlack' : 'light'}
+            wallet={wallet}
           />
           <Box style={[styles.arrowIconWrapper]}>
             {colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}

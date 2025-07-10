@@ -32,12 +32,14 @@ type IProps = {
     params: {
       vault: Vault;
       signer: Signer;
+      isImportFlow?: boolean;
+      onTypeSelection?: (type: SignerType) => void;
     };
   };
 };
 function AssignSignerType({ route }: IProps) {
   const { colorMode } = useColorMode();
-  const { vault, signer } = route.params;
+  const { vault, signer, isImportFlow = false, onTypeSelection = () => {} } = route.params;
   const { signers: appSigners } = useSigners();
   const { translations } = useContext(LocalizationContext);
   const { signer: signerText } = translations;
@@ -152,6 +154,8 @@ function AssignSignerType({ route }: IProps) {
                       vault={vault}
                       primaryMnemonic={primaryMnemonic}
                       signer={signer}
+                      isImportFlow={isImportFlow}
+                      onTypeSelection={onTypeSelection}
                     />
                   );
                 })}

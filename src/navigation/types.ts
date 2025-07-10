@@ -180,6 +180,8 @@ export type AppStackParams = {
   MultiUserScreen: undefined;
   AddMultipleXpubFiles: undefined;
   SignMessageScreen: undefined;
+  CloudBackupPassword: undefined;
+  ImportedWalletSetup: undefined;
 };
 
 // Usage:

@@ -174,7 +174,10 @@
     "loadSignature": "Load Signature",
     "signMessage": "Sign Message",
     "moreInfo": "More Info",
-    "lessInfo": "Less Info"
+    "lessInfo": "Less Info",
+    "Buy": "Buy",
+    "update": "Update",
+    "swapBtc": "Swap BTC"
   },
   "login": {
     "welcomeback": "Welcome Back",
@@ -507,7 +510,10 @@
     "chooseSignMessageMedium": "Choose how to sign message",
     "chooseImportSignatureMedium": "Choose how to import signature",
     "verifyTitle": "Verify signed message",
-    "verifySubtitle": "Scan the signed message from your hardware wallet"
+    "verifySubtitle": "Scan the signed message from your hardware wallet",
+    "sendBitcoin": "Send Bitcoin",
+    "receiveBitcoin": "Receive Bitcoin",
+    "buyBitCoin": "Buy Bitcoin with Ramp"
   },
   "vault": {
     "Addsigner": "Add a Signer",
@@ -1074,14 +1080,18 @@
     "bsmsFile": "Please note that we are calling a BSMS file (also known as Output Descriptor), as the Wallet Configuration File within Keeper.",
     "importVaultforKeeper": "If you are importing a vault that you had created in Keeper previously, note that only a specific vault will get imported. Not that complete Keeper app with all its wallets.",
     "importCompleteKeeper": "To import a complete Keeper app, please use that app’s Recovery Key",
-    "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data"
+    "importExistingWallet": "Import your existing wallet by scanning a QR, uploading a file, or pasting the wallet data",
+    "editWalletName": "Edit your wallet name",
+    "editWalletDesc": "Edit your wallet description",
+    "updateSignerType": "Update signer type",
+    "updateSignerSubText": "Press on a key to select its type"
   },
   "ramp": {
-    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
+    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin. On continuing you will be redirected to their page.",
     "bitcoinTransfer": "Bitcoin will be transferred to",
     "addressForRamp": "Address for Ramp transactions",
     "buyBitcoinWithRamp": "Get Bitcoin via Ramp",
-    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire BTC using payment methods available in your country."
+    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire Bitcoin using payment methods available in your country."
   },
   "signer": {
     "addSigner": "Add Signer",
@@ -1696,7 +1706,11 @@
     "cloudBackupModalSubitle": "Easily access your wallet configuration files from anywhere on any bitcoin wallet.",
     "cloudBackupModalDesc": "Once initiated, the backups are updated automatically. Rest assured of having the latest wallet configurations.",
     "identificanSuccessful": "Identification successful!",
-    "identificanFailed": "Identification failed!"
+    "identificanFailed": "Identification failed!",
+    "passwordTitle": "Cloud Backup Password",
+    "passwordDesc": "Choose a password for encrypting your personal cloud backup files. Only the wallet configuration files will be backed up, without any private keys or other information.",
+    "passwordUpdate": "Password updated successfully",
+    "passcodeSubTitle": "To update cloud backup password"
   },
   "notification": {
     "Balance": "Balance",
@@ -1755,11 +1769,19 @@
     "selectWallet": "Select Wallet",
     "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
     "rampTitle": "Buy Bitcoin with Ramp",
-    "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
+    "rampSubTitle": "Ramp enables Bitcoin purchases using payment methods available, based on your country",
     "addressForTransaction": "Address for the transaction",
-    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
-    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
-    "buyBtc": "Get Bitcoin"
+    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
+    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire Bitcoin.",
+    "buyBtc": "Get Bitcoin",
+    "sendBtc": "Send\nBitcoin",
+    "recieveBtc": "Receive\nBitcoin",
+    "moreOptions": "More\nOptions",
+    "rediredctToRampPage": "You will be redirected to Ramp’s page where you will be liable to their User Agreement and Privacy Policy. Confirm to proceed.",
+    "proceedToRamp": "Proceed to Ramp?",
+    "transactionOnRamp": "* These transactions are facilitated by Third Parties.",
+    "buy": "Buy",
+    "sell": "Sell"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
@@ -1898,6 +1920,58 @@
     "enterMessage": "Please enter the message",
     "signMessageParameter": "Please provide message, address and signature for verification",
     "signatureNotValid": "Signature is not valid for the provided message",
-    "invalidSignatureFormat": "Invalid signed message format"
+    "invalidSignatureFormat": "Invalid signed message format",
+    "passwordError": "Please enter a valid password",
+    "confirmPasswordError": "Confirm password is required",
+    "passwordMatchError": "Password does not match"
+  },
+  "usdtWalletText": {
+    "pickWalletType": "Pick Your Wallet Type",
+    "selectCurrency": "Select the currency you would like to use",
+    "bitcoinWallet": "Bitcoin Wallet",
+    "dollarWallet": "Dollar Wallet",
+    "addWalletDetails": "Add Your Wallet Details",
+    "dedicatedWalletSub": "A dedicated wallet for securely receiving, storing, and managing USDT on the Tron network. Enjoy fast, low-fee transactions for smooth and cost-effective transfers.",
+    "usdtRamp": "Get USDT via Ramp",
+    "rampSub": "Ramp allows you to acquire USDT using payment methods available in your country.",
+    "rampOffermultiple": "Ramp offers multiple payment methods to acquire USDT.",
+    "adressTransaction": "Address for the transaction",
+    "understandRampPayment": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
+    "usdtTransactionHistory": "USDT Transactions History",
+    "walletSetting": "Wallet Settings",
+    "walletDetails": "Wallet Details",
+    "walletNameAndDescription": "Wallet name and description",
+    "hideWallet": "Hide Wallet",
+    "hideWalletDesc": "Hidden wallets can be managed from Manage Wallets in settings",
+    "walletSeedWords": "Wallet Seed Words",
+    "backupWalletOrExport": "Ues to back up or export the wallet private key",
+    "receive": "Receive",
+    "sendOnlyUsdt": "Please send only USDT on the Tron network to this address. Any other assets or networks may result in a loss of funds.",
+    "sendToWallet": "Send to one of your wallets",
+    "chnageWallet": "Change Wallet",
+    "sendtoTron": "Only send to a TRON (TRC-20) address that supports USDT. Sending to an incompatible address may result in loss of funds.",
+    "enterAmount": "Enter Amount",
+    "balance": "Balance",
+    "sendConfirmation": "Send Confirmation",
+    "gasFreeWallet": " Since the GasFree wallet is not activated, an activation fee will be charged along with the current permit transfer",
+    "gasFreeWalletTitle": "Gas-Free Wallet",
+    "gasFreeWalletDesc": "A Gas-Free Wallet lets you send USDT without needing TRX in your wallet. It works by covering the transaction fee in USDT instead of TRX. You’ll be charged a one-time activation fee the first time you use it.",
+    "permitTransfer": "Permit Transfer",
+    "permitTransferDesc": "Permit Transfer allows you to authorize USDT transfers using just your signature.It’s efficient, secure, and keeps your wallet interaction simple.",
+    "activationFee": "Activation Fee",
+    "transactionFee": "Transaction Fee",
+    "transactionDetails": "Transaction Details",
+    "transactionDetailsSubTitle": "Detailed information for this transaction",
+    "status": "Status",
+    "sendingAmount": "Sending Amount",
+    "recievedAmount": "Received Amount",
+    "recipientAddress": "Recipient’s address",
+    "sendUsdt": "Send\nUSDT",
+    "recieveUSdt": "Receive\nUSDT",
+    "moreOption": "More\nOptions",
+    "buyUSdt": "Buy USDT with  Ramp",
+    "UsdtPowerdBy": "This USDT wallet is powered by ",
+    "keeperDontControl": "Bitcoin Keeper does not control or manage this wallet. If",
+    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk."
   }
 }

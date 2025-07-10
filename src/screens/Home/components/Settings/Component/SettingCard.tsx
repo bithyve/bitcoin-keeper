@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     fontSize: 12,
     marginTop: 4,
+    width: '95%',
   },
   document: {
     flexDirection: 'row',

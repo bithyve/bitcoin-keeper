@@ -24,6 +24,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/services/wallets/interfaces/vault';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import {
+  getAvailableBalanceUSDTWallet,
+  USDTWallet,
+} from 'src/services/wallets/factories/USDTWalletFactory';
+import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import HexagonIcon from 'src/components/HexagonIcon';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc.svg';
@@ -45,6 +51,7 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import USDTGreenLogo from 'src/assets/images/usdt-gree-logo.svg';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
@@ -62,17 +69,15 @@ function ListItem({
   isWatchOnly,
 }) {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE';
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
 
+  const isUSDTWallet = type === EntityKind.USDT_WALLET;
+
   return (
-    // TODO: Drag and rearrange wallet functionality
-    // <Box style={{ flexDirection: 'row', gap: 10, width: '90%' }}>
-    //   <TouchableOpacity style={{ gap: 2, alignItems: 'center', justifyContent: 'center' }}>
-    //     <AlignIcon />
-    //   </TouchableOpacity>
     <Box
       backgroundColor={`${colorMode}.seashellWhite`}
       style={styles.walletInfoContainer}
@@ -91,14 +96,24 @@ function ListItem({
       </Box>
       <Box style={styles.justifyContent}>
         <Box style={styles.alignCenter}>
-          {getCurrencyIcon(BTC, privateTheme ? 'light' : 'green')}
+          {isUSDTWallet ? (
+            !isDarkMode ? (
+              <USDTGreenLogo width={13} height={13} />
+            ) : (
+              <UsdtWalletLogo width={16} height={16} />
+            )
+          ) : (
+            getCurrencyIcon(BTC, privateTheme ? 'light' : 'green')
+          )}
           <Text fontSize={15} color={`${colorMode}.primaryText`}>
-            {` ${getBalance(balance)} ${getSatUnit()}`}
+            {isUSDTWallet ? ` ${balance} USDT` : ` ${getBalance(balance)} ${getSatUnit()}`}
           </Text>
         </Box>
         <HStack>
           {isHidden &&
-            (type == 'VAULT' || (type == 'WALLET' && (balance === 0 || isWatchOnly))) && (
+            (type == 'VAULT' ||
+              (type == 'WALLET' && (balance === 0 || isWatchOnly)) ||
+              isUSDTWallet) && (
               <ActionChip text="Delete" onPress={onDelete} Icon={<DeleteIcon />} />
             )}
           <ActionChip
@@ -109,7 +124,6 @@ function ListItem({
         </HStack>
       </Box>
     </Box>
-    // </Box>
   );
 }
 
@@ -120,8 +134,21 @@ function ManageWallets() {
 
   const { wallets } = useWallets({ getAll: true });
 
+  const {
+    usdtWallets,
+    updateWallet: updateUSDTWallet,
+    deleteWallet: deleteUSDTWallet,
+  } = useUSDTWallets({
+    getAll: true,
+    includeHidden: true,
+  });
+
   const { allVaults } = useVault({ includeArchived: false });
-  const allWallets: (Wallet | Vault)[] = [...wallets, ...allVaults].filter((item) => item !== null);
+  const allWallets: (Wallet | Vault | USDTWallet)[] = [
+    ...wallets,
+    ...allVaults,
+    ...usdtWallets,
+  ].filter((item) => item !== null);
   const [showAll, setshowAll] = useState(false);
   const [showAllForced, setShowAllForced] = useState(false);
   const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
@@ -141,7 +168,7 @@ function ManageWallets() {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
 
   const { isOnL2Above } = usePlan();
-  const navigation = useNavigation();
+  const navigation: any = useNavigation();
   const dispatch = useDispatch();
   const [selectedWallet, setSelectedWallet] = useState(null);
   const { showToast } = useToastMessage();
@@ -160,6 +187,7 @@ function ManageWallets() {
   }, [relayVaultUpdate, relayVaultError]);
 
   const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
+  const isUSDTWallet = selectedWallet?.entityKind === EntityKind.USDT_WALLET;
 
   const onProceed = () => {
     if (passwordMode === PasswordMode.DEFAULT) {
@@ -179,7 +207,7 @@ function ManageWallets() {
     }
   };
 
-  const deleteSelectedEntity = () => {
+  const deleteSelectedEntity = async () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
       dispatch(deleteVault(selectedWallet.id));
     }
@@ -187,27 +215,45 @@ function ManageWallets() {
       dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
       showToast(errorText.waletDeleted, <TickIcon />);
     }
+    if (selectedWallet && selectedWallet.entityKind === EntityKind.USDT_WALLET) {
+      const success = await deleteUSDTWallet(selectedWallet.id);
+      if (success) showToast(errorText.waletDeleted, <TickIcon />);
+      else showToast('Failed to delete USDT wallet', <ToastErrorIcon />);
+    }
   };
 
-  const updateWalletVisibility = (wallet: Wallet | Vault, hide: boolean) => {
+  const updateWalletVisibility = async (wallet: Wallet | Vault | USDTWallet, hide: boolean) => {
     const { id, entityKind } = wallet;
     const isWallet = entityKind === EntityKind.WALLET;
+    const isUSDTWallet = entityKind === EntityKind.USDT_WALLET;
 
     setSelectedWallet(wallet);
 
     try {
       const visibilityType = hide ? VisibilityType.HIDDEN : VisibilityType.DEFAULT;
-      const schema = isWallet ? RealmSchema.Wallet : RealmSchema.Vault;
 
-      dbManager.updateObjectById(schema, id, {
-        presentationData: {
-          name: wallet.presentationData.name,
-          description: wallet.presentationData.description,
-          visibility: visibilityType,
-        },
-      });
+      if (isUSDTWallet) {
+        // case: USDT wallet update
+        const updatedUSDTWallet = {
+          ...(wallet as USDTWallet),
+          presentationData: {
+            ...wallet.presentationData,
+            visibility: visibilityType,
+          },
+        };
+        await updateUSDTWallet(updatedUSDTWallet);
+      } else {
+        // case: regular wallet/vault update
+        const schema = isWallet ? RealmSchema.Wallet : RealmSchema.Vault;
+        dbManager.updateObjectById(schema, id, {
+          presentationData: {
+            name: wallet.presentationData.name,
+            description: wallet.presentationData.description,
+            visibility: visibilityType,
+          },
+        });
+      }
     } catch (error) {
-      console.log(error);
       captureError(error);
     }
   };
@@ -215,27 +261,45 @@ function ManageWallets() {
   const getWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? <CollaborativeIcon /> : <VaultIcon />;
+    } else if (wallet.entityKind === EntityKind.USDT_WALLET) {
+      return <UsdtWalletLogo />;
     } else {
       return <WalletIcon />;
     }
   };
 
-  const isWatchOnly = (wallet: Wallet | Vault): boolean => {
+  const getWalletBalance = (wallet) => {
+    if (wallet.entityKind === EntityKind.USDT_WALLET) {
+      return getAvailableBalanceUSDTWallet(wallet);
+    } else {
+      return wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed;
+    }
+  };
+
+  const isWatchOnly = (wallet: Wallet | Vault | USDTWallet): boolean => {
+    if (wallet.entityKind === EntityKind.USDT_WALLET) {
+      return false; // USDT wallets are never watch-only
+    }
     return wallet.entityKind === 'WALLET' && (wallet as Wallet).specs.xpriv === null;
   };
 
   function DeleteVaultBalanceAlertModalContent() {
     const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
+    const isUSDTWallet = selectedWallet?.entityKind === EntityKind.USDT_WALLET;
     return (
       <Box style={styles.modalContainer}>
         <Text color={`${colorMode}.secondaryText`} style={styles.unhideText}>
-          {isWallet ? settings.DeleteWalletModalDesc : settings.DeleteVaultModalDesc}
+          {isWallet
+            ? settings.DeleteWalletModalDesc
+            : isUSDTWallet
+            ? 'Are you sure you want to delete this USDT wallet? Please move your funds first.'
+            : settings.DeleteVaultModalDesc}
         </Text>
         <Box style={styles.BalanceModalContainer}>
           <TouchableOpacity
             style={styles.cancelBtn}
             onPress={() => {
-              if (isWallet) {
+              if (isWallet || isUSDTWallet) {
                 // Cancel action
                 updateWalletVisibility(selectedWallet, true);
                 setShowDeleteVaultBalanceAlert(false);
@@ -248,7 +312,7 @@ function ManageWallets() {
             activeOpacity={0.5}
           >
             <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-              {isWallet ? common.cancel : common.continue}
+              {isWallet || isUSDTWallet ? common.cancel : common.continue}
             </Text>
           </TouchableOpacity>
 
@@ -256,7 +320,14 @@ function ManageWallets() {
             testID="manageWallets_moveFunds"
             onPress={() => {
               setShowDeleteVaultBalanceAlert(false);
-              if (selectedWallet.type === VaultType.MINISCRIPT) {
+
+              if (isUSDTWallet) {
+                // navigation.navigate('usdtDetails', { usdtWalletId: selectedWallet.id }); // navigation crashing
+                showToast(
+                  'Please move your funds and empty this USDT wallet first',
+                  <ToastErrorIcon />
+                );
+              } else if (selectedWallet.type === VaultType.MINISCRIPT) {
                 try {
                   selectVaultSpendingPaths();
                 } catch (err) {
@@ -330,7 +401,7 @@ function ManageWallets() {
               type={item.entityKind}
               title={item.presentationData.name}
               subtitle={item.presentationData.description}
-              balance={item.specs.balances.confirmed + item.specs.balances.unconfirmed}
+              balance={getWalletBalance(item)}
               isHidden={item.presentationData.visibility === VisibilityType.HIDDEN}
               isWatchOnly={isWatchOnly(item)}
               visibilityToggle={() => {
@@ -343,10 +414,7 @@ function ManageWallets() {
                 }
               }}
               onDelete={() => {
-                if (
-                  item.specs.balances.confirmed + item.specs.balances.unconfirmed > 0 &&
-                  !isWatchOnly(item)
-                ) {
+                if (getWalletBalance(item) > 0 && !isWatchOnly(item)) {
                   setSelectedWallet(item);
                   setShowDeleteVaultBalanceAlert(true);
                 } else {
@@ -387,18 +455,30 @@ function ManageWallets() {
         dismissible
         close={() => {
           setShowDeleteVaultBalanceAlert(false);
-          !isWallet && updateWalletVisibility(selectedWallet, true);
+          (isWallet || isUSDTWallet) && updateWalletVisibility(selectedWallet, true);
         }}
         visible={showDeleteVaultBalanceAlert}
-        title={isWallet ? settings.DeleteWalletModalTitle : settings.DeleteVaultModalTitle}
-        subTitle={isWallet ? settings.DeleteWalletModalSubTitle : settings.DeleteVaultModalSubTitle}
+        title={
+          isWallet
+            ? settings.DeleteWalletModalTitle
+            : isUSDTWallet
+            ? 'Delete USDT Wallet'
+            : settings.DeleteVaultModalTitle
+        }
+        subTitle={
+          isWallet
+            ? settings.DeleteWalletModalSubTitle
+            : isUSDTWallet
+            ? 'This action cannot be undone'
+            : settings.DeleteVaultModalSubTitle
+        }
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={DeleteVaultBalanceAlertModalContent}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonTextColor={`${colorMode}.buttonText`}
         subTitleWidth={wp(240)}
-        closeOnOverlayClick={isWallet ? false : true}
+        closeOnOverlayClick={isWallet || isUSDTWallet ? false : true}
         showCloseIcon={false}
       />
       <KeeperModal

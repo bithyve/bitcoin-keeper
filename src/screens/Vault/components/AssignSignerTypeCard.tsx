@@ -35,6 +35,8 @@ type AssignSignerTypeCardProps = {
   vault: Vault;
   primaryMnemonic: string;
   signer?: Signer;
+  isImportFlow?: boolean;
+  onTypeSelection?: (type: SignerType) => void;
 };
 
 function AssignSignerTypeCard({
@@ -44,6 +46,8 @@ function AssignSignerTypeCard({
   last = false,
   signer,
   vault,
+  isImportFlow,
+  onTypeSelection,
 }: AssignSignerTypeCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [validationModal, showValidationModal] = useState(false);
@@ -60,10 +64,15 @@ function AssignSignerTypeCard({
     if (type === SignerType.POLICY_SERVER) {
       showValidationModal(true);
     } else {
-      dispatch(updateSignerDetails(signer, 'type', type));
-      dispatch(
-        updateSignerDetails(signer, 'signerName', getSignerNameFromType(type, signer.isMock))
-      );
+      if (isImportFlow) {
+        navigation.goBack();
+        onTypeSelection(type);
+      } else {
+        dispatch(updateSignerDetails(signer, 'type', type));
+        dispatch(
+          updateSignerDetails(signer, 'signerName', getSignerNameFromType(type, signer.isMock))
+        );
+      }
     }
   };
 
