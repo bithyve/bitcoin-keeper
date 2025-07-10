@@ -172,7 +172,6 @@ const HomeWallet = () => {
       subtitle: 'Create a new USDT wallet',
       icon: <NewWalletIcon />,
       onPress: () => {
-        false;
         navigation.navigate('addUsdtWallet');
         setCreateUsdtWallet(false);
       },

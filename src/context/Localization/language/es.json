@@ -1087,11 +1087,11 @@
     "updateSignerSubText": "Press on a key to select its type"
   },
   "ramp": {
-    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and complete the transaction. Keeper does not facilitate or handle the exchange.",
+    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin. On continuing you will be redirected to their page.",
     "bitcoinTransfer": "Bitcoin will be transferred to",
     "addressForRamp": "Address for Ramp transactions",
     "buyBitcoinWithRamp": "Get Bitcoin via Ramp",
-    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire BTC using payment methods available in your country."
+    "buyBitcoinWithRampSubTitle": "Ramp allows you to acquire Bitcoin using payment methods available in your country."
   },
   "signer": {
     "addSigner": "Add Signer",
@@ -1769,14 +1769,19 @@
     "selectWallet": "Select Wallet",
     "selectWalletDesc": "Select in which wallet you would like to receive the Bitcoin",
     "rampTitle": "Buy Bitcoin with Ramp",
-    "rampSubTitle": "Ramp enables BTC purchases using payment methods available, based on your country",
+    "rampSubTitle": "Ramp enables Bitcoin purchases using payment methods available, based on your country",
     "addressForTransaction": "Address for the transaction",
-    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchase bitcoin",
-    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire BTC.",
+    "rampPayment": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
+    "buyBTCWithoutExchange": "Ramp offers multiple payment methods to acquire Bitcoin.",
     "buyBtc": "Get Bitcoin",
     "sendBtc": "Send\nBitcoin",
     "recieveBtc": "Receive\nBitcoin",
-    "moreOptions": "More\nOptions"
+    "moreOptions": "More\nOptions",
+    "rediredctToRampPage": "You will be redirected to Ramp’s page where you will be liable to their User Agreement and Privacy Policy. Confirm to proceed.",
+    "proceedToRamp": "Proceed to Ramp?",
+    "transactionOnRamp": "* These transactions are facilitated by Third Parties.",
+    "buy": "Buy",
+    "sell": "Sell"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
