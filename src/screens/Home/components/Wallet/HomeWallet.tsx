@@ -11,7 +11,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -38,7 +38,11 @@ import {
   getAvailableBalanceUSDTWallet,
   USDTWallet,
   USDTWalletSupportedNetwork,
+  USDTWalletType,
 } from 'src/services/wallets/factories/USDTWalletFactory';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -53,7 +57,7 @@ const HomeWallet = () => {
     getFirst: true,
     getHiddenWallets: false,
   });
-  const { usdtWallets } = useUSDTWallets();
+  const { usdtWallets, createWallet } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
@@ -83,6 +87,7 @@ const HomeWallet = () => {
   const dashed_CTA_background = ThemedColor({
     name: 'dashed_CTA_background',
   });
+  const { showToast } = useToastMessage();
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -101,6 +106,35 @@ const HomeWallet = () => {
 
     dispatch(autoSyncWallets(false, false, true));
     setPullRefresh(false);
+  };
+
+  const importUSDTWallet = async (mnemonic) => {
+    try {
+      const { newWallet, error } = await createWallet({
+        type: USDTWalletType.IMPORTED,
+        name: 'USDT Wallet',
+        description: 'Imported USDT Wallet',
+        importDetails: {
+          mnemonic,
+        },
+      });
+
+      if (newWallet) {
+        showToast('USDT wallet imported successfully!', <TickIcon />);
+        setTimeout(() => {
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'Home',
+              params: { selectedOption: 'Wallets' },
+            })
+          );
+        }, 900);
+      } else {
+        throw new Error(error);
+      }
+    } catch (err) {
+      showToast(`Failed to import USDT wallet: ${err.message}`, <ToastErrorIcon />);
+    }
   };
 
   const CREATE_WALLET_OPTIONS = [
@@ -150,7 +184,16 @@ const HomeWallet = () => {
       icon: <ImportWalletIcon />,
       onPress: () => {
         setCreateUsdtWallet(false);
-        navigation.navigate('VaultConfigurationCreation', { entityKind: EntityKind.USDT_WALLET });
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'EnterSeedScreen',
+            params: {
+              isImport: true,
+              isUSDTWallet: true,
+              importSeedCta: importUSDTWallet,
+            },
+          })
+        );
       },
       id: 'usdtimportWallet',
     },

@@ -42,7 +42,6 @@ function VaultConfigurationCreation({ route }) {
   const { common, importWallet, signer: signerTranslation } = translations;
   const [showModal, setShowModal] = useState(false);
   const { entityKind } = route.params || {};
-  const isUSDTWallet = entityKind && entityKind === EntityKind.USDT_WALLET;
 
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
@@ -103,11 +102,7 @@ function VaultConfigurationCreation({ route }) {
       >
         <WalletHeader
           title={importWallet.importAWallet}
-          subTitle={
-            isUSDTWallet
-              ? 'Import your existing USDT wallet by scanning a QR or by pasting the seed phrase (mnemonic)'
-              : importWallet.importExistingWallet
-          }
+          subTitle={importWallet.importExistingWallet}
           learnMore
           learnMorePressed={() => setShowModal(true)}
         />
@@ -121,14 +116,13 @@ function VaultConfigurationCreation({ route }) {
             <Box style={styles.optionsWrapper}>
               {/* <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box> */}
               <Box style={{ marginLeft: wp(25) }}>
-                {isUSDTWallet ? null : (
-                  <OptionCard
-                    title={signerTranslation.uploadFile}
-                    description={signerTranslation.uploadFileDesc}
-                    LeftIcon={<WrappedImportIcon />}
-                    callback={handleDocumentSelection}
-                  />
-                )}
+                <OptionCard
+                  title={signerTranslation.uploadFile}
+                  description={signerTranslation.uploadFileDesc}
+                  LeftIcon={<WrappedImportIcon />}
+                  callback={handleDocumentSelection}
+                />
+
                 {/* TODO: Re-enable this o */}
                 {/* <OptionCard
                   title={'Import from ColdCard using NFC'}
@@ -147,11 +141,7 @@ function VaultConfigurationCreation({ route }) {
               <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Input
                   testID="input_walletConfigurationFile"
-                  placeholder={
-                    isUSDTWallet
-                      ? 'Enter USDT wallet seed phrase (mnemonic)'
-                      : signerTranslation.enterManualConfig
-                  }
+                  placeholder={signerTranslation.enterManualConfig}
                   placeholderTextColor={`${colorMode}.primaryText`}
                   style={styles.textInput}
                   variant="unstyled"
