@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "scripts": {
     "ios": "npx react-native run-ios --scheme=hexa_keeper_dev --simulator 'iPhone 16' ",
@@ -123,6 +123,7 @@
     "socket.io-client": "4.5.4",
     "stream": "0.0.2",
     "stream-browserify": "1.0.0",
+    "tronweb": "6.0.3",
     "url": "0.10.1"
   },
   "devDependencies": {

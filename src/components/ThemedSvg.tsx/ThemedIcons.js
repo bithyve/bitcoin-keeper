@@ -111,7 +111,7 @@ import MobileKeyWhite from 'src/assets/images/signerSoftwareWhite.svg';
 import WhiteSettingIcon from 'src/assets/privateImages/setting_icon_white.svg';
 import BrownSettingIcon from 'src/assets/privateImages/setting_icon_brown.svg';
 import CopyIconWhite from 'src/assets/images/copy-icon-white.svg';
-import CopyIcon from 'src/assets/images/copy.svg';
+import CopyIcon from 'src/assets/images/copy-icon.svg';
 import CopyGoldIcon from 'src/assets/privateImages/copy-icon-gold.svg';
 import KeyDetailsDark from 'src/assets/images/key-details-white.svg';
 import KeyDetailsLight from 'src/assets/images/key-details-green.svg';
@@ -293,6 +293,8 @@ import BitCoinLogo from 'src/assets/images/bitcoin-logo-green.svg';
 import BitCoinLogoGold from 'src/assets/privateImages/bitcoin-logo-gold.svg';
 import BitCoinLogoDark from 'src/assets/images/bitcoin-logo-white.svg';
 import BTCWhiteLOgo from 'src/assets/images/btc-white-logo.svg';
+import UsdtIllustration from 'src/assets/images/ustd-illustration.svg';
+import UsdtPrivateIllustration from 'src/assets/privateImages/usdt-private-illustration.svg';
 import SendBTCGold from 'src/assets/privateImages/send-btc-gold-arrow.svg';
 import RecieveBTCGold from 'src/assets/privateImages/recieve-btc-gold-arrow.svg';
 import BuyBTCGold from 'src/assets/privateImages/buy-btc-gold-icon.svg';
@@ -305,8 +307,26 @@ import SendBtcArrow from 'src/assets/images/send-btc-arrow.svg';
 import RecieveBtcArrow from 'src/assets/images/recieve-btc-arrow.svg';
 import BuyBtcIcon from 'src/assets/images/buy-btc-icon.svg';
 import MoreBtcIcon from 'src/assets/images/more-btc-icon.svg';
+import BuyAcquireArrow from 'src/assets/images/acquire-buy-arrow.svg';
+import BuyAcquireArrowWhite from 'src/assets/images/acquire-buy-arrow-white.svg';
+import SellAcquireArrowWhite from 'src/assets/images/acquire-sell-arrow-white.svg';
+import SellAcquireArrow from 'src/assets/images/acquire-sell-arrow.svg';
+import SellAcquireArrowGold from 'src/assets/privateImages/acquire-sell-gold-arrow.svg';
+import BuyAcquireArrowGold from 'src/assets/privateImages/acquire-buy-gold-arrow.svg';
 
 const themeIcons = {
+  acquire_send_arrow: {
+    DARK: BuyAcquireArrowWhite,
+    LIGHT: BuyAcquireArrow,
+    PRIVATE: BuyAcquireArrowWhite,
+    PRIVATE_LIGHT: BuyAcquireArrowGold,
+  },
+  acquire_sell_arrow: {
+    DARK: SellAcquireArrowWhite,
+    LIGHT: SellAcquireArrow,
+    PRIVATE: SellAcquireArrowWhite,
+    PRIVATE_LIGHT: SellAcquireArrowGold,
+  },
   send_Btc_arrow: {
     DARK: SendWhiteIcon,
     LIGHT: SendBtcArrow,
@@ -827,7 +847,7 @@ const themeIcons = {
     PRIVATE_LIGHT: InhertanceToolsPrivate,
   },
   add_circle: {
-    DARK: AddCircleLight,
+    DARK: AddCircleDark,
     LIGHT: AddCircleLight,
     PRIVATE: AddCircleDark,
     PRIVATE_LIGHT: AddCircleLight,
@@ -1077,6 +1097,12 @@ const themeIcons = {
     LIGHT: BitCoinLogo,
     PRIVATE: BitCoinLogoDark,
     PRIVATE_LIGHT: BitCoinLogoGold,
+  },
+  usdt_illustration: {
+    DARK: UsdtIllustration,
+    LIGHT: UsdtIllustration,
+    PRIVATE: UsdtPrivateIllustration,
+    PRIVATE_LIGHT: UsdtPrivateIllustration,
   },
 };
 
