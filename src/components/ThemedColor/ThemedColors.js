@@ -265,6 +265,12 @@ const themeColors = {
     PRIVATE: Colors.primaryBrown,
     PRIVATE_LIGHT: Colors.primaryBrown,
   },
+  viewAll_color: {
+    DARK: Colors.bodyText,
+    LIGHT: Colors.primaryGreen,
+    PRIVATE: Colors.bodyText,
+    PRIVATE_LIGHT: Colors.goldenGradient,
+  },
 };
 
 export default themeColors;

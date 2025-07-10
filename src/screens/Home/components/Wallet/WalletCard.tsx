@@ -83,6 +83,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
             setIsShowAmount={setIsShowAmount ? setIsShowAmount : () => {}}
             isShowAmount={allowHideBalance ? isShowAmount : true}
             balance={totalBalance}
+            wallet={wallet}
           />
         </Box>
       </Box>
@@ -154,4 +155,5 @@ const styles = StyleSheet.create({
   secondCard: {
     maxWidth: wp(80),
   },
+  usdtContainer: {},
 });

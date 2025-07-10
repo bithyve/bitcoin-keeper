@@ -277,7 +277,7 @@ function SigningDeviceDetails({ route }) {
   const { primaryMnemonic, id: appRecoveryKeyId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { entityBasedIndicator } = useIndicatorHook({ entityId: signer.masterFingerprint });
+  const { entityBasedIndicator } = useIndicatorHook({ entityId: signer.id });
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
@@ -679,9 +679,7 @@ function SigningDeviceDetails({ route }) {
           Icon={() => <ThemedSvg name="health_check" />}
           showDot={
             (signer.type !== SignerType.MY_KEEPER &&
-              entityBasedIndicator?.[signer.masterFingerprint]?.[
-                uaiType.SIGNING_DEVICES_HEALTH_CHECK
-              ]) ||
+              entityBasedIndicator?.[signer.id]?.[uaiType.SIGNING_DEVICES_HEALTH_CHECK]) ||
             (signer.type === SignerType.MY_KEEPER &&
               typeBasedIndicator?.[uaiType.RECOVERY_PHRASE_HEALTH_CHECK]?.[appRecoveryKeyId])
           }

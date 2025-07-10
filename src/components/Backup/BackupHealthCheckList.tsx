@@ -18,7 +18,6 @@ import { useQuery } from '@realm/react';
 import HealthCheck from 'src/assets/images/healthcheck_light.svg';
 import AdvnaceOptions from 'src/assets/images/settings.svg';
 import KeeperFooter from '../KeeperFooter';
-import HealthCheckComponent from './HealthCheckComponent';
 import KeeperModal from '../KeeperModal';
 import { Platform, StyleSheet } from 'react-native';
 import SigningDeviceChecklist from 'src/screens/Vault/SigningDeviceChecklist';
@@ -28,6 +27,7 @@ import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView
 import Text from '../KeeperText';
 import { hp } from 'src/constants/responsive';
 import ThemedSvg from '../ThemedSvg.tsx/ThemedSvg';
+import ConfirmSeedWord from '../SeedWordBackup/ConfirmSeedWord';
 
 const ContentType = {
   verifying: 'verifying',
@@ -202,18 +202,13 @@ function BackupHealthCheckList({ isUaiFlow }) {
         onSwipeComplete={() => setShowConfirmSeedModal(false)}
         position="center"
       >
-        <HealthCheckComponent
+        <ConfirmSeedWord
           closeBottomSheet={() => {
             setShowConfirmSeedModal(false);
-            if (backupMethod === BackupType.SEED) {
-              dispatch(seedBackedConfirmed(false));
-            }
+            if (backupMethod === BackupType.SEED) dispatch(seedBackedConfirmed(false));
           }}
-          type={backupMethod}
-          password={backup.password}
-          hint={backup.hint}
-          words={primaryMnemonic.split(' ')}
-          onConfirmed={nextAction}
+          words={(primaryMnemonic as string).split(' ')}
+          confirmBtnPress={nextAction}
         />
       </ModalWrapper>
 

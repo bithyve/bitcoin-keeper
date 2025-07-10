@@ -59,6 +59,7 @@ export enum VisibilityType {
 export enum EntityKind {
   WALLET = 'WALLET',
   VAULT = 'VAULT',
+  USDT_WALLET = 'USDT_WALLET',
 }
 
 export enum WalletType {
