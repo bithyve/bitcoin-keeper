@@ -4,7 +4,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import CoinsIcon from 'src/assets/images/coins.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -24,8 +23,6 @@ import useWalletAsset from 'src/hooks/useWalletAsset';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import WalletDetailHeader from './components/WalletDetailHeader';
 import DetailCards from './components/DetailCards';
-import KeeperModal from 'src/components/KeeperModal';
-import MoreCard from './components/MoreCard';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 // TODO: add type definitions to all components
@@ -71,7 +68,6 @@ function WalletDetails({ route }: ScreenProps) {
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [showmore, setShowMore] = useState(false);
   const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   useEffect(() => {
@@ -136,8 +132,8 @@ function WalletDetails({ route }: ScreenProps) {
       <Box style={styles.detailCardsContainer}>
         <Box style={styles.detailCards}>
           <DetailCards
-            setShowMore={setShowMore}
             disabled={false}
+            wallet={wallet}
             sendCallback={() =>
               navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }))
             }
@@ -203,40 +199,6 @@ function WalletDetails({ route }: ScreenProps) {
         )}
       </VStack>
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
-      <KeeperModal
-        visible={showmore}
-        close={() => setShowMore(false)}
-        title={common.moreOptions}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        textColor={`${colorMode}.textGreen`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        Content={() => {
-          return (
-            <Box>
-              {/* <MoreCard
-                title={common.swapBtc}
-                callBack={() => {
-                  setShowMore(false);
-                }}
-                Icon={<SwapSvg />}
-              /> */}
-              <MoreCard
-                title={common.viewAllCoins}
-                callBack={() => {
-                  setShowMore(false);
-                  setTimeout(() => {
-                    navigation.navigate('UTXOManagement', {
-                      data: wallet,
-                      routeName: 'Wallet',
-                    });
-                  }, 300);
-                }}
-                Icon={<CoinsIcon />}
-              />
-            </Box>
-          );
-        }}
-      />
     </Box>
   );
 }

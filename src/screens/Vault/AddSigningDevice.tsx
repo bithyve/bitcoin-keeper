@@ -69,12 +69,12 @@ const MINISCRIPT_SIGNERS = [
   SignerType.BITBOX02,
   SignerType.COLDCARD,
   SignerType.JADE,
+  SignerType.KRUX,
   SignerType.LEDGER,
   SignerType.SPECTER,
   SignerType.SEED_WORDS,
   SignerType.KEEPER,
   SignerType.POLICY_SERVER,
-  SignerType.KRUX,
 ];
 
 const onSignerSelect = (

@@ -87,6 +87,7 @@ const SigningDeviceList = () => {
       SignerType.COLDCARD,
       SignerType.JADE,
       SignerType.KEYSTONE,
+      SignerType.KRUX,
       SignerType.LEDGER,
       SignerType.PASSPORT,
       SignerType.PORTAL,
@@ -94,7 +95,6 @@ const SigningDeviceList = () => {
       SignerType.SPECTER,
       SignerType.TAPSIGNER,
       SignerType.TREZOR,
-      SignerType.KRUX,
     ],
     [SignerCategory.SOFTWARE]: [
       SignerType.KEEPER,

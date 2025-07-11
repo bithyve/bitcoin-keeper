@@ -313,6 +313,9 @@ import SellAcquireArrowWhite from 'src/assets/images/acquire-sell-arrow-white.sv
 import SellAcquireArrow from 'src/assets/images/acquire-sell-arrow.svg';
 import SellAcquireArrowGold from 'src/assets/privateImages/acquire-sell-gold-arrow.svg';
 import BuyAcquireArrowGold from 'src/assets/privateImages/acquire-buy-gold-arrow.svg';
+import CoinsIcon from 'src/assets/images/coins.svg';
+import CoinIconLight from 'src/assets/images/coinsLight.svg';
+import CoinsIconPrivate from 'src/assets/privateImages/coinsPrivate.svg';
 
 const themeIcons = {
   acquire_send_arrow: {
@@ -1103,6 +1106,12 @@ const themeIcons = {
     LIGHT: UsdtIllustration,
     PRIVATE: UsdtPrivateIllustration,
     PRIVATE_LIGHT: UsdtPrivateIllustration,
+  },
+  view_coins: {
+    DARK: CoinsIcon,
+    LIGHT: CoinIconLight,
+    PRIVATE: CoinsIcon,
+    PRIVATE_LIGHT: CoinsIconPrivate,
   },
 };
 
