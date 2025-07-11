@@ -1973,6 +1973,10 @@
     "buyUSdt": "Buy USDT with Ramp",
     "UsdtPowerdBy": "This USDT wallet is powered by ",
     "keeperDontControl": "Bitcoin Keeper does not control or manage this wallet. If",
-    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk."
+    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk.",
+    "importInfoTitle": "Importing Your USDT Wallet",
+    "importInfoDesc1": "Bitcoin Keeper supports importing GasFree USDT wallets only. If you're using a compatible wallet provider that also supports gas-free transactions on the Tron network, you can import your wallet using your 12 or 24-word recovery phrase.",
+    "importInfoDesc2": "Once imported, you’ll be able to access and manage your USDT without needing TRX.",
+    "importInfoDescNote": "Note: Standard TRC-20 wallets that require TRX to move funds are not supported."
   }
 }

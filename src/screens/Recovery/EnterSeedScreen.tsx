@@ -36,10 +36,18 @@ import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { updateSignerDetails, updateVaultSignersXpriv } from 'src/store/sagaActions/wallets';
+import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 
 function EnterSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const { seed, common, healthcheck, cloudBackup, signer: signerText } = translations;
+  const {
+    seed,
+    common,
+    healthcheck,
+    cloudBackup,
+    signer: signerText,
+    usdtWalletText,
+  } = translations;
 
   const {
     mode,
@@ -85,6 +93,7 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const inputRef = useRef([]);
+  const [showInfo, setShowInfo] = useState(false);
 
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const isSignTransaction = parentScreen === SIGNTRANSACTION;
@@ -583,6 +592,22 @@ function EnterSeedScreen({ route, navigation }) {
     }
   };
 
+  function UsdtWalletImportContent() {
+    return (
+      <View marginY={5}>
+        <Text style={styles.desc} color={green_modal_text_color}>
+          {usdtWalletText.importInfoDesc1}
+        </Text>
+        <Text style={styles.desc} color={green_modal_text_color}>
+          {usdtWalletText.importInfoDesc2}
+        </Text>
+        <Text style={styles.descLast} color={green_modal_text_color}>
+          {usdtWalletText.importInfoDescNote}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -616,6 +641,8 @@ function EnterSeedScreen({ route, navigation }) {
               dispatch(resetSeedWords());
             }
           }}
+          learnMore={isUSDTWallet}
+          learnMorePressed={() => setShowInfo(true)}
         />
 
         <Box
@@ -741,6 +768,34 @@ function EnterSeedScreen({ route, navigation }) {
           buttonCallback={() => importSeed(true)}
           secondaryCallback={() => importSeed(false)}
         />
+        <KeeperModal
+          visible={showInfo}
+          close={() => setShowInfo(false)}
+          title={usdtWalletText.importInfoTitle}
+          modalBackground={green_modal_background}
+          textColor={green_modal_text_color}
+          Content={UsdtWalletImportContent}
+          DarkCloseIcon
+          buttonText={common.Okay}
+          secondaryButtonText={common.needHelp}
+          buttonTextColor={green_modal_button_text}
+          buttonBackground={green_modal_button_background}
+          secButtonTextColor={green_modal_sec_button_text}
+          secondaryIcon={<ConciergeNeedHelp />}
+          secondaryCallback={() => {
+            setShowInfo(false);
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'CreateTicket',
+                params: {
+                  tags: [ConciergeTag.WALLET],
+                  screenName: 'import-usdt-wallet-seed-key',
+                },
+              })
+            );
+          }}
+          buttonCallback={() => setShowInfo(false)}
+        />
       </KeyboardAvoidingView>
       <ActivityIndicatorView showLoader={true} visible={hcLoading || recoveryLoading} />
     </ScreenWrapper>
@@ -807,6 +862,19 @@ const styles = StyleSheet.create({
   illustrationCTR: {
     alignItems: 'center',
     marginBottom: hp(30),
+  },
+  desc: {
+    fontSize: 14,
+    letterSpacing: 0.65,
+    padding: 5,
+    marginBottom: hp(5),
+  },
+  descLast: {
+    fontSize: 14,
+    letterSpacing: 0.65,
+    padding: 5,
+    paddingBottom: 0,
+    marginTop: hp(40),
   },
 });
 
