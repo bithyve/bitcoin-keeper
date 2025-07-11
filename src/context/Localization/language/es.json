@@ -252,7 +252,7 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
     "advancedDetails": "Advanced Details",
-    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
+    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here: ",
     "transactionDetails": "Transaction Details",
     "addTransactionNote": "Add transaction note",
     "scanSignedTransaction": "Scan Signed Transaction",
