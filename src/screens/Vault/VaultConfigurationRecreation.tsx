@@ -20,7 +20,6 @@ import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
-import { EntityKind } from 'src/services/wallets/enums';
 
 function WrappedImportIcon() {
   const { colorMode } = useColorMode();
@@ -32,7 +31,7 @@ function WrappedImportIcon() {
   );
 }
 
-function VaultConfigurationCreation({ route }) {
+function VaultConfigurationCreation() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [inputText, setInputText] = useState('');
@@ -41,8 +40,6 @@ function VaultConfigurationCreation({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common, importWallet, signer: signerTranslation } = translations;
   const [showModal, setShowModal] = useState(false);
-  const { entityKind } = route.params || {};
-  const isUSDTWallet = entityKind && entityKind === EntityKind.USDT_WALLET;
 
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
   const green_modal_background = ThemedColor({ name: 'green_modal_background' });
@@ -83,12 +80,12 @@ function VaultConfigurationCreation({ route }) {
     );
   }
 
-  const navigateToSetup = (vaultConfig, entityKind?: EntityKind) => {
+  const navigateToSetup = (vaultConfig) => {
     const callback = (vaultConfig) => {
       if (!checkIfVaultExists(vaultConfig.vaultSigners, vaultConfig.scheme))
         navigation.replace('ImportedWalletSetup', { vaultConfig });
     };
-    initateRecovery(vaultConfig, callback, entityKind);
+    initateRecovery(vaultConfig, callback);
   };
 
   return (
@@ -103,11 +100,7 @@ function VaultConfigurationCreation({ route }) {
       >
         <WalletHeader
           title={importWallet.importAWallet}
-          subTitle={
-            isUSDTWallet
-              ? 'Import your existing USDT wallet by scanning a QR or by pasting the seed phrase (mnemonic)'
-              : importWallet.importExistingWallet
-          }
+          subTitle={importWallet.importExistingWallet}
           learnMore
           learnMorePressed={() => setShowModal(true)}
         />
@@ -115,20 +108,19 @@ function VaultConfigurationCreation({ route }) {
           <Box marginTop={hp(10)}>
             <QRScanner
               onScanCompleted={(data) => {
-                navigateToSetup(data, entityKind);
+                navigateToSetup(data);
               }}
             />
             <Box style={styles.optionsWrapper}>
               {/* <Box style={styles.separator} backgroundColor={`${colorMode}.lightSkin`}></Box> */}
               <Box style={{ marginLeft: wp(25) }}>
-                {isUSDTWallet ? null : (
-                  <OptionCard
-                    title={signerTranslation.uploadFile}
-                    description={signerTranslation.uploadFileDesc}
-                    LeftIcon={<WrappedImportIcon />}
-                    callback={handleDocumentSelection}
-                  />
-                )}
+                <OptionCard
+                  title={signerTranslation.uploadFile}
+                  description={signerTranslation.uploadFileDesc}
+                  LeftIcon={<WrappedImportIcon />}
+                  callback={handleDocumentSelection}
+                />
+
                 {/* TODO: Re-enable this o */}
                 {/* <OptionCard
                   title={'Import from ColdCard using NFC'}
@@ -147,11 +139,7 @@ function VaultConfigurationCreation({ route }) {
               <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Input
                   testID="input_walletConfigurationFile"
-                  placeholder={
-                    isUSDTWallet
-                      ? 'Enter USDT wallet seed phrase (mnemonic)'
-                      : signerTranslation.enterManualConfig
-                  }
+                  placeholder={signerTranslation.enterManualConfig}
                   placeholderTextColor={`${colorMode}.primaryText`}
                   style={styles.textInput}
                   variant="unstyled"
@@ -177,7 +165,7 @@ function VaultConfigurationCreation({ route }) {
           <Buttons
             primaryCallback={() => {
               Keyboard.dismiss();
-              navigateToSetup(inputText, entityKind);
+              navigateToSetup(inputText);
             }}
             primaryText={common.proceed}
             primaryLoading={recoveryLoading}

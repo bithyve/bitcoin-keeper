@@ -49,6 +49,7 @@ function EnterSeedScreen({ route, navigation }) {
     mapUnknownSigner,
     isImport,
     importSeedCta,
+    isUSDTWallet,
     parentScreen,
     xfp,
     onSuccess,
@@ -267,9 +268,12 @@ function EnterSeedScreen({ route, navigation }) {
           mode,
           isImport: true,
           importSeedCta,
+          isUSDTWallet,
         });
       } else if (bip39.validateMnemonic(mnemonic)) {
-        setRememberModal(true);
+        if (isUSDTWallet) {
+          importSeedCta(mnemonic);
+        } else setRememberModal(true);
       } else {
         openInvalidSeedsModal();
       }
@@ -654,7 +658,7 @@ function EnterSeedScreen({ route, navigation }) {
           <Buttons
             primaryCallback={handleNext}
             primaryText={common.next}
-            secondaryText={isRecovery ? null : common.needHelp}
+            secondaryText={isRecovery || isUSDTWallet ? null : common.needHelp}
             fullWidth={isRecovery}
             secondaryCallback={() => {
               navigation.dispatch(
