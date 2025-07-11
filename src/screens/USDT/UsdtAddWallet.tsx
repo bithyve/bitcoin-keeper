@@ -10,7 +10,6 @@ import WalletHeader from 'src/components/WalletHeader';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useKeyboard } from 'src/hooks/useKeyboard';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Buttons from 'src/components/Buttons';
@@ -35,12 +34,12 @@ const AddUsdtWallet = () => {
   const [walletName, setWalletName] = useState('');
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const descriptionInputRef = useRef('USDT wallet');
   const initialDescription = useRef(descriptionInputRef.current);
   const { showToast } = useToastMessage();
   const navigation = useNavigation();
   const { createWallet } = useUSDTWallets();
-  const isKeyboardVisible = useKeyboard();
 
   const onDescriptionChange = (value) => {
     descriptionInputRef.current = value;
@@ -103,6 +102,8 @@ const AddUsdtWallet = () => {
               }}
               maxLength={18}
               testID="input_wallet_name"
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
             />
           </Box>
           <Pressable
@@ -118,7 +119,7 @@ const AddUsdtWallet = () => {
           </Pressable>
         </Box>
       </Box>
-      {!isKeyboardVisible && (
+      {!isInputFocused && (
         <Box style={styles.noteContainer}>
           <Text
             color={`${colorMode}.dashedButtonBorderColor`}
