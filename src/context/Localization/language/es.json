@@ -1691,7 +1691,8 @@
     "unlockMessage": "Unlock on Diamond Hands tier"
   },
   "cloudBackup": {
-    "cloudBackup": "Cloud Backup",
+    "cloudBackup": "Personal Cloud Backup",
+    "cloudBackupScreenSubtitle": "Backup Wallet Configuration Files on your {0}",
     "recentHistory": "Recent History",
     "noBackup": "No backup history found.",
     "backupNow": "Backup Now",
