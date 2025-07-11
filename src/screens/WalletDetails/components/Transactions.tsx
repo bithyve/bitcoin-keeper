@@ -46,7 +46,13 @@ function TransactionItem({ item, wallet, navigation, index }) {
   );
 }
 
-function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet }) {
+function Transactions({
+  transactions,
+  setPullRefresh,
+  pullRefresh,
+  currentWallet,
+  setInitialLoading,
+}) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -71,8 +77,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
   );
 
   const pullDownRefresh = async () => {
-    setPullRefresh(true);
-
+    setInitialLoading(true);
     try {
       if (currentWallet.entityKind === EntityKind.USDT_WALLET) {
         await syncWallet(currentWallet);
@@ -81,6 +86,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       captureError(error);
     } finally {
       setPullRefresh(false);
+      setInitialLoading(false);
     }
   };
 
