@@ -136,17 +136,15 @@ const AddUsdtWallet = () => {
               style={styles.link}
               onPress={() => Linking.openURL('https://gasfree.io/home')}
             >
-              {' '}
-              GasFree.io{' '}
-            </Text>
-            {usdtWalletText.keeperDontControl}
+              {'GasFree.io'}
+            </Text>{' '}
+            {usdtWalletText.keeperDontControl}{' '}
             <Text
               style={styles.link}
               bold
               onPress={() => Linking.openURL('https://gasfree.io/home')}
             >
-              {' '}
-              GasFree.io
+              {'GasFree.io'}
             </Text>{' '}
             {usdtWalletText.becomesUnavailable}
           </Text>
