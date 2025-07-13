@@ -14,7 +14,7 @@ import RPC from 'bare-rpc';
 import b4a from 'b4a';
 
 import { Buffer } from 'buffer';
-import config from 'src/utils/service-utilities/config';
+import * as config from './config.mjs';
 global.Buffer = Buffer;
 
 const { IPC } = BareKit;
