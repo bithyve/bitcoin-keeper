@@ -20,4 +20,5 @@ export interface KeeperApp {
   backup: AppBackup;
   subscription: SubScription;
   enableAnalytics: boolean;
+  contactsKey?: { [key: string]: string };
 }

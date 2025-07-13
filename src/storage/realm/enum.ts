@@ -44,4 +44,7 @@ export enum RealmSchema {
   USDTWalletPresentationData = 'USDTWalletPresentationData',
   USDTWalletDerivationDetails = 'USDTWalletDerivationDetails',
   USDTWalletAccountStatus = 'USDTWalletAccountStatus',
+  Community = 'Community',
+  Message = 'Message',
+  Contact = 'Contact',
 }
