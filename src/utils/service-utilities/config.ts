@@ -109,6 +109,8 @@ class Configuration {
   public GASFREE_API_KEY: string = config.GASFREE_API_KEY?.trim();
   public GASFREE_API_SECRET: string = config.GASFREE_API_SECRET?.trim();
 
+  public RELAY_PEER_PUB_KEY: string = config.RELAY_PEER_PUB_KEY?.trim();
+
   public RENEWAL_WINDOW: number;
 
   constructor() {
