@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -106,7 +106,9 @@ const UsdtAmount = ({ route }) => {
 
       // updatedSender = await syncWalletBalance(updatedSender); // discarded; since we're able to sync wallet on the details page itself therefore we effectively will have the latest balance
       const availableBalance = getAvailableBalanceUSDTWallet(updatedSender);
-      if (availableBalance < amountToSend + fees.totalFee) {
+
+      const roundedOutflow = parseFloat((amountToSend + fees.totalFee).toFixed(3));
+      if (availableBalance < roundedOutflow) {
         showToast(
           `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
           <ToastErrorIcon />
@@ -137,6 +139,18 @@ const UsdtAmount = ({ route }) => {
 
     await processSend(amountToSend);
     setInProgress(false);
+  };
+
+  const handleSendMax = () => {
+    const availableBalance = getAvailableBalanceUSDTWallet(sender);
+    const fees = USDT.evaluateTransferFee(sender.accountStatus);
+
+    if (availableBalance < fees.totalFee) {
+      showToast('Insufficient balance to send any amount after fees', <ToastErrorIcon />);
+      return;
+    }
+
+    setAmount((availableBalance - fees.totalFee).toFixed(3));
   };
 
   return (
@@ -170,6 +184,17 @@ const UsdtAmount = ({ route }) => {
         <Text fontSize={25} color={`${colorMode}.GreyText`}>
           USDT
         </Text>
+
+        <Pressable
+          onPress={handleSendMax}
+          backgroundColor={`${colorMode}.brownBackground`}
+          style={styles.sendMaxWrapper}
+          testID="btn_sendMax"
+        >
+          <Text testID="text_sendmax" color={`${colorMode}.buttonText`} style={styles.sendMaxText}>
+            {common.sendMax}
+          </Text>
+        </Pressable>
       </Box>
 
       <KeyPadView
@@ -216,5 +241,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 5,
+  },
+  sendMaxWrapper: {
+    width: wp(85),
+    alignSelf: 'center',
+    marginTop: hp(5),
+    paddingHorizontal: hp(12),
+    paddingVertical: hp(3),
+    borderRadius: 5,
+  },
+  sendMaxText: {
+    textAlign: 'center',
+    fontSize: 11,
   },
 });

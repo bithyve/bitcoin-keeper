@@ -79,6 +79,7 @@ function AssignSignerType({ route }: IProps) {
     SignerType.COLDCARD,
     SignerType.JADE,
     SignerType.KEYSTONE,
+    SignerType.KRUX,
     SignerType.LEDGER,
     SignerType.PASSPORT,
     SignerType.PORTAL,
@@ -87,7 +88,6 @@ function AssignSignerType({ route }: IProps) {
     SignerType.TREZOR,
     SignerType.SEED_WORDS,
     SignerType.POLICY_SERVER,
-    SignerType.KRUX,
     isUnknownSigner && SignerType.TAPSIGNER,
   ].filter(Boolean);
 

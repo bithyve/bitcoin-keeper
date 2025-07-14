@@ -29,7 +29,6 @@ const BuyUstd = ({ route }) => {
   const { currencyCode } = useAppSelector((state) => state.settings);
 
   const onProceed = () => {
-    receiveAddress;
     try {
       if (currencyCode === 'GBP' || getCountry() === 'UK') {
         Linking.openURL('https://ramp.network/buy#');

@@ -32,7 +32,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 function CloudBackupScreen() {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
+  const { translations, formatString } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
   const { cloudBackup: strings, common, error: errorText } = translations;
   const data: BackupHistory = useQuery(RealmSchema.CloudBackupHistory);
@@ -99,13 +99,13 @@ function CloudBackupScreen() {
       <Box width={'100%'}>
         <WalletHeader
           title={strings.cloudBackup}
-          subTitle={`On your ${cloudName}`}
+          subTitle={formatString(strings.cloudBackupScreenSubtitle, cloudName)}
           learnMore={true}
           learnMorePressed={() => setShowModal(true)}
           rightComponent={<SettingsComponent />}
         />
       </Box>
-      <Text style={styles.textTitle}>{strings.recentHistory}</Text>
+      {history.length > 0 && <Text style={styles.textTitle}>{strings.recentHistory}</Text>}
 
       <FlatList
         data={history}

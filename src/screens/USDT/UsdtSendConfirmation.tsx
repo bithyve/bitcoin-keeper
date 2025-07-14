@@ -166,7 +166,7 @@ const UsdtSendConfirmation = ({ route }) => {
             title={walletTranslations.totalAmount}
             titleFontSize={13}
             titleFontWeight={500}
-            amount={amount + fees.totalFee}
+            amount={(amount + fees.totalFee).toFixed(3)}
             amountFontSize={15}
             unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}

@@ -6,6 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { EntityKind } from 'src/services/wallets/enums';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 interface Props {
   setShowMore?: (value: boolean) => void;
@@ -26,7 +27,8 @@ const DetailCards = ({
 }: Props) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations, usdtWalletText, buyBTC: buyBTCText } = translations;
+  const { wallet: walletTranslations, usdtWalletText, buyBTC: buyBTCText, common } = translations;
+  const navigation = useNavigation();
 
   const CardsData = [
     {
@@ -67,13 +69,22 @@ const DetailCards = ({
     },
     {
       id: 4,
-      icon: 'more_Btc_icon',
+      icon: wallet?.entityKind === EntityKind.WALLET ? 'view_coins' : 'more_Btc_icon',
       title:
-        wallet?.entityKind === EntityKind.USDT_WALLET
+        wallet?.entityKind === EntityKind.WALLET
+          ? common.viewAllCoins
+          : wallet?.entityKind === EntityKind.USDT_WALLET
           ? usdtWalletText.moreOption
           : buyBTCText.moreOptions,
       callback: () => {
-        setShowMore?.(true);
+        wallet?.entityKind === EntityKind.WALLET
+          ? navigation.dispatch(
+              CommonActions.navigate('UTXOManagement', {
+                data: wallet,
+                routeName: 'Wallet',
+              })
+            )
+          : setShowMore?.(true);
       },
       disableOption: false,
     },
