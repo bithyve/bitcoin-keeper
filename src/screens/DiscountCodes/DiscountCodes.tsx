@@ -17,6 +17,7 @@ const DiscountModal = ({ card }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { choosePlan, common } = translations;
+  const { sanitizeBuyText } = useGetInUK();
   return (
     <Box style={styles.modalContainer}>
       <Box alignItems={'center'}>
@@ -29,7 +30,7 @@ const DiscountModal = ({ card }) => {
       </Box>
 
       <Box marginTop={30}>
-        <Text fontSize={13}>{common.buyFromHere}</Text>
+        <Text fontSize={13}>{sanitizeBuyText(common.buyFromHere)}</Text>
         <Text underline color={`${colorMode}.greenText`}>
           {choosePlan.foundationDevicesLink}
         </Text>
