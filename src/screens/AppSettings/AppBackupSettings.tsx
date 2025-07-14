@@ -7,7 +7,7 @@ import OptionCard from 'src/components/OptionCard';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -203,6 +203,7 @@ function AppBackupSettings() {
           title={common.signerFingerPrint}
           data={publicId.toString()}
           dataType="fingerprint"
+          height={hp(65)}
         />
       </Box>
     </ScreenWrapper>

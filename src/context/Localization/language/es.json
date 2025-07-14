@@ -1947,7 +1947,7 @@
     "walletSeedWords": "Wallet Seed Words",
     "backupWalletOrExport": "Ues to back up or export the wallet private key",
     "receive": "Receive",
-    "sendOnlyUsdt": "Please send only USDT on the Tron network to this address. Any other assets or networks may result in a loss of funds.",
+    "sendOnlyUsdt": "Receive only USDT via the TRON (TRC-20) network to this address. Sending any other asset or using a different network may lead to permanent loss of funds.",
     "sendToWallet": "Send to one of your wallets",
     "chnageWallet": "Change Wallet",
     "sendtoTron": "Only send to a TRON (TRC-20) address that supports USDT. Sending to an incompatible address may result in loss of funds.",
