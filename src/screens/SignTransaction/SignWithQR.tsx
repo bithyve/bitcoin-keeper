@@ -28,6 +28,7 @@ import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import { hp } from 'src/constants/responsive';
 const { width } = Dimensions.get('window');
 
 function SignWithQR() {
@@ -181,7 +182,7 @@ function SignWithQR() {
             />
           )}
           <Box style={styles.fingerprint}>
-            <WalletCopiableData data={serializedPSBT} dataType="psbt" />
+            <WalletCopiableData data={serializedPSBT} dataType="psbt" height={hp(60)} />
           </Box>
         </ScrollView>
       </Box>
