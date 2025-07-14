@@ -15,7 +15,7 @@ export const SwapHistorySchema: ObjectSchema = {
     expired_at: 'int',
     is_float: 'bool',
     status: 'string',
-    transaction_id: 'string',
+    id: 'string',
     withdrawal_amount: 'string',
   },
 };

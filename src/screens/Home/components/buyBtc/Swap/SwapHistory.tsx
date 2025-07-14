@@ -23,15 +23,13 @@ export const SwapHistory = ({ navigation }) => {
         renderItem={({ item }) => (
           <Pressable
             onPress={() =>
-              navigation.dispatch(
-                CommonActions.navigate('SwapHistoryDetail', { tnxId: item.transaction_id })
-              )
+              navigation.dispatch(CommonActions.navigate('SwapHistoryDetail', { tnxId: item.id }))
             }
           >
             <Box mb={10} p={2} bgColor={'white'}>
               <Text>{`Created : ${getCreatedAt(item.created_at)}`}</Text>
               <Box flexDirection={'row'} justifyContent={'space-between'}>
-                <Text>{`Transaction Id ${item.transaction_id}`}</Text>
+                <Text>{`Transaction Id ${item.id}`}</Text>
                 <Text>{` ${item.status}`}</Text>
               </Box>
               <Box flexDirection={'row'} justifyContent={'space-between'}>
@@ -71,5 +69,6 @@ const getCreatedAt = (date) => {
     return new Date(date).toLocaleString();
   } catch (error) {
     console.log('🚀 ~ getCreatedAt ~ error:', error);
+    return '';
   }
 };

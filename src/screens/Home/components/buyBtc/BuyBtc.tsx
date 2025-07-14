@@ -52,7 +52,7 @@ const BuyBtc = () => {
   const [usdtPrice, setUsdtPrice] = useState(null);
 
   useEffect(() => {
-    // loadBtcPrice();
+    loadBtcPrice();
   }, []);
 
   const loadBtcPrice = async () => {

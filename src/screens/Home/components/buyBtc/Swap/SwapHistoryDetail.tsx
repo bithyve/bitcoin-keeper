@@ -7,7 +7,8 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import Swap from 'src/services/backend/Swap';
+import { useDispatch } from 'react-redux';
+import { getTnxDetails } from 'src/store/sagaActions/swap';
 
 export const SwapHistoryDetail = ({ navigation, route }) => {
   const { tnxId } = route.params;
@@ -15,31 +16,31 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
   const { showToast } = useToastMessage();
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (tnxId) {
-      console.log('Tnx Id , call api ');
-      getTnxDetails();
-    } else {
-      console.log('Tnx Id not found ');
+    if (!tnxId) {
+      showToast('Transaction id is missing', <ToastErrorIcon />);
       navigation.goBack();
+      return;
     }
-  }, []);
 
-  const getTnxDetails = async () => {
-    try {
-      setLoading(true);
-      const details = await Swap.getTnxDetails(tnxId);
-      setDetails(details);
-      console.log('🚀 ~ getTnxDetails ~ details:', details);
-    } catch (error) {
-      console.log('🚀 ~ getTnxDetails ~ error:', error);
-      showToast(error.message, <ToastErrorIcon />);
-      navigation.goBack();
-    } finally {
-      setLoading(false);
-    }
-  };
+    setLoading(true);
+    dispatch(
+      getTnxDetails({
+        tnxId,
+        callback: ({ status, tnx, error }) => {
+          setLoading(false);
+          if (!status) {
+            navigation.goBack();
+            showToast(error, <ToastErrorIcon />);
+          } else {
+            setDetails(tnx);
+          }
+        },
+      })
+    );
+  }, []);
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>

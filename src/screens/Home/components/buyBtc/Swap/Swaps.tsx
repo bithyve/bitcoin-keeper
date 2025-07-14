@@ -3,7 +3,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, ActivityIndicator, Keyboard, Pressable } from 'react-native';
 import { useDispatch } from 'react-redux';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperTextInput from 'src/components/KeeperTextInput';
@@ -12,13 +11,10 @@ import RemoteSvg from 'src/components/SVGComponents/RemoteSvg';
 import WalletHeader from 'src/components/WalletHeader';
 import { wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Swap from 'src/services/backend/Swap';
 import { useAppSelector } from 'src/store/hooks';
-import { setCoinDetails } from 'src/store/reducers/swap';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Checked from 'src/assets/images/tick_icon.svg';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
+import { createSwapTnx, getSwapQuote, loadCoinDetails } from 'src/store/sagaActions/swap';
 
 const COINS = {
   btc: {
@@ -37,7 +33,6 @@ export const Swaps = ({ navigation }) => {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
-  const [rate, setRate] = useState(null);
   const [fromValue, setFromValue] = useState<any>(0.0);
   const [toValue, setToValue] = useState<any>(0.0);
   const [loading, setLoading] = useState(false);
@@ -49,122 +44,78 @@ export const Swaps = ({ navigation }) => {
   const rateIdRef = useRef(null);
 
   useEffect(() => {
-    if (!coinDetails) getCoinsData();
-    if (!rate) {
-      getRequiredCoins();
+    if (!coinDetails) {
+      setLoading(true);
+      dispatch(
+        loadCoinDetails(({ status, error }) => {
+          setLoading(false);
+          if (!status) {
+            navigation.goBack();
+            showToast(error, <ToastErrorIcon />);
+          }
+        })
+      );
     }
   }, []);
 
   useEffect(() => {
-    getExchangeValue();
+    getSwapAmount();
   }, [isFixedRate]);
 
-  const getCoinsData = async () => {
-    let coins = {
-      btc: null,
-      usdt: null,
-    };
-    const res = await Swap.getCoins();
-    res.data.forEach((coin) => {
-      if (coin.code === 'BTC') coins.btc = coin;
-      else if (coin.code === 'USDT-TRC20') coins.usdt = coin;
-    });
-    dispatch(setCoinDetails(coins));
-  };
-
-  const getRequiredCoins = async () => {
-    try {
-      let res = await Swap.getCoinsInfo([COINS.btc.code, COINS.usdt.code]);
-      const coinDetails = res.data.filter((item) => {
-        // convert to find
-        if (
-          [COINS.btc.network].includes(item.network_from) &&
-          [COINS.usdt.network].includes(item.network_to)
-        )
-          return true;
-        return false;
-      });
-      setRate(coinDetails[0]);
-    } catch (error) {
-      console.log('🚀 ~ getCoins ~ error:', error);
-    }
-  };
-
-  const getExchangeValue = async () => {
-    if (!fromValue) return;
-    rateIdRef.current = null;
-    try {
-      setLoading(true);
-      const body = {
-        from: coinDetails.btc.code,
-        to: coinDetails.usdt.code,
-        network_from: coinDetails.btc.network_code,
-        network_to: coinDetails.usdt.network_code,
+  const getSwapAmount = async () => {
+    if (fromValue) setLoading(true);
+    dispatch(
+      getSwapQuote({
+        coinFrom: coinDetails.btc,
+        coinTo: coinDetails.usdt,
         amount: fromValue,
-        float: false,
-      };
-      const quote = await Swap.getQuote(body);
-      setToValue(parseFloat(quote.data.amount).toFixed(3));
-      rateIdRef.current = quote.data.rate_id;
-    } catch (error) {
-      console.log('🚀 ~ getExchangeValue ~ error:', error);
-    } finally {
-      setLoading(false);
-    }
+        float: !isFixedRate,
+        callback: ({ status, amount, rateId, error }) => {
+          setLoading(false);
+          if (status) {
+            setToValue(amount);
+            rateIdRef.current = rateId;
+          } else {
+            showToast(error, <ToastErrorIcon />);
+          }
+        },
+      })
+    );
   };
 
   const createTnx = async () => {
-    try {
-      setLoading(true);
-      const body = {
+    setLoading(true);
+    dispatch(
+      createSwapTnx({
         float: !isFixedRate,
-        coin_from: coinDetails.btc.code,
-        coin_to: coinDetails.usdt.code,
-        network_from: coinDetails.btc.network_code,
-        network_to: coinDetails.usdt.network_code,
-        deposit_amount: fromValue,
+        coinFrom: coinDetails.btc,
+        coinTo: coinDetails.usdt,
+        depositAmount: fromValue,
         withdrawal: details.withdrawal,
-        return: details.return, // btc sent from(spending wallet address)
-        rate_id: rateIdRef.current, // only required for fixed rate tnx
-      };
-      const tnx = await Swap.createTnx(body);
-      const realmObject = {
-        coin_from: tnx.coin_from,
-        coin_from_name: tnx.coin_from_name,
-        coin_from_network: tnx.coin_from_network,
-        coin_to: tnx.coin_to,
-        coin_to_name: tnx.coin_to_name,
-        coin_to_network: tnx.coin_to_network,
-        created_at: Date.now(),
-        deposit_amount: tnx.deposit_amount,
-        expired_at: tnx.expired_at,
-        is_float: tnx.is_float,
-        status: tnx.status,
-        transaction_id: tnx.transaction_id,
-        withdrawal_amount: tnx.withdrawal_amount,
-      };
-      dbManager.createObject(RealmSchema.SwapHistory, realmObject);
-
-      navigation.dispatch(CommonActions.navigate('SwapDetails', tnx));
-    } catch (error) {
-      console.log('🚀 ~ createTnx ~ error:', error);
-      showToast(error.message, <ToastErrorIcon />);
-    } finally {
-      setLoading(false);
-    }
+        refund: details.return,
+        rateId: rateIdRef.current,
+        callback: ({ status, tnx, error }) => {
+          setLoading(false);
+          if (status) navigation.dispatch(CommonActions.navigate('SwapDetails', tnx));
+          else {
+            showToast(error, <ToastErrorIcon />);
+          }
+        },
+      })
+    );
   };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title={'Swap'} />
-      {!rate || !coinDetails ? (
+      {!coinDetails ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
         <Box flex={1}>
           <Box>
             <Text>
               <RemoteSvg url={coinDetails.btc.icon} height={wp(30)} width={wp(30)} useViewBox />
-              {`From ${rate.from}`}
+              From {COINS.btc.code}
             </Text>
 
             <KeeperTextInput
@@ -178,7 +129,7 @@ export const Swaps = ({ navigation }) => {
               returnKeyType="done"
               onSubmitEditing={() => Keyboard.dismiss()}
               onBlur={() => {
-                if (fromValue) getExchangeValue();
+                if (fromValue) getSwapAmount();
               }}
             />
           </Box>
@@ -186,7 +137,7 @@ export const Swaps = ({ navigation }) => {
           <Box>
             <Text>
               <RemoteSvg url={coinDetails.usdt.icon} height={wp(30)} width={wp(30)} />
-              {`To ${rate.to}`}
+              To {COINS.usdt.code}
             </Text>
             <KeeperTextInput
               placeholder={'0.00'}
@@ -220,7 +171,6 @@ export const Swaps = ({ navigation }) => {
           />
         </Box>
       )}
-      <ActivityIndicatorView visible={loading} showLoader />
     </ScreenWrapper>
   );
 };
