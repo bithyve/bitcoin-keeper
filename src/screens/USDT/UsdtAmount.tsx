@@ -109,10 +109,7 @@ const UsdtAmount = ({ route }) => {
 
       const roundedOutflow = parseFloat((amountToSend + fees.totalFee).toFixed(3));
       if (availableBalance < roundedOutflow) {
-        showToast(
-          `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
-          <ToastErrorIcon />
-        );
+        showToast(`Insufficient balance for this transaction.`, <ToastErrorIcon />);
         return;
       }
 
