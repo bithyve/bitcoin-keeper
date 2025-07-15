@@ -137,6 +137,7 @@ const UsdtSendConfirmation = ({ route }) => {
               amountColor={`${colorMode}.activationFeeText`}
               unitColor={`${colorMode}.activationFeeText`}
               customUnit="USDT"
+              isUsdt={true}
             />
           ) : null}
           <AmountDetails
@@ -149,6 +150,7 @@ const UsdtSendConfirmation = ({ route }) => {
             amountColor={`${colorMode}.activationFeeText`}
             unitColor={`${colorMode}.activationFeeText`}
             customUnit="USDT"
+            isUsdt={true}
           />
           <AmountDetails
             title={walletTranslations.amountBeingSend}
@@ -160,6 +162,7 @@ const UsdtSendConfirmation = ({ route }) => {
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
             customUnit="USDT"
+            isUsdt={true}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
@@ -172,6 +175,7 @@ const UsdtSendConfirmation = ({ route }) => {
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
             customUnit="USDT"
+            isUsdt={true}
           />
         </Box>
       </ScrollView>
