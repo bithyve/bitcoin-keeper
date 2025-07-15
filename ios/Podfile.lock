@@ -1026,7 +1026,7 @@ PODS:
     - React-debug
   - react-native-background-timer (2.4.1):
     - React-Core
-  - "react-native-bare-kit (0.5.6+17f072)":
+  - "react-native-bare-kit (0.5.6+dea2b7)":
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1885,7 +1885,7 @@ SPEC CHECKSUMS:
   React-logger: 87cddd161bd9784d60fc5528f21c57ca07d2962a
   React-Mapbuffer: b6e208217a18044f0f1a183be8f6756ad67b42d7
   react-native-background-timer: 17ea5e06803401a379ebf1f20505b793ac44d0fe
-  react-native-bare-kit: 9f4bb916525897c56308fe5c30d289feca247bf7
+  react-native-bare-kit: e5778d30c237c784b138ffc119620e8efbe36f25
   react-native-biometrics: 3b95f2eb074d537d3a8b05d853c17778f6685c4a
   react-native-blob-util: 2d36383bb52c15c5451be81cb7ddf22bc34a12a6
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
@@ -1924,26 +1924,26 @@ SPEC CHECKSUMS:
   React-RuntimeApple: 03bc1bb50bb621d3dd5a7ad0b0fd9ae5b7aa7d03
   React-RuntimeCore: 5411916dbb5d27b2cade9781bbe210ae23906d41
   React-runtimeexecutor: 99640ce20e73e06301dd5e18cc6646fa0968347b
-  React-RuntimeHermes: aba99ffa7ddace35e066beedb8610a8210ee074b
-  React-runtimescheduler: c5080bd8fd77bd9b98d9a5ec2a4a5cee523e3ec8
-  React-utils: 005eaf562b377922d8cf8a5e433046185e479796
-  ReactCommon: 788c996e0ae30635a67c2567db2e21f459bcd632
-  RealmJS: ff8a7d6d6e339c1b3410a96ceb4151b151fe56f5
-  RNCClipboard: e1d17c9d093d8129ef50b39b63a17a0e8ccd0ade
-  RNDeviceInfo: f9d6fd102f8b11daa7ee322391b23cebee3bd95f
-  RNFastImage: 462a183c4b0b6b26fdfd639e1ed6ba37536c3b87
-  RNFBApp: 21b8f1dd60e9fb1ef8f6fd191a6dbbfacecc7d31
-  RNFBMessaging: 49fb34853809c4694bf9d3d794a0f8916b32b94e
-  RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 277be33fdf1d6cec044909a657d5014a97266135
-  RNIap: db3f43e41ed9d7b5c04fbfe759b10ac344521af6
-  RNKeychain: df33ae4d27df06622fc14190b790ba8749f6be76
-  RNLocalize: 19917c3f32cf6386f7d2957a638a4281669cae57
-  RNReanimated: 608f4e674643d5fe9c91d2575db2cf306807c67c
-  RNScreens: 6584fce529be4800e3d12c8069376df9e12bafaf
-  RNSentry: 6e4fa452ffa621a4bbcd08b53cbb12c55c955593
-  RNShare: d1da96f570164d84821ee9d75740eee7ec2efa87
-  RNSVG: 4611b66c2167ba03429e7428a3a490be6e439391
+  React-RuntimeHermes: 872b0ab24196e98f7ef6857241edaeb9c576a7fb
+  React-runtimescheduler: bd24ce5b35c288355514aa42cacc9dc782d12dba
+  React-utils: eb18bf39ea87c4d38f175f41d77b07093eaf7765
+  ReactCommon: 9ed4522c478fc82fd9822fd2be960875fccb2c45
+  RealmJS: ab0e1afd06ef856f8ae396520da1690bcaa669f8
+  RNCClipboard: 4411a880506f11fbcbdc03b5093eb8ffb246d900
+  RNDeviceInfo: 0a7c1d2532aa7691f9b9925a27e43af006db4dae
+  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
+  RNFBApp: 9646e09d041ea159b84584865212e4cf33acd179
+  RNFBMessaging: 3e2682ea5e15fe86da24d16d16019395a881f33c
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
+  RNGestureHandler: ce6dc347cb4edb664bfc250fc37cd753ae7432ec
+  RNIap: 2a3674383dcf383e5b7b3c4680dc87f1b2657326
+  RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
+  RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
+  RNReanimated: 45553a3ae29a75a76269595f8554d07d4090e392
+  RNScreens: aa943ad421c3ced3ef5a47ede02b0cbfc43a012e
+  RNSentry: c74f756c88aa2a90070f555609d2a31ab2a7f461
+  RNShare: da6d90b6dc332f51f86498041d6e34211f96b630
+  RNSVG: ed492aaf3af9ca01bc945f7a149d76d62e73ec82
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   Sentry: f8374b5415bc38dfb5645941b3ae31230fbeae57
