@@ -252,7 +252,7 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
     "advancedDetails": "Advanced Details",
-    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
+    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here: ",
     "transactionDetails": "Transaction Details",
     "addTransactionNote": "Add transaction note",
     "scanSignedTransaction": "Scan Signed Transaction",
@@ -1782,7 +1782,8 @@
     "proceedToRamp": "Proceed to Ramp?",
     "transactionOnRamp": "* These transactions are facilitated by Third Parties.",
     "buy": "Buy",
-    "sell": "Sell"
+    "sell": "Sell",
+    "get": "Get"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
@@ -1945,9 +1946,9 @@
     "hideWallet": "Hide Wallet",
     "hideWalletDesc": "Hidden wallets can be managed from Manage Wallets in settings",
     "walletSeedWords": "Wallet Seed Words",
-    "backupWalletOrExport": "Ues to back up or export the wallet private key",
+    "backupWalletOrExport": "Use to back up or export the wallet private key",
     "receive": "Receive",
-    "sendOnlyUsdt": "Please send only USDT on the Tron network to this address. Any other assets or networks may result in a loss of funds.",
+    "sendOnlyUsdt": "Receive only USDT via the TRON (TRC-20) network to this address. Sending any other asset or using a different network may lead to permanent loss of funds.",
     "sendToWallet": "Send to one of your wallets",
     "chnageWallet": "Change Wallet",
     "sendtoTron": "Only send to a TRON (TRC-20) address that supports USDT. Sending to an incompatible address may result in loss of funds.",
@@ -1973,6 +1974,10 @@
     "buyUSdt": "Buy USDT with Ramp",
     "UsdtPowerdBy": "This USDT wallet is powered by ",
     "keeperDontControl": "Bitcoin Keeper does not control or manage this wallet. If",
-    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk."
+    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk.",
+    "importInfoTitle": "Importing Your USDT Wallet",
+    "importInfoDesc1": "Bitcoin Keeper supports importing GasFree USDT wallets only. If you're using a compatible wallet provider that also supports gas-free transactions on the Tron network, you can import your wallet using your 12 or 24-word recovery phrase.",
+    "importInfoDesc2": "Once imported, you’ll be able to access and manage your USDT without needing TRX.",
+    "importInfoDescNote": "Note: Standard TRC-20 wallets that require TRX to move funds are not supported."
   }
 }
