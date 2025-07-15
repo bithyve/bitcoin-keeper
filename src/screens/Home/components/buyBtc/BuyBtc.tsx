@@ -219,16 +219,16 @@ const BuyBtc = () => {
           setVisibleSellUsdt(false);
         }}
       />
-      <Buttons
-        primaryText="Swaps"
-        primaryCallback={() => {
-          navigation.dispatch(CommonActions.navigate('Swaps'));
-        }}
-        secondaryCallback={() => {
-          navigation.dispatch(CommonActions.navigate('SwapHistory'));
-        }}
-        secondaryText="SwapHistory"
-      />
+
+      <Box style={styles.button_container}>
+        <Buttons
+          primaryText="Swap BTC <> USDT"
+          primaryCallback={() => {
+            navigation.dispatch(CommonActions.navigate('Swaps'));
+          }}
+          fullWidth
+        />
+      </Box>
     </View>
   );
 };

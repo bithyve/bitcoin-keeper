@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, ActivityIndicator, Keyboard, Pressable } from 'react-native';
+import { StyleSheet, ActivityIndicator, Keyboard, Pressable, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
@@ -23,18 +23,19 @@ import useWallets from 'src/hooks/useWallets';
 import KeeperModal from 'src/components/KeeperModal';
 import BuyBtcModalContent from '../BuyBtcModalContent';
 import { EntityKind } from 'src/services/wallets/enums';
+import { SwapHistory } from './SwapHistory';
 
 export const CoinLogo = ({ code, isLarge = true }) => {
   const isBtc = code === 'BTC';
 
-  const largeStyle = { width: wp(30), height: wp(30) };
+  const largeStyle = { width: wp(20), height: wp(20) };
   const smallStyle = { width: wp(15), height: wp(15) };
 
   return (
     <Box
       style={{
         backgroundColor: isBtc ? Colors.BrightOrange : Colors.DesaturatedTeal,
-        width: isLarge ? wp(40) : wp(20),
+        width: isLarge ? wp(25) : wp(20),
         aspectRatio: 1,
         borderRadius: wp(20),
         alignItems: 'center',
@@ -175,7 +176,7 @@ export const Swaps = ({ navigation }) => {
       {!coinTo && !coinFrom ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <Box flex={1}>
+        <ScrollView>
           <Box>
             <Text>
               <CoinLogo code={coinFrom.code} />
@@ -278,7 +279,10 @@ export const Swaps = ({ navigation }) => {
             fullWidth
             primaryDisable={toValue <= 0}
           />
-        </Box>
+          <Box mt={5}>
+            <SwapHistory navigation={navigation} />
+          </Box>
+        </ScrollView>
       )}
 
       <KeeperModal
