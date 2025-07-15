@@ -1,5 +1,9 @@
 package io.hexawallet.keeper
+
 import android.os.Bundle
+import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -7,19 +11,33 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 
 class MainActivity : ReactActivity() {
 
-  /**
-   * Returns the name of the main component registered from JavaScript. This is used to schedule
-   * rendering of the component.
-   */
+  override fun getMainComponentName(): String = "hexa_keeper"
 
-   override fun getMainComponentName(): String = "hexa_keeper"
+  override fun createReactActivityDelegate(): ReactActivityDelegate =
+    DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-  /*
-   * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
-   * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
-   */
+    window.decorView.post {
+      val rootView = window.decorView.findViewById<View>(android.R.id.content)
+      setActivityWindowListener(rootView)
+    }
+  }
 
-   override fun createReactActivityDelegate(): ReactActivityDelegate =
-      DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+  private fun setActivityWindowListener(root: View) {
+    ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+      val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+      val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+      val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+
+      val rawBottomInset = maxOf(navigationBarHeight, imeHeight)
+
+      val bottomPadding = (rawBottomInset - 16).coerceAtLeast(0)
+
+      view.setPadding(0, statusBarHeight, 0, bottomPadding)
+
+      insets 
+    }
+  }
 }
