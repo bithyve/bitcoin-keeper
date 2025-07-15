@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -75,6 +75,29 @@ const UsdtAmount = ({ route }) => {
   const processSend = async (amountToSend: number) => {
     try {
       const updatedSender = await syncAccountStatus(sender);
+
+      const isActive = updatedSender.accountStatus.isActive;
+      if (!isActive) {
+        // If the account is not active and there is an outgoing transaction, show a warning
+        // (GasFree account activation may take a couple of minutes at times, due to longer permit transaction processing queue on provider's end)
+
+        const hasOutgoingTransaction = updatedSender.specs.transactions.some(
+          (tx) =>
+            tx.from === updatedSender.accountStatus.gasFreeAddress ||
+            tx.from === updatedSender.accountStatus.address
+        );
+
+        if (hasOutgoingTransaction) {
+          showToast(
+            'Your account is not yet active. Please wait a moment before making another transaction to avoid being charged the activation fee again.',
+            <ToastErrorIcon />
+          );
+
+          // await for a few seconds to allow the user to read the message
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+
       const fees = USDT.evaluateTransferFee(updatedSender.accountStatus);
       if (!fees) {
         showToast('Failed to estimate fees', <ToastErrorIcon />);
@@ -83,11 +106,10 @@ const UsdtAmount = ({ route }) => {
 
       // updatedSender = await syncWalletBalance(updatedSender); // discarded; since we're able to sync wallet on the details page itself therefore we effectively will have the latest balance
       const availableBalance = getAvailableBalanceUSDTWallet(updatedSender);
-      if (availableBalance < amountToSend + fees.totalFee) {
-        showToast(
-          `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
-          <ToastErrorIcon />
-        );
+
+      const roundedOutflow = parseFloat((amountToSend + fees.totalFee).toFixed(3));
+      if (availableBalance < roundedOutflow) {
+        showToast(`Insufficient balance for this transaction.`, <ToastErrorIcon />);
         return;
       }
 
@@ -114,6 +136,18 @@ const UsdtAmount = ({ route }) => {
 
     await processSend(amountToSend);
     setInProgress(false);
+  };
+
+  const handleSendMax = () => {
+    const availableBalance = getAvailableBalanceUSDTWallet(sender);
+    const fees = USDT.evaluateTransferFee(sender.accountStatus);
+
+    if (availableBalance < fees.totalFee) {
+      showToast('Insufficient balance to send any amount after fees', <ToastErrorIcon />);
+      return;
+    }
+
+    setAmount((availableBalance - fees.totalFee).toFixed(3));
   };
 
   return (
@@ -147,6 +181,17 @@ const UsdtAmount = ({ route }) => {
         <Text fontSize={25} color={`${colorMode}.GreyText`}>
           USDT
         </Text>
+
+        <Pressable
+          onPress={handleSendMax}
+          backgroundColor={`${colorMode}.brownBackground`}
+          style={styles.sendMaxWrapper}
+          testID="btn_sendMax"
+        >
+          <Text testID="text_sendmax" color={`${colorMode}.buttonText`} style={styles.sendMaxText}>
+            {common.sendMax}
+          </Text>
+        </Pressable>
       </Box>
 
       <KeyPadView
@@ -193,5 +238,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 5,
+  },
+  sendMaxWrapper: {
+    width: wp(85),
+    alignSelf: 'center',
+    marginTop: hp(5),
+    paddingHorizontal: hp(12),
+    paddingVertical: hp(3),
+    borderRadius: 5,
+  },
+  sendMaxText: {
+    textAlign: 'center',
+    fontSize: 11,
   },
 });

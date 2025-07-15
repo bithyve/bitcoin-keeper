@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     width: wp(290),
     marginHorizontal: wp(10),
-    marginVertical: hp(20),
+    marginVertical: hp(10),
   },
   toWalletWrapper: {
     height: hp(110),

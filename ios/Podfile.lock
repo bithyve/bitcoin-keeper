@@ -1435,7 +1435,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.28.0):
+  - RNScreens (3.34.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1451,6 +1451,7 @@ PODS:
     - React-ImageManager
     - React-NativeModulesApple
     - React-RCTFabric
+    - React-RCTImage
     - React-rendererdebug
     - React-utils
     - ReactCommon/turbomodule/bridging
@@ -1920,7 +1921,7 @@ SPEC CHECKSUMS:
   RNKeychain: df33ae4d27df06622fc14190b790ba8749f6be76
   RNLocalize: 19917c3f32cf6386f7d2957a638a4281669cae57
   RNReanimated: 608f4e674643d5fe9c91d2575db2cf306807c67c
-  RNScreens: 65c89d27fa3c71ecae1f89a4c5f428ed9315d9b5
+  RNScreens: 6584fce529be4800e3d12c8069376df9e12bafaf
   RNSentry: 6e4fa452ffa621a4bbcd08b53cbb12c55c955593
   RNShare: d1da96f570164d84821ee9d75740eee7ec2efa87
   RNSVG: 4611b66c2167ba03429e7428a3a490be6e439391

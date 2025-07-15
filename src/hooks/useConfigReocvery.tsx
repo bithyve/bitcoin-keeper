@@ -1,13 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/utils/service-utilities/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
-import {
-  EntityKind,
-  SignerStorage,
-  SignerType,
-  VaultType,
-  WalletType,
-} from 'src/services/wallets/enums';
+import { SignerStorage, SignerType, VaultType, WalletType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
@@ -24,8 +18,6 @@ import useVault from './useVault';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { Alert } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useUSDTWallets } from './useUSDTWallets';
-import { USDTWalletType } from 'src/services/wallets/factories/USDTWalletFactory';
 
 const useConfigRecovery = () => {
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
@@ -35,7 +27,6 @@ const useConfigRecovery = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { allVaults } = useVault({});
-  const { createWallet } = useUSDTWallets();
   const [generatedVaultId, setGeneratedVaultId] = useState(null);
   const { translations } = useContext(LocalizationContext);
 
@@ -113,46 +104,9 @@ const useConfigRecovery = () => {
     }
   }, [relayVaultUpdate, relayVaultError, generatedVaultId]);
 
-  const initateRecovery = (text, callback = null, entityKind?: EntityKind) => {
+  const initateRecovery = (text, callback = null) => {
     setRecoveryLoading(true);
     setTimeout(async () => {
-      if (entityKind === EntityKind.USDT_WALLET) {
-        try {
-          const mnemonic = text.trim();
-          const { newWallet, error } = await createWallet({
-            type: USDTWalletType.IMPORTED,
-            name: 'USDT Wallet',
-            description: 'Imported USDT Wallet',
-            importDetails: {
-              mnemonic,
-            },
-          });
-
-          if (newWallet) {
-            showToast('USDT wallet imported successfully!', <TickIcon />);
-            setTimeout(() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'Home',
-                  params: { selectedOption: 'Wallets' },
-                })
-              );
-              setRecoveryLoading(false);
-            }, 900);
-          } else {
-            showToast(`Failed to import USDT wallet: ${error}`, <ToastErrorIcon />);
-            setRecoveryLoading(false);
-          }
-        } catch (err) {
-          setRecoveryLoading(false);
-          recoveryError.failed = true;
-          recoveryError.message = err;
-          showToast(err.message ? err.message : err.toString(), <ToastErrorIcon />);
-        }
-
-        return;
-      }
-
       if (text.match(/^[XYZTUVxyztuv]pub[1-9A-HJ-NP-Za-km-z]{100,108}$/)) {
         try {
           const importedKey = text.trim();

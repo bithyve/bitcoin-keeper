@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import ReceiptWrapper from '../Send/ReceiptWrapper';
@@ -136,7 +136,7 @@ const UsdtSendConfirmation = ({ route }) => {
               titleColor={`${colorMode}.activationFeeText`}
               amountColor={`${colorMode}.activationFeeText`}
               unitColor={`${colorMode}.activationFeeText`}
-              customUnit="USTD"
+              customUnit="USDT"
             />
           ) : null}
           <AmountDetails
@@ -148,7 +148,7 @@ const UsdtSendConfirmation = ({ route }) => {
             titleColor={`${colorMode}.activationFeeText`}
             amountColor={`${colorMode}.activationFeeText`}
             unitColor={`${colorMode}.activationFeeText`}
-            customUnit="USTD"
+            customUnit="USDT"
           />
           <AmountDetails
             title={walletTranslations.amountBeingSend}
@@ -159,19 +159,19 @@ const UsdtSendConfirmation = ({ route }) => {
             unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
-            customUnit="USTD"
+            customUnit="USDT"
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
             title={walletTranslations.totalAmount}
             titleFontSize={13}
             titleFontWeight={500}
-            amount={amount + fees.totalFee}
+            amount={(amount + fees.totalFee).toFixed(3)}
             amountFontSize={15}
             unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
-            customUnit="USTD"
+            customUnit="USDT"
           />
         </Box>
       </ScrollView>

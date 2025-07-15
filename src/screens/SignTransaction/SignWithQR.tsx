@@ -30,6 +30,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { hp } from 'src/constants/responsive';
 const { width } = Dimensions.get('window');
 
 function SignWithQR() {
@@ -192,7 +193,7 @@ function SignWithQR() {
             />
           )}
           <Box style={styles.fingerprint}>
-            <WalletCopiableData data={serializedPSBT} dataType="psbt" />
+            <WalletCopiableData data={serializedPSBT} dataType="psbt" height={hp(60)} />
           </Box>
         </ScrollView>
       </Box>

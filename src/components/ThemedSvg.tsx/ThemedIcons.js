@@ -307,8 +307,29 @@ import SendBtcArrow from 'src/assets/images/send-btc-arrow.svg';
 import RecieveBtcArrow from 'src/assets/images/recieve-btc-arrow.svg';
 import BuyBtcIcon from 'src/assets/images/buy-btc-icon.svg';
 import MoreBtcIcon from 'src/assets/images/more-btc-icon.svg';
+import BuyAcquireArrow from 'src/assets/images/acquire-buy-arrow.svg';
+import BuyAcquireArrowWhite from 'src/assets/images/acquire-buy-arrow-white.svg';
+import SellAcquireArrowWhite from 'src/assets/images/acquire-sell-arrow-white.svg';
+import SellAcquireArrow from 'src/assets/images/acquire-sell-arrow.svg';
+import SellAcquireArrowGold from 'src/assets/privateImages/acquire-sell-gold-arrow.svg';
+import BuyAcquireArrowGold from 'src/assets/privateImages/acquire-buy-gold-arrow.svg';
+import CoinsIcon from 'src/assets/images/coins.svg';
+import CoinIconLight from 'src/assets/images/coinsLight.svg';
+import CoinsIconPrivate from 'src/assets/privateImages/coinsPrivate.svg';
 
 const themeIcons = {
+  acquire_send_arrow: {
+    DARK: BuyAcquireArrowWhite,
+    LIGHT: BuyAcquireArrow,
+    PRIVATE: BuyAcquireArrowWhite,
+    PRIVATE_LIGHT: BuyAcquireArrowGold,
+  },
+  acquire_sell_arrow: {
+    DARK: SellAcquireArrowWhite,
+    LIGHT: SellAcquireArrow,
+    PRIVATE: SellAcquireArrowWhite,
+    PRIVATE_LIGHT: SellAcquireArrowGold,
+  },
   send_Btc_arrow: {
     DARK: SendWhiteIcon,
     LIGHT: SendBtcArrow,
@@ -1085,6 +1106,12 @@ const themeIcons = {
     LIGHT: UsdtIllustration,
     PRIVATE: UsdtPrivateIllustration,
     PRIVATE_LIGHT: UsdtPrivateIllustration,
+  },
+  view_coins: {
+    DARK: CoinsIcon,
+    LIGHT: CoinIconLight,
+    PRIVATE: CoinsIcon,
+    PRIVATE_LIGHT: CoinsIconPrivate,
   },
 };
 

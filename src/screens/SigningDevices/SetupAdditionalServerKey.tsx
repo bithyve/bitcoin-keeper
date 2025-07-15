@@ -57,7 +57,12 @@ function SetupAdditionalServerKey({ route }: { route }) {
                 />
               </Box>
               <Box>
-                <WalletCopiableData data={validationKey} dataType="2fa" width="95%" />
+                <WalletCopiableData
+                  data={validationKey}
+                  dataType="2fa"
+                  width="95%"
+                  height={hp(65)}
+                />
               </Box>
             </Box>
           )}

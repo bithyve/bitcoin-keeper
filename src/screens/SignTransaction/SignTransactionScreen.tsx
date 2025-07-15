@@ -661,9 +661,8 @@ function SignTransactionScreen() {
 
     try {
       await Share.open({
-        message: transactionText.transactionSuccessSent,
-        url,
         title: transactionText.TransactionDetails,
+        message: transactionText.transactionSuccessSent + url,
       });
     } catch (err) {
       console.error('Share error:', err);

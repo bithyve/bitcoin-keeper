@@ -52,9 +52,6 @@ import { discardBroadcastedTnx } from 'src/store/sagaActions/send_and_receive';
 import WalletDetailHeader from '../WalletDetails/components/WalletDetailHeader';
 import DetailCards from '../WalletDetails/components/DetailCards';
 import MoreCard from '../WalletDetails/components/MoreCard';
-import CurrencyKind from 'src/models/enums/CurrencyKind';
-import { setCurrencyKind } from 'src/store/reducers/settings';
-import SwapSvg from 'src/assets/images/swap.svg';
 
 function TransactionList({
   transactions,
@@ -204,7 +201,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
   const [showmore, setShowMore] = useState(false);
 
-  const { currencyKind } = useAppSelector((state) => state.settings);
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
   useEffect(() => {
