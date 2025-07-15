@@ -17,6 +17,12 @@ import { createSwapTnx, getSwapQuote, loadCoinDetails } from 'src/store/sagaActi
 import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import Colors from 'src/theme/Colors';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import useVault from 'src/hooks/useVault';
+import useWallets from 'src/hooks/useWallets';
+import KeeperModal from 'src/components/KeeperModal';
+import BuyBtcModalContent from '../BuyBtcModalContent';
+import { EntityKind } from 'src/services/wallets/enums';
 
 export const CoinLogo = ({ code, isLarge = true }) => {
   const isBtc = code === 'BTC';
@@ -53,16 +59,23 @@ export const Swaps = ({ navigation }) => {
   const [fromValue, setFromValue] = useState<any>(0.0);
   const [toValue, setToValue] = useState<any>(0.0);
   const [loading, setLoading] = useState(false);
-  const [details, setDetails] = useState({
-    // withdrawal: 'bc1qxygdygjrs2kzq2n0qtyrf2111pxxxxxxxwl0h',
-    // return: 'TSTZYCuhpSbgzfGnsTHczGW5AHALvY9Mkz', // btc sent from(spending wallet address)
-    withdrawal: 'TSTZYCuhpSbgzfGnsTHczGW5AHALvY9Mkz',
-    return: 'bc1qxygdygjrs2kzq2n0qtyrf2111pxxxxxxxwl0h', // btc sent from(spending wallet address)
-  });
   const [isFixedRate, setIsFixedRate] = useState(false);
   const [coinFrom, setCoinFrom] = useState(null);
+  const [walletFrom, setWalletFrom] = useState(null);
   const [coinTo, setCoinTo] = useState(null);
+  const [walletTo, setWalletTo] = useState(null);
   const rateIdRef = useRef(null);
+
+  const { wallets } = useWallets({ getAll: true });
+  const { allVaults } = useVault({
+    includeArchived: false,
+    getFirst: true,
+    getHiddenWallets: false,
+  });
+  const { usdtWallets } = useUSDTWallets();
+  const btcWallets = [...wallets, ...allVaults];
+  const [showWalletSelection, setShowWalletSelection] = useState(false);
+  const walletModeRef = useRef(null);
 
   useEffect(() => {
     if (!coinDetails) {
@@ -114,6 +127,10 @@ export const Swaps = ({ navigation }) => {
   };
 
   const createTnx = async () => {
+    if (!walletFrom || !walletTo) {
+      showToast('Please select wallets before proceeding', <ToastErrorIcon />);
+      return;
+    }
     setLoading(true);
     dispatch(
       createSwapTnx({
@@ -121,8 +138,14 @@ export const Swaps = ({ navigation }) => {
         coinFrom,
         coinTo,
         depositAmount: fromValue,
-        withdrawal: details.withdrawal,
-        refund: details.return,
+        withdrawal:
+          walletTo.entityKind === EntityKind.USDT_WALLET
+            ? walletTo.specs.address
+            : walletTo.specs.receivingAddress,
+        refund:
+          walletFrom.entityKind === EntityKind.USDT_WALLET
+            ? walletFrom.specs.address
+            : walletFrom.specs.receivingAddress,
         rateId: rateIdRef.current,
         callback: ({ status, tnx, error }) => {
           setLoading(false);
@@ -133,6 +156,16 @@ export const Swaps = ({ navigation }) => {
         },
       })
     );
+  };
+
+  const createWalletSelection = (mode) => {
+    if (mode === 'from') {
+      if (coinFrom.code === 'BTC') return btcWallets;
+      else return usdtWallets;
+    } else {
+      if (coinTo.code === 'BTC') return btcWallets;
+      else return usdtWallets;
+    }
   };
 
   return (
@@ -162,16 +195,31 @@ export const Swaps = ({ navigation }) => {
                 if (fromValue) getSwapAmount();
               }}
             />
+
+            <Pressable
+              style={{ backgroundColor: Colors.headerWhite, padding: 5 }}
+              onPress={() => {
+                walletModeRef.current = 'from';
+                setShowWalletSelection(true);
+              }}
+            >
+              <Text>{`Selected Wallet: ${
+                walletFrom?.presentationData?.name ?? 'Not Selected'
+              }`}</Text>
+            </Pressable>
           </Box>
           <Box my={3}>
             <Buttons
               primaryText="Switch 🔃"
               fullWidth
               primaryCallback={() => {
-                console.log('Switch values');
+                // switch coins
                 const fromTmp = coinFrom;
                 setCoinFrom(coinTo);
                 setCoinTo(fromTmp);
+                // unselect wallets
+                setWalletFrom(null);
+                setWalletTo(null);
               }}
             />
           </Box>
@@ -186,10 +234,17 @@ export const Swaps = ({ navigation }) => {
               onChangeText={(value) => setToValue(value)}
               editable={false}
             />
-          </Box>
-          <Box paddingY={'4'}>
-            <Text>{`Receive Address: ${details.withdrawal}`}</Text>
-            <Text>{`Refund Address: ${details.return}`}</Text>
+            <Pressable
+              style={{ backgroundColor: Colors.headerWhite, padding: 5 }}
+              onPress={() => {
+                walletModeRef.current = 'to';
+                setShowWalletSelection(true);
+              }}
+            >
+              <Text>{`Selected Wallet: ${
+                walletTo?.presentationData?.name ?? 'Not Selected'
+              }`}</Text>
+            </Pressable>
           </Box>
 
           <Pressable onPress={() => setIsFixedRate(!isFixedRate)}>
@@ -212,6 +267,28 @@ export const Swaps = ({ navigation }) => {
           />
         </Box>
       )}
+
+      <KeeperModal
+        visible={showWalletSelection}
+        close={() => setShowWalletSelection(false)}
+        title={walletModeRef.current === 'from' ? 'Select From Wallet' : 'Select to Wallet'}
+        subTitle={'Select Wallet subtitle'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <BuyBtcModalContent
+            allWallets={createWalletSelection(walletModeRef.current)}
+            setSelectedWallet={walletModeRef.current === 'from' ? setWalletFrom : setWalletTo}
+            selectedWallet={walletModeRef.current === 'from' ? walletFrom : walletTo}
+          />
+        )}
+        buttonText={'COnfirm'}
+        buttonCallback={() => {
+          if (walletModeRef.current === 'from' ? !walletFrom : !walletTo) return;
+          setShowWalletSelection(false);
+        }}
+      />
     </ScreenWrapper>
   );
 };
