@@ -252,7 +252,7 @@
     "outputs": "Outputs",
     "updateLabelSubTitle": "Optionally you can add a short note to the transactions",
     "advancedDetails": "Advanced Details",
-    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here:",
+    "transactionSuccessSent": "The transaction has been successfully sent. You can track its status here: ",
     "transactionDetails": "Transaction Details",
     "addTransactionNote": "Add transaction note",
     "scanSignedTransaction": "Scan Signed Transaction",
@@ -502,7 +502,7 @@
     "currentBtcPrice": "Current BTC Price",
     "amountBeingSend": "Amount being sent",
     "sendingAmount": "Sending Amount:",
-    "SignMessageHeader": "Sign/ Verify Message",
+    "SignMessageHeader": "Sign/Verify Message",
     "messageVerifiedTitle": "Message Verified Successfully",
     "messageVerifiedSubTitle": "The signature was verified against the message successfully",
     "walletSignMessageDesc": "Sign or verify a message using your Bitcoin wallet",
@@ -548,7 +548,7 @@
     "vaultDetailsTitle": "Wallet Details",
     "vaultDetailsDesc": "Wallet name & description",
     "vaultConfigurationFileTitle": "Wallet configuration file",
-    "importExportLabels": "Import/ Export Wallet Labels",
+    "importExportLabels": "Import/Export Wallet Labels",
     "importExportLabelsDesc": "Import or export wallet labels",
     "importExportLabelsModalDesc": "Import and export your wallet labels. Keeper uses BIP329 to ensure full compatiblity with other wallets",
     "importLabels": "Import Labels",
@@ -1691,7 +1691,8 @@
     "unlockMessage": "Unlock on Diamond Hands tier"
   },
   "cloudBackup": {
-    "cloudBackup": "Cloud Backup",
+    "cloudBackup": "Personal Cloud Backup",
+    "cloudBackupScreenSubtitle": "Backup Wallet Configuration Files on your {0}",
     "recentHistory": "Recent History",
     "noBackup": "No backup history found.",
     "backupNow": "Backup Now",
@@ -1781,7 +1782,8 @@
     "proceedToRamp": "Proceed to Ramp?",
     "transactionOnRamp": "* These transactions are facilitated by Third Parties.",
     "buy": "Buy",
-    "sell": "Sell"
+    "sell": "Sell",
+    "get": "Get"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",
@@ -1931,7 +1933,7 @@
     "bitcoinWallet": "Bitcoin Wallet",
     "dollarWallet": "Dollar Wallet",
     "addWalletDetails": "Add Your Wallet Details",
-    "dedicatedWalletSub": "A dedicated wallet for securely receiving, storing, and managing USDT on the Tron network. Enjoy fast, low-fee transactions for smooth and cost-effective transfers.",
+    "dedicatedWalletSub": "A dedicated wallet for securely managing USDT (on Tron) supporting fast low-fee transactions.",
     "usdtRamp": "Get USDT via Ramp",
     "rampSub": "Ramp allows you to acquire USDT using payment methods available in your country.",
     "rampOffermultiple": "Ramp offers multiple payment methods to acquire USDT.",
@@ -1944,9 +1946,9 @@
     "hideWallet": "Hide Wallet",
     "hideWalletDesc": "Hidden wallets can be managed from Manage Wallets in settings",
     "walletSeedWords": "Wallet Seed Words",
-    "backupWalletOrExport": "Ues to back up or export the wallet private key",
+    "backupWalletOrExport": "Use to back up or export the wallet private key",
     "receive": "Receive",
-    "sendOnlyUsdt": "Please send only USDT on the Tron network to this address. Any other assets or networks may result in a loss of funds.",
+    "sendOnlyUsdt": "Receive only USDT via the TRON (TRC-20) network to this address. Sending any other asset or using a different network may lead to permanent loss of funds.",
     "sendToWallet": "Send to one of your wallets",
     "chnageWallet": "Change Wallet",
     "sendtoTron": "Only send to a TRON (TRC-20) address that supports USDT. Sending to an incompatible address may result in loss of funds.",
@@ -1969,9 +1971,13 @@
     "sendUsdt": "Send\nUSDT",
     "recieveUSdt": "Receive\nUSDT",
     "moreOption": "More\nOptions",
-    "buyUSdt": "Buy USDT with  Ramp",
+    "buyUSdt": "Buy USDT with Ramp",
     "UsdtPowerdBy": "This USDT wallet is powered by ",
     "keeperDontControl": "Bitcoin Keeper does not control or manage this wallet. If",
-    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk."
+    "becomesUnavailable": "becomes unavailable, you may lose access to your funds. Proceed only if you understand and accept this risk.",
+    "importInfoTitle": "Importing Your USDT Wallet",
+    "importInfoDesc1": "Bitcoin Keeper supports importing GasFree USDT wallets only. If you're using a compatible wallet provider that also supports gas-free transactions on the Tron network, you can import your wallet using your 12 or 24-word recovery phrase.",
+    "importInfoDesc2": "Once imported, you’ll be able to access and manage your USDT without needing TRX.",
+    "importInfoDescNote": "Note: Standard TRC-20 wallets that require TRX to move funds are not supported."
   }
 }

@@ -34,7 +34,7 @@ const RecieveUsdt = ({ route }) => {
             <WalletCopiableData
               data={details}
               width={windowWidth * 0.8}
-              height={hp(60)}
+              height={hp(65)}
               dataType="address"
             />
           </Box>

@@ -92,7 +92,6 @@ function WalletSettings({ route }) {
       <Box>
         <Instruction textColor={green_modal_text_color} text={walletTranslation.addDescription} />
         <Instruction textColor={green_modal_text_color} text={walletTranslation.accessXpub} />
-        <Instruction textColor={green_modal_text_color} text={walletTranslation.accessXpub} />
 
         <Box style={styles.illustration}>
           <ThemedSvg name={'walletInfoIllustration'} width={wp(200)} height={hp(200)} />

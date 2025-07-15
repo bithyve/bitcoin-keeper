@@ -17,7 +17,7 @@ function CameraUnauthorized() {
   return (
     <Box style={styles.container}>
       <Text
-        color={`${colorMode}.white`}
+        color="white"
         style={{
           fontSize: 13,
         }}
@@ -25,7 +25,7 @@ function CameraUnauthorized() {
         {settings.cameraAccessoff}
       </Text>
       <Text
-        color={`${colorMode}.white`}
+        color="white"
         style={{
           fontSize: 11,
         }}
@@ -39,12 +39,8 @@ function CameraUnauthorized() {
         }}
         testID="btn_cameraSettings"
       >
-        <Box
-          borderColor={`${colorMode}.learnMoreBorder`}
-          backgroundColor={`${colorMode}.DarkSlateGray`}
-          style={styles.learnMoreContainer}
-        >
-          <Text color={`${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
+        <Box backgroundColor={`${colorMode}.DarkSlateGray`} style={styles.learnMoreContainer}>
+          <Text color="white" style={styles.learnMoreText}>
             {settings.tapToGoSetting}
           </Text>
         </Box>

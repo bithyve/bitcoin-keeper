@@ -34,6 +34,7 @@ const AddUsdtWallet = () => {
   const [walletName, setWalletName] = useState('');
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const descriptionInputRef = useRef('USDT wallet');
   const initialDescription = useRef(descriptionInputRef.current);
   const { showToast } = useToastMessage();
@@ -101,6 +102,8 @@ const AddUsdtWallet = () => {
               }}
               maxLength={18}
               testID="input_wallet_name"
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
             />
           </Box>
           <Pressable
@@ -116,30 +119,38 @@ const AddUsdtWallet = () => {
           </Pressable>
         </Box>
       </Box>
-      <Box style={styles.noteContainer}>
-        <Text
-          color={`${colorMode}.dashedButtonBorderColor`}
-          style={styles.noteTitle}
-          fontSize={14}
-          medium
-        >
-          {common.note}
-        </Text>
-
-        <Text color={`${colorMode}.primaryText`} fontSize={12}>
-          {usdtWalletText.UsdtPowerdBy}
-          <Text bold style={styles.link} onPress={() => Linking.openURL('https://gasfree.io/home')}>
-            {' '}
-            GasFree.io{' '}
+      {!isInputFocused && (
+        <Box style={styles.noteContainer}>
+          <Text
+            color={`${colorMode}.dashedButtonBorderColor`}
+            style={styles.noteTitle}
+            fontSize={14}
+            medium
+          >
+            {common.note}
           </Text>
-          {usdtWalletText.keeperDontControl}
-          <Text style={styles.link} bold onPress={() => Linking.openURL('https://gasfree.io/home')}>
-            {' '}
-            GasFree.io
-          </Text>{' '}
-          {usdtWalletText.becomesUnavailable}
-        </Text>
-      </Box>
+
+          <Text color={`${colorMode}.primaryText`} fontSize={12}>
+            {usdtWalletText.UsdtPowerdBy}
+            <Text
+              bold
+              style={styles.link}
+              onPress={() => Linking.openURL('https://gasfree.io/home')}
+            >
+              {'GasFree.io'}
+            </Text>{' '}
+            {usdtWalletText.keeperDontControl}{' '}
+            <Text
+              style={styles.link}
+              bold
+              onPress={() => Linking.openURL('https://gasfree.io/home')}
+            >
+              {'GasFree.io'}
+            </Text>{' '}
+            {usdtWalletText.becomesUnavailable}
+          </Text>
+        </Box>
+      )}
       <Box style={styles.footer}>
         <Buttons
           primaryText={isCreating ? 'Creating Wallet...' : walletText.createYourWallet}
@@ -223,7 +234,7 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     marginHorizontal: wp(10),
-    marginBottom: 10,
+    marginBottom: hp(10),
   },
   noteTitle: {
     marginBottom: hp(5),

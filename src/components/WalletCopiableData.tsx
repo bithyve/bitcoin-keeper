@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   value: {
-    fontSize: 15,
+    fontSize: 14,
   },
   iconContainer: {
     borderRadius: 10,

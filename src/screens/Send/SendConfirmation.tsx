@@ -516,9 +516,8 @@ function SendConfirmation({ route }) {
 
     try {
       await Share.open({
-        message: transactions.transactionSuccessSent,
-        url,
         title: transactions.transactionDetails,
+        message: transactions.transactionSuccessSent + url,
       });
     } catch (err) {
       console.error('Share error:', err);
