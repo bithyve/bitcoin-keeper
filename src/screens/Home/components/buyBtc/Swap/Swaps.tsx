@@ -65,6 +65,7 @@ export const Swaps = ({ navigation }) => {
   const [coinTo, setCoinTo] = useState(null);
   const [walletTo, setWalletTo] = useState(null);
   const rateIdRef = useRef(null);
+  const [inputError, setInputError] = useState(null);
 
   const { wallets } = useWallets({ getAll: true });
   const { allVaults } = useVault({
@@ -191,10 +192,22 @@ export const Swaps = ({ navigation }) => {
               keyboardType="numeric"
               returnKeyType="done"
               onSubmitEditing={() => Keyboard.dismiss()}
+              isError={inputError}
               onBlur={() => {
+                setInputError(false);
+                if (fromValue < coinFrom.min_amount || fromValue > coinFrom.max_amount) {
+                  setInputError(
+                    'Amount should be between ' +
+                      coinFrom.min_amount +
+                      ' and ' +
+                      coinFrom.max_amount
+                  );
+                  return;
+                }
                 if (fromValue) getSwapAmount();
               }}
             />
+            {inputError && <Text color={Colors.AlertRedDark}>{inputError}</Text>}
 
             <Pressable
               style={{ backgroundColor: Colors.headerWhite, padding: 5 }}
