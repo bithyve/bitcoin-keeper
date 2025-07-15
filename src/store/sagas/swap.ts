@@ -42,7 +42,8 @@ function* getSwapQuoteWorker({ coinFrom, coinTo, amount, float, callback }) {
     if (callback)
       callback({
         status: true,
-        amount: parseFloat(quote.data.amount).toFixed(3),
+        amount:
+          coinTo.code === 'BTC' ? quote.data.amount : parseFloat(quote.data.amount).toFixed(3),
         rateId: quote.data.rate_id,
       });
   } catch (error) {
@@ -136,6 +137,9 @@ const createRealmObjForTnx = (tnx) => {
     is_float: tnx.is_float,
     status: tnx.status,
     id: tnx.transaction_id,
-    withdrawal_amount: tnx.withdrawal_amount,
+    withdrawal_amount:
+      tnx.coin_from === 'BTC'
+        ? tnx.withdrawal_amount
+        : parseFloat(tnx.withdrawal_amount).toFixed(3),
   };
 };

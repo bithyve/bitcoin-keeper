@@ -7,7 +7,6 @@ import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import RemoteSvg from 'src/components/SVGComponents/RemoteSvg';
 import WalletHeader from 'src/components/WalletHeader';
 import { wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -15,16 +14,34 @@ import { useAppSelector } from 'src/store/hooks';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Checked from 'src/assets/images/tick_icon.svg';
 import { createSwapTnx, getSwapQuote, loadCoinDetails } from 'src/store/sagaActions/swap';
+import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
+import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
+import Colors from 'src/theme/Colors';
 
-const COINS = {
-  btc: {
-    code: 'BTC',
-    network: 'BTC',
-  },
-  usdt: {
-    code: 'USDT',
-    network: 'TRC20',
-  },
+export const CoinLogo = ({ code, isLarge = true }) => {
+  const isBtc = code === 'BTC';
+
+  const largeStyle = { width: wp(30), height: wp(30) };
+  const smallStyle = { width: wp(15), height: wp(15) };
+
+  return (
+    <Box
+      style={{
+        backgroundColor: isBtc ? Colors.BrightOrange : Colors.DesaturatedTeal,
+        width: isLarge ? wp(40) : wp(20),
+        aspectRatio: 1,
+        borderRadius: wp(20),
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {isBtc ? (
+        <BtcAcquireIcon {...(isLarge ? largeStyle : smallStyle)} />
+      ) : (
+        <UsdtWalletLogo {...(isLarge ? largeStyle : smallStyle)} />
+      )}
+    </Box>
+  );
 };
 
 export const Swaps = ({ navigation }) => {
@@ -37,10 +54,14 @@ export const Swaps = ({ navigation }) => {
   const [toValue, setToValue] = useState<any>(0.0);
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState({
+    // withdrawal: 'bc1qxygdygjrs2kzq2n0qtyrf2111pxxxxxxxwl0h',
+    // return: 'TSTZYCuhpSbgzfGnsTHczGW5AHALvY9Mkz', // btc sent from(spending wallet address)
     withdrawal: 'TSTZYCuhpSbgzfGnsTHczGW5AHALvY9Mkz',
     return: 'bc1qxygdygjrs2kzq2n0qtyrf2111pxxxxxxxwl0h', // btc sent from(spending wallet address)
   });
   const [isFixedRate, setIsFixedRate] = useState(false);
+  const [coinFrom, setCoinFrom] = useState(null);
+  const [coinTo, setCoinTo] = useState(null);
   const rateIdRef = useRef(null);
 
   useEffect(() => {
@@ -59,28 +80,37 @@ export const Swaps = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
+    if (coinDetails && !coinFrom && !coinTo) {
+      setCoinFrom(coinDetails.btc);
+      setCoinTo(coinDetails.usdt);
+    }
+  }, [coinDetails]);
+
+  useEffect(() => {
     getSwapAmount();
-  }, [isFixedRate]);
+  }, [isFixedRate, coinTo]);
 
   const getSwapAmount = async () => {
-    if (fromValue) setLoading(true);
-    dispatch(
-      getSwapQuote({
-        coinFrom: coinDetails.btc,
-        coinTo: coinDetails.usdt,
-        amount: fromValue,
-        float: !isFixedRate,
-        callback: ({ status, amount, rateId, error }) => {
-          setLoading(false);
-          if (status) {
-            setToValue(amount);
-            rateIdRef.current = rateId;
-          } else {
-            showToast(error, <ToastErrorIcon />);
-          }
-        },
-      })
-    );
+    if (fromValue) {
+      setLoading(true);
+      dispatch(
+        getSwapQuote({
+          coinFrom,
+          coinTo,
+          amount: fromValue,
+          float: !isFixedRate,
+          callback: ({ status, amount, rateId, error }) => {
+            setLoading(false);
+            if (status) {
+              setToValue(amount);
+              rateIdRef.current = rateId;
+            } else {
+              showToast(error, <ToastErrorIcon />);
+            }
+          },
+        })
+      );
+    }
   };
 
   const createTnx = async () => {
@@ -88,8 +118,8 @@ export const Swaps = ({ navigation }) => {
     dispatch(
       createSwapTnx({
         float: !isFixedRate,
-        coinFrom: coinDetails.btc,
-        coinTo: coinDetails.usdt,
+        coinFrom,
+        coinTo,
         depositAmount: fromValue,
         withdrawal: details.withdrawal,
         refund: details.return,
@@ -108,14 +138,14 @@ export const Swaps = ({ navigation }) => {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title={'Swap'} />
-      {!coinDetails ? (
+      {!coinTo && !coinFrom ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
         <Box flex={1}>
           <Box>
             <Text>
-              <RemoteSvg url={coinDetails.btc.icon} height={wp(30)} width={wp(30)} useViewBox />
-              From {COINS.btc.code}
+              <CoinLogo code={coinFrom.code} />
+              From {coinFrom.code}
             </Text>
 
             <KeeperTextInput
@@ -133,11 +163,22 @@ export const Swaps = ({ navigation }) => {
               }}
             />
           </Box>
-          <Box />
+          <Box my={3}>
+            <Buttons
+              primaryText="Switch 🔃"
+              fullWidth
+              primaryCallback={() => {
+                console.log('Switch values');
+                const fromTmp = coinFrom;
+                setCoinFrom(coinTo);
+                setCoinTo(fromTmp);
+              }}
+            />
+          </Box>
           <Box>
             <Text>
-              <RemoteSvg url={coinDetails.usdt.icon} height={wp(30)} width={wp(30)} />
-              To {COINS.usdt.code}
+              <CoinLogo code={coinTo.code} />
+              To {coinTo.code}
             </Text>
             <KeeperTextInput
               placeholder={'0.00'}

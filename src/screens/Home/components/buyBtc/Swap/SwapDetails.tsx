@@ -5,13 +5,13 @@ import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import RemoteSvg from 'src/components/SVGComponents/RemoteSvg';
 import WalletHeader from 'src/components/WalletHeader';
 import { BtcToSats } from 'src/constants/Bitcoin';
 import useWallets from 'src/hooks/useWallets';
 import ReceiveAddress from 'src/screens/Recieve/ReceiveAddress';
 import ReceiveQR from 'src/screens/Recieve/ReceiveQR';
 import { useAppSelector } from 'src/store/hooks';
+import { CoinLogo } from './Swaps';
 
 export const SwapDetails = ({ navigation, route }) => {
   const data = route.params;
@@ -42,9 +42,9 @@ export const SwapDetails = ({ navigation, route }) => {
           <Text>{`Swap Rate : ${data.rate}`}</Text>
 
           <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <RemoteSvg url={data.coin_from_icon} width={50} height={50} useViewBox />
+            <CoinLogo code={data.coin_from} />
             <Text>{'=>'}</Text>
-            <RemoteSvg url={data.coin_to_icon} height={50} width={50} />
+            <CoinLogo code={data.coin_to} />
           </Box>
 
           <Box m={1}>
@@ -63,7 +63,6 @@ export const SwapDetails = ({ navigation, route }) => {
           <Box>
             <Buttons
               primaryCallback={() => {
-                console.log('Call wallet with the details ');
                 navigation.dispatch(
                   CommonActions.navigate('AddSendAmount', {
                     sender: wallets[0],
