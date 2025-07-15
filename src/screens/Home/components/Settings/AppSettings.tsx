@@ -14,7 +14,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import { NetworkType } from 'src/services/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -102,7 +102,10 @@ const SettingsApp = () => {
         <KeeperModal
           visible={networkModeModal}
           closeOnOverlayClick={false}
-          close={() => setNetworkModeModal(false)}
+          close={() => {
+            setNetworkModeModal(false);
+            setSelectedNetwork(bitcoinNetworkType);
+          }}
           title={settings.networkModeTitle}
           subTitleWidth={wp(240)}
           subTitle={settings.networkModeModalSubTitle}
@@ -125,6 +128,7 @@ const SettingsApp = () => {
                 <Buttons
                   primaryText={settings.networkChangePrimaryCTA}
                   fullWidth
+                  primaryDisable={selectedNetwork === bitcoinNetworkType}
                   primaryCallback={() => confirmNetworkMode()}
                 />
               </Box>

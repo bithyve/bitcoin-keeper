@@ -7,8 +7,6 @@ import { hp, wp } from 'src/constants/responsive';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import { useAppSelector } from 'src/store/hooks';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Transactions from '../WalletDetails/components/Transactions';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
@@ -18,19 +16,20 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import MoreCard from '../WalletDetails/components/MoreCard';
 import KeeperModal from 'src/components/KeeperModal';
 import SwapSvg from 'src/assets/images/swap.svg';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
-  const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
+  const [initialLoading, setInitialLoading] = useState(false);
 
   return (
     <>
-      <ActivityIndicatorView visible={syncing} showLoader />
+      <ActivityIndicatorView visible={initialLoading} showLoader />
       <Transactions
         transactions={transactions}
         setPullRefresh={setPullRefresh}
         pullRefresh={pullRefresh}
         currentWallet={wallet}
+        setInitialLoading={setInitialLoading}
       />
     </>
   );

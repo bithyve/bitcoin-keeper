@@ -28,7 +28,7 @@ const StatusContent = ({ status }) => {
       style={styles.container}
     >
       <Text fontSize={12} color={textColor}>
-        {status}
+        {status === GasFreeTransferStatus.SUCCEED ? 'SUCCESS' : status}
       </Text>
     </Box>
   );
