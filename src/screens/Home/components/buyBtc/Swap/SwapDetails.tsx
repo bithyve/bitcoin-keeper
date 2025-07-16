@@ -1,28 +1,109 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
-import { BtcToSats } from 'src/constants/Bitcoin';
-import useWallets from 'src/hooks/useWallets';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import ReceiveAddress from 'src/screens/Recieve/ReceiveAddress';
 import ReceiveQR from 'src/screens/Recieve/ReceiveQR';
 import { useAppSelector } from 'src/store/hooks';
 import { CoinLogo } from './Swaps';
+import { useDispatch } from 'react-redux';
+import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
+import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import MiniscriptPathSelector, {
+  MiniscriptPathSelectorRef,
+} from 'src/components/MiniscriptPathSelector';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { TxPriority, VaultType } from 'src/services/wallets/enums';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export const SwapDetails = ({ navigation, route }) => {
-  const data = route.params;
+  const { data, wallet } = route.params;
   const { colorMode } = useColorMode();
-  const { wallets } = useWallets({ getAll: true });
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+  const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+  const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+  const { error: errorText } = useContext(LocalizationContext).translations;
+  const [miniscriptSatisfier, setMiniscriptSatisfier] = useState(null);
 
-  const correctSendUnit = (btc: number) => {
-    if (satsEnabled) {
-      return BtcToSats(btc);
-    } else return btc;
+  useEffect(() => {
+    if (sendPhaseOneState.isSuccessful) {
+      navigateToSendConfirmation();
+    } else if (sendPhaseOneState.hasFailed) {
+      if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance') {
+        showToast(errorText.insufficientBalance);
+      } else showToast(sendPhaseOneState.failedErrorMessage);
+    }
+  }, [sendPhaseOneState]);
+  useEffect(
+    () => () => {
+      dispatch(sendPhaseOneReset());
+    },
+    []
+  );
+
+  const executeSendPhaseOne = async (miniscriptSelectedSatisfier) => {
+    if (wallet.type === VaultType.MINISCRIPT) {
+      if (!miniscriptSelectedSatisfier) {
+        try {
+          await selectVaultSpendingPaths();
+          return;
+        } catch (err) {
+          console.log('🚀 ~ executeSendPhaseOne ~ err:', err);
+          showToast(err, <ToastErrorIcon />);
+        }
+      }
+    }
+
+    dispatch(sendPhaseOneReset());
+    dispatch(
+      sendPhaseOne({
+        wallet,
+        recipients: [
+          {
+            address: data.deposit,
+            amount: data.deposit_amount * SATOSHIS_IN_BTC,
+          },
+        ],
+        selectedUTXOs: [],
+        miniscriptSelectedSatisfier,
+      })
+    );
+  };
+
+  const selectVaultSpendingPaths = async () => {
+    if (miniscriptPathSelectorRef.current) {
+      await miniscriptPathSelectorRef.current.selectVaultSpendingPaths();
+    }
+  };
+
+  const handlePathSelected = (miniscriptSelectedSatisfier) => {
+    setMiniscriptSatisfier(miniscriptSelectedSatisfier);
+    executeSendPhaseOne(miniscriptSelectedSatisfier);
+  };
+
+  const navigateToSendConfirmation = () => {
+    navigation.dispatch(
+      CommonActions.navigate('SendConfirmation', {
+        sender: wallet,
+        internalRecipients: [],
+        addresses: data.deposit,
+        amounts: data.deposit_amount * SATOSHIS_IN_BTC,
+        note: '',
+        selectedUTXOs: [],
+        parentScreen: undefined,
+        date: new Date(),
+        transactionPriority: TxPriority.LOW,
+        customFeePerByte: 0,
+        miniscriptSelectedSatisfier: miniscriptSatisfier,
+      })
+    );
   };
 
   return (
@@ -63,29 +144,20 @@ export const SwapDetails = ({ navigation, route }) => {
           <Box>
             <Buttons
               primaryCallback={() => {
-                navigation.dispatch(
-                  CommonActions.navigate('AddSendAmount', {
-                    sender: wallets[0],
-                    internalRecipients: [],
-                    address: data.deposit,
-                    amount: correctSendUnit(data.deposit_amount),
-                    note: '',
-                    selectedUTXOs: [],
-                    totalUtxosAmount: 0,
-                    parentScreen: undefined,
-                    isSendMax: undefined,
-                    recipients: [],
-                    totalRecipients: 1,
-                    currentRecipientIdx: 1,
-                    miniscriptSelectedSatisfier: null,
-                  })
-                );
+                executeSendPhaseOne(null);
               }}
               primaryText="Pay with Wallet"
             />
           </Box>
         </Box>
       </ScrollView>
+      <MiniscriptPathSelector
+        ref={miniscriptPathSelectorRef}
+        vault={wallet}
+        onPathSelected={handlePathSelected}
+        onError={(err) => showToast(err, <ToastErrorIcon />)}
+        onCancel={() => {}}
+      />
     </ScreenWrapper>
   );
 };

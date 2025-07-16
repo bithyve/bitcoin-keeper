@@ -151,7 +151,10 @@ export const Swaps = ({ navigation }) => {
         rateId: rateIdRef.current,
         callback: ({ status, tnx, error }) => {
           setLoading(false);
-          if (status) navigation.dispatch(CommonActions.navigate('SwapDetails', tnx));
+          if (status)
+            navigation.dispatch(
+              CommonActions.navigate('SwapDetails', { data: tnx, wallet: walletFrom })
+            );
           else {
             showToast(error, <ToastErrorIcon />);
           }

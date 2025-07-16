@@ -37,7 +37,12 @@ export const SwapHistory = ({ navigation }) => {
             paddingVertical: 7,
           }}
           onPress={() =>
-            navigation.dispatch(CommonActions.navigate('SwapHistoryDetail', { tnxId: item.id }))
+            navigation.dispatch(
+              CommonActions.navigate('SwapHistoryDetail', {
+                tnxId: item.id,
+                createdAt: moment(item.created_at)?.format('DD MMM YY  .  HH:mm A'),
+              })
+            )
           }
         >
           <Box flexDirection={'row'} gap={wp(4)}>

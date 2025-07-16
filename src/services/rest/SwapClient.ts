@@ -5,23 +5,6 @@ export const swapApi = axios.create({
   baseURL: config.LETS_EXCHANGE_BASE_URL,
 });
 
-axios.interceptors.request.use(
-  (config) => {
-    console.log('📤 Request:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      data: config.data,
-      params: config.params,
-    });
-    return config;
-  },
-  (error) => {
-    console.error('❌ Request Error:', error);
-    return Promise.reject(error);
-  }
-);
-
 swapApi.interceptors.request.use(
   (req) => {
     req.headers.Authorization = `Bearer ${config.LETS_EXCHANGE_API_KEY}`;

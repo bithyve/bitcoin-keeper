@@ -8,11 +8,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
 import { getTnxDetails } from 'src/store/sagaActions/swap';
-import moment from 'moment';
 import { CoinLogo } from './Swaps';
 
 export const SwapHistoryDetail = ({ navigation, route }) => {
-  const { tnxId } = route.params;
+  const { tnxId, createdAt } = route.params;
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [loading, setLoading] = useState(false);
@@ -52,8 +51,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
           <HStack my={5} justifyContent={'space-between'}>
             <Box>
               <Text>{details.transaction_id}</Text>
-              {/* // ! need to get time from realm, this time is incorrect  */}
-              <Text>{moment(details.created_at)?.format('DD MMM YY  .  HH:mm A')}</Text>
+              <Text>{createdAt}</Text>
             </Box>
             <Box>
               <Text>{details.is_float ? 'Floating' : 'Fixed'}</Text>
