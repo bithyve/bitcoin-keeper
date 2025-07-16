@@ -12,7 +12,7 @@ import {
   RPC_KEY,
   SEND_MESSAGE,
 } from './rpc-commands.mjs';
-import { CommunityType, Message } from './interface';
+import { CommunityType, Contact, Message } from './interface';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -45,7 +45,6 @@ export default class ChatPeerManager {
 
     this.rpc = new RPC(this.IPC, async (req) => {
       const data = b4a.toString(req.data);
-      // console.log(`${Platform.OS} Received:`, req.command, data);
 
       if (req.command === RPC_KEY) {
       } else if (req.command === ON_MESSAGE) {
@@ -124,18 +123,20 @@ export default class ChatPeerManager {
           const communityId = [this.app.contactsKey.publicKey, message.sender].sort().join('-');
           if (!communities.find((c) => c.id === communityId)) {
             // const contact = await Relay.getWalletProfiles([message.sender]);
-            // if (contact.results.length > 0) {
-            //   dbManager.createObject(RealmSchema.Contact, contact.results[0]);
-            //   dbManager.createObject(RealmSchema.Community, {
-            //     id: communityId,
-            //     communityId: communityId,
-            //     name: contact.results[0].name,
-            //     type: CommunityType.Peer,
-            //     createdAt: msg.timestamp,
-            //     updatedAt: msg.timestamp,
-            //     with: message.sender,
-            //   });
-            // }
+            const contact = await this.mockGetWalletProfiles([message.sender]);
+
+            if (contact.results.length > 0) {
+              dbManager.createObject(RealmSchema.Contact, contact.results[0]);
+              dbManager.createObject(RealmSchema.Community, {
+                id: communityId,
+                communityId: communityId,
+                name: contact.results[0].name,
+                type: CommunityType.Peer,
+                createdAt: msg.timestamp,
+                updatedAt: msg.timestamp,
+                with: message.sender,
+              });
+            }
 
             dbManager.createObject(RealmSchema.Community, {
               id: communityId,
@@ -174,17 +175,19 @@ export default class ChatPeerManager {
       const community = communities.find((c) => c.id === message.communityId);
       if (!community) {
         // const contact = await Relay.getWalletProfiles([message.sender]);
-        // if (contact.results.length > 0) {
-        //   dbManager.createObject(RealmSchema.Contact, contact.results[0]);
-        //   dbManager.createObject(RealmSchema.Community, {
-        //     id: message.communityId,
-        //     name: contact.results[0].name,
-        //     type: CommunityType.Peer,
-        //     createdAt: data.timestamp,
-        //     updatedAt: data.timestamp,
-        //     with: message.sender,
-        //   });
-        // }
+        const contact = await this.mockGetWalletProfiles([message.sender]);
+
+        if (contact.results.length > 0) {
+          dbManager.createObject(RealmSchema.Contact, contact.results[0]);
+          dbManager.createObject(RealmSchema.Community, {
+            id: message.communityId,
+            name: contact.results[0].name,
+            type: CommunityType.Peer,
+            createdAt: data.timestamp,
+            updatedAt: data.timestamp,
+            with: message.sender,
+          });
+        }
 
         dbManager.createObject(RealmSchema.Community, {
           id: message.communityId,
@@ -213,19 +216,58 @@ export default class ChatPeerManager {
     }
   };
 
-  // async syncContacts() {
-  //   try {
-  //     const contacts = dbManager.getCollection(RealmSchema.Contact);
-  //     const response = await Relay.getWalletProfiles(contacts.map((c) => c.contactKey));
-  //     if (response.results.length > 0) {
-  //       dbManager.createObjectBulk(
-  //         RealmSchema.Contact,
-  //         response.results,
-  //         Realm.UpdateMode.Modified
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error('Error syncing contacts:', error);
-  //   }
-  // }
+  // Mock method for testing - returns random contact objects
+  mockGetWalletProfiles(contactKeys: string[]) {
+    const mockNames = [
+      'Alice Johnson',
+      'Bob Smith',
+      'Charlie Brown',
+      'Diana Prince',
+      'Eve Davis',
+      'Frank Miller',
+      'Grace Lee',
+      'Henry Wilson',
+      'Ivy Chen',
+      'Jack Turner',
+    ];
+
+    const mockImageUrls = [
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Diana',
+      'https://api.dicebear.com/7.x/avataaars/svg?seed=Eve',
+    ];
+
+    const results = contactKeys.map((contactKey) => ({
+      appID: `app_${Math.random().toString(36).substr(2, 9)}`,
+      contactKey,
+      name: mockNames[Math.floor(Math.random() * mockNames.length)],
+      imageUrl: mockImageUrls[Math.floor(Math.random() * mockImageUrls.length)],
+    }));
+
+    return {
+      results,
+      success: true,
+      message: 'Mock wallet profiles retrieved successfully',
+    };
+  }
+
+  async syncContacts() {
+    try {
+      const contacts: Contact[] = dbManager.getCollection(RealmSchema.Contact) as any;
+      // const response = await Relay.getWalletProfiles(contacts.map((c) => c.contactKey));
+      const response = await this.mockGetWalletProfiles(contacts.map((c) => c.contactKey));
+
+      if (response.results.length > 0) {
+        dbManager.createObjectBulk(
+          RealmSchema.Contact,
+          response.results,
+          Realm.UpdateMode.Modified
+        );
+      }
+    } catch (error) {
+      console.error('Error syncing contacts:', error);
+    }
+  }
 }
