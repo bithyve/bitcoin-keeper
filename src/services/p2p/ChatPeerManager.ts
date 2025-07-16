@@ -137,16 +137,6 @@ export default class ChatPeerManager {
                 with: message.sender,
               });
             }
-
-            dbManager.createObject(RealmSchema.Community, {
-              id: communityId,
-              communityId: communityId,
-              // name: contact.results[0].name,
-              type: CommunityType.Peer,
-              createdAt: msg.timestamp,
-              updatedAt: msg.timestamp,
-              with: message.sender,
-            });
           }
           dbManager.createObject(RealmSchema.Message, {
             id: message.id,
@@ -188,15 +178,6 @@ export default class ChatPeerManager {
             with: message.sender,
           });
         }
-
-        dbManager.createObject(RealmSchema.Community, {
-          id: message.communityId,
-          // name: contact.results[0].name,
-          type: CommunityType.Peer,
-          createdAt: data.timestamp,
-          updatedAt: data.timestamp,
-          with: message.sender,
-        });
       }
 
       dbManager.createObject(RealmSchema.Message, {
