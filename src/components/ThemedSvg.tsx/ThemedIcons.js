@@ -316,8 +316,24 @@ import BuyAcquireArrowGold from 'src/assets/privateImages/acquire-buy-gold-arrow
 import CoinsIcon from 'src/assets/images/coins.svg';
 import CoinIconLight from 'src/assets/images/coinsLight.svg';
 import CoinsIconPrivate from 'src/assets/privateImages/coinsPrivate.svg';
+import ContactHeaderLight from 'src/assets/images/contact-header-light.svg';
+import ContactHeaderDark from 'src/assets/images/contact-header-dark.svg';
+import ContactFooterLight from 'src/assets/images/Contact-footer-light.svg';
+import ContactFooterDark from 'src/assets/images/Contact-footer-dark.svg';
 
 const themeIcons = {
+  contact_footer: {
+    DARK: ContactFooterDark,
+    LIGHT: ContactFooterLight,
+    PRIVATE: ContactFooterDark,
+    PRIVATE_LIGHT: ContactFooterLight,
+  },
+  contact_header: {
+    DARK: ContactHeaderDark,
+    LIGHT: ContactHeaderLight,
+    PRIVATE: ContactHeaderDark,
+    PRIVATE_LIGHT: ContactHeaderLight,
+  },
   acquire_send_arrow: {
     DARK: BuyAcquireArrowWhite,
     LIGHT: BuyAcquireArrow,

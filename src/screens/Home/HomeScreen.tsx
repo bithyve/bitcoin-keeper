@@ -18,11 +18,11 @@ import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
-import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
+import Contact from './components/Contact/component/Contact';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -37,7 +37,12 @@ function NewHomeScreen({ route }) {
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText } = translations;
+  const {
+    home: homeTranslation,
+    wallet: walletText,
+    buyBTC: buyBTCText,
+    contactText,
+  } = translations;
   const [selectedOption, setSelectedOption] = useState(
     selectedOptionFromRoute || walletText.homeWallets
   );
@@ -95,11 +100,11 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case walletText.concierge:
+      case contactText.contacts:
         return {
           content: (
             <Box>
-              <TechnicalSupport route={route} />
+              <Contact />
             </Box>
           ),
           icon: (
@@ -107,7 +112,7 @@ function NewHomeScreen({ route }) {
               width={wp(39)}
               icon={
                 <ThemedSvg
-                  name={'header_concierge'}
+                  name={'contact_header'}
                   width={wp(20)}
                   height={hp(20)}
                   style={{ marginRight: wp(1), marginBottom: hp(1) }}

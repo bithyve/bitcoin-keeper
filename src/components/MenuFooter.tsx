@@ -4,7 +4,6 @@ import { Platform, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import WalletIcon from 'src/assets/images/Wallet-grey.svg';
 import KeyIcon from 'src/assets/images/key-grey.svg';
-import ConciergeIcon from 'src/assets/images/faq-grey.svg';
 import MoreIcon from 'src/assets/images/more-grey.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from './KeeperText';
@@ -12,12 +11,13 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from './ThemedColor/ThemedColor';
 import BtcLogoGrey from 'src/assets/images/Btc-Logo-grey.svg';
+import ContactIcon from 'src/assets/images/contact-footer-default.svg';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslation, buyBTC: buyBTCTranslation } = translations;
+  const { wallet: walletTranslation, buyBTC: buyBTCTranslation, contactText } = translations;
   const selectedFooterColor = ThemedColor({ name: 'footer_selected_option' });
 
   const menuOptions = [
@@ -37,9 +37,9 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(22)} height={hp(22)} />,
     },
     {
-      name: walletTranslation.concierge,
-      defaultIcon: <ConciergeIcon />,
-      selectedIcon: <ThemedSvg name={'footer_concierge'} />,
+      name: contactText.contacts,
+      defaultIcon: <ContactIcon />,
+      selectedIcon: <ThemedSvg name={'contact_footer'} />,
     },
     {
       name: walletTranslation.more,
