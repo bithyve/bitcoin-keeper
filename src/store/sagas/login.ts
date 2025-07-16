@@ -69,6 +69,8 @@ import {
 } from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
 import { loadConciergeUserOnLogin, saveBackupMethodByAppId } from '../sagaActions/account';
+import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
+import idx from 'idx';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -189,12 +191,21 @@ function* credentialsAuthWorker({ payload }) {
         yield select((state) => state.storage);
 
       // setting correct app id from realm at login
-      const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const keeperApp: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
       if (keeperApp?.id) yield put(setAppId(keeperApp.id));
 
       // Store temporary account details
       if (!allAccounts.length) {
         yield put(setTempDetails({ hash, realmId: REALM_FILE, accountIdentifier: '' }));
+      }
+
+      const contactsSecretKey = idx(keeperApp, (app) => app.contactsKey.secretKey);
+      if (contactsSecretKey) {
+        // initiate the contacts manager if the contacts feature is active
+        const cm = ChatPeerManager.getInstance();
+        cm.init(keeperApp.primarySeed).then((success) =>
+          console.log(`Initialized contacts manager: ${success}`)
+        );
       }
 
       const newVersion = DeviceInfo.getVersion();
