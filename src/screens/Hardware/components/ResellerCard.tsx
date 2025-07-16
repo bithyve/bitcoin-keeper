@@ -60,10 +60,10 @@ const ResellerCard = (props: Props) => {
           primaryBackgroundColor={`${colorMode}.SeaweedGreen`}
           fullWidth
           paddingVertical={hp(10)}
-          primaryFontWeight="medium"
           RightIcon={ShopIcon}
           borderRadius={6}
           primaryCallback={() => openLink(props.link)}
+          primaryFontWeight="400"
         />
         {props.plan ? (
           props.unSubscribeText ? (
