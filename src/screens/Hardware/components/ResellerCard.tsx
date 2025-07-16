@@ -41,7 +41,7 @@ const ResellerCard = (props: Props) => {
           </Text>
           <Box style={styles.locationContainer}>
             {isDarkMode ? <LocationIconDark /> : <LocationIcon />}
-            <Text fontSize={13} color={`${colorMode}.secondaryDarkGrey`}>
+            <Text fontSize={13} color={`${colorMode}.placeHolderTextColor`}>
               {props.location}
             </Text>
           </Box>
