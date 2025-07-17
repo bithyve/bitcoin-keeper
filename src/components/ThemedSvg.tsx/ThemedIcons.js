@@ -320,8 +320,16 @@ import ContactHeaderLight from 'src/assets/images/contact-header-light.svg';
 import ContactHeaderDark from 'src/assets/images/contact-header-dark.svg';
 import ContactFooterLight from 'src/assets/images/Contact-footer-light.svg';
 import ContactFooterDark from 'src/assets/images/Contact-footer-dark.svg';
+import ShareLight from 'src/assets/images/share-green.svg';
+import ShareDark from 'src/assets/images/share-white.svg';
 
 const themeIcons = {
+  share_icons: {
+    DARK: ShareDark,
+    LIGHT: ShareLight,
+    PRIVATE: ShareDark,
+    PRIVATE_LIGHT: ShareLight,
+  },
   contact_footer: {
     DARK: ContactFooterDark,
     LIGHT: ContactFooterLight,
