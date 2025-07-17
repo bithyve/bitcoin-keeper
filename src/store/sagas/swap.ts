@@ -34,7 +34,7 @@ function* getSwapQuoteWorker({ coinFrom, coinTo, amount, float, callback }) {
     if (callback)
       callback({
         status: true,
-        amount: coinTo.code === 'BTC' ? quote.amount : parseFloat(quote.amount).toFixed(3),
+        amount: coinTo.code === 'BTC' ? quote.amount : parseFloat(quote.amount).toFixed(2),
         rateId: quote?.rate_id,
       });
   } catch (error) {
