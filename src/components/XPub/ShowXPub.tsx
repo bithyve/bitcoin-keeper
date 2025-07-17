@@ -52,7 +52,7 @@ function ShowXPub({
         </Box>
         {copyable && (
           <Box style={styles.center}>
-            <WalletCopiableData data={details} copy={copy} dataType="xpub" />
+            <WalletCopiableData data={details} copy={copy} dataType="xpub" height={hp(65)} />
           </Box>
         )}
       </Box>

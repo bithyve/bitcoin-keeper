@@ -6,6 +6,7 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useGetInUK } from 'src/hooks/useGetInUK';
 
 interface AcquireCardProps {
   icon?: React.ReactElement;
@@ -33,6 +34,7 @@ const AcquireCard: React.FC<AcquireCardProps> = ({
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { buyBTC: buyBTCText } = translations;
+  const { sanitizeBuyText } = useGetInUK();
   return (
     <Box
       style={styles.container}
@@ -69,7 +71,7 @@ const AcquireCard: React.FC<AcquireCardProps> = ({
           >
             <ThemedSvg name={'acquire_send_arrow'} />
             <Text semiBold color={`${colorMode}.AcquireText`}>
-              {buyBTCText.buy}*
+              {sanitizeBuyText(buyBTCText.buy)}*
             </Text>
           </Box>
         </TouchableOpacity>

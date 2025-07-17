@@ -881,7 +881,7 @@ function SigningDeviceDetails({ route }) {
                 data={signer.masterFingerprint}
                 dataType="fingerprint"
                 width="95%"
-                height={62}
+                height={65}
               />
             </Box>
             <HardwareModalMap
