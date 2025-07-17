@@ -14,7 +14,6 @@ import RPC from 'bare-rpc';
 import b4a from 'b4a';
 
 import { Buffer } from 'buffer';
-import * as config from './config.mjs';
 global.Buffer = Buffer;
 
 const { IPC } = BareKit;
@@ -22,7 +21,7 @@ const { IPC } = BareKit;
 let keyPair;
 const connections = new Map();
 
-const RELAY_PUB_KEY = config.RELAY_PEER_PUB_KEY;
+const RELAY_PUB_KEY = ''; // replace with actual relay public key from .env while building the app.bundle.mjs (config.ts import fails to load in worklet)
 
 const rpc = new RPC(IPC, (req, error) => {
   try {
