@@ -273,6 +273,14 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
 
   // Process each new transaction
   newTransactions.forEach((newTx) => {
+    if (
+      newTx.from === wallet.accountStatus.gasFreeAddress &&
+      newTx.to === USDT.getUSDTGasFreeFeeAddress(wallet.networkType)
+    ) {
+      // Skip transactions that are just gas-free fees transfer to service provider(duplicate)
+      return;
+    }
+
     const existingIndex = updatedExistingTransactions.findIndex((existingTx) => {
       return newTx.txId && existingTx.txId && newTx.txId === existingTx.txId;
     });
