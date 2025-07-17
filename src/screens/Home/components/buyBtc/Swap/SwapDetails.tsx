@@ -93,7 +93,7 @@ export const SwapDetails = ({ navigation, route }) => {
       CommonActions.navigate('SendConfirmation', {
         sender: wallet,
         internalRecipients: [],
-        addresses: data.deposit,
+        addresses: [data.deposit],
         amounts: data.deposit_amount * SATOSHIS_IN_BTC,
         note: '',
         selectedUTXOs: [],
