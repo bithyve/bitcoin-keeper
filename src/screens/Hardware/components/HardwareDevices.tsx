@@ -40,8 +40,8 @@ const HardwareDevices = ({ sellers }) => {
       flagIcon: <FlagSwizerland />,
       country: walletText.hardwareBitBoxCountry,
       link: getSellerLink('bitbox'),
-      subscribeText: '',
-      unSubscribeText: '',
+      subscribeText: walletText.hardwareBitboxDiscount,
+      unSubscribeText: walletText.hardwareBitboxDiscount,
     },
     {
       id: 2,
