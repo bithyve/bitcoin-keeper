@@ -156,6 +156,7 @@ import UsdtTransactionHistory from 'src/screens/USDT/UsdtTransactionHistory';
 import Usdtsetting from 'src/screens/USDT/Usdtsetting';
 import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
+import ChatRoomScreen from 'src/screens/Home/components/Contact/ChatRoomScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -276,6 +277,7 @@ function AppStack() {
         <Stack.Screen name="usdtTransactionDetail" component={UsdtTransactionDetail} />
         <Stack.Screen name="usdtTransactionHistory" component={UsdtTransactionHistory} />
         <Stack.Screen name="usdtsetting" component={Usdtsetting} />
+        <Stack.Screen name="ChatRoomScreen" component={ChatRoomScreen} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />

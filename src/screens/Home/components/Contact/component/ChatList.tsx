@@ -13,8 +13,9 @@ const chatData = [
     id: '1',
     name: 'John Doe',
     lastMessage: 'Hey! Are you available tomorrow?',
-    image: '',
-    date: '2023-10-01T1:00:00',
+    image:
+      'file:///Users/mac/Library/Developer/CoreSimulator/Devices/2C667219-79A1-4604-9AC8-183891E43BA9/data/Containers/Data/Application/9389AA84-812B-4523-BA70-4581CEE2193E/tmp/BC7D0137-3ABA-42DF-9EC4-F0F6556B70DD.jpg',
+    date: '2025-07-17T12:00:00',
     message_count: 2,
   },
   {
@@ -30,7 +31,7 @@ const chatData = [
     name: 'Bob Johnson',
     lastMessage: 'I sent the documents.',
     image: '',
-    date: '2023-10-01T13:40:00',
+    date: '2025-07-16T12:00:00',
     message_count: 0,
   },
 ];

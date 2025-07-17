@@ -7,12 +7,15 @@ import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import EditIcon from 'src/assets/images/contact-edit.svg';
 import { wp } from 'src/constants/responsive';
 
-type Props = {};
+type Props = {
+  userProfileImage: string | null;
+  userProfileName: string;
+  setCreateProfile: any;
+};
 
-const ContactHeader = (props: Props) => {
+const ContactHeader = ({ userProfileImage, userProfileName, setCreateProfile }: Props) => {
   const { colorMode } = useColorMode();
-  const userProfileImage = '';
-  const userProfileName = '';
+
   return (
     <Box style={styles.header}>
       <Box
@@ -35,12 +38,19 @@ const ContactHeader = (props: Props) => {
             <Text style={styles.text} color={`${colorMode}.modalSubtitleBlack`} semiBold>
               {userProfileName || 'Name'}
             </Text>
-            <Text fontSize={12} color={`${colorMode}.secondaryText`}>
-              For easy identification 
-            </Text>
+            {!userProfileName && (
+              <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+                For easy identification 
+              </Text>
+            )}
           </Box>
         </Box>
-        <TouchableOpacity onPress={() => {}} style={styles.edit_icon}>
+        <TouchableOpacity
+          onPress={() => {
+            setCreateProfile(true);
+          }}
+          style={styles.edit_icon}
+        >
           <EditIcon />
         </TouchableOpacity>
       </Box>

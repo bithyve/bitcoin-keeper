@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
@@ -11,14 +11,23 @@ import PinIcon from 'src/assets/images/Pin.svg';
 import ChatList from './ChatList';
 import Buttons from 'src/components/Buttons';
 import ContactAddicon from 'src/assets/images/contact-add-icon.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import ProfileContent from './ProfileContent';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const [createProfile, setCreateProfile] = useState(false);
+  const [userProfileImage, setUserProfileImage] = useState(null);
+  const [userProfileName, setUserProfileName] = useState('');
 
   return (
     <Box style={styles.container}>
-      <ContactHeader />
+      <ContactHeader
+        userProfileImage={userProfileImage}
+        userProfileName={userProfileName}
+        setCreateProfile={setCreateProfile}
+      />
       <Box style={styles.chat_heading}>
         <Text color={`${colorMode}.modalSubtitleBlack`} medium fontSize={16}>
           Recent Chats
@@ -50,7 +59,7 @@ const Contact = () => {
             </Box>
           </TouchableOpacity>
         </Box>
-        <ChatList userProfileImage="" />
+        <ChatList userProfileImage={userProfileImage} />
       </ScrollView>
       <Box style={styles.bottomButton}>
         <Buttons
@@ -60,6 +69,24 @@ const Contact = () => {
           LeftIcon={ContactAddicon}
         />
       </Box>
+      <KeeperModal
+        visible={createProfile}
+        close={() => setCreateProfile(false)}
+        title="Edit Your Profile"
+        subTitle="Add a name/nym and an optional photo."
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Content={() => (
+          <ProfileContent
+            setUserProfileImage={setUserProfileImage}
+            setUserProfileName={setUserProfileName}
+            setCreateProfile={setCreateProfile}
+            userProfileImage={userProfileImage}
+            userProfileName={userProfileName}
+          />
+        )}
+      />
     </Box>
   );
 };
