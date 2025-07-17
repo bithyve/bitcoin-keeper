@@ -16,6 +16,7 @@ import { hp, wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import PlusIcon from 'src/assets/images/plus-green-icon.svg';
 import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
+import SendWhiteIcon from 'src/assets/images/send-white-icon.svg';
 
 // dummy data
 const initialMessages = [
@@ -284,7 +285,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
             />
             <TouchableOpacity onPress={handleSend}>
               <Box style={styles.sendButton} backgroundColor={`${colorMode}.pantoneGreen`}>
-                {/* <SendIcon width={20} height={20} /> */}
+                <SendWhiteIcon width={20} height={20} />
               </Box>
             </TouchableOpacity>
           </Box>

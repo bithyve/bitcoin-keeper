@@ -13,6 +13,7 @@ import Buttons from 'src/components/Buttons';
 import ContactAddicon from 'src/assets/images/contact-add-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './ProfileContent';
+import { useNavigation } from '@react-navigation/native';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -20,6 +21,7 @@ const Contact = () => {
   const [createProfile, setCreateProfile] = useState(false);
   const [userProfileImage, setUserProfileImage] = useState(null);
   const [userProfileName, setUserProfileName] = useState('');
+  const navigation = useNavigation();
 
   return (
     <Box style={styles.container}>
@@ -35,7 +37,12 @@ const Contact = () => {
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.concierge_container} borderColor={`${colorMode}.separator`}>
-          <TouchableOpacity style={styles.concierge} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.concierge}
+            onPress={() => {
+              navigation.navigate('keeperSupport');
+            }}
+          >
             <Box style={styles.concierge_icon}>
               <CircleIconWrapper
                 width={wp(45)}
