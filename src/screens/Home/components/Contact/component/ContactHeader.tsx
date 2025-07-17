@@ -10,10 +10,18 @@ import { wp } from 'src/constants/responsive';
 type Props = {
   userProfileImage: string | null;
   userProfileName: string;
-  setCreateProfile: any;
+  setCreateProfile: (visible: boolean) => void;
+  setContactModalVisible: (visible: boolean) => void;
+  setShareContact: (share: boolean) => void;
 };
 
-const ContactHeader = ({ userProfileImage, userProfileName, setCreateProfile }: Props) => {
+const ContactHeader = ({
+  userProfileImage,
+  userProfileName,
+  setCreateProfile,
+  setContactModalVisible,
+  setShareContact,
+}: Props) => {
   const { colorMode } = useColorMode();
 
   return (
@@ -54,7 +62,12 @@ const ContactHeader = ({ userProfileImage, userProfileName, setCreateProfile }: 
           <EditIcon />
         </TouchableOpacity>
       </Box>
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity
+        onPress={() => {
+          setContactModalVisible(true);
+          setShareContact(true);
+        }}
+      >
         <Box
           style={styles.share_icon}
           borderColor={`${colorMode}.separator`}

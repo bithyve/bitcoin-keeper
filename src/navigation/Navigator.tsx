@@ -158,6 +158,7 @@ import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
 import ChatRoomScreen from 'src/screens/Home/components/Contact/ChatRoomScreen';
 import KeeperSupport from 'src/screens/Concierge/KeeperSupport';
+import ContactShareQr from 'src/screens/Home/components/Contact/ContactShowQr';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -280,6 +281,7 @@ function AppStack() {
         <Stack.Screen name="usdtsetting" component={Usdtsetting} />
         <Stack.Screen name="ChatRoomScreen" component={ChatRoomScreen} />
         <Stack.Screen name="keeperSupport" component={KeeperSupport} />
+        <Stack.Screen name="ContactShareQr" component={ContactShareQr} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />

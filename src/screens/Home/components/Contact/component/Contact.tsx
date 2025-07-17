@@ -14,6 +14,7 @@ import ContactAddicon from 'src/assets/images/contact-add-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './ProfileContent';
 import { useNavigation } from '@react-navigation/native';
+import ContactModalData from './ContactModalData';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -22,6 +23,8 @@ const Contact = () => {
   const [userProfileImage, setUserProfileImage] = useState(null);
   const [userProfileName, setUserProfileName] = useState('');
   const navigation = useNavigation();
+  const [contactmodalVisible, setContactModalVisible] = useState(false);
+  const [shareContact, setShareContact] = useState(false);
 
   return (
     <Box style={styles.container}>
@@ -29,6 +32,8 @@ const Contact = () => {
         userProfileImage={userProfileImage}
         userProfileName={userProfileName}
         setCreateProfile={setCreateProfile}
+        setContactModalVisible={setContactModalVisible}
+        setShareContact={setShareContact}
       />
       <Box style={styles.chat_heading}>
         <Text color={`${colorMode}.modalSubtitleBlack`} medium fontSize={16}>
@@ -71,7 +76,10 @@ const Contact = () => {
       <Box style={styles.bottomButton}>
         <Buttons
           primaryText="Add Contact"
-          primaryCallback={() => {}}
+          primaryCallback={() => {
+            setContactModalVisible(true);
+            setShareContact(false);
+          }}
           fullWidth
           LeftIcon={ContactAddicon}
         />
@@ -91,6 +99,22 @@ const Contact = () => {
             setCreateProfile={setCreateProfile}
             userProfileImage={userProfileImage}
             userProfileName={userProfileName}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={contactmodalVisible}
+        close={() => setContactModalVisible(false)}
+        title={shareContact ? 'Share Contact Info' : 'Add a New Contact'}
+        subTitle="Choose how to add the contact"
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        Content={() => (
+          <ContactModalData
+            isShareContact={shareContact}
+            setContactModalVisible={setContactModalVisible}
+            navigation={navigation}
           />
         )}
       />
@@ -133,6 +157,7 @@ const styles = StyleSheet.create({
     gap: wp(6),
   },
   bottomButton: {
-    marginVertical: wp(20),
+    marginTop: wp(10),
+    marginBottom: wp(15),
   },
 });

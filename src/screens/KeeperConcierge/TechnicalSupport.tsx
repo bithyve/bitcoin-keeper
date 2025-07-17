@@ -2,7 +2,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from 'src/components/ContentWrapper';
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import TicketHistory from './components/TicketHistory';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -33,6 +33,10 @@ import { AccountManagerCard } from './components/AccountManagerCard';
 import Relay from 'src/services/backend/Relay';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import ConciergeIcon from 'src/assets/images/faqWhiteIcon.svg';
+import Fonts from 'src/constants/Fonts';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CreateTicket'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
@@ -143,6 +147,24 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
       loading={loading || conciergeLoading}
       wrapperStyle={{ paddingTop: hp(0) }}
     >
+      <Box style={styles.header} borderBottomColor={`${colorMode}.separator`}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+          style={styles.backButton}
+        >
+          <ThemedSvg name={'back_Button'} />
+        </TouchableOpacity>
+        <CircleIconWrapper
+          width={wp(40)}
+          icon={<ConciergeIcon width={wp(20)} height={wp(20)} />}
+          backgroundColor={`${colorMode}.pantoneGreen`}
+        />
+        <Text color={`${colorMode}.primaryText`} style={styles.headerText} medium>
+          Keeper Support
+        </Text>
+      </Box>
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         {isKeeperPrivate ? (
           accountManagerDetails ? (
@@ -194,6 +216,24 @@ const styles = StyleSheet.create({
     height: hp(173),
     alignSelf: 'center',
     marginBottom: hp(20),
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingBottom: hp(24),
+    marginBottom: hp(20),
+    borderBottomWidth: 1,
+  },
+  headerText: {
+    fontSize: 18,
+    fontFamily: Fonts.LoraMedium,
+    marginLeft: wp(13),
+  },
+  backButton: {
+    height: hp(40),
+    width: wp(40),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
