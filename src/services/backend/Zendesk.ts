@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import { zendeskApi, zendeskEndpoints } from '../rest/ZendeskClient';
 import { conciergeUser } from 'src/store/reducers/concierge';
 import config, { APP_STAGE } from 'src/utils/service-utilities/config';
@@ -14,38 +13,6 @@ const isDev = config.ENVIRONMENT === APP_STAGE.DEVELOPMENT;
 const zendeskSupport = 16685599304861;
 
 export default class Zendesk {
-  public static fetchZendeskUser = async (userExternalId: string): Promise<any> => {
-    try {
-      const res = await zendeskApi.get(zendeskEndpoints.getUsers, {
-        params: {
-          external_id: userExternalId,
-        },
-      });
-      return { data: res.data, status: res.status };
-    } catch (error) {
-      console.log('🚀 ~fetchZendeskUser ~ error:', error);
-      throw new Error('Something went wrong');
-    }
-  };
-
-  public static createZendeskUser = async (userExternalId: string): Promise<any> => {
-    try {
-      const body = {
-        user: {
-          name: `${Platform.OS} User ${userExternalId}`,
-          email: null,
-          role: 'end-user',
-          external_id: userExternalId,
-        },
-      };
-      const res = await zendeskApi.post(zendeskEndpoints.createUser, body);
-      return { data: res.data, status: res.status };
-    } catch (error) {
-      console.log('🚀 ~ Zendesk ~ createZendeskUser= ~ error:', error);
-      throw new Error('Something went wrong');
-    }
-  };
-
   public static createZendeskTicket = async ({
     desc,
     imageToken,

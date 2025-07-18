@@ -37,10 +37,10 @@ function* loadConciergeUserWorker() {
     userExternalId = userExternalId.toString().substring(0, 24);
     yield put(setConciergeLoading(true));
 
-    let res = yield call(ZendeskClass.fetchZendeskUser, userExternalId);
+    let res = yield call(Relay.getZendeskUser, userExternalId);
     if (res?.data?.users?.length == 0) {
       // User not found | create user
-      res = yield call(ZendeskClass.createZendeskUser, userExternalId);
+      res = yield call(Relay.createZendeskUser, userExternalId);
     }
     if (res.status === 201 || res.status === 200) {
       // success
