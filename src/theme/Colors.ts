@@ -155,5 +155,6 @@ const Colors = {
   graybeige: 'rgba(211, 209, 206, 0.15)',
   stoneGrey: 'rgba(211, 209, 206, 0.5)',
   coolGrey: 'rgba(211, 209, 206, 1)',
+  lightstone: 'rgba(121, 121, 121, 1)',
 };
 export default Colors;

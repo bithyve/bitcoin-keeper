@@ -298,7 +298,7 @@ export const customTheme = extendTheme({
       activationFeeText: Colors.bodyText,
       greybeige: Colors.secondaryBlack,
       AcquireText: Colors.bodyText,
-      stoneGrey: Colors.stoneGrey,
+      stoneGrey: Colors.lightstone,
       coolGrey: Colors.bodyText,
       subchatText: Colors.primaryCream,
       SlateWhite: Colors.primaryCream,

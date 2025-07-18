@@ -212,7 +212,6 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                             },
                             styles.messageContent,
                           ]}
-                          borderColor={`${colorMode}.separator`}
                         >
                           <Text style={styles.messageText} color={`${colorMode}.subchatText`}>
                             {msg.text}
@@ -361,7 +360,6 @@ const styles = StyleSheet.create({
     paddingVertical: wp(10),
     paddingHorizontal: wp(14),
     borderRadius: 12,
-    borderWidth: 1,
   },
   seperator: {
     height: 30,

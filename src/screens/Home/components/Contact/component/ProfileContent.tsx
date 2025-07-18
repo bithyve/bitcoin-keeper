@@ -3,12 +3,11 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import { wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/profile-placeHolder.png';
-import PlaceholderWhiteImage from 'src/assets/images/placeholder-whote-image.png';
+import PlaceholderWhiteImage from 'src/assets/images/placeholder-image-dark.png';
 import { useEffect, useState } from 'react';
-import AddImageIcon from 'src/assets/images/add-image-icon.svg';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Buttons from 'src/components/Buttons';
-import ChangeProfileImageIcon from 'src/assets/images/change-profile-icon.svg';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const ProfileContent = ({
   setUserProfileImage,
@@ -78,9 +77,9 @@ const ProfileContent = ({
           )}
           <TouchableOpacity style={styles.addImageIcon} onPress={pickImage}>
             {profileImage ? (
-              <ChangeProfileImageIcon width={wp(35)} height={wp(35)} />
+              <ThemedSvg name={'edit_profile_icons'} width={wp(35)} height={wp(35)} />
             ) : (
-              <AddImageIcon width={wp(35)} height={wp(35)} />
+              <ThemedSvg name={'add_profile_icons'} width={wp(35)} height={wp(35)} />
             )}
           </TouchableOpacity>
         </Box>

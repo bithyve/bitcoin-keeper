@@ -2,21 +2,15 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Image, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
-import BackBlackButton from 'src/assets/images/header-arrow-icon.svg';
-import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
-import PrivateBackButton from 'src/assets/privateImages/gold-back-arrow.svg';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-// import EditIcon from 'src/assets/images/edit-pencil-icon.svg';
 import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png';
 import { StatusBar } from 'react-native';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 const ChatRoomHeader = ({ receiverProfileImage, receiverProfileName, setOpenEditModal }) => {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const themeMode = useSelector((state: any) => state?.settings?.themeMode);
-  const privateTheme = themeMode === 'PRIVATE';
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
@@ -28,34 +22,34 @@ const ChatRoomHeader = ({ receiverProfileImage, receiverProfileName, setOpenEdit
       >
         <Box style={styles.WrapperContainer}>
           <TouchableOpacity onPress={navigation.goBack} style={styles.backButton}>
-            {privateTheme ? (
-              <PrivateBackButton />
-            ) : colorMode === 'light' ? (
-              <BackBlackButton />
-            ) : (
-              <BackWhiteButton />
-            )}
+            <ThemedSvg name={'back_Button'} />
           </TouchableOpacity>
-          <Box style={styles.profile_image_container}>
-            {receiverProfileImage ? (
-              <Image
-                source={{ uri: receiverProfileImage }}
-                alt="profileImage"
-                style={styles.profile_image}
-                resizeMode="cover"
-              />
-            ) : (
-              <Image source={ChatPlaceHolderIcon} style={styles.profile_image} alt="placeHolder" />
-            )}
-          </Box>
+          <TouchableOpacity
+            style={styles.profile_image_container}
+            onPress={() => setOpenEditModal(true)}
+          >
+            <Box>
+              {receiverProfileImage ? (
+                <Image
+                  source={{ uri: receiverProfileImage }}
+                  alt="profileImage"
+                  style={styles.profile_image}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Image
+                  source={ChatPlaceHolderIcon}
+                  style={styles.profile_image}
+                  alt="placeHolder"
+                />
+              )}
+            </Box>
 
-          <Box>
-            <Text color={`${colorMode}.primaryText`} semiBold style={styles.text}>
-              {receiverProfileName}
-            </Text>
-          </Box>
-          <TouchableOpacity onPress={() => setOpenEditModal(true)}>
-            {/* <EditIcon /> */}
+            <Box>
+              <Text color={`${colorMode}.primaryText`} semiBold style={styles.text}>
+                {receiverProfileName}
+              </Text>
+            </Box>
           </TouchableOpacity>
         </Box>
       </Box>
@@ -92,7 +86,6 @@ const styles = StyleSheet.create({
   },
   profile_image_container: {
     flexDirection: 'row',
-    gap: wp(10),
     alignItems: 'center',
     justifyContent: 'center',
   },

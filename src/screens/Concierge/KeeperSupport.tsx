@@ -25,6 +25,6 @@ export default KeeperSupport;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: wp(20),
+    paddingTop: wp(10),
   },
 });

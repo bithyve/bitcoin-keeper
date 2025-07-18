@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import ChatRoomHeader from './component/ChatRoomHeader';
-import EditModalContent from './component/EditModalContent';
 import ChatRoom from './component/ChatRoom';
+import ProfileContent from './component/ProfileContent';
 
 type ChatRoomParams = {
   ChatRoomScreen: {
@@ -21,15 +21,16 @@ const ChatRoomScreen = () => {
   const { receiverProfileImage, receiverProfileName, userProfileImage } = route.params;
   const [editReceiverProfileName, setEditReceiverProfileName] = useState(receiverProfileName);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [editUserProfileImage, setEditUserProfileImage] = useState(receiverProfileImage);
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <ChatRoomHeader
-        receiverProfileImage={receiverProfileImage}
+        receiverProfileImage={editUserProfileImage}
         receiverProfileName={editReceiverProfileName}
         setOpenEditModal={setOpenEditModal}
       />
-      <ChatRoom userProfileImage={userProfileImage} receiverProfileImage={receiverProfileImage} />
+      <ChatRoom userProfileImage={userProfileImage} receiverProfileImage={editUserProfileImage} />
       <KeeperModal
         visible={openEditModal}
         close={() => setOpenEditModal(false)}
@@ -37,11 +38,15 @@ const ChatRoomScreen = () => {
         textColor={`${colorMode}.textGreen`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={() => (
-          <EditModalContent
-            setEditReceiverProfileName={setEditReceiverProfileName}
-            editReceiverProfileName={editReceiverProfileName}
-            setOpenEditModal={setOpenEditModal}
-          />
+          <>
+            <ProfileContent
+              setUserProfileImage={setEditUserProfileImage}
+              setUserProfileName={setEditReceiverProfileName}
+              setCreateProfile={setOpenEditModal}
+              userProfileImage={editUserProfileImage}
+              userProfileName={editReceiverProfileName}
+            />
+          </>
         )}
       />
     </Box>

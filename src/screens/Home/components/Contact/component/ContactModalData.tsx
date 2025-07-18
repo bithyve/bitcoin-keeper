@@ -155,7 +155,7 @@ function ContactModalData({ isShareContact = false, setContactModalVisible, navi
         <TouchableOpacity key={option.id} onPress={option.onPress}>
           <Box
             style={styles.container}
-            backgroundColor={`${colorMode}.textInputBackground`}
+            backgroundColor={`${colorMode}.boxSecondaryBackground`}
             borderColor={`${colorMode}.separator`}
             borderWidth={1}
           >
