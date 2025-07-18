@@ -601,4 +601,28 @@ export default class Relay {
     }
     return res ? res.data || res.json : null;
   };
+
+  public static uploadZendeskImages = async (imageObject): Promise<any> => {
+    let res;
+    try {
+      const formData = new FormData();
+      imageObject.forEach(async (image) => {
+        formData.append('files', {
+          uri: image.uri,
+          name: image.fileName,
+          type: image.type,
+        });
+      });
+      res = await RestClient.post(`${RELAY}uploadZendeskImages`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ uploadZendeskImages= ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
 }
