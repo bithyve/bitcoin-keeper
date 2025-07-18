@@ -37,6 +37,7 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ConciergeIcon from 'src/assets/images/faqWhiteIcon.svg';
 import Fonts from 'src/constants/Fonts';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CreateTicket'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
@@ -142,11 +143,8 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   };
 
   return (
-    <ConciergeScreenWrapper
-      barStyle="light-content"
-      loading={loading || conciergeLoading}
-      wrapperStyle={{ paddingTop: hp(0) }}
-    >
+    <>
+      <ActivityIndicatorView visible={loading || conciergeLoading} showLoader />
       <Box style={styles.header} borderBottomColor={`${colorMode}.separator`}>
         <TouchableOpacity
           onPress={() => {
@@ -189,7 +187,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
         textColor={`${colorMode}.modalWhiteContent`}
         Content={() => OnboardCallContent({ submitOnboardEmail })}
       />
-    </ConciergeScreenWrapper>
+    </>
   );
 };
 
