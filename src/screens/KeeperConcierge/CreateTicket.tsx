@@ -241,8 +241,8 @@ const CreateTicket = ({ navigation, route }) => {
       });
       if (res.status === 201) {
         dispatch(updateTicketCommentsCount({ [res.data.ticket.id.toString()]: 1 }));
-        const tickets = await Zendesk.fetchZendeskTickets(conciergeUser.id);
-        if (tickets.status === 200) dispatch(loadConciergeTickets(tickets.data.tickets));
+        const tickets = await Relay.getZendeskTickets(conciergeUser.id);
+        if (tickets.status === 200) dispatch(loadConciergeTickets(tickets.tickets));
         setModalTicketId(res.data.ticket.id);
         Keyboard.dismiss();
         setShowModal(true);

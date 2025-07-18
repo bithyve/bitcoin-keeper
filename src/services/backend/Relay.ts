@@ -619,7 +619,31 @@ export default class Relay {
         },
       });
     } catch (err) {
-      console.log('🚀 ~ Relay ~ uploadZendeskImages= ~ err:', err);
+      console.log('🚀 ~ Relay ~ uploadZendeskImages ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getZendeskTickets = async (conciergeUserId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getZendeskTickets?conciergeUserId=${conciergeUserId}`);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getZendeskTickets ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getZendeskTicketComments = async (ticketId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getZendeskTicketComments?ticketId=${ticketId}`);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getZendeskTicketComments ~ err:', err);
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }

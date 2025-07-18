@@ -25,9 +25,9 @@ import { useDispatch } from 'react-redux';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-black.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import Zendesk from 'src/services/backend/Zendesk';
 import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { useAppSelector } from 'src/store/hooks';
+import Relay from 'src/services/backend/Relay';
 
 const TicketNote = ({ note, closed = false }) => {
   const { colorMode } = useColorMode();
@@ -82,7 +82,7 @@ const TicketDetails = ({ route }) => {
   const loadComments = async () => {
     setLoading(true);
     try {
-      const res = await Zendesk.loadTicketComments(ticketId);
+      const res = await Relay.getZendeskTicketComments(ticketId);
       if (res.status === 200) {
         setComments(res.data.comments);
         // update comments count in state
