@@ -14,8 +14,7 @@ const chatData = [
     id: '1',
     name: 'John Doe',
     lastMessage: 'Hey! Are you available tomorrow?',
-    image:
-      'file:///Users/mac/Library/Developer/CoreSimulator/Devices/2C667219-79A1-4604-9AC8-183891E43BA9/data/Containers/Data/Application/FBE5364F-9652-4CBB-A5A0-649007152F46/tmp/A3814890-5695-4D50-A53B-420A052A904C.jpg',
+    image: '',
     date: '2025-07-17T12:00:00',
     message_count: 2,
   },
