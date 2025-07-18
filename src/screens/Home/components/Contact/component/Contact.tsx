@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
@@ -15,6 +15,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './ProfileContent';
 import { useNavigation } from '@react-navigation/native';
 import ContactModalData from './ContactModalData';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -25,7 +26,8 @@ const Contact = () => {
   const navigation = useNavigation();
   const [contactmodalVisible, setContactModalVisible] = useState(false);
   const [shareContact, setShareContact] = useState(false);
-
+  const { translations } = useContext(LocalizationContext);
+  const { contactText } = translations;
   return (
     <Box style={styles.container}>
       <ContactHeader
@@ -37,7 +39,7 @@ const Contact = () => {
       />
       <Box style={styles.chat_heading}>
         <Text color={`${colorMode}.modalSubtitleBlack`} medium fontSize={16}>
-          Recent Chats
+          {contactText.recentChats}
         </Text>
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -56,14 +58,15 @@ const Contact = () => {
               />
               <Box style={styles.concierge_text}>
                 <Text color={`${colorMode}.modalSubtitleBlack`} semiBold fontSize={14}>
-                  Keeper Support
+                  {contactText.keeperSupport}
                 </Text>
                 <Text fontSize={13} color={isDarkMode ? Colors.bodyText : Colors.primaryBrown}>
-                  We're here to help.
+                  {contactText.hereToHelp}
                 </Text>
               </Box>
             </Box>
             <Box style={styles.pinContainer}>
+              {/* place a time here */}
               <Text fontSize={13} color={isDarkMode ? Colors.bodyText : Colors.primaryBrown}>
                 10:45 AM
               </Text>
@@ -75,7 +78,7 @@ const Contact = () => {
       </ScrollView>
       <Box style={styles.bottomButton}>
         <Buttons
-          primaryText="Add Contact"
+          primaryText={contactText.addContact}
           primaryCallback={() => {
             setContactModalVisible(true);
             setShareContact(false);
@@ -87,8 +90,8 @@ const Contact = () => {
       <KeeperModal
         visible={createProfile}
         close={() => setCreateProfile(false)}
-        title="Edit Your Profile"
-        subTitle="Add a name/nym and an optional photo."
+        title={contactText.editProfile}
+        subTitle={contactText.editProfileDesc}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -105,8 +108,8 @@ const Contact = () => {
       <KeeperModal
         visible={contactmodalVisible}
         close={() => setContactModalVisible(false)}
-        title={shareContact ? 'Share Contact Info' : 'Add a New Contact'}
-        subTitle="Choose how to add the contact"
+        title={shareContact ? contactText.shareContact : contactText.addNewContact}
+        subTitle={contactText.chooseHowToAdd}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}

@@ -1,11 +1,12 @@
 import { Box, Image, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import EditIcon from 'src/assets/images/contact-edit.svg';
 import { wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
   userProfileImage: string | null;
@@ -23,6 +24,8 @@ const ContactHeader = ({
   setShareContact,
 }: Props) => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { contactText } = translations;
 
   return (
     <Box style={styles.header}>
@@ -44,11 +47,11 @@ const ContactHeader = ({
           )}
           <Box>
             <Text style={styles.text} color={`${colorMode}.modalSubtitleBlack`} semiBold>
-              {userProfileName || 'Name'}
+              {userProfileName || contactText.name}
             </Text>
             {!userProfileName && (
               <Text fontSize={12} color={`${colorMode}.secondaryText`}>
-                For easy identification 
+                {contactText.easyIdentification}
               </Text>
             )}
           </Box>
@@ -75,7 +78,7 @@ const ContactHeader = ({
         >
           <ThemedSvg name={'share_icons'} />
           <Text fontSize={12} color={`${colorMode}.modalSubtitleBlack`} medium>
-            Share
+            {contactText.share}
           </Text>
         </Box>
       </TouchableOpacity>

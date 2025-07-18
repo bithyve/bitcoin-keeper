@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -6,6 +6,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import ChatRoomHeader from './component/ChatRoomHeader';
 import ChatRoom from './component/ChatRoom';
 import ProfileContent from './component/ProfileContent';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type ChatRoomParams = {
   ChatRoomScreen: {
@@ -22,6 +23,8 @@ const ChatRoomScreen = () => {
   const [editReceiverProfileName, setEditReceiverProfileName] = useState(receiverProfileName);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editUserProfileImage, setEditUserProfileImage] = useState(receiverProfileImage);
+  const { translations } = useContext(LocalizationContext);
+  const { contactText } = translations;
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
@@ -34,7 +37,7 @@ const ChatRoomScreen = () => {
       <KeeperModal
         visible={openEditModal}
         close={() => setOpenEditModal(false)}
-        title="Edit Contact Name"
+        title={contactText?.editContactName}
         textColor={`${colorMode}.textGreen`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={() => (

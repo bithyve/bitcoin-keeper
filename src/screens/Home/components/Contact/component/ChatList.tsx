@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Image, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
@@ -6,6 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 // dummy chat data
 const chatData = [
@@ -40,14 +41,15 @@ const chatDatas = [];
 
 const PlaceHolderChat = () => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { contactText } = translations;
   return (
     <Box style={styles.placeHolderContainer} backgroundColor={`${colorMode}.primaryBackground`}>
       <Text style={styles.placeHolderText} medium>
-        No Contacts Yet
+        {contactText.noContactYet}
       </Text>
       <Text style={styles.placeholderDescription} color={`${colorMode}.secondaryText`}>
-        Please add your trusted contacts to send/receive sats, advice and the latest bitcoin
-        updates.
+        {contactText.noContactDesc}
       </Text>
     </Box>
   );

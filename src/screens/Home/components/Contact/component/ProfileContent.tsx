@@ -4,10 +4,11 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/profile-placeHolder.png';
 import PlaceholderWhiteImage from 'src/assets/images/placeholder-image-dark.png';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Buttons from 'src/components/Buttons';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const ProfileContent = ({
   setUserProfileImage,
@@ -20,6 +21,8 @@ const ProfileContent = ({
   const isDarkMode = colorMode === 'dark';
   const [profileImage, setProfileImage] = useState(null);
   const [profileName, setProfileName] = useState('');
+  const { translations } = useContext(LocalizationContext);
+  const { contactText, common } = translations;
 
   useEffect(() => {
     if (userProfileImage) {
@@ -86,14 +89,14 @@ const ProfileContent = ({
       </Box>
       <Box style={styles.input_container}>
         <KeeperTextInput
-          placeholder="Enter your name"
+          placeholder={contactText.enterName}
           value={profileName}
           onChangeText={(text) => setProfileName(text)}
           backgroundColor={`${colorMode}.primaryBackground`}
         />
       </Box>
       <Buttons
-        primaryText="Confirm"
+        primaryText={common.confirm}
         primaryBackgroundColor={`${colorMode}.pantoneGreen`}
         primaryTextColor={`${colorMode}.headerWhite`}
         fullWidth
