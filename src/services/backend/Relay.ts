@@ -677,4 +677,20 @@ export default class Relay {
     }
     return res ? res.data || res.json : null;
   };
+
+  public static addZendeskComment = async (ticketId, conciergeUserId, desc): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}addZendeskComment`, {
+        ticketId,
+        conciergeUserId,
+        desc,
+      });
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ addZendeskComment ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
 }

@@ -18,7 +18,6 @@ import ReachOutArrowLight from 'src/assets/images/reach-out-arrow-light.svg';
 import ReachOutArrowDark from 'src/assets/images/reach-out-arrow-dark.svg';
 
 import Text from 'src/components/KeeperText';
-import { zendeskApi, zendeskEndpoints } from 'src/services/rest/ZendeskClient';
 import KeeperIconRound from 'src/assets/images/keeperIconRound.svg';
 import { timeFromTimeStamp } from 'src/utils/utilities';
 import { useDispatch } from 'react-redux';
@@ -144,15 +143,7 @@ const TicketDetails = ({ route }) => {
   const addNewComment = async () => {
     setLoading(true);
     try {
-      const body = {
-        ticket: {
-          comment: {
-            author_id: conciergeUser.id,
-            body: newDesc,
-          },
-        },
-      };
-      const res = await zendeskApi.put(`${zendeskEndpoints.updateTicket}/${ticketId}`, body);
+      const res = await Relay.addZendeskComment(ticketId, conciergeUser.id, newDesc);
       if (res.status === 200) {
         await loadComments();
         setNewDesc('');
