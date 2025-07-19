@@ -262,6 +262,13 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
     })
   );
 
+  const existingTransactionsCache: { [txid: string]: number } = {}; // Cache for existing transactions by txId, helps to search by txId quickly
+  updatedExistingTransactions.forEach((existingTx, idx) => {
+    if (existingTx.txId) {
+      existingTransactionsCache[existingTx.txId] = idx;
+    }
+  });
+
   // Step 2: Fetch new transactions from USDT service
   const { transactions: latestTransactions } = await USDT.getUSDTTransactions(
     wallet.accountStatus.gasFreeAddress,
@@ -288,10 +295,7 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
   const mergedTransactions = [...updatedExistingTransactions];
   // Process each new transaction and create a unified transaction list
   newTransactions.forEach((newTx) => {
-    const existingIndex = updatedExistingTransactions.findIndex((existingTx) => {
-      return newTx.txId && existingTx.txId && newTx.txId === existingTx.txId;
-    });
-
+    const existingIndex = existingTransactionsCache[newTx.txId];
     if (existingIndex >= 0) {
       // Transaction exists - update it if the new one has more complete info
       const existingTx = updatedExistingTransactions[existingIndex];
@@ -320,8 +324,7 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
     } else {
       // New transaction - add it to the list
       if (newGasFreeFeeTransactions[newTx.txId]) {
-        // If there's a corresponding gas-free fee transaction, we should derive the fee from it
-
+        // If there's a corresponding gas-free fee transaction, we should derive the fee from it(case: syncing TRC-20 transactions during USDT wallet import)
         const totalFee = parseFloat(newGasFreeFeeTransactions[newTx.txId].amount);
         let transferFee = 0;
         let activateFee = 0;
