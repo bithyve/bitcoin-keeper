@@ -21,6 +21,7 @@ interface AmountDetailsProps {
   unitFontWeight?: number | string;
   unitColor?: string;
   customUnit?: string;
+  isUsdt?: boolean;
 }
 
 const AmountDetails: React.FC<AmountDetailsProps> = ({
@@ -36,6 +37,7 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
   unitFontWeight = 'normal',
   unitColor,
   customUnit = null,
+  isUsdt = false,
 }) => {
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
   const { colorMode } = useColorMode();
@@ -65,15 +67,14 @@ const AmountDetails: React.FC<AmountDetailsProps> = ({
               fontSize={amountFontSize}
               fontWeight={amountFontWeight}
             >
-              {`${getBalance(Number(amount))} `}
+              {isUsdt ? amount : `${getBalance(Number(amount))} `}
             </Text>
             <Text
               color={unitColor || `${colorMode}.secondaryText`}
               fontSize={unitFontSize || 14}
               fontWeight={unitFontWeight}
             >
-              {isCurrentCurrencyFiat ? '' : customUnit ?? getSatUnit()}
-              {isCurrentCurrencyFiat && currencyCode}
+              {isUsdt ? ' USDT' : isCurrentCurrencyFiat ? currencyCode : customUnit ?? getSatUnit()}
             </Text>
           </Box>
         </Box>
