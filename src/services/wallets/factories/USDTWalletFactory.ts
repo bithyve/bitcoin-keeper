@@ -263,24 +263,31 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
   );
 
   // Step 2: Fetch new transactions from USDT service
-  const { transactions: newTransactions } = await USDT.getUSDTTransactions(
+  const { transactions: latestTransactions } = await USDT.getUSDTTransactions(
     wallet.accountStatus.gasFreeAddress,
     wallet.networkType
   );
 
-  // Step 3: Merge transactions using updated existing transactions
-  const mergedTransactions = [...updatedExistingTransactions];
-
-  // Process each new transaction
-  newTransactions.forEach((newTx) => {
+  // Step 3: Filter out gas-free fee transactions
+  // We will keep these transactions separately to avoid duplicates
+  const newGasFreeFeeTransactions: { [key: string]: USDTTransaction } = {};
+  const newTransactions: USDTTransaction[] = []; // contains new transactions that are not gas-free fee transfers
+  for (let newTx of latestTransactions) {
     if (
       newTx.from === wallet.accountStatus.gasFreeAddress &&
       newTx.to === USDT.getUSDTGasFreeFeeAddress(wallet.networkType)
     ) {
       // Skip transactions that are just gas-free fees transfer to service provider(duplicate)
-      return;
+      newGasFreeFeeTransactions[newTx.txId] = newTx;
+    } else {
+      newTransactions.push(newTx);
     }
+  }
 
+  // Step 4: Merge transactions using updated existing transactions
+  const mergedTransactions = [...updatedExistingTransactions];
+  // Process each new transaction and create a unified transaction list
+  newTransactions.forEach((newTx) => {
     const existingIndex = updatedExistingTransactions.findIndex((existingTx) => {
       return newTx.txId && existingTx.txId && newTx.txId === existingTx.txId;
     });
@@ -312,13 +319,28 @@ export const syncUSDTWalletTransactions = async (wallet: USDTWallet) => {
       }
     } else {
       // New transaction - add it to the list
+      if (newGasFreeFeeTransactions[newTx.txId]) {
+        // If there's a corresponding gas-free fee transaction, we should derive the fee from it
+
+        const totalFee = parseFloat(newGasFreeFeeTransactions[newTx.txId].amount);
+        let transferFee = 0;
+        let activateFee = 0;
+
+        if (totalFee > 1) {
+          activateFee = 1;
+          transferFee = totalFee - activateFee;
+        } else transferFee = totalFee;
+
+        newTx.fee = totalFee.toFixed(3);
+        newTx.transferFee = parseFloat(transferFee.toFixed(3));
+        newTx.activateFee = activateFee;
+      }
       mergedTransactions.push(newTx);
     }
   });
 
   // Sort transactions by timestamp (newest first)
   mergedTransactions.sort((a, b) => b.timestamp - a.timestamp);
-
   return mergedTransactions;
 };
 
