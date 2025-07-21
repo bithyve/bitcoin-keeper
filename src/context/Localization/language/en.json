@@ -1782,7 +1782,8 @@
     "proceedToRamp": "Proceed to Ramp?",
     "transactionOnRamp": "* These transactions are facilitated by Third Parties.",
     "buy": "Buy",
-    "sell": "Sell"
+    "sell": "Sell",
+    "swapButton": "Swap* BTC <> USDT"
   },
   "error": {
     "failedtoRefetchCurrentBlock": "Failed to re-fetch current block height:",

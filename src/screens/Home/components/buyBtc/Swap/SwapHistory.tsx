@@ -54,11 +54,21 @@ export const SwapHistory = ({ navigation }) => {
             {/* Tnx Icons */}
             <Box flexDirection={'row'} justifyContent={'space-between'} flex={0.5}>
               <Box mr={2}>
-                <CoinLogo code={item.coin_from} isLarge={false} />
+                <CoinLogo
+                  code={item.coin_from}
+                  logoWidth={wp(7.5)}
+                  logoHeight={wp(9.5)}
+                  CircleWidth={wp(15)}
+                />
                 <Text>{item.deposit_amount}</Text>
               </Box>
               <Box>
-                <CoinLogo code={item.coin_to} isLarge={false} />
+                <CoinLogo
+                  code={item.coin_to}
+                  logoWidth={wp(7.5)}
+                  logoHeight={wp(9.5)}
+                  CircleWidth={wp(15)}
+                />
                 <Text>{item.withdrawal_amount}</Text>
               </Box>
             </Box>
