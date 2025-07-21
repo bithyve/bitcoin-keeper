@@ -175,12 +175,14 @@ const UsdtAmount = ({ route }) => {
       </Box>
 
       <Box style={styles.amountWrapper}>
-        <Text fontSize={32} color={`${colorMode}.primaryText`}>
-          {amount}{' '}
-        </Text>
-        <Text fontSize={25} color={`${colorMode}.GreyText`}>
-          USDT
-        </Text>
+        <Box style={styles.amountcontainer}>
+          <Text fontSize={32} color={`${colorMode}.primaryText`}>
+            {amount}{' '}
+          </Text>
+          <Text fontSize={25} color={`${colorMode}.GreyText`} mt={1}>
+            USDT
+          </Text>
+        </Box>
 
         <Pressable
           onPress={handleSendMax}
@@ -229,14 +231,17 @@ const styles = StyleSheet.create({
     gap: wp(10),
   },
   ctaBtnWrapper: {
-    marginTop: hp(30),
+    marginTop: hp(40),
+  },
+  amountcontainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 
   amountWrapper: {
-    marginTop: '46%',
+    marginTop: hp(80),
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
     gap: 5,
   },
   sendMaxWrapper: {
