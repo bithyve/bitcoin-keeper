@@ -71,7 +71,7 @@ const TicketHistory = ({ onPressCTA, screenName, tags, navigation }) => {
       <HistoryTitle />
       <Box flex={1}>{tickets.length ? <TicketList /> : <EmptyState />}</Box>
       {!onboardCallScheduled && (
-        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(15) }}>
+        <Box style={{ marginHorizontal: wp(22), marginBottom: hp(25) }}>
           <CTACardDotted
             title={concierge.scheduleOnboardingCall}
             subTitle={concierge.scheduleCallWithExpert}
@@ -100,7 +100,6 @@ const TicketHistory = ({ onPressCTA, screenName, tags, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: hp(10),
     flex: 1,
   },
   historyTitle: {
