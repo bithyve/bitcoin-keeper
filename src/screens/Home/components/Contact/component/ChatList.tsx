@@ -1,42 +1,25 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Image, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useChatPeer } from 'src/hooks/useChatPeer';
+import { CommunityType } from 'src/services/p2p/interface';
 
-// dummy chat data
-const chatData = [
-  {
-    id: '1',
-    name: 'John Doe',
-    lastMessage: 'Hey! Are you available tomorrow?',
-    image: '',
-    date: '2025-07-17T12:00:00',
-    message_count: 2,
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    lastMessage: 'Let’s catch up soon!',
-    image: '',
-    date: '2023-10-01T12:45:00',
-    message_count: 6,
-  },
-  {
-    id: '3',
-    name: 'Bob Johnson',
-    lastMessage: 'I sent the documents.',
-    image: '',
-    date: '2025-07-16T12:00:00',
-    message_count: 0,
-  },
-];
-
-const chatDatas = [];
+interface ChatItemData {
+  id: string;
+  name: string;
+  lastMessage: string;
+  image: string;
+  date: string;
+  message_count: number;
+  communityId: string;
+  contactKey?: string;
+}
 
 const PlaceHolderChat = () => {
   const { colorMode } = useColorMode();
@@ -54,7 +37,7 @@ const PlaceHolderChat = () => {
   );
 };
 
-const ChatItem = ({ item, userProfileImage }) => {
+const ChatItem = ({ item, userProfileImage }: { item: ChatItemData; userProfileImage: any }) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const formatTime = (dateString) => {
@@ -67,6 +50,8 @@ const ChatItem = ({ item, userProfileImage }) => {
       receiverProfileImage: item.image,
       receiverProfileName: item.name,
       userProfileImage,
+      communityId: item.communityId,
+      contactKey: item.contactKey,
     });
   };
 
@@ -109,10 +94,87 @@ const ChatItem = ({ item, userProfileImage }) => {
   );
 };
 
-const ChatList = ({ userProfileImage }) => {
+const ChatList = ({ userProfileImage }: { userProfileImage: any }) => {
   const { colorMode } = useColorMode();
+  const { communities, getAllMessages, getMessagesByCommunity, getUnreadCount, getContactByKey } =
+    useChatPeer();
 
-  const renderItem = ({ item }) => <ChatItem item={item} userProfileImage={userProfileImage} />;
+  // Transform communities into chat list data
+  const chatData = useMemo(() => {
+    const chatItems: ChatItemData[] = [];
+
+    communities.forEach((community) => {
+      // Get messages for this community
+      const messages = getMessagesByCommunity(community.id);
+
+      if (messages.length === 0) {
+        // No messages yet, show community anyway for Peer communities
+        if (community.type === CommunityType.Peer && community.with) {
+          const contact = getContactByKey(community.with);
+          chatItems.push({
+            id: community.id,
+            name: contact?.name || community.name,
+            lastMessage: 'No messages yet',
+            image: contact?.imageUrl || '',
+            date: new Date(community.createdAt).toISOString(),
+            message_count: 0,
+            communityId: community.id,
+            contactKey: community.with,
+          });
+        } else if (community.type !== CommunityType.Peer) {
+          // Group or Broadcast communities
+          chatItems.push({
+            id: community.id,
+            name: community.name,
+            lastMessage: 'No messages yet',
+            image: '',
+            date: new Date(community.createdAt).toISOString(),
+            message_count: 0,
+            communityId: community.id,
+          });
+        }
+        return;
+      }
+
+      // Get the latest message
+      const latestMessage = messages.reduce((latest, current) =>
+        current.createdAt > latest.createdAt ? current : latest
+      );
+
+      // Get unread count for this community
+      const unreadCount = getUnreadCount(community.id);
+
+      // Determine display name and image based on community type
+      let displayName = community.name;
+      let displayImage = '';
+      let contactKey: string | undefined;
+
+      if (community.type === CommunityType.Peer && community.with) {
+        const contact = getContactByKey(community.with);
+        displayName = contact?.name || community.name;
+        displayImage = contact?.imageUrl || '';
+        contactKey = community.with;
+      }
+
+      chatItems.push({
+        id: community.id,
+        name: displayName,
+        lastMessage: latestMessage.text,
+        image: displayImage,
+        date: new Date(latestMessage.createdAt).toISOString(),
+        message_count: unreadCount,
+        communityId: community.id,
+        contactKey,
+      });
+    });
+
+    // Sort by latest message date
+    return chatItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [communities, getAllMessages, getMessagesByCommunity, getUnreadCount, getContactByKey]);
+
+  const renderItem = ({ item }: { item: ChatItemData }) => (
+    <ChatItem item={item} userProfileImage={userProfileImage} />
+  );
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`}>
