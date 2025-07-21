@@ -8,18 +8,19 @@ import WalletHeader from 'src/components/WalletHeader';
 import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const ContactShareQr = () => {
-  const validationKey = 'Bitcoin Keeper'; //dummy key, replace with actual key
+const ContactShareQr = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultText, settings } = translations;
+  const { data } = route.params;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title={vaultText.shareQR} subTitle={settings.scanQRSubtitle} />
 
       <Box style={styles.qrContainer}>
         <KeeperQRCode
-          qrData={authenticator.keyuri('bitcoinkeeper.app', 'Bitcoin Keeper', validationKey)}
+          qrData={data}
           logoBackgroundColor="transparent"
           size={windowWidth * 0.8}
           showLogo

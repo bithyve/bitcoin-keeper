@@ -19,7 +19,7 @@ import NFC from 'src/services/nfc';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 
-function ContactModalData({ isShareContact = false, setContactModalVisible, navigation }) {
+function ContactModalData({ isShareContact = false, setContactModalVisible, navigation, data }) {
   const { colorMode } = useColorMode();
   const [nfcVisible, setNfcVisible] = useState(false);
   const { showToast } = useToastMessage();
@@ -27,8 +27,6 @@ function ContactModalData({ isShareContact = false, setContactModalVisible, navi
 
   const isIos = Platform.OS === 'ios';
   const isAndroid = Platform.OS === 'android';
-
-  const data = 'Contact data to be shared'; // Replace with actual contact data
 
   const cleanUp = () => {
     setNfcVisible(false);
@@ -109,7 +107,7 @@ function ContactModalData({ isShareContact = false, setContactModalVisible, navi
       icon: <QR_Icon />,
       onPress: () => {
         setContactModalVisible(false);
-        navigation.navigate('ContactShareQr');
+        navigation.navigate('ContactShareQr', { data });
       },
     },
     {
