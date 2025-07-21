@@ -1,16 +1,12 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
-import ReceiveAddress from 'src/screens/Recieve/ReceiveAddress';
-import ReceiveQR from 'src/screens/Recieve/ReceiveQR';
 import { useAppSelector } from 'src/store/hooks';
-import { CoinLogo } from './Swaps';
 import { useDispatch } from 'react-redux';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -21,9 +17,19 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { TxPriority, VaultType } from 'src/services/wallets/enums';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import SwapConfirmCard from './component/SwapConfirmCard';
+import SvgIcon from 'src/assets/images/@.svg';
+import { hp, wp } from 'src/constants/responsive';
+import DualArrow from 'src/assets/images/dualarrow.svg';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import Clipboard from '@react-native-clipboard/clipboard';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import Text from 'src/components/KeeperText';
 
 export const SwapDetails = ({ navigation, route }) => {
-  const { data, wallet } = route.params;
+  const { data, wallet, recievedWallet } = route.params;
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -31,6 +37,7 @@ export const SwapDetails = ({ navigation, route }) => {
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
   const { error: errorText } = useContext(LocalizationContext).translations;
   const [miniscriptSatisfier, setMiniscriptSatisfier] = useState(null);
+  const copyToClipboard = ThemedColor({ name: 'copyToClipboard' });
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful) {
@@ -111,46 +118,92 @@ export const SwapDetails = ({ navigation, route }) => {
       <WalletHeader title={'Swap Details'} />
       <ScrollView
         automaticallyAdjustKeyboardInsets={true}
-        contentContainerStyle={styles.contentContainer}
         style={styles.flex1}
         showsVerticalScrollIndicator={false}
       >
-        <Box flex={1}>
-          <Text>{`Created At : ${data.created_at}`}</Text>
-          <Text>{`Expires At : ${new Date(data.expired_at)}`}</Text>
-          <Text>{`Status : ${data.status}`}</Text>
-          <Text>{`Transaction ID : ${data.transaction_id}`}</Text>
-          <Text>{`Swap Rate : ${data.rate}`}</Text>
-
-          <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <CoinLogo code={data.coin_from} />
-            <Text>{'=>'}</Text>
-            <CoinLogo code={data.coin_to} />
+        <Box
+          style={styles.contentContainer}
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
+        >
+          <SwapConfirmCard
+            icon={<SvgIcon />}
+            text={`Send ${data?.coin_from} from`}
+            subText={wallet?.presentationData?.name}
+          />
+          <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+          <SwapConfirmCard
+            text={'Amount to Swap'}
+            subText={`${data?.deposit_amount} ${data?.coin_from}`}
+          />
+          <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+          <SwapConfirmCard
+            text={'LetsExchange ID:'}
+            subText={`${data?.transaction_id} `}
+            rightComponent={() => (
+              <TouchableOpacity
+                onPress={() => {
+                  Clipboard.setString(data?.transaction_id);
+                  showToast('LetsExchange ID copied to successfully', <TickIcon />);
+                }}
+              >
+                <Box style={styles.copyIcon} backgroundColor={copyToClipboard}>
+                  <ThemedSvg name={'copy_icon'} width={14} height={14} />
+                </Box>
+              </TouchableOpacity>
+            )}
+          />
+          <Box style={styles.dividerWithIcon}>
+            <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+            <Box style={styles.iconWrapper}>
+              <CircleIconWrapper
+                icon={<DualArrow />}
+                width={39}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+              />
+            </Box>
           </Box>
-
-          <Box m={1}>
-            <Text>{`From ${data.coin_from_name} : ${data.coin_from}`}</Text>
-            <Text>{`Refund Address: ${data.return}`}</Text>
-            <Text>{`Deposit Amount: ${data.deposit_amount}`}</Text>
-            <ReceiveQR qrValue={data.deposit} />
-            <ReceiveAddress address={data.deposit} />
-          </Box>
-          <Box m={1}>
-            <Text>{`To ${data.coin_to_name} : ${data.coin_to} : ${data.coin_to_network}`}</Text>
-            <Text>{`Receive Address: ${data.withdrawal}`}</Text>
-            <Text>{`Receive Amount: ${data.withdrawal_amount}`}</Text>
-          </Box>
-
-          <Box>
-            <Buttons
-              primaryCallback={() => {
-                executeSendPhaseOne(null);
-              }}
-              primaryText="Pay with Wallet"
-            />
-          </Box>
+          <SwapConfirmCard
+            icon={<SvgIcon />}
+            text={`${data?.coin_to} Received In `}
+            subText={recievedWallet?.presentationData?.name}
+          />
+          <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+          <SwapConfirmCard
+            text={'Estimated Amount to Receive'}
+            subText={`${Number(data?.withdrawal_amount).toFixed(2)} ${data?.coin_to}`}
+          />
         </Box>
       </ScrollView>
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        backgroundColor={`${colorMode}.primaryBackground`}
+        borderColor={`${colorMode}.separator`}
+        style={styles.buttonContainer}
+      >
+        <Box style={styles.noteContainer}>
+          <Text fontSize={15} medium color={`${colorMode}.textGreen`}>
+            Note
+          </Text>
+          <Text fontSize={13} color={`${colorMode}.primaryText`}>
+            Make sure to copy and save the LetsExchange ID
+          </Text>
+          <Text fontSize={13} color={`${colorMode}.primaryText`}>
+            *By initiating a swap, you acknowledge and agree to our Terms and Conditions.
+          </Text>
+        </Box>
+        <Buttons
+          primaryCallback={() => {
+            executeSendPhaseOne(null);
+          }}
+          primaryText=" Start the Swap"
+          fullWidth
+        />
+      </Box>
+
       <MiniscriptPathSelector
         ref={miniscriptPathSelectorRef}
         vault={wallet}
@@ -164,9 +217,42 @@ export const SwapDetails = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 20,
+    marginVertical: hp(20),
   },
   flex1: {
     flex: 1,
+  },
+  dividerWithIcon: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: wp(20),
+    marginVertical: hp(20),
+  },
+  horizontalDivider: {
+    height: 1,
+    width: '100%',
+  },
+  iconWrapper: {
+    position: 'absolute',
+    paddingHorizontal: 6,
+  },
+  copyIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noteContainer: {
+    marginVertical: wp(20),
+    gap: 5,
+  },
+  buttonContainer: {
+    marginBottom: hp(20),
+    paddingHorizontal: wp(20),
+    paddingVertical: hp(10),
   },
 });
