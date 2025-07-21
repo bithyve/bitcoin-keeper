@@ -2,7 +2,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -27,6 +26,7 @@ import KeeperTextInput from 'src/components/KeeperTextInput';
 import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { useAppSelector } from 'src/store/hooks';
 import Relay from 'src/services/backend/Relay';
+import FastImage from 'react-native-fast-image';
 
 const TicketNote = ({ note, closed = false }) => {
   const { colorMode } = useColorMode();
@@ -131,7 +131,10 @@ const TicketDetails = ({ route }) => {
             comment.attachments.map((item) => {
               return (
                 <Box height={20} width={20}>
-                  <Image source={{ uri: item.content_url }} style={{ flex: 1, height: '100%' }} />
+                  <FastImage
+                    source={{ uri: item.content_url }}
+                    style={{ flex: 1, height: '100%' }}
+                  />
                 </Box>
               );
             })}

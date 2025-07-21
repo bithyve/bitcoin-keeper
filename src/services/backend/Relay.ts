@@ -693,4 +693,16 @@ export default class Relay {
     }
     return res ? res.data || res.json : null;
   };
+
+  public static createZendeskTicket = async (data): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}createZendeskTicket`, data);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ createZendeskTicket ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
 }

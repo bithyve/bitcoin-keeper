@@ -21,7 +21,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import Zendesk from 'src/services/backend/Zendesk';
 import { loadConciergeTickets, updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { getKeyUID } from 'src/utils/utilities';
 import KeeperModal from 'src/components/KeeperModal';
@@ -234,7 +233,7 @@ const CreateTicket = ({ navigation, route }) => {
       if (imageUris) {
         imageToken = await uploadFile();
       }
-      const res = await Zendesk.createZendeskTicket({
+      const res = await Relay.createZendeskTicket({
         desc: desc.trim(),
         imageToken,
         conciergeUser,
