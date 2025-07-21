@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
@@ -16,6 +16,10 @@ import ProfileContent from './ProfileContent';
 import { useNavigation } from '@react-navigation/native';
 import ContactModalData from './ContactModalData';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useChatPeer } from 'src/hooks/useChatPeer';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import idx from 'idx';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -26,8 +30,33 @@ const Contact = () => {
   const navigation = useNavigation();
   const [contactmodalVisible, setContactModalVisible] = useState(false);
   const [shareContact, setShareContact] = useState(false);
+  const [shareContactData, setShareContactData] = useState('');
   const { translations } = useContext(LocalizationContext);
   const { contactText } = translations;
+
+  const { showToast } = useToastMessage();
+  const chatPeer = useChatPeer();
+
+  const initializeChat = async () => {
+    try {
+      const chatPeerInitialized = await chatPeer.initChatPeer();
+      if (!chatPeerInitialized) {
+        throw new Error();
+      }
+
+      const keys = await chatPeer.getKeys();
+      setShareContactData(idx(keys, (_) => _.publicKey));
+    } catch (error) {
+      console.error('Error initializing chat peer:', error);
+      showToast('Chat Peer initialization failed', <ToastErrorIcon />);
+      return;
+    }
+  };
+
+  useEffect(() => {
+    if (!chatPeer.isInitialized) initializeChat();
+  }, [chatPeer.isInitialized]);
+
   return (
     <Box style={styles.container}>
       <ContactHeader
@@ -118,6 +147,7 @@ const Contact = () => {
             isShareContact={shareContact}
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
+            data={shareContactData}
           />
         )}
       />
