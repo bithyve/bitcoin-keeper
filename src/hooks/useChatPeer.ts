@@ -32,6 +32,9 @@ export interface UseChatPeerReturn {
 
   // Data fetching
   getPeers: () => Promise<any>;
+  getKeys: () => {
+    [key: string]: string;
+  };
   getPeerMessages: (pubKey: string, lastBlock: number) => Promise<any>;
 
   // Contact management
@@ -117,7 +120,7 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
                 secretKey: keys.secretKey,
               },
             });
-            console.log('KeeperApp updated with contacts key');
+            console.log('Database updated with peer keys');
           }
         } catch (keyError) {
           console.warn('Failed to get or update contacts key:', keyError);
@@ -180,6 +183,23 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
       return result;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get peers');
+      captureError(err);
+      throw err;
+    }
+  }, []);
+
+  // Get keys
+  const getKeys = useCallback((): {
+    [key: string]: string;
+  } => {
+    try {
+      setError(null);
+      if (keeperApp.contactsKey) return keeperApp.contactsKey;
+      // chatPeer.getKeys() is only used during initialization for fetching the
+      // keys directly from the chat peer manager and storing them in KeeperApp
+      else throw new Error('Contacts key not found. Initialize chat peer first.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to get keys');
       captureError(err);
       throw err;
     }
@@ -349,6 +369,7 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
 
     // Data fetching
     getPeers,
+    getKeys,
     getPeerMessages,
 
     // Contact management
