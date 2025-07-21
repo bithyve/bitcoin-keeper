@@ -26,6 +26,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getRandomBytes } from './service-utilities/encryption';
 import { createHash } from 'crypto';
 const bip32 = BIP32Factory(ecc);
+import ECPairFactory from 'ecpair';
+const ECPair = ECPairFactory(ecc);
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
@@ -875,11 +877,13 @@ export const validatePSBT = (unsigned, signed, signer, errorText) => {
   }
   const signerPublicKey = getInputsToSignFromPSBT(signed, signer).map((data) => data.publicKey)[0];
   let isSigned = false;
+  const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
+    ECPair.fromPublicKey(pubkey).verify(msghash, signature);
   for (const [_, input] of signedPsbtObj.data.inputs.entries()) {
     if (input.partialSig) {
       for (const sig of input.partialSig) {
         if (sig.pubkey.toString('hex') === signerPublicKey) {
-          isSigned = true;
+          isSigned = signedPsbtObj.validateSignaturesOfAllInputs(validator);
           break;
         }
       }
