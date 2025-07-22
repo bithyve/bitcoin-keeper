@@ -1,5 +1,4 @@
 import { call, put } from 'redux-saga/effects';
-import Swap from 'src/services/backend/Swap';
 import { setCoinDetails } from '../reducers/swap';
 import { createWatcher } from '../utilities';
 import {
@@ -10,17 +9,12 @@ import {
 } from '../sagaActions/swap';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/services/backend/Relay';
 
 function* loadCoinDetailsWorker({ callback }) {
   try {
-    let btc;
-    let usdt;
-    const res = yield call(Swap.getCoins);
-    res.data.forEach((coin) => {
-      if (coin.code === 'BTC') btc = coin;
-      else if (coin.code === 'USDT-TRC20') usdt = coin;
-    });
-    yield put(setCoinDetails({ btc, usdt }));
+    const res = yield call(Relay.getSwapCoins);
+    yield put(setCoinDetails(res));
     if (callback) callback({ status: true });
   } catch (error) {
     console.log('🚀 ~ loadCoinDetailsWorker ~ error:', error);
@@ -31,20 +25,17 @@ function* loadCoinDetailsWorker({ callback }) {
 function* getSwapQuoteWorker({ coinFrom, coinTo, amount, float, callback }) {
   try {
     const body = {
-      from: coinFrom.code,
-      to: coinTo.code,
-      network_from: coinFrom.network_code,
-      network_to: coinTo.network_code,
-      amount: amount,
-      float: float,
+      coinFrom,
+      coinTo,
+      amount,
+      float,
     };
-    const quote = yield call(Swap.getQuote, body);
+    const quote = yield call(Relay.getSwapQuote, body);
     if (callback)
       callback({
         status: true,
-        amount:
-          coinTo.code === 'BTC' ? quote.data.amount : parseFloat(quote.data.amount).toFixed(3),
-        rateId: quote.data.rate_id,
+        amount: coinTo.code === 'BTC' ? quote.amount : parseFloat(quote.amount).toFixed(2),
+        rateId: quote?.rate_id,
       });
   } catch (error) {
     console.log('🚀 ~ getSwapQuoteWorker ~ error:', error);
@@ -68,17 +59,15 @@ function* createSwapTnxWorker({
 }) {
   try {
     const body = {
-      float: float,
-      coin_from: coinFrom.code,
-      coin_to: coinTo.code,
-      network_from: coinFrom.network_code,
-      network_to: coinTo.network_code,
-      deposit_amount: depositAmount,
-      withdrawal: withdrawal,
-      return: refund, // btc sent from(spending wallet address)
-      rate_id: rateId, // only required for fixed rate tnx
+      float,
+      coinFrom,
+      coinTo,
+      depositAmount,
+      withdrawal,
+      refund,
+      rateId, // only required for fixed rate tnx
     };
-    const tnx = yield call(Swap.createTnx, body);
+    const tnx = yield call(Relay.createSwapTnx, body);
     const realmObject = createRealmObjForTnx(tnx);
     yield call(dbManager.createObject, RealmSchema.SwapHistory, realmObject);
     if (callback)
@@ -98,7 +87,7 @@ function* createSwapTnxWorker({
 
 function* getTnxDetailsWorker({ tnxId, callback }) {
   try {
-    const tnx = yield call(Swap.getTnxDetails, tnxId);
+    const tnx = yield call(Relay.getSwapTnxDetails, tnxId);
     yield call(dbManager.updateObjectById, RealmSchema.SwapHistory, tnxId, {
       status: tnx.status,
     });

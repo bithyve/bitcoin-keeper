@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import WalletIcon from 'src/assets/images/Wallet-grey.svg';
 import KeyIcon from 'src/assets/images/key-grey.svg';
@@ -50,7 +50,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
 
   return (
     <Box
-      style={styles.container}
+      style={[styles.container, { paddingBottom: Platform.OS === 'ios' ? hp(26) : 0 }]}
       backgroundColor={
         isDarkMode ? `${colorMode}.primaryGreenBackground` : `${colorMode}.ChampagneBliss`
       }
@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: wp(10),
     paddingTop: hp(10),
-    paddingBottom: hp(26),
     borderWidth: 1,
   },
   menuWrapper: {

@@ -58,23 +58,26 @@ function Transactions({
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { syncWallet } = useUSDTWallets();
-  const sortedTransactions = useMemo(
-    () =>
+
+  const sortedTransactions = useMemo(() => {
+    return (
       [...transactions]
         .sort((a, b) => {
           // Sort unconfirmed transactions first
-          if (a.confirmations === 0 && b.confirmations !== 0) return -1;
-          if (a.confirmations !== 0 && b.confirmations === 0) return 1;
+          if ('confirmations' in a && 'confirmations' in b) {
+            if (a.confirmations === 0 && b.confirmations !== 0) return -1;
+            if (a.confirmations !== 0 && b.confirmations === 0) return 1;
+          }
 
-          // Then sort by date
-          if (!a.date && !b.date) return 0;
-          if (!a.date) return -1;
-          if (!b.date) return 1;
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+          // Then sort by date or timestamp
+          const aTime = a.timestamp ?? (a.date ? new Date(a.date).getTime() : 0);
+          const bTime = b.timestamp ?? (b.date ? new Date(b.date).getTime() : 0);
+
+          return bTime - aTime;
         })
-        .slice(0, 5) || [],
-    [transactions]
-  );
+        .slice(0, 5) || []
+    );
+  }, [transactions]);
 
   const pullDownRefresh = async () => {
     setInitialLoading(true);

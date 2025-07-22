@@ -9,6 +9,7 @@ import WalletCopiableData from 'src/components/WalletCopiableData';
 import Buttons from 'src/components/Buttons';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hp } from 'src/constants/responsive';
 
 function ShowPSBT() {
   const route = useRoute();
@@ -38,7 +39,12 @@ function ShowPSBT() {
           <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
         </Box>
         <Box style={styles.fingerprint}>
-          <WalletCopiableData title={signerText.transationPsbt} data={data} dataType="psbt" />
+          <WalletCopiableData
+            height={hp(65)}
+            title={signerText.transationPsbt}
+            data={data}
+            dataType="psbt"
+          />
         </Box>
       </ScrollView>
       <Box style={styles.ctaContainer}>

@@ -20,12 +20,12 @@ import USDT, {
   USDTTransferOptions,
 } from '../services/wallets/operations/dollars/USDT';
 import { useDispatch } from 'react-redux';
+import { useAppSelector } from 'src/store/hooks';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import Relay from 'src/services/backend/Relay';
 
 export interface UseUSDTWalletsOptions {
   getAll?: boolean;
-  networkType?: NetworkType;
   includeHidden?: boolean;
 }
 
@@ -55,15 +55,27 @@ export interface UseUSDTWalletsReturn {
 
 export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWalletsReturn => {
   const { includeHidden = false } = options;
+  const { bitcoinNetworkType }: { bitcoinNetworkType: NetworkType } = useAppSelector(
+    (state) => state.settings
+  );
   const allWallets = useQuery(RealmSchema.USDTWallet);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const { id: appId }: any = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
+  const filterByNetwork = (wallets: USDTWallet[]) => {
+    if (bitcoinNetworkType)
+      return wallets.filter((wallet) => wallet.networkType === bitcoinNetworkType);
+    else return wallets;
+  };
+
   const usdtWallets = useMemo(() => {
     const wallets: USDTWallet[] = allWallets.map((w) => (w.toJSON ? w.toJSON() : w)) as any;
 
     let filteredWallets = wallets;
+
+    // Filter by network type
+    filteredWallets = filterByNetwork(filteredWallets);
 
     // Filter hidden wallets if not included
     if (!includeHidden) {
@@ -73,7 +85,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     }
 
     return filteredWallets;
-  }, [allWallets, includeHidden]);
+  }, [allWallets, includeHidden, bitcoinNetworkType]);
 
   /**
    * Create a new USDT wallet

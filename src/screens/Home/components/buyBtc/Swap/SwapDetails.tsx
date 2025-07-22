@@ -15,7 +15,7 @@ import MiniscriptPathSelector, {
 } from 'src/components/MiniscriptPathSelector';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { TxPriority, VaultType } from 'src/services/wallets/enums';
+import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SwapConfirmCard from './component/SwapConfirmCard';
 import SvgIcon from 'src/assets/images/@.svg';
@@ -27,6 +27,9 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import USDT from 'src/services/wallets/operations/dollars/USDT';
+import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 export const SwapDetails = ({ navigation, route }) => {
   const { data, wallet, recievedWallet } = route.params;
@@ -42,6 +45,7 @@ export const SwapDetails = ({ navigation, route }) => {
   } = useContext(LocalizationContext).translations;
   const [miniscriptSatisfier, setMiniscriptSatisfier] = useState(null);
   const copyToClipboard = ThemedColor({ name: 'copyToClipboard' });
+  const { syncAccountStatus } = useUSDTWallets();
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful) {
@@ -99,12 +103,64 @@ export const SwapDetails = ({ navigation, route }) => {
     executeSendPhaseOne(miniscriptSelectedSatisfier);
   };
 
+  const processUSDTSend = async () => {
+    try {
+      const amountToSend = parseFloat(data.deposit_amount);
+      const updatedSender = await syncAccountStatus(wallet);
+      const isActive = updatedSender.accountStatus.isActive;
+      if (!isActive) {
+        // If the account is not active and there is an outgoing transaction, show a warning
+        // (GasFree account activation may take a couple of minutes at times, due to longer permit transaction processing queue on provider's end)
+
+        const hasOutgoingTransaction = updatedSender.specs.transactions.some(
+          (tx) =>
+            tx.from === updatedSender.accountStatus.gasFreeAddress ||
+            tx.from === updatedSender.accountStatus.address
+        );
+
+        if (hasOutgoingTransaction) {
+          showToast(
+            'Your account is not yet active. Please wait a moment before making another transaction to avoid being charged the activation fee again.',
+            <ToastErrorIcon />
+          );
+
+          // await for a few seconds to allow the user to read the message
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+      const fees = USDT.evaluateTransferFee(updatedSender.accountStatus);
+      if (!fees) {
+        showToast('Failed to estimate fees', <ToastErrorIcon />);
+        return;
+      }
+      // updatedSender = await syncWalletBalance(updatedSender); // discarded; since we're able to sync wallet on the details page itself therefore we effectively will have the latest balance
+      const availableBalance = getAvailableBalanceUSDTWallet(updatedSender);
+      const roundedOutflow = parseFloat((amountToSend + fees.totalFee).toFixed(3));
+      if (availableBalance < roundedOutflow) {
+        showToast(
+          `Insufficient balance for this transaction (availableBalance: ${availableBalance} USDT, fees: ${fees.totalFee} USDT)`,
+          <ToastErrorIcon />
+        );
+        return;
+      }
+      navigation.navigate('usdtSendConfirmation', {
+        sender: updatedSender,
+        recipientAddress: data.deposit,
+        amount: amountToSend,
+        fees,
+      });
+    } catch (error) {
+      console.log('🚀 ~ processUSDTSend ~ error:', error);
+      showToast(error.message || 'Failed to process transaction', <ToastErrorIcon />);
+    }
+  };
+
   const navigateToSendConfirmation = () => {
     navigation.dispatch(
       CommonActions.navigate('SendConfirmation', {
         sender: wallet,
         internalRecipients: [],
-        addresses: data.deposit,
+        addresses: [data.deposit],
         amounts: data.deposit_amount * SATOSHIS_IN_BTC,
         note: '',
         selectedUTXOs: [],
@@ -201,9 +257,10 @@ export const SwapDetails = ({ navigation, route }) => {
         </Box>
         <Buttons
           primaryCallback={() => {
-            executeSendPhaseOne(null);
+            if (wallet.entityKind === EntityKind.USDT_WALLET) processUSDTSend();
+            else executeSendPhaseOne(null);
           }}
-          primaryText=" Start the Swap"
+          primaryText="Pay with Wallet"
           fullWidth
         />
       </Box>

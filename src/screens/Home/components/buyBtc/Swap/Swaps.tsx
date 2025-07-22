@@ -168,11 +168,11 @@ export const Swaps = ({ navigation }) => {
         depositAmount: fromValue,
         withdrawal:
           walletTo.entityKind === EntityKind.USDT_WALLET
-            ? walletTo.specs.address
+            ? walletTo.accountStatus.gasFreeAddress
             : walletTo.specs.receivingAddress,
         refund:
           walletFrom.entityKind === EntityKind.USDT_WALLET
-            ? walletFrom.specs.address
+            ? walletTo.accountStatus.gasFreeAddress
             : walletFrom.specs.receivingAddress,
         rateId: rateIdRef.current,
         callback: ({ status, tnx, error }) => {

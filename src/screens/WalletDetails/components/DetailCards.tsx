@@ -7,6 +7,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { EntityKind } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useGetInUK } from 'src/hooks/useGetInUK';
 
 interface Props {
   setShowMore?: (value: boolean) => void;
@@ -29,6 +30,7 @@ const DetailCards = ({
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslations, usdtWalletText, buyBTC: buyBTCText, common } = translations;
   const navigation = useNavigation();
+  const { sanitizeBuyText } = useGetInUK();
 
   const CardsData = [
     {
@@ -60,8 +62,8 @@ const DetailCards = ({
       icon: 'buy_Btc_icon',
       title:
         wallet?.entityKind === EntityKind.USDT_WALLET
-          ? usdtWalletText.buyUSdt
-          : walletTranslations.buyBitCoin,
+          ? sanitizeBuyText(usdtWalletText.buyUSdt)
+          : sanitizeBuyText(walletTranslations.buyBitCoin),
       callback: () => {
         buyCallback?.();
       },

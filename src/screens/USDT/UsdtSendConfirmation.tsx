@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import ReceiptWrapper from '../Send/ReceiptWrapper';
@@ -136,7 +136,8 @@ const UsdtSendConfirmation = ({ route }) => {
               titleColor={`${colorMode}.activationFeeText`}
               amountColor={`${colorMode}.activationFeeText`}
               unitColor={`${colorMode}.activationFeeText`}
-              customUnit="USTD"
+              customUnit="USDT"
+              isUsdt={true}
             />
           ) : null}
           <AmountDetails
@@ -148,7 +149,8 @@ const UsdtSendConfirmation = ({ route }) => {
             titleColor={`${colorMode}.activationFeeText`}
             amountColor={`${colorMode}.activationFeeText`}
             unitColor={`${colorMode}.activationFeeText`}
-            customUnit="USTD"
+            customUnit="USDT"
+            isUsdt={true}
           />
           <AmountDetails
             title={walletTranslations.amountBeingSend}
@@ -159,7 +161,8 @@ const UsdtSendConfirmation = ({ route }) => {
             unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
-            customUnit="USTD"
+            customUnit="USDT"
+            isUsdt={true}
           />
           <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
           <AmountDetails
@@ -171,7 +174,8 @@ const UsdtSendConfirmation = ({ route }) => {
             unitFontSize={12}
             amountColor={`${colorMode}.secondaryText`}
             unitColor={`${colorMode}.secondaryText`}
-            customUnit="USTD"
+            customUnit="USDT"
+            isUsdt={true}
           />
         </Box>
       </ScrollView>
