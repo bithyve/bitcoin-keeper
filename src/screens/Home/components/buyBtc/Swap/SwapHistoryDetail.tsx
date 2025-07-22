@@ -29,7 +29,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
   const [details, setDetails] = useState(null);
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { buyBTC: buyBTCText, common, transactions: transactionsText } = translations;
+  const { buyBTC: buyBTCText, transactions: transactionsText } = translations;
 
   useEffect(() => {
     if (!tnxId) {
@@ -100,7 +100,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
 
       {details && (
         <Box style={styles.Wrapper} borderColor={`${colorMode}.separator`}>
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <HStack justifyContent={'space-between'} my={5}>
               <HStack mr={2}>
                 <CoinLogo

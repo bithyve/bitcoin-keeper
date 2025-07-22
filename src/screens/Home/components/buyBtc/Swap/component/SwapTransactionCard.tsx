@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: wp(5),
+    paddingLeft: wp(5),
   },
   transactionContainer: {
     flexDirection: 'column',
@@ -155,11 +155,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     fontSize: 13,
     lineHeight: 20,
-    width: wp(125),
   },
   arrowIconWrapper: {
     paddingRight: wp(5),
-    paddingLeft: wp(10),
+    paddingLeft: wp(5),
     paddingTop: hp(2),
   },
   circle: {
@@ -179,7 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: wp(5),
     paddingVertical: hp(2),
-    width: wp(140),
+    width: wp(145),
   },
 
   priceBox: {
