@@ -1,5 +1,5 @@
 import { Box, HStack, ScrollView, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -19,6 +19,7 @@ import SwapProcessingIcon from '../../../../../assets/images/swap-processing.svg
 import SwapSuccessIcon from '../../../../../assets/images/swap-success.svg';
 import SwapInfoCard from './component/SwapInfoCard';
 import SwapStatusContent from './component/SwapStatusContent';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export const SwapHistoryDetail = ({ navigation, route }) => {
   const { tnxId, createdAt } = route.params;
@@ -27,6 +28,8 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState(null);
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { buyBTC: buyBTCText, common, transactions: transactionsText } = translations;
 
   useEffect(() => {
     if (!tnxId) {
@@ -51,7 +54,6 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
       })
     );
   }, []);
-  console.log('details', details);
   const transaction_status = getStatus(details?.status);
 
   return (
@@ -62,8 +64,8 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
     >
       <Box style={styles.container}>
         <WalletHeader
-          title={'Transaction Details'}
-          subTitle="Detailed information for this transaction"
+          title={transactionsText.TransactionDetails}
+          subTitle={transactionsText.TransactionDetailsSubTitle}
         />
         {details && (
           <Box style={styles.transactionContainer}>
@@ -111,7 +113,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                   <Text
                     fontSize={13}
                     color={`${colorMode}.textGreen`}
-                  >{`${details.coin_from_name} Sent`}</Text>
+                  >{`${details.coin_from_name} ${buyBTCText.Sent}`}</Text>
                   <Text fontSize={13} color={`${colorMode}.primaryText`}>
                     {Number(details.deposit_amount).toFixed(2)} {details.coin_from}
                   </Text>
@@ -128,7 +130,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                   <Text
                     fontSize={13}
                     color={`${colorMode}.textGreen`}
-                  >{`${details.coin_to_name} Received`}</Text>
+                  >{`${details.coin_to_name} ${buyBTCText.Received}`}</Text>
                   <Text fontSize={13} color={`${colorMode}.primaryText`}>
                     {Number(details.withdrawal_amount).toFixed(2)} {details.coin_to}
                   </Text>
@@ -137,19 +139,19 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
             </HStack>
             <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
             <SwapInfoCard
-              title={'Status'}
+              title={buyBTCText.status}
               showIcon={false}
               letterSpacing={2.4}
               Content={() => <SwapStatusContent status={transaction_status} />}
             />
             <SwapInfoCard
-              title={'Real Deposit Amount'}
+              title={buyBTCText.realDepositAmount}
               showIcon={false}
               letterSpacing={2.4}
               description={Number(details.real_deposit_amount).toFixed(2) + ' ' + details.coin_from}
             />
             <SwapInfoCard
-              title={'Real withdrawal Amount'}
+              title={buyBTCText.realWithdrawalAmount}
               showIcon={false}
               letterSpacing={2.4}
               description={
@@ -157,14 +159,14 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
               }
             />
             <SwapInfoCard
-              title={'Deposit Address'}
+              title={buyBTCText.depositAddress}
               showIcon={false}
               letterSpacing={2.4}
               description={details.deposit}
               numberOfLines={2}
             />
             <SwapInfoCard
-              title={'Receipt Address'}
+              title={buyBTCText.receiptAddress}
               showIcon={false}
               letterSpacing={2.4}
               description={details.withdrawal}

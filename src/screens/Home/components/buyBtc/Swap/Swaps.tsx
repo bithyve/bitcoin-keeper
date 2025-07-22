@@ -1,6 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet, ActivityIndicator, Keyboard, Pressable, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Buttons from 'src/components/Buttons';
@@ -22,10 +22,11 @@ import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 import KeeperModal from 'src/components/KeeperModal';
 import BuyBtcModalContent from '../BuyBtcModalContent';
-import { EntityKind } from 'src/services/wallets/enums';
 import { SwapHistory } from './SwapHistory';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { EntityKind } from 'src/services/wallets/enums';
 
 export const CoinLogo = ({
   code,
@@ -101,6 +102,9 @@ export const Swaps = ({ navigation }) => {
   const [showWalletSelection, setShowWalletSelection] = useState(false);
   const walletModeRef = useRef(null);
 
+  const { translations } = useContext(LocalizationContext);
+  const { buyBTC: buyBTCText, common } = translations;
+
   useEffect(() => {
     if (!coinDetails) {
       setLoading(true);
@@ -175,7 +179,11 @@ export const Swaps = ({ navigation }) => {
           setLoading(false);
           if (status)
             navigation.dispatch(
-              CommonActions.navigate('SwapDetails', { data: tnx, wallet: walletFrom })
+              CommonActions.navigate('SwapDetails', {
+                data: tnx,
+                wallet: walletFrom,
+                recievedWallet: walletTo,
+              })
             );
           else {
             showToast(error, <ToastErrorIcon />);
@@ -202,7 +210,7 @@ export const Swaps = ({ navigation }) => {
       backgroundcolor={`${colorMode}.primaryBackground`}
     >
       <Box paddingX={6}>
-        <WalletHeader title={'Swap'} />
+        <WalletHeader title={buyBTCText.swap} />
       </Box>
       {!coinTo && !coinFrom ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
@@ -210,7 +218,7 @@ export const Swaps = ({ navigation }) => {
         <ScrollView style={styles.container}>
           <Box paddingX={6}>
             <Box>
-              <Text semiBold>Convert from</Text>
+              <Text semiBold>{buyBTCText.convertFrom}</Text>
 
               <KeeperTextInput
                 placeholder={'0.00'}
@@ -268,7 +276,7 @@ export const Swaps = ({ navigation }) => {
                   <Text>
                     {walletFrom?.presentationData?.name
                       ? walletFrom?.presentationData?.name
-                      : 'Select Sending Wallet'}
+                      : buyBTCText.selectSendingWallet}
                   </Text>
                   <ThemedSvg name={'swap_down_icon'} />
                 </Box>
@@ -276,7 +284,7 @@ export const Swaps = ({ navigation }) => {
             </Box>
 
             <Box mt={2}>
-              <Text semiBold>Convert To</Text>
+              <Text semiBold>{buyBTCText.convertTo}</Text>
               <KeeperTextInput
                 placeholder={'0.00'}
                 value={toValue}
@@ -312,7 +320,7 @@ export const Swaps = ({ navigation }) => {
                   <Text>
                     {walletTo?.presentationData?.name
                       ? walletTo?.presentationData?.name
-                      : 'Select Receiving Wallet'}
+                      : buyBTCText.selectRecievingWallet}
                   </Text>
                   <ThemedSvg name={'swap_down_icon'} />
                 </Box>
@@ -327,13 +335,13 @@ export const Swaps = ({ navigation }) => {
                   <Box style={styles.circle} borderColor={`${colorMode}.brownBackground`} />
                 )}{' '}
                 <Text fontSize={12} medium>
-                  Fixed-rate transactions.
+                  {buyBTCText.fixedRate}
                 </Text>
               </Box>
             </Pressable>
 
             <Buttons
-              primaryText="Swap"
+              primaryText={buyBTCText.swap}
               primaryCallback={createTnx}
               primaryLoading={loading}
               fullWidth
@@ -362,7 +370,7 @@ export const Swaps = ({ navigation }) => {
             selectedWallet={walletModeRef.current === 'from' ? walletFrom : walletTo}
           />
         )}
-        buttonText={'Confirm'}
+        buttonText={common.confirm}
         buttonCallback={() => {
           if (walletModeRef.current === 'from' ? !walletFrom : !walletTo) return;
           setShowWalletSelection(false);
@@ -408,7 +416,6 @@ const styles = StyleSheet.create({
   historyContainer: {
     marginTop: wp(20),
     borderWidth: 1,
-    paddingHorizontal: wp(20),
     borderBottomWidth: 0,
     borderTopLeftRadius: wp(30),
     borderTopRightRadius: wp(30),

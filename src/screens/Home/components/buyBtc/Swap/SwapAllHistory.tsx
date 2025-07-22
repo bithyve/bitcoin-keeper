@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -11,6 +11,7 @@ import SwapTransactionCard from './component/SwapTransactionCard';
 import { getStatus } from './component/Constant';
 import WalletHeader from 'src/components/WalletHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export interface SwapHistoryObject {
   coin_from: string;
@@ -32,14 +33,16 @@ export const SwapAllHistory = ({ navigation }) => {
   const history = useQuery(RealmSchema.SwapHistory).map(getJSONFromRealmObject);
   const reversedHistory = history.slice().reverse();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { buyBTC: buyBTCText } = translations;
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.container}>
-        <WalletHeader title="Swap History" />
+        <WalletHeader title={buyBTCText.swapHistory} />
         {reversedHistory.length === 0 ? (
           <Box style={styles.emptyContainer}>
-            <Text color={`${colorMode}.primaryText`}>You have no transactions yet</Text>
+            <Text color={`${colorMode}.primaryText`}>{buyBTCText.noTransaction}</Text>
           </Box>
         ) : (
           <FlatList

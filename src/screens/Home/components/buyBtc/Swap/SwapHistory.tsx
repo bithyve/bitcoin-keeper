@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
 import { Box, Pressable, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useContext } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -10,6 +10,7 @@ import { wp } from 'src/constants/responsive';
 import moment from 'moment';
 import SwapTransactionCard from './component/SwapTransactionCard';
 import { getStatus } from './component/Constant';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export interface SwapHistoryObject {
   coin_from: string;
@@ -31,25 +32,27 @@ export const SwapHistory = ({ navigation }) => {
   const history = useQuery(RealmSchema.SwapHistory).map(getJSONFromRealmObject);
   const reversedHistory = history.slice().reverse().slice(0, 3);
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { buyBTC: buyBTCText, common } = translations;
 
   return (
     <Box style={styles.container}>
       <Box style={styles.headerContainer}>
-        <Text>History</Text>
+        <Text>{buyBTCText.history}</Text>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('SwapAllHistory');
           }}
         >
           <Text medium color={`${colorMode}.textGreen`}>
-            View All
+            {common.viewAll}
           </Text>
         </TouchableOpacity>
       </Box>
 
       {reversedHistory.length === 0 ? (
         <Box style={styles.emptyContainer}>
-          <Text color={`${colorMode}.primaryText`}>You have no transactions yet</Text>
+          <Text color={`${colorMode}.primaryText`}>{buyBTCText.noTransaction}</Text>
         </Box>
       ) : (
         <FlatList

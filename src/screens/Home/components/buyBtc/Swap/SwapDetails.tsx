@@ -35,7 +35,11 @@ export const SwapDetails = ({ navigation, route }) => {
   const { showToast } = useToastMessage();
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
-  const { error: errorText } = useContext(LocalizationContext).translations;
+  const {
+    error: errorText,
+    buyBTC: buyBTCText,
+    common,
+  } = useContext(LocalizationContext).translations;
   const [miniscriptSatisfier, setMiniscriptSatisfier] = useState(null);
   const copyToClipboard = ThemedColor({ name: 'copyToClipboard' });
 
@@ -115,7 +119,7 @@ export const SwapDetails = ({ navigation, route }) => {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={'Swap Details'} />
+      <WalletHeader title={buyBTCText.swapDetails} />
       <ScrollView
         automaticallyAdjustKeyboardInsets={true}
         style={styles.flex1}
@@ -133,18 +137,18 @@ export const SwapDetails = ({ navigation, route }) => {
           />
           <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
           <SwapConfirmCard
-            text={'Amount to Swap'}
+            text={buyBTCText.amountToSwap}
             subText={`${data?.deposit_amount} ${data?.coin_from}`}
           />
           <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
           <SwapConfirmCard
-            text={'LetsExchange ID:'}
+            text={buyBTCText.letsExchangeId}
             subText={`${data?.transaction_id} `}
             rightComponent={() => (
               <TouchableOpacity
                 onPress={() => {
                   Clipboard.setString(data?.transaction_id);
-                  showToast('LetsExchange ID copied to successfully', <TickIcon />);
+                  showToast(buyBTCText.letsExchangeIdCopied, <TickIcon />);
                 }}
               >
                 <Box style={styles.copyIcon} backgroundColor={copyToClipboard}>
@@ -165,12 +169,12 @@ export const SwapDetails = ({ navigation, route }) => {
           </Box>
           <SwapConfirmCard
             icon={<SvgIcon />}
-            text={`${data?.coin_to} Received In `}
+            text={`${data?.coin_to} ${buyBTCText.receivedIn} `}
             subText={recievedWallet?.presentationData?.name}
           />
           <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
           <SwapConfirmCard
-            text={'Estimated Amount to Receive'}
+            text={buyBTCText.estimatedAmount}
             subText={`${Number(data?.withdrawal_amount).toFixed(2)} ${data?.coin_to}`}
           />
         </Box>
@@ -186,13 +190,13 @@ export const SwapDetails = ({ navigation, route }) => {
       >
         <Box style={styles.noteContainer}>
           <Text fontSize={15} medium color={`${colorMode}.textGreen`}>
-            Note
+            {common.note}
           </Text>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            Make sure to copy and save the LetsExchange ID
+            {buyBTCText.copyExchangeId}
           </Text>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
-            *By initiating a swap, you acknowledge and agree to our Terms and Conditions.
+            {buyBTCText.agreedTerms}
           </Text>
         </Box>
         <Buttons
