@@ -1800,7 +1800,7 @@
     "status": "Status",
     "depositAddress": "Deposit Address",
     "receiptAddress": "Receipt Address",
-    "swapDetails": "Swap Details",
+    "swapDetails": "Swap Confirmation",
     "amountToSwap": "Amount to Swap",
     "letsExchangeId": "LetsExchange ID:",
     "letsExchangeIdCopied": "LetsExchange ID copied to successfully",

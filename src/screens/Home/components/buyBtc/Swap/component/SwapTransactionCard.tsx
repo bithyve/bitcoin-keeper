@@ -14,6 +14,7 @@ import { StatusEnum } from './Constant';
 import SwapConfirmingIcon from '../../../../../../assets/images/swap-confirmint.svg';
 import SwapProcessingIcon from '../../../../../../assets/images/swap-processing.svg';
 import SwapSuccessIcon from '../../../../../../assets/images/swap-success.svg';
+import SwapOverDueIcon from '../../../../../../assets/images/swap-overDue.svg';
 import { CoinLogo } from '../Swaps';
 import SwapPriceArrow from 'src/assets/images/swap-price-arrow.svg';
 import SwapPriceArrowWhite from 'src/assets/images/swap-price-arrow-white.svg';
@@ -47,8 +48,10 @@ const SwapTransactionCard = ({ onPress = () => {}, history, status }: Props) => 
                   <SwapConfirmingIcon />
                 ) : status === StatusEnum.Processing ? (
                   <SwapProcessingIcon />
-                ) : (
+                ) : status === StatusEnum.Success ? (
                   <SwapSuccessIcon />
+                ) : (
+                  <SwapOverDueIcon />
                 )
               }
               backgroundColor={
@@ -56,7 +59,9 @@ const SwapTransactionCard = ({ onPress = () => {}, history, status }: Props) => 
                   ? Colors.lightOrange
                   : status === StatusEnum.Processing
                   ? Colors.lightindigoblue
-                  : Colors.PaleTropicalTeal
+                  : status === StatusEnum.Success
+                  ? Colors.PaleTropicalTeal
+                  : Colors.lightRed
               }
             />
           </Box>
@@ -90,7 +95,9 @@ const SwapTransactionCard = ({ onPress = () => {}, history, status }: Props) => 
                 medium
                 color={isDark ? Colors.bodyText : Colors.DarkSlateGray}
               >
-                {Number(history.deposit_amount).toFixed(2)}
+                {history.coin_from === 'BTC'
+                  ? history.deposit_amount
+                  : Number(history.deposit_amount).toFixed(2)}
               </Text>
             </Box>
             <Box style={styles.arrowContainer}>
@@ -109,7 +116,9 @@ const SwapTransactionCard = ({ onPress = () => {}, history, status }: Props) => 
                 medium
                 color={isDark ? Colors.bodyText : Colors.DarkSlateGray}
               >
-                {Number(history.withdrawal_amount).toFixed(2)}
+                {history.coin_to === 'BTC'
+                  ? history.withdrawal_amount
+                  : Number(history.withdrawal_amount).toFixed(2)}
               </Text>
             </Box>
           </Box>
@@ -158,7 +167,6 @@ const styles = StyleSheet.create({
   },
   arrowIconWrapper: {
     paddingRight: wp(5),
-    paddingLeft: wp(5),
     paddingTop: hp(2),
   },
   circle: {

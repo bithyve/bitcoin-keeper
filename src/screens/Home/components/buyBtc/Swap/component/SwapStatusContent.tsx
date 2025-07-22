@@ -12,14 +12,18 @@ const SwapStatusContent = ({ status }) => {
       ? Colors.lightOrange
       : status === StatusEnum.Processing
       ? Colors.lightindigoblue
-      : Colors.PaleTropicalTeal;
+      : status === StatusEnum.Success
+      ? Colors.PaleTropicalTeal
+      : Colors.lightRed;
 
   const textColor =
     status === StatusEnum.Confirming
       ? Colors.darkOrange
       : status === StatusEnum.Processing
       ? Colors.indigoblue
-      : Colors.TropicalTeal;
+      : status === StatusEnum.Success
+      ? Colors.TropicalTeal
+      : Colors.CrimsonRed;
   return (
     <Box backgroundColor={containerBackgroundColor} style={styles.container}>
       <Text fontSize={12} color={textColor}>

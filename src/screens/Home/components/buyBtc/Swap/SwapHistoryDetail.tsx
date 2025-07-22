@@ -17,6 +17,7 @@ import Colors from 'src/theme/Colors';
 import SwapConfirmingIcon from '../../../../../assets/images/swap-confirmint.svg';
 import SwapProcessingIcon from '../../../../../assets/images/swap-processing.svg';
 import SwapSuccessIcon from '../../../../../assets/images/swap-success.svg';
+import SwapOverDueIcon from '../../../../../assets/images/swap-overDue.svg';
 import SwapInfoCard from './component/SwapInfoCard';
 import SwapStatusContent from './component/SwapStatusContent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -78,8 +79,10 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                   <SwapConfirmingIcon />
                 ) : transaction_status === StatusEnum.Processing ? (
                   <SwapProcessingIcon />
-                ) : (
+                ) : transaction_status === StatusEnum.Success ? (
                   <SwapSuccessIcon />
+                ) : (
+                  <SwapOverDueIcon />
                 )
               }
               backgroundColor={
@@ -87,7 +90,9 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                   ? Colors.lightOrange
                   : transaction_status === StatusEnum.Processing
                   ? Colors.lightindigoblue
-                  : Colors.PaleTropicalTeal
+                  : transaction_status === StatusEnum.Success
+                  ? Colors.PaleTropicalTeal
+                  : Colors.lightRed
               }
             />
             <Box>
@@ -117,7 +122,10 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                     color={viewAll_color}
                   >{`${details.coin_from_name} ${buyBTCText.Sent}`}</Text>
                   <Text fontSize={13} color={`${colorMode}.primaryText`}>
-                    {Number(details.deposit_amount).toFixed(2)} {details.coin_from}
+                    {details.coin_from === 'BTC'
+                      ? details.deposit_amount
+                      : Number(details.deposit_amount).toFixed(2)}{' '}
+                    {details.coin_from}
                   </Text>
                 </Box>
               </HStack>
@@ -134,7 +142,10 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                     color={viewAll_color}
                   >{`${details.coin_to_name} ${buyBTCText.Received}`}</Text>
                   <Text fontSize={13} color={`${colorMode}.primaryText`}>
-                    {Number(details.withdrawal_amount).toFixed(2)} {details.coin_to}
+                    {details.coin_to === 'BTC'
+                      ? details.withdrawal_amount
+                      : Number(details.withdrawal_amount).toFixed(2)}{' '}
+                    {details.coin_to}
                   </Text>
                 </Box>
               </HStack>
@@ -150,14 +161,20 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
               title={buyBTCText.realDepositAmount}
               showIcon={false}
               letterSpacing={2.4}
-              description={Number(details.real_deposit_amount).toFixed(2) + ' ' + details.coin_from}
+              description={
+                details.coin_from === 'BTC'
+                  ? details.real_deposit_amount + ' ' + details.coin_from
+                  : Number(details.real_deposit_amount).toFixed(2) + ' ' + details.coin_from
+              }
             />
             <SwapInfoCard
               title={buyBTCText.realWithdrawalAmount}
               showIcon={false}
               letterSpacing={2.4}
               description={
-                Number(details.real_withdrawal_amount).toFixed(2) + ' ' + details.coin_to
+                details.coin_to === 'BTC'
+                  ? details.real_withdrawal_amount + ' ' + details.coin_to
+                  : Number(details.real_withdrawal_amount).toFixed(2) + ' ' + details.coin_to
               }
             />
             <SwapInfoCard
@@ -177,7 +194,10 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
           </ScrollView>
         </Box>
       )}
-      <ActivityIndicatorView visible={loading} showLoader />
+      <ActivityIndicatorView
+        visible={loading && transaction_status !== StatusEnum.OverDue}
+        showLoader
+      />
     </ScreenWrapper>
   );
 };

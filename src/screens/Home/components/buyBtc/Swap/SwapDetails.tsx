@@ -221,7 +221,7 @@ export const SwapDetails = ({ navigation, route }) => {
             <Box style={styles.iconWrapper}>
               <CircleIconWrapper
                 icon={<DualArrow />}
-                width={39}
+                width={22}
                 backgroundColor={`${colorMode}.pantoneGreen`}
               />
             </Box>
