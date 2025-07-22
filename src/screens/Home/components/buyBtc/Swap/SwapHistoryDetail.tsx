@@ -1,4 +1,4 @@
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, HStack, ScrollView, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Text from 'src/components/KeeperText';
@@ -9,6 +9,16 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useDispatch } from 'react-redux';
 import { getTnxDetails } from 'src/store/sagaActions/swap';
 import { CoinLogo } from './Swaps';
+import { StyleSheet } from 'react-native';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import { hp, wp } from 'src/constants/responsive';
+import { getStatus, StatusEnum } from './component/Constant';
+import Colors from 'src/theme/Colors';
+import SwapConfirmingIcon from '../../../../../assets/images/swap-confirmint.svg';
+import SwapProcessingIcon from '../../../../../assets/images/swap-processing.svg';
+import SwapSuccessIcon from '../../../../../assets/images/swap-success.svg';
+import SwapInfoCard from './component/SwapInfoCard';
+import SwapStatusContent from './component/SwapStatusContent';
 
 export const SwapHistoryDetail = ({ navigation, route }) => {
   const { tnxId, createdAt } = route.params;
@@ -41,64 +51,156 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
       })
     );
   }, []);
+  console.log('details', details);
+  const transaction_status = getStatus(details?.status);
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={'Transaction Details'} />
+    <ScreenWrapper
+      paddingHorizontal={0}
+      barStyle="dark-content"
+      backgroundcolor={`${colorMode}.primaryBackground`}
+    >
+      <Box style={styles.container}>
+        <WalletHeader
+          title={'Transaction Details'}
+          subTitle="Detailed information for this transaction"
+        />
+        {details && (
+          <Box style={styles.transactionContainer}>
+            <CircleIconWrapper
+              width={wp(35)}
+              icon={
+                transaction_status === StatusEnum.Confirming ? (
+                  <SwapConfirmingIcon />
+                ) : transaction_status === StatusEnum.Processing ? (
+                  <SwapProcessingIcon />
+                ) : (
+                  <SwapSuccessIcon />
+                )
+              }
+              backgroundColor={
+                transaction_status === StatusEnum.Confirming
+                  ? Colors.lightOrange
+                  : transaction_status === StatusEnum.Processing
+                  ? Colors.lightindigoblue
+                  : Colors.PaleTropicalTeal
+              }
+            />
+            <Box>
+              <Text color={`${colorMode}.secondaryText`}>{details.transaction_id}</Text>
+              <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+                {createdAt}
+              </Text>
+            </Box>
+          </Box>
+        )}
+      </Box>
 
       {details && (
-        <Box>
-          <HStack my={5} justifyContent={'space-between'}>
-            <Box>
-              <Text>{details.transaction_id}</Text>
-              <Text>{createdAt}</Text>
-            </Box>
-            <Box>
-              <Text>{details.is_float ? 'Floating' : 'Fixed'}</Text>
-            </Box>
-          </HStack>
-
-          <HStack justifyContent={'space-between'} my={5}>
-            <HStack mr={2}>
-              <CoinLogo code={details.coin_from} />
-              <Box ml={4}>
-                <Text>{`${details.coin_from_name} Sent`}</Text>
-                <Text>{details.deposit_amount}</Text>
-              </Box>
+        <Box style={styles.Wrapper} borderColor={`${colorMode}.separator`}>
+          <ScrollView>
+            <HStack justifyContent={'space-between'} my={5}>
+              <HStack mr={2}>
+                <CoinLogo
+                  code={details.coin_from}
+                  CircleWidth={wp(30)}
+                  logoWidth={wp(15)}
+                  logoHeight={wp(19)}
+                />
+                <Box ml={4}>
+                  <Text
+                    fontSize={13}
+                    color={`${colorMode}.textGreen`}
+                  >{`${details.coin_from_name} Sent`}</Text>
+                  <Text fontSize={13} color={`${colorMode}.primaryText`}>
+                    {Number(details.deposit_amount).toFixed(2)} {details.coin_from}
+                  </Text>
+                </Box>
+              </HStack>
+              <HStack mr={2}>
+                <CoinLogo
+                  code={details.coin_to}
+                  CircleWidth={wp(30)}
+                  logoWidth={wp(15)}
+                  logoHeight={wp(19)}
+                />
+                <Box ml={4}>
+                  <Text
+                    fontSize={13}
+                    color={`${colorMode}.textGreen`}
+                  >{`${details.coin_to_name} Received`}</Text>
+                  <Text fontSize={13} color={`${colorMode}.primaryText`}>
+                    {Number(details.withdrawal_amount).toFixed(2)} {details.coin_to}
+                  </Text>
+                </Box>
+              </HStack>
             </HStack>
-            <HStack mr={2}>
-              <CoinLogo code={details.coin_to} />
-              <Box ml={4}>
-                <Text>{`${details.coin_to_name} Received`}</Text>
-                <Text>{details.withdrawal_amount}</Text>
-              </Box>
-            </HStack>
-          </HStack>
-
-          <Box my={5} gap={1}>
-            <Text>Status</Text>
-            <Text>{details.status}</Text>
-          </Box>
-          <Box my={5} gap={1}>
-            <Text>Real Deposit Amount</Text>
-            <Text>{details.real_deposit_amount}</Text>
-          </Box>
-          <Box my={5} gap={1}>
-            <Text>Real withdrawal Amount</Text>
-            <Text>{details.real_withdrawal_amount}</Text>
-          </Box>
-          <Box my={5} gap={1}>
-            <Text>Deposit Address</Text>
-            <Text>{details.deposit}</Text>
-          </Box>
-          <Box my={5} gap={1}>
-            <Text>Receipt Address</Text>
-            <Text>{details.withdrawal}</Text>
-          </Box>
+            <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+            <SwapInfoCard
+              title={'Status'}
+              showIcon={false}
+              letterSpacing={2.4}
+              Content={() => <SwapStatusContent status={transaction_status} />}
+            />
+            <SwapInfoCard
+              title={'Real Deposit Amount'}
+              showIcon={false}
+              letterSpacing={2.4}
+              description={Number(details.real_deposit_amount).toFixed(2) + ' ' + details.coin_from}
+            />
+            <SwapInfoCard
+              title={'Real withdrawal Amount'}
+              showIcon={false}
+              letterSpacing={2.4}
+              description={
+                Number(details.real_withdrawal_amount).toFixed(2) + ' ' + details.coin_to
+              }
+            />
+            <SwapInfoCard
+              title={'Deposit Address'}
+              showIcon={false}
+              letterSpacing={2.4}
+              description={details.deposit}
+              numberOfLines={2}
+            />
+            <SwapInfoCard
+              title={'Receipt Address'}
+              showIcon={false}
+              letterSpacing={2.4}
+              description={details.withdrawal}
+              numberOfLines={2}
+            />
+          </ScrollView>
         </Box>
       )}
-
       <ActivityIndicatorView visible={loading} showLoader />
     </ScreenWrapper>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: wp(20),
+  },
+  transactionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+    marginTop: hp(20),
+  },
+  Wrapper: {
+    flex: 1,
+    paddingHorizontal: wp(20),
+    borderWidth: 1,
+    marginTop: hp(30),
+    borderTopLeftRadius: wp(30),
+    borderTopRightRadius: wp(30),
+    borderBottomWidth: 0,
+    paddingVertical: wp(15),
+  },
+  horizontalDivider: {
+    height: 1,
+    width: '100%',
+    marginBottom: wp(15),
+  },
+});

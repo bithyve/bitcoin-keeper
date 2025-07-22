@@ -2,13 +2,14 @@ import { CommonActions } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import React from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { CoinLogo } from './Swaps';
 import { wp } from 'src/constants/responsive';
 import moment from 'moment';
+import SwapTransactionCard from './component/SwapTransactionCard';
+import { getStatus } from './component/Constant';
 
 export interface SwapHistoryObject {
   coin_from: string;
@@ -28,20 +29,24 @@ export interface SwapHistoryObject {
 
 export const SwapHistory = ({ navigation }) => {
   const history = useQuery(RealmSchema.SwapHistory).map(getJSONFromRealmObject);
-  const reversedHistory = history.slice().reverse();
+  const reversedHistory = history.slice().reverse().slice(0, 3);
   const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.container}>
-      {/* Header */}
       <Box style={styles.headerContainer}>
         <Text>History</Text>
-        <Pressable onPress={() => {}}>
-          <Text>View All</Text>
-        </Pressable>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('SwapAllHistory');
+          }}
+        >
+          <Text medium color={`${colorMode}.textGreen`}>
+            View All
+          </Text>
+        </TouchableOpacity>
       </Box>
 
-      {/* Content */}
       {reversedHistory.length === 0 ? (
         <Box style={styles.emptyContainer}>
           <Text color={`${colorMode}.primaryText`}>You have no transactions yet</Text>
@@ -51,47 +56,20 @@ export const SwapHistory = ({ navigation }) => {
           data={reversedHistory}
           keyExtractor={(item) => item.id}
           renderItem={({ item }: { item: SwapHistoryObject }) => (
-            <Pressable
-              style={styles.listItem}
-              onPress={() =>
-                navigation.dispatch(
-                  CommonActions.navigate('SwapHistoryDetail', {
-                    tnxId: item.id,
-                    createdAt: moment(item.created_at).format('DD MMM YY  .  HH:mm A'),
-                  })
-                )
-              }
-            >
-              <Box flexDirection="row">
-                {/* Details */}
-                <Box flex={0.5}>
-                  <Text>{item.id}</Text>
-                  <Text>{moment(item.created_at).format('DD MMM YY  .  HH:mm A')}</Text>
-                </Box>
-
-                {/* Tnx Icons */}
-                <Box flexDirection="row" justifyContent="space-between" flex={0.5}>
-                  <Box style={styles.coinBox}>
-                    <CoinLogo
-                      code={item.coin_from}
-                      logoWidth={wp(7.5)}
-                      logoHeight={wp(9.5)}
-                      CircleWidth={wp(15)}
-                    />
-                    <Text>{item.deposit_amount}</Text>
-                  </Box>
-                  <Box>
-                    <CoinLogo
-                      code={item.coin_to}
-                      logoWidth={wp(7.5)}
-                      logoHeight={wp(9.5)}
-                      CircleWidth={wp(15)}
-                    />
-                    <Text>{item.withdrawal_amount}</Text>
-                  </Box>
-                </Box>
-              </Box>
-            </Pressable>
+            <>
+              <SwapTransactionCard
+                history={item}
+                status={getStatus(item.status)}
+                onPress={() =>
+                  navigation.dispatch(
+                    CommonActions.navigate('SwapHistoryDetail', {
+                      tnxId: item.id,
+                      createdAt: moment(item.created_at).format('DD MMM YY  .  HH:mm A'),
+                    })
+                  )
+                }
+              />
+            </>
           )}
         />
       )}
