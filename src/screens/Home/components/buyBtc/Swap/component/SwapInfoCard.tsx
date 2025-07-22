@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useColorMode } from 'native-base';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 type SwapInfoCardProps = {
   title: string;
@@ -28,6 +29,7 @@ export default function SwapInfoCard({
 }: SwapInfoCardProps) {
   const { colorMode } = useColorMode();
   const isDark = colorMode === 'dark';
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
     <Box width={wp(width)} style={styles.infoCardContainer}>
@@ -43,7 +45,7 @@ export default function SwapInfoCard({
         <Box width={showIcon ? '92%' : '100%'}>
           <Box style={styles.titleWrapper}>
             <Text
-              color={`${colorMode}.greenText`}
+              color={viewAll_color}
               style={[styles.titleText, { letterSpacing }]}
               numberOfLines={1}
             >

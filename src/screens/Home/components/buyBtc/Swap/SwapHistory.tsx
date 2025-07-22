@@ -11,6 +11,7 @@ import moment from 'moment';
 import SwapTransactionCard from './component/SwapTransactionCard';
 import { getStatus } from './component/Constant';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 export interface SwapHistoryObject {
   coin_from: string;
@@ -34,6 +35,7 @@ export const SwapHistory = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { buyBTC: buyBTCText, common } = translations;
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   return (
     <Box style={styles.container}>
@@ -44,7 +46,7 @@ export const SwapHistory = ({ navigation }) => {
             navigation.navigate('SwapAllHistory');
           }}
         >
-          <Text medium color={`${colorMode}.textGreen`}>
+          <Text medium color={viewAll_color}>
             {common.viewAll}
           </Text>
         </TouchableOpacity>

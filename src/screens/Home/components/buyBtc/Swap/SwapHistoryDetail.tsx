@@ -20,6 +20,7 @@ import SwapSuccessIcon from '../../../../../assets/images/swap-success.svg';
 import SwapInfoCard from './component/SwapInfoCard';
 import SwapStatusContent from './component/SwapStatusContent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 export const SwapHistoryDetail = ({ navigation, route }) => {
   const { tnxId, createdAt } = route.params;
@@ -30,6 +31,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { buyBTC: buyBTCText, transactions: transactionsText } = translations;
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   useEffect(() => {
     if (!tnxId) {
@@ -112,7 +114,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                 <Box ml={4}>
                   <Text
                     fontSize={13}
-                    color={`${colorMode}.textGreen`}
+                    color={viewAll_color}
                   >{`${details.coin_from_name} ${buyBTCText.Sent}`}</Text>
                   <Text fontSize={13} color={`${colorMode}.primaryText`}>
                     {Number(details.deposit_amount).toFixed(2)} {details.coin_from}
@@ -129,7 +131,7 @@ export const SwapHistoryDetail = ({ navigation, route }) => {
                 <Box ml={4}>
                   <Text
                     fontSize={13}
-                    color={`${colorMode}.textGreen`}
+                    color={viewAll_color}
                   >{`${details.coin_to_name} ${buyBTCText.Received}`}</Text>
                   <Text fontSize={13} color={`${colorMode}.primaryText`}>
                     {Number(details.withdrawal_amount).toFixed(2)} {details.coin_to}

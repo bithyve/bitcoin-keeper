@@ -30,6 +30,7 @@ import Text from 'src/components/KeeperText';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import USDT from 'src/services/wallets/operations/dollars/USDT';
 import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 export const SwapDetails = ({ navigation, route }) => {
   const { data, wallet, recievedWallet } = route.params;
@@ -46,6 +47,8 @@ export const SwapDetails = ({ navigation, route }) => {
   const [miniscriptSatisfier, setMiniscriptSatisfier] = useState(null);
   const copyToClipboard = ThemedColor({ name: 'copyToClipboard' });
   const { syncAccountStatus } = useUSDTWallets();
+  const isSmallDevice = useIsSmallDevices();
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful) {
@@ -234,18 +237,8 @@ export const SwapDetails = ({ navigation, route }) => {
             subText={`${Number(data?.withdrawal_amount).toFixed(2)} ${data?.coin_to}`}
           />
         </Box>
-      </ScrollView>
-      <Box
-        position="absolute"
-        bottom={0}
-        left={0}
-        right={0}
-        backgroundColor={`${colorMode}.primaryBackground`}
-        borderColor={`${colorMode}.separator`}
-        style={styles.buttonContainer}
-      >
-        <Box style={styles.noteContainer}>
-          <Text fontSize={15} medium color={`${colorMode}.textGreen`}>
+        <Box style={[{ marginTop: isSmallDevice ? hp(10) : hp(50) }, styles.noteContainer]}>
+          <Text fontSize={15} medium color={viewAll_color}>
             {common.note}
           </Text>
           <Text fontSize={13} color={`${colorMode}.primaryText`}>
@@ -255,15 +248,21 @@ export const SwapDetails = ({ navigation, route }) => {
             {buyBTCText.agreedTerms}
           </Text>
         </Box>
-        <Buttons
-          primaryCallback={() => {
-            if (wallet.entityKind === EntityKind.USDT_WALLET) processUSDTSend();
-            else executeSendPhaseOne(null);
-          }}
-          primaryText="Pay with Wallet"
-          fullWidth
-        />
-      </Box>
+        <Box
+          backgroundColor={`${colorMode}.primaryBackground`}
+          borderColor={`${colorMode}.separator`}
+          style={styles.buttonContainer}
+        >
+          <Buttons
+            primaryCallback={() => {
+              if (wallet.entityKind === EntityKind.USDT_WALLET) processUSDTSend();
+              else executeSendPhaseOne(null);
+            }}
+            primaryText="Pay with Wallet"
+            fullWidth
+          />
+        </Box>
+      </ScrollView>
 
       <MiniscriptPathSelector
         ref={miniscriptPathSelectorRef}
@@ -308,12 +307,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   noteContainer: {
-    marginVertical: wp(20),
+    marginBottom: hp(10),
     gap: 5,
   },
   buttonContainer: {
     marginBottom: hp(20),
-    paddingHorizontal: wp(20),
+    paddingHorizontal: wp(2),
     paddingVertical: hp(10),
+    width: '100%',
   },
 });
