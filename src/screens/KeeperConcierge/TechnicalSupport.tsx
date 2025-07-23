@@ -1,6 +1,5 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from 'src/components/ContentWrapper';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
