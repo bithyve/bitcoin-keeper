@@ -282,7 +282,7 @@ export default class Relay {
   };
 
   public static getAppProfiles = async (
-    publicIds: string[]
+    contactsKeys: string[]
   ): Promise<{
     profiles: {
       contactsKey: string;
@@ -293,7 +293,7 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getAppProfiles`, {
-        publicIds,
+        contactsKeys,
       });
     } catch (err) {
       console.log('err', err);
@@ -301,9 +301,7 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
     const { profiles } = res.data || res.json;
-    return {
-      profiles,
-    };
+    return profiles;
   };
 
   public static updateAppProfile = async (

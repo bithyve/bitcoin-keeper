@@ -33,8 +33,7 @@ export interface Community {
   createdAt: number;
   updatedAt: number;
   with?: string;
-  // messages: Message[];
-  // members: string[];
+  key?: string;
 }
 
 export interface Contact {

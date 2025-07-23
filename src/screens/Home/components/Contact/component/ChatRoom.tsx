@@ -17,73 +17,12 @@ import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import PlusIcon from 'src/assets/images/plus-green-icon.svg';
 import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
 import SendWhiteIcon from 'src/assets/images/send-white-icon.svg';
-
-// dummy data
-const initialMessages = [
-  {
-    id: 1,
-    text: 'Hey, did you end up watching "The Silent City"?',
-    sender: 'other',
-    date: '2025-05-12T10:12:00',
-  },
-  {
-    id: 2,
-    text: 'Yeah I did! Just finished it last night.',
-    sender: 'me',
-    date: '2025-05-12T10:13:00',
-  },
-  {
-    id: 3,
-    text: 'Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.',
-    sender: 'other',
-    date: '2025-05-12T10:14:30',
-  },
-  {
-    id: 10,
-    text: 'Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.',
-    sender: 'other',
-    date: '2025-05-12T10:14:30',
-  },
-  {
-    id: 4,
-    text: 'Right? When she found out her brother was behind it all...',
-    sender: 'me',
-    date: '2025-05-12T10:15:20',
-  },
-  {
-    id: 5,
-    text: 'Exactly! And the cinematography was so good. Every shot looked like a painting.',
-    sender: 'other',
-    date: '2025-05-12T10:17:10',
-  },
-  {
-    id: 6,
-    text: 'I really liked the soundtrack too. Gave me chills.',
-    sender: 'me',
-    date: '2025-05-12T10:19:45',
-  },
-
-  {
-    id: 7,
-    text: 'I’ve been thinking about that ending all day ',
-    sender: 'other',
-    date: '2025-05-13T09:05:00',
-  },
-  {
-    id: 8,
-    text: 'Same! I kind of want to rewatch it already.',
-    sender: 'me',
-    date: '2025-05-13T09:06:10',
-  },
-  {
-    id: 9,
-    text: 'Let’s do a watch party this weekend? I’ll bring popcorn ',
-    sender: 'other',
-    date: '2025-05-13T09:07:55',
-  },
-  { id: 10, text: 'Deal. Saturday night?', sender: 'me', date: '2025-05-13T09:08:20' },
-  { id: 11, text: 'Perfect. Can’t wait!', sender: 'other', date: '2025-05-13T09:08:45' },
-];
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptionManager';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { useChatPeer } from 'src/hooks/useChatPeer';
+import { v4 as uuidv4 } from 'uuid';
 
 const groupMessagesByDate = (msgs) => {
   const groups = {};
@@ -100,24 +39,41 @@ const groupMessagesByDate = (msgs) => {
   return groups;
 };
 
-const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
-  const [messages, setMessages] = useState(initialMessages);
+const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community }) => {
   const [inputValue, setInputValue] = useState('');
   const groupedMessages = groupMessagesByDate(messages);
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const scrollRef = useRef(null);
+  const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const chatPeer = useChatPeer();
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
-    const newMessage = {
-      id: Date.now(),
-      text: inputValue,
-      sender: 'me',
-      date: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-    setInputValue('');
+    try {
+      const messageData = {
+        id: uuidv4(),
+        text: inputValue.trim(),
+        createdAt: Date.now(),
+        type: 'TEXT',
+        sender: app.contactsKey.publicKey,
+        communityId: community.id,
+        unread: false,
+        fileUrl: '',
+      };
+      dbManager.createObject(RealmSchema.Message, messageData);
+      const encryptedMessage = ChatEncryptionManager.encryptMessage(
+        JSON.stringify({ ...messageData }),
+        community.key
+      );
+      chatPeer.sendMessage(
+        community.with,
+        JSON.stringify({ ...encryptedMessage, communityId: community.id })
+      );
+      setInputValue('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
     setTimeout(() => {
       scrollRef?.current?.scrollToEnd({ animated: true });
     }, 0);
@@ -126,7 +82,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
     setTimeout(() => {
       scrollRef?.current?.scrollToEnd({ animated: true });
     }, 100);
-  }, [messages]);
+  }, [messages, scrollRef]);
 
   return (
     <KeyboardAvoidingView

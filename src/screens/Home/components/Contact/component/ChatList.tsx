@@ -46,13 +46,7 @@ const ChatItem = ({ item, userProfileImage }: { item: ChatItemData; userProfileI
   };
 
   const handlePress = () => {
-    navigation.navigate('ChatRoomScreen', {
-      receiverProfileImage: item.image,
-      receiverProfileName: item.name,
-      userProfileImage,
-      communityId: item.communityId,
-      contactKey: item.contactKey,
-    });
+    navigation.navigate('ChatRoomScreen', { communityId: item.communityId });
   };
 
   return (
@@ -94,10 +88,15 @@ const ChatItem = ({ item, userProfileImage }: { item: ChatItemData; userProfileI
   );
 };
 
-const ChatList = ({ userProfileImage }: { userProfileImage: any }) => {
+const ChatList = ({
+  userProfileImage,
+  communities,
+}: {
+  userProfileImage: any;
+  communities: any;
+}) => {
   const { colorMode } = useColorMode();
-  const { communities, getAllMessages, getMessagesByCommunity, getUnreadCount, getContactByKey } =
-    useChatPeer();
+  const { getAllMessages, getMessagesByCommunity, getUnreadCount, getContactByKey } = useChatPeer();
 
   // Transform communities into chat list data
   const chatData = useMemo(() => {

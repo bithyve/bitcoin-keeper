@@ -12,10 +12,12 @@ import {
   RPC_KEY,
   SEND_MESSAGE,
 } from './rpc-commands.mjs';
-import { CommunityType, Contact, Message } from './interface';
+import { Community, CommunityType, Contact, Message } from './interface';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptionManager';
+import Relay from '../backend/Relay';
 
 export default class ChatPeerManager {
   static instance: ChatPeerManager;
@@ -41,24 +43,28 @@ export default class ChatPeerManager {
   }
 
   async init(seed: string): Promise<boolean> {
-    await this.worklet.start('/app.bundle', bundle, [seed]);
+    try {
+      await this.worklet.start('/app.bundle', bundle, [seed]);
 
-    this.rpc = new RPC(this.IPC, async (req) => {
-      const data = b4a.toString(req.data);
-
-      if (req.command === RPC_KEY) {
-      } else if (req.command === ON_MESSAGE) {
-        this.storeMessage(JSON.parse(data));
-        if (this.onMessageCallback) {
-          this.onMessageCallback(JSON.parse(data));
+      this.rpc = new RPC(this.IPC, async (req) => {
+        const data = b4a.toString(req.data);
+        if (req.command === RPC_KEY) {
+        } else if (req.command === ON_MESSAGE) {
+          this.storeMessage(JSON.parse(data));
+          if (this.onMessageCallback) {
+            this.onMessageCallback(JSON.parse(data));
+          }
+        } else if (req.command === ON_CONNECTION) {
+          if (this.onConnectionCallback) {
+            this.onConnectionCallback(JSON.parse(data));
+          }
         }
-      } else if (req.command === ON_CONNECTION) {
-        if (this.onConnectionCallback) {
-          this.onConnectionCallback(JSON.parse(data));
-        }
-      }
-    });
-    return true;
+      });
+      return true;
+    } catch (error) {
+      console.error('Error initializing chat peer manager:', error);
+      return false;
+    }
   }
 
   async getKeys() {
@@ -115,19 +121,30 @@ export default class ChatPeerManager {
 
   async loadPendingMessages(lastBlock = 0) {
     try {
-      const response = await this.getPeerMessages(this.app.contactsKey.publicKey, lastBlock + 1);
+      console.log('loadPendingMessages', lastBlock);
+      const response = await this.getPeerMessages(
+        this.app.contactsKey.publicKey,
+        lastBlock === 0 ? 0 : lastBlock - 1
+      );
+      console.log('response', response);
       if (response.messages.length > 0) {
-        const communities = dbManager.getCollection(RealmSchema.Community);
         for (const msg of response.messages) {
           const message: Message = JSON.parse(msg.message);
-          const communityId = [this.app.contactsKey.publicKey, message.sender].sort().join('-');
-          if (!communities.find((c) => c.id === communityId)) {
-            // const contact = await Relay.getWalletProfiles([message.sender]);
-            const contact = await this.mockGetWalletProfiles([message.sender]);
-
+          const communityId = message.communityId;
+          let community = dbManager.getObjectByPrimaryId(RealmSchema.Community, 'id', communityId);
+          if (!community && message.encryptedKeys) {
+            const contact = await Relay.getAppProfiles([message.sender]);
             if (contact.results.length > 0) {
               dbManager.createObject(RealmSchema.Contact, contact.results[0]);
-              dbManager.createObject(RealmSchema.Community, {
+              const sharedSecret = ChatEncryptionManager.performKeyExchange(
+                this.app.contactsKey,
+                message.sender
+              );
+              const encryptedKeys = ChatEncryptionManager.decryptKeys(
+                message.encryptedKeys,
+                sharedSecret
+              );
+              community = {
                 id: communityId,
                 communityId: communityId,
                 name: contact.results[0].name,
@@ -135,20 +152,24 @@ export default class ChatPeerManager {
                 createdAt: msg.timestamp,
                 updatedAt: msg.timestamp,
                 with: message.sender,
-              });
+                key: encryptedKeys.aesKey,
+              };
+              dbManager.createObject(RealmSchema.Community, community);
             }
           }
+          const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
+          const messageData = JSON.parse(decryptedMessage);
           dbManager.createObject(RealmSchema.Message, {
-            id: message.id,
-            communityId: communityId,
-            type: message.type,
-            text: message.text,
+            id: messageData.id,
+            communityId: messageData.communityId,
+            type: messageData.type,
+            text: messageData.text,
             createdAt: msg.timestamp,
-            sender: message.sender,
+            sender: messageData.sender,
             block: msg.blockNumber,
             unread: true,
-            fileUrl: message?.fileUrl,
-            request: (message as any)?.request,
+            fileUrl: messageData?.fileUrl,
+            request: messageData?.request,
           });
         }
       }
@@ -162,35 +183,44 @@ export default class ChatPeerManager {
       const communities = dbManager.getCollection(RealmSchema.Community);
       const data = JSON.parse(payload.data);
       const message = JSON.parse(data.message);
-      const community = communities.find((c) => c.id === message.communityId);
-      if (!community) {
-        // const contact = await Relay.getWalletProfiles([message.sender]);
-        const contact = await this.mockGetWalletProfiles([message.sender]);
-
+      let community: Community = communities.find((c) => c.id === message.communityId);
+      if (!community && message.encryptedKeys) {
+        const contact = await Relay.getAppProfiles([message.sender]);
         if (contact.results.length > 0) {
+          const sharedSecret = ChatEncryptionManager.performKeyExchange(
+            this.app.contactsKey,
+            message.sender
+          );
+          const encryptedKeys = ChatEncryptionManager.decryptKeys(
+            message.encryptedKeys,
+            sharedSecret
+          );
           dbManager.createObject(RealmSchema.Contact, contact.results[0]);
-          dbManager.createObject(RealmSchema.Community, {
+          community = {
             id: message.communityId,
             name: contact.results[0].name,
             type: CommunityType.Peer,
             createdAt: data.timestamp,
             updatedAt: data.timestamp,
             with: message.sender,
-          });
+            key: encryptedKeys.aesKey,
+          };
+          dbManager.createObject(RealmSchema.Community, community);
         }
       }
-
+      const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
+      const messageData = JSON.parse(decryptedMessage);
       dbManager.createObject(RealmSchema.Message, {
-        id: message.id,
-        communityId: message.communityId,
-        type: message.type,
-        text: message.text,
+        id: messageData.id,
+        communityId: messageData.communityId,
+        type: messageData.type,
+        text: messageData.text,
         createdAt: data.timestamp,
-        sender: message.sender,
+        sender: messageData.sender,
         block: data.blockNumber,
         unread: true,
-        fileUrl: message?.fileUrl,
-        request: message?.request,
+        fileUrl: messageData?.fileUrl,
+        request: messageData?.request,
       });
     } catch (error) {
       console.error('Error storing messages:', error);
@@ -237,13 +267,12 @@ export default class ChatPeerManager {
   async syncContacts() {
     try {
       const contacts: Contact[] = dbManager.getCollection(RealmSchema.Contact) as any;
-      // const response = await Relay.getWalletProfiles(contacts.map((c) => c.contactKey));
-      const response = await this.mockGetWalletProfiles(contacts.map((c) => c.contactKey));
+      const response = await Relay.getAppProfiles(contacts.map((c) => c.contactKey));
 
-      if (response.results.length > 0) {
+      if (response.profiles.length > 0) {
         dbManager.createObjectBulk(
           RealmSchema.Contact,
-          response.results,
+          response.profiles,
           Realm.UpdateMode.Modified
         );
       }

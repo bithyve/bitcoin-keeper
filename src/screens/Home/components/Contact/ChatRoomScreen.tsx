@@ -7,33 +7,47 @@ import ChatRoomHeader from './component/ChatRoomHeader';
 import ChatRoom from './component/ChatRoom';
 import ProfileContent from './component/ProfileContent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useObject, useQuery } from '@realm/react';
+import { Community, Contact, Message } from 'src/services/p2p/interface';
 
 type ChatRoomParams = {
   ChatRoomScreen: {
-    receiverProfileImage: string;
-    receiverProfileName: string;
-    userProfileImage: string;
+    communityId: string;
   };
 };
 
 const ChatRoomScreen = () => {
   const { colorMode } = useColorMode();
   const route = useRoute<RouteProp<ChatRoomParams, 'ChatRoomScreen'>>();
-  const { receiverProfileImage, receiverProfileName, userProfileImage } = route.params;
-  const [editReceiverProfileName, setEditReceiverProfileName] = useState(receiverProfileName);
+  const { communityId } = route.params;
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [editUserProfileImage, setEditUserProfileImage] = useState(receiverProfileImage);
   const { translations } = useContext(LocalizationContext);
   const { contactText } = translations;
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
+  const community = useObject<Community>(RealmSchema.Community, communityId);
+  const messages = useQuery<Message>(RealmSchema.Message)
+    .filtered('communityId = $0', communityId)
+    .sorted('createdAt', true);
+  const contact = useQuery<Contact>(RealmSchema.Contact).filtered(
+    'contactKey = $0',
+    community.with
+  )[0];
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <ChatRoomHeader
-        receiverProfileImage={editUserProfileImage}
-        receiverProfileName={editReceiverProfileName}
+        receiverProfileImage={contact.imageUrl}
+        receiverProfileName={contact.name}
         setOpenEditModal={setOpenEditModal}
       />
-      <ChatRoom userProfileImage={userProfileImage} receiverProfileImage={editUserProfileImage} />
+      <ChatRoom
+        userProfileImage={app.appImage}
+        receiverProfileImage={contact.imageUrl}
+        messages={messages}
+        community={community}
+      />
       <KeeperModal
         visible={openEditModal}
         close={() => setOpenEditModal(false)}

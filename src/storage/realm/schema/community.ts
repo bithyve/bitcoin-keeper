@@ -37,5 +37,6 @@ export const CommunitySchema: ObjectSchema = {
     createdAt: { type: 'int', default: Date.now() },
     type: 'string',
     with: 'string?',
+    key: 'string?',
   },
 };
