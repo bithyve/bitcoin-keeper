@@ -18,8 +18,16 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import NFC from 'src/services/nfc';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
+import { CommonActions } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
 
-function ContactModalData({ isShareContact = false, setContactModalVisible, navigation, data }) {
+function ContactModalData({
+  isShareContact = false,
+  setContactModalVisible,
+  navigation,
+  data,
+  onQrScan,
+}) {
   const { colorMode } = useColorMode();
   const [nfcVisible, setNfcVisible] = useState(false);
   const { showToast } = useToastMessage();
@@ -103,7 +111,7 @@ function ContactModalData({ isShareContact = false, setContactModalVisible, navi
   const ContactOptions = [
     {
       id: 1,
-      label: 'Show QR',
+      label: 'Share QR',
       icon: <QR_Icon />,
       onPress: () => {
         setContactModalVisible(false);
@@ -111,12 +119,37 @@ function ContactModalData({ isShareContact = false, setContactModalVisible, navi
       },
     },
     {
+      id: 1,
+      label: 'Scan QR',
+      icon: <QR_Icon />,
+      onPress: () => {
+        setContactModalVisible(false);
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'ScanQR',
+            params: {
+              title: 'Scan QR',
+              subtitle: 'Scan QR',
+              onQrScan,
+              importOptions: false,
+              isSingning: true,
+            },
+          })
+        );
+      },
+    },
+    {
       id: 2,
       label: `${isIos ? 'Airdrop / ' : ''}File `,
       icon: <ExportFile />,
-      onPress: () => {
+      onPress: async () => {
         setContactModalVisible(false);
-        shareWithAirdrop();
+        const clipboardData = await Clipboard.getString();
+        if (clipboardData) {
+          onQrScan(clipboardData);
+        } else {
+          showToast('No data found in clipboard');
+        }
       },
     },
 
