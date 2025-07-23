@@ -22,6 +22,12 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
+import { CommunityType, MessageType } from 'src/services/p2p/interface';
+import { hash256 } from 'src/utils/service-utilities/encryption';
+import Relay from 'src/services/backend/Relay';
+import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptionManager';
+import { v4 as uuidv4 } from 'uuid';
+import { useQuery } from '@realm/react';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -35,7 +41,7 @@ const Contact = () => {
   const { translations } = useContext(LocalizationContext);
   const { contactText } = translations;
   const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-
+  const communities = useQuery(RealmSchema.Community);
   const { showToast } = useToastMessage();
   const chatPeer = useChatPeer();
 
@@ -55,6 +61,65 @@ const Contact = () => {
   useEffect(() => {
     if (!chatPeer.isInitialized) initializeChat();
   }, [chatPeer.isInitialized]);
+
+  useEffect(() => {
+    chatPeer.loadPendingMessages();
+  }, []);
+
+  const onQrScan = (data) => {
+    if (data.startsWith('keeper://')) {
+      const urlParts = data.split('/');
+      const path = urlParts[2];
+      if (path === 'contact') {
+        const publicKey = urlParts[3];
+        initChat(publicKey);
+      }
+    } else {
+      showToast('Invalid QR code', <ToastErrorIcon />);
+    }
+  };
+
+  const initChat = async (publicKey: string) => {
+    try {
+      const profiles = await Relay.getAppProfiles([publicKey]);
+      if (profiles.length > 0) {
+        dbManager.createObject(RealmSchema.Contact, profiles[0]);
+      }
+      const communityId = hash256([app.contactsKey.publicKey, publicKey].sort().join('-'));
+      const sessionKeys = ChatEncryptionManager.generateSessionKeys();
+      const encryptedKeys = ChatEncryptionManager.encryptKeys(
+        sessionKeys.aesKey,
+        ChatEncryptionManager.performKeyExchange(app.contactsKey, publicKey)
+      );
+      const community = dbManager.getObjectByPrimaryId(RealmSchema.Community, 'id', communityId);
+      if (!community) {
+        dbManager.createObject(RealmSchema.Community, {
+          id: communityId,
+          communityId: communityId,
+          name: profiles[0].name,
+          createdAt: Date.now(),
+          type: CommunityType.Peer,
+          with: publicKey,
+          key: sessionKeys.aesKey,
+        });
+        const message = {
+          id: uuidv4(),
+          communityId: communityId,
+          type: MessageType.Alert,
+          text: `Start of community`,
+          createdAt: Date.now(),
+          sender: app.contactsKey.publicKey,
+          unread: false,
+          encryptedKeys: encryptedKeys,
+        };
+        chatPeer.sendMessage(publicKey, JSON.stringify(message));
+        dbManager.createObject(RealmSchema.Message, message);
+        showToast('New Tribe Contact created', false);
+      }
+    } catch (error) {
+      console.error('Error initializing chat:', error);
+    }
+  };
 
   return (
     <Box style={styles.container}>
@@ -102,7 +167,7 @@ const Contact = () => {
             </Box>
           </TouchableOpacity>
         </Box>
-        <ChatList userProfileImage={userProfileImage} />
+        <ChatList userProfileImage={userProfileImage} communities={communities} />
       </ScrollView>
       <Box style={styles.bottomButton}>
         <Buttons
@@ -147,6 +212,7 @@ const Contact = () => {
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
             data={`keeper://contact/${app.contactsKey.publicKey}/`}
+            onQrScan={onQrScan}
           />
         )}
       />
