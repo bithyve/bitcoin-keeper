@@ -103,9 +103,6 @@ function AddEmergencyKey({ route }) {
   const isDarkMode = colorMode === 'dark';
 
   useEffect(() => {
-    // TODO: keyToRotate would need proper support for when there are multiple emergency keys
-    if (keyToRotate) return;
-
     if (
       !activeVault?.id ||
       !activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
@@ -126,7 +123,7 @@ function AddEmergencyKey({ route }) {
 
     if (emergencyKeys.length > 0) {
       const emergencyKeysWithOptions = emergencyKeys.map((key) => ({
-        signer: key,
+        signer: getKeyUID(keyToRotate) == getKeyUID(key) ? null : key,
         option: DEFAULT_EMERGENCY_KEY_TIMELOCK,
       }));
       setSelectedEmergencyKeys(emergencyKeysWithOptions);

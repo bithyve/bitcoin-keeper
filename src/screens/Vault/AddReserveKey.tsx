@@ -105,9 +105,6 @@ function AddReserveKey({ route }) {
   const isDarkMode = colorMode === 'dark';
 
   useEffect(() => {
-    // TODO: keyToRotate would need proper support for when there are multiple inheritance keys
-    if (keyToRotate) return;
-
     if (
       !activeVault?.id ||
       !activeVault?.scheme?.miniscriptScheme?.miniscriptElements?.signerFingerprints
@@ -128,7 +125,7 @@ function AddReserveKey({ route }) {
 
     if (inheritanceKeys.length > 0) {
       const inheritanceKeysWithOptions = inheritanceKeys.map((key) => ({
-        signer: key,
+        signer: getKeyUID(keyToRotate) == getKeyUID(key) ? null : key,
         option: DEFAULT_INHERITANCE_KEY_TIMELOCK,
       }));
       setSelectedInheritanceKeys(inheritanceKeysWithOptions);
