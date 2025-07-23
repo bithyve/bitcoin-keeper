@@ -41,6 +41,7 @@ import {
 } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -70,7 +71,16 @@ export function* setupKeeperAppWorker({ payload }) {
       );
       imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
     }
-    const response = yield call(Relay.createNewApp, publicId, appID, fcmToken);
+    const cm = ChatPeerManager.getInstance();
+    yield call([cm, cm.init], primarySeed.toString('hex'));
+    const contactsKey = yield call([cm, cm.getKeys]);
+    const response = yield call(
+      Relay.createNewApp,
+      publicId,
+      appID,
+      fcmToken,
+      contactsKey.publicKey
+    );
 
     if (response && response.created) {
       const newAPP: KeeperApp = {
@@ -90,6 +100,7 @@ export function* setupKeeperAppWorker({ payload }) {
         version: DeviceInfo.getVersion(),
         networkType: bitcoinNetworkType,
         enableAnalytics: false,
+        contactsKey,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
 

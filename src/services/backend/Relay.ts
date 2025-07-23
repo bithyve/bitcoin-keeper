@@ -257,7 +257,8 @@ export default class Relay {
   public static createNewApp = async (
     publicId: string,
     appID: string,
-    fcmToken: string
+    fcmToken: string,
+    contactsKey?: string
   ): Promise<{
     created: boolean;
   }> => {
@@ -267,6 +268,7 @@ export default class Relay {
         appID,
         publicId,
         fcmToken,
+        contactsKey,
       });
     } catch (err) {
       console.log('err', err);
