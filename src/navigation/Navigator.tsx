@@ -156,6 +156,7 @@ import UsdtTransactionHistory from 'src/screens/USDT/UsdtTransactionHistory';
 import Usdtsetting from 'src/screens/USDT/Usdtsetting';
 import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
+import KeeperSupport from 'src/screens/KeeperConcierge/KeeperSupport';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -343,6 +344,7 @@ function AppStack() {
         <Stack.Screen name="SignMessageScreen" component={SignMessageScreen} />
         <Stack.Screen name="CloudBackupPassword" component={CloudBackupPassword} />
         <Stack.Screen name="ImportedWalletSetup" component={ImportedWalletSetup} />
+        <Stack.Screen name="KeeperSupport" component={KeeperSupport} />
       </Stack.Navigator>
     </RealmProvider>
   );

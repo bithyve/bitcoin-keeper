@@ -10,6 +10,7 @@ import HireAdvisorIcon from 'src/assets/images/hire-advisor.svg';
 import TakeMeThereIcon from 'src/assets/images/take-me-there.svg';
 import ConnectAdvisor from 'src/assets/images/connect-advisor.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useNavigation } from '@react-navigation/native';
 
 type ConciergeItem = {
   title: string;
@@ -20,10 +21,11 @@ type ConciergeItem = {
   buttonIcon?: any;
 };
 
-const ConciergeComponent = () => {
+const ConciergeComponent = ({ route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { concierge: conciergeText } = translations;
+  const navigation = useNavigation();
 
   const conciergeData: ConciergeItem[] = [
     {
@@ -31,7 +33,9 @@ const ConciergeComponent = () => {
       subtitle: conciergeText.submitTicket,
       iconName: <AskQuestionIcon />,
       buttonText: conciergeText.takeMeThere,
-      callback: () => {},
+      callback: () => {
+        navigation.navigate('KeeperSupport');
+      },
       buttonIcon: TakeMeThereIcon,
     },
     {

@@ -18,7 +18,6 @@ import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
-import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
@@ -100,8 +99,7 @@ function NewHomeScreen({ route }) {
         return {
           content: (
             <Box>
-              <ConciergeComponent />
-              {/* <TechnicalSupport route={route} /> */}
+              <ConciergeComponent route={route} />
             </Box>
           ),
           icon: (
