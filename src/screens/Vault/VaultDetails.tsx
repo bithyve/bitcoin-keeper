@@ -464,8 +464,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       <WalletDetailHeader
         settingCallBack={() => {
           if (!vault.archived) {
-            console.log('clicked');
-
             navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }));
           } else {
             navigation.push('VaultSettings', { vaultId: vault.id });

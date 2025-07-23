@@ -1,7 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -192,37 +192,39 @@ function ResetInheritanceKey({ route }) {
         subTitle={vaultText.resetIKDesc + (inheritanceSigners.length > 1 ? 's' : '')}
       />
       <Box style={styles.container}>
-        {signers.map((signer) => (
-          <Box key={getKeyUID(signer)} style={styles.contentContainer}>
-            <IKSInfocard
-              name={signer?.signerName}
-              description={getSignerDescription(signer)}
-              Icon={SDIcons({ type: signer?.type })?.Icon}
-              duration={activationTimes[getKeyUID(signer)]}
-            />
-            <Box style={styles.dropdownContainer}>
-              <Box>
-                <Text color={`${colorMode}.primaryText`} fontSize={15}>
-                  {vaultText.chooseNewActivationTimeTitle}
-                </Text>
-                <Text color={`${colorMode}.secondaryText`} fontSize={12}>
-                  {vaultText.chooseNewActivationTimeDesc}
-                </Text>
-              </Box>
-              <OptionPicker
-                label={vaultText.selectActivationTime}
-                options={INHERITANCE_TIMELOCK_DURATIONS}
-                selectedOption={selectedOptions[getKeyUID(signer)]}
-                onOptionSelect={(option) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    [getKeyUID(signer)]: option,
-                  }))
-                }
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {signers.map((signer) => (
+            <Box key={getKeyUID(signer)} style={styles.contentContainer}>
+              <IKSInfocard
+                name={signer?.signerName}
+                description={getSignerDescription(signer)}
+                Icon={SDIcons({ type: signer?.type })?.Icon}
+                duration={activationTimes[getKeyUID(signer)]}
               />
+              <Box style={styles.dropdownContainer}>
+                <Box>
+                  <Text color={`${colorMode}.primaryText`} fontSize={15}>
+                    {vaultText.chooseNewActivationTimeTitle}
+                  </Text>
+                  <Text color={`${colorMode}.secondaryText`} fontSize={12}>
+                    {vaultText.chooseNewActivationTimeDesc}
+                  </Text>
+                </Box>
+                <OptionPicker
+                  label={vaultText.selectActivationTime}
+                  options={INHERITANCE_TIMELOCK_DURATIONS}
+                  selectedOption={selectedOptions[getKeyUID(signer)]}
+                  onOptionSelect={(option) =>
+                    setSelectedOptions((prev) => ({
+                      ...prev,
+                      [getKeyUID(signer)]: option,
+                    }))
+                  }
+                />
+              </Box>
             </Box>
-          </Box>
-        ))}
+          ))}
+        </ScrollView>
         <Box>
           <Buttons
             primaryLoading={vaultCreating}
@@ -278,12 +280,14 @@ export default ResetInheritanceKey;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: hp(40),
+    marginTop: hp(20),
     paddingHorizontal: wp(10),
+    marginBottom: hp(20),
   },
   contentContainer: {
     flex: 1,
-    gap: hp(30),
+    gap: hp(15),
+    marginBottom: hp(30),
   },
   dropdownContainer: {
     gap: hp(15),

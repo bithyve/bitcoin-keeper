@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode, ScrollView } from 'native-base';
 import React, { useCallback, useContext, useState, useEffect, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import HorizontalAddCard from 'src/components/HorizontalAddCard';
@@ -32,13 +32,14 @@ import { MiniscriptTypes, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import VaultMigrationController from './VaultMigrationController';
 import { useAppSelector } from 'src/store/hooks';
-import { useDispatch } from 'react-redux';
-import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { EMERGENCY_KEY_IDENTIFIER } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
+import { AddKeyButton } from '../SigningDevices/components/AddKeyButton';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
 export const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
 export const EMERGENCY_TIMELOCK_DURATIONS = [
@@ -73,8 +74,24 @@ function AddEmergencyKey({ route }) {
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
   const { common, vault: vaultTranslations, wallet: walletTranslations } = translations;
-  const [selectedOption, setSelectedOption] = useState(DEFAULT_EMERGENCY_KEY_TIMELOCK);
-  const [selectedSigner, setSelectedSigner] = useState(null);
+
+  // Make emergencyKeysCount a state variable
+  const [emergencyKeysCount, setEmergencyKeysCount] = useState(1);
+
+  const [selectedEmergencyKeys, setSelectedEmergencyKeys] = useState<
+    Array<{
+      signer: any;
+      option: any;
+    }>
+  >(() => {
+    // Initialize with empty slots based on emergencyKeysCount
+    return Array(emergencyKeysCount)
+      .fill(null)
+      .map(() => ({
+        signer: null,
+        option: DEFAULT_EMERGENCY_KEY_TIMELOCK,
+      }));
+  });
   const { activeVault } = useVault({ vaultId });
   const vaultKeys = vaultKeysParam || activeVault?.signers || [];
   const [vaultCreating, setCreating] = useState(false);
@@ -83,16 +100,11 @@ function AddEmergencyKey({ route }) {
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
 
-  // TODO: Allow multiple inheritance keys
-  const emergencyKey = useMemo(() => {
-    if (!selectedSigner || !signerMap) return null;
-    return signerMap[getKeyUID(selectedSigner[0])];
-  }, [selectedSigner, signerMap]);
-
   const isDarkMode = colorMode === 'dark';
 
   useEffect(() => {
-    if (selectedSigner || keyToRotate) return;
+    // TODO: keyToRotate would need proper support for when there are multiple emergency keys
+    if (keyToRotate) return;
 
     if (
       !activeVault?.id ||
@@ -100,20 +112,27 @@ function AddEmergencyKey({ route }) {
     )
       return;
 
-    const emergencyKeyFingerprint = Object.entries(
+    const emergencyKeysFingerprints = Object.entries(
       activeVault.scheme.miniscriptScheme.miniscriptElements.signerFingerprints
-    ).find(([key]) => key.startsWith(EMERGENCY_KEY_IDENTIFIER))?.[1];
+    ).filter(([key]) => key.startsWith(EMERGENCY_KEY_IDENTIFIER));
 
-    if (!emergencyKeyFingerprint) return;
+    if (!emergencyKeysFingerprints.length) return;
 
-    const emergencyKey = activeVault.signers.find(
-      (key) => key.masterFingerprint === emergencyKeyFingerprint
-    );
+    const emergencyKeys = emergencyKeysFingerprints
+      .map(([_, fingerprint]) =>
+        activeVault.signers.find((key) => key.masterFingerprint === fingerprint)
+      )
+      .filter(Boolean);
 
-    if (emergencyKey) {
-      setSelectedSigner([emergencyKey]);
+    if (emergencyKeys.length > 0) {
+      const emergencyKeysWithOptions = emergencyKeys.map((key) => ({
+        signer: key,
+        option: DEFAULT_EMERGENCY_KEY_TIMELOCK,
+      }));
+      setSelectedEmergencyKeys(emergencyKeysWithOptions);
+      setEmergencyKeysCount(emergencyKeys.length);
     }
-  }, [activeVault?.id, keyToRotate, selectedSigner]);
+  }, [activeVault?.id, keyToRotate]);
 
   const viewVault = () => {
     setVaultCreatedModalVisible(false);
@@ -140,29 +159,87 @@ function AddEmergencyKey({ route }) {
     }
   }, []);
 
-  const userKeyCallback = useCallback(() => {
-    navigation.push('AddSigningDevice', {
-      parentScreen: ADDEMERGENCYKEY,
-      selectedSignersFromParams:
-        vaultKeys && vaultKeys.length > 0 ? vaultKeys : route.params.selectedSigners,
+  const userKeyCallback = useCallback(
+    (index: number) => {
+      navigation.push('AddSigningDevice', {
+        parentScreen: ADDEMERGENCYKEY,
+        selectedSignersFromParams: selectedEmergencyKeys
+          .filter((_, keyIndex) => keyIndex !== index)
+          .map((key) => key.signer)
+          .filter(Boolean),
+        scheme,
+        isAddInheritanceKey,
+        isAddEmergencyKey,
+        hasInitialTimelock,
+        currentBlockHeight,
+        onGoBack: (signer) => {
+          // Handle the case where signer is an array
+          const actualSigner = Array.isArray(signer) ? signer[0] : signer;
+
+          setSelectedEmergencyKeys((prev) => {
+            const updated = [...prev];
+            updated[index] = { ...updated[index], signer: actualSigner };
+            return updated;
+          });
+        },
+      });
+    },
+    [
+      navigation,
+      vaultKeys,
+      route.params.selectedSigners,
       scheme,
       isAddInheritanceKey,
       isAddEmergencyKey,
       hasInitialTimelock,
       currentBlockHeight,
-      onGoBack: (signer) => setSelectedSigner(signer),
+      selectedEmergencyKeys,
+    ]
+  );
+
+  // Get the actual signer objects from signerMap
+  const emergencyKeysWithSigners = useMemo(() => {
+    return selectedEmergencyKeys.map((emergencyKey) => {
+      // If we have a signer in state, get the proper one from signerMap
+      let signer = emergencyKey.signer;
+      if (emergencyKey.signer && signerMap) {
+        // Handle the case where signer might be an array
+        const signerToProcess = Array.isArray(emergencyKey.signer)
+          ? emergencyKey.signer[0]
+          : emergencyKey.signer;
+
+        if (signerToProcess && signerToProcess.masterFingerprint) {
+          const signerId = getKeyUID(signerToProcess);
+          signer = signerMap[signerId] || signerToProcess;
+        }
+      }
+
+      return {
+        ...emergencyKey,
+        signer,
+      };
     });
-  }, [
-    navigation,
-    vaultKeys,
-    route.params.selectedSigners,
-    selectedSigner,
-    scheme,
-    isAddInheritanceKey,
-    isAddEmergencyKey,
-    hasInitialTimelock,
-    currentBlockHeight,
-  ]);
+  }, [selectedEmergencyKeys, signerMap]);
+
+  // Add function to add emergency key
+  const addEmergencyKey = () => {
+    setEmergencyKeysCount((prev) => prev + 1);
+    setSelectedEmergencyKeys((prev) => [
+      ...prev,
+      {
+        signer: null,
+        option: DEFAULT_EMERGENCY_KEY_TIMELOCK,
+      },
+    ]);
+  };
+
+  // Add function to remove emergency key
+  const removeEmergencyKey = (index: number) => {
+    if (emergencyKeysCount > 1) {
+      setEmergencyKeysCount((prev) => prev - 1);
+      setSelectedEmergencyKeys((prev) => prev.filter((_, i) => i !== index));
+    }
+  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -171,57 +248,97 @@ function AddEmergencyKey({ route }) {
         subTitle={vaultTranslations.setEmergencyKeyForVault}
       />
       <Box style={styles.container}>
-        <Box style={styles.contentContainer}>
-          <Box>
-            <Box style={styles.cardContainer}>
-              {!emergencyKey ? (
-                <HorizontalAddCard
-                  name={vaultTranslations.addEmergencyKey}
-                  cardStyles={{ minHeight: hp(92) }}
-                  iconWidth={25}
-                  iconHeight={22}
-                  callback={userKeyCallback}
-                  KeyIcon={isDarkMode ? KEEPERAPPLIGHT : KEEPERAPP}
-                />
-              ) : (
-                <HorizontalSignerCard
-                  key={getKeyUID(emergencyKey)}
-                  name={getSignerNameFromType(emergencyKey.type, emergencyKey.isMock, false)}
-                  description={getSignerDescription(emergencyKey)}
-                  icon={SDIcons({ type: emergencyKey.type }).Icon}
-                  isSelected={false}
-                  showSelection={false}
-                  changeKey={userKeyCallback}
-                  colorMode={colorMode}
-                />
-              )}
-            </Box>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {emergencyKeysWithSigners.map((emergencyKey, index) => {
+            return (
+              <Box key={index} style={styles.contentContainer}>
+                <Box>
+                  <Box style={styles.cardContainer}>
+                    {!emergencyKey.signer ? (
+                      <HorizontalAddCard
+                        name={vaultTranslations.addEmergencyKey}
+                        cardStyles={{ minHeight: hp(92) }}
+                        iconWidth={25}
+                        iconHeight={22}
+                        callback={() => userKeyCallback(index)}
+                        KeyIcon={isDarkMode ? KEEPERAPPLIGHT : KEEPERAPP}
+                      />
+                    ) : (
+                      <HorizontalSignerCard
+                        key={getKeyUID(emergencyKey.signer)}
+                        name={getSignerNameFromType(
+                          emergencyKey.signer.type,
+                          emergencyKey.signer.isMock,
+                          false
+                        )}
+                        description={getSignerDescription(emergencyKey.signer)}
+                        icon={SDIcons({ type: emergencyKey.signer.type }).Icon}
+                        isSelected={false}
+                        showSelection={false}
+                        changeKey={() => userKeyCallback(index)}
+                        colorMode={colorMode}
+                      />
+                    )}
+                  </Box>
+                </Box>
+                <Box>
+                  <Box style={styles.textContainer}>
+                    <Text color={`${colorMode}.primaryText`}>
+                      {vaultTranslations.emergencyKeyActivation}
+                    </Text>
+                    <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
+                      {vaultTranslations.availableAfterDelay}
+                    </Text>
+                  </Box>
+                  <Box style={styles.dropDownContainer}>
+                    <OptionPicker
+                      label={vaultTranslations.selectActivationTime}
+                      options={EMERGENCY_TIMELOCK_DURATIONS}
+                      selectedOption={emergencyKey.option}
+                      onOptionSelect={(option) => {
+                        setSelectedEmergencyKeys((prev) => {
+                          const updated = [...prev];
+                          updated[index] = { ...updated[index], option };
+                          return updated;
+                        });
+                      }}
+                    />
+                  </Box>
+                  {/* Remove button - only show if there's more than 1 key */}
+                  {emergencyKeysCount > 1 && (
+                    <Box style={styles.removeButtonContainer}>
+                      <TouchableOpacity
+                        onPress={() => removeEmergencyKey(index)}
+                        style={styles.removeButton}
+                        testID={`btn_remove_emergency_key_${index}`}
+                      >
+                        <ThemedSvg name="delete_icon" width={16} height={16} />
+                        <Text
+                          color={`${colorMode}.redText`}
+                          fontSize={12}
+                          style={styles.removeButtonText}
+                        >
+                          Remove
+                        </Text>
+                      </TouchableOpacity>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+            );
+          })}
+
+          {/* Add key button */}
+          <Box style={styles.addKeyButtonContainer}>
+            <AddKeyButton short onPress={addEmergencyKey} />
           </Box>
-          <Box>
-            <Box style={styles.textContainer}>
-              <Text color={`${colorMode}.primaryText`}>
-                {vaultTranslations.emergencyKeyActivation}
-              </Text>
-              <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
-                {vaultTranslations.availableAfterDelay}
-              </Text>
-            </Box>
-            <Box style={styles.dropDownContainer}>
-              <OptionPicker
-                label={vaultTranslations.selectActivationTime}
-                options={EMERGENCY_TIMELOCK_DURATIONS}
-                selectedOption={selectedOption}
-                onOptionSelect={(option) => setSelectedOption(option)}
-              />
-            </Box>
-          </Box>
-        </Box>
+        </ScrollView>
         <Box style={styles.bottomContainer}>
           <Buttons
             primaryLoading={vaultCreating || relayVaultUpdateLoading}
             primaryText={common.confirm}
             fullWidth
-            primaryDisable={!selectedSigner || !selectedOption}
+            primaryDisable={selectedEmergencyKeys.some((key) => !key.option || !key.signer)}
             primaryCallback={() => {
               if (vaultId) {
                 setCreating(true);
@@ -238,9 +355,13 @@ function AddEmergencyKey({ route }) {
                 currentBlockHeight,
                 hotWalletInstanceNum: null,
                 reservedKeys: inheritanceKeys,
-                emergencyKeys: selectedSigner
-                  ? [{ key: selectedSigner[0], duration: selectedOption.label }]
-                  : [],
+                emergencyKeys: selectedEmergencyKeys
+                  .filter((key) => key.signer)
+                  .filter((key) => key.option)
+                  .map((key) => ({
+                    key: key.signer,
+                    duration: key.option.label,
+                  })),
                 selectedSigners: route.params.selectedSigners,
                 vaultId,
                 initialTimelockDuration,
@@ -299,9 +420,13 @@ function AddEmergencyKey({ route }) {
         setCreating={setCreating}
         vaultType={VaultType.MINISCRIPT}
         inheritanceKeys={inheritanceKeys}
-        emergencyKeys={
-          selectedSigner ? [{ key: selectedSigner[0], duration: selectedOption.label }] : []
-        }
+        emergencyKeys={selectedEmergencyKeys
+          .filter((key) => key.signer)
+          .filter((key) => key.option)
+          .map((key) => ({
+            key: key.signer,
+            duration: key.option.label,
+          }))}
         initialTimelockDuration={initialTimelockDuration ?? 0}
         currentBlockHeight={currentBlockHeight}
         miniscriptTypes={[
@@ -332,11 +457,31 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     gap: hp(25),
+    marginBottom: hp(25),
   },
   dropDownContainer: {
     marginTop: hp(20),
   },
   bottomContainer: {
     gap: hp(20),
+  },
+  removeButtonContainer: {
+    marginTop: hp(15),
+    alignItems: 'flex-end',
+  },
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: hp(8),
+    paddingHorizontal: wp(12),
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  removeButtonText: {
+    marginLeft: wp(6),
+  },
+  addKeyButtonContainer: {
+    marginTop: hp(20),
+    marginBottom: hp(10),
   },
 });
