@@ -9,6 +9,10 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import Buttons from 'src/components/Buttons';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Relay from 'src/services/backend/Relay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import dbManager from 'src/storage/realm/dbManager';
 
 const ProfileContent = ({
   setUserProfileImage,
@@ -23,6 +27,7 @@ const ProfileContent = ({
   const [profileName, setProfileName] = useState('');
   const { translations } = useContext(LocalizationContext);
   const { contactText, common } = translations;
+  const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
   useEffect(() => {
     if (userProfileImage) {
@@ -50,10 +55,24 @@ const ProfileContent = ({
       }
     );
   };
-  const handleConfirm = () => {
-    setUserProfileImage(profileImage);
-    setUserProfileName(profileName);
-    setCreateProfile(false);
+
+  const handleConfirm = async () => {
+    try {
+      const response = await Relay.updateAppProfile(profileName, profileImage, app.id);
+      if (response.updated) {
+        dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+          appName: profileName,
+        });
+        dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+          image: profileImage,
+        });
+        setUserProfileImage(profileImage);
+        setUserProfileName(profileName);
+        setCreateProfile(false);
+      }
+    } catch (error) {
+      console.log('Error in handleConfirm', error);
+    }
   };
 
   return (
