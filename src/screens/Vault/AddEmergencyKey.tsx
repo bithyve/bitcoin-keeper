@@ -321,13 +321,13 @@ function AddEmergencyKey({ route }) {
                         style={styles.removeButton}
                         testID={`btn_remove_emergency_key_${index}`}
                       >
-                        <ThemedSvg name="delete_icon" width={16} height={16} />
+                        <ThemedSvg name="delete_icon" width={26} height={26} />
                         <Text
                           color={`${colorMode}.redText`}
                           fontSize={12}
                           style={styles.removeButtonText}
                         >
-                          Remove
+                          {common.remove}
                         </Text>
                       </TouchableOpacity>
                     </Box>
@@ -337,7 +337,6 @@ function AddEmergencyKey({ route }) {
             );
           })}
 
-          {/* Add key button */}
           <Box style={styles.addKeyButtonContainer}>
             <AddKeyButton short onPress={addEmergencyKey} />
           </Box>
@@ -487,10 +486,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   removeButtonText: {
-    marginLeft: wp(6),
+    marginLeft: wp(4),
   },
   addKeyButtonContainer: {
-    marginTop: hp(20),
-    marginBottom: hp(10),
+    marginTop: hp(10),
+    marginBottom: hp(30),
   },
 });
