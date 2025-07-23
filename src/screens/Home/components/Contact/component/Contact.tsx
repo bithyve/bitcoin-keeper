@@ -19,7 +19,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useChatPeer } from 'src/hooks/useChatPeer';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import idx from 'idx';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import dbManager from 'src/storage/realm/dbManager';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -30,9 +32,9 @@ const Contact = () => {
   const navigation = useNavigation();
   const [contactmodalVisible, setContactModalVisible] = useState(false);
   const [shareContact, setShareContact] = useState(false);
-  const [shareContactData, setShareContactData] = useState('');
   const { translations } = useContext(LocalizationContext);
   const { contactText } = translations;
+  const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
   const { showToast } = useToastMessage();
   const chatPeer = useChatPeer();
@@ -43,9 +45,6 @@ const Contact = () => {
       if (!chatPeerInitialized) {
         throw new Error();
       }
-
-      const keys = await chatPeer.getKeys();
-      setShareContactData(idx(keys, (_) => _.publicKey));
     } catch (error) {
       console.error('Error initializing chat peer:', error);
       showToast('Chat Peer initialization failed', <ToastErrorIcon />);
@@ -61,7 +60,7 @@ const Contact = () => {
     <Box style={styles.container}>
       <ContactHeader
         userProfileImage={userProfileImage}
-        userProfileName={userProfileName}
+        userProfileName={app.appName}
         setCreateProfile={setCreateProfile}
         setContactModalVisible={setContactModalVisible}
         setShareContact={setShareContact}
@@ -76,7 +75,7 @@ const Contact = () => {
           <TouchableOpacity
             style={styles.concierge}
             onPress={() => {
-              navigation.navigate('keeperSupport');
+              navigation.navigate('ChatRoomScreen');
             }}
           >
             <Box style={styles.concierge_icon}>
@@ -147,7 +146,7 @@ const Contact = () => {
             isShareContact={shareContact}
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
-            data={shareContactData}
+            data={`keeper://contact/${app.contactsKey.publicKey}/`}
           />
         )}
       />
