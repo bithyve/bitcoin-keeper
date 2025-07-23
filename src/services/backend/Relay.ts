@@ -311,7 +311,6 @@ export default class Relay {
     image: any,
     id: string
   ): Promise<any> => {
-    let res;
     try {
       const formData = new FormData();
       formData.append('appName', appName);
@@ -319,18 +318,20 @@ export default class Relay {
         formData.append('image', image);
       }
       formData.append('id', id);
-      console.log(`${RELAY}updateAppProfile`);
-      res = await RestClient.post(`${RELAY}updateAppProfile`, formData, {
+      const res = await fetch(`${RELAY}updateAppProfile`, {
+        method: 'POST',
+        body: formData,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      const data = await res.json();
+      return data;
     } catch (err) {
       console.log('err', err);
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }
-    return res.data || res.json;
   };
 
   public static modifyLabels = async (
