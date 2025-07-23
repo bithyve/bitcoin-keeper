@@ -23,6 +23,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
+import ConciergeComponent from './components/ConciergeComponent';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -99,7 +100,8 @@ function NewHomeScreen({ route }) {
         return {
           content: (
             <Box>
-              <TechnicalSupport route={route} />
+              <ConciergeComponent />
+              {/* <TechnicalSupport route={route} /> */}
             </Box>
           ),
           icon: (

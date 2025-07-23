@@ -1759,7 +1759,13 @@
     "keeperConciergeTeamHelp": "If you need assistance or face an issue, please feel free to reach out to our Keeper Concierge team to help you with any question!",
     "scheduleOnboardingCall": "Schedule Onboarding Call",
     "scheduleCallWithExpert": "Schedule a call with our experts today.",
-    "supportTeam": "Support Team"
+    "supportTeam": "Support Team",
+    "askQuestion": "Ask us a question.",
+    "submitTicket": "Submit a ticket to get all your queries answered.",
+    "takeMeThere": "Take me there",
+    "hireAdvisor": "Hire an Advisor",
+    "whiteGlovedService": "White gloved services for comprehensive bitcoin management.",
+    "connetWithAdvisor": "Connect with an Advisor"
   },
   "buyBTC": {
     "acquire": "Acquire",
