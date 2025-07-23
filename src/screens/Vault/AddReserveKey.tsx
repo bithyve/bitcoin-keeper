@@ -41,6 +41,8 @@ import WalletHeader from 'src/components/WalletHeader';
 import { AddKeyButton } from '../SigningDevices/components/AddKeyButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 export const DEFAULT_INHERITANCE_KEY_TIMELOCK = { label: MONTHS_12, value: MONTHS_12 };
 export const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -75,7 +77,13 @@ function AddReserveKey({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultTranslations, wallet: walletTranslations } = translations;
+  const {
+    common,
+    vault: vaultTranslations,
+    wallet: walletTranslations,
+    error: errorText,
+  } = translations;
+  const { showToast } = useToastMessage();
 
   // Make inheritanceKeysCount a state variable
   const [inheritanceKeysCount, setInheritanceKeysCount] = useState(1);
@@ -201,6 +209,10 @@ function AddReserveKey({ route }) {
 
   // Add function to add inheritance key
   const addInheritanceKey = () => {
+    if (inheritanceKeysCount === 5) {
+      showToast(errorText.maximumInheritanceKeysReached, <ToastErrorIcon />);
+      return;
+    }
     setInheritanceKeysCount((prev) => prev + 1);
     setSelectedInheritanceKeys((prev) => [
       ...prev,

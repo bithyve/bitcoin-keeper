@@ -40,6 +40,8 @@ import WalletHeader from 'src/components/WalletHeader';
 import { AddKeyButton } from '../SigningDevices/components/AddKeyButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 export const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
 export const EMERGENCY_TIMELOCK_DURATIONS = [
@@ -73,7 +75,13 @@ function AddEmergencyKey({ route }) {
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
   const { translations } = useContext(LocalizationContext);
-  const { common, vault: vaultTranslations, wallet: walletTranslations } = translations;
+  const {
+    common,
+    vault: vaultTranslations,
+    wallet: walletTranslations,
+    error: errorText,
+  } = translations;
+  const { showToast } = useToastMessage();
 
   // Make emergencyKeysCount a state variable
   const [emergencyKeysCount, setEmergencyKeysCount] = useState(1);
@@ -220,6 +228,10 @@ function AddEmergencyKey({ route }) {
 
   // Add function to add emergency key
   const addEmergencyKey = () => {
+    if (emergencyKeysCount === 5) {
+      showToast(errorText.maximumEmergencyKeysReached, <ToastErrorIcon />);
+      return;
+    }
     setEmergencyKeysCount((prev) => prev + 1);
     setSelectedEmergencyKeys((prev) => [
       ...prev,
