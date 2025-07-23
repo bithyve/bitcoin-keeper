@@ -1,5 +1,4 @@
 import { Box, useColorMode } from 'native-base';
-import { authenticator } from 'otplib';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import KeeperQRCode from 'src/components/KeeperQRCode';
@@ -7,6 +6,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ReceiveAddress from 'src/screens/Recieve/ReceiveAddress';
 
 const ContactShareQr = ({ route }) => {
   const { colorMode } = useColorMode();
@@ -26,6 +26,8 @@ const ContactShareQr = ({ route }) => {
           showLogo
         />
       </Box>
+
+      <ReceiveAddress address={data} />
     </ScreenWrapper>
   );
 };
