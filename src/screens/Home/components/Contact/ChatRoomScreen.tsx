@@ -13,13 +13,16 @@ type ChatRoomParams = {
     receiverProfileImage: string;
     receiverProfileName: string;
     userProfileImage: string;
+    communityId: string;
+    contactKey?: string;
   };
 };
 
 const ChatRoomScreen = () => {
   const { colorMode } = useColorMode();
   const route = useRoute<RouteProp<ChatRoomParams, 'ChatRoomScreen'>>();
-  const { receiverProfileImage, receiverProfileName, userProfileImage } = route.params;
+  const { receiverProfileImage, receiverProfileName, userProfileImage, communityId, contactKey } =
+    route.params;
   const [editReceiverProfileName, setEditReceiverProfileName] = useState(receiverProfileName);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editUserProfileImage, setEditUserProfileImage] = useState(receiverProfileImage);
@@ -33,7 +36,12 @@ const ChatRoomScreen = () => {
         receiverProfileName={editReceiverProfileName}
         setOpenEditModal={setOpenEditModal}
       />
-      <ChatRoom userProfileImage={userProfileImage} receiverProfileImage={editUserProfileImage} />
+      <ChatRoom
+        userProfileImage={userProfileImage}
+        receiverProfileImage={editUserProfileImage}
+        communityId={communityId}
+        contactKey={contactKey}
+      />
       <KeeperModal
         visible={openEditModal}
         close={() => setOpenEditModal(false)}

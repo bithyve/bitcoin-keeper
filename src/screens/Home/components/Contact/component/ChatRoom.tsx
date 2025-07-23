@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   Box,
   VStack,
@@ -17,78 +17,20 @@ import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import PlusIcon from 'src/assets/images/plus-green-icon.svg';
 import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
 import SendWhiteIcon from 'src/assets/images/send-white-icon.svg';
+import { useChatPeer } from 'src/hooks/useChatPeer';
+import { Message } from 'src/services/p2p/interface';
 
-// dummy data
-const initialMessages = [
-  {
-    id: 1,
-    text: 'Hey, did you end up watching "The Silent City"?',
-    sender: 'other',
-    date: '2025-05-12T10:12:00',
-  },
-  {
-    id: 2,
-    text: 'Yeah I did! Just finished it last night.',
-    sender: 'me',
-    date: '2025-05-12T10:13:00',
-  },
-  {
-    id: 3,
-    text: 'Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.',
-    sender: 'other',
-    date: '2025-05-12T10:14:30',
-  },
-  {
-    id: 10,
-    text: 'Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.Man, that twist at the end? I did NOT see that coming.',
-    sender: 'other',
-    date: '2025-05-12T10:14:30',
-  },
-  {
-    id: 4,
-    text: 'Right? When she found out her brother was behind it all...',
-    sender: 'me',
-    date: '2025-05-12T10:15:20',
-  },
-  {
-    id: 5,
-    text: 'Exactly! And the cinematography was so good. Every shot looked like a painting.',
-    sender: 'other',
-    date: '2025-05-12T10:17:10',
-  },
-  {
-    id: 6,
-    text: 'I really liked the soundtrack too. Gave me chills.',
-    sender: 'me',
-    date: '2025-05-12T10:19:45',
-  },
+interface ChatRoomProps {
+  userProfileImage: any;
+  receiverProfileImage: any;
+  communityId: string;
+  contactKey?: string;
+}
 
-  {
-    id: 7,
-    text: 'I’ve been thinking about that ending all day ',
-    sender: 'other',
-    date: '2025-05-13T09:05:00',
-  },
-  {
-    id: 8,
-    text: 'Same! I kind of want to rewatch it already.',
-    sender: 'me',
-    date: '2025-05-13T09:06:10',
-  },
-  {
-    id: 9,
-    text: 'Let’s do a watch party this weekend? I’ll bring popcorn ',
-    sender: 'other',
-    date: '2025-05-13T09:07:55',
-  },
-  { id: 10, text: 'Deal. Saturday night?', sender: 'me', date: '2025-05-13T09:08:20' },
-  { id: 11, text: 'Perfect. Can’t wait!', sender: 'other', date: '2025-05-13T09:08:45' },
-];
-
-const groupMessagesByDate = (msgs) => {
-  const groups = {};
+const groupMessagesByDate = (msgs: Message[]) => {
+  const groups: { [key: string]: Message[] } = {};
   msgs.forEach((msg) => {
-    const date = moment(msg.date);
+    const date = moment(msg.createdAt);
     const label = moment().isSame(date, 'day')
       ? 'Today'
       : moment().subtract(1, 'day').isSame(date, 'day')
@@ -100,33 +42,78 @@ const groupMessagesByDate = (msgs) => {
   return groups;
 };
 
-const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
-  const [messages, setMessages] = useState(initialMessages);
+const ChatRoom: React.FC<ChatRoomProps> = ({
+  userProfileImage,
+  receiverProfileImage,
+  communityId,
+  contactKey,
+}) => {
   const [inputValue, setInputValue] = useState('');
-  const groupedMessages = groupMessagesByDate(messages);
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<any>(null);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
-    const newMessage = {
-      id: Date.now(),
-      text: inputValue,
-      sender: 'me',
-      date: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-    setInputValue('');
-    setTimeout(() => {
-      scrollRef?.current?.scrollToEnd({ animated: true });
-    }, 0);
+  const { getMessagesByCommunity, sendMessage, getKeys, markCommunityAsRead } = useChatPeer();
+
+  // Get current user's public key to determine message direction
+  const userKeys = useMemo(() => getKeys(), []);
+  const currentUserPubKey = userKeys?.publicKey;
+
+  // Get messages for this community
+  const messages = useMemo(() => {
+    try {
+      const msgs = getMessagesByCommunity(communityId);
+      // Sort messages by creation time
+      return msgs.sort((a, b) => a.createdAt - b.createdAt);
+    } catch (error) {
+      console.error('Error getting messages:', error);
+      return [];
+    }
+  }, [communityId]);
+
+  const groupedMessages = useMemo(() => groupMessagesByDate(messages), [messages]);
+
+  // Handle sending a new message
+  const handleSend = async () => {
+    if (!inputValue.trim() || !contactKey) return;
+
+    try {
+      await sendMessage(contactKey, inputValue.trim());
+      setInputValue('');
+      // The message will appear automatically when the hook updates
+      setTimeout(() => {
+        scrollRef?.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      // Could add error handling UI here
+    }
   };
+
+  // Don't render if we don't have a communityId
+  if (!communityId) {
+    return (
+      <Box flex={1} justifyContent="center" alignItems="center">
+        <Text>Loading chat...</Text>
+      </Box>
+    );
+  }
+
+  // Mark messages as read when component mounts or messages change
   useEffect(() => {
-    setTimeout(() => {
+    if (messages.length > 0) {
+      markCommunityAsRead(communityId);
+    }
+  }, [communityId, messages.length]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
       scrollRef?.current?.scrollToEnd({ animated: true });
     }, 100);
-  }, [messages]);
+
+    return () => clearTimeout(timeoutId);
+  }, [messages.length]);
 
   return (
     <KeyboardAvoidingView
@@ -153,9 +140,9 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                 </HStack>
                 {/* Messages */}
                 {msgs.map((msg, index) => {
-                  const thisMoment = moment(msg.date);
+                  const thisMoment = moment(msg.createdAt);
                   const nextMsg = msgs[index + 1];
-                  const nextMoment = nextMsg ? moment(nextMsg.date) : null;
+                  const nextMoment = nextMsg ? moment(nextMsg.createdAt) : null;
 
                   const isLastInMinuteAndSenderGroup =
                     !nextMoment ||
@@ -163,22 +150,25 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                     msg.sender !== nextMsg.sender;
 
                   const prevMsg = msgs[index - 1];
-                  const prevMoment = prevMsg ? moment(prevMsg.date) : null;
+                  const prevMoment = prevMsg ? moment(prevMsg.createdAt) : null;
 
                   const isFirstInGroup =
                     !prevMoment ||
                     !thisMoment.isSame(prevMoment, 'minute') ||
                     msg.sender !== prevMsg.sender;
 
+                  // Determine if this message is from current user
+                  const isFromCurrentUser = msg.sender === currentUserPubKey;
+
                   return (
                     <HStack
                       key={msg.id}
-                      justifyContent={msg.sender === 'me' ? 'flex-end' : 'flex-start'}
-                      alignItems={msg.sender === 'me' ? 'flex-end' : 'flex-start'}
+                      justifyContent={isFromCurrentUser ? 'flex-end' : 'flex-start'}
+                      alignItems={isFromCurrentUser ? 'flex-end' : 'flex-start'}
                       space={2}
                       style={styles.messageRow}
                     >
-                      {msg.sender === 'other' &&
+                      {!isFromCurrentUser &&
                         isFirstInGroup &&
                         (receiverProfileImage ? (
                           <Image
@@ -197,18 +187,18 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                       <VStack style={styles.messageBubble}>
                         <Box
                           backgroundColor={
-                            msg.sender === 'me'
+                            isFromCurrentUser
                               ? `${colorMode}.separator`
                               : `${colorMode}.modalWhiteBackground`
                           }
                           style={[
                             {
-                              borderRadius: msg.sender === 'me' ? 12 : 0,
-                              borderBottomRightRadius: msg.sender === 'me' ? 0 : 12,
-                              borderTopLeftRadius: msg.sender === 'other' ? 0 : 12,
+                              borderRadius: isFromCurrentUser ? 12 : 0,
+                              borderBottomRightRadius: isFromCurrentUser ? 0 : 12,
+                              borderTopLeftRadius: !isFromCurrentUser ? 0 : 12,
                               marginRight:
-                                msg.sender === 'me' && isLastInMinuteAndSenderGroup ? 0 : wp(32),
-                              marginLeft: msg.sender === 'other' && isFirstInGroup ? 0 : wp(32),
+                                isFromCurrentUser && isLastInMinuteAndSenderGroup ? 0 : wp(32),
+                              marginLeft: !isFromCurrentUser && isFirstInGroup ? 0 : wp(32),
                             },
                             styles.messageContent,
                           ]}
@@ -223,8 +213,8 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                             color={`${colorMode}.subchatText`}
                             style={[
                               {
-                                alignSelf: msg.sender === 'me' ? 'flex-end' : 'flex-start',
-                                marginLeft: msg.sender === 'other' && isFirstInGroup ? 0 : wp(32),
+                                alignSelf: isFromCurrentUser ? 'flex-end' : 'flex-start',
+                                marginLeft: !isFromCurrentUser && isFirstInGroup ? 0 : wp(32),
                               },
                               styles.timestamp,
                             ]}
@@ -234,7 +224,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage }) => {
                         )}
                       </VStack>
 
-                      {msg.sender === 'me' &&
+                      {isFromCurrentUser &&
                         isLastInMinuteAndSenderGroup &&
                         (userProfileImage ? (
                           <Image
