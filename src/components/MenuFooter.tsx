@@ -12,6 +12,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from './ThemedColor/ThemedColor';
 import BtcLogoGrey from 'src/assets/images/Btc-Logo-grey.svg';
+import { useIsRampAvailable } from 'src/hooks/useIsRampAvailable';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
@@ -19,6 +20,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation, buyBTC: buyBTCTranslation } = translations;
   const selectedFooterColor = ThemedColor({ name: 'footer_selected_option' });
+  const { isRampAvailable } = useIsRampAvailable();
 
   const menuOptions = [
     {
@@ -31,7 +33,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       defaultIcon: <KeyIcon />,
       selectedIcon: <ThemedSvg name={'footer_Key'} />,
     },
-    {
+    isRampAvailable && {
       name: buyBTCTranslation.acquire,
       defaultIcon: <BtcLogoGrey width={wp(22)} height={hp(22)} />,
       selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(22)} height={hp(22)} />,
@@ -46,7 +48,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
       defaultIcon: <MoreIcon />,
       selectedIcon: <ThemedSvg name={'footer_more'} />,
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <Box
