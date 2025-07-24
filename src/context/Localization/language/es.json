@@ -1795,11 +1795,11 @@
     "swapHistory": "Swap History",
     "Sent": "Sent",
     "Received": "Received",
-    "realDepositAmount": "Real Deposit Amount",
-    "realWithdrawalAmount": "Real Withdrawal Amount",
+    "realDepositAmount": "Final Deposit Amount",
+    "realWithdrawalAmount": "Final Withdrawal Amount",
     "status": "Status",
     "depositAddress": "Deposit Address",
-    "receiptAddress": "Receipt Address",
+    "receiptAddress": "Receiving Address",
     "swapDetails": "Swap Confirmation",
     "amountToSwap": "Amount to Swap",
     "letsExchangeId": "LetsExchange ID:",
@@ -1807,7 +1807,7 @@
     "receivedIn": "Received In",
     "estimatedAmount": "Estimated Amount to Receive",
     "copyExchangeId": "Make sure to copy and save the LetsExchange ID",
-    "agreedTerms": "*By initiating a swap, you acknowledge and agree to our Terms and Conditions.",
+    "agreedTerms": "* By initiating a swap, you acknowledge and agree to our Terms and Conditions.",
     "get": "Get"
   },
   "error": {
