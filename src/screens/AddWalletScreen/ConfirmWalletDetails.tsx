@@ -107,6 +107,7 @@ function ConfirmWalletDetails({ route }) {
   const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
   const green_modal_sec_button_text = ThemedColor({ name: 'green_modal_sec_button_text' });
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
+  const [viewWalletLoader, setViewWalletLoader] = useState(false);
 
   const { signers } = useSigners();
 
@@ -348,23 +349,25 @@ function ConfirmWalletDetails({ route }) {
   }
 
   const viewVault = () => {
-    setVaultCreatedModalVisible(false);
-    const navigationState = {
-      index: 1,
-      routes: [
-        { name: 'Home' },
-        {
-          name: 'VaultDetails',
-          params: {
-            vaultId: generatedVaultId,
-            vaultTransferSuccessful: true,
-            autoRefresh: true,
-            hardRefresh: true,
+    setViewWalletLoader(true);
+    setTimeout(() => {
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          {
+            name: 'VaultDetails',
+            params: {
+              vaultId: generatedVaultId,
+              vaultTransferSuccessful: true,
+              autoRefresh: true,
+              hardRefresh: true,
+            },
           },
-        },
-      ],
-    };
-    navigation.dispatch(CommonActions.reset(navigationState));
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+    }, 50);
   };
 
   const viewVaultConfigFile = () => {
@@ -666,6 +669,7 @@ function ConfirmWalletDetails({ route }) {
         buttonBackground={`${colorMode}.pantoneGreen`}
         subTitleWidth={wp(280)}
         showCloseIcon={false}
+        loading={viewWalletLoader}
       />
       <WalletVaultCreationModal
         visible={walletCreatedModal}
@@ -674,23 +678,26 @@ function ConfirmWalletDetails({ route }) {
         buttonText={walletText.ViewWallet}
         descriptionMessage={walletText.recoveryKeyAsBackup}
         buttonCallback={() => {
-          setWalletCreatedModal(false);
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 1,
-              routes: [
-                { name: 'Home' },
-                {
-                  name: 'WalletDetails',
-                  params: { autoRefresh: true, walletId: wallets[wallets.length - 1].id },
-                },
-              ],
-            })
-          );
+          setViewWalletLoader(true);
+          setTimeout(() => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [
+                  { name: 'Home' },
+                  {
+                    name: 'WalletDetails',
+                    params: { autoRefresh: true, walletId: wallets[wallets.length - 1].id },
+                  },
+                ],
+              })
+            );
+          }, 50);
         }}
         walletType={WalletType.DEFAULT}
         walletName={walletName}
         walletDescription={descriptionInputRef.current}
+        loading={viewWalletLoader}
       />
       <KeeperModal
         visible={visibleModal}
