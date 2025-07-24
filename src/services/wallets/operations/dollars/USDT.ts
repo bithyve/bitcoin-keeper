@@ -16,6 +16,12 @@ const USDT_ADDRESSES = {
   [NetworkType.TESTNET]: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf', // USDT TRC-20 on Nile testnet
 };
 
+// USDT GasFree Fee addresses
+export const USDT_GASFREE_FEE_ADDRESSES = {
+  [NetworkType.MAINNET]: 'TLntW9Z59LYY5KEi9cmwk3PKjQga828ird', // GasFree fee address for USDT on mainnet
+  [NetworkType.TESTNET]: 'TCETRh3aED4kdkaYQY7CcxeTJtrQvwBpNT', // GasFree fee address for USDT on testnet
+};
+
 export const DEFAULT_DEADLINE_SECONDS = 300; // Default deadline for permit transactions (5 minutes)
 
 export interface USDTTransferOptions {
@@ -71,6 +77,14 @@ export default class USDT {
   private static getUSDTAddress(networkType?: NetworkType): string {
     const network = networkType || NetworkType.MAINNET;
     return USDT_ADDRESSES[network];
+  }
+
+  /**
+   * Get USDT GasFree fee address for the specified network
+   */
+  public static getUSDTGasFreeFeeAddress(networkType?: NetworkType): string {
+    const network = networkType || NetworkType.MAINNET;
+    return USDT_GASFREE_FEE_ADDRESSES[network];
   }
 
   /**
@@ -455,16 +469,10 @@ export default class USDT {
       hasMore: boolean;
     };
   }> {
-    // USDT contract addresses
-    const USDT_CONTRACTS = {
-      [NetworkType.MAINNET]: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
-      [NetworkType.TESTNET]: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
-    };
-
-    const usdtContract = USDT_CONTRACTS[networkType];
+    const usdtContractAddress = USDT.getUSDTAddress(networkType);
     const trc20Transactions = await getTrc20Transactions(
       address,
-      usdtContract,
+      usdtContractAddress,
       networkType,
       limit,
       fingerprint

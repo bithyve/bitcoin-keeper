@@ -18,7 +18,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { AppStackParams } from 'src/navigation/types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Zendesk from 'src/services/backend/Zendesk';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { showOnboarding } from 'src/store/reducers/concierge';
 import { useAppSelector } from 'src/store/hooks';
@@ -116,9 +115,9 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   const getTickets = async () => {
     setLoading(true);
     try {
-      const res = await Zendesk.fetchZendeskTickets(conciergeUser.id);
+      const res = await Relay.getZendeskTickets(conciergeUser.id);
       if (res.status === 200) {
-        dispatch(loadConciergeTickets(res.data.tickets));
+        dispatch(loadConciergeTickets(res.tickets));
       }
     } catch (error) {
       console.log('🚀 ~ getTickets ~ error:', error);

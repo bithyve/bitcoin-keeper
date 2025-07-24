@@ -32,7 +32,7 @@ function BuyBitcoinScreen({ route }) {
   const buyWithRamp = (address: string) => {
     try {
       if (currencyCode === 'GBP' || getCountry() === 'UK') {
-        Linking.openURL('https://ramp.network/buy#');
+        Linking.openURL('https://rampnetwork.com/buy#');
       } else {
         Linking.openURL(fetchRampReservation({ receiveAddress: address }));
       }
