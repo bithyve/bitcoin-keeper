@@ -1803,7 +1803,7 @@
     "swapDetails": "Swap Confirmation",
     "amountToSwap": "Amount to Swap",
     "letsExchangeId": "LetsExchange ID:",
-    "letsExchangeIdCopied": "LetsExchange ID copied to successfully",
+    "letsExchangeIdCopied": "LetsExchange ID copied successfully",
     "receivedIn": "Received In",
     "estimatedAmount": "Estimated Amount to Receive",
     "copyExchangeId": "Make sure to copy and save the LetsExchange ID",
