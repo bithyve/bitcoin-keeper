@@ -1,4 +1,4 @@
-import { x25519 } from '@noble/curves/ed25519';
+import { x25519, ed25519 } from '@noble/curves/ed25519';
 import { randomBytes } from 'crypto';
 import { createCipheriv, createDecipheriv, createHash } from 'crypto';
 
@@ -6,6 +6,11 @@ import { createCipheriv, createDecipheriv, createHash } from 'crypto';
  * X25519 Encryption and Decryption utilities
  * Uses Curve25519 for key exchange and AES-256-GCM for symmetric encryption
  */
+
+export enum KeyType {
+  X25519 = 'x25519',
+  Ed25519 = 'ed25519',
+}
 
 export interface KeyPair {
   privateKey: Uint8Array;
@@ -200,6 +205,54 @@ export function uint8ArrayToHex(array: Uint8Array): string {
 }
 
 /**
+ * Convert Ed25519 private key to X25519 private key and derive corresponding public key
+ * This is needed when working with hyperswarm keys which are Ed25519 format
+ * Uses native @noble/curves conversion functions for proper Ed25519 to X25519 conversion
+ * @param ed25519PrivateKey - Ed25519 private key as hex string
+ * @returns Object with X25519 private and public keys as hex strings
+ */
+export function ed25519ToX25519KeyPair(ed25519PrivateKey: string): {
+  privateKey: string;
+  publicKey: string;
+} {
+  const ed25519PrivateKeyBytes = hexToUint8Array(ed25519PrivateKey);
+
+  // Convert Ed25519 private key to X25519 private key using native noble/curves function
+  const x25519PrivateKeyBytes = ed25519.utils.toMontgomeryPriv(ed25519PrivateKeyBytes);
+
+  // Generate the corresponding X25519 public key
+  const x25519PublicKeyBytes = x25519.getPublicKey(x25519PrivateKeyBytes);
+
+  return {
+    privateKey: uint8ArrayToHex(x25519PrivateKeyBytes),
+    publicKey: uint8ArrayToHex(x25519PublicKeyBytes),
+  };
+}
+
+/**
+ * Convert Ed25519 private key to X25519 private key
+ * This is needed when working with hyperswarm keys which are Ed25519 format
+ * @param ed25519PrivateKey - Ed25519 private key as hex string
+ * @returns X25519 private key as hex string
+ */
+export function ed25519ToX25519PrivateKey(ed25519PrivateKey: string): string {
+  const keyPair = ed25519ToX25519KeyPair(ed25519PrivateKey);
+  return keyPair.privateKey;
+}
+
+/**
+ * Convert Ed25519 public key to X25519 public key
+ * Uses native @noble/curves conversion function for proper Ed25519 to X25519 conversion
+ * @param ed25519PublicKey - Ed25519 public key as hex string
+ * @returns X25519 public key as hex string
+ */
+export function ed25519ToX25519PublicKey(ed25519PublicKey: string): string {
+  const ed25519PublicKeyBytes = hexToUint8Array(ed25519PublicKey);
+  const x25519PublicKeyBytes = ed25519.utils.toMontgomery(ed25519PublicKeyBytes);
+  return uint8ArrayToHex(x25519PublicKeyBytes);
+}
+
+/**
  * Serialize encrypted data to a hex string for transmission/storage
  * @param encryptedData - Encrypted data package
  * @returns Serialized hex string
@@ -242,11 +295,21 @@ export function deserializeEncryptedData(hex: string): EncryptedData {
  * Encrypt a string message for a recipient
  * @param message - String message to encrypt
  * @param recipientPublicKey - Recipient's public key as hex string
+ * @param keyType - Type of the recipient's public key
  * @returns Serialized encrypted data as hex string
  */
-export function encryptMessage(message: string, recipientPublicKey: string): string {
+export function encryptMessage(
+  message: string,
+  recipientPublicKey: string,
+  keyType: KeyType = KeyType.Ed25519 // Default to Ed25519
+): string {
   const messageBytes = new TextEncoder().encode(message);
-  const recipientPublicKeyBytes = hexToUint8Array(recipientPublicKey);
+
+  // Convert Ed25519 to X25519 if needed
+  const x25519PublicKey =
+    keyType === KeyType.Ed25519 ? ed25519ToX25519PublicKey(recipientPublicKey) : recipientPublicKey;
+
+  const recipientPublicKeyBytes = hexToUint8Array(x25519PublicKey);
   const encryptedData = encryptInternal(messageBytes, recipientPublicKeyBytes);
   return serializeEncryptedData(encryptedData);
 }
@@ -254,12 +317,31 @@ export function encryptMessage(message: string, recipientPublicKey: string): str
 /**
  * Decrypt a string message using your private key
  * @param encryptedHex - Serialized encrypted data as hex string
- * @param privateKey - Your private key as hex string
+ * @param privateKey - Your private key as hex string (supports hyperswarm concatenated format)
+ * @param keyType - Type of your private key
  * @returns Decrypted string message
  */
-export function decryptMessage(encryptedHex: string, privateKey: string): string {
+export function decryptMessage(
+  encryptedHex: string,
+  privateKey: string,
+  keyType: KeyType = KeyType.Ed25519
+): string {
   const encryptedData = deserializeEncryptedData(encryptedHex);
-  const decryptedBytes = decryptInternal(encryptedData, hexToUint8Array(privateKey));
+
+  let actualPrivateKey = privateKey;
+
+  // Handle hyperswarm key format for Ed25519 keys
+  if (keyType === KeyType.Ed25519) {
+    // Hyperswarm secretKey is often 64 bytes (private + public concatenated)
+    // Extract the first 32 bytes (64 hex chars) for the private key
+    actualPrivateKey = privateKey.length === 128 ? privateKey.slice(0, 64) : privateKey;
+  }
+
+  // Convert Ed25519 to X25519 if needed
+  const x25519PrivateKey =
+    keyType === KeyType.Ed25519 ? ed25519ToX25519PrivateKey(actualPrivateKey) : actualPrivateKey;
+
+  const decryptedBytes = decryptInternal(encryptedData, hexToUint8Array(x25519PrivateKey));
   return new TextDecoder().decode(decryptedBytes);
 }
 
