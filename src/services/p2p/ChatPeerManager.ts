@@ -21,7 +21,7 @@ import Relay from '../backend/Relay';
 
 export default class ChatPeerManager {
   static instance: ChatPeerManager;
-
+  static isInitialized: boolean = false;
   worklet: Worklet;
   IPC: any;
   rpc: any;
@@ -60,6 +60,7 @@ export default class ChatPeerManager {
           }
         }
       });
+      ChatPeerManager.isInitialized = true;
       return true;
     } catch (error) {
       console.error('Error initializing chat peer manager:', error);
@@ -110,7 +111,7 @@ export default class ChatPeerManager {
   async getPeerMessages(pubKey: string, lastBlock: number) {
     try {
       const response = await axios.get(
-        `https://api.bitcointribe.app/api/v1/chat/getmessages?publicKey=${pubKey}&from=${lastBlock}`
+        `https://dev-api.bitcointribe.app/api/v1/chat/getmessages?publicKey=${pubKey}&from=${lastBlock}`
       );
       return response.data;
     } catch (error) {
@@ -186,7 +187,7 @@ export default class ChatPeerManager {
       let community: Community = communities.find((c) => c.id === message.communityId);
       if (!community && message.encryptedKeys) {
         const contact = await Relay.getAppProfiles([message.sender]);
-        if (contact.results.length > 0) {
+        if (contact.length > 0) {
           const sharedSecret = ChatEncryptionManager.performKeyExchange(
             this.app.contactsKey,
             message.sender
@@ -195,10 +196,10 @@ export default class ChatPeerManager {
             message.encryptedKeys,
             sharedSecret
           );
-          dbManager.createObject(RealmSchema.Contact, contact.results[0]);
+          dbManager.createObject(RealmSchema.Contact, contact[0]);
           community = {
             id: message.communityId,
-            name: contact.results[0].name,
+            name: contact[0].name,
             type: CommunityType.Peer,
             createdAt: data.timestamp,
             updatedAt: data.timestamp,
@@ -206,22 +207,33 @@ export default class ChatPeerManager {
             key: encryptedKeys.aesKey,
           };
           dbManager.createObject(RealmSchema.Community, community);
+          dbManager.createObject(RealmSchema.Message, {
+            id: message.id,
+            communityId: message.communityId,
+            type: message.type,
+            text: message.text,
+            createdAt: data.timestamp,
+            sender: message.sender,
+            block: data.blockNumber,
+            unread: true,
+            fileUrl: message?.fileUrl,
+          });
         }
+      } else {
+        const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
+        const messageData = JSON.parse(decryptedMessage);
+        dbManager.createObject(RealmSchema.Message, {
+          id: messageData.id,
+          communityId: messageData.communityId,
+          type: messageData.type,
+          text: messageData.text,
+          createdAt: data.timestamp,
+          sender: messageData.sender,
+          block: data.blockNumber,
+          unread: true,
+          fileUrl: messageData?.fileUrl,
+        });
       }
-      const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
-      const messageData = JSON.parse(decryptedMessage);
-      dbManager.createObject(RealmSchema.Message, {
-        id: messageData.id,
-        communityId: messageData.communityId,
-        type: messageData.type,
-        text: messageData.text,
-        createdAt: data.timestamp,
-        sender: messageData.sender,
-        block: data.blockNumber,
-        unread: true,
-        fileUrl: messageData?.fileUrl,
-        request: messageData?.request,
-      });
     } catch (error) {
       console.error('Error storing messages:', error);
     }

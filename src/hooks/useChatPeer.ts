@@ -97,7 +97,7 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
 
       if (success && enableMessageListener) {
         chatManager.setOnMessageListener((data) => {
-          console.log('New message received:', data);
+          // console.log('New message received:', data);
         });
       }
 

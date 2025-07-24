@@ -22,12 +22,13 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
-import { CommunityType, MessageType } from 'src/services/p2p/interface';
+import { CommunityType, MessageType, Message } from 'src/services/p2p/interface';
 import { hash256 } from 'src/utils/service-utilities/encryption';
 import Relay from 'src/services/backend/Relay';
 import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptionManager';
 import { v4 as uuidv4 } from 'uuid';
 import { useQuery } from '@realm/react';
+import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -41,15 +42,18 @@ const Contact = () => {
   const { translations } = useContext(LocalizationContext);
   const { contactText } = translations;
   const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const lastBlock = useQuery<Message>(RealmSchema.Message).sorted('block', true)[0]?.block;
   const communities = useQuery(RealmSchema.Community);
   const { showToast } = useToastMessage();
   const chatPeer = useChatPeer();
 
   const initializeChat = async () => {
     try {
-      const chatPeerInitialized = await chatPeer.initChatPeer();
-      if (!chatPeerInitialized) {
-        throw new Error();
+      if (!ChatPeerManager.isInitialized) {
+        const chatPeerInitialized = await chatPeer.initChatPeer();
+        if (!chatPeerInitialized) {
+          throw new Error();
+        }
       }
     } catch (error) {
       console.error('Error initializing chat peer:', error);
@@ -63,7 +67,7 @@ const Contact = () => {
   }, [chatPeer.isInitialized]);
 
   useEffect(() => {
-    chatPeer.loadPendingMessages();
+    chatPeer.loadPendingMessages(lastBlock);
   }, []);
 
   const onQrScan = (data) => {
@@ -106,7 +110,7 @@ const Contact = () => {
           id: uuidv4(),
           communityId: communityId,
           type: MessageType.Alert,
-          text: `Start of community`,
+          text: `Start of conversation`,
           createdAt: Date.now(),
           sender: app.contactsKey.publicKey,
           unread: false,
