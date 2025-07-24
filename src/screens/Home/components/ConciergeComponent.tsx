@@ -43,7 +43,9 @@ const ConciergeComponent = ({ route }) => {
       subtitle: conciergeText.whiteGlovedService,
       iconName: <HireAdvisorIcon />,
       buttonText: conciergeText.connetWithAdvisor,
-      callback: () => {},
+      callback: () => {
+        navigation.navigate('Advisors');
+      },
       buttonIcon: ConnectAdvisor,
     },
   ];

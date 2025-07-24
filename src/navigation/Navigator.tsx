@@ -164,6 +164,8 @@ import { SwapDetails } from 'src/screens/Home/components/buyBtc/Swap/SwapDetails
 import { SwapHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapHistory';
 import { SwapHistoryDetail } from 'src/screens/Home/components/buyBtc/Swap/SwapHistoryDetail';
 import { SwapAllHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapAllHistory';
+import Advisors from 'src/screens/Advisors/Advisors';
+import FilterAdvisor from 'src/screens/Advisors/FilterAdvisor';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -359,6 +361,8 @@ function AppStack() {
         <Stack.Screen name="SwapHistory" component={SwapHistory} />
         <Stack.Screen name="SwapHistoryDetail" component={SwapHistoryDetail} />
         <Stack.Screen name="SwapAllHistory" component={SwapAllHistory} />
+        <Stack.Screen name="Advisors" component={Advisors} />
+        <Stack.Screen name="FilterAdvisor" component={FilterAdvisor} />
       </Stack.Navigator>
     </RealmProvider>
   );
