@@ -31,6 +31,9 @@ import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import BackgroundTimer from 'react-native-background-timer';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { validatePSBT } from 'src/utils/utilities';
 
 function ScanAndInstruct({ onBarCodeRead }) {
   const { colorMode } = useColorMode();
@@ -89,7 +92,8 @@ function SignWithChannel() {
   const navgation = useNavigation();
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
+  const { choosePlan, error: errorText } = translations;
+  const { showToast } = useToastMessage();
 
   let miniscriptPolicy = null;
   if (activeVault?.type === VaultType.MINISCRIPT) {
@@ -146,6 +150,7 @@ function SignWithChannel() {
   const onSignedTnx = (data) => {
     try {
       const signedSerializedPSBT = data.data.signedSerializedPSBT;
+      validatePSBT(serializedPSBT, signedSerializedPSBT, signer, errorText);
       const hmac = data.data.hmac;
       dispatch(
         updateKeyDetails(vaultKey, 'registered', {
@@ -171,6 +176,7 @@ function SignWithChannel() {
       navgation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (error) {
       captureError(error);
+      showToast(error?.message, <ToastErrorIcon />);
     }
   };
 
