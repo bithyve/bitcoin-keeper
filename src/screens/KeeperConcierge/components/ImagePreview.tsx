@@ -1,20 +1,17 @@
 import React from 'react';
-import { Box, Image, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import { wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import BinLight from 'src/assets/images/bin-light.svg';
 import BinDark from 'src/assets/images/bin-dark.svg';
+import FastImage from 'react-native-fast-image';
 
 const ImagePreview = ({ imageUri, onRemoveImage, index }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   return (
     <Box style={styles.container}>
-      <Image
-        source={{ uri: imageUri }}
-        style={styles.image}
-        alt={`conciergeImage-${index}-${imageUri}`}
-      />
+      <FastImage source={{ uri: imageUri }} style={styles.image} />
       <Pressable onPress={() => onRemoveImage(index)} style={styles.deleteButton}>
         <Box style={styles.deleteButton} backgroundColor={`${colorMode}.primaryGreenBackground`}>
           {isDarkMode ? <BinDark /> : <BinLight />}

@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import config from 'react-native-config';
 import { EntityKind, WalletType } from '../../services/wallets/enums';
 
@@ -94,17 +93,6 @@ class Configuration {
   public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
     ? config.CHANNEL_URL.trim()
     : DEFAULT_CONFIG.CHANNEL_URL.trim();
-
-  public ZENDESK_USERNAME: string = config.ZENDESK_USERNAME?.trim();
-
-  public ZENDESK_PASSWORD: string = config.ZENDESK_PASSWORD?.trim();
-
-  public ZENDESK_BASE_URL: string = config.ZENDESK_BASE_URL?.trim();
-
-  public ZENDESK_CHANNEL_ID = Platform.select({
-    ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),
-    android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
-  });
 
   public GASFREE_API_KEY: string = config.GASFREE_API_KEY?.trim();
   public GASFREE_API_SECRET: string = config.GASFREE_API_SECRET?.trim();

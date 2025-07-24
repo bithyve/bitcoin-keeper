@@ -2,7 +2,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -18,16 +17,16 @@ import ReachOutArrowLight from 'src/assets/images/reach-out-arrow-light.svg';
 import ReachOutArrowDark from 'src/assets/images/reach-out-arrow-dark.svg';
 
 import Text from 'src/components/KeeperText';
-import { zendeskApi, zendeskEndpoints } from 'src/services/rest/ZendeskClient';
 import KeeperIconRound from 'src/assets/images/keeperIconRound.svg';
 import { timeFromTimeStamp } from 'src/utils/utilities';
 import { useDispatch } from 'react-redux';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-black.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import Zendesk from 'src/services/backend/Zendesk';
 import { updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { useAppSelector } from 'src/store/hooks';
+import Relay from 'src/services/backend/Relay';
+import FastImage from 'react-native-fast-image';
 
 const TicketNote = ({ note, closed = false }) => {
   const { colorMode } = useColorMode();
@@ -82,7 +81,7 @@ const TicketDetails = ({ route }) => {
   const loadComments = async () => {
     setLoading(true);
     try {
-      const res = await Zendesk.loadTicketComments(ticketId);
+      const res = await Relay.getZendeskTicketComments(ticketId);
       if (res.status === 200) {
         setComments(res.data.comments);
         // update comments count in state
@@ -132,7 +131,10 @@ const TicketDetails = ({ route }) => {
             comment.attachments.map((item) => {
               return (
                 <Box height={20} width={20}>
-                  <Image source={{ uri: item.content_url }} style={{ flex: 1, height: '100%' }} />
+                  <FastImage
+                    source={{ uri: item.content_url }}
+                    style={{ flex: 1, height: '100%' }}
+                  />
                 </Box>
               );
             })}
@@ -144,15 +146,7 @@ const TicketDetails = ({ route }) => {
   const addNewComment = async () => {
     setLoading(true);
     try {
-      const body = {
-        ticket: {
-          comment: {
-            author_id: conciergeUser.id,
-            body: newDesc,
-          },
-        },
-      };
-      const res = await zendeskApi.put(`${zendeskEndpoints.updateTicket}/${ticketId}`, body);
+      const res = await Relay.addZendeskComment(ticketId, conciergeUser.id, newDesc);
       if (res.status === 200) {
         await loadComments();
         setNewDesc('');

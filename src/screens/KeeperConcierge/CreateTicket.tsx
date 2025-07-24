@@ -21,7 +21,6 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import Zendesk from 'src/services/backend/Zendesk';
 import { loadConciergeTickets, updateTicketCommentsCount } from 'src/store/reducers/concierge';
 import { getKeyUID } from 'src/utils/utilities';
 import KeeperModal from 'src/components/KeeperModal';
@@ -42,6 +41,7 @@ import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
 import CheckBoxOutlineActive from 'src/assets/images/checkbox_outline_active.svg';
 import CheckBoxOutlineInActive from 'src/assets/images/checkbox_outline_inactive.svg';
 import SuccessCircleIllustration from 'src/assets/images/illustration.svg';
+import Relay from 'src/services/backend/Relay';
 
 const DEFAULT_SELECTED_DETAILS = {
   walletInfo: false,
@@ -153,8 +153,8 @@ const CreateTicket = ({ navigation, route }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleAttachScreenshot = (uri) => {
-    setImageUris(uri);
+  const handleAttachScreenshot = (imageData) => {
+    setImageUris(imageData);
   };
 
   const handleRemoveImage = (indexToDelete) => {
@@ -233,15 +233,15 @@ const CreateTicket = ({ navigation, route }) => {
       if (imageUris) {
         imageToken = await uploadFile();
       }
-      const res = await Zendesk.createZendeskTicket({
+      const res = await Relay.createZendeskTicket({
         desc: desc.trim(),
         imageToken,
         conciergeUser,
       });
       if (res.status === 201) {
         dispatch(updateTicketCommentsCount({ [res.data.ticket.id.toString()]: 1 }));
-        const tickets = await Zendesk.fetchZendeskTickets(conciergeUser.id);
-        if (tickets.status === 200) dispatch(loadConciergeTickets(tickets.data.tickets));
+        const tickets = await Relay.getZendeskTickets(conciergeUser.id);
+        if (tickets.status === 200) dispatch(loadConciergeTickets(tickets.tickets));
         setModalTicketId(res.data.ticket.id);
         Keyboard.dismiss();
         setShowModal(true);
@@ -257,12 +257,7 @@ const CreateTicket = ({ navigation, route }) => {
   };
 
   const uploadFile = async () => {
-    const responses = await Promise.all(imageUris.map((uri) => Zendesk.uploadMedia(uri)));
-    const imageTokens = await Promise.all(
-      responses.map((res) => {
-        if (res.status === 201 && res.data.upload.token) return res.data.upload.token;
-      })
-    );
+    const imageTokens = Relay.uploadZendeskImages(imageUris);
     return imageTokens;
   };
 
@@ -342,10 +337,10 @@ const CreateTicket = ({ navigation, route }) => {
                 contentContainerStyle={styles.imagePreviewContainer}
                 showsHorizontalScrollIndicator={false}
               >
-                {imageUris.map((uri, index) => (
+                {imageUris.map((img, index) => (
                   <ImagePreview
-                    key={index + uri}
-                    imageUri={uri}
+                    key={index + img.uri}
+                    imageUri={img.uri}
                     onRemoveImage={handleRemoveImage}
                     index={index}
                   />
