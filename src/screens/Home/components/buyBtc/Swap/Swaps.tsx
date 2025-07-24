@@ -1,6 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet, ActivityIndicator, Keyboard, Pressable, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import Buttons from 'src/components/Buttons';
@@ -8,7 +8,7 @@ import Text from 'src/components/KeeperText';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
-import { wp } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -22,32 +22,55 @@ import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 import KeeperModal from 'src/components/KeeperModal';
 import BuyBtcModalContent from '../BuyBtcModalContent';
-import { EntityKind } from 'src/services/wallets/enums';
 import { SwapHistory } from './SwapHistory';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { EntityKind } from 'src/services/wallets/enums';
 
-export const CoinLogo = ({ code, isLarge = true }) => {
+export const CoinLogo = ({
+  code,
+  CircleWidth,
+  logoWidth,
+  logoHeight,
+}: {
+  code: string;
+  isLarge?: boolean;
+  CircleWidth?: number;
+  logoWidth?: number;
+  logoHeight?: number;
+}) => {
   const isBtc = code === 'BTC';
 
-  const largeStyle = { width: wp(20), height: wp(20) };
-  const smallStyle = { width: wp(15), height: wp(15) };
+  return (
+    <Box>
+      <CircleIconWrapper
+        icon={
+          isBtc ? (
+            <BtcAcquireIcon width={logoWidth} height={logoHeight} />
+          ) : (
+            <UsdtWalletLogo width={logoWidth} height={logoHeight} />
+          )
+        }
+        backgroundColor={isBtc ? Colors.BrightOrange : Colors.DesaturatedTeal}
+        width={CircleWidth}
+      />
+    </Box>
+  );
+};
+export const SwitchButton = ({ onPress, coinData }) => {
+  const { colorMode } = useColorMode();
 
   return (
-    <Box
-      style={{
-        backgroundColor: isBtc ? Colors.BrightOrange : Colors.DesaturatedTeal,
-        width: isLarge ? wp(25) : wp(20),
-        aspectRatio: 1,
-        borderRadius: wp(20),
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      {isBtc ? (
-        <BtcAcquireIcon {...(isLarge ? largeStyle : smallStyle)} />
-      ) : (
-        <UsdtWalletLogo {...(isLarge ? largeStyle : smallStyle)} />
-      )}
-    </Box>
+    <Pressable onPress={onPress}>
+      <Box style={styles.switchButton} backgroundColor={`${colorMode}.separator`}>
+        <CoinLogo code={coinData.code} logoWidth={wp(6)} logoHeight={wp(8)} CircleWidth={wp(12)} />
+        <Text color={`${colorMode}.primaryText`} fontSize={10}>
+          {coinData?.code === 'BTC' ? 'BTC' : 'USDT'}
+        </Text>
+        <ThemedSvg name={'switch_logo'} />
+      </Box>
+    </Pressable>
   );
 };
 
@@ -78,6 +101,9 @@ export const Swaps = ({ navigation }) => {
   const btcWallets = [...wallets, ...allVaults];
   const [showWalletSelection, setShowWalletSelection] = useState(false);
   const walletModeRef = useRef(null);
+
+  const { translations } = useContext(LocalizationContext);
+  const { buyBTC: buyBTCText, common } = translations;
 
   useEffect(() => {
     if (!coinDetails) {
@@ -153,7 +179,11 @@ export const Swaps = ({ navigation }) => {
           setLoading(false);
           if (status)
             navigation.dispatch(
-              CommonActions.navigate('SwapDetails', { data: tnx, wallet: walletFrom })
+              CommonActions.navigate('SwapDetails', {
+                data: tnx,
+                wallet: walletFrom,
+                recievedWallet: walletTo,
+              })
             );
           else {
             showToast(error, <ToastErrorIcon />);
@@ -174,115 +204,152 @@ export const Swaps = ({ navigation }) => {
   };
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={'Swap'} />
+    <ScreenWrapper
+      paddingHorizontal={0}
+      barStyle="dark-content"
+      backgroundcolor={`${colorMode}.primaryBackground`}
+    >
+      <Box paddingX={6}>
+        <WalletHeader title={buyBTCText.swap} />
+      </Box>
       {!coinTo && !coinFrom ? (
         <ActivityIndicator style={{ height: '70%' }} size="large" />
       ) : (
-        <ScrollView>
-          <Box>
-            <Text>
-              <CoinLogo code={coinFrom.code} />
-              From {coinFrom.code}
-            </Text>
+        <ScrollView style={styles.container}>
+          <Box paddingX={6}>
+            <Box>
+              <Text semiBold>{buyBTCText.convertFrom}</Text>
 
-            <KeeperTextInput
-              placeholder={'0.00'}
-              value={fromValue}
-              onChangeText={(value) => {
-                const sanitized = value.replace(/[^0-9.]/g, '');
-                setFromValue(sanitized);
-              }}
-              keyboardType="numeric"
-              returnKeyType="done"
-              onSubmitEditing={() => Keyboard.dismiss()}
-              isError={inputError}
-              onBlur={() => {
-                setInputError(false);
-                if (fromValue < coinFrom.min_amount || fromValue > coinFrom.max_amount) {
-                  setInputError(
-                    'Amount should be between ' +
-                      coinFrom.min_amount +
-                      ' and ' +
-                      coinFrom.max_amount
-                  );
-                  return;
+              <KeeperTextInput
+                placeholder={'0.00'}
+                value={fromValue}
+                onChangeText={(value) => {
+                  const sanitized = value.replace(/[^0-9.]/g, '');
+                  setFromValue(sanitized);
+                }}
+                keyboardType="numeric"
+                returnKeyType="done"
+                onSubmitEditing={() => Keyboard.dismiss()}
+                isError={inputError}
+                onBlur={() => {
+                  setInputError(false);
+                  if (fromValue < coinFrom.min_amount || fromValue > coinFrom.max_amount) {
+                    setInputError(
+                      'Amount should be between ' +
+                        coinFrom.min_amount +
+                        ' and ' +
+                        coinFrom.max_amount
+                    );
+                    return;
+                  }
+                  if (fromValue) getSwapAmount();
+                }}
+                InputRightComponent={
+                  <SwitchButton
+                    onPress={() => {
+                      const fromTmp = coinFrom;
+                      setCoinFrom(coinTo);
+                      setCoinTo(fromTmp);
+                      // unselect wallets
+                      setWalletFrom(null);
+                      setWalletTo(null);
+                    }}
+                    coinData={coinFrom}
+                  />
                 }
-                if (fromValue) getSwapAmount();
-              }}
-            />
-            {inputError && <Text color={Colors.AlertRedDark}>{inputError}</Text>}
+                inputBackgroundColor={`${colorMode}.textInputBackground`}
+                inpuBorderColor={`${colorMode}.separator`}
+              />
+              {inputError && <Text color={Colors.AlertRedDark}>{inputError}</Text>}
 
-            <Pressable
-              style={{ backgroundColor: Colors.headerWhite, padding: 5 }}
-              onPress={() => {
-                walletModeRef.current = 'from';
-                setShowWalletSelection(true);
-              }}
-            >
-              <Text>{`Selected Wallet: ${
-                walletFrom?.presentationData?.name ?? 'Not Selected'
-              }`}</Text>
-            </Pressable>
-          </Box>
-          <Box my={3}>
-            <Buttons
-              primaryText="Switch 🔃"
-              fullWidth
-              primaryCallback={() => {
-                // switch coins
-                const fromTmp = coinFrom;
-                setCoinFrom(coinTo);
-                setCoinTo(fromTmp);
-                // unselect wallets
-                setWalletFrom(null);
-                setWalletTo(null);
-              }}
-            />
-          </Box>
-          <Box>
-            <Text>
-              <CoinLogo code={coinTo.code} />
-              To {coinTo.code}
-            </Text>
-            <KeeperTextInput
-              placeholder={'0.00'}
-              value={toValue}
-              onChangeText={(value) => setToValue(value)}
-              editable={false}
-            />
-            <Pressable
-              style={{ backgroundColor: Colors.headerWhite, padding: 5 }}
-              onPress={() => {
-                walletModeRef.current = 'to';
-                setShowWalletSelection(true);
-              }}
-            >
-              <Text>{`Selected Wallet: ${
-                walletTo?.presentationData?.name ?? 'Not Selected'
-              }`}</Text>
-            </Pressable>
-          </Box>
-
-          <Pressable onPress={() => setIsFixedRate(!isFixedRate)}>
-            <Box flexDir={'row'} marginY={4} alignItems={'center'}>
-              {isFixedRate ? (
-                <Checked width={wp(19)} height={wp(19)} />
-              ) : (
-                <Box style={styles.circle} borderColor={`${colorMode}.brownBackground`} />
-              )}{' '}
-              <Text>Fixed Rate</Text>
+              <Pressable
+                onPress={() => {
+                  walletModeRef.current = 'from';
+                  setShowWalletSelection(true);
+                }}
+              >
+                <Box
+                  backgroundColor={`${colorMode}.textInputBackground`}
+                  style={styles.selectingWallet}
+                  borderColor={`${colorMode}.separator`}
+                >
+                  <Text>
+                    {walletFrom?.presentationData?.name
+                      ? walletFrom?.presentationData?.name
+                      : buyBTCText.selectSendingWallet}
+                  </Text>
+                  <ThemedSvg name={'swap_down_icon'} />
+                </Box>
+              </Pressable>
             </Box>
-          </Pressable>
 
-          <Buttons
-            primaryText="Swap Funds"
-            primaryCallback={createTnx}
-            primaryLoading={loading}
-            fullWidth
-            primaryDisable={toValue <= 0}
-          />
-          <Box mt={5}>
+            <Box mt={2}>
+              <Text semiBold>{buyBTCText.convertTo}</Text>
+              <KeeperTextInput
+                placeholder={'0.00'}
+                value={toValue}
+                onChangeText={(value) => setToValue(value)}
+                editable={false}
+                InputRightComponent={
+                  <SwitchButton
+                    onPress={() => {
+                      const fromTmp = coinFrom;
+                      setCoinFrom(coinTo);
+                      setCoinTo(fromTmp);
+                      // unselect wallets
+                      setWalletFrom(null);
+                      setWalletTo(null);
+                    }}
+                    coinData={coinTo}
+                  />
+                }
+                inputBackgroundColor={`${colorMode}.textInputBackground`}
+                inpuBorderColor={`${colorMode}.separator`}
+              />
+              <Pressable
+                onPress={() => {
+                  walletModeRef.current = 'to';
+                  setShowWalletSelection(true);
+                }}
+              >
+                <Box
+                  backgroundColor={`${colorMode}.textInputBackground`}
+                  style={styles.selectingWallet}
+                  borderColor={`${colorMode}.separator`}
+                >
+                  <Text>
+                    {walletTo?.presentationData?.name
+                      ? walletTo?.presentationData?.name
+                      : buyBTCText.selectRecievingWallet}
+                  </Text>
+                  <ThemedSvg name={'swap_down_icon'} />
+                </Box>
+              </Pressable>
+            </Box>
+
+            <Pressable onPress={() => setIsFixedRate(!isFixedRate)}>
+              <Box flexDir={'row'} marginY={4} alignItems={'center'}>
+                {isFixedRate ? (
+                  <Checked width={wp(19)} height={wp(19)} />
+                ) : (
+                  <Box style={styles.circle} borderColor={`${colorMode}.brownBackground`} />
+                )}{' '}
+                <Text fontSize={12} medium>
+                  {buyBTCText.fixedRate}
+                </Text>
+              </Box>
+            </Pressable>
+
+            <Buttons
+              primaryText={buyBTCText.swap}
+              primaryCallback={createTnx}
+              primaryLoading={loading}
+              fullWidth
+              primaryDisable={toValue <= 0}
+            />
+          </Box>
+
+          <Box style={styles.historyContainer} borderColor={`${colorMode}.separator`}>
             <SwapHistory navigation={navigation} />
           </Box>
         </ScrollView>
@@ -303,7 +370,7 @@ export const Swaps = ({ navigation }) => {
             selectedWallet={walletModeRef.current === 'from' ? walletFrom : walletTo}
           />
         )}
-        buttonText={'COnfirm'}
+        buttonText={common.confirm}
         buttonCallback={() => {
           if (walletModeRef.current === 'from' ? !walletFrom : !walletTo) return;
           setShowWalletSelection(false);
@@ -319,5 +386,39 @@ const styles = StyleSheet.create({
     height: wp(18),
     borderRadius: wp(18),
     borderWidth: 1,
+  },
+  container: {
+    paddingVertical: wp(15),
+    marginBottom: wp(20),
+  },
+  switchButton: {
+    width: wp(66),
+    height: wp(18),
+    borderRadius: wp(50),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: wp(10),
+    flexDirection: 'row',
+    gap: wp(2.5),
+  },
+  selectingWallet: {
+    minHeight: wp(45),
+    borderRadius: wp(10),
+    paddingHorizontal: wp(16),
+    paddingVertical: wp(18),
+    borderWidth: 1,
+    marginBottom: wp(10),
+    marginTop: wp(5),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  historyContainer: {
+    marginTop: wp(20),
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: wp(30),
+    borderTopRightRadius: wp(30),
+    paddingVertical: wp(20),
   },
 });

@@ -1,16 +1,12 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
-import ReceiveAddress from 'src/screens/Recieve/ReceiveAddress';
-import ReceiveQR from 'src/screens/Recieve/ReceiveQR';
 import { useAppSelector } from 'src/store/hooks';
-import { CoinLogo } from './Swaps';
 import { useDispatch } from 'react-redux';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -21,20 +17,38 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { EntityKind, TxPriority, VaultType } from 'src/services/wallets/enums';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import SwapConfirmCard from './component/SwapConfirmCard';
+import SvgIcon from 'src/assets/images/@.svg';
+import { hp, wp } from 'src/constants/responsive';
+import DualArrow from 'src/assets/images/dualarrow.svg';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import Clipboard from '@react-native-clipboard/clipboard';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import Text from 'src/components/KeeperText';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import USDT from 'src/services/wallets/operations/dollars/USDT';
 import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 export const SwapDetails = ({ navigation, route }) => {
-  const { data, wallet } = route.params;
+  const { data, wallet, recievedWallet } = route.params;
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
-  const { error: errorText } = useContext(LocalizationContext).translations;
+  const {
+    error: errorText,
+    buyBTC: buyBTCText,
+    common,
+  } = useContext(LocalizationContext).translations;
   const [miniscriptSatisfier, setMiniscriptSatisfier] = useState(null);
+  const copyToClipboard = ThemedColor({ name: 'copyToClipboard' });
   const { syncAccountStatus } = useUSDTWallets();
+  const isSmallDevice = useIsSmallDevices();
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
 
   useEffect(() => {
     if (sendPhaseOneState.isSuccessful) {
@@ -164,50 +178,92 @@ export const SwapDetails = ({ navigation, route }) => {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={'Swap Details'} />
+      <WalletHeader title={buyBTCText.swapDetails} />
       <ScrollView
         automaticallyAdjustKeyboardInsets={true}
-        contentContainerStyle={styles.contentContainer}
         style={styles.flex1}
         showsVerticalScrollIndicator={false}
       >
-        <Box flex={1}>
-          <Text>{`Created At : ${data.created_at}`}</Text>
-          <Text>{`Expires At : ${new Date(data.expired_at)}`}</Text>
-          <Text>{`Status : ${data.status}`}</Text>
-          <Text>{`Transaction ID : ${data.transaction_id}`}</Text>
-          <Text>{`Swap Rate : ${data.rate}`}</Text>
-
-          <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <CoinLogo code={data.coin_from} />
-            <Text>{'=>'}</Text>
-            <CoinLogo code={data.coin_to} />
+        <Box
+          style={styles.contentContainer}
+          backgroundColor={`${colorMode}.textInputBackground`}
+          borderColor={`${colorMode}.separator`}
+        >
+          <SwapConfirmCard
+            icon={<SvgIcon />}
+            text={`Send ${data?.coin_from} from`}
+            subText={wallet?.presentationData?.name}
+          />
+          <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+          <SwapConfirmCard
+            text={buyBTCText.amountToSwap}
+            subText={`${data?.deposit_amount} ${data?.coin_from}`}
+          />
+          <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+          <SwapConfirmCard
+            text={buyBTCText.letsExchangeId}
+            subText={`${data?.transaction_id} `}
+            rightComponent={() => (
+              <TouchableOpacity
+                onPress={() => {
+                  Clipboard.setString(data?.transaction_id);
+                  showToast(buyBTCText.letsExchangeIdCopied, <TickIcon />);
+                }}
+              >
+                <Box style={styles.copyIcon} backgroundColor={copyToClipboard}>
+                  <ThemedSvg name={'copy_icon'} width={14} height={14} />
+                </Box>
+              </TouchableOpacity>
+            )}
+          />
+          <Box style={styles.dividerWithIcon}>
+            <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+            <Box style={styles.iconWrapper}>
+              <CircleIconWrapper
+                icon={<DualArrow />}
+                width={22}
+                backgroundColor={`${colorMode}.pantoneGreen`}
+              />
+            </Box>
           </Box>
-
-          <Box m={1}>
-            <Text>{`From ${data.coin_from_name} : ${data.coin_from}`}</Text>
-            <Text>{`Refund Address: ${data.return}`}</Text>
-            <Text>{`Deposit Amount: ${data.deposit_amount}`}</Text>
-            <ReceiveQR qrValue={data.deposit} />
-            <ReceiveAddress address={data.deposit} />
-          </Box>
-          <Box m={1}>
-            <Text>{`To ${data.coin_to_name} : ${data.coin_to} : ${data.coin_to_network}`}</Text>
-            <Text>{`Receive Address: ${data.withdrawal}`}</Text>
-            <Text>{`Receive Amount: ${data.withdrawal_amount}`}</Text>
-          </Box>
-
-          <Box>
-            <Buttons
-              primaryCallback={() => {
-                if (wallet.entityKind === EntityKind.USDT_WALLET) processUSDTSend();
-                else executeSendPhaseOne(null);
-              }}
-              primaryText="Pay with Wallet"
-            />
-          </Box>
+          <SwapConfirmCard
+            icon={<SvgIcon />}
+            text={`${data?.coin_to} ${buyBTCText.receivedIn} `}
+            subText={recievedWallet?.presentationData?.name}
+          />
+          <Box style={styles.horizontalDivider} backgroundColor={`${colorMode}.separator`} />
+          <SwapConfirmCard
+            text={buyBTCText.estimatedAmount}
+            subText={`${Number(data?.withdrawal_amount).toFixed(2)} ${data?.coin_to}`}
+          />
+        </Box>
+        <Box style={[{ marginTop: isSmallDevice ? hp(10) : hp(50) }, styles.noteContainer]}>
+          <Text fontSize={15} medium color={viewAll_color}>
+            {common.note}
+          </Text>
+          <Text fontSize={13} color={`${colorMode}.primaryText`}>
+            {buyBTCText.copyExchangeId}
+          </Text>
+          <Text fontSize={13} color={`${colorMode}.primaryText`}>
+            {buyBTCText.agreedTerms}
+          </Text>
+        </Box>
+        <Box
+          backgroundColor={`${colorMode}.primaryBackground`}
+          borderColor={`${colorMode}.separator`}
+          style={styles.buttonContainer}
+        >
+          <Buttons
+            primaryCallback={() => {
+              if (wallet.entityKind === EntityKind.USDT_WALLET) processUSDTSend();
+              else executeSendPhaseOne(null);
+            }}
+            primaryText="Pay with Wallet"
+            fullWidth
+          />
         </Box>
       </ScrollView>
+
       <MiniscriptPathSelector
         ref={miniscriptPathSelectorRef}
         vault={wallet}
@@ -221,9 +277,43 @@ export const SwapDetails = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 20,
+    marginVertical: hp(20),
   },
   flex1: {
     flex: 1,
+  },
+  dividerWithIcon: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: wp(20),
+    marginVertical: hp(20),
+  },
+  horizontalDivider: {
+    height: 1,
+    width: '100%',
+  },
+  iconWrapper: {
+    position: 'absolute',
+    paddingHorizontal: 6,
+  },
+  copyIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noteContainer: {
+    marginBottom: hp(10),
+    gap: 5,
+  },
+  buttonContainer: {
+    marginBottom: hp(20),
+    paddingHorizontal: wp(2),
+    paddingVertical: hp(10),
+    width: '100%',
   },
 });
