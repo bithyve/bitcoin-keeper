@@ -153,5 +153,6 @@ const Colors = {
   PersianGreen: 'rgba(0, 175, 146, 1)',
   CrimsonRed: 'rgba(217, 44, 44, 1)',
   graybeige: 'rgba(211, 209, 206, 0.15)',
+  lightGrayBeige: 'rgba(114, 114, 114, 1)',
 };
 export default Colors;
