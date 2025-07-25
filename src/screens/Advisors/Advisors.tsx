@@ -48,18 +48,19 @@ const Advisors = () => {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title="Meet Our Advisors"
-        rightComponent={
-          <TouchableOpacity
-            onPress={() => navigation.navigate('FilterAdvisor')}
-            style={styles.filterIcon}
-          >
-            <CircleIconWrapper
-              icon={<FilterIcon />}
-              width={wp(30)}
-              backgroundColor={`${colorMode}.pantoneGreen`}
-            />
-          </TouchableOpacity>
-        }
+        // Filter remove for now
+        // rightComponent={
+        //   <TouchableOpacity
+        //     onPress={() => navigation.navigate('FilterAdvisor')}
+        //     style={styles.filterIcon}
+        //   >
+        //     <CircleIconWrapper
+        //       icon={<FilterIcon />}
+        //       width={wp(30)}
+        //       backgroundColor={`${colorMode}.pantoneGreen`}
+        //     />
+        //   </TouchableOpacity>
+        // }
       />
       <Box style={styles.searchContainer}>
         <KeeperTextInput
