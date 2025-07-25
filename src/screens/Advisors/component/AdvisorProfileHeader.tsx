@@ -9,17 +9,24 @@ import BackWhiteButton from 'src/assets/images/leftarrowCampainlight.svg';
 import ProfileArrow from 'src/assets/images/profile-arrow.svg';
 import { useNavigation } from '@react-navigation/native';
 import Colors from 'src/theme/Colors';
+import useIsSmallDevices from 'src/hooks/useSmallDevices';
 
 const AdvisorProfileHeader = ({ advisorImage }) => {
   const backgroundColor = ThemedColor({ name: 'homeScreen_header_background' });
-
   const navigation = useNavigation();
+  const isSmallerDevices = useIsSmallDevices();
 
   return (
     <Box backgroundColor={backgroundColor}>
       <StatusBar barStyle={'light-content'} />
-      <Box backgroundColor={backgroundColor} style={[styles.wrapper]}>
-        <Box width="90%" style={styles.padding}>
+      <Box
+        backgroundColor={backgroundColor}
+        style={[styles.wrapper, { height: isSmallerDevices ? hp(170) : hp(164) }]}
+      >
+        <Box
+          width="90%"
+          style={[styles.padding, { marginBottom: isSmallerDevices ? hp(75) : hp(65) }]}
+        >
           <Box style={styles.headerData}>
             <TouchableOpacity
               onPress={() => {
@@ -39,7 +46,14 @@ const AdvisorProfileHeader = ({ advisorImage }) => {
           </Box>
         </Box>
       </Box>
-      <Box style={styles.circle} backgroundColor={Colors.headerWhite}>
+      <Box
+        style={[
+          styles.circle,
+          { width: isSmallerDevices ? wp(90) : wp(105) },
+          { height: isSmallerDevices ? wp(90) : wp(105) },
+        ]}
+        backgroundColor={Colors.headerWhite}
+      >
         <Image source={{ uri: advisorImage }} style={styles.image} alt="image" />
       </Box>
     </Box>
@@ -53,12 +67,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(64),
   },
 
   wrapper: {
     paddingHorizontal: wp(5),
-    height: hp(164),
     width: '100%',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -81,8 +93,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -hp(50),
     left: wp(22),
-    width: wp(105),
-    height: wp(105),
+
     borderRadius: 70,
     justifyContent: 'center',
     alignItems: 'center',

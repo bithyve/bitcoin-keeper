@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import AdvisorProfileHeader from './component/AdvisorProfileHeader';
 import { wp } from 'src/constants/responsive';
-import { Box, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import MapPin from 'src/assets/images/MapPinIcon.svg';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
-import { getUniqueRandomColors } from './component/AdvisorCard';
 import KeeperModal from 'src/components/KeeperModal';
 import openLink from 'src/utils/OpenLink';
 import Buttons from 'src/components/Buttons';
+import sha256 from 'crypto-js/sha256';
+import ConnectAdvisor from 'src/assets/images/connect-advisor.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 const ADVISOR_DETAILS = [
   { title: 'Time zone', key: 'timezone' },
@@ -17,6 +19,11 @@ const ADVISOR_DETAILS = [
   { title: 'Language', key: 'languages' },
   { title: 'Session Duration', key: 'duration' },
 ];
+const getColorForLabel = (label: string, colorsArray: string[]) => {
+  const hash = sha256(label).toString();
+  const hashNum = parseInt(hash.slice(0, 8), 16);
+  return colorsArray[hashNum % colorsArray.length];
+};
 
 function DetailCard({ title, desc, isLast }) {
   const { colorMode } = useColorMode();
@@ -46,14 +53,20 @@ const AdvisorDetail = ({ route }) => {
   const { advisor } = route.params;
   const { colorMode } = useColorMode();
   const [showModal, setShowModal] = useState(false);
-  const previewLength = 160;
+  const previewLength = 150;
   const isLong = advisor.description.length > previewLength;
   const previewText = isLong
     ? `${advisor.description.slice(0, previewLength)}...`
     : advisor.description;
 
+  const viewAll_color = ThemedColor({ name: 'viewAll_color' });
+
   function ExpertiesPill({ name }: { name: string }) {
-    const backgroundColor = getUniqueRandomColors(advisor?.expertise.length)[0];
+    const tagColors = Object.entries(Colors)
+      .filter(([key]) => key.startsWith('TagLight'))
+      .map(([, value]) => value);
+
+    const backgroundColor = getColorForLabel(name, tagColors);
 
     return (
       <Box style={styles.pill} backgroundColor={backgroundColor}>
@@ -63,12 +76,11 @@ const AdvisorDetail = ({ route }) => {
       </Box>
     );
   }
-
   return (
     <Box flex={1} backgroundColor={`${colorMode}.primaryBackground`}>
       <AdvisorProfileHeader advisorImage={advisor.image} />
 
-      <Box flex={1} style={styles.scrollContent}>
+      <ScrollView flex={1} style={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <Text fontSize={18} medium>
             {advisor.title}
@@ -95,7 +107,7 @@ const AdvisorDetail = ({ route }) => {
             <Text fontSize={12} color={`${colorMode}.primaryText`}>
               {previewText}
               {isLong && (
-                <Text color={`${colorMode}.textGreen`} bold onPress={() => setShowModal(true)}>
+                <Text color={viewAll_color} bold onPress={() => setShowModal(true)}>
                   {' '}
                   Read more
                 </Text>
@@ -127,15 +139,13 @@ const AdvisorDetail = ({ route }) => {
             </Box>
           </Box>
         </View>
-
-        <View style={{ height: wp(100) }} />
-      </Box>
-
+      </ScrollView>
       <Box style={styles.fixedButtonContainer}>
         <Buttons
           primaryText="Schedule your call"
           primaryCallback={() => openLink(advisor.link)}
           fullWidth
+          RightIcon={ConnectAdvisor}
         />
       </Box>
 
@@ -168,10 +178,10 @@ export default AdvisorDetail;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: wp(22),
-    paddingTop: wp(65),
   },
   scrollContent: {
-    paddingBottom: wp(120),
+    marginTop: wp(65),
+    marginBottom: wp(100),
   },
   pinContainer: {
     flexDirection: 'row',
@@ -206,9 +216,8 @@ const styles = StyleSheet.create({
     marginTop: wp(-10),
   },
   detailsContainer: {
-    paddingHorizontal: wp(23),
+    paddingHorizontal: wp(10),
     paddingVertical: wp(18),
-    paddingRight: wp(10),
     borderWidth: 1,
     borderRadius: 10,
     marginTop: wp(8),
@@ -222,10 +231,13 @@ const styles = StyleSheet.create({
   detailColumnLeft: {
     flex: 1,
     paddingRight: wp(50),
+    paddingLeft: wp(15),
+    justifyContent: 'center',
   },
   detailColumnRight: {
     flex: 1,
     alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   fixedButtonContainer: {
     position: 'absolute',

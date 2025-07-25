@@ -11,6 +11,8 @@ import TakeMeThereIcon from 'src/assets/images/take-me-there.svg';
 import ConnectAdvisor from 'src/assets/images/connect-advisor.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useNavigation } from '@react-navigation/native';
+import ConciergeWhiteIcon from 'src/assets/images/concierge-white-icon.svg';
+import AdvisorWhiteIcon from 'src/assets/images/advisor-white-icon.svg';
 
 type ConciergeItem = {
   title: string;
@@ -23,6 +25,7 @@ type ConciergeItem = {
 
 const ConciergeComponent = ({ route }) => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { concierge: conciergeText } = translations;
   const navigation = useNavigation();
@@ -31,7 +34,7 @@ const ConciergeComponent = ({ route }) => {
     {
       title: conciergeText.askQuestion,
       subtitle: conciergeText.submitTicket,
-      iconName: <AskQuestionIcon />,
+      iconName: isDarkMode ? <ConciergeWhiteIcon /> : <AskQuestionIcon />,
       buttonText: conciergeText.takeMeThere,
       callback: () => {
         navigation.navigate('KeeperSupport');
@@ -41,7 +44,7 @@ const ConciergeComponent = ({ route }) => {
     {
       title: conciergeText.hireAdvisor,
       subtitle: conciergeText.whiteGlovedService,
-      iconName: <HireAdvisorIcon />,
+      iconName: isDarkMode ? <AdvisorWhiteIcon /> : <HireAdvisorIcon />,
       buttonText: conciergeText.connetWithAdvisor,
       callback: () => {
         navigation.navigate('Advisors');
@@ -56,7 +59,7 @@ const ConciergeComponent = ({ route }) => {
         <Box
           key={index}
           style={styles.Card}
-          backgroundColor={`${colorMode}.seashellWhite`}
+          backgroundColor={`${colorMode}.textInputBackground`}
           borderColor={`${colorMode}.separator`}
         >
           <Box style={styles.iconContainer}>
