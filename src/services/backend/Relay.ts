@@ -603,6 +603,46 @@ export default class Relay {
     return res ? res.data || res.json : null;
   };
 
+  public static getSwapCoins = async (): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}getSwapCoins`);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Swap ~ getCoins ~ error:', error);
+      throw new Error(error.message ?? 'Something went wrong');
+    }
+  };
+
+  public static getSwapQuote = async (body): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}getSwapQuote`, body);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ getSwapQuote ~ error:', error);
+      throw new Error(error.message ?? 'Something went wrong');
+    }
+  };
+
+  public static createSwapTnx = async (body): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}createSwapTnx`, body);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ createSwapTnx ~ error:', error);
+      throw new Error(error?.response?.data ?? 'Something went wrong');
+    }
+  };
+
+  public static getSwapTnxDetails = async (tnxId): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}getSwapTnxDetails?tnxId=${tnxId}`);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ getSwapTnxDetails ~ error:', error);
+      throw new Error(error.message ?? 'Something went wrong');
+    }
+  };
+
   public static uploadZendeskImages = async (imageObject): Promise<any> => {
     let res;
     try {

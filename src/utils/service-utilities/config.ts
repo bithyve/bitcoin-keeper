@@ -25,6 +25,7 @@ const DEFAULT_CONFIG = {
   CHANNEL_URL: 'https://keeper-channel-dev-8d01fa5233d0.herokuapp.com/',
   RAMP_BASE_URL: 'https://app.rampnetwork.com/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
+  LETS_EXCHANGE_AFFILIATE_ID: 'G0BiaS34U81NR3ra',
 };
 
 class Configuration {
@@ -98,6 +99,12 @@ class Configuration {
   public GASFREE_API_SECRET: string = config.GASFREE_API_SECRET?.trim();
 
   public RENEWAL_WINDOW: number;
+
+  public LETS_EXCHANGE_BASE_URL: string = config.LETS_EXCHANGE_BASE_URL?.trim();
+
+  public LETS_EXCHANGE_API_KEY: string = config.LETS_EXCHANGE_API_KEY?.trim();
+
+  public LETS_EXCHANGE_AFFILIATE_ID: string = DEFAULT_CONFIG.LETS_EXCHANGE_AFFILIATE_ID;
 
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
