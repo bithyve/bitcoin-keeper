@@ -11,6 +11,6 @@
         <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">10.0.3.2</domain>
         <domain includeSubdomains="true">bithyve.com</domain>
-        <domain includeSubdomains="true">ramp.network</domain>
+        <domain includeSubdomains="true">rampnetwork.com</domain>
     </domain-config>
 </network-security-config>

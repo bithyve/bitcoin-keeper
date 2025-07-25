@@ -154,5 +154,6 @@ const Colors = {
   CrimsonRed: 'rgba(217, 44, 44, 1)',
   graybeige: 'rgba(211, 209, 206, 0.15)',
   lightGrayBeige: 'rgba(114, 114, 114, 1)',
+  lightRed: 'rgba(217, 44, 44, 0.1)',
 };
 export default Colors;

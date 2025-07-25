@@ -316,8 +316,24 @@ import BuyAcquireArrowGold from 'src/assets/privateImages/acquire-buy-gold-arrow
 import CoinsIcon from 'src/assets/images/coins.svg';
 import CoinIconLight from 'src/assets/images/coinsLight.svg';
 import CoinsIconPrivate from 'src/assets/privateImages/coinsPrivate.svg';
+import SwitchLightLogo from 'src/assets/images/switch-light-logo.svg';
+import SwitchDarkLogo from 'src/assets/images/switch-dark-logo.svg';
+import SwapDownGreenIcon from 'src/assets/images/swap-down-green-icon.svg';
+import SwapDownWhiteIcon from 'src/assets/images/swap-down-white-icon.svg';
 
 const themeIcons = {
+  swap_down_icon: {
+    DARK: SwapDownWhiteIcon,
+    LIGHT: SwapDownGreenIcon,
+    PRIVATE: SwapDownWhiteIcon,
+    PRIVATE_LIGHT: SwapDownGreenIcon,
+  },
+  switch_logo: {
+    DARK: SwitchDarkLogo,
+    LIGHT: SwitchLightLogo,
+    PRIVATE: SwitchDarkLogo,
+    PRIVATE_LIGHT: SwitchLightLogo,
+  },
   acquire_send_arrow: {
     DARK: BuyAcquireArrowWhite,
     LIGHT: BuyAcquireArrow,
