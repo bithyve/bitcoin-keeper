@@ -7,23 +7,35 @@ import Colors from 'src/theme/Colors';
 import MapPin from 'src/assets/images/MapPinIcon.svg';
 import Buttons from 'src/components/Buttons';
 import ViewProfile from 'src/assets/images/view-profile.svg';
+import { useNavigation } from '@react-navigation/native';
 
 type Props = {
   advisor?: any;
 };
+export function getUniqueRandomColors(count: number): string[] {
+  const tagColors = Object.entries(Colors)
+    .filter(([key]) => key.startsWith('TagLight'))
+    .map(([, value]) => value);
 
-function ExpertiesPill({ name }: { name: string }) {
-  return (
-    <Box style={styles.pill} backgroundColor={'red.300'}>
-      <Text color={Colors.WarmIvory} fontSize={11}>
-        {name}
-      </Text>
-    </Box>
-  );
+  const shuffled = [...tagColors].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
 }
 
 const AdvisorCard = ({ advisor }: Props) => {
   const { colorMode } = useColorMode();
+  const navigation = useNavigation();
+
+  function ExpertiesPill({ name }: { name: string }) {
+    const backgroundColor = getUniqueRandomColors(advisor?.expertise.length);
+
+    return (
+      <Box style={styles.pill} backgroundColor={backgroundColor}>
+        <Text color={Colors.WarmIvory} fontSize={11}>
+          {name}
+        </Text>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -37,12 +49,14 @@ const AdvisorCard = ({ advisor }: Props) => {
           borderColor={`${colorMode}.pantoneGreen`}
           backgroundColor={Colors.headerWhite}
         >
-          <Image source={{ uri: advisor.image }} style={styles.image} />
+          <Image source={{ uri: advisor.image }} style={styles.image} alt="image" />
         </Box>
 
         <Box>
           <Box>
-            <Text>{advisor.title}</Text>
+            <Text fontSize={16} medium>
+              {advisor.title}
+            </Text>
             <Box style={styles.pinContainer}>
               <MapPin />
               <Text fontSize={13} color={Colors.lightGrayBeige}>
@@ -79,7 +93,12 @@ const AdvisorCard = ({ advisor }: Props) => {
         </Box>
       </Box>
       <Box style={styles.ButtonContainer}>
-        <Buttons primaryText="View Profile" fullWidth RightIcon={ViewProfile} />
+        <Buttons
+          primaryText="View Profile"
+          fullWidth
+          RightIcon={ViewProfile}
+          primaryCallback={() => navigation.navigate('AdvisorDetail', { advisor })}
+        />
       </Box>
     </Box>
   );

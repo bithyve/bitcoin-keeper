@@ -18,7 +18,7 @@ const dummyAdvisors = [
     title: 'Diy Sec Lab',
     country: 'Brazil',
     description:
-      'DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.',
+      'DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.',
     image: 'https://bitcoinkeeper.app/public_assets_email/diySecLab.png',
     link: 'https://calendly.com/vaibhav-cakesofttech/30min',
     duration: '30 mins',
@@ -42,6 +42,7 @@ const dummyAdvisors = [
 
 const Advisors = () => {
   const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -64,7 +65,7 @@ const Advisors = () => {
         <KeeperTextInput
           placeholder="Search for an Expert"
           onChangeText={() => {}}
-          inpuBorderColor={`${colorMode}.pantoneGreen`}
+          inpuBorderColor={isDarkMode ? `${colorMode}.separator` : `${colorMode}.pantoneGreen`}
         />
       </Box>
       <Box style={styles.Container}>
