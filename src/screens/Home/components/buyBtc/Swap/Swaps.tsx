@@ -172,7 +172,7 @@ export const Swaps = ({ navigation }) => {
             : walletTo.specs.receivingAddress,
         refund:
           walletFrom.entityKind === EntityKind.USDT_WALLET
-            ? walletTo.accountStatus.gasFreeAddress
+            ? walletFrom.accountStatus.gasFreeAddress
             : walletFrom.specs.receivingAddress,
         rateId: rateIdRef.current,
         callback: ({ status, tnx, error }) => {
