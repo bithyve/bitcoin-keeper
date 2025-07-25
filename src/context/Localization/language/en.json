@@ -178,7 +178,7 @@
     "Buy": "Buy",
     "update": "Update",
     "swapBtc": "Swap BTC",
-    "remove": "Remove"
+    "removeKey": "Remove Key"
   },
   "login": {
     "welcomeback": "Welcome Back",
@@ -709,7 +709,9 @@
     "keyUsedForVault": "Key is being used for Vault",
     "keysTryingToHide": "The Key you are trying to hide is used in one of the visible vaults.",
     "toHideKey": "To hide the key",
-    "toviewMobileKey": "To view Mobile Key seed words"
+    "toviewMobileKey": "To view Mobile Key seed words",
+    "AddAnotherInheritanceKey": "Add Another Inheritance Key",
+    "AddAnotherEmergencyKey": "Add Another Emergency Key"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",

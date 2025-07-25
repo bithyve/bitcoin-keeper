@@ -42,6 +42,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 export const DEFAULT_EMERGENCY_KEY_TIMELOCK = { label: MONTHS_36, value: MONTHS_36 };
 export const EMERGENCY_TIMELOCK_DURATIONS = [
@@ -107,6 +108,8 @@ function AddEmergencyKey({ route }) {
   const [generatedVaultId, setGeneratedVaultId] = useState('');
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
+  const box_background = ThemedColor({ name: 'msg_preview_background' });
+  const box_border = ThemedColor({ name: 'msg_preview_border' });
 
   const isDarkMode = colorMode === 'dark';
 
@@ -257,10 +260,22 @@ function AddEmergencyKey({ route }) {
         subTitle={vaultTranslations.setEmergencyKeyForVault}
       />
       <Box style={styles.container}>
+        <Box style={styles.addKeyButtonContainer}>
+          <AddKeyButton
+            short
+            onPress={addEmergencyKey}
+            buttonText={vaultTranslations.AddAnotherEmergencyKey}
+          />
+        </Box>
         <ScrollView showsVerticalScrollIndicator={false}>
           {emergencyKeysWithSigners.map((emergencyKey, index) => {
             return (
-              <Box key={index} style={styles.contentContainer}>
+              <Box
+                key={index}
+                style={styles.contentContainer}
+                backgroundColor={box_background}
+                borderColor={box_border}
+              >
                 <Box>
                   <Box style={styles.cardContainer}>
                     {!emergencyKey.signer ? (
@@ -319,15 +334,15 @@ function AddEmergencyKey({ route }) {
                       <TouchableOpacity
                         onPress={() => removeEmergencyKey(index)}
                         style={styles.removeButton}
-                        testID={`btn_remove_emergency_key_${index}`}
+                        testID={`btn_remove_inheritance_key_${index}`}
                       >
-                        <ThemedSvg name="delete_icon" width={26} height={26} />
                         <Text
-                          color={`${colorMode}.redText`}
-                          fontSize={12}
+                          color={`${colorMode}.DarkSlateGray`}
+                          fontSize={14}
                           style={styles.removeButtonText}
+                          semiBold
                         >
-                          {common.remove}
+                          {common.removeKey}
                         </Text>
                       </TouchableOpacity>
                     </Box>
@@ -336,10 +351,6 @@ function AddEmergencyKey({ route }) {
               </Box>
             );
           })}
-
-          <Box style={styles.addKeyButtonContainer}>
-            <AddKeyButton short onPress={addEmergencyKey} />
-          </Box>
         </ScrollView>
         <Box style={styles.bottomContainer}>
           <Buttons
@@ -466,6 +477,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     gap: hp(25),
     marginBottom: hp(25),
+    padding: hp(16),
+    borderWidth: 1,
+    borderRadius: 10,
   },
   dropDownContainer: {
     marginTop: hp(20),
@@ -475,21 +489,18 @@ const styles = StyleSheet.create({
   },
   removeButtonContainer: {
     marginTop: hp(15),
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   removeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: hp(8),
     paddingHorizontal: wp(12),
-    borderRadius: 6,
-    borderWidth: 1,
   },
   removeButtonText: {
     marginLeft: wp(4),
   },
   addKeyButtonContainer: {
-    marginTop: hp(10),
-    marginBottom: hp(30),
+    marginBottom: hp(20),
   },
 });

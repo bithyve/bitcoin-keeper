@@ -40,9 +40,9 @@ import { INHERITANCE_KEY_IDENTIFIER } from 'src/services/wallets/operations/mini
 import WalletHeader from 'src/components/WalletHeader';
 import { AddKeyButton } from '../SigningDevices/components/AddKeyButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 export const DEFAULT_INHERITANCE_KEY_TIMELOCK = { label: MONTHS_12, value: MONTHS_12 };
 export const INHERITANCE_TIMELOCK_DURATIONS = [
@@ -109,6 +109,8 @@ function AddReserveKey({ route }) {
   const [generatedVaultId, setGeneratedVaultId] = useState('');
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(currentBlockHeightParam);
+  const box_background = ThemedColor({ name: 'msg_preview_background' });
+  const box_border = ThemedColor({ name: 'msg_preview_border' });
 
   const isDarkMode = colorMode === 'dark';
 
@@ -262,10 +264,22 @@ function AddReserveKey({ route }) {
         subTitle={vaultTranslations.setIKSForVault}
       />
       <Box style={styles.container}>
+        <Box style={styles.addKeyButtonContainer}>
+          <AddKeyButton
+            short
+            onPress={addInheritanceKey}
+            buttonText={vaultTranslations.AddAnotherInheritanceKey}
+          />
+        </Box>
         <ScrollView showsVerticalScrollIndicator={false}>
           {inheritanceKeysWithSigners.map((inheritanceKey, index) => {
             return (
-              <Box key={index} style={styles.contentContainer}>
+              <Box
+                key={index}
+                style={styles.contentContainer}
+                backgroundColor={box_background}
+                borderColor={box_border}
+              >
                 <Box>
                   <Box style={styles.cardContainer}>
                     {!inheritanceKey.signer ? (
@@ -326,13 +340,13 @@ function AddReserveKey({ route }) {
                         style={styles.removeButton}
                         testID={`btn_remove_inheritance_key_${index}`}
                       >
-                        <ThemedSvg name="delete_icon" width={26} height={26} />
                         <Text
-                          color={`${colorMode}.redText`}
-                          fontSize={12}
+                          color={`${colorMode}.DarkSlateGray`}
+                          fontSize={14}
                           style={styles.removeButtonText}
+                          semiBold
                         >
-                          {common.remove}
+                          {common.removeKey}
                         </Text>
                       </TouchableOpacity>
                     </Box>
@@ -341,12 +355,7 @@ function AddReserveKey({ route }) {
               </Box>
             );
           })}
-
-          <Box style={styles.addKeyButtonContainer}>
-            <AddKeyButton short onPress={addInheritanceKey} />
-          </Box>
         </ScrollView>
-
         <Box style={styles.bottomContainer}>
           <Buttons
             primaryLoading={vaultCreating || relayVaultUpdateLoading}
@@ -488,6 +497,9 @@ const styles = StyleSheet.create({
   contentContainer: {
     gap: hp(25),
     marginBottom: hp(25),
+    padding: hp(16),
+    borderWidth: 1,
+    borderRadius: 10,
   },
   dropDownContainer: {
     marginTop: hp(20),
@@ -497,21 +509,18 @@ const styles = StyleSheet.create({
   },
   removeButtonContainer: {
     marginTop: hp(15),
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
   removeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: hp(8),
     paddingHorizontal: wp(12),
-    borderRadius: 6,
-    borderWidth: 1,
   },
   removeButtonText: {
     marginLeft: wp(4),
   },
   addKeyButtonContainer: {
-    marginTop: hp(10),
-    marginBottom: hp(30),
+    marginBottom: hp(20),
   },
 });
