@@ -159,6 +159,7 @@ import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
 import KeeperSupport from 'src/screens/KeeperConcierge/KeeperSupport';
 import Advisors from 'src/screens/Advisors/Advisors';
 import FilterAdvisor from 'src/screens/Advisors/FilterAdvisor';
+import AdvisorDetail from 'src/screens/Advisors/AdvisorDetail';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -349,6 +350,7 @@ function AppStack() {
         <Stack.Screen name="KeeperSupport" component={KeeperSupport} />
         <Stack.Screen name="Advisors" component={Advisors} />
         <Stack.Screen name="FilterAdvisor" component={FilterAdvisor} />
+        <Stack.Screen name="AdvisorDetail" component={AdvisorDetail} />
       </Stack.Navigator>
     </RealmProvider>
   );
