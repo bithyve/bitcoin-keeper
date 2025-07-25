@@ -20,7 +20,6 @@ import {
   setOnboardCallScheduled,
 } from '../reducers/concierge';
 import { hash256 } from 'src/utils/service-utilities/encryption';
-import ZendeskClass from 'src/services/backend/Zendesk';
 import Relay from 'src/services/backend/Relay';
 import { addToUaiStack } from '../sagaActions/uai';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -37,10 +36,10 @@ function* loadConciergeUserWorker() {
     userExternalId = userExternalId.toString().substring(0, 24);
     yield put(setConciergeLoading(true));
 
-    let res = yield call(ZendeskClass.fetchZendeskUser, userExternalId);
+    let res = yield call(Relay.getZendeskUser, userExternalId);
     if (res?.data?.users?.length == 0) {
       // User not found | create user
-      res = yield call(ZendeskClass.createZendeskUser, userExternalId);
+      res = yield call(Relay.createZendeskUser, userExternalId);
     }
     if (res.status === 201 || res.status === 200) {
       // success
@@ -94,7 +93,7 @@ function* addTicketStatusUAIWorker({
 function* scheduleOnboardingCallWorker({ payload }) {
   try {
     yield put(setConciergeLoading(true));
-    let res = yield call(ZendeskClass.createZendeskTicket, { onboardEmail: payload });
+    let res = yield call(Relay.createZendeskTicket, { onboardEmail: payload });
     if (res.status === 201) {
       yield put(setOnboardCallSuccess(true));
       yield put(setOnboardCallScheduled(true));

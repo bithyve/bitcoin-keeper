@@ -226,6 +226,11 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
 function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
+  if (!ELECTRUM_CLIENT.isClientConnected) {
+    ElectrumClient.resetCurrentPeerIndex();
+    yield call(connectToNodeWorker);
+  }
+
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );

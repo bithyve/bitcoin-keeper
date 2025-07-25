@@ -877,6 +877,7 @@ function SignerModals({
                     fileData: serializedPSBTEnvelop.serializedPSBT,
                     fileType: 'PSBT',
                     signerType: signer.type,
+                    signer,
                   },
                 })
               );
@@ -1057,6 +1058,7 @@ function SignerModals({
                           fileData: serializedPSBTEnvelop.serializedPSBT,
                           fileType: 'PSBT',
                           signerType: signer.type,
+                          signer,
                         },
                       })
                     );
@@ -1174,6 +1176,7 @@ function SignerModals({
                           fileType: 'PSBT',
                           signerType: signer.type,
                           signingMode,
+                          signer,
                         },
                       })
                     );
@@ -1290,6 +1293,7 @@ function SignerModals({
                     fileType: 'PSBT',
                     signerType: signer.type,
                     signingMode,
+                    signer,
                   },
                 })
               );
@@ -1359,6 +1363,7 @@ function SignerModals({
                     fileType: 'PSBT',
                     signerType: signer.type,
                     signingMode,
+                    signer,
                   },
                 })
               );
@@ -1436,6 +1441,7 @@ function SignerModals({
                     fileType: 'PSBT',
                     signerType: signer.type,
                     signingMode,
+                    signer,
                   },
                 })
               );
@@ -1604,6 +1610,7 @@ function SignerModals({
                           fileData: serializedPSBTEnvelop.serializedPSBT,
                           fileType: 'PSBT',
                           signerType: signer.type,
+                          signer,
                         },
                       })
                     );

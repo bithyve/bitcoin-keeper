@@ -27,6 +27,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { validatePSBT } from 'src/utils/utilities';
 
 function Card({ title, message, buttonText, buttonCallBack }) {
   const { colorMode } = useColorMode();
@@ -118,10 +119,11 @@ function SignWithColdCard({ route }: { route }) {
             showToast(errorText.scanValidPsbt, <ToastErrorIcon />);
             return;
           }
+          validatePSBT(serializedPSBTEnvelop.serializedPSBT, data, signer, errorText);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT: data, xfp: vaultKey.xfp }));
           navigation.goBack();
         } catch (err) {
-          showToast(common.somethingWrong, <ToastErrorIcon />);
+          showToast(err?.message ?? common.somethingWrong, <ToastErrorIcon />);
         } finally {
           cleanUp();
         }
@@ -185,51 +187,56 @@ function SignWithColdCard({ route }: { route }) {
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
-      if (!isMultisig) {
-        const { txn } = await receiveTxHexFromColdCard();
-        dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
-      } else {
-        const { psbt } = await receivePSBTFromColdCard();
-        if (isRemoteKey) {
+      try {
+        if (!isMultisig) {
+          const { txn } = await receiveTxHexFromColdCard();
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
+        } else {
+          const { psbt } = await receivePSBTFromColdCard();
+          validatePSBT(serializedPSBTEnvelop.serializedPSBT, psbt, signer, errorText);
+          if (isRemoteKey) {
+            dispatch(
+              healthCheckStatusUpdate([
+                {
+                  signerId: signer.masterFingerprint,
+                  status: hcStatusType.HEALTH_CHECK_SIGNING,
+                },
+              ])
+            );
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ShowPSBT',
+                params: {
+                  data: psbt,
+                  encodeToBytes: false,
+                  title: signerText.PSBTSigned,
+                  subtitle: signerText.PSBTSignedDesc,
+                  type: SignerType.KEEPER,
+                },
+              })
+            );
+            return;
+          }
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
           dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'ShowPSBT',
-              params: {
-                data: psbt,
-                encodeToBytes: false,
-                title: signerText.PSBTSigned,
-                subtitle: signerText.PSBTSignedDesc,
-                type: SignerType.KEEPER,
-              },
+            updateKeyDetails(vaultKey, 'registered', {
+              registered: true,
+              vaultId: activeVault.id,
             })
           );
-          return;
         }
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
         dispatch(
-          updateKeyDetails(vaultKey, 'registered', {
-            registered: true,
-            vaultId: activeVault.id,
-          })
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            },
+          ])
         );
+        navigation.goBack();
+      } catch (error) {
+        showToast(error.message, <ToastErrorIcon />);
       }
-      dispatch(
-        healthCheckStatusUpdate([
-          {
-            signerId: signer.masterFingerprint,
-            status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
-          },
-        ])
-      );
-      navigation.goBack();
     });
 
   const registerCC = async () => {

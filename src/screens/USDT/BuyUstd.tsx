@@ -31,7 +31,7 @@ const BuyUstd = ({ route }) => {
   const onProceed = () => {
     try {
       if (currencyCode === 'GBP' || getCountry() === 'UK') {
-        Linking.openURL('https://ramp.network/buy#');
+        Linking.openURL('https://rampnetwork.com/buy#');
       } else {
         Linking.openURL(fetchBuyUsdtLink({ receiveAddress }));
       }
