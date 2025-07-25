@@ -11,10 +11,7 @@ import useSignerMap from 'src/hooks/useSignerMap';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { useDispatch } from 'react-redux';
 import WalletUtilities from 'src/services/wallets/operations/utils';
-import useVault from 'src/hooks/useVault';
-import { useAppSelector } from 'src/store/hooks';
 import { getKeyUID } from 'src/utils/utilities';
 import OptionPicker from 'src/components/OptionPicker';
 import { getSignerDescription } from 'src/hardware';
@@ -29,6 +26,7 @@ import {
 } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
 import { isVaultUsingBlockHeightTimelock } from 'src/services/wallets/factories/VaultFactory';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
 function ResetInheritanceKey({ route }) {
   const {
@@ -48,18 +46,12 @@ function ResetInheritanceKey({ route }) {
   const { vault: vaultText, common, error: errorText } = translations;
   const { showToast } = useToastMessage();
   const [generatedVaultId, setGeneratedVaultId] = useState('');
-  const { allVaults } = useVault({ includeArchived: false });
-  const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreating, setCreating] = useState(false);
   const [currentMedianTimePast, setCurrentMedianTimePast] = useState(null);
   const [currentBlockHeight, setCurrentBlockHeight] = useState(null);
   const [activationTimes, setActivationTimes] = useState<Record<string, string>>({});
-
-  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
-
-  const dispatch = useDispatch();
+  const box_background = ThemedColor({ name: 'msg_preview_background' });
+  const box_border = ThemedColor({ name: 'msg_preview_border' });
 
   const handleResetInheritanceKey = async () => {
     const hasAllSelections = inheritanceSigners
@@ -194,7 +186,12 @@ function ResetInheritanceKey({ route }) {
       <Box style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {signers.map((signer) => (
-            <Box key={getKeyUID(signer)} style={styles.contentContainer}>
+            <Box
+              key={getKeyUID(signer)}
+              style={styles.contentContainer}
+              backgroundColor={box_background}
+              borderColor={box_border}
+            >
               <IKSInfocard
                 name={signer?.signerName}
                 description={getSignerDescription(signer)}
@@ -288,6 +285,9 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: hp(15),
     marginBottom: hp(30),
+    padding: hp(16),
+    borderWidth: 1,
+    borderRadius: 10,
   },
   dropdownContainer: {
     gap: hp(15),
