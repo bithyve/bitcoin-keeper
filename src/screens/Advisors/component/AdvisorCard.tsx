@@ -1,5 +1,5 @@
 import { Box, Image, ScrollView, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -8,26 +8,30 @@ import MapPin from 'src/assets/images/MapPinIcon.svg';
 import Buttons from 'src/components/Buttons';
 import ViewProfile from 'src/assets/images/view-profile.svg';
 import { useNavigation } from '@react-navigation/native';
+import sha256 from 'crypto-js/sha256';
 
 type Props = {
   advisor?: any;
 };
-export function getUniqueRandomColors(count: number): string[] {
-  const tagColors = Object.entries(Colors)
-    .filter(([key]) => key.startsWith('TagLight'))
-    .map(([, value]) => value);
 
-  const shuffled = [...tagColors].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-}
+const getColorForLabel = (label: string, colorsArray: string[]) => {
+  const hash = sha256(label).toString();
+  const hashNum = parseInt(hash.slice(0, 8), 16);
+  return colorsArray[hashNum % colorsArray.length];
+};
 
 const AdvisorCard = ({ advisor }: Props) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
-  function ExpertiesPill({ name }: { name: string }) {
-    const backgroundColor = getUniqueRandomColors(advisor?.expertise.length);
+  const tagColors = useMemo(() => {
+    return Object.entries(Colors)
+      .filter(([key]) => key.startsWith('TagLight'))
+      .map(([, value]) => value);
+  }, []);
 
+  function ExpertiesPill({ name }: { name: string }) {
+    const backgroundColor = getColorForLabel(name, tagColors);
     return (
       <Box style={styles.pill} backgroundColor={backgroundColor}>
         <Text color={Colors.WarmIvory} fontSize={11}>
@@ -68,12 +72,13 @@ const AdvisorCard = ({ advisor }: Props) => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Box style={styles.pillsScrollWrapper}>
               <Box style={styles.PillsContainer}>
-                {advisor?.expertise?.map((item, index) => (
-                  <ExpertiesPill key={index} name={item} />
+                {advisor?.expertise?.map((item) => (
+                  <ExpertiesPill key={item} name={item} />
                 ))}
               </Box>
             </Box>
           </ScrollView>
+
           <Box style={styles.timeContainer}>
             <Text fontSize={12} medium color={`${colorMode}.black`}>
               Time zone:
@@ -82,6 +87,7 @@ const AdvisorCard = ({ advisor }: Props) => {
               {advisor.timezone}
             </Text>
           </Box>
+
           <Box style={styles.timeContainer}>
             <Text fontSize={12} medium color={`${colorMode}.black`}>
               Language:
@@ -92,6 +98,7 @@ const AdvisorCard = ({ advisor }: Props) => {
           </Box>
         </Box>
       </Box>
+
       <Box style={styles.ButtonContainer}>
         <Buttons
           primaryText="View Profile"

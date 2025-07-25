@@ -1,5 +1,5 @@
 import { Box, FlatList, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -44,6 +44,15 @@ const Advisors = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
+  const [search, setSearch] = useState('');
+  console.log('search', search);
+
+  const filteredAdvisors = useMemo(() => {
+    return dummyAdvisors.filter((advisor) =>
+      advisor.title.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -65,7 +74,8 @@ const Advisors = () => {
       <Box style={styles.searchContainer}>
         <KeeperTextInput
           placeholder="Search for an Expert"
-          onChangeText={() => {}}
+          value={search}
+          onChangeText={setSearch}
           inpuBorderColor={isDarkMode ? `${colorMode}.separator` : `${colorMode}.pantoneGreen`}
         />
       </Box>
@@ -75,7 +85,7 @@ const Advisors = () => {
         </Text>
 
         <FlatList
-          data={dummyAdvisors}
+          data={filteredAdvisors}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => <AdvisorCard advisor={item} />}
           contentContainerStyle={{ paddingBottom: wp(20) }}
