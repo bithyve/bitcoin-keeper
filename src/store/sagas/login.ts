@@ -199,15 +199,6 @@ function* credentialsAuthWorker({ payload }) {
         yield put(setTempDetails({ hash, realmId: REALM_FILE, accountIdentifier: '' }));
       }
 
-      const contactsSecretKey = idx(keeperApp, (app) => app.contactsKey.secretKey);
-      if (contactsSecretKey) {
-        // initiate the contacts manager if the contacts feature is active
-        const cm = ChatPeerManager.getInstance();
-        cm.init(keeperApp.primarySeed).then((success) =>
-          console.log(`Initialized contacts manager: ${success}`)
-        );
-      }
-
       const newVersion = DeviceInfo.getVersion();
       const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
       const lastElement = versionCollection[versionCollection.length - 1];

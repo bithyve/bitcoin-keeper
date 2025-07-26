@@ -71,16 +71,7 @@ export function* setupKeeperAppWorker({ payload }) {
       );
       imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
     }
-    const cm = ChatPeerManager.getInstance();
-    yield call([cm, cm.init], primarySeed.toString('hex'));
-    const contactsKey = yield call([cm, cm.getKeys]);
-    const response = yield call(
-      Relay.createNewApp,
-      publicId,
-      appID,
-      fcmToken,
-      contactsKey.publicKey
-    );
+    const response = yield call(Relay.createNewApp, publicId, appID, fcmToken);
 
     if (response && response.created) {
       const newAPP: KeeperApp = {
@@ -100,7 +91,6 @@ export function* setupKeeperAppWorker({ payload }) {
         version: DeviceInfo.getVersion(),
         networkType: bitcoinNetworkType,
         enableAnalytics: false,
-        contactsKey,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
 

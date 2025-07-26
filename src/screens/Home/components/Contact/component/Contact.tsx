@@ -49,11 +49,9 @@ const Contact = () => {
 
   const initializeChat = async () => {
     try {
-      if (!ChatPeerManager.isInitialized) {
-        const chatPeerInitialized = await chatPeer.initChatPeer();
-        if (!chatPeerInitialized) {
-          throw new Error();
-        }
+      const chatPeerInitialized = await chatPeer.initChatPeer();
+      if (!chatPeerInitialized) {
+        throw new Error();
       }
     } catch (error) {
       console.error('Error initializing chat peer:', error);
@@ -64,11 +62,8 @@ const Contact = () => {
 
   useEffect(() => {
     if (!chatPeer.isInitialized) initializeChat();
+    else chatPeer.loadPendingMessages(lastBlock);
   }, [chatPeer.isInitialized]);
-
-  useEffect(() => {
-    chatPeer.loadPendingMessages(lastBlock);
-  }, []);
 
   const onQrScan = (data) => {
     if (data.startsWith('keeper://')) {
