@@ -139,7 +139,7 @@ const Contact = () => {
           <TouchableOpacity
             style={styles.concierge}
             onPress={() => {
-              navigation.navigate('ChatRoomScreen');
+              navigation.navigate('keeperSupport');
             }}
           >
             <Box style={styles.concierge_icon}>
