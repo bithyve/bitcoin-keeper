@@ -43,7 +43,7 @@ import {
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { isReading, stopReading } from 'src/hardware/portal';
 import { hp, wp } from 'src/constants/responsive';
-import { getKeyUID, getTnxIdFromCachedTnx } from 'src/utils/utilities';
+import { getKeyUID, getTnxIdFromCachedTnx, validatePSBT } from 'src/utils/utilities';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import { deleteDelayedTransaction, updateDelayedTransaction } from 'src/store/reducers/storage';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -332,6 +332,12 @@ function SignTransactionScreen() {
                 cvc: tapsignerCVC,
                 signer,
               });
+            validatePSBT(
+              serializedPSBTEnvelop.serializedPSBT,
+              signedSerializedPSBT,
+              signer,
+              errorText
+            );
             dispatch(
               updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
             );
@@ -440,24 +446,33 @@ function SignTransactionScreen() {
             ])
           );
         } else if (SignerType.PORTAL === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithPortal({
-            setPortalModal,
-            withNfcModal,
-            serializedPSBTEnvelop,
-            closeNfc,
-            vault: defaultVault,
-            portalCVC,
-          });
-
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
-          dispatch(
-            healthCheckStatusUpdate([
-              {
-                signerId: signer.masterFingerprint,
-                status: hcStatusType.HEALTH_CHECK_SIGNING,
-              },
-            ])
-          );
+          try {
+            const { signedSerializedPSBT } = await signTransactionWithPortal({
+              setPortalModal,
+              withNfcModal,
+              serializedPSBTEnvelop,
+              closeNfc,
+              vault: defaultVault,
+              portalCVC,
+            });
+            validatePSBT(
+              serializedPSBTEnvelop.serializedPSBT,
+              signedSerializedPSBT,
+              signer,
+              errorText
+            );
+            dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
+            dispatch(
+              healthCheckStatusUpdate([
+                {
+                  signerId: signer.masterFingerprint,
+                  status: hcStatusType.HEALTH_CHECK_SIGNING,
+                },
+              ])
+            );
+          } catch (error) {
+            showToast(error.message, <ToastErrorIcon />);
+          }
         }
       }
     },

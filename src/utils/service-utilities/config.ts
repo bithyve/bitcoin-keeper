@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import config from 'react-native-config';
 import { EntityKind, WalletType } from '../../services/wallets/enums';
 
@@ -24,8 +23,9 @@ const DEFAULT_CONFIG = {
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
   CHANNEL_URL: 'https://keeper-channel-dev-8d01fa5233d0.herokuapp.com/',
-  RAMP_BASE_URL: 'https://app.ramp.network/',
+  RAMP_BASE_URL: 'https://app.rampnetwork.com/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
+  LETS_EXCHANGE_AFFILIATE_ID: 'G0BiaS34U81NR3ra',
 };
 
 class Configuration {
@@ -95,23 +95,18 @@ class Configuration {
     ? config.CHANNEL_URL.trim()
     : DEFAULT_CONFIG.CHANNEL_URL.trim();
 
-  public ZENDESK_USERNAME: string = config.ZENDESK_USERNAME?.trim();
-
-  public ZENDESK_PASSWORD: string = config.ZENDESK_PASSWORD?.trim();
-
-  public ZENDESK_BASE_URL: string = config.ZENDESK_BASE_URL?.trim();
-
-  public ZENDESK_CHANNEL_ID = Platform.select({
-    ios: config.ZENDESK_IOS_CHANNEL_ID?.trim(),
-    android: config.ZENDESK_ANDROID_CHANNEL_ID?.trim(),
-  });
-
   public GASFREE_API_KEY: string = config.GASFREE_API_KEY?.trim();
   public GASFREE_API_SECRET: string = config.GASFREE_API_SECRET?.trim();
 
   public RELAY_PEER_PUB_KEY: string = config.RELAY_PEER_PUB_KEY?.trim();
 
   public RENEWAL_WINDOW: number;
+
+  public LETS_EXCHANGE_BASE_URL: string = config.LETS_EXCHANGE_BASE_URL?.trim();
+
+  public LETS_EXCHANGE_API_KEY: string = config.LETS_EXCHANGE_API_KEY?.trim();
+
+  public LETS_EXCHANGE_AFFILIATE_ID: string = DEFAULT_CONFIG.LETS_EXCHANGE_AFFILIATE_ID;
 
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()

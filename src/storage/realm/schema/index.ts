@@ -42,6 +42,7 @@ import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
 import { DefualtNodeConnectSchema, NodeConnectSchema } from './nodeConnect';
+import { SwapHistorySchema } from './swapHistory';
 import {
   USDTWalletSchema,
   USDTWalletSpecsSchema,
@@ -104,4 +105,5 @@ export default [
   MessageSchema,
   ContactSchema,
   CommunitySchema,
+  SwapHistorySchema,
 ];

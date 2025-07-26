@@ -74,6 +74,12 @@ import {
 } from './concierge';
 import { changeBitcoinNetworkWatcher, setSubscriptionWatcher } from './settings';
 import { loadConciergeUserOnLoginWatcher, saveBackupMethodByAppIdWatcher } from './account';
+import {
+  createSwapTnxWatcher,
+  getSwapQuoteWatcher,
+  getTnxDetailsWatcher,
+  loadCoinDetailsWatcher,
+} from './swap';
 
 const rootSaga = function* () {
   const sagas = [
@@ -169,6 +175,11 @@ const rootSaga = function* () {
     // account
     loadConciergeUserOnLoginWatcher,
     saveBackupMethodByAppIdWatcher,
+    // swap
+    loadCoinDetailsWatcher,
+    getSwapQuoteWatcher,
+    createSwapTnxWatcher,
+    getTnxDetailsWatcher,
   ];
 
   yield all(

@@ -16,6 +16,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { validatePSBT } from 'src/utils/utilities';
 import { manipulateKruxSingleFile } from 'src/hardware/krux';
 
 const HandleFileScreen = ({ route, navigation }) => {
@@ -31,11 +32,11 @@ const HandleFileScreen = ({ route, navigation }) => {
     Illustration,
     Instructions,
     signingMode,
+    signer,
   } = route.params;
   const [inputText, setInputText] = useState('');
 
   const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
   const { showToast } = useToastMessage();
   const [infoModal, setInfoModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
@@ -64,6 +65,21 @@ const HandleFileScreen = ({ route, navigation }) => {
   };
 
   const subtitleModal = modalSubtitle[signerType] || signerText.defaultSetup;
+
+  const validateAndProceed = () => {
+    try {
+      if (fileType === 'PSBT' && !isHealthcheck) {
+        validatePSBT(fileData, inputText, signer, errorText);
+      }
+      navigation.goBack();
+      signerType === SignerType.KRUX && isHealthcheck
+        ? manipulateKruxSingleFile(inputText, onFileExtract)
+        : onFileExtract(inputText);
+    } catch (error) {
+      console.log('🚀 ~ validateAndProceed ~ error:', error);
+      showToast(error.message, <ToastErrorIcon />);
+    }
+  };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -132,12 +148,7 @@ const HandleFileScreen = ({ route, navigation }) => {
           </Box>
           <Box style={styles.footerWrapper}>
             <Buttons
-              primaryCallback={() => {
-                navigation.goBack();
-                signerType === SignerType.KRUX && isHealthcheck
-                  ? manipulateKruxSingleFile(inputText, onFileExtract)
-                  : onFileExtract(inputText);
-              }}
+              primaryCallback={validateAndProceed}
               primaryText={ctaText}
               primaryDisable={!inputText}
               fullWidth
