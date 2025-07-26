@@ -400,8 +400,8 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
       <KeeperModal
         visible={openOptionModal}
         close={() => setOpenOptionModal(false)}
-        title="Sign Transaction"
-        subTitle="Select how you want to sign the transaction"
+        title="Share Transaction"
+        subTitle="Select how you want to share the transaction"
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

@@ -22,7 +22,7 @@ import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { fetchSellBtcLink, fetchSellUsdtLink } from 'src/services/thirdparty/ramp';
-import Note from 'src/components/Note/Note';
+import Buttons from 'src/components/Buttons';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -118,7 +118,16 @@ const BuyBtc = () => {
             />
           </ScrollView>
           <Box style={styles.button_container}>
-            <Note title={common.note} subtitle={buyBTCText.transactionOnRamp} />
+            <Buttons
+              primaryText={buyBTCText.swapButton}
+              primaryCallback={() => {
+                navigation.dispatch(CommonActions.navigate('Swaps'));
+              }}
+              fullWidth
+            />
+          </Box>
+          <Box style={{ marginBottom: hp(12), paddingHorizontal: wp(12) }}>
+            <Text fontSize={13}>{buyBTCText.transactionOnRamp}</Text>
           </Box>
         </>
       ) : (

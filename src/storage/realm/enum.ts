@@ -47,4 +47,5 @@ export enum RealmSchema {
   Community = 'Community',
   Message = 'Message',
   Contact = 'Contact',
+  SwapHistory = 'SwapHistory',
 }
