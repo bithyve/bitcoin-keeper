@@ -121,6 +121,7 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
               },
             });
             console.log('Database updated with peer keys');
+            // TODO: update the backend (using Relay.createNewApp alternate route)
           }
         } catch (keyError) {
           console.warn('Failed to get or update contacts key:', keyError);
