@@ -93,11 +93,15 @@ const AdvisorDetail = ({ route }) => {
           </Box>
 
           <Box style={styles.pillsScrollWrapper}>
-            <Box style={styles.PillsContainer}>
+            <ScrollView
+              contentContainerStyle={styles.PillsContainer}
+              showsHorizontalScrollIndicator={false}
+              horizontal={true}
+            >
               {advisor?.expertise?.map((item, index) => (
                 <ExpertiesPill key={index} name={item} />
               ))}
-            </Box>
+            </ScrollView>
           </Box>
 
           <Box style={styles.advisorContainer}>

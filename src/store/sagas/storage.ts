@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import { call, put, select } from 'redux-saga/effects';
+import { call, put, select, fork } from 'redux-saga/effects';
 import { generateEncryptionKey } from 'src/utils/service-utilities/encryption';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
@@ -41,6 +41,7 @@ import {
 } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import { getAdvisorWorker } from './advisor';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {
@@ -126,6 +127,7 @@ export function* setupKeeperAppWorker({ payload }) {
         const { allAccounts } = yield select((state: RootState) => state.account);
         if (allAccounts.length == 1) yield put(setBiometricEnabledAppId(appID));
       }
+      yield fork(getAdvisorWorker, { callback: null });
     } else {
       yield put(setAppCreationError(true));
     }

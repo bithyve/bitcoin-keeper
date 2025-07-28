@@ -1,4 +1,4 @@
-import { Box, Image } from 'native-base';
+import { Box } from 'native-base';
 import React from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -10,6 +10,7 @@ import ProfileArrow from 'src/assets/images/profile-arrow.svg';
 import { useNavigation } from '@react-navigation/native';
 import Colors from 'src/theme/Colors';
 import useIsSmallDevices from 'src/hooks/useSmallDevices';
+import FastImage from 'react-native-fast-image';
 
 const AdvisorProfileHeader = ({ advisorImage }) => {
   const backgroundColor = ThemedColor({ name: 'homeScreen_header_background' });
@@ -54,7 +55,7 @@ const AdvisorProfileHeader = ({ advisorImage }) => {
         ]}
         backgroundColor={Colors.headerWhite}
       >
-        <Image source={{ uri: advisorImage }} style={styles.image} alt="image" />
+        <FastImage source={{ uri: advisorImage }} style={[styles.image]} resizeMode="cover" />
       </Box>
     </Box>
   );

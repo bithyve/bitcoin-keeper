@@ -1,5 +1,5 @@
 import { Box, FlatList, useColorMode } from 'native-base';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -10,54 +10,47 @@ import { useNavigation } from '@react-navigation/native';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Text from 'src/components/KeeperText';
 import AdvisorCard from './component/AdvisorCard';
-
-const dummyAdvisors = [
-  {
-    expertise: ['Hardware Purchase', 'Multisig Setup'],
-    languages: ['Portuguese', 'English', 'Español'],
-    title: 'Diy Sec Lab',
-    country: 'Brazil',
-    description:
-      'DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.DIY Labs is a Brazil-based fintech company specializing in ultra‑secure, open‑source tools for self‑custody of Bitcoin.',
-    image: 'https://bitcoinkeeper.app/public_assets_email/diySecLab.png',
-    link: 'https://calendly.com/vaibhav-cakesofttech/30min',
-    duration: '30 mins',
-    experience: '4 Years',
-    timezone: 'GMT - 3',
-  },
-  {
-    expertise: ['Seed Backup', 'Cold Wallet Recovery', 'Multisig Setup'],
-    languages: ['English', 'German'],
-    title: 'SecureVault Pro',
-    country: 'Germany',
-    description:
-      'SecureVault Pro helps clients recover lost access and offers consultation on safe Bitcoin cold storage setups.',
-    image: 'https://bitcoinkeeper.app/public_assets_email/diySecLab.png',
-    link: 'https://calendly.com/sample-link',
-    duration: '45 mins',
-    experience: '6 Years',
-    timezone: 'GMT + 1',
-  },
-];
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { useAppSelector } from 'src/store/hooks';
+import { useDispatch } from 'react-redux';
+import { getAdvisors } from 'src/store/sagaActions/advisor';
 
 const Advisors = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const [search, setSearch] = useState('');
-  console.log('search', search);
+  const [loading, setLoading] = useState(false);
+  const { advisors } = useAppSelector((state) => state.advisor);
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const filteredAdvisors = useMemo(() => {
-    return dummyAdvisors.filter((advisor) =>
-      advisor.title.toLowerCase().includes(search.toLowerCase())
-    );
+    return advisors.filter((advisor) => advisor.title.toLowerCase().includes(search.toLowerCase()));
   }, [search]);
+
+  useEffect(() => {
+    if (!advisors.length) {
+      setLoading(true);
+      dispatch(
+        getAdvisors(({ status, error }) => {
+          setLoading(false);
+          if (!status) {
+            navigation.goBack();
+            showToast(error, <ToastErrorIcon />);
+          }
+        })
+      );
+    }
+  }, []);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title="Meet Our Advisors"
-        // Filter remove for now
+        // * For future use, if needed
         // rightComponent={
         //   <TouchableOpacity
         //     onPress={() => navigation.navigate('FilterAdvisor')}
@@ -92,6 +85,7 @@ const Advisors = () => {
           showsVerticalScrollIndicator={false}
         />
       </Box>
+      <ActivityIndicatorView visible={loading} />
     </ScreenWrapper>
   );
 };
