@@ -156,6 +156,11 @@ import UsdtTransactionHistory from 'src/screens/USDT/UsdtTransactionHistory';
 import Usdtsetting from 'src/screens/USDT/Usdtsetting';
 import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
+import { Swaps } from 'src/screens/Home/components/buyBtc/Swap/Swaps';
+import { SwapDetails } from 'src/screens/Home/components/buyBtc/Swap/SwapDetails';
+import { SwapHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapHistory';
+import { SwapHistoryDetail } from 'src/screens/Home/components/buyBtc/Swap/SwapHistoryDetail';
+import { SwapAllHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapAllHistory';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -343,6 +348,11 @@ function AppStack() {
         <Stack.Screen name="SignMessageScreen" component={SignMessageScreen} />
         <Stack.Screen name="CloudBackupPassword" component={CloudBackupPassword} />
         <Stack.Screen name="ImportedWalletSetup" component={ImportedWalletSetup} />
+        <Stack.Screen name="Swaps" component={Swaps} />
+        <Stack.Screen name="SwapDetails" component={SwapDetails} />
+        <Stack.Screen name="SwapHistory" component={SwapHistory} />
+        <Stack.Screen name="SwapHistoryDetail" component={SwapHistoryDetail} />
+        <Stack.Screen name="SwapAllHistory" component={SwapAllHistory} />
       </Stack.Navigator>
     </RealmProvider>
   );
