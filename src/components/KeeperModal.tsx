@@ -51,6 +51,7 @@ type ModalProps = {
   justifyContent?: ResponsiveValue<string | number>;
   loading?: boolean;
   secondaryIcon?: any;
+  disable?: boolean;
 };
 
 function KeeperModal(props: ModalProps) {
@@ -84,6 +85,7 @@ function KeeperModal(props: ModalProps) {
     justifyContent = 'flex-end',
     loading = false,
     secondaryIcon = null,
+    disable = false,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -210,6 +212,7 @@ function KeeperModal(props: ModalProps) {
                           : secButtonTextColor
                       }
                       fullWidth={!secondaryButtonText}
+                      primaryDisable={disable}
                     />
                   )}
                 </Box>
