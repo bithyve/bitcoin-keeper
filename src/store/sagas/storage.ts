@@ -41,7 +41,6 @@ import {
 } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 import LoginMethod from 'src/models/enums/LoginMethod';
-import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 
 export function* setupKeeperAppWorker({ payload }) {
   try {

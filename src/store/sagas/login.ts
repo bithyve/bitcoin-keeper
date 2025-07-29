@@ -69,8 +69,6 @@ import {
 } from '../reducers/account';
 import { REALM_FILE } from 'src/storage/realm/realm';
 import { loadConciergeUserOnLogin, saveBackupMethodByAppId } from '../sagaActions/account';
-import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
-import idx from 'idx';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
