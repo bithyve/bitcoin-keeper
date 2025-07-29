@@ -37,9 +37,6 @@ export interface UseChatPeerReturn {
   };
   getPeerMessages: (pubKey: string, lastBlock: number) => Promise<any>;
 
-  // Contact management
-  syncContacts: () => Promise<void>;
-
   // Message operations (lazy loaded)
   getMessagesByCommunity: (communityId: string) => Message[];
   getAllMessages: () => Message[];
@@ -218,17 +215,6 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
     }
   }, []);
 
-  // Sync contacts
-  const syncContacts = useCallback(async (): Promise<void> => {
-    try {
-      setError(null);
-      await chatManager.syncContacts();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sync contacts');
-      captureError(err);
-    }
-  }, []);
-
   // Lazy-loaded message operations
   const getAllMessages = useCallback((): Message[] => {
     try {
@@ -372,9 +358,6 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
     getPeers,
     getKeys,
     getPeerMessages,
-
-    // Contact management
-    syncContacts,
 
     // Message operations (lazy loaded)
     getMessagesByCommunity,
