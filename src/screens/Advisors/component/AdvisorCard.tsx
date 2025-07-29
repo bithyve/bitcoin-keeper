@@ -129,8 +129,8 @@ const styles = StyleSheet.create({
     marginBottom: wp(10),
   },
   circle: {
-    width: wp(40),
-    height: wp(40),
+    width: wp(60),
+    height: wp(60),
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
     marginTop: wp(5),
   },
   image: {
-    width: wp(35),
-    height: hp(20),
-    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    borderRadius: 30,
   },
 });
