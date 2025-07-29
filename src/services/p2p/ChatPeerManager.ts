@@ -122,7 +122,6 @@ export default class ChatPeerManager {
 
   async loadPendingMessages(lastBlock = 0) {
     try {
-      console.log('loadPendingMessages', lastBlock);
       const response = await this.getPeerMessages(
         this.app.contactsKey.publicKey,
         lastBlock === 0 ? 0 : lastBlock - 1
@@ -130,48 +129,63 @@ export default class ChatPeerManager {
       console.log('response', response);
       if (response.messages.length > 0) {
         for (const msg of response.messages) {
-          const message: Message = JSON.parse(msg.message);
+          const message = JSON.parse(msg.message);
           const communityId = message.communityId;
           let community = dbManager.getObjectByPrimaryId(RealmSchema.Community, 'id', communityId);
-          if (!community && message.encryptedKeys) {
-            const contact = await Relay.getAppProfiles([message.sender]);
-            if (contact.results.length > 0) {
-              dbManager.createObject(RealmSchema.Contact, contact.results[0]);
-              const sharedSecret = ChatEncryptionManager.performKeyExchange(
-                this.app.contactsKey,
-                message.sender
-              );
-              const encryptedKeys = ChatEncryptionManager.decryptKeys(
-                message.encryptedKeys,
-                sharedSecret
-              );
-              community = {
-                id: communityId,
-                communityId: communityId,
-                name: contact.results[0].name,
-                type: CommunityType.Peer,
-                createdAt: msg.timestamp,
-                updatedAt: msg.timestamp,
-                with: message.sender,
-                key: encryptedKeys.aesKey,
-              };
-              dbManager.createObject(RealmSchema.Community, community);
-            }
+          if (!community) {
+            const sharedSecret = ChatEncryptionManager.deriveSharedSecret(
+              this.app.contactsKey.secretKey,
+              message.sender
+            );
+            const decryptedKey = ChatEncryptionManager.decryptKeys(
+              message.encryptedKeys,
+              sharedSecret
+            );
+            const contact = dbManager.getObjectByPrimaryId(
+              RealmSchema.Contact,
+              'contactKey',
+              message.sender
+            );
+            community = {
+              id: communityId,
+              communityId: communityId,
+              name: contact.name,
+              type: CommunityType.Peer,
+              createdAt: msg.timestamp,
+              updatedAt: msg.timestamp,
+              with: message.sender,
+              key: decryptedKey.aesKey,
+            };
+            dbManager.createObject(RealmSchema.Community, community);
+
+            dbManager.createObject(RealmSchema.Message, {
+              id: message.id,
+              communityId: message.communityId,
+              type: message.type,
+              text: message.text,
+              createdAt: msg.timestamp,
+              sender: message.sender,
+              block: msg.blockNumber,
+              unread: true,
+              fileUrl: message?.fileUrl,
+              request: message?.request,
+            });
+          } else {
+            const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
+            const messageData = JSON.parse(decryptedMessage);
+            dbManager.createObject(RealmSchema.Message, {
+              id: messageData.id,
+              communityId: messageData.communityId,
+              type: messageData.type,
+              text: messageData.text,
+              createdAt: msg.timestamp,
+              sender: messageData.sender,
+              block: msg.blockNumber,
+              unread: true,
+              fileUrl: message?.fileUrl,
+              request: message?.request,
+            });
           }
-          const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
-          const messageData = JSON.parse(decryptedMessage);
-          dbManager.createObject(RealmSchema.Message, {
-            id: messageData.id,
-            communityId: messageData.communityId,
-            type: messageData.type,
-            text: messageData.text,
-            createdAt: msg.timestamp,
-            sender: messageData.sender,
-            block: msg.blockNumber,
-            unread: true,
-            fileUrl: messageData?.fileUrl,
-            request: messageData?.request,
-          });
         }
       }
     } catch (error) {
@@ -186,39 +200,38 @@ export default class ChatPeerManager {
       const message = JSON.parse(data.message);
       let community: Community = communities.find((c) => c.id === message.communityId);
       if (!community && message.encryptedKeys) {
-        const contact = await Relay.getAppProfiles([message.sender]);
-        if (contact.length > 0) {
-          const sharedSecret = ChatEncryptionManager.performKeyExchange(
-            this.app.contactsKey,
-            message.sender
-          );
-          const encryptedKeys = ChatEncryptionManager.decryptKeys(
-            message.encryptedKeys,
-            sharedSecret
-          );
-          dbManager.createObject(RealmSchema.Contact, contact[0]);
-          community = {
-            id: message.communityId,
-            name: contact[0].name,
-            type: CommunityType.Peer,
-            createdAt: data.timestamp,
-            updatedAt: data.timestamp,
-            with: message.sender,
-            key: encryptedKeys.aesKey,
-          };
-          dbManager.createObject(RealmSchema.Community, community);
-          dbManager.createObject(RealmSchema.Message, {
-            id: message.id,
-            communityId: message.communityId,
-            type: message.type,
-            text: message.text,
-            createdAt: data.timestamp,
-            sender: message.sender,
-            block: data.blockNumber,
-            unread: true,
-            fileUrl: message?.fileUrl,
-          });
-        }
+        const sharedSecret = ChatEncryptionManager.deriveSharedSecret(
+          this.app.contactsKey.secretKey,
+          message.sender
+        );
+        const decryptedKeys = ChatEncryptionManager.decryptKeys(
+          message.encryptedKeys,
+          sharedSecret
+        );
+        const decryptedMessage = JSON.parse(
+          ChatEncryptionManager.decryptMessage(message, decryptedKeys.aesKey)
+        );
+        community = {
+          id: message.communityId,
+          name: decryptedMessage.senderName || 'Unknown Contact',
+          type: CommunityType.Peer,
+          createdAt: data.timestamp,
+          updatedAt: data.timestamp,
+          with: message.sender,
+          key: decryptedKeys.aesKey,
+        };
+        dbManager.createObject(RealmSchema.Community, community);
+        dbManager.createObject(RealmSchema.Message, {
+          id: message.id,
+          communityId: message.communityId,
+          type: message.type,
+          text: message.text,
+          createdAt: data.timestamp,
+          sender: message.sender,
+          block: data.blockNumber,
+          unread: true,
+          fileUrl: message?.fileUrl,
+        });
       } else {
         const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
         const messageData = JSON.parse(decryptedMessage);
@@ -238,58 +251,4 @@ export default class ChatPeerManager {
       console.error('Error storing messages:', error);
     }
   };
-
-  // Mock method for testing - returns random contact objects
-  mockGetWalletProfiles(contactKeys: string[]) {
-    const mockNames = [
-      'Alice Johnson',
-      'Bob Smith',
-      'Charlie Brown',
-      'Diana Prince',
-      'Eve Davis',
-      'Frank Miller',
-      'Grace Lee',
-      'Henry Wilson',
-      'Ivy Chen',
-      'Jack Turner',
-    ];
-
-    const mockImageUrls = [
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Diana',
-      'https://api.dicebear.com/7.x/avataaars/svg?seed=Eve',
-    ];
-
-    const results = contactKeys.map((contactKey) => ({
-      appID: `app_${Math.random().toString(36).substr(2, 9)}`,
-      contactKey,
-      name: mockNames[Math.floor(Math.random() * mockNames.length)],
-      imageUrl: mockImageUrls[Math.floor(Math.random() * mockImageUrls.length)],
-    }));
-
-    return {
-      results,
-      success: true,
-      message: 'Mock wallet profiles retrieved successfully',
-    };
-  }
-
-  async syncContacts() {
-    try {
-      const contacts: Contact[] = dbManager.getCollection(RealmSchema.Contact) as any;
-      const response = await Relay.getAppProfiles(contacts.map((c) => c.contactKey));
-
-      if (response.profiles.length > 0) {
-        dbManager.createObjectBulk(
-          RealmSchema.Contact,
-          response.profiles,
-          Realm.UpdateMode.Modified
-        );
-      }
-    } catch (error) {
-      console.error('Error syncing contacts:', error);
-    }
-  }
 }

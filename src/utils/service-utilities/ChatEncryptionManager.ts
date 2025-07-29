@@ -105,7 +105,7 @@ export class ChatEncryptionManager {
     privateKey: string | Uint8Array,
     publicKey: string | Uint8Array
   ): string {
-    const sharedSecret = x25519.getSharedSecret(privateKey, publicKey);
+    const sharedSecret = x25519.getSharedSecret(privateKey.slice(0, 64), publicKey.slice(0, 64));
     return this.uint8ArrayToHex(sharedSecret);
   }
 

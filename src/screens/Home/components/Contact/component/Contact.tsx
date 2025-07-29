@@ -109,11 +109,7 @@ const Contact = () => {
           unread: false,
           encryptedKeys: encryptedKeys,
         };
-        const encryptedMessage = ChatEncryptionManager.encryptMessage(
-          JSON.stringify({ ...message }),
-          sessionKeys.aesKey
-        );
-        chatPeer.sendMessage(publicKey, JSON.stringify({ ...encryptedMessage, communityId }));
+        chatPeer.sendMessage(publicKey, JSON.stringify({ ...message, communityId }));
         dbManager.createObject(RealmSchema.Message, message);
         showToast('New Contact added', false);
       }
@@ -212,7 +208,7 @@ const Contact = () => {
             isShareContact={shareContact}
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
-            data={`keeper://contact/${app.contactsKey.publicKey}/`}
+            data={`keeper://contact/${app.contactsKey.publicKey}/${app.appName}`}
             onQrScan={onQrScan}
           />
         )}

@@ -7,7 +7,7 @@ import { captureError } from '../services/sentry';
 import dbManager from '../storage/realm/dbManager';
 import { getJSONFromRealmObject } from '../storage/realm/utils';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import idx from 'idx';
+import Relay from 'src/services/backend/Relay';
 
 export interface UseChatPeerOptions {
   autoInit?: boolean;
@@ -90,11 +90,12 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
       setError(null);
 
       const success = await chatManager.init(keeperApp.primarySeed);
+      console.log('success', success);
       setIsInitialized(success);
 
       if (success && enableMessageListener) {
         chatManager.setOnMessageListener((data) => {
-          // console.log('New message received:', data);
+          console.log('New message received:', data);
         });
       }
 
@@ -104,31 +105,26 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
         });
       }
 
-      const secretKey = idx(keeperApp, (app) => app.contactsKey.secretKey);
       // Get keys from ChatPeerManager and update KeeperApp if contactsKey is missing
-      if (success && !secretKey) {
-        try {
-          const keys = await chatManager.getKeys();
-          if (keys && keys.publicKey && keys.secretKey) {
-            // Update the KeeperApp with the contacts key in Realm database
+      if (!keeperApp?.contactsKey?.secretKey) {
+        const keys = await chatManager.getKeys();
+        if (keys && keys.publicKey && keys.secretKey) {
+          const updated = await Relay.updateContactsKey(keeperApp.id, keys.secretKey);
+          console.log('updated', updated);
+          if (updated) {
             await dbManager.updateObjectById(RealmSchema.KeeperApp, keeperApp.id, {
               contactsKey: {
                 publicKey: keys.publicKey,
                 secretKey: keys.secretKey,
               },
             });
-            console.log('Database updated with peer keys');
-            // TODO: update the backend (using Relay.createNewApp alternate route)
           }
-        } catch (keyError) {
-          console.warn('Failed to get or update contacts key:', keyError);
-          captureError(keyError);
-          return false;
         }
+      } else {
+        return true;
       }
-
-      return success;
     } catch (err) {
+      console.log('err', err);
       setError(err instanceof Error ? err.message : 'Failed to initialize chat peer');
       captureError(err);
       return false;

@@ -30,21 +30,17 @@ const ChatRoomScreen = () => {
   const messages = useQuery<Message>(RealmSchema.Message)
     .filtered('communityId = $0', communityId)
     .sorted('createdAt', true);
-  const contact = useQuery<Contact>(RealmSchema.Contact).filtered(
-    'contactKey = $0',
-    community.with
-  )[0];
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <ChatRoomHeader
-        receiverProfileImage={contact.imageUrl}
-        receiverProfileName={contact.name}
+        receiverProfileImage={''}
+        receiverProfileName={community.name}
         setOpenEditModal={setOpenEditModal}
       />
       <ChatRoom
-        userProfileImage={app.appImage}
-        receiverProfileImage={contact.imageUrl}
+        userProfileImage={''}
+        receiverProfileImage={''}
         messages={messages}
         community={community}
       />

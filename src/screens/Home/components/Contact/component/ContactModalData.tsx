@@ -110,7 +110,7 @@ function ContactModalData({
 
   const ContactOptions = [
     {
-      id: 1,
+      id: 0,
       label: 'Share QR',
       icon: <QR_Icon />,
       onPress: () => {
