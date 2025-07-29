@@ -12,7 +12,7 @@ import {
   RPC_KEY,
   SEND_MESSAGE,
 } from './rpc-commands.mjs';
-import { Community, CommunityType, Contact, Message } from './interface';
+import { CommunityType } from './interface';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -61,6 +61,23 @@ export default class ChatPeerManager {
         }
       });
       ChatPeerManager.isInitialized = true;
+
+      const keeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any as KeeperApp;
+      if (!keeperApp?.contactsKey?.secretKey) {
+        const keys = await this.getKeys();
+        if (keys && keys.publicKey && keys.secretKey) {
+          const updated = await Relay.updateContactsKey(keeperApp.id, keys.secretKey);
+          console.log('updated', updated);
+          if (updated) {
+            await dbManager.updateObjectById(RealmSchema.KeeperApp, keeperApp.id, {
+              contactsKey: {
+                publicKey: keys.publicKey,
+                secretKey: keys.secretKey,
+              },
+            });
+          }
+        }
+      }
       return true;
     } catch (error) {
       console.error('Error initializing chat peer manager:', error);
@@ -69,6 +86,9 @@ export default class ChatPeerManager {
   }
 
   async getKeys() {
+    if (!ChatPeerManager.isInitialized || !this.rpc) {
+      throw new Error('ChatPeerManager not initialized. Call init() first.');
+    }
     const request = this.rpc.request(GET_KEYS);
     request.send(`${GET_KEYS}`);
     const replyBuffer = await request.reply();
@@ -77,6 +97,9 @@ export default class ChatPeerManager {
   }
 
   async getPeers() {
+    if (!ChatPeerManager.isInitialized || !this.rpc) {
+      throw new Error('ChatPeerManager not initialized. Call init() first.');
+    }
     const request = this.rpc.request(GET_PEERS);
     request.send(`${GET_PEERS}`);
     const replyBuffer = await request.reply();
@@ -85,6 +108,9 @@ export default class ChatPeerManager {
   }
 
   async joinPeers(pubKey: string) {
+    if (!ChatPeerManager.isInitialized || !this.rpc) {
+      throw new Error('ChatPeerManager not initialized. Call init() first.');
+    }
     const request = this.rpc.request(JOIN_PEER);
     request.send(pubKey);
     const replyBuffer = await request.reply();
@@ -93,6 +119,9 @@ export default class ChatPeerManager {
   }
 
   async sendMessage(pubKey: string, message: string) {
+    if (!ChatPeerManager.isInitialized || !this.rpc) {
+      throw new Error('ChatPeerManager not initialized. Call init() first.');
+    }
     const request = this.rpc.request(SEND_MESSAGE);
     request.send(JSON.stringify({ pubKey, message }));
     const replyBuffer = await request.reply();
@@ -126,7 +155,6 @@ export default class ChatPeerManager {
         this.app.contactsKey.publicKey,
         lastBlock === 0 ? 0 : lastBlock - 1
       );
-      console.log('response', response);
       if (response.messages.length > 0) {
         for (const msg of response.messages) {
           const message = JSON.parse(msg.message);
@@ -135,28 +163,23 @@ export default class ChatPeerManager {
           if (!community) {
             const sharedSecret = ChatEncryptionManager.deriveSharedSecret(
               this.app.contactsKey.secretKey,
-              message.sender
+              message.pubKey
             );
             const decryptedKey = ChatEncryptionManager.decryptKeys(
               message.encryptedKeys,
               sharedSecret
             );
-            const contact = dbManager.getObjectByPrimaryId(
-              RealmSchema.Contact,
-              'contactKey',
-              message.sender
-            );
-            community = {
+            const communityData = {
               id: communityId,
               communityId: communityId,
-              name: contact.name,
+              name: message.senderName || 'Unknown Contact',
               type: CommunityType.Peer,
               createdAt: msg.timestamp,
               updatedAt: msg.timestamp,
               with: message.sender,
               key: decryptedKey.aesKey,
             };
-            dbManager.createObject(RealmSchema.Community, community);
+            dbManager.createObject(RealmSchema.Community, communityData);
 
             dbManager.createObject(RealmSchema.Message, {
               id: message.id,
@@ -171,7 +194,10 @@ export default class ChatPeerManager {
               request: message?.request,
             });
           } else {
-            const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
+            const decryptedMessage = ChatEncryptionManager.decryptMessage(
+              message,
+              (community as any).key
+            );
             const messageData = JSON.parse(decryptedMessage);
             dbManager.createObject(RealmSchema.Message, {
               id: messageData.id,
@@ -198,29 +224,30 @@ export default class ChatPeerManager {
       const communities = dbManager.getCollection(RealmSchema.Community);
       const data = JSON.parse(payload.data);
       const message = JSON.parse(data.message);
-      let community: Community = communities.find((c) => c.id === message.communityId);
+      console.log('message', message);
+      let community: any = communities.find((c) => c.id === message.communityId);
       if (!community && message.encryptedKeys) {
         const sharedSecret = ChatEncryptionManager.deriveSharedSecret(
           this.app.contactsKey.secretKey,
-          message.sender
+          message.pubKey
         );
+        console.log('sharedSecret', sharedSecret);
         const decryptedKeys = ChatEncryptionManager.decryptKeys(
           message.encryptedKeys,
           sharedSecret
         );
-        const decryptedMessage = JSON.parse(
-          ChatEncryptionManager.decryptMessage(message, decryptedKeys.aesKey)
-        );
-        community = {
+        console.log('decryptedKeys', decryptedKeys);
+
+        const communityData = {
           id: message.communityId,
-          name: decryptedMessage.senderName || 'Unknown Contact',
+          name: message.senderName || 'Unknown Contact',
           type: CommunityType.Peer,
           createdAt: data.timestamp,
           updatedAt: data.timestamp,
           with: message.sender,
           key: decryptedKeys.aesKey,
         };
-        dbManager.createObject(RealmSchema.Community, community);
+        dbManager.createObject(RealmSchema.Community, communityData);
         dbManager.createObject(RealmSchema.Message, {
           id: message.id,
           communityId: message.communityId,
@@ -233,7 +260,10 @@ export default class ChatPeerManager {
           fileUrl: message?.fileUrl,
         });
       } else {
-        const decryptedMessage = ChatEncryptionManager.decryptMessage(message, community.key);
+        const decryptedMessage = ChatEncryptionManager.decryptMessage(
+          message,
+          (community as any).key
+        );
         const messageData = JSON.parse(decryptedMessage);
         dbManager.createObject(RealmSchema.Message, {
           id: messageData.id,

@@ -7,8 +7,8 @@ import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useChatPeer } from 'src/hooks/useChatPeer';
 import { CommunityType } from 'src/services/p2p/interface';
+import { useChatPeer } from 'src/hooks/useChatPeer';
 
 interface ChatItemData {
   id: string;

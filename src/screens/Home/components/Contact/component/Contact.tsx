@@ -1,6 +1,6 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import ContactHeader from './ContactHeader';
@@ -16,7 +16,6 @@ import ProfileContent from './ProfileContent';
 import { useNavigation } from '@react-navigation/native';
 import ContactModalData from './ContactModalData';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { useChatPeer } from 'src/hooks/useChatPeer';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -44,11 +43,12 @@ const Contact = () => {
   const lastBlock = useQuery<Message>(RealmSchema.Message).sorted('block', true)[0]?.block;
   const communities = useQuery(RealmSchema.Community);
   const { showToast } = useToastMessage();
-  const chatPeer = useChatPeer();
+  const chatManager = ChatPeerManager.getInstance();
+  const [refreshing, setRefreshing] = useState(false);
 
   const initializeChat = async () => {
     try {
-      const chatPeerInitialized = await chatPeer.initChatPeer();
+      const chatPeerInitialized = await chatManager.init(app.primarySeed);
       if (!chatPeerInitialized) {
         throw new Error();
       }
@@ -59,19 +59,31 @@ const Contact = () => {
     }
   };
 
+  const contactShareLink = useMemo(() => {
+    if (app?.contactsKey?.secretKey) {
+      const pubKey = ChatEncryptionManager.derivePublicKey(app?.contactsKey?.secretKey);
+      return `keeper://contact/${app.contactsKey.publicKey}/${pubKey}/${app.appName}`;
+    }
+    return '';
+  }, [app.contactsKey.publicKey, app.appName]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    chatManager.loadPendingMessages(lastBlock);
+    setRefreshing(false);
+  };
+
   useEffect(() => {
-    if (!chatPeer.isInitialized) initializeChat();
-    else chatPeer.loadPendingMessages(lastBlock);
-  }, [chatPeer.isInitialized]);
+    if (!ChatPeerManager.isInitialized) initializeChat();
+    else chatManager.loadPendingMessages(lastBlock);
+  }, [ChatPeerManager.isInitialized]);
 
   const onQrScan = (data) => {
     if (data.startsWith('keeper://')) {
       const urlParts = data.split('/');
       const path = urlParts[2];
-      const name = urlParts[4];
       if (path === 'contact') {
-        const publicKey = urlParts[3];
-        initChat(publicKey, name);
+        initChat(urlParts[3], urlParts[4], urlParts[5]);
         navigation.goBack();
       }
     } else {
@@ -79,24 +91,25 @@ const Contact = () => {
     }
   };
 
-  const initChat = async (publicKey: string, name: string = 'Unknown Contact') => {
+  const initChat = async (peerKey: string, publicKey: string, name: string) => {
     try {
-      const communityId = hash256([app.contactsKey.publicKey, publicKey].sort().join('-'));
+      const communityId = hash256([app.contactsKey.publicKey, peerKey].sort().join('-'));
       const sessionKeys = ChatEncryptionManager.generateSessionKeys();
       const sharedSecret = ChatEncryptionManager.deriveSharedSecret(
         app.contactsKey.secretKey,
         publicKey
       );
+      const pubKey = ChatEncryptionManager.derivePublicKey(app.contactsKey.secretKey);
       const encryptedKeys = ChatEncryptionManager.encryptKeys(sessionKeys.aesKey, sharedSecret);
       const community = dbManager.getObjectByPrimaryId(RealmSchema.Community, 'id', communityId);
       if (!community) {
         dbManager.createObject(RealmSchema.Community, {
           id: communityId,
           communityId: communityId,
-          name: name,
+          name: name || 'Unknown Contact',
           createdAt: Date.now(),
           type: CommunityType.Peer,
-          with: publicKey,
+          with: peerKey,
           key: sessionKeys.aesKey,
         });
         const message = {
@@ -109,8 +122,10 @@ const Contact = () => {
           senderName: app.appName,
           unread: false,
           encryptedKeys: encryptedKeys,
+          pubKey: pubKey,
         };
-        chatPeer.sendMessage(publicKey, JSON.stringify({ ...message, communityId }));
+
+        chatManager.sendMessage(peerKey, JSON.stringify({ ...message, communityId }));
         dbManager.createObject(RealmSchema.Message, message);
         showToast('New Contact added', false);
       }
@@ -133,7 +148,10 @@ const Contact = () => {
           {contactText.recentChats}
         </Text>
       </Box>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
+      >
         <Box style={styles.concierge_container} borderColor={`${colorMode}.separator`}>
           <TouchableOpacity
             style={styles.concierge}
@@ -209,7 +227,7 @@ const Contact = () => {
             isShareContact={shareContact}
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
-            data={`keeper://contact/${app.contactsKey.publicKey}/${app.appName}`}
+            data={contactShareLink}
             onQrScan={onQrScan}
           />
         )}

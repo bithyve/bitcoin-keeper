@@ -1,6 +1,7 @@
 import CryptoJS from 'crypto-js';
 import { encode as base64Encode, decode as base64Decode } from '@stablelib/base64';
 import { x25519, ed25519 } from '@noble/curves/ed25519';
+import { bytesToHex, hexToBytes } from '@noble/curves/abstract/utils';
 
 export interface KeyPair {
   publicKey: string; // hex format
@@ -101,12 +102,13 @@ export class ChatEncryptionManager {
     }
   }
 
-  static deriveSharedSecret(
-    privateKey: string | Uint8Array,
-    publicKey: string | Uint8Array
-  ): string {
-    const sharedSecret = x25519.getSharedSecret(privateKey.slice(0, 64), publicKey.slice(0, 64));
-    return this.uint8ArrayToHex(sharedSecret);
+  static deriveSharedSecret(privateKey: string, publicKey: string): string {
+    const privKeyBytes = hexToBytes(privateKey).slice(0, 32);
+    return bytesToHex(x25519.getSharedSecret(privKeyBytes, publicKey));
+  }
+
+  static derivePublicKey(privateKey: string): string {
+    return bytesToHex(x25519.getPublicKey(hexToBytes(privateKey).slice(0, 32)));
   }
 
   /**

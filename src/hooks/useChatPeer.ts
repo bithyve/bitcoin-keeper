@@ -120,9 +120,9 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
             });
           }
         }
-      } else {
-        return true;
       }
+
+      return success;
     } catch (err) {
       console.log('err', err);
       setError(err instanceof Error ? err.message : 'Failed to initialize chat peer');
@@ -134,30 +134,48 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
   }, [keeperApp, enableMessageListener, enableConnectionListener]);
 
   // Send message
-  const sendMessage = useCallback(async (pubKey: string, message: string): Promise<string> => {
-    try {
-      setError(null);
-      return await chatManager.sendMessage(pubKey, message);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send message');
-      captureError(err);
-      throw err;
-    }
-  }, []);
+  const sendMessage = useCallback(
+    async (pubKey: string, message: string): Promise<string> => {
+      try {
+        setError(null);
+        if (!isInitialized) {
+          const initSuccess = await initChatPeer();
+          if (!initSuccess) {
+            throw new Error('Failed to initialize chat peer before sending message');
+          }
+        }
 
-  // Join peer
-  const joinPeer = useCallback(async (pubKey: string): Promise<string> => {
-    try {
-      setError(null);
-      return await chatManager.joinPeers(pubKey);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to join peer');
-      captureError(err);
-      throw err;
-    }
-  }, []);
+        return await chatManager.sendMessage(pubKey, message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to send message');
+        captureError(err);
+        throw err;
+      }
+    },
+    [isInitialized, initChatPeer]
+  );
 
-  // Load pending messages
+  const joinPeer = useCallback(
+    async (pubKey: string): Promise<string> => {
+      try {
+        setError(null);
+        if (!isInitialized) {
+          const initSuccess = await initChatPeer();
+          if (!initSuccess) {
+            throw new Error('Failed to initialize chat peer before joining peer');
+          }
+        }
+
+        return await chatManager.joinPeers(pubKey);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to join peer');
+        captureError(err);
+        throw err;
+      }
+    },
+    [isInitialized, initChatPeer]
+  );
+
   const loadPendingMessages = useCallback(async (lastBlock = 0): Promise<void> => {
     try {
       setError(null);
@@ -168,10 +186,16 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
     }
   }, []);
 
-  // Get peers
   const getPeers = useCallback(async (): Promise<any> => {
     try {
       setError(null);
+      if (!isInitialized) {
+        const initSuccess = await initChatPeer();
+        if (!initSuccess) {
+          throw new Error('Failed to initialize chat peer before getting peers');
+        }
+      }
+
       const result = await chatManager.getPeers();
       setPeers(result);
       return result;
@@ -180,9 +204,8 @@ export const useChatPeer = (options: UseChatPeerOptions = {}): UseChatPeerReturn
       captureError(err);
       throw err;
     }
-  }, []);
+  }, [isInitialized, initChatPeer]);
 
-  // Get keys
   const getKeys = useCallback((): {
     [key: string]: string;
   } => {
