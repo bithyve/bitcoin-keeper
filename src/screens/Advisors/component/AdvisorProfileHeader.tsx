@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   image: {
-    width: wp(70),
-    height: hp(70),
-    borderRadius: 10,
+    width: '100%',
+    height: '100%',
+    borderRadius: wp(60),
   },
 });
