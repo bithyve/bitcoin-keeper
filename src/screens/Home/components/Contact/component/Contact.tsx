@@ -24,7 +24,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { CommunityType, MessageType, Message } from 'src/services/p2p/interface';
 import { hash256 } from 'src/utils/service-utilities/encryption';
-import Relay from 'src/services/backend/Relay';
 import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptionManager';
 import { v4 as uuidv4 } from 'uuid';
 import { useQuery } from '@realm/react';
@@ -69,33 +68,31 @@ const Contact = () => {
     if (data.startsWith('keeper://')) {
       const urlParts = data.split('/');
       const path = urlParts[2];
+      const name = urlParts[4];
       if (path === 'contact') {
         const publicKey = urlParts[3];
-        initChat(publicKey);
+        initChat(publicKey, name);
       }
     } else {
       showToast('Invalid QR code', <ToastErrorIcon />);
     }
   };
 
-  const initChat = async (publicKey: string) => {
+  const initChat = async (publicKey: string, name: string = 'Unknown Contact') => {
     try {
-      const profiles = await Relay.getAppProfiles([publicKey]);
-      if (profiles.length > 0) {
-        dbManager.createObject(RealmSchema.Contact, profiles[0]);
-      }
       const communityId = hash256([app.contactsKey.publicKey, publicKey].sort().join('-'));
       const sessionKeys = ChatEncryptionManager.generateSessionKeys();
-      const encryptedKeys = ChatEncryptionManager.encryptKeys(
-        sessionKeys.aesKey,
-        ChatEncryptionManager.performKeyExchange(app.contactsKey, publicKey)
+      const sharedSecret = ChatEncryptionManager.deriveSharedSecret(
+        app.contactsKey.secretKey,
+        publicKey
       );
+      const encryptedKeys = ChatEncryptionManager.encryptKeys(sessionKeys.aesKey, sharedSecret);
       const community = dbManager.getObjectByPrimaryId(RealmSchema.Community, 'id', communityId);
       if (!community) {
         dbManager.createObject(RealmSchema.Community, {
           id: communityId,
           communityId: communityId,
-          name: profiles[0].name,
+          name: name,
           createdAt: Date.now(),
           type: CommunityType.Peer,
           with: publicKey,
@@ -108,12 +105,17 @@ const Contact = () => {
           text: `Start of conversation`,
           createdAt: Date.now(),
           sender: app.contactsKey.publicKey,
+          senderName: app.appName,
           unread: false,
           encryptedKeys: encryptedKeys,
         };
-        chatPeer.sendMessage(publicKey, JSON.stringify(message));
+        const encryptedMessage = ChatEncryptionManager.encryptMessage(
+          JSON.stringify({ ...message }),
+          sessionKeys.aesKey
+        );
+        chatPeer.sendMessage(publicKey, JSON.stringify({ ...encryptedMessage, communityId }));
         dbManager.createObject(RealmSchema.Message, message);
-        showToast('New Tribe Contact created', false);
+        showToast('New Contact added', false);
       }
     } catch (error) {
       console.error('Error initializing chat:', error);
