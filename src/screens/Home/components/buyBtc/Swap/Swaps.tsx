@@ -375,6 +375,7 @@ export const Swaps = ({ navigation }) => {
           if (walletModeRef.current === 'from' ? !walletFrom : !walletTo) return;
           setShowWalletSelection(false);
         }}
+        disable={walletModeRef.current === 'from' ? !walletFrom : !walletTo}
       />
     </ScreenWrapper>
   );
