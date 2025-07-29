@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import AdvisorProfileHeader from './component/AdvisorProfileHeader';
 import { wp } from 'src/constants/responsive';
@@ -12,13 +12,8 @@ import Buttons from 'src/components/Buttons';
 import sha256 from 'crypto-js/sha256';
 import ConnectAdvisor from 'src/assets/images/connect-advisor.svg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const ADVISOR_DETAILS = [
-  { title: 'Time zone', key: 'timezone' },
-  { title: 'Experience', key: 'experience' },
-  { title: 'Language', key: 'languages' },
-  { title: 'Session Duration', key: 'duration' },
-];
 const getColorForLabel = (label: string, colorsArray: string[]) => {
   const hash = sha256(label).toString();
   const hashNum = parseInt(hash.slice(0, 8), 16);
@@ -53,6 +48,8 @@ const AdvisorDetail = ({ route }) => {
   const { advisor } = route.params;
   const { colorMode } = useColorMode();
   const [showModal, setShowModal] = useState(false);
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   const previewLength = 150;
   const isLong = advisor.description.length > previewLength;
   const previewText = isLong
@@ -76,6 +73,13 @@ const AdvisorDetail = ({ route }) => {
       </Box>
     );
   }
+
+  const ADVISOR_DETAILS = [
+    { title: concierge.timeZone, key: 'timezone' },
+    { title: concierge.Experience, key: 'experience' },
+    { title: concierge.language, key: 'languages' },
+    { title: concierge.sessionDuration, key: 'duration' },
+  ];
   return (
     <Box flex={1} backgroundColor={`${colorMode}.primaryBackground`}>
       <AdvisorProfileHeader advisorImage={advisor.image} />
@@ -102,14 +106,14 @@ const AdvisorDetail = ({ route }) => {
 
           <Box style={styles.advisorContainer}>
             <Text fontSize={14} semiBold color={`${colorMode}.primaryText`}>
-              Advisor Detail:
+              {concierge.advisorDetail}:
             </Text>
             <Text fontSize={12} color={`${colorMode}.primaryText`}>
               {previewText}
               {isLong && (
                 <Text color={viewAll_color} bold onPress={() => setShowModal(true)}>
                   {' '}
-                  Read more
+                  {concierge.readMore}
                 </Text>
               )}
             </Text>
@@ -117,7 +121,7 @@ const AdvisorDetail = ({ route }) => {
 
           <Box style={styles.advisorContainer}>
             <Text fontSize={14} semiBold color={`${colorMode}.primaryText`}>
-              Advisor Details
+              {concierge.advisorDetails}
             </Text>
             <Box
               style={styles.detailsContainer}
@@ -142,7 +146,7 @@ const AdvisorDetail = ({ route }) => {
       </ScrollView>
       <Box style={styles.fixedButtonContainer}>
         <Buttons
-          primaryText="Schedule your call"
+          primaryText={concierge.scheduleCall}
           primaryCallback={() => openLink(advisor.link)}
           fullWidth
           RightIcon={ConnectAdvisor}
@@ -163,7 +167,7 @@ const AdvisorDetail = ({ route }) => {
             </Text>
           </Box>
         )}
-        buttonText="Schedule your call"
+        buttonText={concierge.scheduleCall}
         buttonCallback={() => {
           setShowModal(false);
           openLink(advisor.link);
