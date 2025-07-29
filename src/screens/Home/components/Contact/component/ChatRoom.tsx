@@ -21,8 +21,8 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptionManager';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { useChatPeer } from 'src/hooks/useChatPeer';
 import { v4 as uuidv4 } from 'uuid';
+import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 
 const groupMessagesByDate = (msgs) => {
   const groups = {};
@@ -45,10 +45,9 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const scrollRef = useRef(null);
-  const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-  const chatPeer = useChatPeer();
-
-  const handleSend = () => {
+  const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any as KeeperApp;
+  const chatManager = ChatPeerManager.getInstance();
+  const handleSend = async () => {
     if (!inputValue.trim()) return;
     try {
       const messageData = {
@@ -66,7 +65,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
         JSON.stringify({ ...messageData }),
         community.key
       );
-      chatPeer.sendMessage(
+      await chatManager.sendMessage(
         community.with,
         JSON.stringify({ ...encryptedMessage, communityId: community.id })
       );
@@ -107,10 +106,9 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                   </Text>
                   <Box style={styles.dateLine} borderBottomColor={`${colorMode}.separator`} />
                 </HStack>
-                {/* Messages */}
-                {msgs.map((msg, index) => {
+                {(msgs as any[]).map((msg, index) => {
                   const thisMoment = moment(msg.date);
-                  const nextMsg = msgs[index + 1];
+                  const nextMsg = (msgs as any[])[index + 1];
                   const nextMoment = nextMsg ? moment(nextMsg.date) : null;
 
                   const isLastInMinuteAndSenderGroup =
@@ -118,7 +116,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                     !thisMoment.isSame(nextMoment, 'minute') ||
                     msg.sender !== nextMsg.sender;
 
-                  const prevMsg = msgs[index - 1];
+                  const prevMsg = (msgs as any[])[index - 1];
                   const prevMoment = prevMsg ? moment(prevMsg.date) : null;
 
                   const isFirstInGroup =
