@@ -203,9 +203,10 @@ const styles = StyleSheet.create({
     gap: wp(5),
     paddingRight: wp(20),
     marginRight: wp(30),
+    flexWrap: 'wrap',
   },
   pillsScrollWrapper: {
-    height: wp(30),
+    minHeight: wp(30),
     marginBottom: wp(8),
   },
   pill: {
