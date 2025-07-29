@@ -42,9 +42,10 @@ const AdvisorProfileHeader = ({ advisorImage }) => {
             </Text>
           </Box>
 
-          <Box style={styles.headerData}>
+          {/* // * For future use */}
+          {/* <Box style={styles.headerData}>
             <ProfileArrow />
-          </Box>
+          </Box> */}
         </Box>
       </Box>
       <Box
