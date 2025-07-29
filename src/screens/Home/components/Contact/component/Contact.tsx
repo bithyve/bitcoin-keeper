@@ -84,6 +84,7 @@ const Contact = () => {
       const path = urlParts[2];
       if (path === 'contact') {
         initChat(urlParts[3], urlParts[4], urlParts[5]);
+        navigation.goBack();
       }
     } else {
       showToast('Invalid QR code', <ToastErrorIcon />);
