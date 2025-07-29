@@ -280,57 +280,6 @@ export default class Relay {
     };
   };
 
-  public static getAppProfiles = async (
-    contactsKeys: string[]
-  ): Promise<{
-    profiles: {
-      contactsKey: string;
-      name: string;
-      image: string;
-    }[];
-  }> => {
-    let res;
-    try {
-      res = await RestClient.post(`${RELAY}getAppProfiles`, {
-        contactsKeys,
-      });
-    } catch (err) {
-      console.log('err', err);
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-    const { profiles } = res.data || res.json;
-    return profiles;
-  };
-
-  public static updateAppProfile = async (
-    appName: string,
-    image: any,
-    id: string
-  ): Promise<any> => {
-    try {
-      const formData = new FormData();
-      formData.append('appName', appName);
-      if (image) {
-        formData.append('image', image);
-      }
-      formData.append('id', id);
-      const res = await fetch(`${RELAY}updateAppProfile`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.log('err', err);
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
-    }
-  };
-
   public static modifyLabels = async (
     appId: string,
     addLabels: any[],
