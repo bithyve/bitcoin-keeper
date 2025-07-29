@@ -62,11 +62,11 @@ const AdvisorCard = ({ advisor }: Props) => {
 
         <Box>
           <Box>
-            <Text fontSize={16} medium>
+            <Text fontSize={14} semiBold>
               {advisor.title}
             </Text>
             <Box style={styles.pinContainer}>
-              <MapPin />
+              <MapPin width={wp(14)} height={hp(14)} />
               <Text fontSize={13} color={Colors.lightGrayBeige}>
                 {advisor.country}
               </Text>
@@ -114,7 +114,6 @@ const AdvisorCard = ({ advisor }: Props) => {
           fullWidth
           RightIcon={ViewProfile}
           primaryCallback={() => navigation.navigate('AdvisorDetail', { advisor })}
-          paddingVertical={wp(10)}
         />
       </Box>
     </Box>
@@ -171,7 +170,6 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: wp(5),
     marginBottom: wp(10),
   },
