@@ -1297,6 +1297,7 @@ function HardwareModalMap({
           addSignerFlow,
           Illustration,
           Instructions,
+          signer,
         },
       })
     );
