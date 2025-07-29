@@ -93,7 +93,7 @@ function SetupOtherSDScreen({ route }) {
           IToastCategory.SIGNING_DEVICE
         );
       } else if (mode === InteracationMode.HEALTH_CHECK) {
-        if (key.xpub === hcSigner.xpub) {
+        if (key.masterFingerprint === hcSigner.masterFingerprint) {
           dispatch(
             healthCheckStatusUpdate([
               {
@@ -102,7 +102,6 @@ function SetupOtherSDScreen({ route }) {
               },
             ])
           );
-          navigation.dispatch(CommonActions.goBack());
           showToast(signerText.otherSignerVerified, <TickIcon />);
         } else {
           dispatch(
@@ -167,15 +166,29 @@ function SetupOtherSDScreen({ route }) {
           });
           if (signer) {
             dispatch(addSigningDevice([signer]));
-            const navigationState = addSignerFlow
-              ? { name: 'Home' }
-              : { name: 'AddSigningDevice', merge: true, params: {} };
-            navigation.dispatch(CommonActions.navigate(navigationState));
-            showToast(
-              signerText.signerAddedSuccessMessage,
-              <TickIcon />,
-              IToastCategory.SIGNING_DEVICE
-            );
+            if (mode === InteracationMode.VAULT_ADDITION) {
+              navigation.dispatch(CommonActions.navigate({ name: 'Home' }));
+              showToast(
+                signerText.signerAddedSuccessMessage,
+                <TickIcon />,
+                IToastCategory.SIGNING_DEVICE
+              );
+            } else if (mode === InteracationMode.HEALTH_CHECK) {
+              navigation.goBack();
+              if (signer.masterFingerprint == hcSigner.masterFingerprint) {
+                dispatch(
+                  healthCheckStatusUpdate([
+                    {
+                      signerId: signer.masterFingerprint,
+                      status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+                    },
+                  ])
+                );
+                showToast(signerText.otherSignerVerified, <TickIcon />);
+              } else {
+                showToast(common.somethingWrong, <ToastErrorIcon />);
+              }
+            }
           }
         } else {
           throw new HWError(HWErrorType.INVALID_SIG);
