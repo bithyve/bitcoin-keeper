@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js';
 import { encode as base64Encode, decode as base64Decode } from '@stablelib/base64';
+import { x25519, ed25519 } from '@noble/curves/ed25519';
 
 export interface KeyPair {
   publicKey: string; // hex format
@@ -98,6 +99,14 @@ export class ChatEncryptionManager {
         `Key exchange failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
+  }
+
+  static deriveSharedSecret(
+    privateKey: string | Uint8Array,
+    publicKey: string | Uint8Array
+  ): string {
+    const sharedSecret = x25519.getSharedSecret(privateKey, publicKey);
+    return this.uint8ArrayToHex(sharedSecret);
   }
 
   /**
