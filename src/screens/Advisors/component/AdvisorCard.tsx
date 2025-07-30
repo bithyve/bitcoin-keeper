@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -9,6 +9,7 @@ import Buttons from 'src/components/Buttons';
 import ViewProfile from 'src/assets/images/view-profile.svg';
 import { useNavigation } from '@react-navigation/native';
 import sha256 from 'crypto-js/sha256';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import FastImage from 'react-native-fast-image';
 
 type Props = {
@@ -24,6 +25,8 @@ const getColorForLabel = (label: string, colorsArray: string[]) => {
 const AdvisorCard = ({ advisor }: Props) => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
 
   const tagColors = useMemo(() => {
     return Object.entries(Colors)
@@ -59,11 +62,11 @@ const AdvisorCard = ({ advisor }: Props) => {
 
         <Box>
           <Box>
-            <Text fontSize={16} medium>
+            <Text fontSize={14} semiBold>
               {advisor.title}
             </Text>
             <Box style={styles.pinContainer}>
-              <MapPin />
+              <MapPin width={wp(14)} height={hp(14)} />
               <Text fontSize={13} color={Colors.lightGrayBeige}>
                 {advisor.country}
               </Text>
@@ -82,7 +85,7 @@ const AdvisorCard = ({ advisor }: Props) => {
 
           <Box style={styles.timeContainer}>
             <Text fontSize={12} medium color={`${colorMode}.black`}>
-              Time zone:
+              {concierge.timeZone}:
             </Text>
             <Text color={`${colorMode}.textGreen`} fontSize={12}>
               {advisor.timezone}
@@ -91,9 +94,14 @@ const AdvisorCard = ({ advisor }: Props) => {
 
           <Box style={styles.timeContainer}>
             <Text fontSize={12} medium color={`${colorMode}.black`}>
-              Language:
+              {concierge.language}:
             </Text>
-            <Text color={`${colorMode}.textGreen`} fontSize={12}>
+            <Text
+              style={styles.languageContainer}
+              color={`${colorMode}.textGreen`}
+              fontSize={12}
+              numberOfLines={2}
+            >
               {advisor.languages.join(', ')}
             </Text>
           </Box>
@@ -102,7 +110,7 @@ const AdvisorCard = ({ advisor }: Props) => {
 
       <Box style={styles.ButtonContainer}>
         <Buttons
-          primaryText="View Profile"
+          primaryText={concierge.ViewProfile}
           fullWidth
           RightIcon={ViewProfile}
           primaryCallback={() => navigation.navigate('AdvisorDetail', { advisor })}
@@ -162,7 +170,6 @@ const styles = StyleSheet.create({
   },
   timeContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: wp(5),
     marginBottom: wp(10),
   },
@@ -173,5 +180,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 30,
+  },
+  languageContainer: {
+    width: wp(160),
   },
 });

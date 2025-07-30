@@ -1,5 +1,5 @@
 import { Box, FlatList, useColorMode } from 'native-base';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Text from 'src/components/KeeperText';
 import AdvisorCard from './component/AdvisorCard';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -22,6 +23,8 @@ const Advisors = () => {
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const [search, setSearch] = useState('');
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   const [loading, setLoading] = useState(false);
   const { advisors } = useAppSelector((state) => state.advisor);
   const dispatch = useDispatch();
@@ -49,7 +52,7 @@ const Advisors = () => {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
-        title="Meet Our Advisors"
+        title={concierge.MeetAdvisors}
         // * For future use, if needed
         // rightComponent={
         //   <TouchableOpacity
@@ -66,7 +69,7 @@ const Advisors = () => {
       />
       <Box style={styles.searchContainer}>
         <KeeperTextInput
-          placeholder="Search for an Expert"
+          placeholder={concierge.searchExprt}
           value={search}
           onChangeText={setSearch}
           inpuBorderColor={isDarkMode ? `${colorMode}.separator` : `${colorMode}.pantoneGreen`}
@@ -74,7 +77,7 @@ const Advisors = () => {
       </Box>
       <Box style={styles.Container}>
         <Text color={`${colorMode}.secondaryText`} fontSize={16}>
-          Meet Our Experts
+          {concierge.meetExperts}
         </Text>
 
         <FlatList
