@@ -320,6 +320,7 @@ import SwitchLightLogo from 'src/assets/images/switch-light-logo.svg';
 import SwitchDarkLogo from 'src/assets/images/switch-dark-logo.svg';
 import SwapDownGreenIcon from 'src/assets/images/swap-down-green-icon.svg';
 import SwapDownWhiteIcon from 'src/assets/images/swap-down-white-icon.svg';
+import BuyBtcPRivate from 'src/assets/privateImages/buy-btc-header-private.svg';
 
 const themeIcons = {
   swap_down_icon: {
@@ -1102,7 +1103,7 @@ const themeIcons = {
   header_buy_btc: {
     DARK: BtcLogo,
     LIGHT: BtcLogo,
-    PRIVATE: BtcLogoGold,
+    PRIVATE: BuyBtcPRivate,
     PRIVATE_LIGHT: BtcLogoGold,
   },
   footer_buy_btc: {
