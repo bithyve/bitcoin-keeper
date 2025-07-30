@@ -21,6 +21,7 @@ import cachedTxnReducer from './reducers/cachedTxn';
 import signerReducer from './reducers/signer';
 import accountReducer from './reducers/account';
 import swapReducer from './reducers/swap';
+import advisorReducer from './reducers/advisor';
 
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
@@ -42,6 +43,7 @@ const appReducer = combineReducers({
   signer: signerReducer,
   account: accountReducer,
   swap: swapReducer,
+  advisor: advisorReducer,
 });
 
 const rootReducer = (state, action) => {
