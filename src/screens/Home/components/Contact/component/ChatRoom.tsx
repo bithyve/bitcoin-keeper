@@ -14,8 +14,8 @@ import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
-import PlusIcon from 'src/assets/images/plus-green-icon.svg';
-import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
+// import PlusIcon from 'src/assets/images/plus-green-icon.svg';
+// import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
 import SendWhiteIcon from 'src/assets/images/send-white-icon.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -26,16 +26,21 @@ import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 
 const groupMessagesByDate = (msgs) => {
   const groups = {};
-  msgs.forEach((msg) => {
-    const date = moment(msg.date);
+
+  const filteredMessages = msgs.filter((msg) => msg.type !== 'Alert');
+  const sortedMessages = filteredMessages.sort((a, b) => a.createdAt - b.createdAt);
+  sortedMessages.forEach((msg) => {
+    const date = moment(msg.createdAt);
     const label = moment().isSame(date, 'day')
       ? 'Today'
       : moment().subtract(1, 'day').isSame(date, 'day')
       ? 'Yesterday'
       : date.format('MMMM D, YYYY');
+
     if (!groups[label]) groups[label] = [];
     groups[label].push(msg);
   });
+
   return groups;
 };
 
@@ -49,10 +54,14 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
   const chatManager = ChatPeerManager.getInstance();
   const handleSend = async () => {
     if (!inputValue.trim()) return;
+
+    const text = inputValue.trim();
+    setInputValue('');
+
     try {
       const messageData = {
         id: uuidv4(),
-        text: inputValue.trim(),
+        text,
         createdAt: Date.now(),
         type: 'TEXT',
         sender: app.contactsKey.publicKey,
@@ -60,23 +69,28 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
         unread: false,
         fileUrl: '',
       };
+
       dbManager.createObject(RealmSchema.Message, messageData);
+
       const encryptedMessage = ChatEncryptionManager.encryptMessage(
         JSON.stringify({ ...messageData }),
         community.key
       );
+
       await chatManager.sendMessage(
         community.with,
         JSON.stringify({ ...encryptedMessage, communityId: community.id })
       );
-      setInputValue('');
     } catch (error) {
       console.error('Error sending message:', error);
+      setInputValue(text);
     }
+
     setTimeout(() => {
       scrollRef?.current?.scrollToEnd({ animated: true });
     }, 0);
   };
+
   useEffect(() => {
     setTimeout(() => {
       scrollRef?.current?.scrollToEnd({ animated: true });
@@ -107,9 +121,10 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                   <Box style={styles.dateLine} borderBottomColor={`${colorMode}.separator`} />
                 </HStack>
                 {(msgs as any[]).map((msg, index) => {
-                  const thisMoment = moment(msg.date);
+                  const thisMoment = moment(msg.createdAt);
                   const nextMsg = (msgs as any[])[index + 1];
-                  const nextMoment = nextMsg ? moment(nextMsg.date) : null;
+                  const nextMoment = nextMsg ? moment(nextMsg.createdAt) : null;
+                  const isMyMessage = msg.sender === app.contactsKey.publicKey;
 
                   const isLastInMinuteAndSenderGroup =
                     !nextMoment ||
@@ -117,7 +132,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                     msg.sender !== nextMsg.sender;
 
                   const prevMsg = (msgs as any[])[index - 1];
-                  const prevMoment = prevMsg ? moment(prevMsg.date) : null;
+                  const prevMoment = prevMsg ? moment(prevMsg.createdAt) : null;
 
                   const isFirstInGroup =
                     !prevMoment ||
@@ -127,12 +142,12 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                   return (
                     <HStack
                       key={msg.id}
-                      justifyContent={msg.sender === 'me' ? 'flex-end' : 'flex-start'}
-                      alignItems={msg.sender === 'me' ? 'flex-end' : 'flex-start'}
+                      justifyContent={isMyMessage ? 'flex-end' : 'flex-start'}
+                      alignItems={isMyMessage ? 'flex-end' : 'flex-start'}
                       space={2}
                       style={styles.messageRow}
                     >
-                      {msg.sender === 'other' &&
+                      {!isMyMessage &&
                         isFirstInGroup &&
                         (receiverProfileImage ? (
                           <Image
@@ -151,18 +166,18 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                       <VStack style={styles.messageBubble}>
                         <Box
                           backgroundColor={
-                            msg.sender === 'me'
+                            isMyMessage
                               ? `${colorMode}.separator`
-                              : `${colorMode}.modalWhiteBackground`
+                              : `${colorMode}.textInputBackground`
                           }
+                          borderColor={`${colorMode}.separator`}
                           style={[
                             {
-                              borderRadius: msg.sender === 'me' ? 12 : 0,
-                              borderBottomRightRadius: msg.sender === 'me' ? 0 : 12,
-                              borderTopLeftRadius: msg.sender === 'other' ? 0 : 12,
-                              marginRight:
-                                msg.sender === 'me' && isLastInMinuteAndSenderGroup ? 0 : wp(32),
-                              marginLeft: msg.sender === 'other' && isFirstInGroup ? 0 : wp(32),
+                              borderRadius: isMyMessage ? 12 : 0,
+                              borderBottomRightRadius: isMyMessage ? 0 : 12,
+                              borderTopLeftRadius: !isMyMessage ? 0 : 12,
+                              marginRight: isMyMessage && isLastInMinuteAndSenderGroup ? 0 : wp(32),
+                              marginLeft: !isMyMessage && isFirstInGroup ? 0 : wp(32),
                             },
                             styles.messageContent,
                           ]}
@@ -177,8 +192,8 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                             color={`${colorMode}.subchatText`}
                             style={[
                               {
-                                alignSelf: msg.sender === 'me' ? 'flex-end' : 'flex-start',
-                                marginLeft: msg.sender === 'other' && isFirstInGroup ? 0 : wp(32),
+                                alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
+                                marginLeft: !isMyMessage && isFirstInGroup ? 0 : wp(32),
                               },
                               styles.timestamp,
                             ]}
@@ -188,7 +203,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                         )}
                       </VStack>
 
-                      {msg.sender === 'me' &&
+                      {isMyMessage &&
                         isLastInMinuteAndSenderGroup &&
                         (userProfileImage ? (
                           <Image
@@ -215,12 +230,13 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
 
         <HStack style={styles.inputContainer} space={2}>
           <Box style={styles.inputBar} borderColor={`${colorMode}.separator`}>
-            {isDarkMode ? (
+            {/* For the future if needed  */}
+            {/* {isDarkMode ? (
               <PlusWhiteIcon width={18} height={18} />
             ) : (
               <PlusIcon width={20} height={20} />
             )}
-            <Box style={styles.seperator} backgroundColor={`${colorMode}.separator`} />
+            <Box style={styles.seperator} backgroundColor={`${colorMode}.separator`} /> */}
             <Input
               flex={1}
               placeholder="Type your Message here"
@@ -291,7 +307,7 @@ const styles = StyleSheet.create({
   },
   inputBar: {
     flexDirection: 'row',
-    paddingLeft: wp(12),
+    // paddingLeft: wp(12),
     paddingRight: wp(5),
     paddingVertical: hp(5),
     marginBottom: wp(10),
@@ -314,6 +330,7 @@ const styles = StyleSheet.create({
     paddingVertical: wp(10),
     paddingHorizontal: wp(14),
     borderRadius: 12,
+    borderWidth: 1,
   },
   seperator: {
     height: 30,

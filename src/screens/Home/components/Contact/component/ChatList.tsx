@@ -75,7 +75,7 @@ const ChatItem = ({ item, userProfileImage }: { item: ChatItemData; userProfileI
         </Box>
         <Box style={styles.edit_icon}>
           <Text color={`${colorMode}.subchatText`}>{formatTime(item.date)}</Text>
-          {item.message_count > 0 && (
+          {item.message_count > 0 && item.lastMessage !== 'Start of conversation' && (
             <Box style={styles.message_count} backgroundColor={`${colorMode}.SeaweedGreen`}>
               <Text color={`${colorMode}.buttonText`} medium fontSize={8}>
                 {item.message_count}
