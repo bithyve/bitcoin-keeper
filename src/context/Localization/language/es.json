@@ -1763,7 +1763,7 @@
     "askQuestion": "Ask us a question.",
     "submitTicket": "Submit a ticket to get all your queries answered.",
     "takeMeThere": "Take me there",
-    "hireAdvisor": "Hire an Advisor",
+    "hireAdvisor": "Find an Advisor",
     "whiteGlovedService": "White gloved services for comprehensive bitcoin management.",
     "connetWithAdvisor": "Connect with an Advisor",
     "MeetAdvisors": "Meet Our Advisors",
@@ -1774,7 +1774,7 @@
     "ViewProfile": "View Profile",
     "Experience": "Experience",
     "sessionDuration": "Session Duration",
-    "advisorDetail": "Advisor Detail",
+    "aboutAdvisor": "About the Advisor",
     "readMore": "Read more",
     "advisorDetails": "Advisor Details",
     "scheduleCall": "Schedule your call"

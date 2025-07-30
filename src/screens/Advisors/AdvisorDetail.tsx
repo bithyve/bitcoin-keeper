@@ -110,7 +110,7 @@ const AdvisorDetail = ({ route }) => {
 
           <Box style={styles.advisorContainer}>
             <Text fontSize={14} semiBold color={`${colorMode}.primaryText`}>
-              {concierge.advisorDetail}:
+              {concierge.aboutAdvisor}:
             </Text>
             <Text fontSize={12} color={`${colorMode}.primaryText`}>
               {previewText}
