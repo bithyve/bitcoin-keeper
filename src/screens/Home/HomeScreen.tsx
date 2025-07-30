@@ -18,11 +18,11 @@ import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
 import { useNavigation } from '@react-navigation/native';
-import TechnicalSupport from '../KeeperConcierge/TechnicalSupport';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
+import ConciergeComponent from './components/ConciergeComponent';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -99,7 +99,7 @@ function NewHomeScreen({ route }) {
         return {
           content: (
             <Box>
-              <TechnicalSupport route={route} />
+              <ConciergeComponent route={route} />
             </Box>
           ),
           icon: (

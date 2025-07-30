@@ -1,6 +1,5 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import ConciergeScreenWrapper from './components/ConciergeScreenWrapper';
 import ContentWrapper from 'src/components/ContentWrapper';
 import { Image, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
@@ -32,6 +31,7 @@ import { AccountManagerCard } from './components/AccountManagerCard';
 import Relay from 'src/services/backend/Relay';
 import useSubscriptionLevel from 'src/hooks/useSubscriptionLevel';
 import { AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'CreateTicket'>;
 const TechnicalSupport = ({ route }: ScreenProps) => {
@@ -137,11 +137,9 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
   };
 
   return (
-    <ConciergeScreenWrapper
-      barStyle="light-content"
-      loading={loading || conciergeLoading}
-      wrapperStyle={{ paddingTop: hp(0) }}
-    >
+    <Box flex={1} backgroundColor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={loading || conciergeLoading} showLoader />
+
       <ContentWrapper backgroundColor={`${colorMode}.primaryBackground`}>
         {isKeeperPrivate ? (
           accountManagerDetails ? (
@@ -166,7 +164,7 @@ const TechnicalSupport = ({ route }: ScreenProps) => {
         textColor={`${colorMode}.modalWhiteContent`}
         Content={() => OnboardCallContent({ submitOnboardEmail })}
       />
-    </ConciergeScreenWrapper>
+    </Box>
   );
 };
 

@@ -52,6 +52,7 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import CampaignModalIllustration from 'src/assets/images/CampaignModalIllustration.svg';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
+import { getAdvisors } from 'src/store/sagaActions/advisor';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -129,6 +130,7 @@ function LoginScreen({ navigation, route }) {
 
   useEffect(() => {
     dispatch(fetchOneDayInsight());
+    dispatch(getAdvisors());
     fetchCampaignDetails();
   }, []);
 
