@@ -106,7 +106,7 @@ const Contact = () => {
         dbManager.createObject(RealmSchema.Community, {
           id: communityId,
           communityId: communityId,
-          name: name || 'Unknown Contact',
+          name: name || `Unknown Contact (${peerKey.substring(0, 8)})`,
           createdAt: Date.now(),
           type: CommunityType.Peer,
           with: peerKey,
