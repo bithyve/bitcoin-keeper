@@ -12,6 +12,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
+import { persistDocument } from 'src/services/documents';
 
 const ProfileContent = ({
   setUserProfileImage,
@@ -57,8 +58,10 @@ const ProfileContent = ({
 
   const handleConfirm = async () => {
     try {
+      const persistedImage = await persistDocument(profileImage);
       dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
         appName: profileName,
+        profilePicture: persistedImage,
       });
       setUserProfileImage(profileImage);
       setUserProfileName(profileName);

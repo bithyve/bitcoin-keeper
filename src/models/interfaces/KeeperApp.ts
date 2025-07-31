@@ -21,4 +21,5 @@ export interface KeeperApp {
   subscription: SubScription;
   enableAnalytics: boolean;
   contactsKey?: { [key: string]: string };
+  profilePicture?: string;
 }
