@@ -99,7 +99,8 @@ const BuyBtc = () => {
                 else showToast('Please create a wallet to proceed.', <ToastErrorIcon />);
               }}
               sellCallback={() => {
-                setVisibleSellBtc(true);
+                if (allWallets.length > 0) setVisibleSellBtc(true);
+                else showToast("You don't have BTC yet.", <ToastErrorIcon />);
               }}
               graphContent={<BtcGraph dataSet={graphData} spacing={50} />}
             />
@@ -113,7 +114,9 @@ const BuyBtc = () => {
                 else showToast('Please create a USDT wallet to proceed.', <ToastErrorIcon />);
               }}
               sellCallback={() => {
-                setVisibleSellUsdt(true);
+                if (usdtWallets.length > 0) {
+                  setVisibleSellUsdt(true);
+                } else showToast("You don't have USDT yet.", <ToastErrorIcon />);
               }}
             />
           </ScrollView>

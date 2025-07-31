@@ -1,4 +1,4 @@
-import { Box, Image, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -9,8 +9,8 @@ import Buttons from 'src/components/Buttons';
 import ViewProfile from 'src/assets/images/view-profile.svg';
 import { useNavigation } from '@react-navigation/native';
 import sha256 from 'crypto-js/sha256';
-import FastImage from 'react-native-fast-image';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import FastImage from 'react-native-fast-image';
 
 type Props = {
   advisor?: any;

@@ -10,25 +10,25 @@ import { useNavigation } from '@react-navigation/native';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import Text from 'src/components/KeeperText';
 import AdvisorCard from './component/AdvisorCard';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { getAdvisors } from 'src/store/sagaActions/advisor';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const Advisors = () => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
   const [search, setSearch] = useState('');
+  const { translations } = useContext(LocalizationContext);
+  const { concierge } = translations;
   const [loading, setLoading] = useState(false);
   const { advisors } = useAppSelector((state) => state.advisor);
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { translations } = useContext(LocalizationContext);
-  const { concierge } = translations;
 
   const filteredAdvisors = useMemo(() => {
     return advisors.filter((advisor) => advisor.title.toLowerCase().includes(search.toLowerCase()));
@@ -54,6 +54,7 @@ const Advisors = () => {
       <WalletHeader
         title={concierge.MeetAdvisors}
         // Filter remove for now
+        // * For future use, if needed
         // rightComponent={
         //   <TouchableOpacity
         //     onPress={() => navigation.navigate('FilterAdvisor')}

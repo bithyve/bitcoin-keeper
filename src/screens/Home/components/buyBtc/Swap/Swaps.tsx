@@ -265,7 +265,11 @@ export const Swaps = ({ navigation }) => {
               <Pressable
                 onPress={() => {
                   walletModeRef.current = 'from';
-                  setShowWalletSelection(true);
+                  if (coinFrom.code !== 'BTC' && usdtWallets.length === 0) {
+                    showToast('Please create a USDT wallet to send USDT', <ToastErrorIcon />);
+                  } else {
+                    setShowWalletSelection(true);
+                  }
                 }}
               >
                 <Box
@@ -309,7 +313,11 @@ export const Swaps = ({ navigation }) => {
               <Pressable
                 onPress={() => {
                   walletModeRef.current = 'to';
-                  setShowWalletSelection(true);
+                  if (coinTo.code !== 'BTC' && usdtWallets.length === 0) {
+                    showToast('Please create a USDT wallet to receive USDT', <ToastErrorIcon />);
+                  } else {
+                    setShowWalletSelection(true);
+                  }
                 }}
               >
                 <Box
@@ -359,7 +367,6 @@ export const Swaps = ({ navigation }) => {
         visible={showWalletSelection}
         close={() => setShowWalletSelection(false)}
         title={walletModeRef.current === 'from' ? 'Select From Wallet' : 'Select to Wallet'}
-        subTitle={'Select Wallet subtitle'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}

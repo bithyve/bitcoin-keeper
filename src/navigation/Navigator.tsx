@@ -159,6 +159,9 @@ import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
 import ChatRoomScreen from 'src/screens/Home/components/Contact/ChatRoomScreen';
 import KeeperSupport from 'src/screens/Concierge/KeeperSupport';
 import ContactShareQr from 'src/screens/Home/components/Contact/ContactShowQr';
+import Advisors from 'src/screens/Advisors/Advisors';
+import FilterAdvisor from 'src/screens/Advisors/FilterAdvisor';
+import AdvisorDetail from 'src/screens/Advisors/AdvisorDetail';
 import { Swaps } from 'src/screens/Home/components/buyBtc/Swap/Swaps';
 import { SwapDetails } from 'src/screens/Home/components/buyBtc/Swap/SwapDetails';
 import { SwapHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapHistory';
@@ -357,6 +360,10 @@ function AppStack() {
         <Stack.Screen name="SignMessageScreen" component={SignMessageScreen} />
         <Stack.Screen name="CloudBackupPassword" component={CloudBackupPassword} />
         <Stack.Screen name="ImportedWalletSetup" component={ImportedWalletSetup} />
+        <Stack.Screen name="KeeperSupport" component={KeeperSupport} />
+        <Stack.Screen name="Advisors" component={Advisors} />
+        <Stack.Screen name="FilterAdvisor" component={FilterAdvisor} />
+        <Stack.Screen name="AdvisorDetail" component={AdvisorDetail} />
         <Stack.Screen name="Swaps" component={Swaps} />
         <Stack.Screen name="SwapDetails" component={SwapDetails} />
         <Stack.Screen name="SwapHistory" component={SwapHistory} />
