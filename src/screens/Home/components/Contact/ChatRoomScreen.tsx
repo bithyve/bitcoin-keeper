@@ -31,11 +31,14 @@ const ChatRoomScreen = () => {
     .filtered('communityId = $0', communityId)
     .sorted('createdAt', true);
 
+  const [editUserProfileImage, setEditUserProfileImage] = useState('');
+  const [editReceiverProfileName, setEditReceiverProfileName] = useState(community.name);
+
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <ChatRoomHeader
         receiverProfileImage={''}
-        receiverProfileName={community.name}
+        receiverProfileName={editReceiverProfileName}
         setOpenEditModal={setOpenEditModal}
       />
       <ChatRoom

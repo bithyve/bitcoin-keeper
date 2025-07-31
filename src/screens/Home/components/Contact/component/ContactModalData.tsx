@@ -138,46 +138,47 @@ function ContactModalData({
         );
       },
     },
-    {
-      id: 2,
-      label: `${isIos ? 'Airdrop / ' : ''}File `,
-      icon: <ExportFile />,
-      onPress: async () => {
-        setContactModalVisible(false);
-        const clipboardData = await Clipboard.getString();
-        if (clipboardData) {
-          onQrScan(clipboardData);
-        } else {
-          showToast('No data found in clipboard');
-        }
-      },
-    },
+    // Only share and scan option to be shownin current release
+    // {
+    //   id: 2,
+    //   label: `${isIos ? 'Airdrop / ' : ''}File `,
+    //   icon: <ExportFile />,
+    //   onPress: async () => {
+    //     setContactModalVisible(false);
+    //     const clipboardData = await Clipboard.getString();
+    //     if (clipboardData) {
+    //       onQrScan(clipboardData);
+    //     } else {
+    //       showToast('No data found in clipboard');
+    //     }
+    //   },
+    // },
 
-    {
-      id: 3,
-      label: 'NFC',
-      icon: <NFCIcon />,
-      onPress: () => {
-        setContactModalVisible(false);
-        shareWithNFC();
-      },
-    },
-    ...(isShareContact
-      ? [
-          {
-            id: 4,
-            label: 'Share Link',
-            icon: <AirDropIcon />,
-            onPress: () => {
-              setContactModalVisible(false);
-              navigation.navigate('RemoteSharing', {
-                psbt: data,
-                mode: RKInteractionMode.SHARE_REMOTE_KEY,
-              });
-            },
-          },
-        ]
-      : []),
+    // {
+    //   id: 3,
+    //   label: 'NFC',
+    //   icon: <NFCIcon />,
+    //   onPress: () => {
+    //     setContactModalVisible(false);
+    //     shareWithNFC();
+    //   },
+    // },
+    // ...(isShareContact
+    //   ? [
+    //       {
+    //         id: 4,
+    //         label: 'Share Link',
+    //         icon: <AirDropIcon />,
+    //         onPress: () => {
+    //           setContactModalVisible(false);
+    //           navigation.navigate('RemoteSharing', {
+    //             psbt: data,
+    //             mode: RKInteractionMode.SHARE_REMOTE_KEY,
+    //           });
+    //         },
+    //       },
+    //     ]
+    //   : []),
   ];
 
   return (
