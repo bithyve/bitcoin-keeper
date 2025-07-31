@@ -137,7 +137,7 @@ const Contact = () => {
   return (
     <Box style={styles.container}>
       <ContactHeader
-        userProfileImage={userProfileImage}
+        userProfileImage={app.profilePicture}
         userProfileName={app.appName}
         setCreateProfile={setCreateProfile}
         setContactModalVisible={setContactModalVisible}
