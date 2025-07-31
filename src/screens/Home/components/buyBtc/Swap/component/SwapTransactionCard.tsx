@@ -83,26 +83,32 @@ const SwapTransactionCard = ({ onPress = () => {}, history, status }: Props) => 
         <Box style={styles.SecContainer}>
           <Box style={styles.priceRowContainer}>
             <Box style={styles.priceBox}>
-              <CoinLogo
-                code={history.coin_from}
-                logoWidth={wp(7.5)}
-                logoHeight={wp(9.5)}
-                CircleWidth={wp(15)}
-              />
+              <Box style={styles.arrowContainer}>
+                <CoinLogo
+                  code={history.coin_from}
+                  logoWidth={wp(7.5)}
+                  logoHeight={wp(9.5)}
+                  CircleWidth={wp(15)}
+                />
+                <Box>{isDark ? <SwapPriceArrowWhite /> : <SwapPriceArrow width={wp(11)} />}</Box>
+              </Box>
               <Text
                 style={styles.amountText}
                 fontSize={12}
                 medium
                 color={isDark ? Colors.bodyText : Colors.DarkSlateGray}
               >
-                {history.coin_from === 'BTC'
-                  ? history.deposit_amount
-                  : Number(history.deposit_amount).toFixed(2)}
+                {(() => {
+                  const amount =
+                    history.coin_from === 'BTC'
+                      ? history.deposit_amount.toString()
+                      : Number(history.deposit_amount).toFixed(2).toString();
+
+                  return amount.length > 3 ? `${amount.slice(0, 6)}...` : amount;
+                })()}
               </Text>
             </Box>
-            <Box style={styles.arrowContainer}>
-              {isDark ? <SwapPriceArrowWhite /> : <SwapPriceArrow width={wp(11)} />}
-            </Box>
+
             <Box style={styles.priceBox}>
               <CoinLogo
                 code={history.coin_to}
@@ -116,9 +122,14 @@ const SwapTransactionCard = ({ onPress = () => {}, history, status }: Props) => 
                 medium
                 color={isDark ? Colors.bodyText : Colors.DarkSlateGray}
               >
-                {history.coin_to === 'BTC'
-                  ? history.withdrawal_amount
-                  : Number(history.withdrawal_amount).toFixed(2)}
+                {(() => {
+                  const amount =
+                    history.coin_to === 'BTC'
+                      ? history.withdrawal_amount?.toString()
+                      : Number(history.withdrawal_amount).toFixed(2).toString();
+
+                  return amount.length > 3 ? `${amount.slice(0, 6)}...` : amount;
+                })()}
               </Text>
             </Box>
           </Box>
@@ -192,14 +203,17 @@ const styles = StyleSheet.create({
   priceBox: {
     gap: 2,
     marginHorizontal: wp(3),
+    width: wp(60),
   },
 
   amountText: {
     marginLeft: wp(2),
   },
   arrowContainer: {
-    marginHorizontal: wp(5),
-    marginBottom: hp(12),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: wp(5),
   },
   SecContainer: {
     flexDirection: 'row',

@@ -170,7 +170,7 @@ export default KeeperSettings;
 
 const styles = StyleSheet.create({
   bottomNav: {
-    width: windowWidth * 0.89,
+    width: windowWidth * 0.88,
     flexDirection: 'row',
     gap: wp(10),
 

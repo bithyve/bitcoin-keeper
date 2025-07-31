@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
   },
   PillsContainer: {
     flexDirection: 'row',
+    width: '100%',
     gap: wp(5),
     paddingRight: wp(20),
     marginRight: wp(30),

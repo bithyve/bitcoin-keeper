@@ -35,8 +35,8 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
     },
     isRampAvailable && {
       name: buyBTCTranslation.acquire,
-      defaultIcon: <BtcLogoGrey width={wp(22)} height={hp(22)} />,
-      selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(22)} height={hp(22)} />,
+      defaultIcon: <BtcLogoGrey width={wp(26)} height={hp(26)} />,
+      selectedIcon: <ThemedSvg name={'footer_buy_btc'} width={wp(26)} height={hp(26)} />,
     },
     {
       name: walletTranslation.concierge,
