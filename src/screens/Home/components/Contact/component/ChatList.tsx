@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Image, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { wp } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: wp(15),
     marginBottom: wp(8),
+    maxWidth: windowWidth * 0.8,
   },
   messageText: {
     fontSize: wp(12),
