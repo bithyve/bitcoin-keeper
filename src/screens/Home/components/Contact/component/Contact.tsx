@@ -13,7 +13,7 @@ import Buttons from 'src/components/Buttons';
 import ContactAddicon from 'src/assets/images/contact-add-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './ProfileContent';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import ContactModalData from './ContactModalData';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -58,6 +58,12 @@ const Contact = () => {
       return;
     }
   };
+  useEffect(() => {
+    if (app.profilePicture !== 'undefined' || app.appName !== 'undefined') {
+      setUserProfileImage(app.profilePicture);
+      setUserProfileName(app.appName);
+    }
+  }, [app.profilePicture, app.appName]);
 
   const contactShareLink = useMemo(() => {
     if (app?.contactsKey?.secretKey) {
@@ -189,8 +195,19 @@ const Contact = () => {
         <Buttons
           primaryText={contactText.addContact}
           primaryCallback={() => {
-            setContactModalVisible(true);
-            setShareContact(false);
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ScanQR',
+                params: {
+                  title: 'Scan QR',
+                  subtitle: 'Scan QR',
+                  onQrScan,
+                  importOptions: false,
+                  isSingning: true,
+                  contactShareData: contactShareLink,
+                },
+              })
+            );
           }}
           fullWidth
           LeftIcon={ContactAddicon}
@@ -224,7 +241,7 @@ const Contact = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={() => (
           <ContactModalData
-            isShareContact={shareContact}
+            isShareContact={true}
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
             data={contactShareLink}

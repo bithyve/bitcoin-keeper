@@ -94,11 +94,7 @@ const ProfileContent = ({
             />
           )}
           <TouchableOpacity style={styles.addImageIcon} onPress={pickImage}>
-            {profileImage ? (
-              <ThemedSvg name={'edit_profile_icons'} width={wp(35)} height={wp(35)} />
-            ) : (
-              <ThemedSvg name={'add_profile_icons'} width={wp(35)} height={wp(35)} />
-            )}
+            <ThemedSvg name={'add_profile_icons'} width={wp(35)} height={wp(35)} />
           </TouchableOpacity>
         </Box>
       </Box>
