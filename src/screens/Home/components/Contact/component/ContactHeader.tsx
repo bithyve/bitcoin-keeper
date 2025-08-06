@@ -5,7 +5,7 @@ import Text from 'src/components/KeeperText';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import EditIcon from 'src/assets/images/contact-edit.svg';
-import { wp } from 'src/constants/responsive';
+import { windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
@@ -65,23 +65,6 @@ const ContactHeader = ({
           <EditIcon />
         </TouchableOpacity>
       </Box>
-      <TouchableOpacity
-        onPress={() => {
-          setContactModalVisible(true);
-          setShareContact(true);
-        }}
-      >
-        <Box
-          style={styles.share_icon}
-          borderColor={`${colorMode}.separator`}
-          backgroundColor={`${colorMode}.textInputBackground`}
-        >
-          <ThemedSvg name={'share_icons'} />
-          <Text fontSize={12} color={`${colorMode}.modalSubtitleBlack`} medium>
-            {contactText.share}
-          </Text>
-        </Box>
-      </TouchableOpacity>
     </Box>
   );
 };
@@ -101,7 +84,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(10),
     padding: wp(15),
     justifyContent: 'space-between',
-    width: wp(248),
+    width: windowWidth * 0.9,
   },
   text: {
     fontSize: 14,

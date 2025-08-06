@@ -9,11 +9,10 @@ import ConciergeIcon from 'src/assets/images/faqWhiteIcon.svg';
 import Colors from 'src/theme/Colors';
 import PinIcon from 'src/assets/images/Pin.svg';
 import ChatList from './ChatList';
-import Buttons from 'src/components/Buttons';
 import ContactAddicon from 'src/assets/images/contact-add-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './ProfileContent';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import ContactModalData from './ContactModalData';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -27,6 +26,9 @@ import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptio
 import { v4 as uuidv4 } from 'uuid';
 import { useQuery } from '@realm/react';
 import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
+import { ContactsCta } from './ContactsCta';
+import { screenWidth } from 'react-native-gifted-charts/src/utils';
+import HireAdvisorIcon from 'src/assets/images/hire-advisor.svg';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -38,7 +40,7 @@ const Contact = () => {
   const [contactmodalVisible, setContactModalVisible] = useState(false);
   const [shareContact, setShareContact] = useState(false);
   const { translations } = useContext(LocalizationContext);
-  const { contactText } = translations;
+  const { contactText, concierge } = translations;
   const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const lastBlock = useQuery<Message>(RealmSchema.Message).sorted('block', true)[0]?.block;
   const communities = useQuery(RealmSchema.Community);
@@ -58,6 +60,12 @@ const Contact = () => {
       return;
     }
   };
+  useEffect(() => {
+    if (app.profilePicture !== 'undefined' || app.appName !== 'undefined') {
+      setUserProfileImage(app.profilePicture);
+      setUserProfileName(app.appName);
+    }
+  }, [app.profilePicture, app.appName]);
 
   const contactShareLink = useMemo(() => {
     if (app?.contactsKey?.secretKey) {
@@ -186,16 +194,37 @@ const Contact = () => {
         <ChatList userProfileImage={userProfileImage} communities={communities} />
       </ScrollView>
       <Box style={styles.bottomButton}>
-        <Buttons
-          primaryText={contactText.addContact}
-          primaryCallback={() => {
-            setContactModalVisible(true);
-            setShareContact(false);
+        <ContactsCta
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ScanQR',
+                params: {
+                  title: 'Scan QR',
+                  subtitle: 'Scan QR',
+                  onQrScan,
+                  importOptions: false,
+                  isSingning: true,
+                  contactShareData: contactShareLink,
+                },
+              })
+            );
           }}
-          fullWidth
+          text={contactText.addContact}
           LeftIcon={ContactAddicon}
+          width={screenWidth * 0.43}
+        />
+        <ContactsCta
+          onPress={() => navigation.dispatch(CommonActions.navigate('Advisors'))}
+          text={concierge.hireAdvisor}
+          LeftIcon={HireAdvisorIcon}
+          width={screenWidth * 0.43}
+          backgroundColor={isDarkMode ? Colors.headerWhite : 'transparent'}
+          borderColor={`${colorMode}.pantoneGreen`}
+          primaryTextColor={`${colorMode}.pantoneGreen`}
         />
       </Box>
+
       <KeeperModal
         visible={createProfile}
         close={() => setCreateProfile(false)}
@@ -224,7 +253,7 @@ const Contact = () => {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         Content={() => (
           <ContactModalData
-            isShareContact={shareContact}
+            isShareContact={true}
             setContactModalVisible={setContactModalVisible}
             navigation={navigation}
             data={contactShareLink}
@@ -273,5 +302,8 @@ const styles = StyleSheet.create({
   bottomButton: {
     marginTop: wp(10),
     marginBottom: wp(15),
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
   },
 });
