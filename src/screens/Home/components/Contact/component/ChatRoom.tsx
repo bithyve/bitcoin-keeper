@@ -13,7 +13,6 @@ import moment from 'moment';
 import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
-import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 // import PlusIcon from 'src/assets/images/plus-green-icon.svg';
 // import PlusWhiteIcon from 'src/assets/images/add-plus-white.svg';
 import SendWhiteIcon from 'src/assets/images/send-white-icon.svg';
@@ -23,6 +22,7 @@ import { ChatEncryptionManager } from 'src/utils/service-utilities/ChatEncryptio
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { v4 as uuidv4 } from 'uuid';
 import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
+import ChatPlaceHolderIcon from 'src/assets/images/chat-plaaceholde-image.svg';
 
 const groupMessagesByDate = (msgs) => {
   const groups = {};
@@ -156,11 +156,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                             style={styles.avatar}
                           />
                         ) : (
-                          <Image
-                            source={PlaceHolderImage}
-                            alt="placeHolder"
-                            style={styles.avatar}
-                          />
+                          <ChatPlaceHolderIcon width={30} height={30} />
                         ))}
 
                       <VStack style={styles.messageBubble}>
@@ -213,12 +209,7 @@ const ChatRoom = ({ userProfileImage, receiverProfileImage, messages, community 
                             marginBottom={hp(20)}
                           />
                         ) : (
-                          <Image
-                            source={PlaceHolderImage}
-                            alt="placeHolder"
-                            style={styles.avatar}
-                            marginBottom={hp(20)}
-                          />
+                          <ChatPlaceHolderIcon width={30} height={30} marginBottom={hp(20)} />
                         ))}
                     </HStack>
                   );

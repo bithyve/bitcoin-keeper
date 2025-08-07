@@ -3,7 +3,7 @@ import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Image, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth, wp } from 'src/constants/responsive';
-import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png';
+import ChatPlaceHolderIcon from 'src/assets/images/chat-plaaceholde-image.svg';
 import { useNavigation } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -57,19 +57,20 @@ const ChatItem = ({ item, userProfileImage }: { item: ChatItemData; userProfileI
         backgroundColor={`${colorMode}.primaryBackground`}
       >
         <Box style={styles.profile_image_container}>
-          <Image
-            source={
-              item.image && item.image.trim() !== '' ? { uri: item.image } : ChatPlaceHolderIcon
-            }
-            style={styles.profile_image}
-            alt="profile"
-          />
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.profile_image} alt="profile" />
+          ) : (
+            <ChatPlaceHolderIcon style={styles.profile_image} />
+          )}
+
           <Box>
             <Text style={styles.nameText} semiBold color={`${colorMode}.primaryText`}>
               {item.name}
             </Text>
             <Text style={styles.messageText} color={`${colorMode}.subchatText`}>
-              {item.lastMessage}
+              {item.lastMessage.length > 25
+                ? item.lastMessage.slice(0, 25) + '...'
+                : item.lastMessage}
             </Text>
           </Box>
         </Box>
