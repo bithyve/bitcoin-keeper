@@ -1,5 +1,5 @@
 import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
@@ -13,7 +13,6 @@ import ContactAddicon from 'src/assets/images/contact-add-icon.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import ProfileContent from './ProfileContent';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import ContactModalData from './ContactModalData';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -37,8 +36,6 @@ const Contact = () => {
   const [userProfileImage, setUserProfileImage] = useState(null);
   const [userProfileName, setUserProfileName] = useState('');
   const navigation = useNavigation();
-  const [contactmodalVisible, setContactModalVisible] = useState(false);
-  const [shareContact, setShareContact] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { contactText, concierge } = translations;
   const app: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
@@ -66,14 +63,6 @@ const Contact = () => {
       setUserProfileName(app.appName);
     }
   }, [app.profilePicture, app.appName]);
-
-  const contactShareLink = useMemo(() => {
-    if (app?.contactsKey?.secretKey) {
-      const pubKey = ChatEncryptionManager.derivePublicKey(app?.contactsKey?.secretKey);
-      return `keeper://contact/${app.contactsKey.publicKey}/${pubKey}/${app.appName}`;
-    }
-    return '';
-  }, [app.contactsKey.publicKey, app.appName]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -148,8 +137,6 @@ const Contact = () => {
         userProfileImage={app.profilePicture}
         userProfileName={app.appName}
         setCreateProfile={setCreateProfile}
-        setContactModalVisible={setContactModalVisible}
-        setShareContact={setShareContact}
       />
       <Box style={styles.chat_heading}>
         <Text color={`${colorMode}.modalSubtitleBlack`} medium fontSize={16}>
@@ -164,7 +151,7 @@ const Contact = () => {
           <TouchableOpacity
             style={styles.concierge}
             onPress={() => {
-              navigation.navigate('keeperSupport');
+              navigation.dispatch(CommonActions.navigate({ name: 'keeperSupport' }));
             }}
           >
             <Box style={styles.concierge_icon}>
@@ -196,6 +183,8 @@ const Contact = () => {
       <Box style={styles.bottomButton}>
         <ContactsCta
           onPress={() => {
+            const pubKey = ChatEncryptionManager.derivePublicKey(app?.contactsKey?.secretKey);
+            const contactShareLink = `keeper://contact/${app.contactsKey.publicKey}/${pubKey}/${app.appName}`;
             navigation.dispatch(
               CommonActions.navigate({
                 name: 'ScanQR',
@@ -240,24 +229,6 @@ const Contact = () => {
             setCreateProfile={setCreateProfile}
             userProfileImage={userProfileImage}
             userProfileName={userProfileName}
-          />
-        )}
-      />
-      <KeeperModal
-        visible={contactmodalVisible}
-        close={() => setContactModalVisible(false)}
-        title={shareContact ? contactText.shareContact : contactText.addNewContact}
-        subTitle={contactText.chooseHowToAdd}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        Content={() => (
-          <ContactModalData
-            isShareContact={true}
-            setContactModalVisible={setContactModalVisible}
-            navigation={navigation}
-            data={contactShareLink}
-            onQrScan={onQrScan}
           />
         )}
       />
