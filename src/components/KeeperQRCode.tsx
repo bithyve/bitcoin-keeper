@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import { Box, useColorMode } from 'native-base';
 import { useSelector } from 'react-redux';
-import KeeperNewLogo from 'src/assets/images/keeper-new-logo.png';
+import KeeperNewLogo from 'src/assets/images/keeper-new-logo-image.png';
 import KeeperPrivateNewLogo from 'src/assets/privateImages/keeper-private-new-logo.png';
 
 function KeeperQRCode({

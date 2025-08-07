@@ -1725,7 +1725,7 @@
     "noNotiSub": "You’re all set — we’ll let you know when there’s something new."
   },
   "concierge": {
-    "welcomeToConcierge": "Welcome to Keeper Concierge!",
+    "welcomeToConcierge": "Welcome to Keeper Concierge",
     "getAnsweredWithConcierge": "Here you can find help and support to resolve all your questions.",
     "conciergeModalDesc": "Please remember to never share private information, such as your private seed words or passwords. Our support team will never ask for such information neither in chat nor via any other channels.",
     "technicalSupportDescription": "Submit a ticket for prompt troubleshooting by our team",

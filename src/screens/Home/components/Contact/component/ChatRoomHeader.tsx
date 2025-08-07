@@ -4,7 +4,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import ChatPlaceHolderIcon from 'src/assets/images/contact-placeholder-image.png';
+import ChatPlaceHolderIcon from 'src/assets/images/chat-plaaceholde-image.svg';
 import { StatusBar } from 'react-native';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 
@@ -24,10 +24,7 @@ const ChatRoomHeader = ({ receiverProfileImage, receiverProfileName, setOpenEdit
           <TouchableOpacity onPress={navigation.goBack} style={styles.backButton}>
             <ThemedSvg name={'back_Button'} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.profile_image_container}
-            onPress={() => setOpenEditModal(true)}
-          >
+          <Box style={styles.profile_image_container}>
             <Box>
               {receiverProfileImage ? (
                 <Image
@@ -37,11 +34,7 @@ const ChatRoomHeader = ({ receiverProfileImage, receiverProfileName, setOpenEdit
                   resizeMode="cover"
                 />
               ) : (
-                <Image
-                  source={ChatPlaceHolderIcon}
-                  style={styles.profile_image}
-                  alt="placeHolder"
-                />
+                <ChatPlaceHolderIcon style={styles.profile_image} />
               )}
             </Box>
 
@@ -50,7 +43,7 @@ const ChatRoomHeader = ({ receiverProfileImage, receiverProfileName, setOpenEdit
                 {receiverProfileName}
               </Text>
             </Box>
-          </TouchableOpacity>
+          </Box>
         </Box>
       </Box>
     </Box>

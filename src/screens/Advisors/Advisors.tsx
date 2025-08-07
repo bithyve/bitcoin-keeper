@@ -68,18 +68,18 @@ const Advisors = () => {
         //   </TouchableOpacity>
         // }
       />
-      <Box style={styles.searchContainer}>
+      {/* <Box style={styles.searchContainer}>
         <KeeperTextInput
           placeholder={concierge.searchExprt}
           value={search}
           onChangeText={setSearch}
           inpuBorderColor={isDarkMode ? `${colorMode}.separator` : `${colorMode}.pantoneGreen`}
         />
-      </Box>
+      </Box> */}
       <Box style={styles.Container}>
-        <Text color={`${colorMode}.secondaryText`} fontSize={16}>
+        {/* <Text color={`${colorMode}.secondaryText`} fontSize={16}>
           {concierge.meetExperts}
-        </Text>
+        </Text> */}
 
         <FlatList
           data={filteredAdvisors}
@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
   },
   Container: {
     flex: 1,
-    marginVertical: wp(8),
+    marginBottom: wp(8),
   },
 });
