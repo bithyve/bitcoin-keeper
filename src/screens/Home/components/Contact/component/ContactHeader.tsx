@@ -2,7 +2,6 @@ import { Box, Image, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import PlaceHolderImage from 'src/assets/images/contact-placeholder-image.png';
 import EditIcon from 'src/assets/images/contact-edit.svg';
 import { windowWidth, wp } from 'src/constants/responsive';
@@ -12,17 +11,9 @@ type Props = {
   userProfileImage: string | null;
   userProfileName: string;
   setCreateProfile: (visible: boolean) => void;
-  setContactModalVisible: (visible: boolean) => void;
-  setShareContact: (share: boolean) => void;
 };
 
-const ContactHeader = ({
-  userProfileImage,
-  userProfileName,
-  setCreateProfile,
-  setContactModalVisible,
-  setShareContact,
-}: Props) => {
+const ContactHeader = ({ userProfileImage, userProfileName, setCreateProfile }: Props) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { contactText } = translations;
