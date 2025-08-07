@@ -206,6 +206,7 @@ const Contact = () => {
                   importOptions: false,
                   isSingning: true,
                   contactShareData: contactShareLink,
+                  isPSBT: true,
                 },
               })
             );
