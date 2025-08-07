@@ -42,6 +42,10 @@ export default class ChatPeerManager {
     return ChatPeerManager.instance;
   }
 
+  static resetInstance() {
+    ChatPeerManager.instance = null;
+  }
+
   async init(seed: string): Promise<boolean> {
     try {
       await this.worklet.start('/app.bundle', bundle, [seed]);
