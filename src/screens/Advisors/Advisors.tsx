@@ -53,6 +53,7 @@ const Advisors = () => {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
         title={concierge.MeetAdvisors}
+        // Filter remove for now
         // * For future use, if needed
         // rightComponent={
         //   <TouchableOpacity

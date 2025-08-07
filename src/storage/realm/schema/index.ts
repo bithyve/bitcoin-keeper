@@ -51,6 +51,7 @@ import {
   USDTWalletDerivationDetailsSchema,
   USDTWalletAccountStatusSchema,
 } from './usdtWallet';
+import { CommunitySchema, ContactSchema, MessageSchema } from './community';
 
 export default [
   KeeperAppSchema,
@@ -101,5 +102,8 @@ export default [
   USDTWalletDerivationDetailsSchema,
   USDTWalletPresentationDataSchema,
   USDTWalletAccountStatusSchema,
+  MessageSchema,
+  ContactSchema,
+  CommunitySchema,
   SwapHistorySchema,
 ];

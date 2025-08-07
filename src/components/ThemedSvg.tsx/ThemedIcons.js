@@ -316,6 +316,23 @@ import BuyAcquireArrowGold from 'src/assets/privateImages/acquire-buy-gold-arrow
 import CoinsIcon from 'src/assets/images/coins.svg';
 import CoinIconLight from 'src/assets/images/coinsLight.svg';
 import CoinsIconPrivate from 'src/assets/privateImages/coinsPrivate.svg';
+import ContactHeaderLight from 'src/assets/images/contact-header-light.svg';
+import ContactHeaderDark from 'src/assets/images/contact-header-dark.svg';
+import ContactFooterLight from 'src/assets/images/Contact-footer-light.svg';
+import ContactFooterDark from 'src/assets/images/Contact-footer-dark.svg';
+import ShareLight from 'src/assets/images/share-green.svg';
+import ShareDark from 'src/assets/images/share-white.svg';
+import ShareGold from 'src/assets/privateImages/share-gold-icon.svg';
+import ContactFooterGold from 'src/assets/privateImages/Contact-footor-gold-icon.svg';
+import ContactHeaderGold from 'src/assets/privateImages/contact-header-gold-icon.svg';
+import ContactHeaderWhite from 'src/assets/privateImages/contact-header-white.svg';
+import AddImageIcon from 'src/assets/images/add-image-icon.svg';
+import AddImageDark from 'src/assets/images/add-profile-dark.svg';
+import AddImageGold from 'src/assets/privateImages/add-profile-gold.svg';
+import ChangeProfileImageIcon from 'src/assets/images/change-profile-icon.svg';
+import ChangeProfileImageIconDark from 'src/assets/images/edit-profile-dark.svg';
+import PrivateChangeProfileImage from 'src/assets/privateImages/edit-profile-gold.svg';
+import AquireHeadrWhite from 'src/assets/privateImages/acquire-header-white.svg';
 import SwitchLightLogo from 'src/assets/images/switch-light-logo.svg';
 import SwitchDarkLogo from 'src/assets/images/switch-dark-logo.svg';
 import SwapDownGreenIcon from 'src/assets/images/swap-down-green-icon.svg';
@@ -323,6 +340,36 @@ import SwapDownWhiteIcon from 'src/assets/images/swap-down-white-icon.svg';
 import BuyBtcPRivate from 'src/assets/privateImages/buy-btc-header-private.svg';
 
 const themeIcons = {
+  edit_profile_icons: {
+    DARK: ChangeProfileImageIconDark,
+    LIGHT: ChangeProfileImageIcon,
+    PRIVATE: ChangeProfileImageIconDark,
+    PRIVATE_LIGHT: PrivateChangeProfileImage,
+  },
+  add_profile_icons: {
+    DARK: AddImageDark,
+    LIGHT: AddImageIcon,
+    PRIVATE: AddImageDark,
+    PRIVATE_LIGHT: AddImageGold,
+  },
+  share_icons: {
+    DARK: ShareDark,
+    LIGHT: ShareLight,
+    PRIVATE: ShareDark,
+    PRIVATE_LIGHT: ShareGold,
+  },
+  contact_footer: {
+    DARK: ContactFooterDark,
+    LIGHT: ContactFooterLight,
+    PRIVATE: ContactFooterGold,
+    PRIVATE_LIGHT: ContactFooterGold,
+  },
+  contact_header: {
+    DARK: ContactHeaderDark,
+    LIGHT: ContactHeaderLight,
+    PRIVATE: ContactHeaderWhite,
+    PRIVATE_LIGHT: ContactHeaderGold,
+  },
   swap_down_icon: {
     DARK: SwapDownWhiteIcon,
     LIGHT: SwapDownGreenIcon,

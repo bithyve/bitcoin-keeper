@@ -28,7 +28,7 @@ function ConciergeScreenWrapper({
       backgroundColor={backgroundcolor}
       style={[styles.wrapper, { paddingHorizontal: paddingHorizontal }, wrapperStyle]}
     >
-      <StatusBar barStyle={computedBarStyle} backgroundColor="transparent" />
+      {/* <StatusBar barStyle={computedBarStyle} backgroundColor="transparent" /> */}
       {children}
       {loading && (
         <Box
@@ -40,9 +40,9 @@ function ConciergeScreenWrapper({
           alignItems={'center'}
           justifyContent={'center'}
           bgColor={'#000'}
-          opacity={0.7}
+          opacity={0.5}
         >
-          <ActivityIndicator size="large" animating color="#00836A" />
+          <ActivityIndicator size="large" animating />
         </Box>
       )}
     </Box>

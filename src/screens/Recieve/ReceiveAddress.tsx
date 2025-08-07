@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
   },
   value: {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 18,
   },
   iconContainer: {
