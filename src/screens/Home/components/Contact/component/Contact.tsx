@@ -138,7 +138,8 @@ const Contact = () => {
   return (
     <Box style={styles.container}>
       <ActivityIndicatorView visible={loading} />
-      <ContactHeader
+      {/* can be used in the future  */}
+      {/* <ContactHeader
         userProfileImage={app.profilePicture}
         userProfileName={app.appName}
         setCreateProfile={setCreateProfile}
@@ -147,7 +148,7 @@ const Contact = () => {
         <Text color={`${colorMode}.modalSubtitleBlack`} medium fontSize={16}>
           {contactText.recentChats}
         </Text>
-      </Box>
+      </Box> */}
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
