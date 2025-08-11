@@ -28,6 +28,7 @@ import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 import { ContactsCta } from './ContactsCta';
 import { screenWidth } from 'react-native-gifted-charts/src/utils';
 import HireAdvisorIcon from 'src/assets/images/hire-advisor.svg';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 const Contact = () => {
   const { colorMode } = useColorMode();
@@ -44,13 +45,16 @@ const Contact = () => {
   const { showToast } = useToastMessage();
   const chatManager = ChatPeerManager.getInstance();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(!ChatPeerManager.isConnected);
 
   const initializeChat = async () => {
     try {
+      if (ChatPeerManager.isConnected) return;
       const chatPeerInitialized = await chatManager.init(app.primarySeed);
       if (!chatPeerInitialized) {
         throw new Error();
       }
+      setLoading(false);
     } catch (error) {
       console.error('Error initializing chat peer:', error);
       showToast('Chat Peer initialization failed', <ToastErrorIcon />);
@@ -133,6 +137,7 @@ const Contact = () => {
 
   return (
     <Box style={styles.container}>
+      <ActivityIndicatorView visible={loading} />
       <ContactHeader
         userProfileImage={app.profilePicture}
         userProfileName={app.appName}

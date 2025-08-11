@@ -22,6 +22,7 @@ import Relay from '../backend/Relay';
 export default class ChatPeerManager {
   static instance: ChatPeerManager;
   static isInitialized: boolean = false;
+  static isConnected: boolean = false;
   worklet: Worklet;
   IPC: any;
   rpc: any;
@@ -44,11 +45,22 @@ export default class ChatPeerManager {
 
   static resetInstance() {
     ChatPeerManager.instance = null;
+    ChatPeerManager.isConnected = false;
   }
 
   async init(seed: string): Promise<boolean> {
     try {
       await this.worklet.start('/app.bundle', bundle, [seed]);
+
+      const connectionPromise = new Promise<void>((resolve) => {
+        const originalCallback = this.onConnectionCallback;
+        this.onConnectionCallback = (data) => {
+          if (originalCallback) {
+            originalCallback(data);
+          }
+          resolve();
+        };
+      });
 
       this.rpc = new RPC(this.IPC, async (req) => {
         const data = b4a.toString(req.data);
@@ -59,6 +71,8 @@ export default class ChatPeerManager {
             this.onMessageCallback(JSON.parse(data));
           }
         } else if (req.command === ON_CONNECTION) {
+          console.log('ON_CONNECTION', data);
+          ChatPeerManager.isConnected = true;
           if (this.onConnectionCallback) {
             this.onConnectionCallback(JSON.parse(data));
           }
@@ -82,6 +96,7 @@ export default class ChatPeerManager {
           }
         }
       }
+      await connectionPromise;
       return true;
     } catch (error) {
       console.error('Error initializing chat peer manager:', error);
