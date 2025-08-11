@@ -171,6 +171,10 @@ export const customTheme = extendTheme({
       activationFeeText: Colors.secondaryLightGrey,
       greybeige: Colors.graybeige,
       AcquireText: Colors.primaryGreen,
+      stoneGrey: Colors.stoneGrey,
+      coolGrey: Colors.coolGrey,
+      subchatText: Colors.primaryBrown,
+      SlateWhite: Colors.DarkSlateGray,
     },
     dark: {
       modalWhiteContent: Colors.headerWhite,
@@ -294,6 +298,10 @@ export const customTheme = extendTheme({
       activationFeeText: Colors.bodyText,
       greybeige: Colors.secondaryBlack,
       AcquireText: Colors.bodyText,
+      stoneGrey: Colors.lightstone,
+      coolGrey: Colors.bodyText,
+      subchatText: Colors.primaryCream,
+      SlateWhite: Colors.primaryCream,
     },
   },
   config: {

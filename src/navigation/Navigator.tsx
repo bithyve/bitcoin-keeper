@@ -156,7 +156,9 @@ import UsdtTransactionHistory from 'src/screens/USDT/UsdtTransactionHistory';
 import Usdtsetting from 'src/screens/USDT/Usdtsetting';
 import { CloudBackupPassword } from 'src/screens/CloudBackup/CloudBackupPassword';
 import { ImportedWalletSetup } from 'src/screens/Vault/ImportedWalletSetup';
-import KeeperSupport from 'src/screens/KeeperConcierge/KeeperSupport';
+import ChatRoomScreen from 'src/screens/Home/components/Contact/ChatRoomScreen';
+import KeeperSupport from 'src/screens/Concierge/KeeperSupport';
+import ContactShareQr from 'src/screens/Home/components/Contact/ContactShowQr';
 import Advisors from 'src/screens/Advisors/Advisors';
 import FilterAdvisor from 'src/screens/Advisors/FilterAdvisor';
 import AdvisorDetail from 'src/screens/Advisors/AdvisorDetail';
@@ -285,6 +287,9 @@ function AppStack() {
         <Stack.Screen name="usdtTransactionDetail" component={UsdtTransactionDetail} />
         <Stack.Screen name="usdtTransactionHistory" component={UsdtTransactionHistory} />
         <Stack.Screen name="usdtsetting" component={Usdtsetting} />
+        <Stack.Screen name="ChatRoomScreen" component={ChatRoomScreen} />
+        <Stack.Screen name="keeperSupport" component={KeeperSupport} />
+        <Stack.Screen name="ContactShareQr" component={ContactShareQr} />
 
         <Stack.Screen name="SetupSeedWordSigner" component={SetupSeedWordSigner} />
         <Stack.Screen name="ArchivedVault" component={ArchivedVault} />

@@ -1,0 +1,10 @@
+export const RPC_KEY = 1;
+export const RPC_KEY_RECEIVED = 2;
+export const GET_KEYS = 4;
+export const GET_PEERS = 5;
+export const RPC_TEST = 3;
+export const ON_CONNECTION = 6;
+export const ON_MESSAGE = 7;
+export const ON_ERROR = 8;
+export const SEND_MESSAGE = 9;
+export const JOIN_PEER = 10;

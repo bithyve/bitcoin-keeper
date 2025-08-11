@@ -280,6 +280,29 @@ export default class Relay {
     };
   };
 
+  public static updateContactsKey = async (
+    id: string,
+    contactsKey: string
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}updateContactsKey`, {
+        id,
+        contactsKey,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    const { updated } = res.data || res.json;
+    return {
+      updated,
+    };
+  };
+
   public static modifyLabels = async (
     appId: string,
     addLabels: any[],

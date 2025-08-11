@@ -189,7 +189,7 @@ function* credentialsAuthWorker({ payload }) {
         yield select((state) => state.storage);
 
       // setting correct app id from realm at login
-      const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const keeperApp: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
       if (keeperApp?.id) yield put(setAppId(keeperApp.id));
 
       // Store temporary account details

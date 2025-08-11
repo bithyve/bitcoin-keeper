@@ -25,6 +25,8 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import Buttons from 'src/components/Buttons';
+import ShareDark from 'src/assets/images/share-white.svg';
 
 const decoder = new URRegistryDecoder();
 
@@ -49,10 +51,11 @@ function ScanQR() {
     Illustration,
     Instructions,
     isSingning = false,
+    contactShareData = null,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
-  const { common, signer: signerText, wallet: walletText } = translations;
+  const { common, signer: signerText, wallet: walletText, contactText } = translations;
   const { showToast } = useToastMessage();
   const [inputText, setInputText] = useState('');
 
@@ -160,6 +163,18 @@ function ScanQR() {
           {showNote && (
             <Box style={styles.noteWrapper}>
               <Note title={common.note} subtitle={common.scanQRNote} />
+            </Box>
+          )}
+          {contactShareData && (
+            <Box style={styles.noteWrapper}>
+              <Buttons
+                primaryText={contactText.shareContact}
+                primaryCallback={() => {
+                  navigation.navigate('ContactShareQr', { data: contactShareData });
+                }}
+                fullWidth
+                LeftIcon={ShareDark}
+              />
             </Box>
           )}
           <KeeperModal
