@@ -150,16 +150,16 @@ const RAMP_SUPPORTED_COUNTRIES = [
 export const useIsRampAvailable = () => {
   const isAndroid = Platform.OS === 'android';
   const [isRampAvailable, setIsRampAvailable] = useState(isAndroid);
-  const country = getCountry();
+  // const country = getCountry();
 
-  useEffect(() => {
-    checkRampAvailability();
-  }, []);
+  // useEffect(() => {
+  //   checkRampAvailability();
+  // }, []);
 
-  const checkRampAvailability = () => {
-    if (isAndroid) return;
-    setIsRampAvailable(RAMP_SUPPORTED_COUNTRIES.includes(country.toLowerCase()));
-  };
+  // const checkRampAvailability = () => {
+  //   if (isAndroid) return;
+  //   setIsRampAvailable(RAMP_SUPPORTED_COUNTRIES.includes(country.toLowerCase()));
+  // };
 
   return { isRampAvailable };
 };
