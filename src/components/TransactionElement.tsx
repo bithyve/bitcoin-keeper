@@ -121,7 +121,7 @@ function TransactionElement({
             amount={amount}
             fontSize={15}
             color={`${colorMode}.primaryText`}
-            balanceMaxWidth={wp(90)}
+            balanceMaxWidth={wp(80)}
             variation={colorMode === 'light' ? 'richBlack' : 'light'}
             wallet={wallet}
           />

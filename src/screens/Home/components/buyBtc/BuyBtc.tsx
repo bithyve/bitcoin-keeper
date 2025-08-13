@@ -22,7 +22,7 @@ import BtcAcquireIcon from 'src/assets/images/bitcoin-acquire-icon.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { fetchSellBtcLink, fetchSellUsdtLink } from 'src/services/thirdparty/ramp';
-import Note from 'src/components/Note/Note';
+import Buttons from 'src/components/Buttons';
 
 const BuyBtc = () => {
   const { colorMode } = useColorMode();
@@ -99,7 +99,8 @@ const BuyBtc = () => {
                 else showToast('Please create a wallet to proceed.', <ToastErrorIcon />);
               }}
               sellCallback={() => {
-                setVisibleSellBtc(true);
+                if (allWallets.length > 0) setVisibleSellBtc(true);
+                else showToast("You don't have BTC yet.", <ToastErrorIcon />);
               }}
               graphContent={<BtcGraph dataSet={graphData} spacing={50} />}
             />
@@ -113,12 +114,23 @@ const BuyBtc = () => {
                 else showToast('Please create a USDT wallet to proceed.', <ToastErrorIcon />);
               }}
               sellCallback={() => {
-                setVisibleSellUsdt(true);
+                if (usdtWallets.length > 0) {
+                  setVisibleSellUsdt(true);
+                } else showToast("You don't have USDT yet.", <ToastErrorIcon />);
               }}
             />
           </ScrollView>
           <Box style={styles.button_container}>
-            <Note title={common.note} subtitle={buyBTCText.transactionOnRamp} />
+            <Buttons
+              primaryText={buyBTCText.swapButton}
+              primaryCallback={() => {
+                navigation.dispatch(CommonActions.navigate('Swaps'));
+              }}
+              fullWidth
+            />
+          </Box>
+          <Box style={{ marginBottom: hp(12), paddingHorizontal: wp(12) }}>
+            <Text fontSize={13}>{buyBTCText.transactionOnRamp}</Text>
           </Box>
         </>
       ) : (

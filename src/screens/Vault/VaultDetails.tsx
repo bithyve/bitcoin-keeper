@@ -200,6 +200,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [currentMedianTimePast, setCurrentMedianTimePast] = useState<number | null>(null);
   const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
   const [showmore, setShowMore] = useState(false);
+  const [loadingMiniscript, setLoadingMiniscript] = useState(false);
 
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
@@ -445,7 +446,9 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   const selectVaultSpendingPaths = async () => {
     if (miniscriptPathSelectorRef.current) {
+      setLoadingMiniscript(true);
       await miniscriptPathSelectorRef.current.selectVaultSpendingPaths();
+      setLoadingMiniscript(false);
     }
   };
 
@@ -460,12 +463,10 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 
   return (
     <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={syncing} showLoader />
+      <ActivityIndicatorView visible={syncing || loadingMiniscript} showLoader />
       <WalletDetailHeader
         settingCallBack={() => {
           if (!vault.archived) {
-            console.log('clicked');
-
             navigation.dispatch(CommonActions.navigate('VaultSettings', { vaultId: vault.id }));
           } else {
             navigation.push('VaultSettings', { vaultId: vault.id });

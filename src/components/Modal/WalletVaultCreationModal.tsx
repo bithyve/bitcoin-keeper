@@ -104,6 +104,7 @@ function WalletVaultCreationModal(props) {
       subTitleColor={`${colorMode}.modalSubtitleBlack`}
       subTitleWidth={wp(280)}
       showCloseIcon={false}
+      loading={props.loading}
     />
   );
 }

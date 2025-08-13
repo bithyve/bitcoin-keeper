@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     gap: wp(8),
   },
   heading: {
-    fontSize: 13,
+    fontSize: 12,
     letterSpacing: 0.13,
     lineHeight: 16,
   },

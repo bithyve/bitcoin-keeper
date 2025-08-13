@@ -3,35 +3,23 @@ import ResellerCard from './ResellerCard';
 import { Box } from 'native-base';
 import usePlan from 'src/hooks/usePlan';
 import { StyleSheet } from 'react-native';
-import { hp } from 'src/constants/responsive';
-import BitSaga from 'src/assets/images/bit-saga-icon.svg';
+import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import FastImage from 'react-native-fast-image';
 
-const HardwareReseller = () => {
+const HardwareReseller = ({ resellers }) => {
   const { isOnL1 } = usePlan();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletText } = translations;
-
-  const data = [
-    {
-      title: walletText.hardwareBitSaga,
-      country: walletText.hardwareBitSagaCountry,
-      subTitle: walletText.hardwareBitSagaSubTitle,
-      icon: <BitSaga />,
-      subscribeText: '',
-      unSubscribeText: '',
-      link: '',
-    },
-  ];
   return (
     <Box style={styles.container}>
-      {data.map((item) => (
+      {resellers.map((item) => (
         <ResellerCard
-          key={item.title}
+          key={item.id}
           title={item.title}
           location={item.country}
           subTitle={item.subTitle}
-          icon={item.icon}
+          icon={<FastImage source={{ uri: item.icon }} style={styles.icon} />}
           plan={isOnL1}
           subscribeText={item.subscribeText}
           unSubscribeText={item.unSubscribeText}
@@ -50,5 +38,10 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 14,
     paddingVertical: hp(20),
+  },
+  icon: {
+    height: wp(40),
+    width: wp(40),
+    borderRadius: wp(8),
   },
 });
