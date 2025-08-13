@@ -5,6 +5,7 @@ import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
+import { Platform } from 'react-native';
 
 const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
@@ -598,6 +599,160 @@ export default class Relay {
       console.log('err', err);
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getSwapCoins = async (): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}getSwapCoins`);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Swap ~ getCoins ~ error:', error);
+      throw new Error(error.message ?? 'Something went wrong');
+    }
+  };
+
+  public static getSwapQuote = async (body): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}getSwapQuote`, body);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ getSwapQuote ~ error:', error);
+      throw new Error(error.message ?? 'Something went wrong');
+    }
+  };
+
+  public static createSwapTnx = async (body): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}createSwapTnx`, body);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ createSwapTnx ~ error:', error);
+      throw new Error(error?.response?.data ?? 'Something went wrong');
+    }
+  };
+
+  public static getSwapTnxDetails = async (tnxId): Promise<any> => {
+    try {
+      const res = await RestClient.get(`${RELAY}getSwapTnxDetails?tnxId=${tnxId}`);
+      return res.data;
+    } catch (error) {
+      console.log('🚀 ~ Relay ~ getSwapTnxDetails ~ error:', error);
+      throw new Error(error.message ?? 'Something went wrong');
+    }
+  };
+
+  public static uploadZendeskImages = async (imageObject): Promise<any> => {
+    let res;
+    try {
+      const formData = new FormData();
+      imageObject.forEach(async (image) => {
+        formData.append('files', {
+          uri: image.uri,
+          name: image.fileName,
+          type: image.type,
+        });
+      });
+      res = await RestClient.post(`${RELAY}uploadZendeskImages`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ uploadZendeskImages ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getZendeskTickets = async (conciergeUserId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getZendeskTickets?conciergeUserId=${conciergeUserId}`);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getZendeskTickets ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getZendeskTicketComments = async (ticketId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getZendeskTicketComments?ticketId=${ticketId}`);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getZendeskTicketComments ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getZendeskUser = async (userExternalId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getZendeskUser?userExternalId=${userExternalId}`);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getZendeskUser ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static createZendeskUser = async (userExternalId): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}createZendeskUser`, {
+        userExternalId,
+        os: Platform.OS,
+      });
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ getZendeskUser ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static addZendeskComment = async (ticketId, conciergeUserId, desc): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}addZendeskComment`, {
+        ticketId,
+        conciergeUserId,
+        desc,
+      });
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ addZendeskComment ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static createZendeskTicket = async (data): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}createZendeskTicket`, data);
+    } catch (err) {
+      console.log('🚀 ~ Relay ~ createZendeskTicket ~ err:', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res ? res.data || res.json : null;
+  };
+
+  public static getAdvisors = async (): Promise<any> => {
+    let res;
+    try {
+      res = await RestClient.get(`${RELAY}getAdvisors`);
+    } catch (err) {
+      if (err?.message) throw new Error(err.message);
+      if (err?.code) throw new Error(err.code);
     }
     return res ? res.data || res.json : null;
   };

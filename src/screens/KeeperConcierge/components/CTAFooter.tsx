@@ -25,7 +25,7 @@ const CTAFooter = ({ onAttachScreenshot, addAttributes, onNext }) => {
         if (response.assets && response.assets.length > 0) {
           const uris = [];
           response.assets.forEach((img) => {
-            uris.push(img.uri);
+            uris.push(img);
           });
           onAttachScreenshot(uris);
         }

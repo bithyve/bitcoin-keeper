@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import DeviceCard from './DeviceCard';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
@@ -18,29 +18,14 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import TrezorDevices from './TrezorDevices';
 import CoinkiteDevices from './CoinkiteDevices';
-import Relay from 'src/services/backend/Relay';
-import { useAppSelector } from 'src/store/hooks';
 
-const HardwareDevices = () => {
+const HardwareDevices = ({ sellers }) => {
   const { isOnL1 } = usePlan();
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletText } = translations;
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
   const [coinkiteOpen, setCoinkiteOpen] = useState(false);
-  const [sellers, setSellers] = useState([]);
-  const appId = useAppSelector((state) => state.storage.appId);
-
-  useEffect(() => {
-    const fetchHardwareReferralLinks = async () => {
-      const result = await Relay.fetchHardwareReferralLinks(appId);
-      if (result?.sellers) {
-        setSellers(result.sellers);
-      }
-    };
-
-    fetchHardwareReferralLinks();
-  }, []);
 
   const getSellerLink = (identifier) => {
     const seller = sellers.find((s) => s.identifier === identifier);
@@ -55,8 +40,8 @@ const HardwareDevices = () => {
       flagIcon: <FlagSwizerland />,
       country: walletText.hardwareBitBoxCountry,
       link: getSellerLink('bitbox'),
-      subscribeText: '',
-      unSubscribeText: '',
+      subscribeText: walletText.hardwareBitboxDiscount,
+      unSubscribeText: walletText.hardwareBitboxDiscount,
     },
     {
       id: 2,

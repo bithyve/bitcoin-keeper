@@ -21,13 +21,15 @@ import useSignerFromKey from 'src/hooks/useSignerFromKey';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletCopiableData from 'src/components/WalletCopiableData';
 import useSignerMap from 'src/hooks/useSignerMap';
-import { getKeyUID, isHexadecimal } from 'src/utils/utilities';
+import { getKeyUID, isHexadecimal, validatePSBT } from 'src/utils/utilities';
 import DisplayQR from '../QRScreens/DisplayQR';
 import { SendConfirmationRouteParams, tnxDetailsProps } from '../Send/SendConfirmation';
 import KeeperQRCode from 'src/components/KeeperQRCode';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletUtilities from 'src/services/wallets/operations/utils';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { hp } from 'src/constants/responsive';
 const { width } = Dimensions.get('window');
 
@@ -38,7 +40,7 @@ function SignWithQR() {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const { translations } = useContext(LocalizationContext);
-  const { transactions, wallet: walletText } = translations;
+  const { transactions, wallet: walletText, error: errorText } = translations;
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -71,12 +73,15 @@ function SignWithQR() {
   const { signer } = isRemoteKey
     ? { signer: signerMap[getKeyUID(vaultKey)] }
     : useSignerFromKey(vaultKey);
+  const { showToast } = useToastMessage();
 
   const signTransaction = (signedSerializedPSBT) => {
     try {
       if (!isHexadecimal(signedSerializedPSBT)) {
         Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
       }
+      // validate psbt
+      validatePSBT(serializedPSBT, signedSerializedPSBT, signer, errorText);
       dispatch(
         healthCheckStatusUpdate([
           {
@@ -139,8 +144,14 @@ function SignWithQR() {
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
       captureError(err);
-      Alert.alert('Invalid QR, please scan the signed PSBT!');
-      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
+      if (err?.message) {
+        showToast(err?.message, <ToastErrorIcon />);
+        navigation.goBack();
+        return;
+      } else {
+        Alert.alert('Invalid QR, please scan the signed PSBT!');
+        navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
+      }
     }
   };
 
