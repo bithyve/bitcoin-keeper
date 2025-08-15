@@ -3,6 +3,7 @@ import { AppState, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { setHasDeepLink } from 'src/store/reducers/login';
+import ChatPeerManager from 'src/services/p2p/ChatPeerManager';
 
 const PASSCODE_TIMEOUT = 5 * 60 * 1000;
 
@@ -33,6 +34,7 @@ const AppStateHandler = () => {
           Date.now() - lastBackgroundTime > PASSCODE_TIMEOUT
         ) {
           dispatch(setHasDeepLink(triggeredDeepLink));
+          ChatPeerManager.resetInstance();
           navigation.reset({
             index: 0,
             routes: [

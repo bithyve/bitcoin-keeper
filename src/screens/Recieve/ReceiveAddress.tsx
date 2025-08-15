@@ -42,7 +42,7 @@ function ReceiveAddress({ address }: Props) {
     >
       <Box style={styles.textContainer}>
         <Text color={`${colorMode}.GreyText`} style={styles.value}>
-          {address}
+          {address.length > 50 ? address.slice(0, 50) + '...' : address}
         </Text>
       </Box>
       <Pressable
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(6),
   },
   value: {
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 18,
   },
   iconContainer: {

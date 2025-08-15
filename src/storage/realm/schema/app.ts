@@ -15,6 +15,8 @@ export const KeeperAppSchema: ObjectSchema = {
     subscription: RealmSchema.StoreSubscription,
     backup: RealmSchema.Backup,
     enableAnalytics: { type: 'bool', default: false },
+    contactsKey: 'string?{}',
+    profilePicture: 'string?',
   },
   primaryKey: 'id',
 };
