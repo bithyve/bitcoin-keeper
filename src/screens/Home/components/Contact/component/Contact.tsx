@@ -202,6 +202,7 @@ const Contact = () => {
                   isSingning: true,
                   contactShareData: contactShareLink,
                   isPSBT: true,
+                  placeholder: 'or paste text',
                 },
               })
             );

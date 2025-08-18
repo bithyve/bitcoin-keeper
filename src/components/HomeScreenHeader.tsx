@@ -169,6 +169,10 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
       dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
       navigtaion.dispatch(CommonActions.navigate('ChoosePlan', { showDiscounted: true }));
     },
+    [uaiType.CONTACTS]: () => {
+      dispatch(uaiActioned({ uaiId: localLatestUnseenUai.id, action: false }));
+      navigtaion.dispatch(CommonActions.navigate('Home', { selectedOption: 'Contacts' }));
+    },
   };
 
   return (

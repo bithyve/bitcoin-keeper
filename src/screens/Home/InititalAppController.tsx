@@ -287,7 +287,9 @@ function InititalAppController({ navigation, electrumErrorVisible, setElectrumEr
   };
 
   const handleZendeskNotificationRedirection = (data) => {
-    if (data?.notificationType === notificationType.ZENDESK_TICKET) {
+    if (data?.notificationType === notificationType.CONTACTS) {
+      navigation.dispatch(CommonActions.navigate('Home', { selectedOption: 'Contacts' }));
+    } else if (data?.notificationType === notificationType.ZENDESK_TICKET) {
       const { ticketId = null, ticketStatus = null } = data;
       if (ticketId && ticketStatus)
         navigation.navigate({

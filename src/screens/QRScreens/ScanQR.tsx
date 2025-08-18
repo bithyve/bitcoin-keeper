@@ -27,6 +27,7 @@ import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import Buttons from 'src/components/Buttons';
 import ShareDark from 'src/assets/images/share-white.svg';
+import { useKeyboard } from 'src/hooks/useKeyboard';
 
 const decoder = new URRegistryDecoder();
 
@@ -52,6 +53,7 @@ function ScanQR() {
     Instructions,
     isSingning = false,
     contactShareData = null,
+    placeholder = null,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -63,6 +65,7 @@ function ScanQR() {
   const isDarkMode = colorMode === 'dark';
   const isHealthCheck = mode === InteracationMode.HEALTH_CHECK;
   const [infoModal, setInfoModal] = useState(false);
+  const isKeyboardOpen = useKeyboard();
 
   const onTextSubmit = (data) => {
     if (!data.startsWith('UR') && !data.startsWith('ur')) {
@@ -127,7 +130,7 @@ function ScanQR() {
                     borderColor={`${colorMode}.greyBorder`}
                   >
                     <Input
-                      placeholder="or paste PSBT text"
+                      placeholder={placeholder ?? 'or paste PSBT text'}
                       placeholderTextColor={`${colorMode}.primaryText`}
                       style={styles.textInput}
                       variant="unstyled"
@@ -165,7 +168,7 @@ function ScanQR() {
               <Note title={common.note} subtitle={common.scanQRNote} />
             </Box>
           )}
-          {contactShareData && (
+          {!isKeyboardOpen && contactShareData && (
             <Box style={styles.noteWrapper}>
               <Buttons
                 primaryText={contactText.shareContact}
