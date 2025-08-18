@@ -7,7 +7,7 @@ import { notificationType } from 'src/models/enums/Notifications';
 import { useDispatch } from 'react-redux';
 import { addTicketStatusUAI } from 'src/store/sagaActions/concierge';
 import { uaiType } from 'src/models/interfaces/Uai';
-import { uaiChecks } from 'src/store/sagaActions/uai';
+import { addToUaiStack, uaiChecks } from 'src/store/sagaActions/uai';
 
 const NotificationHandler = () => {
   const [showRemoteNotificationModel, setShowRemoteNotificationModel] = useState(false);
@@ -16,7 +16,10 @@ const NotificationHandler = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      if (remoteMessage.data?.notificationType === notificationType.REMOTE_KEY_SHARE) {
+      if (remoteMessage.data?.notificationType === notificationType.CONTACTS) {
+        dispatch(addToUaiStack({ uaiType: uaiType.CONTACTS }));
+        dispatch(uaiChecks([uaiType.CONTACTS]));
+      } else if (remoteMessage.data?.notificationType === notificationType.REMOTE_KEY_SHARE) {
         setForegroundNotifcation(remoteMessage);
         setShowRemoteNotificationModel(true);
       } else if (remoteMessage.data?.notificationType === notificationType.ZENDESK_TICKET) {

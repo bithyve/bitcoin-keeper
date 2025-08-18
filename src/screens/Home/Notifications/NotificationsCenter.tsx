@@ -81,6 +81,7 @@ const SUPPORTED_NOTOFOCATION_TYPES = [
   uaiType.INCOMING_TRANSACTION,
   uaiType.SERVER_BACKUP_FAILURE,
   uaiType.CAMPAIGN,
+  uaiType.CONTACTS,
 ];
 
 const Card = memo(({ uai }: CardProps) => {
@@ -341,6 +342,23 @@ const Card = memo(({ uai }: CardProps) => {
               cta: () => {
                 dispatch(uaiActioned({ uaiId: uai.id, action: false }));
                 navigtaion.dispatch(CommonActions.navigate('ChoosePlan', { showDiscounted: true }));
+              },
+            },
+          },
+        };
+      }
+
+      case uaiType.CONTACTS: {
+        return {
+          heading: content.heading,
+          body: content.body,
+          icon: content.icon,
+          btnConfig: {
+            primary: {
+              text: 'View',
+              cta: () => {
+                dispatch(uaiActioned({ uaiId: uai.id, action: false }));
+                navigtaion.dispatch(CommonActions.navigate('Home', { selectedOption: 'Contacts' }));
               },
             },
           },
@@ -633,6 +651,12 @@ export const getUaiContent = (type: uaiType, details?: any) => {
         heading: '25% off on Diamond Hands this week',
         body: 'Plan your inheritance and improve your security',
         icon: <DiscountIcon />,
+      };
+    case uaiType.CONTACTS:
+      return {
+        heading: 'Contacts',
+        body: 'You have a new message',
+        icon: <TechSupportIcon />, // !
       };
 
     default:

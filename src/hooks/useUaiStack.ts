@@ -21,6 +21,7 @@ export const uaiPriorityMap: UAIPriorityMap = {
   [uaiType.POLICY_DELAY]: 90,
   [uaiType.INCOMING_TRANSACTION]: 100,
   [uaiType.CAMPAIGN]: 101,
+  [uaiType.CONTACTS]: 101,
 };
 
 const useUaiStack = (): { uaiStack: UAI[]; isLoading: boolean } => {
