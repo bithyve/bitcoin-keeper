@@ -218,18 +218,21 @@ export default class ChatPeerManager {
               (community as any).key
             );
             const messageData = JSON.parse(decryptedMessage);
-            dbManager.createObject(RealmSchema.Message, {
-              id: messageData.id,
-              communityId: messageData.communityId,
-              type: messageData.type,
-              text: messageData.text,
-              createdAt: msg.timestamp,
-              sender: messageData.sender,
-              block: msg.blockNumber,
-              unread: true,
-              fileUrl: message?.fileUrl,
-              request: message?.request,
-            });
+            const existingMessage = dbManager.getObjectById(RealmSchema.Message, messageData.id);
+            if (!existingMessage) {
+              dbManager.createObject(RealmSchema.Message, {
+                id: messageData.id,
+                communityId: messageData.communityId,
+                type: messageData.type,
+                text: messageData.text,
+                createdAt: msg.timestamp,
+                sender: messageData.sender,
+                block: msg.blockNumber,
+                unread: true,
+                fileUrl: message?.fileUrl,
+                request: message?.request,
+              });
+            }
           }
         }
       }
