@@ -39,6 +39,7 @@ import { backupAllSignersAndVaults } from 'src/store/sagaActions/bhr';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import Fonts from 'src/constants/Fonts';
+import ContactIcon from 'src/assets/images/Contact-footer-dark.svg';
 
 type CardProps = {
   uai: any;
@@ -656,7 +657,7 @@ export const getUaiContent = (type: uaiType, details?: any) => {
       return {
         heading: 'Contacts',
         body: 'You have a new message',
-        icon: <TechSupportIcon />, // !
+        icon: <ContactIcon />,
       };
 
     default:
