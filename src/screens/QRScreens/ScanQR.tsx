@@ -52,6 +52,7 @@ function ScanQR() {
     Instructions,
     isSingning = false,
     contactShareData = null,
+    placeholder = null,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -127,7 +128,7 @@ function ScanQR() {
                     borderColor={`${colorMode}.greyBorder`}
                   >
                     <Input
-                      placeholder="or paste PSBT text"
+                      placeholder={placeholder ?? 'or paste PSBT text'}
                       placeholderTextColor={`${colorMode}.primaryText`}
                       style={styles.textInput}
                       variant="unstyled"

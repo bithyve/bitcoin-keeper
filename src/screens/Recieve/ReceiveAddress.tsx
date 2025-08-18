@@ -41,7 +41,7 @@ function ReceiveAddress({ address }: Props) {
       borderColor={`${colorMode}.dullGreyBorder`}
     >
       <Box style={styles.textContainer}>
-        <Text color={`${colorMode}.GreyText`} style={styles.value}>
+        <Text color={`${colorMode}.GreyText`} style={styles.value} numberOfLines={2}>
           {address.length > 50 ? address.slice(0, 50) + '...' : address}
         </Text>
       </Box>
