@@ -62,9 +62,6 @@ function ColdCardContent({
     return (
       <Box alignItems="center">
         <ThemedSvg name={'coldCard_illustration'} />
-        <Box marginTop={4}>
-          <Instruction text={message} />
-        </Box>
       </Box>
     );
   }
