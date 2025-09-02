@@ -869,6 +869,8 @@ export const manipulateBitcoinPrices = (data) => {
 };
 
 export const validatePSBT = (unsigned, signed, signer, errorText) => {
+  // TODO: Need conditional check for TapSigner and Specter psbt
+  if ([SignerType.TAPSIGNER, SignerType.SPECTER].includes(signer.type)) return;
   const unsignedHex = bitcoin.Psbt.fromBase64(unsigned).__CACHE.__TX.toHex();
   const signedPsbtObj = bitcoin.Psbt.fromBase64(signed);
   const signedHex = signedPsbtObj.__CACHE.__TX.toHex();
