@@ -869,8 +869,11 @@ export const manipulateBitcoinPrices = (data) => {
 };
 
 export const validatePSBT = (unsigned, signed, signer, errorText) => {
-  // TODO: Need conditional check for TapSigner and Specter psbt
-  if ([SignerType.TAPSIGNER, SignerType.SPECTER, SignerType.SEEDSIGNER].includes(signer.type))
+  if (
+    [SignerType.TAPSIGNER, SignerType.SPECTER, SignerType.SEEDSIGNER, SignerType.KRUX].includes(
+      signer.type
+    )
+  )
     return;
   const unsignedHex = bitcoin.Psbt.fromBase64(unsigned).__CACHE.__TX.toHex();
   const signedPsbtObj = bitcoin.Psbt.fromBase64(signed);
@@ -879,12 +882,7 @@ export const validatePSBT = (unsigned, signed, signer, errorText) => {
     throw new Error(errorText.psbtNotMatch);
   }
   let signerPublicKey;
-  try {
-    signerPublicKey = getInputsToSignFromPSBT(signed, signer).map((data) => data.publicKey)[0];
-  } catch (error) {
-    console.log('🚀 ~ validatePSBT ~ error:', error);
-    return;
-  }
+  signerPublicKey = getInputsToSignFromPSBT(unsigned, signer).map((data) => data.publicKey)[0];
   let isSigned = false;
   const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
     ECPair.fromPublicKey(pubkey).verify(msghash, signature);
