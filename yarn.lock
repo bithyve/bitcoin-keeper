@@ -10099,13 +10099,6 @@ react-native-blob-util@0.18.3:
     base-64 "0.1.0"
     glob "^7.2.3"
 
-react-native-camera@4.2.1:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-camera/-/react-native-camera-4.2.1.tgz#caf74081f055e89d7e9b0cd5108965d808c60e90"
-  integrity sha512-+Vkql24PFYQfsPRznJCvPwJQfyzCnjlcww/iZ4Ej80bgivKjL9eU0IMQIXp4yi6XCrKi4voWXxIDPMupQZKeIQ==
-  dependencies:
-    prop-types "^15.6.2"
-
 react-native-change-icon@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/react-native-change-icon/-/react-native-change-icon-5.0.0.tgz#40547a278fa9e3e9f5ff2c79dba89561da51cc88"
@@ -10266,13 +10259,6 @@ react-native-pdf@^6.7.7:
     crypto-js "4.2.0"
     deprecated-react-native-prop-types "^2.3.0"
 
-react-native-qr-decode-image-camera@1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/react-native-qr-decode-image-camera/-/react-native-qr-decode-image-camera-1.1.2.tgz#28ec7ee98e82a287d7b66052f824d1bbd66d4536"
-  integrity sha512-9F6DHFeD4rp380rzg23U8GQASjqP/rv1DmcXB/gGu3Jd/3ra0qoyCAdHTwzrAeS/8nWOSDFvQ6YrVs5nFoBbNg==
-  dependencies:
-    prop-types "^15.8.1"
-
 react-native-qrcode-svg@6.3.2:
   version "6.3.2"
   resolved "https://registry.yarnpkg.com/react-native-qrcode-svg/-/react-native-qrcode-svg-6.3.2.tgz#84b2bb37201589cff1ab58e7f7c884c5133fe47f"
@@ -10382,6 +10368,11 @@ react-native-tor@0.1.8:
   dependencies:
     "@types/async" "^3.2.6"
     async "^3.2.0"
+
+react-native-vision-camera@^4.7.2:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/react-native-vision-camera/-/react-native-vision-camera-4.7.2.tgz#e4bd8f3d893a3f5fa9d8224ce28b8ef00d171bc1"
+  integrity sha512-C+5PvlSunN6I4aYplSask+v3jfhgduZumIVw6H6lG+Afpf8boIcG3uFSsSfVgj+hxI7fx6qM6bsciEhzgxEUYg==
 
 react-native@0.77.3:
   version "0.77.3"
@@ -10840,6 +10831,11 @@ ripemd160@2.0.2, ripemd160@^2.0.0, ripemd160@^2.0.1:
     run-parallel "^1.1.2"
     semver "^5.0.1"
     xtend "^4.0.0"
+
+rn-qr-generator@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/rn-qr-generator/-/rn-qr-generator-1.4.4.tgz#388f5c6890033c9adc80dc512ceeccf07e2ac652"
+  integrity sha512-UCysUaFHtQWByMA8fmbn/hbbqPNW9vCKpWrCQ9VqVnM3Z39KgMOpIo2W3yLTVENu45A4E1YDy/f8B2Vh29JRTQ==
 
 run-parallel@^1.1.2, run-parallel@^1.1.9:
   version "1.2.0"

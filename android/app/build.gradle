@@ -163,6 +163,7 @@ android {
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
     implementation("com.facebook.react:react-android")
       implementation 'com.facebook.fresco:fresco:3.6.0'
     implementation 'com.facebook.fresco:animated-gif:3.6.0'
