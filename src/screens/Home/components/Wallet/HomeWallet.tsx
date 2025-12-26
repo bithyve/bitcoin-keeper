@@ -1,6 +1,6 @@
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useState, useEffect } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
 import DashedCta from 'src/components/DashedCta';
 import WalletCard from './WalletCard';
 import Colors from 'src/theme/Colors';
@@ -10,7 +10,12 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import { EntityKind, VisibilityType, WalletType } from 'src/services/wallets/enums';
+import {
+  DerivationPurpose,
+  EntityKind,
+  VisibilityType,
+  WalletType,
+} from 'src/services/wallets/enums';
 import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
@@ -23,7 +28,7 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
-import { autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
+import { addNewWallets, autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -43,6 +48,22 @@ import {
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Fonts from 'src/constants/Fonts';
+import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
+import IconArrowWhite from 'src/assets/images/icon_arrow_white.svg';
+import CreateWalletIcon from 'src/assets/images/createWallet.svg';
+import CreateVaultIcon from 'src/assets/images/createVault1.svg';
+import CreateMultiVaultIcon from 'src/assets/images/createVault2.svg';
+import CreateWalletIllustration from 'src/assets/images/createWalletIllustration.svg';
+import { NewWalletInfo } from 'src/store/sagas/wallets';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
+import { setupKeeperSigner } from 'src/hardware/signerSetup';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -81,6 +102,12 @@ const HomeWallet = () => {
     ...usdtWallets,
   ].filter((item) => item !== null);
   const [isShowAmount, setIsShowAmount] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
+  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
   const DashedCta_hexagonBackgroundColor = ThemedColor({
     name: 'DashedCta_hexagonBackgroundColor',
   });
@@ -88,6 +115,18 @@ const HomeWallet = () => {
     name: 'dashed_CTA_background',
   });
   const { showToast } = useToastMessage();
+
+  useEffect(() => {
+    if (relayWalletUpdate) {
+      dispatch(resetRealyWalletState());
+      setLoading(false);
+    }
+    if (relayWalletError) {
+      showToast(realyWalletErrorMessage || walletText.walletCreationFailed, <ToastErrorIcon />);
+      setLoading(false);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError]);
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -236,9 +275,130 @@ const HomeWallet = () => {
     );
   };
 
+  const createNewHotWallet = () => {
+    setLoading(true);
+    try {
+      let lastInstanceNum = -1;
+      wallets.forEach((wallet) => {
+        if (wallet.type === WalletType.DEFAULT) {
+          // improves the instance number generation logic(accounts for deleted wallets as well)
+          lastInstanceNum = Math.max(lastInstanceNum, wallet.derivationDetails.instanceNum);
+        }
+      });
+      const newWallet: NewWalletInfo = {
+        walletType: WalletType.DEFAULT,
+        walletDetails: {
+          name: `Mobile Wallet ${lastInstanceNum == -1 ? '' : lastInstanceNum + 2}`,
+          description: '',
+          derivationPath: WalletUtilities.getDerivationPath(
+            false,
+            bitcoinNetworkType,
+            0,
+            DerivationPurpose.BIP84
+          ),
+          instanceNum: lastInstanceNum + 1,
+        },
+      };
+      getCosignerDetails(primaryMnemonic as string, lastInstanceNum + 1).then((cosigner) => {
+        const hw = setupKeeperSigner(cosigner);
+        if (hw) {
+          dispatch(addSigningDevice([hw.signer]));
+        }
+      });
+      dispatch(addNewWallets([newWallet]));
+    } catch (error) {
+      console.log('Error');
+      setLoading(false);
+    }
+  };
+
+  const createNewVault = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AddSigningDevice',
+        params: {
+          scheme: { m: 1, n: 1 },
+          currentBlockHeight: null,
+          hasInitialTimelock: false,
+          isNewSchemeFlow: true,
+        },
+      })
+    );
+  };
+
+  const EmptyWalletComponent = () => {
+    const OPTIONS = [
+      {
+        title: walletText.hotWallet,
+        subtitle: walletText.hotWalletDesc,
+        icon: <CreateWalletIcon />,
+        onPress: createNewHotWallet,
+        id: 'newWallet',
+      },
+      {
+        title: walletText.coldStorage,
+        subtitle: walletText.coldStorageDesc,
+        icon: <CreateVaultIcon />,
+        onPress: createNewVault,
+        id: 'newVault',
+      },
+      {
+        title: walletText.multiKeyAdvanced,
+        subtitle: walletText.multiKeyAdvancedDesc,
+        icon: <CreateMultiVaultIcon />,
+        onPress: () => navigation.dispatch(CommonActions.navigate('AddNewWallet')),
+        id: 'newMultiVault',
+      },
+    ];
+
+    return (
+      <Box style={styles.createWalletCtr}>
+        <Box
+          style={styles.createWalletIllustration}
+          backgroundColor={`${colorMode}.boxSecondaryBackground`}
+          borderColor={`${colorMode}.separator`}
+        >
+          <CreateWalletIllustration />
+          <Box style={styles.createWalletTxtCtr}>
+            <Text
+              fontSize={18}
+              medium
+              style={styles.createWalletTitle}
+              color={`${colorMode}.textGreen`}
+            >
+              {walletText.createFirstWalletTitle}
+            </Text>
+            <Text
+              fontSize={13}
+              style={styles.createWalletSubTitle}
+              color={`${colorMode}.primaryText`}
+            >
+              {walletText.createFirstWalletSubtitle}
+            </Text>
+          </Box>
+        </Box>
+        {OPTIONS.map((option) => (
+          <OptionItem key={option.id} option={option} colorMode={colorMode} />
+        ))}
+
+        <Pressable onPress={() => {}}>
+          <Box
+            style={styles.suggestionCtr}
+            backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
+            borderColor={`${colorMode}.primaryBackground`}
+          >
+            <Text color={`${colorMode}.greenText`} fontSize={14} bold style={styles.suggestionTxt}>
+              {walletText.helpMeDecide}
+            </Text>
+          </Box>
+        </Pressable>
+      </Box>
+    );
+  };
+
   return (
     <Box style={styles.walletContainer}>
-      <ActivityIndicatorView visible={syncing} showLoader />
+      <ActivityIndicatorView visible={syncing || loading} showLoader />
       <DashedCta
         backgroundColor={dashed_CTA_background}
         hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
@@ -257,6 +417,7 @@ const HomeWallet = () => {
         keyExtractor={(item, index) => `${item.id || index}`}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        ListEmptyComponent={EmptyWalletComponent}
       />
       <KeeperModal
         visible={showAddWalletModal}
@@ -378,24 +539,23 @@ const OptionItem = ({ option, colorMode }) => {
         backgroundColor={`${colorMode}.boxSecondaryBackground`}
         borderColor={`${colorMode}.separator`}
       >
-        <CircleIconWrapper
-          width={wp(40)}
-          icon={option.icon}
-          backgroundColor={`${colorMode}.pantoneGreen`}
-        />
-        <Box>
-          <Text
-            color={`${colorMode}.secondaryText`}
-            fontSize={15}
-            medium
-            style={styles.optionTitle}
-          >
-            {option.title}
-          </Text>
-          <Text color={`${colorMode}.secondaryText`} fontSize={12}>
-            {option.subtitle}
-          </Text>
+        <Box style={styles.optionRow}>
+          {option.icon}
+          <Box style={{ flex: 1 }}>
+            <Text
+              color={`${colorMode}.secondaryText`}
+              fontSize={14}
+              semiBold
+              style={styles.optionTitle}
+            >
+              {option.title}
+            </Text>
+            <Text color={`${colorMode}.secondaryText`} fontSize={12} numberOfLines={2}>
+              {option.subtitle}
+            </Text>
+          </Box>
         </Box>
+        <Box>{colorMode === 'dark' ? <IconArrowWhite /> : <IconArrow />}</Box>
       </Box>
     </TouchableOpacity>
   );
@@ -412,16 +572,24 @@ const styles = StyleSheet.create({
     marginBottom: hp(10),
   },
   optionTitle: {
-    marginBottom: hp(5),
+    marginBottom: hp(4),
+    fontFamily: Fonts.LoraSemiBold,
   },
   optionCTR: {
     flexDirection: 'row',
-    paddingHorizontal: wp(15),
-    paddingVertical: hp(22),
+    paddingHorizontal: wp(18),
+    paddingVertical: hp(20),
+    paddingRight: hp(25),
     alignItems: 'center',
-    gap: wp(16),
     borderRadius: 12,
     borderWidth: 1,
+    justifyContent: 'space-between',
+  },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(14),
+    maxWidth: '100%',
   },
   customStyle: {
     marginBottom: hp(10),
@@ -444,5 +612,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12,
     gap: wp(10),
+  },
+  createWalletCtr: {
+    gap: hp(8),
+    paddingHorizontal: wp(22),
+  },
+  suggestionCtr: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingVertical: hp(15),
+    marginTop: hp(10),
+    marginBottom: hp(40),
+  },
+  suggestionTxt: { textAlign: 'center', flex: 1 },
+  createWalletTitle: {
+    fontFamily: Fonts.LoraMedium,
+    fontWeight: '500',
+  },
+  createWalletSubTitle: { textAlign: 'center' },
+  createWalletTxtCtr: {
+    gap: hp(4),
+    alignItems: 'center',
+    paddingHorizontal: wp(20),
+    marginTop: hp(16),
+  },
+  createWalletIllustration: {
+    borderWidth: 1,
+    padding: wp(20),
+    borderRadius: wp(16),
+    marginBottom: hp(2),
+    alignItems: 'center',
   },
 });

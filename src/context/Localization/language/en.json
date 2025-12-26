@@ -518,7 +518,16 @@
     "verifySubtitle": "Scan the signed message from your hardware wallet",
     "sendBitcoin": "Send Bitcoin",
     "receiveBitcoin": "Receive Bitcoin",
-    "buyBitCoin": "Buy Bitcoin with Ramp"
+    "buyBitCoin": "Buy Bitcoin with Ramp",
+    "hotWallet": "Hot Wallet",
+    "hotWalletDesc": "Daily use, keys on the device",
+    "coldStorage": "Cold Storage",
+    "coldStorageDesc": "Use hardware wallet, keep offline.",
+    "multiKeyAdvanced": "Multi-Key / Advanced",
+    "multiKeyAdvancedDesc": "Use multiple keys, miniscript or import a descriptor.",
+    "createFirstWalletTitle": "Let's Create Your First Wallet",
+    "createFirstWalletSubtitle": "Create or import your first wallet. Your keys stay in your control",
+    "helpMeDecide": "Help me Decide"
   },
   "vault": {
     "Addsigner": "Add a Signer",
