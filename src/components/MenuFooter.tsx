@@ -1,27 +1,25 @@
 import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import WalletIcon from 'src/assets/images/Wallet-grey.svg';
 import KeyIcon from 'src/assets/images/key-grey.svg';
 import ConciergeIcon from 'src/assets/images/faq-grey.svg';
 import MoreIcon from 'src/assets/images/more-grey.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import Text from './KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
-import ThemedColor from './ThemedColor/ThemedColor';
+import { screenWidth } from 'react-native-gifted-charts/src/utils';
+import Colors from 'src/theme/Colors';
 
 const MenuFooter = ({ selectedOption, onOptionChange }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
-  const selectedFooterColor = ThemedColor({ name: 'footer_selected_option' });
 
   const menuOptions = [
     {
-      name: walletTranslation.homeWallets,
+      name: walletTranslation.title,
       defaultIcon: <WalletIcon />,
       selectedIcon: <ThemedSvg name={'footer_Wallet'} />,
     },
@@ -44,7 +42,7 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
 
   return (
     <Box
-      style={[styles.container, { paddingBottom: Platform.OS === 'ios' ? hp(26) : 0 }]}
+      style={[styles.container]}
       backgroundColor={
         isDarkMode ? `${colorMode}.primaryGreenBackground` : `${colorMode}.ChampagneBliss`
       }
@@ -55,21 +53,14 @@ const MenuFooter = ({ selectedOption, onOptionChange }) => {
           <TouchableOpacity
             key={option.name}
             onPress={() => onOptionChange(option.name)}
-            style={[styles.menuItem]}
+            style={[
+              styles.menuItem,
+              selectedOption === option.name && { backgroundColor: Colors.primaryGreen },
+            ]}
           >
             <Box style={styles.iconContainer}>
               {selectedOption === option.name ? option.selectedIcon : option.defaultIcon}
             </Box>
-            <Text
-              style={[styles.menuText]}
-              color={
-                selectedOption === option.name
-                  ? selectedFooterColor
-                  : `${colorMode}.placeHolderTextColor`
-              }
-            >
-              {option.name}
-            </Text>
           </TouchableOpacity>
         ))}
       </Box>
@@ -81,11 +72,11 @@ export default MenuFooter;
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    minHeight: hp(85),
-    borderRadius: 20,
-    paddingHorizontal: wp(10),
-    paddingTop: hp(10),
+    width: '95%',
+    alignSelf: 'center',
+    borderRadius: screenWidth * 0.6,
+    paddingVertical: hp(9),
+    marginBottom: Platform.select({ ios: hp(35), android: hp(10) }),
     borderWidth: 1,
   },
   menuWrapper: {
@@ -95,9 +86,9 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     alignItems: 'center',
-    paddingVertical: hp(5),
-    paddingHorizontal: wp(10),
-    borderRadius: 10,
+    paddingVertical: wp(11),
+    paddingHorizontal: wp(27),
+    borderRadius: 100,
   },
   iconContainer: {
     width: wp(20),

@@ -275,6 +275,7 @@
     "discountDetails": "Discount Details"
   },
   "wallet": {
+    "title": "Secure",
     "Createwallet": "Create a wallet",
     "hardwareShopWallet": "Shop for Hardware Wallets",
     "AddWallet": "Add a Wallet",

@@ -30,15 +30,10 @@ import ThemedColor from './ThemedColor/ThemedColor';
 
 interface HomeScreenHeaderProps {
   colorMode: string;
-  circleIconWrapper: React.ReactNode;
   title: string;
 }
 
-const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
-  colorMode,
-  circleIconWrapper,
-  title,
-}) => {
+const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({ colorMode, title }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { uaiStack } = useUaiStack();
@@ -171,18 +166,14 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     <Box backgroundColor={backgroundColor}>
       <Box backgroundColor={backgroundColor} style={[styles.wrapper]}>
         <Box width="90%" style={styles.padding}>
-          <Box style={styles.headerData} testID={`btn_choosePlan`}>
-            {circleIconWrapper}
-            <Text
-              testID="text_home_current_plan"
-              style={styles.headerText}
-              color={`${colorMode}.headerWhite`}
-              medium
-            >
-              {capitalizeEachWord(title === walletTranslation.more ? common.moreOptions : title)}
-            </Text>
-          </Box>
-
+          <Text
+            testID="text_home_current_plan"
+            style={styles.headerText}
+            color={`${colorMode}.headerWhite`}
+            medium
+          >
+            {capitalizeEachWord(title)}
+          </Text>
           <Box style={styles.headerData}>
             <TouchableOpacity
               style={{ padding: 5 }}
@@ -264,10 +255,10 @@ const styles = StyleSheet.create({
   headerData: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
   headerText: {
-    fontSize: 18,
-    fontFamily: Fonts.LoraMedium,
+    fontSize: 25,
+    fontWeight: '600',
+    fontFamily: Fonts.LoraSemiBold,
   },
 });

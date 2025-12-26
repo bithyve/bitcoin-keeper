@@ -38,9 +38,7 @@ function NewHomeScreen({ route }) {
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText } = translations;
-  const [selectedOption, setSelectedOption] = useState(
-    selectedOptionFromRoute || walletText.homeWallets
-  );
+  const [selectedOption, setSelectedOption] = useState(selectedOptionFromRoute || walletText.title);
 
   useEffect(() => {
     if (selectedOptionFromRoute && selectedOptionFromRoute !== selectedOption) {
@@ -50,7 +48,7 @@ function NewHomeScreen({ route }) {
 
   const getContent = () => {
     switch (selectedOption) {
-      case walletText.homeWallets:
+      case walletText.title:
         return {
           content: (
             <Box>
@@ -137,7 +135,7 @@ function NewHomeScreen({ route }) {
     }
   };
 
-  const { content, icon } = getContent();
+  const { content } = getContent();
 
   useEffect(() => {
     if (relayWalletError) {
@@ -167,7 +165,7 @@ function NewHomeScreen({ route }) {
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
 
-      <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
+      <HomeScreenHeader colorMode={colorMode} title={selectedOption} />
       <Box style={styles.content}>{content}</Box>
       <MenuFooter
         selectedOption={selectedOption}
