@@ -1130,6 +1130,12 @@ const themeIcons = {
     PRIVATE: CoinsIcon,
     PRIVATE_LIGHT: CoinsIconPrivate,
   },
+  wallet_quorum_plus_icon: {
+    DARK: Plus,
+    LIGHT: PlusGreenIcon,
+    PRIVATE: Plus,
+    PRIVATE_LIGHT: Plus,
+  },
 };
 
 export default themeIcons;

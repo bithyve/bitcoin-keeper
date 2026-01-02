@@ -525,6 +525,11 @@
     "coldStorageDesc": "Use hardware wallet, keep offline.",
     "multiKeyAdvanced": "Multi-Key / Advanced",
     "multiKeyAdvancedDesc": "Use multiple keys, miniscript or import a descriptor.",
+    "simpleMultiKey": "Simple Multi-Key",
+    "simpleMultiKeyDesc": "A wallet that needs 2 approvals out of 3 to spend your funds securely.",
+    "strongMultiKey": "Strong Multi-key",
+    "strongMultiKeyDesc": "A secure wallet that needs 3 approvals out of 5 to unlock and spend.",
+    "advanceCustomSetup": "Advance / Custom setup",
     "createFirstWalletTitle": "Let's Create Your First Wallet",
     "createFirstWalletSubtitle": "Create or import your first wallet. Your keys stay in your control",
     "helpMeDecide": "Help me Decide"

@@ -5,19 +5,14 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Pressable, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
-import ImportWalletIcon from 'src/assets/images/vault_icon.svg';
-import AdvanceCustomizationIcon from 'src/assets/images/other_light.svg';
 import { CommonActions } from '@react-navigation/native';
 import WalletHeader from 'src/components/WalletHeader';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
 import Buttons from 'src/components/Buttons';
 import DashedCta from 'src/components/DashedCta';
 import CheckIcon from 'src/assets/images/planCheckMarkSelected.svg';
 import CheckDarkIcon from 'src/assets/images/check-dark-icon.svg';
 import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
 import { MiniscriptTypes } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
@@ -54,9 +49,7 @@ export function NumberInput({ value, onDecrease, onIncrease }) {
         backgroundColor={isDarkMode ? Colors.primaryCream : Colors.secondaryLightGrey}
       />
       <TouchableOpacity testID="increaseValue" style={styles.button} onPress={onIncrease}>
-        <Text style={styles.buttonText} color={`${colorMode}.greenText`}>
-          +
-        </Text>
+        <ThemedSvg name={'wallet_quorum_plus_icon'} />
       </TouchableOpacity>
     </HStack>
   );
@@ -66,8 +59,6 @@ function AddNewWallet({ navigation, route }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslations, common, wallet: walletText, error: errorText } = translations;
-  const [selectedWalletType, setSelectedWalletType] = useState('');
-  const [customConfigModalVisible, setCustomConfigModalVisible] = useState(false);
   const [showEnhancedOptionsModal, setShowEnhancedOptionsModal] = useState(false);
   const { vaultId } = route.params || {};
   const DashedCtaTextColor = ThemedColor({ name: 'DashedCtaTextColor' });
@@ -113,39 +104,6 @@ function AddNewWallet({ navigation, route }) {
     }
   }, [inheritanceKeySelected, emergencyKeySelected, initialTimelockSelected]);
 
-  const CREATE_WALLET_OPTIONS = [
-    {
-      icon: <NewWalletIcon />,
-      title: walletText.Singlekey,
-      onPress: () => {
-        Vibration.vibrate(50);
-        setScheme({ m: 1, n: 1 });
-        setSelectedWalletType('singleKey');
-      },
-      id: 'singleKey',
-    },
-    {
-      icon: <ImportWalletIcon />,
-      title: walletText.multikey2of3,
-      onPress: () => {
-        Vibration.vibrate(50);
-        setScheme({ m: 2, n: 3 });
-        setSelectedWalletType('2Of3');
-      },
-      id: '2Of3',
-    },
-    {
-      icon: <AdvanceCustomizationIcon />,
-      title: walletText.multikey3of5,
-      onPress: () => {
-        Vibration.vibrate(50);
-        setScheme({ m: 3, n: 5 });
-        setSelectedWalletType('3Of5');
-      },
-      id: '3Of5',
-    },
-  ];
-
   const onDecreaseM = () => {
     if (scheme.m > 1) {
       Vibration.vibrate(50);
@@ -173,41 +131,44 @@ function AddNewWallet({ navigation, route }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={walletText.selectYourWalletType} />
+      <WalletHeader title={walletText.advanceCustomSetup} subTitle={walletText.customWalletDesc} />
       <Box style={styles.addWalletOptionsList}>
-        {CREATE_WALLET_OPTIONS.map((option, index) => (
-          <OptionItem
-            key={index}
-            option={option}
-            colorMode={colorMode}
-            active={selectedWalletType === option.id}
-          />
-        ))}
-        <Pressable
-          onPress={() => {
-            setCustomConfigModalVisible(true);
-          }}
-        >
-          <Box
-            style={[styles.optionCTR, styles.customOption]}
-            backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
-            borderColor={
-              selectedWalletType === 'custom'
-                ? `${colorMode}.pantoneGreen`
-                : `${colorMode}.primaryBackground`
-            }
+        <Box>
+          <Text
+            style={{ marginBottom: hp(5) }}
+            fontSize={14}
+            medium
+            color={`${colorMode}.primaryText`}
+            testID="text_totalKeys"
           >
-            <Text
-              color={`${colorMode}.greenText`}
-              fontSize={14}
-              medium
-              style={{ textAlign: 'center', flex: 1 }}
-            >
-              {walletText.selectCustomSetup}{' '}
-              {selectedWalletType === 'custom' ? `: ${scheme.m} of ${scheme.n}` : ''}
-            </Text>
-          </Box>
-        </Pressable>
+            {walletText.totalKeys}
+          </Text>
+          <Text
+            style={{ fontSize: 12 }}
+            color={`${colorMode}.secondaryText`}
+            testID="text_totalKeys_subTitle"
+          >
+            {walletText.maxNumberofKeys}
+          </Text>
+          <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
+          <Text
+            style={{ marginBottom: hp(5) }}
+            fontSize={14}
+            medium
+            color={`${colorMode}.primaryText`}
+            testID="text_requireKeys"
+          >
+            {vaultTranslations.requiredKeys}
+          </Text>
+          <Text
+            style={{ fontSize: 12 }}
+            color={`${colorMode}.secondaryText`}
+            testID="text_requireKeys_subTitle"
+          >
+            {vaultTranslations.minimumNumberOfKeysToSignATransaction}
+          </Text>
+          <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
+        </Box>
       </Box>
       <Box style={styles.footer}>
         <DashedCta
@@ -227,7 +188,6 @@ function AddNewWallet({ navigation, route }) {
         />
         <Buttons
           primaryText={common.proceed}
-          primaryDisable={!selectedWalletType}
           primaryCallback={() => {
             if (scheme.m === 1 && emergencyKeySelected) {
               showToast(
@@ -254,59 +214,6 @@ function AddNewWallet({ navigation, route }) {
           fullWidth
         />
       </Box>
-      <KeeperModal
-        visible={customConfigModalVisible}
-        close={() => setCustomConfigModalVisible(false)}
-        title={walletText.customWalletTitle}
-        subTitle={walletText.customWalletDesc}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        buttonText={common.confirm}
-        buttonCallback={() => {
-          setCustomConfigModalVisible(false);
-          setSelectedWalletType('custom');
-        }}
-        Content={() => {
-          return (
-            <Box>
-              <Text
-                style={{ marginBottom: hp(10) }}
-                fontSize={14}
-                medium
-                color={`${colorMode}.primaryText`}
-                testID="text_totalKeys"
-              >
-                {walletText.totalKeys}
-              </Text>
-              <Text
-                style={{ fontSize: 12 }}
-                color={`${colorMode}.secondaryText`}
-                testID="text_totalKeys_subTitle"
-              >
-                {walletText.maxNumberofKeys}
-              </Text>
-              <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-              <Text
-                style={{ marginBottom: hp(10) }}
-                fontSize={14}
-                medium
-                color={`${colorMode}.primaryText`}
-                testID="text_requireKeys"
-              >
-                {vaultTranslations.requiredKeys}
-              </Text>
-              <Text
-                style={{ fontSize: 12 }}
-                color={`${colorMode}.secondaryText`}
-                testID="text_requireKeys_subTitle"
-              >
-                {vaultTranslations.minimumNumberOfKeysToSignATransaction}
-              </Text>
-              <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
-            </Box>
-          );
-        }}
-      />
       <EnhancedSecurityModal
         isVisible={showEnhancedOptionsModal}
         onClose={() => setShowEnhancedOptionsModal(false)}
@@ -321,28 +228,6 @@ function AddNewWallet({ navigation, route }) {
     </ScreenWrapper>
   );
 }
-
-const OptionItem = ({ option, colorMode, active }) => {
-  const borderColor = active ? `${colorMode}.dashedButtonBorderColor` : `${colorMode}.separator`;
-  return (
-    <Pressable onPress={option.onPress}>
-      <Box
-        style={styles.optionCTR}
-        backgroundColor={`${colorMode}.boxSecondaryBackground`}
-        borderColor={borderColor}
-      >
-        <Box style={styles.optionIconCtr} backgroundColor={`${colorMode}.pantoneGreen`}>
-          {option.icon}
-        </Box>
-        <Box>
-          <Text color={`${colorMode}.secondaryText`} fontSize={16} medium>
-            {option.title}
-          </Text>
-        </Box>
-      </Box>
-    </Pressable>
-  );
-};
 
 const EnhancedSecurityModal = ({
   isVisible,
@@ -399,18 +284,6 @@ const EnhancedSecurityModal = ({
       Content={() => {
         return (
           <Box style={styles.enhancedOptionsContainer}>
-            {!isOnL3Above && (
-              <Box>
-                <UpgradeSubscription
-                  type={SubscriptionTier.L3}
-                  customStyles={styles.upgradeButtonCustomStyles}
-                  navigation={navigation}
-                  onPress={() => {
-                    onClose();
-                  }}
-                />
-              </Box>
-            )}
             <Pressable
               disabled={!isOnL3Above}
               onPress={() => setPendingInheritanceKeySelected(!pendingInheritanceKeySelected)}
@@ -581,13 +454,7 @@ const styles = StyleSheet.create({
     marginTop: hp(30),
     flex: 1,
   },
-  optionIconCtr: {
-    height: hp(35),
-    width: wp(35),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 100,
-  },
+
   optionCTR: {
     flexDirection: 'row',
     paddingHorizontal: wp(15),
@@ -639,28 +506,15 @@ const styles = StyleSheet.create({
     gap: 10,
     width: windowWidth * 0.88,
   },
-  upgradeButtonCustomStyles: {
-    container: {
-      borderTopWidth: 0,
-      justifyContent: 'space-between',
-    },
-    learnMoreContainer: {
-      paddingVertical: hp(3),
-      paddingHorizontal: wp(14),
-      fontSize: 13,
-    },
-    unlockAtText: {
-      fontSize: 15,
-      verticalAlign: 'bottom',
-    },
-  },
   button: {
     paddingVertical: 10,
     paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     fontSize: 37,
-    lineHeight: hp(36),
+    lineHeight: hp(30),
     textAlign: 'center',
     verticalAlign: 'middle',
   },

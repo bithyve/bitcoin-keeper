@@ -64,6 +64,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import HelpGreen from 'src/assets/images/helpGreen.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -346,7 +347,7 @@ const HomeWallet = () => {
         title: walletText.multiKeyAdvanced,
         subtitle: walletText.multiKeyAdvancedDesc,
         icon: <CreateMultiVaultIcon />,
-        onPress: () => navigation.dispatch(CommonActions.navigate('AddNewWallet')),
+        onPress: () => navigation.dispatch(CommonActions.navigate('AddNewMultiKeyWallet')),
         id: 'newMultiVault',
       },
     ];
@@ -387,6 +388,7 @@ const HomeWallet = () => {
             backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
             borderColor={`${colorMode}.primaryBackground`}
           >
+            <HelpGreen />
             <Text color={`${colorMode}.greenText`} fontSize={14} bold style={styles.suggestionTxt}>
               {walletText.helpMeDecide}
             </Text>
@@ -619,14 +621,15 @@ const styles = StyleSheet.create({
   },
   suggestionCtr: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
     paddingVertical: hp(15),
     marginTop: hp(10),
     marginBottom: hp(40),
+    gap: wp(6),
   },
-  suggestionTxt: { textAlign: 'center', flex: 1 },
+  suggestionTxt: { textAlign: 'center' },
   createWalletTitle: {
     fontFamily: Fonts.LoraMedium,
     fontWeight: '500',

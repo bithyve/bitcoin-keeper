@@ -166,6 +166,7 @@ import { SwapHistoryDetail } from 'src/screens/Home/components/buyBtc/Swap/SwapH
 import { SwapAllHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapAllHistory';
 import { TipBottomSheet } from 'src/components/Modal/TipBottomSheet';
 import { SendTip } from 'src/screens/Send/SendTip';
+import { AddNewMultiKeyWallet } from 'src/screens/AddWalletScreen/AddNewMultiKeyWallet';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -321,6 +322,7 @@ function AppStack() {
         <Stack.Screen name="VaultConfigurationCreation" component={VaultConfigurationCreation} />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
+        <Stack.Screen name="AddNewMultiKeyWallet" component={AddNewMultiKeyWallet} />
         <Stack.Screen name="SettingApp" component={SettingsApp} />
         <Stack.Screen name="InheritanceDocumentScreen" component={InheritanceDocumentScreen} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />

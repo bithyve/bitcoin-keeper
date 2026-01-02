@@ -182,6 +182,7 @@ export type AppStackParams = {
   CloudBackupPassword: undefined;
   ImportedWalletSetup: undefined;
   SendTip: undefined;
+  AddNewMultiKeyWallet: undefined;
 };
 
 // Usage:
