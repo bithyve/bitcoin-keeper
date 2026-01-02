@@ -183,6 +183,7 @@ export type AppStackParams = {
   ImportedWalletSetup: undefined;
   SendTip: undefined;
   AddNewMultiKeyWallet: undefined;
+  SelectWalletType: undefined;
 };
 
 // Usage:

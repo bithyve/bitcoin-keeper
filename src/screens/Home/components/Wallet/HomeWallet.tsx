@@ -10,13 +10,8 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import {
-  DerivationPurpose,
-  EntityKind,
-  VisibilityType,
-  WalletType,
-} from 'src/services/wallets/enums';
-import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
+import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -28,7 +23,7 @@ import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white
 import { useAppSelector } from 'src/store/hooks';
 import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
-import { addNewWallets, autoSyncWallets, refreshWallets } from 'src/store/sagaActions/wallets';
+import { autoSyncWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -51,20 +46,10 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Fonts from 'src/constants/Fonts';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import IconArrowWhite from 'src/assets/images/icon_arrow_white.svg';
-import CreateWalletIcon from 'src/assets/images/createWallet.svg';
-import CreateVaultIcon from 'src/assets/images/createVault1.svg';
-import CreateMultiVaultIcon from 'src/assets/images/createVault2.svg';
 import CreateWalletIllustration from 'src/assets/images/createWalletIllustration.svg';
-import { NewWalletInfo } from 'src/store/sagas/wallets';
-import WalletUtilities from 'src/services/wallets/operations/utils';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
-import { getCosignerDetails } from 'src/services/wallets/factories/WalletFactory';
-import { setupKeeperSigner } from 'src/hardware/signerSetup';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { useQuery } from '@realm/react';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import HelpGreen from 'src/assets/images/helpGreen.svg';
+import { SelectWalletTypeCards } from 'src/screens/AddWalletScreen/SelectWalletType';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -107,7 +92,6 @@ const HomeWallet = () => {
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
-  const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const DashedCta_hexagonBackgroundColor = ThemedColor({
     name: 'DashedCta_hexagonBackgroundColor',
@@ -276,82 +260,7 @@ const HomeWallet = () => {
     );
   };
 
-  const createNewHotWallet = () => {
-    setLoading(true);
-    try {
-      let lastInstanceNum = -1;
-      wallets.forEach((wallet) => {
-        if (wallet.type === WalletType.DEFAULT) {
-          // improves the instance number generation logic(accounts for deleted wallets as well)
-          lastInstanceNum = Math.max(lastInstanceNum, wallet.derivationDetails.instanceNum);
-        }
-      });
-      const newWallet: NewWalletInfo = {
-        walletType: WalletType.DEFAULT,
-        walletDetails: {
-          name: `Mobile Wallet ${lastInstanceNum == -1 ? '' : lastInstanceNum + 2}`,
-          description: '',
-          derivationPath: WalletUtilities.getDerivationPath(
-            false,
-            bitcoinNetworkType,
-            0,
-            DerivationPurpose.BIP84
-          ),
-          instanceNum: lastInstanceNum + 1,
-        },
-      };
-      getCosignerDetails(primaryMnemonic as string, lastInstanceNum + 1).then((cosigner) => {
-        const hw = setupKeeperSigner(cosigner);
-        if (hw) {
-          dispatch(addSigningDevice([hw.signer]));
-        }
-      });
-      dispatch(addNewWallets([newWallet]));
-    } catch (error) {
-      console.log('Error');
-      setLoading(false);
-    }
-  };
-
-  const createNewVault = () => {
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'AddSigningDevice',
-        params: {
-          scheme: { m: 1, n: 1 },
-          currentBlockHeight: null,
-          hasInitialTimelock: false,
-          isNewSchemeFlow: true,
-        },
-      })
-    );
-  };
-
   const EmptyWalletComponent = () => {
-    const OPTIONS = [
-      {
-        title: walletText.hotWallet,
-        subtitle: walletText.hotWalletDesc,
-        icon: <CreateWalletIcon />,
-        onPress: createNewHotWallet,
-        id: 'newWallet',
-      },
-      {
-        title: walletText.coldStorage,
-        subtitle: walletText.coldStorageDesc,
-        icon: <CreateVaultIcon />,
-        onPress: createNewVault,
-        id: 'newVault',
-      },
-      {
-        title: walletText.multiKeyAdvanced,
-        subtitle: walletText.multiKeyAdvancedDesc,
-        icon: <CreateMultiVaultIcon />,
-        onPress: () => navigation.dispatch(CommonActions.navigate('AddNewMultiKeyWallet')),
-        id: 'newMultiVault',
-      },
-    ];
-
     return (
       <Box style={styles.createWalletCtr}>
         <Box
@@ -378,9 +287,7 @@ const HomeWallet = () => {
             </Text>
           </Box>
         </Box>
-        {OPTIONS.map((option) => (
-          <OptionItem key={option.id} option={option} colorMode={colorMode} />
-        ))}
+        <SelectWalletTypeCards />
 
         <Pressable onPress={() => {}}>
           <Box

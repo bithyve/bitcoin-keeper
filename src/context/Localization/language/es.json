@@ -450,6 +450,7 @@
     "walletWithFamily": "Create wallet with family and friends",
     "addNewWallet": "Add a New Wallet",
     "createOrImportWallet": "Create a new wallet or import existing one",
+    "restoreWalletUsingBackup": "Restore wallet using backup or keys.",
     "collaborativeSessionExists": "Collaborative wallet setup session already exists",
     "collaborativeSessionExistsDesc": "You already have a collaborative wallet setup session in progress, would you like to continue the session or start a new one?",
     "customWalletDesc": "Setup your wallet quorum",
