@@ -1,7 +1,6 @@
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useState, useEffect } from 'react';
 import { FlatList, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
-import DashedCta from 'src/components/DashedCta';
 import WalletCard from './WalletCard';
 import Colors from 'src/theme/Colors';
 import useWallets from 'src/hooks/useWallets';
@@ -29,7 +28,6 @@ import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitCoinWalletLogo from 'src/assets/images/bitcoin-wallet-logo.svg';
 import UsdtWalletLogo from 'src/assets/images/usdt-wallet-logo.svg';
@@ -50,6 +48,8 @@ import CreateWalletIllustration from 'src/assets/images/createWalletIllustration
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import HelpGreen from 'src/assets/images/helpGreen.svg';
 import { SelectWalletTypeCards } from 'src/screens/AddWalletScreen/SelectWalletType';
+import { FAB } from 'src/components/FAB';
+import Plus from 'src/assets/images/plusRound.svg';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -93,12 +93,6 @@ const HomeWallet = () => {
     (state) => state.bhr
   );
 
-  const DashedCta_hexagonBackgroundColor = ThemedColor({
-    name: 'DashedCta_hexagonBackgroundColor',
-  });
-  const dashed_CTA_background = ThemedColor({
-    name: 'dashed_CTA_background',
-  });
   const { showToast } = useToastMessage();
 
   useEffect(() => {
@@ -308,17 +302,6 @@ const HomeWallet = () => {
   return (
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing || loading} showLoader />
-      <DashedCta
-        backgroundColor={dashed_CTA_background}
-        hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
-        textColor={`${colorMode}.greenWhiteText`}
-        name={walletText.addWallet}
-        callback={() => setPickWalletType(true)}
-        icon={<ThemedSvg name={'add_wallet_plus_icon'} width={9} height={9} />}
-        iconWidth={22}
-        iconHeight={20}
-        cardStyles={styles.DashedCtaStyle}
-      />
       <FlatList
         data={allWallets}
         renderItem={renderWalletCard}
@@ -436,6 +419,12 @@ const HomeWallet = () => {
           </Box>
         )}
       />
+      {!!allWallets.length && (
+        <FAB
+          onPress={() => navigation.dispatch(CommonActions.navigate('SelectWalletType'))}
+          icon={<Plus />}
+        />
+      )}
     </Box>
   );
 };

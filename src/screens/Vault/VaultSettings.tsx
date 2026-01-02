@@ -234,27 +234,6 @@ function VaultSettings({ route }) {
         isDiamond: false,
         onPress: () => archiveWallet(),
       },
-    false && // disable update scheme as it gives wrong behavior
-      !isCanaryWalletType && {
-        title: vaultText.vaultSchemeTitle,
-        description: vaultText.vaultSchemeDesc,
-        icon: null,
-        isDiamond: false,
-        onPress: () =>
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AddNewWallet',
-              params: {
-                vaultId,
-                isAddInheritanceKeyFromParams:
-                  vault.type === VaultType.MINISCRIPT &&
-                  vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
-                    MiniscriptTypes.INHERITANCE
-                  ),
-              },
-            })
-          ),
-      },
     hasInitialTimelock && {
       title:
         inheritanceKeys.length || emergencyKeys.length

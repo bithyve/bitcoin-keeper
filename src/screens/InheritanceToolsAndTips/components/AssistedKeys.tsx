@@ -21,14 +21,6 @@ function InheritanceTips({}) {
       icon: <InheritanceKeyIcon />,
       paragraph2: inheritancePlanning.inheritanceKeyParagraph2,
       paragraph: inheritancePlanning.inheritanceKeyParagraph1,
-      callback: () =>
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AddNewWallet',
-            params: { isAddInheritanceKeyFromParams: true, scheme: { m: 2, n: 3 } },
-          })
-        ),
-
       buttonIcon: <InheritanceKey />,
       buttonTitle: inheritancePlanning.inheritanceKeyCtaTitle,
       note: inheritancePlanning.inheritanceKeyCtaNotes,

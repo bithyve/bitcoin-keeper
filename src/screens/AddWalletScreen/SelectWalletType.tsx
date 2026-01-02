@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
@@ -30,17 +30,17 @@ import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
-export const SelectWalletType = ({navigation}) => {
+export const SelectWalletType = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletText } = translations;
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader
-        title={walletText.addNewWallet}
-        subTitle={walletText.createOrImportWallet}
-      />
+      <WalletHeader title={walletText.addNewWallet} subTitle={walletText.createOrImportWallet} />
       <Box style={styles.container}>
         <Box style={styles.cardsList}>
           <SelectWalletTypeCards />
@@ -61,6 +61,28 @@ export const SelectWalletTypeCards = () => {
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const dispatch = useDispatch();
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
+  const { showToast } = useToastMessage();
+
+  useEffect(() => {
+    if (relayWalletUpdate) {
+      dispatch(resetRealyWalletState());
+      setLoading(false);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 1,
+          routes: [{ name: 'Home' }],
+        })
+      );
+    }
+    if (relayWalletError) {
+      showToast(realyWalletErrorMessage || walletText.walletCreationFailed, <ToastErrorIcon />);
+      setLoading(false);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError]);
 
   const createNewHotWallet = () => {
     setLoading(true);
@@ -174,7 +196,7 @@ const OptionItem = ({ option, colorMode }) => {
   );
 };
 
-const ImportWalletCta = ({onPress}) => {
+const ImportWalletCta = ({ onPress }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);

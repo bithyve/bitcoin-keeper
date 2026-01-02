@@ -109,7 +109,7 @@ const Card = memo(({ uai }: CardProps) => {
             primary: {
               text: common.continue,
               cta: () => {
-                navigtaion.navigate('AddNewWallet');
+                navigtaion.dispatch(CommonActions.navigate('SelectWalletType'));
               },
             },
           },
