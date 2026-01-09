@@ -21,7 +21,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
-const SignerList = ({ navigation, handleModalOpen }) => {
+const SignerList = ({ navigation, handleModalOpen, showAddSigner = true }) => {
   const { signers } = useSigners('', false);
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -94,17 +94,19 @@ const SignerList = ({ navigation, handleModalOpen }) => {
               />
             );
           })}
-          <DashedCta
-            backgroundColor={dashed_CTA_background}
-            hexagonBackgroundColor={HexagonIcon}
-            textColor={`${colorMode}.greenWhiteText`}
-            name={signerText.addKey}
-            callback={handleModalOpen}
-            icon={<Plus width={12.9} height={12.9} />}
-            iconWidth={33}
-            iconHeight={30}
-            customStyle={customStyle}
-          />
+          {showAddSigner && (
+            <DashedCta
+              backgroundColor={dashed_CTA_background}
+              hexagonBackgroundColor={HexagonIcon}
+              textColor={`${colorMode}.greenWhiteText`}
+              name={signerText.addKey}
+              callback={handleModalOpen}
+              icon={<Plus width={12.9} height={12.9} />}
+              iconWidth={33}
+              iconHeight={30}
+              customStyle={customStyle}
+            />
+          )}
         </Box>
         <HardwareModalMap
           visible={showSSModal}

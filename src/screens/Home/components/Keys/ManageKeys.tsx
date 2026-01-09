@@ -18,6 +18,9 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { SignerType } from 'src/services/wallets/enums';
 import { setShowTipModal } from 'src/store/reducers/settings';
 import config from 'src/utils/service-utilities/config';
+import { FAB } from 'src/components/FAB';
+import Plus from 'src/assets/images/plusRound.svg';
+import { wp } from 'src/constants/responsive';
 
 const ManageKeys = ({ addedSigner }) => {
   const { colorMode } = useColorMode();
@@ -96,26 +99,39 @@ const ManageKeys = ({ addedSigner }) => {
   }, []);
 
   return (
-    <Box style={styles.containerWrapper}>
-      <Box style={styles.contentContainer}>
-        <SignerList navigation={navigation} handleModalOpen={handleModalOpen} />
-      </Box>
-      <KeeperModal
-        visible={modalVisible}
-        close={handleModalClose}
-        title={vaultText.Addsigner}
-        subTitle={vaultText.SelectSignerSubtitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={() => (
-          <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
-        )}
-      />
+    <>
+      <Box style={styles.containerWrapper}>
+        <Box style={styles.contentContainer}>
+          <SignerList
+            navigation={navigation}
+            handleModalOpen={handleModalOpen}
+            showAddSigner={false}
+          />
+        </Box>
+        <KeeperModal
+          visible={modalVisible}
+          close={handleModalClose}
+          title={vaultText.Addsigner}
+          subTitle={vaultText.SelectSignerSubtitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.textGreen`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
+          Content={() => (
+            <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
+          )}
+        />
 
-      <KeyAddedModal visible={keyAddedModalVisible} close={closeAddKeyModal} signer={addedSigner} />
-      {inProgress && <ActivityIndicatorView visible={inProgress} />}
-    </Box>
+        <KeyAddedModal
+          visible={keyAddedModalVisible}
+          close={closeAddKeyModal}
+          signer={addedSigner}
+        />
+        {inProgress && <ActivityIndicatorView visible={inProgress} />}
+      </Box>
+      <Box style={{ paddingRight: wp(22) }}>
+        <FAB onPress={handleModalOpen} icon={<Plus />} />
+      </Box>
+    </>
   );
 };
 
@@ -124,6 +140,7 @@ export default ManageKeys;
 const styles = StyleSheet.create({
   containerWrapper: {
     paddingHorizontal: '4.5%',
+    flex: 1,
   },
   contentContainer: {
     flexDirection: 'row',
