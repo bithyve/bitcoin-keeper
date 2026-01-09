@@ -184,6 +184,9 @@ export type AppStackParams = {
   SendTip: undefined;
   AddNewMultiKeyWallet: undefined;
   SelectWalletType: undefined;
+  AppTipsScreen: undefined;
+  BackupSettingsScreen: undefined;
+  GeneralSettingsScreen: undefined;
 };
 
 // Usage:

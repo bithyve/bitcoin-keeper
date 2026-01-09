@@ -1,31 +1,33 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
-import { Alert, Pressable, StyleSheet } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SettingCard from './Component/SettingCard';
 import { useSettingKeeper } from 'src/hooks/useSettingKeeper';
-import { hp, wp } from 'src/constants/responsive';
-import Text from 'src/components/KeeperText';
-import CheckBoxActive from 'src/assets/images/checkbox_active.svg';
-import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import Buttons from 'src/components/Buttons';
-import { NetworkType } from 'src/services/wallets/enums';
-import { useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { useDispatch } from 'react-redux';
-import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { NetworkType } from 'src/services/wallets/enums';
+import { changeBitcoinNetwork } from 'src/store/sagaActions/settings';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import KeeperModal from 'src/components/KeeperModal';
+import CheckBoxActive from 'src/assets/images/checkbox_active.svg';
+import CheckBoxInactive from 'src/assets/images/checkbox_inactive.svg';
+import Text from 'src/components/KeeperText';
+import { hp, wp } from 'src/constants/responsive';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import Buttons from 'src/components/Buttons';
 
-const SettingsApp = () => {
+export const GeneralSettingsScreen = () => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { settings,common } = translations;
+  const { General, keysAndwallet,appSetting:settingsList} = useSettingKeeper();
   const dispatch = useDispatch();
-  const { settings, common } = useContext(LocalizationContext).translations;
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { showToast } = useToastMessage();
   const [networkModeModal, setNetworkModeModal] = useState(false);
@@ -33,7 +35,7 @@ const SettingsApp = () => {
   const [loading, setLoading] = useState(false);
 
   let appSetting = [
-    ...useSettingKeeper().appSetting,
+    ...settingsList,
     {
       title: settings.networkModeTitle,
       description: settings.networkModeSubTitle,
@@ -87,19 +89,36 @@ const SettingsApp = () => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ScrollView showsVerticalScrollIndicator={false}>
       <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
         <Box style={styles.header}>
-          <WalletHeader title={settings.appSetting} />
+          <WalletHeader title={settings.General} />
         </Box>
-
+       <SettingCard
+        subtitleColor={`${colorMode}.balanceText`}
+        backgroundColor={`${colorMode}.textInputBackground`}
+        borderColor={`${colorMode}.separator`}
+        items={General}
+      />
+      <SettingCard
+        header={settings.KeysWallets}
+        subtitleColor={`${colorMode}.balanceText`}
+        backgroundColor={`${colorMode}.textInputBackground`}
+        borderColor={`${colorMode}.separator`}
+        // @ts-ignore
+        items={keysAndwallet}
+      />
         <SettingCard
+        header={"App Setting"}
           subtitleColor={`${colorMode}.balanceText`}
           backgroundColor={`${colorMode}.textInputBackground`}
           borderColor={`${colorMode}.separator`}
+          // @ts-ignore
           items={appSetting}
         />
-
-        <KeeperModal
+      </Box>
+      </ScrollView>
+         <KeeperModal
           visible={networkModeModal}
           closeOnOverlayClick={false}
           close={() => {
@@ -136,12 +155,9 @@ const SettingsApp = () => {
           )}
         />
         <ActivityIndicatorView visible={loading} showLoader />
-      </Box>
     </ScreenWrapper>
   );
 };
-
-export default SettingsApp;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -161,6 +177,7 @@ const styles = StyleSheet.create({
     gap: hp(10),
   },
 });
+
 
 const OptionItem = ({ option, colorMode, active }) => (
   <Pressable onPress={option.onPress}>

@@ -84,8 +84,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({ colorMode, title })
       }),
     [uaiType.RECOVERY_PHRASE_HEALTH_CHECK]: () => {
       if (backupHistory.length === 0) {
-        navigtaion.navigate('Home', {
-          selectedOption: 'More',
+        navigtaion.navigate('BackupSettingsScreen', {
           isUaiFlow: true,
         });
       } else {

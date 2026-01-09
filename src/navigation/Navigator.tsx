@@ -128,7 +128,6 @@ import ContactDetails from 'src/screens/SigningDevices/ContactDetails';
 import ShareQR from 'src/screens/SigningDevices/ShareQR';
 import ScanNode from 'src/screens/AppSettings/Node/ScanNode';
 import NotificationsCenter from 'src/screens/Home/Notifications/NotificationsCenter';
-import SettingsApp from 'src/screens/Home/components/Settings/AppSettings';
 import InheritanceDocumentScreen from 'src/screens/Home/components/Settings/InheritanceDocumentScreen';
 import HardwareWallet from 'src/screens/Hardware/Hardware';
 import SpendingLimit from 'src/screens/Vault/SpendingLimit';
@@ -168,6 +167,9 @@ import { TipBottomSheet } from 'src/components/Modal/TipBottomSheet';
 import { SendTip } from 'src/screens/Send/SendTip';
 import { AddNewMultiKeyWallet } from 'src/screens/AddWalletScreen/AddNewMultiKeyWallet';
 import { SelectWalletType } from 'src/screens/AddWalletScreen/SelectWalletType';
+import { AppTipsScreen } from 'src/screens/Home/components/Settings/AppTipsScreen';
+import { BackupSettingsScreen } from 'src/screens/Home/components/Settings/BackupSettinsScreen';
+import { GeneralSettingsScreen } from 'src/screens/Home/components/Settings/GeneralSettingsScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -325,7 +327,6 @@ function AppStack() {
         <Stack.Screen name="AddNewWallet" component={AddNewWallet} />
         <Stack.Screen name="AddNewMultiKeyWallet" component={AddNewMultiKeyWallet} />
         <Stack.Screen name="SelectWalletType" component={SelectWalletType} />
-        <Stack.Screen name="SettingApp" component={SettingsApp} />
         <Stack.Screen name="InheritanceDocumentScreen" component={InheritanceDocumentScreen} />
         <Stack.Screen name="ManageSigners" component={ManageSigners} />
         <Stack.Screen name="BuyBitcoin" component={BuyBitcoinScreen} />
@@ -366,6 +367,9 @@ function AppStack() {
         <Stack.Screen name="SwapHistoryDetail" component={SwapHistoryDetail} />
         <Stack.Screen name="SwapAllHistory" component={SwapAllHistory} />
         <Stack.Screen name="SendTip" component={SendTip} />
+        <Stack.Screen name="AppTipsScreen" component={AppTipsScreen} />
+        <Stack.Screen name="BackupSettingsScreen" component={BackupSettingsScreen} />
+        <Stack.Screen name="GeneralSettingsScreen" component={GeneralSettingsScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

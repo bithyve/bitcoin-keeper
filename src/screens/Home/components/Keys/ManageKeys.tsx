@@ -128,7 +128,7 @@ const ManageKeys = ({ addedSigner }) => {
         />
         {inProgress && <ActivityIndicatorView visible={inProgress} />}
       </Box>
-      <Box style={{ paddingRight: wp(22) }}>
+      <Box style={{ paddingRight: 25 }}>
         <FAB onPress={handleModalOpen} icon={<Plus />} />
       </Box>
     </>

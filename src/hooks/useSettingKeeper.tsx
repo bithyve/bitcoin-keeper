@@ -270,13 +270,6 @@ export const useSettingKeeper = () => {
       onPress: () => navigation.navigate('ChangeLanguage'),
       isDiamond: false,
     },
-    {
-      title: settings.appSetting,
-      description: settings.appSettingDesc,
-      icon: <AppSetIcon width={11} height={14} />,
-      onPress: () => navigation.navigate('SettingApp'),
-      isDiamond: false,
-    },
   ].filter(Boolean);
   const keysAndwallet = [
     {
@@ -329,13 +322,6 @@ export const useSettingKeeper = () => {
       description: inheritancePlanning.safeKeepingTipsDesp,
       icon: <InheritanceTipsIcon width={13} height={16} />,
       onPress: () => navigation.navigate('SafeKeepingTips'),
-      isDiamond: false,
-    },
-    {
-      title: signerText.inheritanceDocuments,
-      description: signerText.bitcoinSecurity,
-      icon: <InheritanceDocumentIcon width={14} height={14} />,
-      onPress: () => navigation.dispatch(CommonActions.navigate('InheritanceDocumentScreen')),
       isDiamond: false,
     },
   ];

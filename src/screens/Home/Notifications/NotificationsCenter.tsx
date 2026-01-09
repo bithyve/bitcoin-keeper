@@ -154,8 +154,7 @@ const Card = memo(({ uai }: CardProps) => {
               text: common.backup,
               cta: () => {
                 if (backupHistory.length === 0) {
-                  navigtaion.navigate('Home', {
-                    selectedOption: 'More',
+                  navigtaion.navigate('BackupSettingsScreen', {
                     isUaiFlow: true,
                   });
                 } else {
