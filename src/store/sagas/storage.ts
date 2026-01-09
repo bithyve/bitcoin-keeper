@@ -95,23 +95,7 @@ export function* setupKeeperAppWorker({ payload }) {
 
       yield put(addAccount(appID));
 
-      const defaultWallet: NewWalletInfo = {
-        walletType: WalletType.DEFAULT,
-        walletDetails: {
-          name: 'Mobile Wallet',
-          description: '',
-          instanceNum: 0,
-          derivationPath: WalletUtilities.getDerivationPath(
-            false,
-            bitcoinNetworkType,
-            0,
-            DerivationPurpose.BIP84
-          ),
-        },
-      };
-
       const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
-      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
       yield put(
         updateDefaultWalletCreatedByAppId({ appId: appID, networkType: bitcoinNetworkType })
