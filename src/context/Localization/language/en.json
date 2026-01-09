@@ -533,7 +533,8 @@
     "advanceCustomSetup": "Advance / Custom setup",
     "createFirstWalletTitle": "Let's Create Your First Wallet",
     "createFirstWalletSubtitle": "Create or import your first wallet. Your keys stay in your control",
-    "helpMeDecide": "Help me Decide"
+    "helpMeDecide": "Help me Decide",
+    "AddUSDTWallet": "Add USDT Wallet"
   },
   "vault": {
     "Addsigner": "Add a Signer",

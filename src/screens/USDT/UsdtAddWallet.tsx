@@ -47,7 +47,7 @@ const AddUsdtWallet = () => {
 
   const navigationState = {
     name: 'Home',
-    params: { selectedOption: 'Wallets' },
+    params: { selectedOption: walletText.title },
   };
 
   const handleCreateWallet = async () => {

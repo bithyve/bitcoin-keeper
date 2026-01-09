@@ -1,10 +1,10 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Colors from 'src/theme/Colors';
 import PlebContainer from './Component/PlebContainer';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NavButton from 'src/components/NavButton';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import openLink from 'src/utils/OpenLink';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import Text from 'src/components/KeeperText';
@@ -26,17 +26,38 @@ import InheritanceIconLight from 'src/assets/images/setting_inheritance_light.sv
 import BackupIcon from 'src/assets/images/setting_backup.svg';
 import BackupIconLight from 'src/assets/images/setting_backup_light.svg';
 import GearIcon from 'src/assets/images/setting_gear.svg';
-import GearIconLight from 'src/assets/images/setting_grear_light.svg';
+import GearIconLight from 'src/assets/images/setting_gear_light.svg';
+import UsdtIcon from 'src/assets/images/setting_usdt.svg';
+import UsdtIconLight from 'src/assets/images/setting_usdt_light.svg';
 import Fonts from 'src/constants/Fonts';
 import { FAB } from 'src/components/FAB';
+import KeeperModal from 'src/components/KeeperModal';
+import NewWalletIcon from 'src/assets/images/wallet-white-small.svg';
+import ImportWalletIcon from 'src/assets/images/import.svg';
+import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
+import { USDTWalletType } from 'src/services/wallets/factories/USDTWalletFactory';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import CircleIconWrapper from 'src/components/CircleIconWrapper';
 
 const KeeperSettings = () => {
   const { colorMode } = useColorMode();
   const isDarKMode = colorMode === 'dark';
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { settings, common, signer: signerText, inheritancePlanning } = translations;
+  const {
+    settings,
+    common,
+    signer: signerText,
+    inheritancePlanning,
+    wallet: walletText,
+    home,
+  } = translations;
   const dispatch = useDispatch();
+  const [createUsdtWallet, setCreateUsdtWallet] = useState(false);
+  const { createWallet } = useUSDTWallets();
+  const { showToast } = useToastMessage();
 
   const cardItems = [
     {
@@ -53,6 +74,72 @@ const KeeperSettings = () => {
       title: settings.General,
       icon: isDarKMode ? <GearIconLight /> : <GearIcon />,
       onPress: () => navigation.dispatch(CommonActions.navigate('GeneralSettingsScreen')),
+    },
+    {
+      title: walletText.AddUSDTWallet,
+      icon: isDarKMode ? <UsdtIconLight /> : <UsdtIcon />,
+      onPress: () => setCreateUsdtWallet(true),
+    },
+  ];
+
+  const importUSDTWallet = async (mnemonic) => {
+    try {
+      const { newWallet, error } = await createWallet({
+        type: USDTWalletType.IMPORTED,
+        name: 'USDT Wallet',
+        description: 'Imported USDT Wallet',
+        importDetails: {
+          mnemonic,
+        },
+      });
+
+      if (newWallet) {
+        showToast('USDT wallet imported successfully!', <TickIcon />);
+        setTimeout(() => {
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'Home',
+              params: { selectedOption: walletText.title },
+            })
+          );
+        }, 900);
+      } else {
+        throw new Error(error);
+      }
+    } catch (err) {
+      showToast(`Failed to import USDT wallet: ${err.message}`, <ToastErrorIcon />);
+    }
+  };
+
+  const CREATE_USDT_WALLET_OPTIONS = [
+    {
+      title: walletText.createWallet,
+      subtitle: 'Create a new USDT wallet',
+      icon: <NewWalletIcon />,
+      onPress: () => {
+        navigation.dispatch(CommonActions.navigate('addUsdtWallet'));
+        setCreateUsdtWallet(false);
+      },
+      id: 'usdtnewWallet',
+    },
+    {
+      title: home.ImportWallet,
+      subtitle: walletText.restoreExistingWallet,
+      icon: <ImportWalletIcon />,
+      onPress: () => {
+        setCreateUsdtWallet(false);
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'EnterSeedScreen',
+            params: {
+              isImport: true,
+              isUSDTWallet: true,
+              importSeedCta: importUSDTWallet,
+            },
+          })
+        );
+      },
+      id: 'usdtimportWallet',
     },
   ];
 
@@ -155,6 +242,22 @@ const KeeperSettings = () => {
           icon={<TipsIcon />}
         />
       </Box>
+      <KeeperModal
+        visible={createUsdtWallet}
+        title={walletText.addNewWallet}
+        subTitle={walletText.createOrImportWallet}
+        close={() => setCreateUsdtWallet(false)}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        showCloseIcon
+        Content={() => (
+          <Box style={styles.addWalletOptionsList}>
+            {CREATE_USDT_WALLET_OPTIONS.map((option, index) => (
+              <OptionItem key={index} option={option} colorMode={colorMode} />
+            ))}
+          </Box>
+        )}
+      />
     </>
   );
 };
@@ -220,4 +323,52 @@ const styles = StyleSheet.create({
     gap: 2,
     marginTop: hp(12),
   },
+  // --
+  optionTitle: {
+    marginBottom: hp(5),
+  },
+  optionCTR: {
+    flexDirection: 'row',
+    paddingHorizontal: wp(15),
+    paddingVertical: hp(22),
+    alignItems: 'center',
+    gap: wp(16),
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  addWalletOptionsList: {
+    gap: wp(15),
+    marginBottom: hp(10),
+  },
 });
+
+const OptionItem = ({ option, colorMode }) => {
+  return (
+    <TouchableOpacity onPress={option.onPress}>
+      <Box
+        style={styles.optionCTR}
+        backgroundColor={`${colorMode}.boxSecondaryBackground`}
+        borderColor={`${colorMode}.separator`}
+      >
+        <CircleIconWrapper
+          width={wp(40)}
+          icon={option.icon}
+          backgroundColor={`${colorMode}.pantoneGreen`}
+        />
+        <Box>
+          <Text
+            color={`${colorMode}.secondaryText`}
+            fontSize={15}
+            medium
+            style={styles.optionTitle}
+          >
+            {option.title}
+          </Text>
+          <Text color={`${colorMode}.secondaryText`} fontSize={12}>
+            {option.subtitle}
+          </Text>
+        </Box>
+      </Box>
+    </TouchableOpacity>
+  );
+};
