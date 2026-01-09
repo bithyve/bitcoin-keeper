@@ -26,6 +26,7 @@ type WalletCardProps = {
   allowHideBalance?: boolean;
   isShowAmount?: boolean;
   setIsShowAmount?: () => void;
+  tag: string;
 };
 
 const WalletCard: React.FC<WalletCardProps> = ({
@@ -41,6 +42,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
   allowHideBalance = true,
   isShowAmount,
   setIsShowAmount,
+  tag,
 }) => {
   const defaultHexagonBackgroundColor = Colors.headerWhite;
   const { getWalletIcon } = useWalletAsset();
@@ -53,39 +55,34 @@ const WalletCard: React.FC<WalletCardProps> = ({
       end={{ x: 0.9, y: 1 }}
       style={[styles.cardContainer]}
     >
-      <Box style={styles.topLeftContainer}>
-        <HexagonIcon
-          width={iconWidth}
-          height={iconHeight}
-          backgroundColor={hexagonBackgroundColor || defaultHexagonBackgroundColor}
-          icon={<WalletIcon />}
-        />
-      </Box>
-
       <WalletLine style={styles.walletLine} width={wp(180)} height={hp(200)} />
-      <Box style={styles.pillsContainer}>
-        {tags?.map(({ tag, color }, index) => (
-          <CardPill key={tag} heading={tag} backgroundColor={color} />
-        ))}
-      </Box>
-
-      <Box style={styles.bottomContainer}>
-        <Box style={styles.bottomLeft}>
-          <Text color={Colors.headerWhite} style={styles.description}>
-            {description}
-          </Text>
+      <Box style={styles.topRow}>
+        <Box style={styles.cardNameCtr}>
+          <HexagonIcon
+            width={iconWidth}
+            height={iconHeight}
+            backgroundColor={hexagonBackgroundColor || defaultHexagonBackgroundColor}
+            icon={<WalletIcon />}
+          />
           <Text medium color={Colors.headerWhite} style={styles.title}>
             {title}
           </Text>
         </Box>
-        <Box style={styles.bottomRight}>
-          <BalanceComponent
-            setIsShowAmount={setIsShowAmount ? setIsShowAmount : () => {}}
-            isShowAmount={allowHideBalance ? isShowAmount : true}
-            balance={totalBalance}
-            wallet={wallet}
-          />
+        <Box style={{ flex: 1 }}>
+          <Box style={styles.pillsContainer}>
+            <CardPill key={tag} heading={tag} backgroundColor={Colors.pillOrange} />
+          </Box>
         </Box>
+      </Box>
+      <Box style={styles.balanceCtr}>
+        <BalanceComponent
+          setIsShowAmount={setIsShowAmount ? setIsShowAmount : () => {}}
+          isShowAmount={allowHideBalance ? isShowAmount : true}
+          balance={totalBalance}
+          wallet={wallet}
+          BalanceFontSize={20}
+          ctrStyle={styles.amount}
+        />
       </Box>
     </LinearGradient>
   );
@@ -98,10 +95,29 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: windowWidth * 0.88,
     height: wp(180),
-    padding: wp(20),
+    paddingHorizontal: wp(18),
+    paddingVertical: wp(16),
     borderRadius: 15,
     position: 'relative',
     overflow: 'hidden',
+    justifyContent: 'space-between',
+  },
+  topRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cardNameCtr: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: wp(6),
+    maxWidth: '50%',
+  },
+  balanceCtr: {
+    position: 'absolute',
+    bottom: hp(7),
+    left: wp(16),
   },
   walletLine: {
     position: 'absolute',
@@ -109,51 +125,17 @@ const styles = StyleSheet.create({
     right: -25,
     zIndex: 0,
   },
-  topLeftContainer: {
-    position: 'absolute',
-    top: 20,
-    left: wp(13),
-    zIndex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bottomContainer: {
-    position: 'absolute',
-    bottom: hp(17),
-    left: wp(16),
-    right: wp(5),
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    zIndex: 2,
-  },
-  bottomLeft: {
-    flexDirection: 'column',
-    left: wp(3),
-  },
   title: {
+    marginTop: hp(2),
     fontSize: 15,
-  },
-  description: {
-    fontSize: 12,
-  },
-  bottomRight: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    flex: 1,
-    marginTop: hp(5),
   },
   pillsContainer: {
     flexDirection: 'row',
-    position: 'absolute',
-    top: 20,
-    right: wp(13),
     gap: 5,
     justifyContent: 'flex-end',
     flexWrap: 'wrap',
-    width: '80%',
   },
-  secondCard: {
-    maxWidth: wp(80),
+  amount: {
+    marginHorizontal: 0,
   },
-  usdtContainer: {},
 });

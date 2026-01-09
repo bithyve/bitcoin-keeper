@@ -9,7 +9,14 @@ import { useAppSelector } from 'src/store/hooks';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import Colors from 'src/theme/Colors';
 
-function BalanceComponent({ balance, isShowAmount, setIsShowAmount, BalanceFontSize, wallet }) {
+function BalanceComponent({
+  balance,
+  isShowAmount,
+  setIsShowAmount,
+  BalanceFontSize,
+  wallet,
+  ctrStyle = undefined,
+}) {
   const dispatch = useDispatch();
   const { currencyKind } = useAppSelector((state) => state.settings);
 
@@ -35,7 +42,7 @@ function BalanceComponent({ balance, isShowAmount, setIsShowAmount, BalanceFontS
   };
 
   return (
-    <Box style={styles.walletWrapper}>
+    <Box style={[styles.walletWrapper, ctrStyle]}>
       <TouchableOpacity
         testID="btn_hideUnhideAmount"
         onPress={handleToggle}
@@ -49,6 +56,7 @@ function BalanceComponent({ balance, isShowAmount, setIsShowAmount, BalanceFontS
           color={Colors.bodyText}
           variation="light"
           wallet={wallet}
+          medium
         />
       </TouchableOpacity>
     </Box>

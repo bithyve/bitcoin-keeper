@@ -19,6 +19,7 @@ interface ICurrencyInfo {
   balanceMaxWidth?: number;
   wallet?: any;
   variation?: 'light' | 'green' | 'dark' | 'grey' | 'slateGreen' | 'richBlack';
+  medium?: boolean;
 }
 function CurrencyInfo({
   hideAmounts,
@@ -30,6 +31,7 @@ function CurrencyInfo({
   balanceMaxWidth,
   wallet,
   variation = 'grey',
+  medium = false,
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   return (
@@ -45,6 +47,7 @@ function CurrencyInfo({
                 color={color}
                 style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth || null }}
                 bold={bold}
+                medium={medium}
                 numberOfLines={1}
                 testID="text_balance"
               >

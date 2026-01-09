@@ -236,8 +236,8 @@ const HomeWallet = () => {
           hexagonBackgroundColor={
             item.entityKind === EntityKind.USDT_WALLET ? Colors.aqualightMarine : Colors.CyanGreen
           }
-          iconWidth={42}
-          iconHeight={38}
+          iconWidth={33}
+          iconHeight={30}
           title={item.presentationData.name}
           tags={getWalletTags(item)}
           totalBalance={
@@ -249,6 +249,7 @@ const HomeWallet = () => {
           wallet={item}
           isShowAmount={isShowAmount}
           setIsShowAmount={setIsShowAmount}
+          tag={item.entityKind === EntityKind.VAULT ? 'Cold Storage' : 'Hot Wallet'}
         />
       </TouchableOpacity>
     );
