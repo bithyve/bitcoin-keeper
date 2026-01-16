@@ -298,6 +298,28 @@ function VaultSettings({ route }) {
         );
       },
     },
+
+    {
+      title: vaultText.vaultSchemeTitle,
+      description: vaultText.vaultSchemeDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'SelectWalletType',
+            params: {
+              vaultId,
+              isAddInheritanceKeyFromParams:
+                vault.type === VaultType.MINISCRIPT &&
+                vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+                  MiniscriptTypes.INHERITANCE
+                ),
+            },
+          })
+        );
+      },
+    },
   ].filter(Boolean);
 
   return (

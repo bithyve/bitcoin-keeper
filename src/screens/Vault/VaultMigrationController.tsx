@@ -63,7 +63,7 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
 import KeeperModal from 'src/components/KeeperModal';
 import useSigners from 'src/hooks/useSigners';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -113,6 +113,7 @@ function VaultMigrationController({
   const [checkAddressModalVisible, setCheckAddressModalVisible] = useState(false);
   const { vaultSigners } = useSigners(activeVault?.id);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const { colorMode } = useColorMode();
 
   const DEVICES_WITH_SCREEN = [
     SignerType.BITBOX02,
@@ -579,9 +580,9 @@ function VaultMigrationController({
             <Text>{ErrorText.transferFunds} </Text>
           </Box>
         )}
-        modalBackground="modalWhiteBackground"
-        textColor="modalHeaderTitle"
-        subTitleColor="modalSubtitleBlack"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText="Check address"
         secondaryButtonText="Transfer funds"
         buttonCallback={() => {

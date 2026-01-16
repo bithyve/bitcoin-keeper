@@ -34,24 +34,27 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
-export const SelectWalletType = ({ navigation }) => {
+export const SelectWalletType = ({ navigation, route }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletText } = translations;
+  const { vaultId } = route.params || {};
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader title={walletText.addNewWallet} subTitle={walletText.createOrImportWallet} />
       <Box style={styles.container}>
         <Box style={styles.cardsList}>
-          <SelectWalletTypeCards />
+          <SelectWalletTypeCards vaultId={vaultId} />
         </Box>
-        <ImportWalletCta onPress={() => navigation.navigate('VaultConfigurationCreation')} />
+        {!vaultId && (
+          <ImportWalletCta onPress={() => navigation.navigate('VaultConfigurationCreation')} />
+        )}
       </Box>
     </ScreenWrapper>
   );
 };
 
-export const SelectWalletTypeCards = () => {
+export const SelectWalletTypeCards = ({ vaultId = null }) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletText } = translations;
@@ -132,13 +135,14 @@ export const SelectWalletTypeCards = () => {
           currentBlockHeight: null,
           hasInitialTimelock: false,
           isNewSchemeFlow: true,
+          vaultId,
         },
       })
     );
   };
 
   const OPTIONS = [
-    {
+    !vaultId && {
       title: walletText.hotWallet,
       subtitle: walletText.hotWalletDesc,
       icon: <CreateWalletIcon />,
@@ -156,10 +160,11 @@ export const SelectWalletTypeCards = () => {
       title: walletText.multiKeyAdvanced,
       subtitle: walletText.multiKeyAdvancedDesc,
       icon: <CreateMultiVaultIcon />,
-      onPress: () => navigation.dispatch(CommonActions.navigate('AddNewMultiKeyWallet')),
+      onPress: () =>
+        navigation.dispatch(CommonActions.navigate('AddNewMultiKeyWallet', { vaultId })),
       id: 'newMultiVault',
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <>

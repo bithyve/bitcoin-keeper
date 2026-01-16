@@ -20,7 +20,8 @@ import { useAppSelector } from 'src/store/hooks';
 import KeeperModal from 'src/components/KeeperModal';
 import CollaborativeIcon from 'src/assets/images/collaborativeGreen.svg';
 
-export const AddNewMultiKeyWallet = ({ navigation }) => {
+export const AddNewMultiKeyWallet = ({ navigation, route }) => {
+  const { vaultId } = route.params || {};
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
@@ -54,6 +55,7 @@ export const AddNewMultiKeyWallet = ({ navigation }) => {
               currentBlockHeight: null,
               hasInitialTimelock: false,
               isNewSchemeFlow: true,
+              vaultId,
             },
           })
         ),
@@ -72,19 +74,20 @@ export const AddNewMultiKeyWallet = ({ navigation }) => {
               currentBlockHeight: null,
               hasInitialTimelock: false,
               isNewSchemeFlow: true,
+              vaultId,
             },
           })
         ),
       id: '3Of5',
     },
-    {
+    !vaultId && {
       icon: <CollaborativeIcon />,
       title: vaultText.collaborativeWallet,
       subtitle: walletTranslations.walletWithFamily,
       onPress: handleCollaborativeWalletCreation,
       id: 'collaborative',
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -93,7 +96,7 @@ export const AddNewMultiKeyWallet = ({ navigation }) => {
         {CREATE_WALLET_OPTIONS.map((option, index) => (
           <OptionItem key={index} option={option} colorMode={colorMode} />
         ))}
-        <Pressable onPress={() => navigation.navigate('AddNewWallet')}>
+        <Pressable onPress={() => navigation.navigate('AddNewWallet', { vaultId })}>
           <Box
             style={styles.suggestionCtr}
             backgroundColor={isDarkMode ? Colors.seperatorDark : `${colorMode}.separator`}
