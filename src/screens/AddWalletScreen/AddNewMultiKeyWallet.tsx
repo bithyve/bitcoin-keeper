@@ -1,5 +1,5 @@
 import { Box, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Pressable, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -14,12 +14,32 @@ import Vault3of5 from 'src/assets/images/3of5Vault.svg';
 import GreenArrow from 'src/assets/images/icon_arrow.svg';
 import GreenArrowLight from 'src/assets/images/icon_arrow_white.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useDispatch } from 'react-redux';
+import { resetCollaborativeSession } from 'src/store/reducers/vaults';
+import { useAppSelector } from 'src/store/hooks';
+import KeeperModal from 'src/components/KeeperModal';
+import CollaborativeIcon from 'src/assets/images/collaborativeGreen.svg';
 
 export const AddNewMultiKeyWallet = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTranslations } = translations;
+  const { wallet: walletTranslations, vault: vaultText, common } = translations;
+  const dispatch = useDispatch();
+  const { collaborativeSession } = useAppSelector((state) => state.vault);
+  const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
+
+  const handleCollaborativeWalletCreation = () => {
+    if (Object.keys(collaborativeSession.signers).length > 0) {
+      setCollabSessionExistsModalVisible(true);
+    } else {
+      dispatch(resetCollaborativeSession());
+      setTimeout(() => {
+        navigation.navigate('SetupCollaborativeWallet');
+      }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
+    }
+  };
+
   const CREATE_WALLET_OPTIONS = [
     {
       icon: <Vault2of3 />,
@@ -57,6 +77,13 @@ export const AddNewMultiKeyWallet = ({ navigation }) => {
         ),
       id: '3Of5',
     },
+    {
+      icon: <CollaborativeIcon />,
+      title: vaultText.collaborativeWallet,
+      subtitle: walletTranslations.walletWithFamily,
+      onPress: handleCollaborativeWalletCreation,
+      id: 'collaborative',
+    },
   ];
 
   return (
@@ -79,6 +106,25 @@ export const AddNewMultiKeyWallet = ({ navigation }) => {
           </Box>
         </Pressable>
       </Box>
+      <KeeperModal
+        visible={collabSessionExistsModalVisible}
+        close={() => setCollabSessionExistsModalVisible(false)}
+        title={walletTranslations.collaborativeSessionExists}
+        subTitle={walletTranslations.collaborativeSessionExistsDesc}
+        buttonText={common.continueSession}
+        secondaryButtonText={common.startNew}
+        secondaryCallback={() => {
+          setCollabSessionExistsModalVisible(false);
+          dispatch(resetCollaborativeSession());
+          setTimeout(() => {
+            navigation.navigate('SetupCollaborativeWallet');
+          }, 500);
+        }}
+        buttonCallback={() => {
+          setCollabSessionExistsModalVisible(false);
+          navigation.navigate('SetupCollaborativeWallet');
+        }}
+      />
     </ScreenWrapper>
   );
 };

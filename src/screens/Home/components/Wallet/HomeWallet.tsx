@@ -11,14 +11,10 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import useWalletAsset from 'src/hooks/useWalletAsset';
 import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation, CommonActions } from '@react-navigation/native';
-import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
-
-import CollaborativeWalletIcon from 'src/assets/images/collaborative_vault_white.svg';
+import { hp, wp } from 'src/constants/responsive';
 
 import { useAppSelector } from 'src/store/hooks';
-import { resetCollaborativeSession } from 'src/store/reducers/vaults';
 import { useDispatch } from 'react-redux';
 import { autoSyncWallets } from 'src/store/sagaActions/wallets';
 import { RefreshControl } from 'react-native';
@@ -46,7 +42,7 @@ const HomeWallet = () => {
   const navigation = useNavigation();
   const { wallets } = useWallets({ getAll: true });
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletText, common } = translations;
+  const { wallet: walletText } = translations;
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
   const { allVaults } = useVault({
     includeArchived: false,
@@ -54,11 +50,8 @@ const HomeWallet = () => {
     getHiddenWallets: false,
   });
   const { usdtWallets } = useUSDTWallets();
-  const { collaborativeSession } = useAppSelector((state) => state.vault);
 
   const dispatch = useDispatch();
-  const [showAddWalletModal, setShowAddWalletModal] = useState(false);
-  const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing =
@@ -93,34 +86,12 @@ const HomeWallet = () => {
     }
   }, [relayWalletUpdate, relayWalletError]);
 
-  const handleCollaborativeWalletCreation = () => {
-    setShowAddWalletModal(false);
-    if (Object.keys(collaborativeSession.signers).length > 0) {
-      setCollabSessionExistsModalVisible(true);
-    } else {
-      dispatch(resetCollaborativeSession());
-      setTimeout(() => {
-        navigation.navigate('SetupCollaborativeWallet');
-      }, 500); // delaying navigation by 0.5 second to ensure collaborative session reset
-    }
-  };
-
   const pullDownRefresh = () => {
     setPullRefresh(true);
 
     dispatch(autoSyncWallets(false, false, true));
     setPullRefresh(false);
   };
-
-  const CREATE_WALLET_OPTIONS = [
-    {
-      title: common.collaborativeWallet,
-      subtitle: walletText.walletWithFamily,
-      icon: <CollaborativeWalletIcon />,
-      onPress: handleCollaborativeWalletCreation,
-      id: 'collaborativeWallet',
-    },
-  ];
 
   const renderWalletCard = ({ item }: { item: Wallet | Vault | USDTWallet }) => {
     const handleWalletPress = (item, navigation) => {
@@ -218,25 +189,6 @@ const HomeWallet = () => {
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
         ListEmptyComponent={EmptyWalletComponent}
       />
-      <KeeperModal
-        visible={collabSessionExistsModalVisible}
-        close={() => setCollabSessionExistsModalVisible(false)}
-        title={walletText.collaborativeSessionExists}
-        subTitle={walletText.collaborativeSessionExistsDesc}
-        buttonText={common.continueSession}
-        secondaryButtonText={common.startNew}
-        secondaryCallback={() => {
-          setCollabSessionExistsModalVisible(false);
-          dispatch(resetCollaborativeSession());
-          setTimeout(() => {
-            navigation.navigate('SetupCollaborativeWallet');
-          }, 500);
-        }}
-        buttonCallback={() => {
-          setCollabSessionExistsModalVisible(false);
-          navigation.navigate('SetupCollaborativeWallet');
-        }}
-      />
       {!!allWallets.length && (
         <FAB
           onPress={() => navigation.dispatch(CommonActions.navigate('SelectWalletType'))}
@@ -252,28 +204,6 @@ export default HomeWallet;
 const styles = StyleSheet.create({
   walletContainer: {
     gap: 15,
-  },
-  customStyle: {
-    marginBottom: hp(10),
-  },
-  DashedCtaStyle: {
-    width: windowWidth * 0.88,
-  },
-  walletTypeContainer: {
-    gap: wp(15),
-    marginBottom: hp(10),
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
-  },
-  typeCard: {
-    width: wp(148),
-    height: hp(104),
-    alignItems: 'center',
-    borderWidth: 1,
-    justifyContent: 'center',
-    borderRadius: 12,
-    gap: wp(10),
   },
   createWalletCtr: {
     gap: hp(8),
