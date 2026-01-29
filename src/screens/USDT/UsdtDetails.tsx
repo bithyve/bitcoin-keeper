@@ -11,13 +11,16 @@ import Transactions from '../WalletDetails/components/Transactions';
 import { useUSDTWallets } from 'src/hooks/useUSDTWallets';
 import { getAvailableBalanceUSDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import WalletDetailHeader from '../WalletDetails/components/WalletDetailHeader';
-import DetailCards from '../WalletDetails/components/DetailCards';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import MoreCard from '../WalletDetails/components/MoreCard';
 import KeeperModal from 'src/components/KeeperModal';
 import SwapSvg from 'src/assets/images/swap.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import Fonts from 'src/constants/Fonts';
 import Colors from 'src/theme/Colors';
+import SendWhiteIcon from 'src/assets/images/send-btc-white-arrow.svg';
+import ReceiveWhiteIcon from 'src/assets/images/recieve-btc-white-arrow.svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const [initialLoading, setInitialLoading] = useState(false);
@@ -37,6 +40,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
 }
 
 const UsdtDetails = ({ route }) => {
+  const insets = useSafeAreaInsets();
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
@@ -62,25 +66,7 @@ const UsdtDetails = ({ route }) => {
         description={usdtWallet.presentationData.description}
         wallet={usdtWallet}
       />
-      <Box style={styles.detailCardsContainer}>
-        <Box style={styles.detailCards}>
-          <DetailCards
-            // setShowMore={setShowMore}
-            disabled={false}
-            sendCallback={() =>
-              navigation.dispatch(CommonActions.navigate('sendUsdt', { usdtWallet }))
-            }
-            receiveCallback={() =>
-              navigation.dispatch(CommonActions.navigate('usdtReceive', { usdtWallet }))
-            }
-            buyCallback={() =>
-              navigation.dispatch(CommonActions.navigate('buyUstd', { usdtWallet }))
-            }
-            wallet={usdtWallet}
-          />
-        </Box>
-      </Box>
-      <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
+      <VStack style={styles.walletContainer}>
         {usdtWallet ? (
           <Box
             flex={1}
@@ -134,6 +120,25 @@ const UsdtDetails = ({ route }) => {
           </Box>
         )}
       </VStack>
+      <Box
+        backgroundColor={`${colorMode}.pantoneGreen`}
+        style={[styles.bottomCtr, { bottom: insets.bottom + hp(5) }]}
+      >
+        <Pressable
+          style={styles.bottomCta}
+          onPress={() => navigation.dispatch(CommonActions.navigate('sendUsdt', { usdtWallet }))}
+        >
+          <SendWhiteIcon />
+          <Text style={styles.bottomCtaTxt}>{common.send}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.bottomCta, { justifyContent: 'flex-start' }]}
+          onPress={() => navigation.dispatch(CommonActions.navigate('usdtReceive', { usdtWallet }))}
+        >
+          <ReceiveWhiteIcon />
+          <Text style={styles.bottomCtaTxt}>{common.receive}</Text>
+        </Pressable>
+      </Box>
       <KeeperModal
         visible={showmore}
         close={() => setShowMore(false)}
@@ -169,14 +174,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   walletContainer: {
-    paddingTop: wp(30),
-    paddingBottom: 20,
+    marginTop: hp(20),
     flex: 1,
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderColor: Colors.separator,
   },
   addNewWalletText: {
     fontSize: 12,
@@ -192,9 +192,12 @@ const styles = StyleSheet.create({
   },
   transactionsContainer: {
     paddingHorizontal: wp(22),
-    marginTop: hp(5),
-    paddingTop: hp(24),
     borderBottomWidth: 0,
+    borderWidth: 1,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderColor: Colors.separator,
+    paddingBottom: hp(50),
   },
   transTitleWrapper: {
     paddingTop: 5,
@@ -242,4 +245,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  bottomCtr: {
+    position: 'absolute',
+    width: '70%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: wp(40),
+  },
+  bottomCta: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: wp(10),
+    paddingVertical: hp(17),
+  },
+  bottomCtaTxt: { fontFamily: Fonts.InterBold, fontSize: 14, color: Colors.headerWhite },
 });

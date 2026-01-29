@@ -54,7 +54,11 @@ import DetailCards from '../WalletDetails/components/DetailCards';
 import MoreCard from '../WalletDetails/components/MoreCard';
 import config from 'src/utils/service-utilities/config';
 import { setShowTipModal } from 'src/store/reducers/settings';
+import SendWhiteIcon from 'src/assets/images/send-btc-white-arrow.svg';
+import ReceiveWhiteIcon from 'src/assets/images/recieve-btc-white-arrow.svg';
 import Colors from 'src/theme/Colors';
+import Fonts from 'src/constants/Fonts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function TransactionList({
   transactions,
@@ -141,6 +145,7 @@ function TransactionList({
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'VaultDetails'>;
 
 function VaultDetails({ navigation, route }: ScreenProps) {
+  const insets = useSafeAreaInsets();
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslation, common } = translations;
@@ -204,7 +209,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
   const [timeUntilTimelockExpires, setTimeUntilTimelockExpires] = useState<string | null>(null);
   const [showmore, setShowMore] = useState(false);
   const [loadingMiniscript, setLoadingMiniscript] = useState(false);
-
+  const isArchived = vault.archived;
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
 
   useEffect(() => {
@@ -484,36 +489,37 @@ function VaultDetails({ navigation, route }: ScreenProps) {
       <Box style={styles.detailCardsContainer}>
         <Box style={styles.detailCards}>
           <DetailCards
-            setShowMore={setShowMore}
             disabled={vault.archived}
-            sendCallback={async () => {
-              if (timeUntilTimelockExpires) {
-                setShowTimelockModal(true);
-                return;
-              }
-              if (vault.type === VaultType.MINISCRIPT) {
-                try {
-                  await selectVaultSpendingPaths();
-                } catch (err) {
-                  showToast(typeof err === 'string' ? err : err?.message, <ToastErrorIcon />);
-                  return null;
-                }
-              } else {
-                navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-              }
-            }}
-            receiveCallback={() => {
-              if (pendingHealthCheckCount >= vault.scheme.m) {
-                setShowHealthCheckModal(true);
-              } else {
-                navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
-              }
-            }}
-            buyCallback={() =>
+            updateSchemeCallback={() => {
               navigation.dispatch(
-                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet: vault } })
-              )
+                CommonActions.navigate({
+                  name: 'SelectWalletType',
+                  params: {
+                    vaultId,
+                    isAddInheritanceKeyFromParams:
+                      vault.type === VaultType.MINISCRIPT &&
+                      vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
+                        MiniscriptTypes.INHERITANCE
+                      ),
+                  },
+                })
+              );
+            }}
+            viewCoinsCallback={() =>
+              navigation.navigate('UTXOManagement', {
+                data: vault,
+                routeName: 'Vault',
+                vaultId,
+              })
             }
+            manageKeysCallback={() => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ManageSigners',
+                  params: { vaultId, vaultKeys: vault.signers },
+                })
+              );
+            }}
           />
         </Box>
       </Box>
@@ -533,6 +539,55 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         </Box>
         <Box></Box>
       </VStack>
+
+      {
+        <Box
+          backgroundColor={`${colorMode}.pantoneGreen`}
+          style={[
+            styles.bottomCtr,
+            { bottom: insets.bottom + hp(5), opacity: isArchived ? 0.5 : 1 },
+          ]}
+        >
+          <Pressable
+            disabled={isArchived}
+            style={styles.bottomCta}
+            onPress={async () => {
+              if (timeUntilTimelockExpires) {
+                setShowTimelockModal(true);
+                return;
+              }
+              if (vault.type === VaultType.MINISCRIPT) {
+                try {
+                  await selectVaultSpendingPaths();
+                } catch (err) {
+                  showToast(typeof err === 'string' ? err : err?.message, <ToastErrorIcon />);
+                  return null;
+                }
+              } else {
+                navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+              }
+            }}
+          >
+            <SendWhiteIcon />
+            <Text style={styles.bottomCtaTxt}>{common.send}</Text>
+          </Pressable>
+          <Pressable
+            disabled={isArchived}
+            style={[styles.bottomCta, { justifyContent: 'flex-start' }]}
+            onPress={() => {
+              if (pendingHealthCheckCount >= vault.scheme.m) {
+                setShowHealthCheckModal(true);
+              } else {
+                navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+              }
+            }}
+          >
+            <ReceiveWhiteIcon />
+            <Text style={styles.bottomCtaTxt}>{common.receive}</Text>
+          </Pressable>
+        </Box>
+      }
+
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -728,6 +783,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     borderColor: Colors.separator,
+    paddingBottom: hp(50),
   },
 
   transTitleWrapper: {
@@ -953,6 +1009,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  bottomCtr: {
+    position: 'absolute',
+    width: '70%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: wp(40),
+  },
+  bottomCta: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: wp(10),
+    paddingVertical: hp(17),
+  },
+  bottomCtaTxt: { fontFamily: Fonts.InterBold, fontSize: 14, color: Colors.headerWhite },
 });
 
 export default SentryErrorBoundary(VaultDetails);

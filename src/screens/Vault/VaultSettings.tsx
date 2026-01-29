@@ -27,8 +27,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { trimCWDefaultName } from 'src/utils/utilities';
 import { getVaultEnhancedSigners } from 'src/services/wallets/operations/miniscript/default/EnhancedVault';
 import WalletHeader from 'src/components/WalletHeader';
-import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import PrivateVaultSetupIcon from 'src/assets/privateImages/vault_setup.svg';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
@@ -42,9 +40,10 @@ import { NfcTech } from 'react-native-nfc-manager';
 import { useQuery } from '@realm/react';
 import ImportExportLabels from 'src/components/ImportExportLabels';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { reinstateVault } from 'src/store/sagaActions/vaults';
 function VaultSettings({ route }) {
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
@@ -83,6 +82,7 @@ function VaultSettings({ route }) {
   const hasInitialTimelock = vault?.scheme?.miniscriptScheme?.usedMiniscriptTypes.includes(
     MiniscriptTypes.TIMELOCKED
   );
+  const dispatch = useDispatch();
 
   const cleanUp = () => {
     setVisible(false);
@@ -299,25 +299,14 @@ function VaultSettings({ route }) {
       },
     },
 
-    {
-      title: vaultText.vaultSchemeTitle,
-      description: vaultText.vaultSchemeDesc,
+    vault.archived && {
+      title: common.reinstate,
+      description: common.reinstateDesc,
       icon: null,
       isDiamond: false,
       onPress: () => {
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'SelectWalletType',
-            params: {
-              vaultId,
-              isAddInheritanceKeyFromParams:
-                vault.type === VaultType.MINISCRIPT &&
-                vault.scheme?.miniscriptScheme?.usedMiniscriptTypes?.includes(
-                  MiniscriptTypes.INHERITANCE
-                ),
-            },
-          })
-        );
+        dispatch(reinstateVault(vault.id));
+        showToast('Vault reinstated successfully', <TickIcon />);
       },
     },
   ].filter(Boolean);

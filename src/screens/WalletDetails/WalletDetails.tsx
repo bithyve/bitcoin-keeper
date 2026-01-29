@@ -24,7 +24,11 @@ import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import WalletDetailHeader from './components/WalletDetailHeader';
 import DetailCards from './components/DetailCards';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import SendWhiteIcon from 'src/assets/images/send-btc-white-arrow.svg';
+import ReceiveWhiteIcon from 'src/assets/images/recieve-btc-white-arrow.svg';
 import Colors from 'src/theme/Colors';
+import Fonts from 'src/constants/Fonts';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -46,6 +50,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
 
 type ScreenProps = NativeStackScreenProps<AppStackParams, 'WalletDetails'>;
 function WalletDetails({ route }: ScreenProps) {
+  const insets = useSafeAreaInsets();
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const navigation = useNavigation();
@@ -135,15 +140,22 @@ function WalletDetails({ route }: ScreenProps) {
           <DetailCards
             disabled={false}
             wallet={wallet}
-            sendCallback={() =>
-              navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }))
-            }
-            receiveCallback={() =>
-              navigation.dispatch(CommonActions.navigate('Receive', { wallet }))
-            }
-            buyCallback={() =>
+            updateSchemeCallback={() => {
               navigation.dispatch(
-                CommonActions.navigate({ name: 'BuyBitcoin', params: { wallet } })
+                CommonActions.navigate({
+                  name: 'SelectWalletType',
+                  params: {
+                    vaultId: walletId,
+                  },
+                })
+              );
+            }}
+            viewCoinsCallback={() =>
+              navigation.dispatch(
+                CommonActions.navigate('UTXOManagement', {
+                  data: wallet,
+                  routeName: 'Wallet',
+                })
               )
             }
           />
@@ -199,6 +211,25 @@ function WalletDetails({ route }: ScreenProps) {
           </Box>
         )}
       </VStack>
+      <Box
+        backgroundColor={`${colorMode}.pantoneGreen`}
+        style={[styles.bottomCtr, { bottom: insets.bottom + hp(5) }]}
+      >
+        <Pressable
+          style={styles.bottomCta}
+          onPress={() => navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }))}
+        >
+          <SendWhiteIcon />
+          <Text style={styles.bottomCtaTxt}>{common.send}</Text>
+        </Pressable>
+        <Pressable
+          style={[styles.bottomCta, { justifyContent: 'flex-start' }]}
+          onPress={() => navigation.dispatch(CommonActions.navigate('Receive', { wallet }))}
+        >
+          <ReceiveWhiteIcon />
+          <Text style={styles.bottomCtaTxt}>{common.receive}</Text>
+        </Pressable>
+      </Box>
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
     </Box>
   );
@@ -237,6 +268,7 @@ const styles = StyleSheet.create({
     marginTop: hp(5),
     paddingTop: hp(10),
     borderBottomWidth: 0,
+    paddingBottom: hp(50),
   },
   transTitleWrapper: {
     paddingTop: 5,
@@ -279,5 +311,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  bottomCtr: {
+    position: 'absolute',
+    width: '70%',
+    borderRadius: 100,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: wp(40),
+  },
+  bottomCta: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: wp(10),
+    paddingVertical: hp(17),
+  },
+  bottomCtaTxt: { fontFamily: Fonts.InterBold, fontSize: 14, color: Colors.headerWhite },
 });
 export default SentryErrorBoundary(WalletDetails);
