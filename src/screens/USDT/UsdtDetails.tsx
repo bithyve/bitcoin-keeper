@@ -17,6 +17,7 @@ import MoreCard from '../WalletDetails/components/MoreCard';
 import KeeperModal from 'src/components/KeeperModal';
 import SwapSvg from 'src/assets/images/swap.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import Colors from 'src/theme/Colors';
 
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const [initialLoading, setInitialLoading] = useState(false);
@@ -172,6 +173,10 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
+    borderWidth: 1,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderColor: Colors.separator,
   },
   addNewWalletText: {
     fontSize: 12,
@@ -229,13 +234,12 @@ const styles = StyleSheet.create({
   },
   detailCardsContainer: {
     zIndex: 1000,
+    paddingTop: hp(5),
+    paddingBottom: hp(10),
   },
   detailCards: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0,
-    transform: [{ translateY: hp(50) }],
   },
 });

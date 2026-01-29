@@ -54,6 +54,7 @@ import DetailCards from '../WalletDetails/components/DetailCards';
 import MoreCard from '../WalletDetails/components/MoreCard';
 import config from 'src/utils/service-utilities/config';
 import { setShowTipModal } from 'src/store/reducers/settings';
+import Colors from 'src/theme/Colors';
 
 function TransactionList({
   transactions,
@@ -715,16 +716,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   bottomSection: {
-    paddingTop: wp(65),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
   },
   transactionsContainer: {
     paddingHorizontal: wp(22),
-    marginTop: hp(5),
-    paddingTop: hp(10),
+    paddingTop: hp(15),
+    borderWidth: 1,
     borderBottomWidth: 0,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderColor: Colors.separator,
   },
 
   transTitleWrapper: {
@@ -942,14 +945,13 @@ const styles = StyleSheet.create({
   },
   detailCardsContainer: {
     zIndex: 1000,
+    paddingTop: hp(5),
+    paddingBottom: hp(10),
   },
   detailCards: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0,
-    transform: [{ translateY: hp(50) }],
   },
 });
 

@@ -24,6 +24,7 @@ import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import WalletDetailHeader from './components/WalletDetailHeader';
 import DetailCards from './components/DetailCards';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import Colors from 'src/theme/Colors';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -211,10 +212,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   walletContainer: {
-    paddingTop: wp(60),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
+    borderWidth: 1,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderColor: Colors.separator,
   },
   addNewWalletText: {
     fontSize: 12,
@@ -267,14 +271,13 @@ const styles = StyleSheet.create({
   },
   detailCardsContainer: {
     zIndex: 1000,
+    paddingTop: hp(5),
+    paddingBottom: hp(10),
   },
   detailCards: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0,
-    transform: [{ translateY: hp(50) }],
   },
 });
 export default SentryErrorBoundary(WalletDetails);

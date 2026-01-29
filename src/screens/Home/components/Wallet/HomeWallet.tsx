@@ -9,7 +9,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 
 import useWalletAsset from 'src/hooks/useWalletAsset';
-import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
+import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
@@ -126,7 +126,7 @@ const HomeWallet = () => {
           wallet={item}
           isShowAmount={isShowAmount}
           setIsShowAmount={setIsShowAmount}
-          tag={item.entityKind === EntityKind.VAULT ? 'Cold Storage' : 'Hot Wallet'}
+          tag={getWalletCardSingleTag(item)}
         />
       </TouchableOpacity>
     );
@@ -239,3 +239,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+
+const getWalletCardSingleTag = (wallet: Wallet | Vault | USDTWallet) => {
+  if (wallet.entityKind === EntityKind.WALLET) return 'Hot Wallet';
+  else if (wallet.entityKind === EntityKind.USDT_WALLET) return 'USDT Wallet';
+  else if (wallet.entityKind === EntityKind.VAULT) {
+    switch (wallet.type) {
+      case VaultType.SINGE_SIG:
+        return 'Cold Storage';
+      case VaultType.COLLABORATIVE:
+        return 'Collaborative';
+      case VaultType.MINISCRIPT:
+        return 'Advance Storage';
+      default:
+        return 'Wallet';
+    }
+  }
+  return 'Wallet';
+};
