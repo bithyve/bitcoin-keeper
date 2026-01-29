@@ -24,7 +24,7 @@ function ArchivedVault({ navigation, route }) {
   const isSmallDevice = useIsSmallDevices();
 
   const renderArchiveVaults = ({ item }) => (
-    <Box style={styles.cardContainer}>
+    <Box borderColor={`${colorMode}.separator`} style={styles.cardContainer}>
       <ActionCard
         cardName={item.presentationData.name}
         description={item.presentationData.description}
@@ -115,6 +115,8 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginLeft: wp(8),
     marginBottom: hp(8),
+    borderWidth: 1,
+    borderRadius: 10,
   },
   noteWrapper: {
     marginHorizontal: '5%',

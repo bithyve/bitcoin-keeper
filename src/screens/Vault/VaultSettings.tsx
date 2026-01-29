@@ -219,13 +219,14 @@ function VaultSettings({ route }) {
         isDiamond: false,
         onPress: () => navigation.dispatch(CommonActions.navigate('ArchivedVault', { vaultId })),
       },
-    !isCanaryWalletType && {
-      title: vaultText.vaultHideTitle,
-      description: vaultText.vaultHideDesc,
-      icon: null,
-      isDiamond: false,
-      onPress: () => updateWalletVisibility(),
-    },
+    !isCanaryWalletType &&
+      !vault.archived && {
+        title: vaultText.vaultHideTitle,
+        description: vaultText.vaultHideDesc,
+        icon: null,
+        isDiamond: false,
+        onPress: () => updateWalletVisibility(),
+      },
     vault.archivedId &&
       vault.isMigrating && {
         title: vaultText.archiveWallet,

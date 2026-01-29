@@ -171,21 +171,26 @@ function AddNewWallet({ navigation, route }) {
         </Box>
       </Box>
       <Box style={styles.footer}>
-        <DashedCta
-          textPosition="left"
-          backgroundColor={dashed_CTA_background}
-          hexagonBackgroundColor={isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`}
-          textColor={DashedCtaTextColor}
-          name={walletText.enhancedSecurityOption}
-          description={walletText.enhancedSecurityDesc}
-          callback={() => setShowEnhancedOptionsModal(true)}
-          icon={<ThemedSvg name={'enhanced_setting_icon'} />}
-          iconWidth={22}
-          iconHeight={20}
-          cardStyles={styles.enhancedVaultsCustomStyles}
-          titleSize={15}
-          borderColor={DashedCtaBorderColor}
-        />
+        {/* Disabled miniscript options during vault upgrade */}
+        {!vaultId && (
+          <DashedCta
+            textPosition="left"
+            backgroundColor={dashed_CTA_background}
+            hexagonBackgroundColor={
+              isDarkMode ? Colors.DeepCharcoalGreen : `${colorMode}.dullGreen`
+            }
+            textColor={DashedCtaTextColor}
+            name={walletText.enhancedSecurityOption}
+            description={walletText.enhancedSecurityDesc}
+            callback={() => setShowEnhancedOptionsModal(true)}
+            icon={<ThemedSvg name={'enhanced_setting_icon'} />}
+            iconWidth={22}
+            iconHeight={20}
+            cardStyles={styles.enhancedVaultsCustomStyles}
+            titleSize={15}
+            borderColor={DashedCtaBorderColor}
+          />
+        )}
         <Buttons
           primaryText={common.proceed}
           primaryCallback={() => {
