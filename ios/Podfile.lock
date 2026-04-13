@@ -1332,8 +1332,27 @@ PODS:
     - React-Core
   - react-native-document-picker (8.2.2):
     - React-Core
-  - react-native-get-random-values (1.8.0):
+  - react-native-get-random-values (2.0.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-hce (0.2.0):
     - React
   - react-native-html-to-pdf (0.12.0):
@@ -1712,7 +1731,7 @@ PODS:
     - Yoga
   - RNLocalize (2.2.2):
     - React-Core
-  - RNQrGenerator (1.4.4):
+  - RNQrGenerator (1.4.5):
     - React
     - ZXingObjC
   - RNReanimated (3.17.0):
@@ -1891,11 +1910,11 @@ PODS:
     - SDWebImage/Core (~> 5.10)
   - Sentry/HybridSDK (8.41.0)
   - SocketRocket (0.7.1)
-  - VisionCamera (4.7.2):
-    - VisionCamera/Core (= 4.7.2)
-    - VisionCamera/React (= 4.7.2)
-  - VisionCamera/Core (4.7.2)
-  - VisionCamera/React (4.7.2):
+  - VisionCamera (4.7.3):
+    - VisionCamera/Core (= 4.7.3)
+    - VisionCamera/React (= 4.7.3)
+  - VisionCamera/Core (4.7.3)
+  - VisionCamera/React (4.7.3):
     - React-Core
   - Yoga (0.0.0)
   - ZXingObjC (3.6.9):
@@ -2319,7 +2338,7 @@ SPEC CHECKSUMS:
   react-native-config: 8e425892a531627c52db765be3088185cb871e19
   react-native-contacts: f551920b74ebfc5f7f6df307495f085e504a4369
   react-native-document-picker: a338165804b1a14c8e408448115dc0edfd7b73ca
-  react-native-get-random-values: 0fd2b6a3129988d701d10e30f0622d5f039531bc
+  react-native-get-random-values: f59032ad9c14f378130e6570dc86ce168959fe96
   react-native-hce: 164e785abe2648edac12934203f55dc785bb1c0b
   react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
   react-native-image-picker: 1f5318beec2ebed6695454ffb9bea8c4152f1598
@@ -2371,7 +2390,7 @@ SPEC CHECKSUMS:
   RNIap: 66eb29da8e992696071182f91b89e5bffa85b4a2
   RNKeychain: 8024819eb861575c8e1bdcfc6e02c2b947ed16f7
   RNLocalize: 19917c3f32cf6386f7d2957a638a4281669cae57
-  RNQrGenerator: 95feb09b4b2ed65f3a4afe795a20beed4b134ab5
+  RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNReanimated: 6e7f7b3e9bf83adb6cf60e713e2d1d9438cb5437
   RNScreens: 96fe858d87d26c3f46f0696f9e8824ce33a05aa7
   RNSentry: cccb4a5cbe42c46f119b102475abe5dc74712833
@@ -2381,10 +2400,10 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   Sentry: 54d0fe6c0df448497c8ed4cce66ccf7027e1823e
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
+  VisionCamera: 7187b3dac1ff3071234ead959ce311875748e14f
   Yoga: 92f3bb322c40a86b7233b815854730442e01b8c4
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
 PODFILE CHECKSUM: e1bd49dc88eaef529a830a07581f7b6b3479d3ac
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
