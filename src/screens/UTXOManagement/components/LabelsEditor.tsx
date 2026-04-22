@@ -6,7 +6,7 @@ import ConfirmSquareGreen from 'src/assets/images/confirm-square-green.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { resetState, setSyncingUTXOError } from 'src/store/reducers/utxos';
 import LabelItem from './LabelItem';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';

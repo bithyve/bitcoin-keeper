@@ -82,7 +82,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
 
     @ReactMethod
     fun login(promise: Promise) {
-        val activity = currentActivity
+        val activity = reactApplicationContext.currentActivity as? Activity
         if (apiClient == null) {
             rejectWithError(promise,"Call setup method first")
             return;
@@ -297,13 +297,13 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
     }
 
     override fun onActivityResult(
-        activity: Activity?,
+        activity: Activity,
         requestCode: Int,
         resultCode: Int,
-        intent: Intent?
+        data: Intent?
     ) {
         if(requestCode == SIGN_IN_INTENT_REQ_CODE) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account: GoogleSignInAccount = task.getResult(
                     ApiException::class.java
@@ -342,7 +342,7 @@ class CloudBackupModule(reactContext: ReactApplicationContext) : ReactContextBas
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
     }
 
 }

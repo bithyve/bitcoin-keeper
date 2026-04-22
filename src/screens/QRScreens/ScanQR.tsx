@@ -14,7 +14,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Note from 'src/components/Note/Note';

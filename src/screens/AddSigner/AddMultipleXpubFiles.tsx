@@ -19,7 +19,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { manipulateKruxData } from 'src/hardware/krux';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import { importFile } from 'src/services/fs';
 
 export const options = [

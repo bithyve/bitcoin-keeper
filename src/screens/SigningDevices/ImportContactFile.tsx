@@ -9,7 +9,7 @@ import { hp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import MenuOption from 'src/components/MenuOption';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
