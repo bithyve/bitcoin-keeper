@@ -1,0 +1,40 @@
+diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h
+index 39d7f15..65d56fc 100644
+--- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h
++++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h
+@@ -29,7 +29,15 @@
+ #import <UIKit/UIKit.h>
+ 
+ #if RCT_NEW_ARCH_ENABLED
++#if __has_include(<React-Codegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
+ #import <React-Codegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
++#elif __has_include(<ReactCodegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
++#import <ReactCodegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
++#elif __has_include(<ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
++#import <ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
++#else
++#import "ReactNativeBlobUtilSpec.h"
++#endif
+ #endif
+ 
+ 
+diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm
+index e320f77..b5d8870 100644
+--- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm
++++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm
+@@ -12,7 +12,15 @@
+ #import "ReactNativeBlobUtilProgress.h"
+ 
+ #if RCT_NEW_ARCH_ENABLED
++#if __has_include(<React-Codegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
++#import <React-Codegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
++#elif __has_include(<ReactCodegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
++#import <ReactCodegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
++#elif __has_include(<ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
+ #import <ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
++#else
++#import "ReactNativeBlobUtilSpec.h"
++#endif
+ #endif
+ 
+ dispatch_queue_t commonTaskQueue;

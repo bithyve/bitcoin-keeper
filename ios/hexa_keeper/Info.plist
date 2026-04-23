@@ -100,7 +100,7 @@
 		</dict>
 	</dict>
 	<key>RCTNewArchEnabled</key>
-	<false/>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lora-Medium.ttf</string>

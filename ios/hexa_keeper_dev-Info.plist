@@ -74,6 +74,8 @@
 			<string>One</string>
 		</dict>
 	</dict>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lora-Medium.ttf</string>
