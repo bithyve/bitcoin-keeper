@@ -1,7 +1,33 @@
-diff --git a/node_modules/native-base/lib/.DS_Store b/node_modules/native-base/lib/.DS_Store
-new file mode 100644
-index 0000000..e3f5999
-Binary files /dev/null and b/node_modules/native-base/lib/.DS_Store differ
+diff --git a/node_modules/native-base/lib/commonjs/theme/styled-system.js b/node_modules/native-base/lib/commonjs/theme/styled-system.js
+index c7c18f3..0dc1c01 100644
+--- a/node_modules/native-base/lib/commonjs/theme/styled-system.js
++++ b/node_modules/native-base/lib/commonjs/theme/styled-system.js
+@@ -128,6 +128,10 @@ const flexbox = {
+   justifyContent: true,
+   flexWrap: true,
+   flexDirection: true,
++  direction: {
++    property: 'flexDirection',
++    scale: 'flexDirection'
++  },
+   flexDir: {
+     property: 'flexDirection',
+     scale: 'flexDirection'
+diff --git a/node_modules/native-base/lib/module/theme/styled-system.js b/node_modules/native-base/lib/module/theme/styled-system.js
+index 8c01971..d02115f 100644
+--- a/node_modules/native-base/lib/module/theme/styled-system.js
++++ b/node_modules/native-base/lib/module/theme/styled-system.js
+@@ -111,6 +111,10 @@ export const flexbox = {
+   justifyContent: true,
+   flexWrap: true,
+   flexDirection: true,
++  direction: {
++    property: 'flexDirection',
++    scale: 'flexDirection'
++  },
+   flexDir: {
+     property: 'flexDirection',
+     scale: 'flexDirection'
 diff --git a/node_modules/native-base/src/hooks/useKeyboardDismissable.ts b/node_modules/native-base/src/hooks/useKeyboardDismissable.ts
 index f3cfa44..953688f 100644
 --- a/node_modules/native-base/src/hooks/useKeyboardDismissable.ts
@@ -114,3 +140,18 @@ index ed3047c..efb63dd 100644
              boxShadow: `0 1px 0 0 ${primary[500]}`,
            },
          },
+diff --git a/node_modules/native-base/src/theme/styled-system.ts b/node_modules/native-base/src/theme/styled-system.ts
+index 575d972..1aceca9 100644
+--- a/node_modules/native-base/src/theme/styled-system.ts
++++ b/node_modules/native-base/src/theme/styled-system.ts
+@@ -112,6 +112,10 @@ export const flexbox = {
+   justifyContent: true,
+   flexWrap: true,
+   flexDirection: true,
++  direction: {
++    property: 'flexDirection',
++    scale: 'flexDirection',
++  },
+   flexDir: {
+     property: 'flexDirection',
+     scale: 'flexDirection',

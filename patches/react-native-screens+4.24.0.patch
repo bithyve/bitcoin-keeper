@@ -1,0 +1,18 @@
+diff --git a/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm b/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm
+index bbf761a..8029a8d 100644
+--- a/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm
++++ b/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm
+@@ -1,6 +1,5 @@
+ #import "RCTConvert+RNScreens.h"
+-
+-#if !RCT_NEW_ARCH_ENABLED
++#import <React/RCTConvert.h>
+ 
+ #import "RNSEnums.h"
+ 
+@@ -65,5 +64,3 @@ + (NSMutableDictionary *)blurEffectsForIOSVersion
+     integerValue)
+ 
+ @end
+-
+-#endif // !RCT_NEW_ARCH_ENABLED
