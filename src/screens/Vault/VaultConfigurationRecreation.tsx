@@ -9,7 +9,7 @@ import ImportIcon from 'src/assets/images/import.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import OptionCard from 'src/components/OptionCard';
 import RNFS from 'react-native-fs';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import { pick, types } from '@react-native-documents/picker';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -49,7 +49,7 @@ function VaultConfigurationCreation() {
 
   const handleDocumentSelection = useCallback(async () => {
     try {
-      const response = await DocumentPicker.pick({
+      const response = await pick({
         presentationStyle: 'fullScreen',
         type: [types.docx, types.allFiles],
         allowMultiSelection: false,

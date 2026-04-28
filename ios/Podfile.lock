@@ -2149,7 +2149,7 @@ PODS:
     - React-Core
   - react-native-contacts (7.0.8):
     - React-Core
-  - react-native-document-picker (9.3.1):
+  - react-native-document-picker (12.0.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -3530,7 +3530,7 @@ DEPENDENCIES:
   - react-native-change-icon (from `../node_modules/react-native-change-icon`)
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-contacts (from `../node_modules/react-native-contacts`)
-  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-hce (from `../node_modules/react-native-hce`)
   - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
@@ -3735,7 +3735,7 @@ EXTERNAL SOURCES:
   react-native-contacts:
     :path: "../node_modules/react-native-contacts"
   react-native-document-picker:
-    :path: "../node_modules/react-native-document-picker"
+    :path: "../node_modules/@react-native-documents/picker"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
   react-native-hce:
@@ -3944,7 +3944,7 @@ SPEC CHECKSUMS:
   react-native-change-icon: 2abab62ecabf10adf6e03cc9516484a27385b580
   react-native-config: 8e425892a531627c52db765be3088185cb871e19
   react-native-contacts: f551920b74ebfc5f7f6df307495f085e504a4369
-  react-native-document-picker: dcf5e57f3bcae61bf8384a1c6f90896f81e17941
+  react-native-document-picker: dc2d83366e47e89e7c51e8a41eab99c1d54e941c
   react-native-get-random-values: e2acf4070fe4b7325705a05af047449637a27a21
   react-native-hce: ad5462e792d84e87924308dda1ee516757f1c0eb
   react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
