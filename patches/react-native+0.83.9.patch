@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native/React/Fabric/Mounting/RCTComponentViewRegistry.mm b/node_modules/react-native/React/Fabric/Mounting/RCTComponentViewRegistry.mm
-index 74ebc31..8ebdeac 100644
+index 0834bbf..b1aebf7 100644
 --- a/node_modules/react-native/React/Fabric/Mounting/RCTComponentViewRegistry.mm
 +++ b/node_modules/react-native/React/Fabric/Mounting/RCTComponentViewRegistry.mm
 @@ -10,6 +10,7 @@
@@ -10,7 +10,7 @@ index 74ebc31..8ebdeac 100644
  
  #import <React/RCTImageComponentView.h>
  #import <React/RCTParagraphComponentView.h>
-@@ -111,8 +112,11 @@ - (void)_enqueueComponentViewWithComponentHandle:(ComponentHandle)componentHandl
+@@ -112,8 +113,11 @@ - (void)_enqueueComponentViewWithComponentHandle:(ComponentHandle)componentHandl
      return;
    }
  
