@@ -1,7 +1,7 @@
 import { Dimensions, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext } from 'react';
 import Pdf from 'react-native-pdf';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Share from 'react-native-share';
 
 import DownloadIcon from 'src/assets/images/download.svg';

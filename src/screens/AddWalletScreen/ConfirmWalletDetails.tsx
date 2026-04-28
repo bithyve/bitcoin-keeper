@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect, useRef } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import {

@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useState } from 'react';
 import { Pressable, Animated, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';

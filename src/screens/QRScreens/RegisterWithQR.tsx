@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';

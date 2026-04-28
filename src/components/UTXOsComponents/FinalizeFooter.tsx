@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React, { useContext } from 'react';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function FinalizeFooter({ setEnableSelection, footerCallback, secondaryText, selectedUTXOs }) {

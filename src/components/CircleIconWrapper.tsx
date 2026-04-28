@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { Image, StyleSheet, PixelRatio } from 'react-native';
 
 type Props = {

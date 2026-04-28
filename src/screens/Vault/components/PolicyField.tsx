@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input, useColorMode } from 'native-base';
+import { Box, Input, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';

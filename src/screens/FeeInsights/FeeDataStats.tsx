@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Relay from 'src/services/backend/Relay';
 import Text from 'src/components/KeeperText';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { useAppSelector } from 'src/store/hooks';
 import FeeInsightCard from './FeeInsightCard';
 import useExchangeRates from 'src/hooks/useExchangeRates';

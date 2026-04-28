@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { ScrollView, useColorMode } from 'native-base';
+import { ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryList';
 import ScreenWrapper from 'src/components/ScreenWrapper';

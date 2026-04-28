@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Pressable, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Text from 'src/components/KeeperText';

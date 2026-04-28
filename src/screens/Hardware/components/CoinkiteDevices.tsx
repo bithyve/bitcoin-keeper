@@ -1,4 +1,4 @@
-import { ScrollView } from 'native-base';
+import { ScrollView } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import DeviceCard from './DeviceCard';
 import ColdCardMk4 from 'src/assets/images/coldCard-MK4.svg';

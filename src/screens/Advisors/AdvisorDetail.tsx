@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import AdvisorProfileHeader from './component/AdvisorProfileHeader';
 import { wp } from 'src/constants/responsive';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import MapPin from 'src/assets/images/MapPinIcon.svg';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';

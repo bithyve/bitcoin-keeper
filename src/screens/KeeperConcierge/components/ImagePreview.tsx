@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';
 import BinLight from 'src/assets/images/bin-light.svg';

@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, Keyboard, Vibration } from 'react-native';
-import { View, useColorMode, Box, Input } from 'native-base';
+import { View, useColorMode, Box, Input } from '@gluestack-ui/themed-native-base';
 import Buttons from 'src/components/Buttons';
 import ConfirmSquare from 'src/assets/images/confirm-square.svg';
 import ConfirmSquareGreen from 'src/assets/images/confirm-square-green.svg';

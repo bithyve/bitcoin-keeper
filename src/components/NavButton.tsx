@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import LinkIcon from 'src/assets/images/link_black.svg';
 import LinkDarkIcon from 'src/assets/images/link-white.svg';
 import openLink from 'src/utils/OpenLink';

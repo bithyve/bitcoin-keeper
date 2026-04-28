@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, ScrollView, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { SegmentedController } from '../../components/SegmentController';
@@ -15,7 +15,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletHeader from 'src/components/WalletHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { manipulateKruxData } from 'src/hardware/krux';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';

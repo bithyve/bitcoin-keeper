@@ -1,6 +1,6 @@
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { Text } from 'native-base';
+import { Text } from '@gluestack-ui/themed-native-base';
 import { getManufacturerSync } from 'react-native-device-info';
 
 export function enableAndroidFontFix() {

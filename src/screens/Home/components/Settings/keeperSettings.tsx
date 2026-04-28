@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect } from 'react';
 import Colors from 'src/theme/Colors';
 import PlebContainer from './Component/PlebContainer';

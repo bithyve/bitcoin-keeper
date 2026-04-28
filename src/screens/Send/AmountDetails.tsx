@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc.svg';
 import { StyleSheet } from 'react-native';

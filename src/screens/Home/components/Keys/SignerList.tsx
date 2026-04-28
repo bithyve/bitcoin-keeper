@@ -1,5 +1,5 @@
 import { CommonActions } from '@react-navigation/native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import SignerCard from 'src/screens/AddSigner/SignerCard';

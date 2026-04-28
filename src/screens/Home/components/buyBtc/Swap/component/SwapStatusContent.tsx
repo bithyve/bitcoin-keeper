@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';

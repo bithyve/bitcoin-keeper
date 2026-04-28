@@ -1,6 +1,6 @@
 import { Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';

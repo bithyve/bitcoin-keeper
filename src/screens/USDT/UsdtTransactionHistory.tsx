@@ -1,4 +1,4 @@
-import { Box, FlatList, StatusBar, useColorMode } from 'native-base';
+import { Box, FlatList, StatusBar, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';

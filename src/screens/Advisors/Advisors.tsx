@@ -1,4 +1,4 @@
-import { Box, FlatList, useColorMode } from 'native-base';
+import { Box, FlatList, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';

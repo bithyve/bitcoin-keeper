@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';

@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';

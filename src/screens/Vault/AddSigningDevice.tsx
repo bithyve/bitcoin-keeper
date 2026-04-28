@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {

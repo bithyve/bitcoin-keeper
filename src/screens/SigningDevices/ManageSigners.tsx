@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';

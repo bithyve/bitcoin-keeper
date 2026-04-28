@@ -1,7 +1,7 @@
 import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, useColorMode } from 'native-base';
+import { Box, Input, useColorMode } from '@gluestack-ui/themed-native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import AddContactLight from 'src/assets/images/add-contact-light.svg';

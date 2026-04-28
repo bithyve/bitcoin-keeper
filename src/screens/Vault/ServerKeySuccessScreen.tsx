@@ -1,6 +1,6 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -10,7 +10,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import SigningServer from 'src/services/backend/SigningServer';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Clipboard from '@react-native-clipboard/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';

@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { EntityKind, NetworkType } from 'src/services/wallets/enums';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import SettingCard from 'src/screens/Home/components/Settings/Component/SettingCard';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 
 const useTestSats = ({ wallet }) => {
   const { setAppLoading, setLoadingContent } = useContext(AppContext);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, StatusBarStyle, StyleSheet } from 'react-native';
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import { screenWidth } from 'react-native-gifted-charts/src/utils';
 

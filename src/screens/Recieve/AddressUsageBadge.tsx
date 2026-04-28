@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Badge, Box, useColorMode } from 'native-base';
+import { Badge, Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';

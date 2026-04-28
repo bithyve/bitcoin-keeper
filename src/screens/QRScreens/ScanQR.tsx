@@ -1,5 +1,5 @@
-import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Box, Input, ScrollView, useColorMode } from 'native-base';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard , TouchableOpacity} from 'react-native';
+import { Box, Input, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -21,7 +21,6 @@ import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/services/wallets/enums';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';

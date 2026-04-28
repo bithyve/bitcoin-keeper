@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React, { useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';

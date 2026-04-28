@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, useColorMode } from 'native-base';
+import { FlatList, Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import moment from 'moment';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';

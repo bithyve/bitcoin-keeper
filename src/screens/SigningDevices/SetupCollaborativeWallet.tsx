@@ -1,5 +1,5 @@
 import { Platform, StyleSheet } from 'react-native';
-import { Box, FlatList, useColorMode } from 'native-base';
+import { Box, FlatList, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, Vault, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { importLabels } from 'src/store/sagaActions/utxos';

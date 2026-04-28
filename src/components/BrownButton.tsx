@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import Colors from 'src/theme/Colors';
 import Text from './KeeperText';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { TextStyle } from 'react-native';
 
 type BrownButtonProps = {

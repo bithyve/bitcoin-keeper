@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import Svg, { Path } from 'react-native-svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
 

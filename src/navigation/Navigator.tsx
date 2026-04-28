@@ -121,7 +121,7 @@ import AdditionalDetails from 'src/screens/Vault/AdditionalDetails';
 import SelectInitialTimelock from 'src/screens/Vault/SelectInitialTimelock';
 import AddReserveKey from 'src/screens/Vault/AddReserveKey';
 import AddEmergencyKey from 'src/screens/Vault/AddEmergencyKey';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
 import config from 'src/utils/service-utilities/config';

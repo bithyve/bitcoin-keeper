@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
-import { Input, useColorMode, Box } from 'native-base';
+import { Input, useColorMode, Box } from '@gluestack-ui/themed-native-base';
 import Colors from 'src/theme/Colors';
 import KeeperText from './KeeperText';
 import EyeOpen from 'src/assets/images/eye_open.svg';

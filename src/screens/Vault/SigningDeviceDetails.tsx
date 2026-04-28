@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
-import { Box, Center, useColorMode } from 'native-base';
+import { Box, Center, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
@@ -291,7 +291,7 @@ function SigningDeviceDetails({ route }) {
   const signerVaults: Vault[] = [];
 
   const [nfcVisible, setNfcVisible] = React.useState(false);
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const manage_signer_backGround = ThemedColor({ name: 'manage_signer_backGround' });
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
@@ -309,6 +309,7 @@ function SigningDeviceDetails({ route }) {
     }
   };
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });

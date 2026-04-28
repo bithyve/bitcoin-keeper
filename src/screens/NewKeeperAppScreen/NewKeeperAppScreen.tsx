@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler , TouchableOpacity} from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -14,7 +14,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
@@ -23,7 +23,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import IconSettings from 'src/assets/images/settings.svg';
 import IconGreySettings from 'src/assets/images/settings_grey.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Colors from 'src/theme/Colors';
 import { useIsFocused } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';

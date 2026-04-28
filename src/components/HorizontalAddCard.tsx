@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { ActivityIndicator, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import AddCardIcon from 'src/assets/images/add_white.svg';
 import { hp, wp } from 'src/constants/responsive';

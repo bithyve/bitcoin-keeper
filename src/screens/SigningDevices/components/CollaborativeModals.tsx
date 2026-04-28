@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useDispatch, useSelector } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';

@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';

@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { wp, hp } from 'src/constants/responsive';
 import Text from './KeeperText';
 

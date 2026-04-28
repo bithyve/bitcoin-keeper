@@ -8,7 +8,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, ScrollView, VStack, useColorMode } from 'native-base';
+import { Box, ScrollView, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

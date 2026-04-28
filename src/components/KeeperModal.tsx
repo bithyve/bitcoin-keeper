@@ -1,10 +1,9 @@
-import { Box, Modal, useColorMode } from 'native-base';
+import { Box, Modal, useColorMode } from '@gluestack-ui/themed-native-base';
 import { ScrollView, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CloseGreen from 'src/assets/images/dark-close-icon.svg';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ResponsiveValue } from 'native-base/lib/typescript/components/types';
 import Text from 'src/components/KeeperText';
 import { useKeyboard } from 'src/hooks/useKeyboard';
 import CurrencyTypeSwitch from './Switch/CurrencyTypeSwitch';
@@ -42,7 +41,7 @@ type ModalProps = {
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   showCurrencyTypeSwitch?: boolean;
-  justifyContent?: ResponsiveValue<string | number>;
+  justifyContent?: string | number;
   loading?: boolean;
   secondaryIcon?: any;
   disable?: boolean;
@@ -94,7 +93,12 @@ function KeeperModal(props: ModalProps) {
 
   const styles = getStyles(subTitleWidth);
   return (
-    <RNModal isVisible={visible} onSwipeComplete={close} style={styles.modalContainer} avoidKeyboard>
+    <RNModal
+      isVisible={visible}
+      onSwipeComplete={close}
+      style={styles.modalContainer}
+      avoidKeyboard
+    >
       <Box
         backgroundColor={
           modalBackground === 'primaryBackground'
@@ -215,6 +219,7 @@ const getStyles = (subTitleWidth) =>
       lineHeight: 27.2,
       marginBottom: hp(3),
       fontFamily: Fonts.LoraSemiBold,
+      alignSelf: 'flex-start',
     },
 
     subTitle: {
@@ -272,6 +277,7 @@ const getStyles = (subTitleWidth) =>
       alignSelf: 'center',
     },
     headerContainer: {
+      flexDirection: 'column',
       alignSelf: 'flex-start',
       borderBottomWidth: 0,
       backgroundColor: 'transparent',

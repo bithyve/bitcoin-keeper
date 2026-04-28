@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import TipIllustration from 'src/assets/images/TipIllustration.svg';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { setShowTipModal, dismissTipFlow } from 'src/store/reducers/settings';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from '../KeeperModal';

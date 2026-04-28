@@ -1,4 +1,4 @@
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import DashedCta from 'src/components/DashedCta';

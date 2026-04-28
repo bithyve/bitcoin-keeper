@@ -1,7 +1,7 @@
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet , TouchableOpacity} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
@@ -28,7 +28,6 @@ import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import WalletHeader from 'src/components/WalletHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import OtherSignerOptionModal from './components/OtherSignerOptionModal';
@@ -249,7 +248,7 @@ function SetupOtherSDScreen({ route }) {
     }
   };
 
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const isAndroid = Platform.OS === 'android';
 
   useEffect(() => {
@@ -266,6 +265,7 @@ function SetupOtherSDScreen({ route }) {
   }, [nfcVisible]);
 
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
       try {
         // content written from iOS to android

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
-import { NativeBaseProvider } from 'native-base';
+import { NativeBaseProvider } from '@gluestack-ui/themed-native-base';
 import { customTheme } from 'src/navigation/themes';
 import { store } from '../store/store';
 

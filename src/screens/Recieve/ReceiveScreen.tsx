@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, useColorMode, Pressable, HStack } from 'native-base';
-import { ScrollView, StyleSheet, Vibration } from 'react-native';
+import { Box, useColorMode, Pressable, HStack } from '@gluestack-ui/themed-native-base';
+import { ScrollView, StyleSheet, Vibration , TouchableOpacity} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Buttons from 'src/components/Buttons';
 
@@ -29,7 +29,6 @@ import NavRightWhite from 'src/assets/images/nav-right-white.svg';
 import NewQR from 'src/assets/images/qr-new.svg';
 import NewQRWhite from 'src/assets/images/qr-new-white.svg';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';

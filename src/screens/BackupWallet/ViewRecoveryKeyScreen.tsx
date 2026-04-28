@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';

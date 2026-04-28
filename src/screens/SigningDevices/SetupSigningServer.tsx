@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';

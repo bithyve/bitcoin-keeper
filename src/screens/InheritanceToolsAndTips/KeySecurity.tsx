@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import OptionCard from 'src/components/OptionCard';
 import IKGreenIcon from 'src/assets/images/ik-green.svg';
 import IKGreyIcon from 'src/assets/images/ik-grey.svg';

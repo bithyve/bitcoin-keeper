@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider } from 'native-base';
+import { NativeBaseProvider } from '@gluestack-ui/themed-native-base';
 import { useSelector } from 'react-redux';
 import customTheme from 'src/navigation/themes';
 import privateTheme from 'src/navigation/privateTheme';

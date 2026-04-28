@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Center, ScrollView, useColorMode, View } from 'native-base';
+import { Box, Center, ScrollView, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';

@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet } from 'react-native';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';

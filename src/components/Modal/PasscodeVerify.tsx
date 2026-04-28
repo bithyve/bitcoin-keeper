@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { increasePinFailAttempts } from 'src/store/reducers/storage';

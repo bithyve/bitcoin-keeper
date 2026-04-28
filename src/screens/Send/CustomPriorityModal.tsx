@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Modal, useColorMode } from 'native-base';
+import { Box, Modal, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Platform, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

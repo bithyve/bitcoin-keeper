@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';

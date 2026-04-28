@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import { StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { notificationType } from 'src/models/enums/Notifications';
 import { useDispatch } from 'react-redux';
 import { addTicketStatusUAI } from 'src/store/sagaActions/concierge';

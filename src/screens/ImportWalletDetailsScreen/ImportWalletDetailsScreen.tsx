@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
-import { Box, Input, View, useColorMode } from 'native-base';
+import { Box, Input, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';

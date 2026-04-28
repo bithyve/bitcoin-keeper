@@ -1,6 +1,6 @@
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Buttons from 'src/components/Buttons';
 import React, { useContext } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';

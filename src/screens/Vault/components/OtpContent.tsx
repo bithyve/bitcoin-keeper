@@ -1,8 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
-import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';

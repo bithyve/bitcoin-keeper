@@ -1,6 +1,6 @@
 import { Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import React, { useCallback, useContext, useState } from 'react';
-import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';

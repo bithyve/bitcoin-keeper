@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, HStack, useColorMode, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';

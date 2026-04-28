@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import CurrencyKind from 'src/models/enums/CurrencyKind';
 import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
 import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';

@@ -1,4 +1,4 @@
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { hp, wp } from 'src/constants/responsive';

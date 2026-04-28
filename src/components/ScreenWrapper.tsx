@@ -1,7 +1,7 @@
 import React from 'react';
 import { StatusBarStyle, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp } from 'src/constants/responsive';
 
 function ScreenWrapper({

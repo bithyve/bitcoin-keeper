@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';

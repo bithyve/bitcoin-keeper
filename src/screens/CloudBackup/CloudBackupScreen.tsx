@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useEffect, useState } from 'react';
 import { StyleSheet, Platform, FlatList, Pressable } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';

@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { hp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';

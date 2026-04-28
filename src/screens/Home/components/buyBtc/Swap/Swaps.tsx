@@ -1,5 +1,5 @@
 import { CommonActions } from '@react-navigation/native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet, ActivityIndicator, Keyboard, Pressable, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';

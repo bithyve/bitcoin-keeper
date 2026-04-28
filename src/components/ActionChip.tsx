@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Text from './KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 
 const ActionChip = ({ Icon, text, onPress }) => {
   const { colorMode } = useColorMode();

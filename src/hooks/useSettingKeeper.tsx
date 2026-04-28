@@ -40,7 +40,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { backupAllSignersAndVaults, deleteBackup } from 'src/store/sagaActions/bhr';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';

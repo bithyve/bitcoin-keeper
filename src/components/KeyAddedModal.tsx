@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';

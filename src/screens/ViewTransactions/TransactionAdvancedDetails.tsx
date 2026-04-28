@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
 import { Pressable, StatusBar, StyleSheet } from 'react-native';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

@@ -1,6 +1,6 @@
-import { Box, Input, ScrollView, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet , TouchableOpacity} from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
@@ -24,7 +24,6 @@ import Text from 'src/components/KeeperText';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import IconSettings from 'src/assets/images/settings.svg';
 import IconGreySettings from 'src/assets/images/settings_grey.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { hp, wp } from 'src/constants/responsive';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';

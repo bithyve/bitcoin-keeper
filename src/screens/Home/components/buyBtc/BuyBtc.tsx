@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode, View } from 'native-base';
+import { Box, ScrollView, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';

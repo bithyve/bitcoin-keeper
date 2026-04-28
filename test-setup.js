@@ -53,7 +53,7 @@ jest.mock('@sentry/react-native', () => ({
   ReactNativeTracing: jest.fn(),
 }));
 
-jest.mock('native-base', () => ({
+jest.mock('@gluestack-ui/themed-native-base', () => ({
   useToast: () => ({ show: jest.fn() }),
   useColorMode: () => ({ colorMode: 'light', toggleColorMode: jest.fn() }),
   extendTheme: jest.fn(() => ({})),

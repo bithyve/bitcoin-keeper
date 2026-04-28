@@ -1,6 +1,6 @@
 import HexaToastMessages from 'src/components/ToastMessages';
 import React, { useRef, useEffect } from 'react';
-import { useToast } from 'native-base';
+import { useToast } from '@gluestack-ui/themed-native-base';
 import { Pressable } from 'react-native';
 
 // use this enum to categorize and replace toasts that are in the same category

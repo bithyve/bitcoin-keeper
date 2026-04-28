@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Box, Pressable, useColorMode, HStack } from 'native-base';
+import { Box, Pressable, useColorMode, HStack } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

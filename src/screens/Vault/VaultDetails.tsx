@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
