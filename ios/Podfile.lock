@@ -84,9 +84,9 @@ PODS:
   - libwebp/sharpyuv (1.5.0)
   - libwebp/webp (1.5.0):
     - libwebp/sharpyuv
-  - MMKV (2.2.3):
-    - MMKVCore (~> 2.2.3)
-  - MMKVCore (2.2.3)
+  - MMKV (2.4.0):
+    - MMKVCore (~> 2.4.0)
+  - MMKVCore (2.4.0)
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
@@ -1731,7 +1731,7 @@ PODS:
     - Yoga
   - RNLocalize (2.2.2):
     - React-Core
-  - RNQrGenerator (1.4.5):
+  - RNQrGenerator (1.4.6):
     - React
     - ZXingObjC
   - RNReanimated (3.17.0):
@@ -2296,8 +2296,8 @@ SPEC CHECKSUMS:
   libportal-ios: d9aa55474e2d5be8e38e96345dd37be34fda45b4
   libportal-react-native: 91b6bec36f7e92a0bcc4e9d51d6ce3ee7c163728
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  MMKV: 941e8774da0e6fdf12c6b3fcc833ca687ae5a42d
-  MMKVCore: 6d5cc1bacce539f4c974985dfe646fb65a5d27d2
+  MMKV: 86859fdfa2b0b21db1fd6e48788474a6416a2c77
+  MMKVCore: 3d16ce9f7d411e135020915fde98a056859a1efa
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PDFGenerator: 17d6bc525db0a3fcd156fbf00f9d1b8d5cc75d1e
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
@@ -2390,7 +2390,7 @@ SPEC CHECKSUMS:
   RNIap: 66eb29da8e992696071182f91b89e5bffa85b4a2
   RNKeychain: 8024819eb861575c8e1bdcfc6e02c2b947ed16f7
   RNLocalize: 19917c3f32cf6386f7d2957a638a4281669cae57
-  RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
+  RNQrGenerator: af2f0888eb81b8ff99517a3929d6399444dcc56d
   RNReanimated: 6e7f7b3e9bf83adb6cf60e713e2d1d9438cb5437
   RNScreens: 96fe858d87d26c3f46f0696f9e8824ce33a05aa7
   RNSentry: cccb4a5cbe42c46f119b102475abe5dc74712833
@@ -2406,4 +2406,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: e1bd49dc88eaef529a830a07581f7b6b3479d3ac
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2
