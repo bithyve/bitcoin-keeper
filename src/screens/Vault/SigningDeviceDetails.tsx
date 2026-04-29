@@ -80,6 +80,7 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import HexagonIcon from 'src/components/HexagonIcon';
 
 export const SignersReqVault = [
+  SignerType.COLDCARD,
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.BITBOX02,
