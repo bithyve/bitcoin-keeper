@@ -1,5 +1,4 @@
 diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h
-index 39d7f15..65d56fc 100644
 --- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h
 +++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.h
 @@ -29,7 +29,15 @@
@@ -7,7 +6,7 @@ index 39d7f15..65d56fc 100644
  
  #if RCT_NEW_ARCH_ENABLED
 +#if __has_include(<React-Codegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
- #import <React-Codegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
+ #import <ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
 +#elif __has_include(<ReactCodegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
 +#import <ReactCodegen/ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>
 +#elif __has_include(<ReactNativeBlobUtilSpec/ReactNativeBlobUtilSpec.h>)
@@ -19,7 +18,6 @@ index 39d7f15..65d56fc 100644
  
  
 diff --git a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm
-index e320f77..b5d8870 100644
 --- a/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm
 +++ b/node_modules/react-native-blob-util/ios/ReactNativeBlobUtil/ReactNativeBlobUtil.mm
 @@ -12,7 +12,15 @@

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import { generatePDF } from 'react-native-html-to-pdf';
 
 const GenerateAllVaultsFilePDF = async (fingerPrints) => {
   try {
@@ -116,7 +116,7 @@ h1 {
       padding: 0,
       bgColor: '#F6F2ED',
     };
-    const file = await RNHTMLtoPDF.convert(options);
+    const file = await generatePDF(options);
     return file.filePath;
   } catch (error: any) {
     return error;

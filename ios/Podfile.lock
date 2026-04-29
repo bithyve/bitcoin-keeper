@@ -81,6 +81,34 @@ PODS:
   - hermes-engine (0.14.1):
     - hermes-engine/Pre-built (= 0.14.1)
   - hermes-engine/Pre-built (0.14.1)
+  - HtmlToPdf (1.3.0):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - libportal-ios (0.3.0)
   - libportal-react-native (0.3.0):
     - libportal-ios
@@ -208,7 +236,6 @@ PODS:
     - React-RCTText (= 0.83.9)
     - React-RCTVibration (= 0.83.9)
   - React-callinvoker (0.83.9)
-  - React-Codegen (0.1.0)
   - React-Core (0.83.9):
     - boost
     - DoubleConversion
@@ -2107,14 +2134,34 @@ PODS:
     - React-Core
   - react-native-biometrics (2.2.0):
     - React-Core
-  - react-native-blob-util (0.18.3):
+  - react-native-blob-util (0.24.7):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - fmt
+    - glog
+    - hermes-engine
     - RCT-Folly
+    - RCT-Folly/Fabric
     - RCTRequired
     - RCTTypeSafety
-    - React-Codegen
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
     - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - react-native-change-icon (5.0.0):
     - boost
     - DoubleConversion
@@ -2233,15 +2280,13 @@ PODS:
     - Yoga
   - react-native-hce (0.3.0):
     - React
-  - react-native-html-to-pdf (0.12.0):
-    - React-Core
   - react-native-image-picker (4.10.3):
     - React-Core
   - react-native-netinfo (11.4.1):
     - React-Core
   - react-native-nfc-manager (3.16.0):
     - React-Core
-  - react-native-pdf (6.7.7):
+  - react-native-pdf (7.0.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -3506,6 +3551,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - GoogleUtilities
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - HtmlToPdf (from `../node_modules/react-native-html-to-pdf`)
   - libportal-ios (from `https://github.com/bithyve/libportal-ios.git`)
   - libportal-react-native (from `../node_modules/libportal-react-native`)
   - NitroMmkv (from `../node_modules/react-native-mmkv`)
@@ -3559,7 +3605,6 @@ DEPENDENCIES:
   - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-hce (from `../node_modules/react-native-hce`)
-  - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
@@ -3641,7 +3686,6 @@ SPEC REPOS:
     - PDFGenerator
     - PromisesObjC
     - QRCoder
-    - React-Codegen
     - SDWebImage
     - SDWebImageWebPCoder
     - Sentry
@@ -3666,6 +3710,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-v0.14.1
+  HtmlToPdf:
+    :path: "../node_modules/react-native-html-to-pdf"
   libportal-ios:
     :git: https://github.com/bithyve/libportal-ios.git
   libportal-react-native:
@@ -3766,8 +3812,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-get-random-values"
   react-native-hce:
     :path: "../node_modules/react-native-hce"
-  react-native-html-to-pdf:
-    :path: "../node_modules/react-native-html-to-pdf"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-netinfo:
@@ -3916,6 +3960,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   hermes-engine: aa404dd2f865314cd211641ddff59d06039dbcf1
+  HtmlToPdf: 6a9c28f54ec810d1d120a698a9b3c83e2bdb1672
   libportal-ios: d9aa55474e2d5be8e38e96345dd37be34fda45b4
   libportal-react-native: 91b6bec36f7e92a0bcc4e9d51d6ce3ee7c163728
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
@@ -3934,7 +3979,6 @@ SPEC CHECKSUMS:
   RCTTypeSafety: c5fd6a8092bee25eaa31d4cca03794e902b5fdfd
   React: 6c36d83b2afecc1d45ec2a637158750edad20d87
   React-callinvoker: 813372c3165324939d57b849f2db0c99390b9aac
-  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: b2a189a7e16fc88a768908152201f14379708ac0
   React-CoreModules: 7ff1464d8c75a63c4028571217e4f4d01b008919
   React-cxxreact: 06aed26685cbd29a55d1648a14f13491549cea9d
@@ -3966,18 +4010,17 @@ SPEC CHECKSUMS:
   React-mutationobservernativemodule: 867e9c215f21b4308fa98473f3c38585b5897e44
   react-native-background-timer: 4638ae3bee00320753647900b21260b10587b6f7
   react-native-biometrics: ecca256a9e1c8b430f78c4e3dcb16b57ea1418e0
-  react-native-blob-util: d94da4994ee7a4f375f1885e5e79c6eee20fa4d7
+  react-native-blob-util: 6dec9023ecc3ee5ac8ad377598e943f9ca63f741
   react-native-change-icon: 2abab62ecabf10adf6e03cc9516484a27385b580
   react-native-config: 8e425892a531627c52db765be3088185cb871e19
   react-native-contacts: 2a259e02b85c9510a5fcbdf06c56c828387d47c1
   react-native-document-picker: dc2d83366e47e89e7c51e8a41eab99c1d54e941c
   react-native-get-random-values: e2acf4070fe4b7325705a05af047449637a27a21
   react-native-hce: ad5462e792d84e87924308dda1ee516757f1c0eb
-  react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
   react-native-image-picker: 1f5318beec2ebed6695454ffb9bea8c4152f1598
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-nfc-manager: e5d2ce2f7fee42d1ee0eb6b99f3405d5e330112e
-  react-native-pdf: c586da0d19c14e6d859e62bf957851687fba0f25
+  react-native-pdf: 2886351f9ea698a820f53056afdabd6fa0ab726d
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-rsa-native: a7931cdda1f73a8576a46d7f431378c5550f0c38
   react-native-safe-area-context: befb5404eb8a16fdc07fa2bebab3568ecabcbb8a

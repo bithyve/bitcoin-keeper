@@ -7689,6 +7689,15 @@ glob-to-regexp@^0.4.1:
   resolved "https://registry.yarnpkg.com/glob-to-regexp/-/glob-to-regexp-0.4.1.tgz#c75297087c851b9a578bd217dd59a92f59fe546e"
   integrity sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==
 
+glob@13.0.1:
+  version "13.0.1"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-13.0.1.tgz#c59a2500c9a5f1ab9cdd370217ced63c2aa81e60"
+  integrity sha512-B7U/vJpE3DkJ5WXTgTpTRN63uV42DseiXXKMwG14LQBXmsdeIoHAPbU/MEo6II0k5ED74uc2ZGTC6MwHFQhF6w==
+  dependencies:
+    minimatch "^10.1.2"
+    minipass "^7.1.2"
+    path-scurry "^2.0.0"
+
 glob@7.1.6:
   version "7.1.6"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.6.tgz#141f33b81a7c2492e125594307480c46679278a6"
@@ -7701,7 +7710,7 @@ glob@7.1.6:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-glob@^7.1.1, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@^7.2.3:
+glob@^7.1.1, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.2.3.tgz#b8df0fb802bbfa8e89bd1d938b4e16578ed44f2b"
   integrity sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==
@@ -9179,6 +9188,11 @@ lower-case@^2.0.2:
   dependencies:
     tslib "^2.0.3"
 
+lru-cache@^11.0.0:
+  version "11.3.5"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-11.3.5.tgz#29047d348c0b2793e3112a01c739bb7c6d855637"
+  integrity sha512-NxVFwLAnrd9i7KUBxC4DrUhmgjzOs+1Qm50D3oF1/oL+r1NpZ4gA7xvG0/zJ8evR7zIKn4vLf7qTNduWFtCrRw==
+
 lru-cache@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-5.1.1.tgz#1da27e6710271947695daf6848e847f01d84b920"
@@ -9738,7 +9752,7 @@ minimalistic-crypto-utils@^1.0.1:
   resolved "https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz#f6c00c1c0b082246e5c4d99dfb8c7c083b2b582a"
   integrity sha512-JIYlbt6g8i5jKfJ3xz7rF0LXmv2TkDxBLUkiBeZ7bAx4GnnNMr8xFpGnOxn6GhTEHx3SjRrZEoU+j04prX1ktg==
 
-minimatch@^10.2.2:
+minimatch@^10.1.2, minimatch@^10.2.2:
   version "10.2.5"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-10.2.5.tgz#bd48687a0be38ed2961399105600f832095861d1"
   integrity sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==
@@ -9756,6 +9770,11 @@ minimist@^1.1.2, minimist@^1.2.0, minimist@^1.2.3, minimist@^1.2.6:
   version "1.2.8"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
   integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
+
+minipass@^7.1.2:
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/minipass/-/minipass-7.1.3.tgz#79389b4eb1bb2d003a9bba87d492f2bd37bdc65b"
+  integrity sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==
 
 mkdirp-classic@^0.5.2, mkdirp-classic@^0.5.3:
   version "0.5.3"
@@ -10301,6 +10320,14 @@ path-parse@^1.0.7:
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
   integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
 
+path-scurry@^2.0.0:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/path-scurry/-/path-scurry-2.0.2.tgz#6be0d0ee02a10d9e0de7a98bae65e182c9061f85"
+  integrity sha512-3O/iVVsJAPsOnpwWIeD+d6z/7PmqApyQePUtCndjatj/9I5LylHvt5qluFaBT3I5h3r1ejfR056c+FCv+NnNXg==
+  dependencies:
+    lru-cache "^11.0.0"
+    minipass "^7.1.2"
+
 path-type@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
@@ -10732,13 +10759,13 @@ react-native-biometrics@2.2.0:
   resolved "https://registry.yarnpkg.com/react-native-biometrics/-/react-native-biometrics-2.2.0.tgz#6fc3e801b83389ae1f6c9c41f7b37b50e7014c4e"
   integrity sha512-V2O0s2ic7PxVP76CguCfBXvVEyazbjtWv7r20T7D+ZQqBB1XSZ1WzK/Gnr12CVRxHLUZ3/tKHOsz7mzIaXyNoA==
 
-react-native-blob-util@0.18.3:
-  version "0.18.3"
-  resolved "https://registry.yarnpkg.com/react-native-blob-util/-/react-native-blob-util-0.18.3.tgz#e3b408dfdd5b175093bbef23f33811f8ef3407ee"
-  integrity sha512-Gx5n1rxl6OcE+Xvj4vFD03Lyhpt+1BmkwU/lIFjPHAUMbSFBvfsOf0TG1cOjMxhw18cDVW7xgcueYZLRscuKPw==
+react-native-blob-util@0.24.7:
+  version "0.24.7"
+  resolved "https://registry.yarnpkg.com/react-native-blob-util/-/react-native-blob-util-0.24.7.tgz#889e3626e3b20f9b10bb265ea91d9ae44ce65ecf"
+  integrity sha512-3vgn3hblfJh0+LIoqEhYRqCtwKh1xID2LtXHdTrUml3rYh4xj69eN+lvWU235AL0FRbX5uKrS1c4lIYexSgtWQ==
   dependencies:
     base-64 "0.1.0"
-    glob "^7.2.3"
+    glob "13.0.1"
 
 react-native-change-icon@5.0.0:
   version "5.0.0"
@@ -10832,10 +10859,10 @@ react-native-hce@0.3.0:
     "@types/jest" "^29.5.12"
     jest "^29.7.0"
 
-react-native-html-to-pdf@0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/react-native-html-to-pdf/-/react-native-html-to-pdf-0.12.0.tgz#2b467296f85c9c9783a7288b19722a7028dcbcb8"
-  integrity sha512-Yb5WO9SfF86s5Yv9PqXQ7fZDr9zZOJ+6jtweT9zFLraPNHWX7pSxe2dSkeg3cGiNrib65ZXGN6ksHymfYLFSSg==
+react-native-html-to-pdf@1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-html-to-pdf/-/react-native-html-to-pdf-1.3.0.tgz#591d9120038e2a1717f3a9eb47b16c84928066f7"
+  integrity sha512-UCbQO1k5yeajaJrEF7Wqq8ojdgpxsTbICQvtorXmuO1LkU/a6B3/tZyLes4zXCiq/5nTMTNA/k9m5bYStg5S0Q==
 
 react-native-iap@13.0.4:
   version "13.0.4"
@@ -10891,10 +10918,10 @@ react-native-nitro-modules@^0.35.4:
   resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.35.5.tgz#19fe8f289b118b26b9e8522f62bb6e7b40e44c50"
   integrity sha512-aa03UzC5dLg5qFfyBkVK+JGSwHTjmK7jUZzyRz11r1Yk9C/nJTFe59EeHPxxNNTagkiwQTM6p3sySgD/TDRC7Q==
 
-react-native-pdf@^6.7.7:
-  version "6.7.7"
-  resolved "https://registry.yarnpkg.com/react-native-pdf/-/react-native-pdf-6.7.7.tgz#c9a9cffe3ab15a227de84fc1512942472a83ba0b"
-  integrity sha512-D0ga/eyPsVWSPEBm622sGVZLl3gibxPmfm2cxsLcUrZ4WDSGR5HyGmvvWaR/m9wXEyIbD4J6q9qzuG6yObcSXw==
+react-native-pdf@7.0.4:
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-pdf/-/react-native-pdf-7.0.4.tgz#f48d485d32cef24f41511ba2072bc99ba94b13c9"
+  integrity sha512-Uhxn5SSguMKvbwD50iIZfYPmYeKcX+9I3tc4J3HCbRExAN0uqXTAKx2pvbR2Y62umAj0JS274FcbSldQfoQfyg==
   dependencies:
     crypto-js "4.2.0"
     deprecated-react-native-prop-types "^2.3.0"

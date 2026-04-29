@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import Pdf from 'react-native-pdf';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Share from 'react-native-share';
+import ReactNativeBlobUtil from 'react-native-blob-util';
 
 import DownloadIcon from 'src/assets/images/download.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -16,22 +17,33 @@ function PreviewPDF({ route }: any) {
   const { source } = route.params;
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const DownloadPDF = () => {
-    Share.open({
-      url: Platform.OS === 'ios' ? source : `file://${source}`,
-      excludedActivityTypes: [
-        'copyToPasteBoard',
-        'markupAsPDF',
-        'addToReadingList',
-        'assignToContact',
-        'mail',
-        'default',
-        'message',
-        'postToFacebook',
-        'print',
-        'saveToCameraRoll',
-      ],
-    });
+  const DownloadPDF = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await ReactNativeBlobUtil.android.actionViewIntent(source, 'application/pdf');
+      } catch (err) {
+        console.log('err:', err);
+      }
+    } else {
+      Share.open({
+        url: source,
+        type: 'application/pdf',
+        excludedActivityTypes: [
+          'copyToPasteBoard',
+          'markupAsPDF',
+          'addToReadingList',
+          'assignToContact',
+          'mail',
+          'default',
+          'message',
+          'postToFacebook',
+          'print',
+          'saveToCameraRoll',
+        ],
+      }).catch((err) => {
+        console.log('err:', err);
+      });
+    }
   };
 
   return (
