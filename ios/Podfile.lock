@@ -2405,7 +2405,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-tcp-socket (5.6.2):
+  - react-native-tcp-socket (6.4.1):
     - CocoaAsyncSocket
     - React-Core
   - react-native-worklets-core (1.6.3):
@@ -4024,7 +4024,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 3c8f3e89d12487fd03a2f966c288d495415fc116
   react-native-rsa-native: a7931cdda1f73a8576a46d7f431378c5550f0c38
   react-native-safe-area-context: befb5404eb8a16fdc07fa2bebab3568ecabcbb8a
-  react-native-tcp-socket: 0a0455b843f9dfcad875ea6cfafeb05c0abb0a24
+  react-native-tcp-socket: 7c7e53a07f122ecf00fb3626684bc0ca82c4f044
   react-native-worklets-core: aaaac7d17f7e576592369a54f30e96fe4875c983
   React-NativeModulesApple: 519f9f98375db6458a7220becd25db81b3860b76
   React-networking: 2318cba8288ec5df38e899feed3baaac0629b4bd
