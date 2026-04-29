@@ -10715,12 +10715,12 @@ react-localization@1.0.19:
   dependencies:
     localized-strings "^0.2.0"
 
-react-native-animatable@1.3.3:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/react-native-animatable/-/react-native-animatable-1.3.3.tgz#a13a4af8258e3bb14d0a9d839917e9bb9274ec8a"
-  integrity sha512-2ckIxZQAsvWn25Ho+DK3d1mXIgj7tITkrS4pYDvx96WyOttSvzzFeQnM2od0+FUMzILbdHDsDEqZvnz1DYNQ1w==
+react-native-animatable@1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-animatable/-/react-native-animatable-1.4.0.tgz#05a259e1566081ce7d3f6fba1e92edc65f5c6160"
+  integrity sha512-DZwaDVWm2NBvBxf7I0wXKXLKb/TxDnkV53sWhCvei1pRyTX3MVFpkvdYBknNBqPrxYuAIlPxEp7gJOidIauUkw==
   dependencies:
-    prop-types "^15.7.2"
+    prop-types "^15.8.1"
 
 react-native-background-timer@2.4.1:
   version "2.4.1"
@@ -10760,10 +10760,10 @@ react-native-config@1.4.6:
   resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-1.4.6.tgz#2aefebf4d9cf02831e64bbc1307596bd212f6d42"
   integrity sha512-cSLdOfva2IPCxh6HjHN1IDVW9ratAvNnnAUx6ar2Byvr8KQU7++ysdFYPaoNVuJURuYoAKgvjab8ZcnwGZIO6Q==
 
-react-native-contacts@7.0.8:
-  version "7.0.8"
-  resolved "https://registry.yarnpkg.com/react-native-contacts/-/react-native-contacts-7.0.8.tgz#485ba7a77653b30205c76f96494808d07b8e57b9"
-  integrity sha512-Zfkdpw1uQVRb8v1m+ogknzjyfEs9k63o2sPAYvxZ8ZJff31D45G8+uZb6VcM4tIe3ELH9EDvh93nd515kFvRYQ==
+react-native-contacts@8.0.10:
+  version "8.0.10"
+  resolved "https://registry.yarnpkg.com/react-native-contacts/-/react-native-contacts-8.0.10.tgz#427ac7638db134e221cfe6af0ec6537f53016d07"
+  integrity sha512-9iBRf/YLYSXQxfbPvz43DwXMv0OcHeit37W/313adYJIWz/W8SypqqxmAg9B/Lg1hzD+KYEn+UpljZnwgp78OQ==
 
 react-native-crypto@2.2.0:
   version "2.2.0"
@@ -10872,13 +10872,12 @@ react-native-mmkv@4.3.0:
   resolved "https://registry.yarnpkg.com/react-native-mmkv/-/react-native-mmkv-4.3.0.tgz#dbb2817b75270194dd231b4290d3c834f7d6d417"
   integrity sha512-D1wB2ViMrm+0rs7FcbLoct/BV+qugASi+XAZT8MzXy5yl0CI0qxToh2LPnw9UENHrNefpfDZgE5FpMhIB37I5Q==
 
-react-native-modal@13.0.1:
-  version "13.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-modal/-/react-native-modal-13.0.1.tgz#691f1e646abb96fa82c1788bf18a16d585da37cd"
-  integrity sha512-UB+mjmUtf+miaG/sDhOikRfBOv0gJdBU2ZE1HtFWp6UixW9jCk/bhGdHUgmZljbPpp0RaO/6YiMmQSSK3kkMaw==
+react-native-modal@^13.0.1:
+  version "13.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-modal/-/react-native-modal-13.0.2.tgz#4e4d777fdb0f5af5a50003a53eebc4de9ead5695"
+  integrity sha512-jCUR2DAskuZtVIbnt2ZssX70DCbTLydkL1Glv1Fc/fqVIhq1LpwBK2hKgSf9VIINXFnDjjGIMIC9HhDXnW7Enw==
   dependencies:
-    prop-types "^15.6.2"
-    react-native-animatable "1.3.3"
+    react-native-animatable "1.4.0"
 
 react-native-nfc-manager@3.16.0:
   version "3.16.0"
