@@ -20,10 +20,9 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
           {title}
         </Text>
       </Box>
-      <Box>
+      <Box style={{ width }}>
         <Text
           testID="text_note_subtitle"
-          width={width}
           color={`${colorMode}.${subtitleColor}`}
           style={styles.subTitle}
         >
@@ -42,7 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   subTitle: {
-    fontSize: 12,
+    fontSize: 10,
   },
 });
 

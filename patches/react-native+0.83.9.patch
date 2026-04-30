@@ -24,3 +24,23 @@ index 0834bbf..b1aebf7 100644
    [componentViewDescriptor.view prepareForRecycle];
  
    recycledViews.push_back(componentViewDescriptor);
+diff --git a/node_modules/react-native/React/Views/UIView+React.m b/node_modules/react-native/React/Views/UIView+React.m
+index 2ee2c50..6fbfe6f 100644
+--- a/node_modules/react-native/React/Views/UIView+React.m
++++ b/node_modules/react-native/React/Views/UIView+React.m
+@@ -88,6 +88,15 @@ - (void)insertReactSubview:(UIView *)subview atIndex:(NSInteger)atIndex
+     subviews = [NSMutableArray new];
+     objc_setAssociatedObject(self, @selector(reactSubviews), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+   }
++  if (!subview) {
++    RCTLogWarn(@"UIView+React: Skipping insertReactSubview - subview is nil at index %ld", (long)atIndex);
++    return;
++  }
++  if (atIndex < 0 || atIndex > (NSInteger)[subviews count]) {
++    RCTLogWarn(@"UIView+React: Skipping insertReactSubview - index %ld out of bounds (count: %lu), appending instead", (long)atIndex, (unsigned long)[subviews count]);
++    [subviews addObject:subview];
++    return;
++  }
+   [subviews insertObject:subview atIndex:atIndex];
+ }
+ 

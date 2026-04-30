@@ -354,9 +354,6 @@ const handleSignerSelect = (
 };
 
 function Footer({
-  amfSigners,
-  invalidSS,
-  invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
   colorMode,
@@ -364,7 +361,6 @@ function Footer({
   isCollaborativeFlow,
   isAssistedWalletFlow,
   hasInitialTimelock,
-  setTimelockCautionModal,
   isReserveKeyFlow,
   isEmergencyKeyFlow,
   isAddInheritanceKey,
@@ -387,28 +383,6 @@ function Footer({
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const renderNotes = () => {
-    const notes = [];
-    if (amfSigners.length) {
-      const message = `* ${amfSigners.join(
-        ' and '
-      )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
-      notes.push(
-        <Box style={styles.noteContainer} key={message}>
-          <Note title={common.note} subtitle={message} />
-        </Box>
-      );
-    }
-    if (invalidSS) {
-      const message = invalidMessage;
-      notes.push(
-        <Box style={styles.noteContainer} key={message}>
-          <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
-      );
-    }
-    return notes;
-  };
 
   const handleProceedButtonClick = () => {
     if (onGoBack) {
@@ -427,7 +401,6 @@ function Footer({
 
   return (
     <Box style={styles.bottomContainer}>
-      {!(isCollaborativeFlow || isAssistedWalletFlow) && renderNotes()}
       {!(isCollaborativeFlow || isAssistedWalletFlow) &&
       !isReserveKeyFlow &&
       !isEmergencyKeyFlow ? (
@@ -622,6 +595,9 @@ function Signers({
   isAssistedWalletFlow,
   isReserveKeyFlow,
   isEmergencyKeyFlow,
+  amfSigners,
+  invalidSS,
+  invalidMessage,
   signerFilters,
   coSigners,
   setExternalKeyAddedModal,
@@ -1046,6 +1022,12 @@ function Signers({
 
   const isDarkMode = colorMode === 'dark';
   const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
+  const amfMessage = amfSigners.length
+    ? `* ${amfSigners.join(
+        ' and '
+      )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`
+    : null;
+  const warningMessage = invalidMessage?.trim() || null;
 
   return (
     <Box style={styles.signerContainer}>
@@ -1105,6 +1087,16 @@ function Signers({
             </Box>
           ) : (
             <EmptyListIllustration listType="keys" />
+          )}
+          {!isCollaborativeFlow && !isAssistedWalletFlow && !!amfMessage && (
+            <Box style={styles.noteContainer}>
+              <Note title={common.note} subtitle={amfMessage} />
+            </Box>
+          )}
+          {!isCollaborativeFlow && !isAssistedWalletFlow && invalidSS && !!warningMessage && (
+            <Box style={styles.noteContainer}>
+              <Note title="WARNING" subtitle={warningMessage} subtitleColor="error" />
+            </Box>
           )}
           <HardwareModalMap
             visible={showSSModal}
@@ -1498,8 +1490,12 @@ function AddSigningDevice() {
             signerMap={signerMap}
             setCreating={setCreating}
             isCollaborativeFlow={isCollaborativeFlow}
+            isAssistedWalletFlow={isAssistedWallet}
             isReserveKeyFlow={isReserveKeyFlow}
             isEmergencyKeyFlow={isEmergencyKeyFlow}
+            amfSigners={amfSigners}
+            invalidSS={invalidSS}
+            invalidMessage={invalidMessage}
             signerFilters={signerFilters}
             coSigners={coSigners}
             setExternalKeyAddedModal={setExternalKeyAddedModal}
@@ -1512,14 +1508,12 @@ function AddSigningDevice() {
           />
         </Box>
         <Footer
-          amfSigners={amfSigners}
-          invalidSS={invalidSS}
-          invalidMessage={invalidMessage}
           areSignersValid={areSignersValid || hotWalletSelected}
           relayVaultUpdateLoading={relayVaultUpdateLoading}
           colorMode={colorMode}
           setCreating={setCreating}
           isCollaborativeFlow={isCollaborativeFlow}
+          isAssistedWalletFlow={isAssistedWallet}
           isReserveKeyFlow={isReserveKeyFlow}
           isEmergencyKeyFlow={isEmergencyKeyFlow}
           isAddInheritanceKey={isAddInheritanceKey}
