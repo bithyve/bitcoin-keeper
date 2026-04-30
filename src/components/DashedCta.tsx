@@ -80,7 +80,9 @@ function DashedCta({
             </Text>
           )}
         </Box>
-        <Box>{arrowIcon && (isDarkMode ? <RightArrowWhite /> : <RightArrow />)}</Box>
+        <Box pointerEvents="none">
+          {arrowIcon && (isDarkMode ? <RightArrowWhite /> : <RightArrow />)}
+        </Box>
       </Box>
     </TouchableOpacity>
   );

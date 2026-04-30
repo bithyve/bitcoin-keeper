@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: windowWidth * 0.88,
     height: wp(180),
-    padding: wp(20),
     borderRadius: 15,
     position: 'relative',
     overflow: 'hidden',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Box } from '@gluestack-ui/themed-native-base';
 import Svg, { Path } from 'react-native-svg';
 import TickIcon from 'src/assets/images/tick_icon.svg';
@@ -24,6 +24,7 @@ function HexagonIcon({
   const showSelectionProps = { stroke: 'rgb(149, 175, 165)', strokeWidth: '2' };
   return (
     <Box style={styles.container}>
+      <View pointerEvents="none">
       <Svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 32 28">
         <Path
           d="M21.1,0A5,5,0,0,1,25.44,2.519l5.143,9a5,5,0,0,1,0,4.961l-5.143,9A5,5,0,0,1,21.1,28H10.9A5,5,0,0,1,6.56,25.481l-5.143-9a5,5,0,0,1,0-4.961l5.143-9A5,5,0,0,1,10.9,0Z"
@@ -31,6 +32,7 @@ function HexagonIcon({
           {...(showSelection && showSelectionProps)}
         />
       </Svg>
+      </View>
       <Box style={styles.icon}>{icon}</Box>
       {showSelection && (
         <Box style={styles.tickIcon}>
