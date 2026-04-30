@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -44,7 +44,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { SETUPCOLLABORATIVEWALLET, ADDRESERVEKEY, ADDEMERGENCYKEY } from 'src/navigation/contants';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import KeyAddedModal from 'src/components/KeyAddedModal';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
@@ -147,9 +147,11 @@ const onSignerSelect = (
         setVaultKeys(vaultKeys);
         setHotWalletSelected(false);
         setHotWalletInstanceNum(null);
-      }
-      catch (error){
-        showToast(`This key is invalid. You may need to remove and reimport it. Error: ${error.message}`, <ToastErrorIcon />);
+      } catch (error) {
+        showToast(
+          `This key is invalid. You may need to remove and reimport it. Error: ${error.message}`,
+          <ToastErrorIcon />
+        );
         return;
       }
     } else {
@@ -1268,6 +1270,7 @@ function AddSigningDevice() {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const [inProgress, setInProgress] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
@@ -1456,7 +1459,7 @@ function AddSigningDevice() {
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
-      <SafeAreaView style={styles.topContainer}>
+      <View style={[styles.topContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <Box style={styles.topSection}>
           <WalletHeader title={vaultTranslation.selectYourWalletKeys} />
         </Box>
@@ -1585,7 +1588,7 @@ function AddSigningDevice() {
           close={handleModalClose}
           signer={addedSigner}
         />
-      </SafeAreaView>
+      </View>
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </Box>
   );

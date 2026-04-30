@@ -510,6 +510,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+    paddingTop: hp(15),
   },
   topSection: {
     height: '25%',

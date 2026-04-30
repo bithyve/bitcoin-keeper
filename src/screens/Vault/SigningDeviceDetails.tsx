@@ -1106,14 +1106,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topSection: {
-    height: '25%',
     paddingHorizontal: 20,
     paddingTop: hp(15),
+    paddingBottom: hp(12),
   },
   bottomSection: {
     borderTopRightRadius: 30,
     borderTopLeftRadius: 30,
     flex: 1,
+    minHeight: 0,
+    overflow: 'hidden',
   },
   skipHealthIllustration: {
     marginLeft: wp(25),
@@ -1145,7 +1147,7 @@ const styles = StyleSheet.create({
   },
   recentHistoryText: {
     fontSize: 16,
-    paddingTop: hp(43),
+    paddingTop: Platform.OS === 'ios' ? hp(18) : hp(43),
     paddingBottom: hp(10),
     paddingHorizontal: wp(10),
   },
@@ -1172,7 +1174,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   flex1: {
-    flexGrow: 1,
+    flex: 1,
   },
   healthCheckContainer: {
     marginHorizontal: wp(15),
@@ -1221,13 +1223,17 @@ const styles = StyleSheet.create({
     paddingBottom: hp(220),
   },
   emptyWrapper: {
-    marginTop: hp(15),
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: '90%',
+    paddingVertical: hp(20),
   },
   emptyStateContainer: {
-    marginLeft: wp(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wp(172),
+    height: hp(154),
+    overflow: 'hidden',
   },
   emptyText: {
     fontSize: 14,
@@ -1256,7 +1262,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   paddedArea: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: '5%',
   },
   footerWrapper: {

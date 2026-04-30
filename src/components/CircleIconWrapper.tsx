@@ -19,6 +19,7 @@ function CircleIconWrapper({ icon, width = 50, backgroundColor, image = null }: 
           width: scaledWidth,
           height: scaledWidth,
           borderRadius: scaledWidth / 2,
+          overflow: 'hidden',
         },
       ]}
     >
