@@ -3634,12 +3634,12 @@
   resolved "https://registry.yarnpkg.com/@realm/fetch/-/fetch-0.1.1.tgz#1a637d0a1fc3734a7ffca64361d764777dd3d80c"
   integrity sha512-hkTprw79RXGv54Je0DrjpQPLaz4QID2dO3FmthAQQWAkqwyrqMzrCGzJzLlmTKWZFsgLrN8KQyNewod27P+nJg==
 
-"@realm/react@0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@realm/react/-/react-0.6.2.tgz#75205e97d851cb7121df2e2cca4d214fd75f1dc2"
-  integrity sha512-FQ05Ab8Ty9FbKcZtW9i9+eP6pfxwsRV9cwhkVxFJ7kwBoozyAGCByIx3Fwfm/pPTGoHqPMfqaXe5HYEnde/CHg==
+"@realm/react@0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@realm/react/-/react-0.11.0.tgz#cfd9674505c783d3c9f8dddb72890ba3563cccca"
+  integrity sha512-ekS0j8ZyWr+Tjd4RmTCGOOiSACFVURMxpB1fyDSwQk5mWQtkeItYB4/bLvFvqspg0F9EQbgBoNEA7ahbH6BRNw==
   dependencies:
-    lodash "^4.17.21"
+    lodash.isequal "^4.5.0"
   optionalDependencies:
     "@babel/runtime" ">=7"
     react-native ">=0.68"
@@ -9116,6 +9116,11 @@ lodash.get@^4.4.2:
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
 
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==
+
 lodash.isplainobject@^4.0.6:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/lodash.isplainobject/-/lodash.isplainobject-4.0.6.tgz#7c526a52d89b45c45cc690b88163be0497f550cb"
@@ -11220,10 +11225,10 @@ readable-stream@^3.1.1, readable-stream@^3.4.0:
     string_decoder "^1.1.1"
     util-deprecate "^1.0.1"
 
-realm@12.14.2:
-  version "12.14.2"
-  resolved "https://registry.yarnpkg.com/realm/-/realm-12.14.2.tgz#1cca3ef0238742286b378997d548bbc6f05029e0"
-  integrity sha512-T74cCPifng4TAVZCjKh3bRueFczo4OFqbHvzpIe/SshUN5J9/RVpXNidtPvRzKnP7XbigzP9158+usLXuz2y5A==
+realm@12.15.0:
+  version "12.15.0"
+  resolved "https://registry.yarnpkg.com/realm/-/realm-12.15.0.tgz#bc61a9ed8183396196c33cb1ae7684930a80e978"
+  integrity sha512-YTrMJ4NvY2rNSS56y6GMwfoOa7Z1CU6hU+3n1oh89noI2ETMzktmiEgddj4Tsm/jodpcxC8GwIMbWuED0mY05A==
   dependencies:
     "@realm/fetch" "^0.1.1"
     bson "^4.7.2"
