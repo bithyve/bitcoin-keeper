@@ -1,5 +1,5 @@
 import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import InheritanceContactIcon from 'src/assets/images/inheritancecontacticon.svg';
 import InheritanceRecoveryIcon from 'src/assets/images/inheritanceRecoveryIcon.svg';
@@ -74,6 +74,7 @@ export const useSettingKeeper = () => {
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
   const [showDeleteBackup, setShowDeleteBackup] = useState(false);
+  const themeToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { translations } = useContext(LocalizationContext);
   const {
     vault: vaultText,
@@ -112,9 +113,28 @@ export const useSettingKeeper = () => {
     }
   }, [colorMode, isOnL4]);
 
-  const changeThemeMode = () => {
+  const changeThemeMode = useCallback(() => {
     toggleColorMode();
-  };
+  }, [toggleColorMode]);
+
+  const debouncedThemeModeToggle = useCallback(() => {
+    if (themeToggleTimeoutRef.current) {
+      clearTimeout(themeToggleTimeoutRef.current);
+    }
+
+    themeToggleTimeoutRef.current = setTimeout(() => {
+      changeThemeMode();
+    }, 300);
+  }, [changeThemeMode]);
+
+  useEffect(() => {
+    return () => {
+      if (themeToggleTimeoutRef.current) {
+        clearTimeout(themeToggleTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (backupAllSuccess && isFocused) {
       dispatch(setBackupAllSuccess(false));
@@ -252,15 +272,15 @@ export const useSettingKeeper = () => {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
-      onPress: toggleDebounce(() => changeThemeMode()),
+      onPress: debouncedThemeModeToggle,
       rightIcon: (
         <Switch
-          onValueChange={toggleDebounce(() => changeThemeMode())}
+          onValueChange={debouncedThemeModeToggle}
           value={colorMode === 'dark'}
           testID="switch_darkmode"
         />
       ),
-      onRightPress: toggleDebounce(() => changeThemeMode()),
+      onRightPress: debouncedThemeModeToggle,
       isDiamond: false,
     },
     {

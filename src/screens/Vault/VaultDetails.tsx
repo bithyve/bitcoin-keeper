@@ -530,7 +530,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             isCollaborativeWallet={isCollaborativeWallet}
           />
         </Box>
-        <Box></Box>
       </VStack>
       <KeeperModal
         visible={introModal}
@@ -692,6 +691,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+    overflow: 'visible',
   },
   vaultInfoContainer: {
     flexDirection: 'row',
@@ -715,7 +715,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   bottomSection: {
-    paddingTop: wp(65),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
@@ -941,15 +940,23 @@ const styles = StyleSheet.create({
     marginTop: hp(15),
   },
   detailCardsContainer: {
+    position: 'relative',
     zIndex: 1000,
+    elevation: 20,
+    overflow: 'visible',
+    height: hp(120),
+    marginTop: -hp(50),
   },
   detailCards: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0,
-    transform: [{ translateY: hp(50) }],
+    zIndex: 1000,
+    elevation: 20,
   },
 });
 

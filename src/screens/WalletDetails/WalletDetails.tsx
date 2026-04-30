@@ -117,7 +117,7 @@ function WalletDetails({ route }: ScreenProps) {
   };
 
   return (
-    <Box style={styles.wrapper}>
+    <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <WalletDetailHeader
         settingCallBack={() =>
           navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet }))
@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   walletContainer: {
-    paddingTop: wp(60),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
@@ -266,15 +265,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   detailCardsContainer: {
+    position: 'relative',
     zIndex: 1000,
+    elevation: 20,
+    overflow: 'visible',
+    height: hp(120),
+    marginTop: -hp(50),
   },
   detailCards: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0,
-    transform: [{ translateY: hp(50) }],
+    zIndex: 1000,
+    elevation: 20,
   },
 });
 export default SentryErrorBoundary(WalletDetails);

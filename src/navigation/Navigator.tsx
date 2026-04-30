@@ -1,7 +1,6 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import * as Sentry from '@sentry/react-native';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
@@ -124,7 +123,7 @@ import AddEmergencyKey from 'src/screens/Vault/AddEmergencyKey';
 import { useColorMode } from '@gluestack-ui/themed-native-base';
 import Login from '../screens/LoginScreen/Login';
 import { AppStackParams } from './types';
-import config from 'src/utils/service-utilities/config';
+import { registerSentryNavigationContainer } from 'src/services/sentry';
 import KeyHistory from 'src/screens/Vault/KeyHistory';
 import NodeSelection from 'src/screens/AppSettings/Node/NodeSelection';
 import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
@@ -399,16 +398,11 @@ function Navigator() {
       background: colorMode === 'light' ? Colors.secondaryCreamWhite : Colors.PrimaryBlack,
     },
   };
-  const navigationIntegration = Sentry.reactNavigationIntegration({
-    enableTimeToInitialDisplay: true,
-  });
 
   // Register the navigation container with the instrumentation
   const onReady = () => {
-    if (config.isDevMode()) {
-      // updated with RNv0.73.0
-      navigationIntegration.registerNavigationContainer(navigation);
-    }
+    // updated with RNv0.73.0
+    registerSentryNavigationContainer(navigation);
   };
 
   const { onboardingModal } = useAppSelector((state) => state.concierge);

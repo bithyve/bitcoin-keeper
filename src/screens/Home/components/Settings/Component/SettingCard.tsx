@@ -45,7 +45,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
   return (
     <>
       {header && (
-        <Box>
+        <Box style={{ paddingHorizontal: wp(21) }}>
           <Text
             color={isDarkMode ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
             fontSize={14}
@@ -94,7 +94,11 @@ const SettingCard: React.FC<SettingCardProps> = ({
                     )}
                     <Box style={styles.textContainer}>
                       <Text
-                        color={applyDiamondCheck ? titleColor : `${colorMode}.secondaryLightGrey`}
+                        color={
+                          applyDiamondCheck
+                            ? titleColor ?? `${colorMode}.balanceText`
+                            : `${colorMode}.secondaryLightGrey`
+                        }
                         fontSize={14}
                         medium
                         style={styles.title}
