@@ -16,17 +16,17 @@ import BTC from 'src/assets/images/btc.svg';
 import { useContext, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import Buttons from 'src/components/Buttons';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import HexagonIcon from 'src/components/HexagonIcon';
 
 type SelectWalletParams = {
-  handleSelectWallet: (wallet: Wallet | Vault) => void;
   selectedWalletIdFromParams?: string;
   sender: Wallet | Vault;
   subTitle?: string;
+  sourceRouteKey: string;
 };
 
 type Props = NativeStackScreenProps<
@@ -38,19 +38,12 @@ type Props = NativeStackScreenProps<
 
 interface WalletItemProps {
   wallet: Wallet | Vault;
-  getWalletIcon: (wallet: Wallet | Vault) => JSX.Element;
+  getWalletIcon: (wallet: Wallet | Vault) => React.ReactElement;
   selectedWalletId: string;
   setSelectedWalletId: (walletId: string) => void;
-  handleSelectWallet: (wallet: Wallet | Vault) => void;
 }
 
-function WalletItem({
-  wallet,
-  getWalletIcon,
-  selectedWalletId,
-  setSelectedWalletId,
-  handleSelectWallet,
-}: WalletItemProps) {
+function WalletItem({ wallet, getWalletIcon, selectedWalletId, setSelectedWalletId }: WalletItemProps) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const isDarkMode = colorMode === 'dark';
@@ -62,10 +55,8 @@ function WalletItem({
   const handlePress = () => {
     if (isSelected) {
       setSelectedWalletId(null);
-      handleSelectWallet(null);
     } else {
       setSelectedWalletId(wallet.id);
-      handleSelectWallet(wallet);
     }
   };
 
@@ -101,7 +92,12 @@ function WalletItem({
 }
 
 function SelectWalletScreen({ route }: Props) {
-  const { handleSelectWallet, selectedWalletIdFromParams, sender, subTitle = null } = route.params;
+  const {
+    selectedWalletIdFromParams,
+    sender,
+    subTitle = null,
+    sourceRouteKey,
+  } = route.params;
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { wallets } = useWallets({ getAll: true });
@@ -140,7 +136,6 @@ function SelectWalletScreen({ route }: Props) {
               getWalletIcon={getWalletIcon}
               selectedWalletId={selectedWalletId}
               setSelectedWalletId={setSelectedWalletId}
-              handleSelectWallet={handleSelectWallet}
             />
           ))}
         </Box>
@@ -149,6 +144,12 @@ function SelectWalletScreen({ route }: Props) {
         <Buttons
           primaryText={common.confirm}
           primaryCallback={() => {
+            navigation.dispatch({
+              ...CommonActions.setParams({
+                selectedWalletIdFromSelection: selectedWalletId || null,
+              }),
+              source: sourceRouteKey,
+            });
             navigation.goBack();
           }}
           fullWidth
