@@ -139,17 +139,19 @@ function TransactionAdvancedDetails({ route }) {
         {showTnxId && (
           <Box style={styles.transViewWrapper}>
             <Box style={styles.transViewIcon}>
-              {transaction.transactionType === 'Received' ? (
-                colorMode === 'dark' ? (
-                  <IconRecieveDark />
+              <Box style={styles.txnTypeIconContainer}>
+                {transaction.transactionType === 'Received' ? (
+                  colorMode === 'dark' ? (
+                    <IconRecieveDark width={35} height={35} />
+                  ) : (
+                    <IconRecieve width={35} height={35} />
+                  )
+                ) : colorMode === 'dark' ? (
+                  <IconSendDark width={35} height={35} />
                 ) : (
-                  <IconRecieve />
-                )
-              ) : colorMode === 'dark' ? (
-                <IconSendDark />
-              ) : (
-                <IconSend />
-              )}
+                  <IconSend width={35} height={35} />
+                )}
+              </Box>
               <Box style={styles.transView}>
                 <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.transIDText}>
                   {transaction.txid}
@@ -219,6 +221,14 @@ const styles = StyleSheet.create({
   transViewIcon: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  txnTypeIconContainer: {
+    width: 35,
+    height: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
   },
   transView: {
     marginLeft: wp(10),

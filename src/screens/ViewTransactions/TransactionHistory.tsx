@@ -1,6 +1,6 @@
 import { FlatList, RefreshControl, StatusBar, StyleSheet } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { use, useContext, useMemo, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { setStateFromSnapshot } from 'src/store/reducers/send_and_receive';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletHeader from 'src/components/WalletHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function TransactionHistory({ route }) {
   const { colorMode } = useColorMode();
@@ -23,6 +24,7 @@ function TransactionHistory({ route }) {
   const { wallet }: { wallet: Wallet } = route.params;
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   const transactions = useMemo(
     () =>
       [...(wallet?.specs?.transactions || [])].sort((a, b) => {
@@ -71,7 +73,10 @@ function TransactionHistory({ route }) {
   };
 
   return (
-    <Box safeAreaTop backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
+    <Box
+      style={[styles.wrapper, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
+      backgroundColor={`${colorMode}.primaryBackground`}
+    >
       <StatusBar
         barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
         backgroundColor="transparent"

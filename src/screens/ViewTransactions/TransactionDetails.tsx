@@ -38,6 +38,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import BTC from 'src/assets/images/btc.svg';
 import { useAppSelector } from 'src/store/hooks';
 import WalletHeader from 'src/components/WalletHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
   const updateNote = useCallback((text) => {
@@ -72,6 +73,7 @@ function TransactionDetails({ route }) {
   const dispatch = useDispatch();
   const [updatingLabel, setUpdatingLabel] = React.useState(false);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (labels[transaction.txid][0] && noteRef.current) {
@@ -159,7 +161,10 @@ function TransactionDetails({ route }) {
     [transaction, labels]
   );
   return (
-    <Box safeAreaTop backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
+    <Box
+      backgroundColor={`${colorMode}.primaryBackground`}
+      style={[styles.wrapper, { paddingBottom: insets.bottom, paddingTop: insets.top }]}
+    >
       <StatusBar
         barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
         backgroundColor="transparent"
@@ -171,17 +176,19 @@ function TransactionDetails({ route }) {
         />
         <Box style={styles.transViewWrapper}>
           <Box style={styles.transViewIcon}>
-            {transaction.transactionType === 'Received' ? (
-              colorMode === 'dark' ? (
-                <IconRecieveDark />
+            <Box style={styles.txnTypeIconContainer}>
+              {transaction.transactionType === 'Received' ? (
+                colorMode === 'dark' ? (
+                  <IconRecieveDark width={35} height={35} />
+                ) : (
+                  <IconRecieve width={35} height={35} />
+                )
+              ) : colorMode === 'dark' ? (
+                <IconSendDark width={35} height={35} />
               ) : (
-                <IconRecieve />
-              )
-            ) : colorMode === 'dark' ? (
-              <IconSendDark />
-            ) : (
-              <IconSend />
-            )}
+                <IconSend width={35} height={35} />
+              )}
+            </Box>
             <Box style={styles.transView}>
               <Text color={`${colorMode}.GreyText`} numberOfLines={1} style={styles.transIDText}>
                 {transaction.txid}
@@ -328,6 +335,14 @@ const styles = StyleSheet.create({
   transViewIcon: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  txnTypeIconContainer: {
+    width: 35,
+    height: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    overflow: 'hidden',
   },
   infoCardContainer: {
     justifyContent: 'center',

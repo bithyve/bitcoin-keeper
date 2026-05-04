@@ -91,7 +91,10 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const [failedVerificationModal, setFailedVerificationModal] = useState(false);
   const [backupMismatchModal, setBackupMismatchModal] = useState(false);
   const data = useQuery(RealmSchema.BackupHistory);
-  const history: BackupHistoryItem[] = useMemo(() => data.sorted('date', true), [data]);
+  const history: BackupHistoryItem[] = useMemo(
+    () => data.sorted('date', true).map(getJSONFromRealmObject) as unknown as BackupHistoryItem[],
+    [data]
+  );
   const { isOnL2Above } = usePlan();
   const isFocused = useIsFocused();
   const [asbEnabled, setAsbEnabled] = useState(false);
@@ -204,10 +207,10 @@ function BackupHealthCheckList({ isUaiFlow }) {
             data={history}
             contentContainerStyle={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }) => (
+            keyExtractor={(item, index) => `${item?.date}-${item?.title}-${index}`}
+            renderItem={({ item }) => (
               <SigningDeviceChecklist
                 status={item?.title}
-                key={index.toString()}
                 date={moment.unix(item?.date).toDate()}
               />
             )}

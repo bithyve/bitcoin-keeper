@@ -42,7 +42,6 @@ import config from 'src/utils/service-utilities/config';
 import EquivalentGreen from 'src/assets/images/equivalent-green.svg';
 import EquivalentGrey from 'src/assets/images/equivalent-grey.svg';
 import useBalance from 'src/hooks/useBalance';
-import { SatsToBtc } from 'src/constants/Bitcoin';
 import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
 import Colors from 'src/theme/Colors';
@@ -59,7 +58,9 @@ const PRESET = [
 ];
 
 export const SendTip = () => {
-  const { tipAddress = config.ADDRESS.settings }: any = useRoute().params;
+  const route = useRoute<any>();
+  const { tipAddress = config.ADDRESS.settings, selectedWalletIdFromSelection = null }: any =
+    route.params || {};
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -74,7 +75,7 @@ export const SendTip = () => {
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(null);
   const isDarkMode = colorMode === 'dark';
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
-  const [amountToSend, setAmountToSend] = useState();
+  const [amountToSend, setAmountToSend] = useState<number | string>('');
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const [showTimeLockModal, setShowTimeLockModal] = useState(false);
   const [timeUntilTimeLockExpires, setTimeUntilTimeLockExpires] = useState<string | null>(null);
@@ -93,6 +94,10 @@ export const SendTip = () => {
       selectedWallet?.specs?.balances?.confirmed + selectedWallet?.specs?.balances?.unconfirmed || 0
     );
   }, [selectedWallet]);
+
+  const numericAmountToSend = Number(amountToSend) || 0;
+
+  const allWallets = useMemo(() => [...wallets, ...allVaults], [wallets, allVaults]);
 
   useEffect(() => {
     if (conciergeUser == null) dispatch(loadConciergeUser());
@@ -191,6 +196,22 @@ export const SendTip = () => {
     else if (wallets.length) setSelectedWallet(wallets[0]);
   }, []);
 
+  useEffect(() => {
+    if (selectedWalletIdFromSelection === undefined || selectedWalletIdFromSelection === null) {
+      return;
+    }
+
+    const selected = allWallets.find((wallet) => wallet.id === selectedWalletIdFromSelection);
+    if (selected) {
+      handleSelectWallet(selected);
+    }
+
+    navigation.setParams({
+      ...route.params,
+      selectedWalletIdFromSelection: null,
+    });
+  }, [selectedWalletIdFromSelection, allWallets]);
+
   const getSmallWalletIcon = (wallet) => {
     if (wallet.entityKind === EntityKind.VAULT) {
       return wallet.type === VaultType.COLLABORATIVE ? (
@@ -206,8 +227,8 @@ export const SendTip = () => {
   const navigateToSelectWallet = () => {
     navigation.dispatch(
       CommonActions.navigate('SelectWallet', {
-        sender: {},
-        handleSelectWallet,
+        sender: selectedWallet || {},
+        sourceRouteKey: route.key,
         selectedWalletIdFromParams: selectedWallet?.id,
         subTitle: settings.selectTipWalletSubtitle,
       })
@@ -228,7 +249,7 @@ export const SendTip = () => {
           sender: selectedWallet,
           internalRecipients: [null],
           addresses: [tipAddress],
-          amounts: [Math.round(getUsdInSats(amountToSend))],
+          amounts: [Math.round(getUsdInSats(numericAmountToSend))],
           note: settings.tipToDeveloper,
           selectedUTXOs: [],
           parentScreen: undefined,
@@ -236,7 +257,9 @@ export const SendTip = () => {
           transactionPriority: 'low',
           customFeePerByte: 0,
           miniscriptSelectedSatisfier: miniscriptSelectedSatisfierRef.current,
-          tipMessage: `${msg} \nAmount tipped: ${Math.round(getUsdInSats(amountToSend))} sats`,
+          tipMessage: `${msg} \nAmount tipped: ${Math.round(
+            getUsdInSats(numericAmountToSend)
+          )} sats`,
         })
       );
     }
@@ -252,7 +275,7 @@ export const SendTip = () => {
     const recipients = [];
     recipients.push({
       address: tipAddress,
-      amount: Math.round(getUsdInSats(amountToSend)),
+      amount: Math.round(getUsdInSats(numericAmountToSend)),
       name: '',
     });
 
@@ -267,7 +290,7 @@ export const SendTip = () => {
   };
 
   const continueToSend = () => {
-    if (walletBalance < Math.round(getUsdInSats(amountToSend))) {
+    if (walletBalance < Math.round(getUsdInSats(numericAmountToSend))) {
       showToast(errorText.insufficientBalance);
       return;
     }
