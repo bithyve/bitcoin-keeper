@@ -2,7 +2,7 @@
 import Text from 'src/components/KeeperText';
 
 import { Box, useColorMode, Pressable, HStack } from '@gluestack-ui/themed-native-base';
-import { ScrollView, StyleSheet, Vibration , TouchableOpacity} from 'react-native';
+import { ScrollView, StyleSheet, Vibration, TouchableOpacity, TextInput } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Buttons from 'src/components/Buttons';
 
@@ -13,6 +13,7 @@ import { hp, windowWidth, wp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/services/wallets/operations';
 import Fonts from 'src/constants/Fonts';
+import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
@@ -28,7 +29,6 @@ import NavRight from 'src/assets/images/nav-right.svg';
 import NavRightWhite from 'src/assets/images/nav-right-white.svg';
 import NewQR from 'src/assets/images/qr-new.svg';
 import NewQRWhite from 'src/assets/images/qr-new-white.svg';
-import KeeperTextInput from 'src/components/KeeperTextInput';
 import { generateNewAddress } from 'src/store/sagaActions/wallets';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -419,33 +419,44 @@ function ReceiveScreen({ route }: { route }) {
               <NavLeftWhite width={wp(22)} height={hp(22)} />
             )}
           </TouchableOpacity>
-          <KeeperTextInput
-            placeholder=""
-            value={currentAddressIdxTempText}
-            onChangeText={(text) => {
-              setCurrentAddressIdxTempText(text);
-            }}
-            onBlur={() => {
-              if (
-                parseInt(currentAddressIdxTempText) &&
-                !Number.isNaN(parseInt(currentAddressIdxTempText)) &&
-                !(
-                  currentAddressIdxTempText.includes('.') || currentAddressIdxTempText.includes(',')
-                )
-              ) {
-                setCurrentAddressIdx(
-                  Math.min(totalAddressesCount, parseInt(currentAddressIdxTempText))
-                );
-              } else {
-                setCurrentAddressIdxTempText(currentAddressIdx.toString());
-              }
-            }}
-            width={wp(Math.min(120, 40 + 5 * String(currentAddressIdx).length))}
-            height={hp(35)}
-            keyboardType="numeric"
-            style={styles.addressPageInput}
-            fontWeight="200"
-          />
+          <Box
+            style={[
+              styles.addressPageInputContainer,
+              { width: wp(Math.min(120, 40 + 5 * String(currentAddressIdx).length)) },
+            ]}
+            backgroundColor={`${colorMode}.textInputBackground`}
+            borderColor={`${colorMode}.greyBorder`}
+          >
+            <TextInput
+              value={currentAddressIdxTempText || String(currentAddressIdx)}
+              onChangeText={(text) => {
+                setCurrentAddressIdxTempText(text);
+              }}
+              onBlur={() => {
+                if (
+                  parseInt(currentAddressIdxTempText) &&
+                  !Number.isNaN(parseInt(currentAddressIdxTempText)) &&
+                  !(
+                    currentAddressIdxTempText.includes('.') ||
+                    currentAddressIdxTempText.includes(',')
+                  )
+                ) {
+                  setCurrentAddressIdx(
+                    Math.min(totalAddressesCount, parseInt(currentAddressIdxTempText))
+                  );
+                } else {
+                  setCurrentAddressIdxTempText(currentAddressIdx.toString());
+                }
+              }}
+              keyboardType="numeric"
+              style={[
+                styles.addressPageInput,
+                { color: colorMode === 'dark' ? Colors.bodyText : Colors.secondaryBlack },
+              ]}
+              textAlign="center"
+              selectionColor={colorMode === 'dark' ? Colors.bodyText : Colors.secondaryBlack}
+            />
+          </Box>
           <Text color={`${colorMode}.black`} style={styles.totalAddressesText}>
             of {totalAddressesCount}
           </Text>
@@ -637,9 +648,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addressPageInput: {
-    textAlign: 'center',
     fontSize: 14,
-    marginTop: hp(3),
+    lineHeight: 18,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    width: '100%',
+    height: '100%',
+  },
+  addressPageInputContainer: {
+    height: hp(35),
+    borderWidth: 1,
+    borderRadius: 10,
+    justifyContent: 'center',
   },
   totalAddressesText: {
     fontSize: 14,

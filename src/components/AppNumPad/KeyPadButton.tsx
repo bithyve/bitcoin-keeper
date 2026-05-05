@@ -35,6 +35,7 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleE
       >
         {bubbleEffect && (
           <Animated.View
+            pointerEvents="none"
             style={[
               styles.circleEffect,
               pressed && styles.circleEffectActive,
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     lineHeight: 30,
     zIndex: 1,
+    opacity: 1,
   },
   circleEffect: {
     position: 'absolute',
