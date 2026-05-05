@@ -425,6 +425,7 @@ function SignTransactionScreen() {
             withNfcModal,
             serializedPSBTEnvelop,
             closeNfc,
+            vault: defaultVault,
           });
         } else if (SignerType.MOBILE_KEY === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithMobileKey({

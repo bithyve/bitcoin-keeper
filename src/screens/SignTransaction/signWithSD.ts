@@ -112,10 +112,18 @@ export const signTransactionWithColdCard = async ({
   withNfcModal,
   serializedPSBTEnvelop,
   closeNfc,
+  vault,
 }) => {
   try {
     setColdCardModal(false);
-    await withNfcModal(async () => signWithColdCard(serializedPSBTEnvelop.serializedPSBT));
+
+    const { serializedPSBT } = vault
+      ? await getPsbtForHwi(serializedPSBTEnvelop.serializedPSBT, vault, {
+          throwOnError: true,
+        })
+      : serializedPSBTEnvelop;
+
+    await withNfcModal(async () => signWithColdCard(serializedPSBT));
   } catch (error) {
     if (error.toString() === 'Error') {
       // ignore if nfc modal is dismissed
