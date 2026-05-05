@@ -240,6 +240,7 @@ const getStyles = (
   StyleSheet.create({
     container: {
       backgroundColor: 'transparent',
+      paddingTop: hp(10),
     },
     simpleContainer: {
       flexDirection: 'row',

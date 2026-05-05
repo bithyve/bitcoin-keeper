@@ -24,7 +24,10 @@ function KeeperQRCode({
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
   return (
-    <Box style={styles.qrWrapper} borderColor={`${colorMode}.headerWhite`}>
+    <Box
+      style={[styles.qrWrapper, { width: size + 20, height: size + 20 }]}
+      borderColor={`${colorMode}.headerWhite`}
+    >
       {qrData && (
         <QRCode
           value={qrData}
@@ -42,6 +45,10 @@ function KeeperQRCode({
 const styles = StyleSheet.create({
   qrWrapper: {
     borderWidth: 10,
+    position: 'relative',
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

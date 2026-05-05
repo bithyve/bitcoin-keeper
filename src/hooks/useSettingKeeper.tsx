@@ -75,6 +75,7 @@ export const useSettingKeeper = () => {
   const [confirmPass, setConfirmPass] = useState(false);
   const [showDeleteBackup, setShowDeleteBackup] = useState(false);
   const themeToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backupToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { translations } = useContext(LocalizationContext);
   const {
     vault: vaultText,
@@ -132,6 +133,9 @@ export const useSettingKeeper = () => {
       if (themeToggleTimeoutRef.current) {
         clearTimeout(themeToggleTimeoutRef.current);
       }
+      if (backupToggleTimeoutRef.current) {
+        clearTimeout(backupToggleTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -165,18 +169,20 @@ export const useSettingKeeper = () => {
     }
   }, [backupAllFailure]);
 
-  const toggleAutomaticBackupMode = async () => {
+  const toggleAutomaticBackupMode = useCallback(() => {
     if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
     else setShowDeleteBackup(true);
-  };
+  }, [automaticCloudBackup, dispatch]);
 
-  const toggleDebounce = (callback, delay = 300) => {
-    let timeoutId;
-    return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => callback(), delay);
-    };
-  };
+  const debouncedAutomaticBackupToggle = useCallback(() => {
+    if (backupToggleTimeoutRef.current) {
+      clearTimeout(backupToggleTimeoutRef.current);
+    }
+
+    backupToggleTimeoutRef.current = setTimeout(() => {
+      toggleAutomaticBackupMode();
+    }, 300);
+  }, [toggleAutomaticBackupMode]);
 
   const planData = [
     {
@@ -255,13 +261,13 @@ export const useSettingKeeper = () => {
       title: settings.assistedServerBackup,
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
-      onPress: () => {},
+      onPress: debouncedAutomaticBackupToggle,
       rightIcon: isOnL2Above ? (
-        <Switch onValueChange={() => {}} value={automaticCloudBackup} />
+        <Switch onValueChange={debouncedAutomaticBackupToggle} value={automaticCloudBackup} />
       ) : (
         <UpgradeIcon width={64} height={20} />
       ),
-      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
+      onRightPress: debouncedAutomaticBackupToggle,
       isDiamond: false,
       isHodler: true,
     },

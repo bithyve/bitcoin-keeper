@@ -68,11 +68,12 @@ const SettingCard: React.FC<SettingCardProps> = ({
             : item?.isDiamond
             ? isOnL3Above
             : true;
+          const itemPressHandler = item.onPress || item.onRightPress;
 
           return (
             <React.Fragment key={index}>
               <TouchableOpacity
-                onPress={applyDiamondCheck ? item.onPress : null}
+                onPress={applyDiamondCheck ? itemPressHandler : null}
                 disabled={!applyDiamondCheck}
                 testID={`btn_setting_${item.title}`}
               >

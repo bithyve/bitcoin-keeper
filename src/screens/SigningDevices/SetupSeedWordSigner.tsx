@@ -61,12 +61,7 @@ function SetupSeedWordSigner({ route }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text
-            fontSize={17}
-            backgroundColor="green.700"
-            letterSpacing={1}
-            color={`${colorMode}.GreyText`}
-          >
+          <Text fontSize={17} letterSpacing={1} color={`${colorMode}.GreyText`}>
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
