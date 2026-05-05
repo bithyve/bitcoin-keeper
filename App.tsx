@@ -1,4 +1,4 @@
-import { LogBox, Platform, UIManager } from 'react-native';
+import { LogBox, Platform } from 'react-native';
 import React, { ReactElement, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from '@gluestack-ui/themed-native-base';
@@ -16,19 +16,12 @@ import { SentryWrapper } from 'src/services/sentry';
 import ThemeContextProvider from 'src/context/ThemeContext';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 
-
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
   /\b{$Require cycle}\b/gi,
   'Warning: ...',
   /.+/s,
 ]);
-
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
 
 function AndroidProvider({ children }: { children: ReactElement }) {
   return Platform.OS === 'android' ? <HCESessionProvider>{children}</HCESessionProvider> : children;

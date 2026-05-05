@@ -10,7 +10,13 @@ import TorAsset from 'src/components/Loader';
 import KeeperModal from 'src/components/KeeperModal';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import {
+  AuthorizationStatus,
+  getMessaging,
+  getToken,
+  requestPermission,
+} from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
@@ -104,10 +110,11 @@ function LoginScreen({ navigation, route }) {
   };
 
   async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
+    const app = getApp();
+    const authStatus = await requestPermission(getMessaging(app));
     const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      authStatus === AuthorizationStatus.AUTHORIZED ||
+      authStatus === AuthorizationStatus.PROVISIONAL;
 
     if (enabled) {
       console.log('Authorization status:', authStatus);
@@ -284,7 +291,8 @@ function LoginScreen({ navigation, route }) {
 
   const updateFCM = async () => {
     try {
-      const token = await messaging().getToken();
+      const app = getApp();
+      const token = await getToken(getMessaging(app));
       if (!existingFCMToken || existingFCMToken !== token) dispatch(updateFCMTokens([token]));
     } catch (error) {
       console.log(error);

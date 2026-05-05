@@ -11,7 +11,8 @@ import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recover from 'src/assets/images/recover-app-icon.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging, getToken } from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
@@ -127,7 +128,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   async function updateFCM() {
     try {
-      const token = await messaging().getToken();
+      const app = getApp();
+      const token = await getToken(getMessaging(app));
       dispatch(updateFCMTokens([token]));
     } catch (error) {
       //
@@ -163,7 +165,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   async function createNewApp() {
     try {
-      const fcmToken = await messaging().getToken();
+      const app = getApp();
+      const fcmToken = await getToken(getMessaging(app));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
       dispatch(setupKeeperApp());
