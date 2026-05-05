@@ -65,7 +65,14 @@ function PreviewPDF({ route }: any) {
       />
 
       <Box style={styles.container}>
-        <Pdf trustAllCerts={false} source={{ uri: source }} style={styles.pdf} />
+        {Platform.OS == 'android' ? (
+          <Pdf trustAllCerts={false} source={{ uri: source }} style={styles.pdf} />
+        ) : (
+          <Box style={styles.infoContainer}>
+            <Text>Preview is unavailable</Text>
+            <Text>Download the pdf to view</Text>
+          </Box>
+        )}
       </Box>
     </ScreenWrapper>
   );
@@ -91,6 +98,13 @@ const styles = StyleSheet.create({
   },
   downloadBtnText: {
     fontSize: 14,
+  },
+  infoContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
