@@ -32,7 +32,7 @@ function ConciergeOnboardingModal({ visible }) {
 
   return (
     <KeeperModal
-      visible={visible}
+      visible={false}
       close={handleCloseModal}
       title={concierge.welcomeToConcierge}
       subTitle={concierge.getAnsweredWithConcierge}

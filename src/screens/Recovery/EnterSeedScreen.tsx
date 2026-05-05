@@ -466,11 +466,11 @@ function EnterSeedScreen({ route, navigation }) {
 
   const getPosition = (index: number) => {
     if ([0, 1, 12, 13, 18, 19, 20, 21].includes(index)) {
-      return 1;
-    } else if ([2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 22, 23].includes(index)) {
       return 2;
+    } else if ([2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 22, 23].includes(index)) {
+      return 1;
     } else if ([4, 5, 16, 17].includes(index)) {
-      return 3;
+      return 2;
     } else {
       return 1;
     }
@@ -491,7 +491,7 @@ function EnterSeedScreen({ route, navigation }) {
         index < 24)
     ) {
       return (
-        <Box style={styles.inputListWrapper}>
+        <Box key={index} style={styles.inputListWrapper}>
           <Input
             fontWeight={500}
             fontFamily={item.name === '' ? 'Arial' : Fonts.LoraSemiBold}

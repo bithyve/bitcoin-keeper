@@ -499,6 +499,7 @@ function SendScreen({ route }) {
           setShowAdvancedSettingsModal(false);
         }}
         secondaryButtonText={common.cancel}
+        secondaryCallback={() => setShowAdvancedSettingsModal(false)}
         Content={() => (
           <Box>
             <Text>{settings.numberOfRecipients}</Text>
