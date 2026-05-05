@@ -121,6 +121,9 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'networkInfo',
     },
   ];
+  useEffect(() => {
+    navigation.goBack();
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {

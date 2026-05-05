@@ -269,20 +269,20 @@ function ManageSigners({ route }: ScreenProps) {
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
         secButtonTextColor={green_modal_sec_button_text}
-        secondaryButtonText={common.needHelp}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setShowLearnMoreModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.KEYS],
-                screenName: 'manage-keys',
-              },
-            })
-          );
-        }}
+        // secondaryButtonText={common.needHelp}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setShowLearnMoreModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.KEYS],
+        //         screenName: 'manage-keys',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonText={common.Okay}
         buttonCallback={() => setShowLearnMoreModal(false)}
         Content={() => (

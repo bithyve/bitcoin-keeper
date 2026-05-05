@@ -34,16 +34,16 @@ const ConciergeComponent = ({ route }) => {
   const { accountManagerDetails } = useAppSelector((state) => state?.concierge);
 
   const conciergeData: ConciergeItem[] = [
-    {
-      title: conciergeText.askQuestion,
-      subtitle: conciergeText.submitTicket,
-      iconName: isDarkMode ? <ConciergeWhiteIcon /> : <AskQuestionIcon />,
-      buttonText: conciergeText.takeMeThere,
-      callback: () => {
-        navigation.navigate('KeeperSupport');
-      },
-      buttonIcon: TakeMeThereIcon,
-    },
+    // {
+    //   title: conciergeText.askQuestion,
+    //   subtitle: conciergeText.submitTicket,
+    //   iconName: isDarkMode ? <ConciergeWhiteIcon /> : <AskQuestionIcon />,
+    //   buttonText: conciergeText.takeMeThere,
+    //   callback: () => {
+    //     navigation.navigate('KeeperSupport');
+    //   },
+    //   buttonIcon: TakeMeThereIcon,
+    // },
     {
       title: conciergeText.hireAdvisor,
       subtitle: conciergeText.whiteGlovedService,

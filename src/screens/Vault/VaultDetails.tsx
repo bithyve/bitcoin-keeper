@@ -556,27 +556,27 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         textColor={green_modal_text_color}
         Content={VaultContent}
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          dispatch(setIntroModal(false));
-          isCanaryWallet &&
-            dispatch(setShowTipModal({ status: true, address: config.ADDRESS.canary }));
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: isCollaborativeWallet
-                  ? [ConciergeTag.COLLABORATIVE_Wallet]
-                  : [ConciergeTag.VAULT],
-                screenName: 'vault-details',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   dispatch(setIntroModal(false));
+        //   isCanaryWallet &&
+        //     dispatch(setShowTipModal({ status: true, address: config.ADDRESS.canary }));
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: isCollaborativeWallet
+        //           ? [ConciergeTag.COLLABORATIVE_Wallet]
+        //           : [ConciergeTag.VAULT],
+        //         screenName: 'vault-details',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
           isCanaryWallet &&

@@ -266,23 +266,23 @@ function WalletSettings({ route }) {
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setNeedHelpModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.WALLET],
-                screenName: 'wallet-settings',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setNeedHelpModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.WALLET],
+        //         screenName: 'wallet-settings',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => setNeedHelpModal(false)}
       />
 

@@ -184,23 +184,23 @@ function VaultConfigurationCreation() {
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setShowModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.WALLET],
-                screenName: 'import-wallet-config-file',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setShowModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.WALLET],
+        //         screenName: 'import-wallet-config-file',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => setShowModal(false)}
       />
     </ScreenWrapper>

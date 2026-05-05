@@ -172,26 +172,26 @@ function ScanQR() {
             textColor={`${colorMode}.headerWhite`}
             Content={learnMoreContent}
             buttonText={common.Okay}
-            secondaryButtonText={common.needHelp}
+            // secondaryButtonText={common.needHelp}
             buttonTextColor={`${colorMode}.pantoneGreen`}
             buttonBackground={`${colorMode}.whiteSecButtonText`}
-            secButtonTextColor={`${colorMode}.whiteSecButtonText`}
-            secondaryIcon={<ConciergeNeedHelp />}
+            // secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+            // secondaryIcon={<ConciergeNeedHelp />}
             buttonCallback={() => {
               setVisibleModal(false);
             }}
-            secondaryCallback={() => {
-              setVisibleModal(false);
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'CreateTicket',
-                  params: {
-                    tags: [ConciergeTag.COLLABORATIVE_Wallet],
-                    screenName: 'add-co-signer',
-                  },
-                })
-              );
-            }}
+            // secondaryCallback={() => {
+            //   setVisibleModal(false);
+            //   navigation.dispatch(
+            //     CommonActions.navigate({
+            //       name: 'CreateTicket',
+            //       params: {
+            //         tags: [ConciergeTag.COLLABORATIVE_Wallet],
+            //         screenName: 'add-co-signer',
+            //       },
+            //     })
+            //   );
+            // }}
             learnMoreButtonText={common.needMoreHelp}
           />
           <KeeperModal

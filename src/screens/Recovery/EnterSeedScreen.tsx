@@ -695,19 +695,19 @@ function EnterSeedScreen({ route, navigation }) {
           <Buttons
             primaryCallback={handleNext}
             primaryText={common.next}
-            secondaryText={isRecovery || isUSDTWallet ? null : common.needHelp}
+            // secondaryText={isRecovery || isUSDTWallet ? null : common.needHelp}
             fullWidth={isRecovery}
-            secondaryCallback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'CreateTicket',
-                  params: {
-                    tags: [ConciergeTag.VAULT],
-                    screenName: 'sign-transaction-seed-key',
-                  },
-                })
-              );
-            }}
+            // secondaryCallback={() => {
+            //   navigation.dispatch(
+            //     CommonActions.navigate({
+            //       name: 'CreateTicket',
+            //       params: {
+            //         tags: [ConciergeTag.VAULT],
+            //         screenName: 'sign-transaction-seed-key',
+            //       },
+            //     })
+            //   );
+            // }}
             primaryLoading={recoveryLoading}
           />
         </Box>
@@ -787,23 +787,23 @@ function EnterSeedScreen({ route, navigation }) {
           Content={UsdtWalletImportContent}
           DarkCloseIcon
           buttonText={common.Okay}
-          secondaryButtonText={common.needHelp}
+          // secondaryButtonText={common.needHelp}
           buttonTextColor={green_modal_button_text}
           buttonBackground={green_modal_button_background}
-          secButtonTextColor={green_modal_sec_button_text}
-          secondaryIcon={<ConciergeNeedHelp />}
-          secondaryCallback={() => {
-            setShowInfo(false);
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'CreateTicket',
-                params: {
-                  tags: [ConciergeTag.WALLET],
-                  screenName: 'import-usdt-wallet-seed-key',
-                },
-              })
-            );
-          }}
+          // secButtonTextColor={green_modal_sec_button_text}
+          // secondaryIcon={<ConciergeNeedHelp />}
+          // secondaryCallback={() => {
+          //   setShowInfo(false);
+          //   navigation.dispatch(
+          //     CommonActions.navigate({
+          //       name: 'CreateTicket',
+          //       params: {
+          //         tags: [ConciergeTag.WALLET],
+          //         screenName: 'import-usdt-wallet-seed-key',
+          //       },
+          //     })
+          //   );
+          // }}
           buttonCallback={() => setShowInfo(false)}
         />
       </KeyboardAvoidingView>

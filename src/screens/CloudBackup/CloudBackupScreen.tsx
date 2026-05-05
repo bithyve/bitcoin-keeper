@@ -173,26 +173,26 @@ function CloudBackupScreen() {
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setShowModal(false);
-          if (setBackupModal) {
-            dispatch(setBackupModal(false));
-          }
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.SETTINGS],
-                screenName: 'cloud-backup',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setShowModal(false);
+        //   if (setBackupModal) {
+        //     dispatch(setBackupModal(false));
+        //   }
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.SETTINGS],
+        //         screenName: 'cloud-backup',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => {
           setShowModal(false);
           if (setBackupModal) {
