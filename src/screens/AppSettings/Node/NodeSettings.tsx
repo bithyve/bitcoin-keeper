@@ -156,7 +156,7 @@ function NodeSettings() {
           />
         ) : (
           <Box flex={1}>
-            <EmptyListIllustration listType="nodes" />
+            <EmptyListIllustration listType="nodes" hideIllustration />
           </Box>
         )}
       </Box>

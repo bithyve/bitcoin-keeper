@@ -262,7 +262,10 @@ const NodeSelection = () => {
           )}
         </ScrollView>
 
-        <Box style={[styles.footerContainer, { alignItems: activeTab === 0 ? null : 'center' }]}>
+        <Box
+          key={`footer-${activeTab}`}
+          style={[styles.footerContainer, activeTab !== 0 && { alignItems: 'center' }]}
+        >
           {activeTab === 0 ? (
             <Note title={common.note} subtitle={settings.publicServerNote} />
           ) : (

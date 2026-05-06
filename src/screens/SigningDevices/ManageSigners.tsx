@@ -474,7 +474,7 @@ function SignersList({
             );
           })}
           {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
-            <EmptyListIllustration listType="keys" />
+            <EmptyListIllustration listType="keys" hideIllustration />
           )}
         </Box>
 

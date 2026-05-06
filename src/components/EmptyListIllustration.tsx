@@ -9,7 +9,13 @@ import NoServersDarkIcon from 'src/assets/images/no_servers_dark.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useContext } from 'react';
 
-export function EmptyListIllustration({ listType }: { listType: 'keys' | 'nodes' }) {
+export function EmptyListIllustration({
+  listType,
+  hideIllustration = false,
+}: {
+  listType: 'keys' | 'nodes';
+  hideIllustration?: boolean;
+}) {
   const { translations } = useContext(LocalizationContext);
   const { colorMode } = useColorMode();
   const titleText =
@@ -35,7 +41,7 @@ export function EmptyListIllustration({ listType }: { listType: 'keys' | 'nodes'
       <Text color={`${colorMode}.secondarySubtitle`} style={styles.emptyListSubtitle}>
         {subtitleText}
       </Text>
-      <Icon style={styles.emptyListIcon} />
+      {!hideIllustration && <Icon style={styles.emptyListIcon} />}
     </Box>
   );
 }

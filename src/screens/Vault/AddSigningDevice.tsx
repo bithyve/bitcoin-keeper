@@ -1081,12 +1081,12 @@ function Signers({
                   ).length ? (
                   <>{renderCollaborativeSigners()}</>
                 ) : (
-                  <EmptyListIllustration listType="keys" />
+                  <EmptyListIllustration listType="keys" hideIllustration />
                 )}
               </Box>
             </Box>
           ) : (
-            <EmptyListIllustration listType="keys" />
+            <EmptyListIllustration listType="keys" hideIllustration />
           )}
           {!isCollaborativeFlow && !isAssistedWalletFlow && !!amfMessage && (
             <Box style={styles.noteContainer}>
