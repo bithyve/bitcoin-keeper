@@ -201,11 +201,7 @@ const bhrSlice = createSlice({
     },
     setSeedWord: (state, action: PayloadAction<{ index: number; wordItem: seedWordItem }>) => {
       const { index, wordItem } = action.payload;
-      if (state.seedWords[index]) {
-        state.seedWords[index] = wordItem;
-      } else {
-        state.seedWords.push(wordItem);
-      }
+      state.seedWords[index] = wordItem;
     },
 
     setSeedWords: (state, action: PayloadAction<seedWordItem[]>) => {
