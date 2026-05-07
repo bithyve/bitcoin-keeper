@@ -20,18 +20,18 @@ Root causes of the 2FA setup regression on iOS:
 
 ## Tasks
 
-- [ ] **T1 — Fix catch blocks in `SigningServer.ts`**
+- [x] **T1 — Fix catch blocks in `SigningServer.ts`**
   Apply `throw new Error(err.response?.data?.err || err.code || err.message || err.toString())` to every axios catch block in `src/services/backend/SigningServer.ts` (methods: `register`, `validate`, `addSecondaryVerificationOption`, `removeSecondaryVerificationOption`, `fetchSignerSetup`, `updateBackupSetting`, `fetchBackup`, `updatePolicy`, `signPSBT`, `fetchSignedDelayedTransaction`, `cancelDelayedTransaction`, `fetchDelayedPolicyUpdate`, `checkSignerHealth`, `migrateSignerPolicy`).
 
-- [ ] **T2 — Add `onError` prop to `KeeperQRCode`**
+- [x] **T2 — Add `onError` prop to `KeeperQRCode`**
   In `src/components/KeeperQRCode.tsx` accept an optional `onError?: (error: Error) => void` prop and pass it to `<QRCode onError={onError} .../>`.
 
-- [ ] **T3 — Fix `SetupSigningServer.tsx`**
+- [x] **T3 — Fix `SetupSigningServer.tsx`**
   - Change `validationKey === ''` guard to `!validationKey`.
   - Use `setupData?.verification?.verifier ?? ''` when calling `setValidationKey`.
   - Add a `registrationError` boolean state; when `registerSigningServer` fails, set `registrationError = true`.
   - When `registrationError` is true, render an error message and a "Retry" button (calls `registerSigningServer` again) instead of the spinner.
   - Pass `onError` to `KeeperQRCode` that logs the error (or shows toast) so QR render failures are surfaced.
 
-- [ ] **T4 — Fix `SetupAdditionalServerKey.tsx`**
+- [x] **T4 — Fix `SetupAdditionalServerKey.tsx`**
   Change `validationKey === ''` guard to `!validationKey` for parity with T3.

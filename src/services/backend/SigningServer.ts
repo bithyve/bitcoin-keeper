@@ -39,8 +39,7 @@ export default class SigningServer {
         policy,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { setupSuccessful, setupData } = res.data;
@@ -64,8 +63,7 @@ export default class SigningServer {
         verificationToken,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { valid } = res.data;
@@ -93,8 +91,7 @@ export default class SigningServer {
         newOption,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { success, secondaryVerificationOption } = res.data;
@@ -122,8 +119,7 @@ export default class SigningServer {
         optionId,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { success } = res.data;
@@ -155,8 +151,7 @@ export default class SigningServer {
         verificationToken,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { valid } = res.data;
@@ -193,8 +188,7 @@ export default class SigningServer {
         disable,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { updated } = res.data;
@@ -219,8 +213,7 @@ export default class SigningServer {
         publicKey,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { encryptedBackup } = res.data;
@@ -252,8 +245,7 @@ export default class SigningServer {
         FCM,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { updated, delayedPolicyUpdate } = res.data;
@@ -288,8 +280,7 @@ export default class SigningServer {
         FCM,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { signedPSBT, delayed, delayedTransaction } = res.data;
@@ -314,8 +305,7 @@ export default class SigningServer {
         verificationToken,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { delayedTransaction } = res.data;
@@ -341,8 +331,7 @@ export default class SigningServer {
         verificationToken,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { canceled } = res.data;
@@ -366,8 +355,7 @@ export default class SigningServer {
         verificationToken,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { delayedPolicy } = res.data;
@@ -391,8 +379,7 @@ export default class SigningServer {
         verificationToken,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { isSignerAvailable } = res.data;
@@ -415,8 +402,7 @@ export default class SigningServer {
         oldPolicy,
       });
     } catch (err) {
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      throw new Error(err.response?.data?.err || err.code || err.message || err.toString());
     }
 
     const { newPolicy } = res.data;

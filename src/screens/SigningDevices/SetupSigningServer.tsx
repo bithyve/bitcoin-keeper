@@ -36,15 +36,24 @@ function SetupSigningServer({ route }: { route }) {
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
+  const [registrationError, setRegistrationError] = useState(false);
   const { addSignerFlow } = route.params;
 
   const registerSigningServer = async () => {
+    setRegistrationError(false);
     try {
       const { policy } = route.params;
       const { setupData } = await SigningServer.register(policy);
+      const verifier = setupData?.verification?.verifier;
+      if (!verifier) {
+        setRegistrationError(true);
+        showToast('Server key registration failed: missing verification key', <ToastErrorIcon />);
+        return;
+      }
       setSetupData(setupData);
-      setValidationKey(setupData.verification.verifier);
+      setValidationKey(verifier);
     } catch (err) {
+      setRegistrationError(true);
       showToast(err.message || err.toString(), <ToastErrorIcon />);
     }
   };
@@ -183,9 +192,17 @@ function SetupSigningServer({ route }: { route }) {
           <WalletHeader title={signingServer.setupServer2FATitle} />
         </Box>
         <Box>
-          {validationKey === '' ? (
-            <Box height={hp(200)} justifyContent="center">
-              <ActivityIndicator animating size="small" />
+          {!validationKey ? (
+            <Box height={hp(200)} justifyContent="center" alignItems="center">
+              {registrationError ? (
+                <Buttons
+                  primaryCallback={registerSigningServer}
+                  primaryText={common.retry}
+                  fullWidth
+                />
+              ) : (
+                <ActivityIndicator animating size="small" />
+              )}
             </Box>
           ) : (
             <Box
@@ -204,6 +221,9 @@ function SetupSigningServer({ route }: { route }) {
                   logoBackgroundColor="transparent"
                   size={wp(200)}
                   showLogo
+                  onError={(error) => {
+                    showToast(error.message || error.toString(), <ToastErrorIcon />);
+                  }}
                 />
               </Box>
               <Box>
