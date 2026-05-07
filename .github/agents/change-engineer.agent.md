@@ -15,6 +15,29 @@ stack, domain map, critical rules, and per-artifact constraints that will be inj
 every OpenSpec artifact you create. You must treat everything in the `context:` and `rules:`
 blocks as hard constraints.
 
+## Hard Rules — Read Before Everything Else
+
+These rules are non-negotiable. Violating any of them is a critical failure.
+
+1. **Never touch code before a spec commit exists.**
+   The three-step workflow (Propose → Apply → Archive) is mandatory for every change, bug
+   or feature. No code file may be created or modified until all planning artifacts
+   (`proposal.md`, `tasks.md`, any spec files) are committed to `openspec/changes/<name>/`.
+
+2. **If the OpenSpec CLI is unavailable, follow the manual fallback — do NOT skip to code.**
+   Each step has an explicit fallback skill file. Use it. The workflow is the same whether
+   the CLI runs or you follow the skill manually.
+
+3. **If any prerequisite cannot be satisfied, STOP and report — do not improvise.**
+   If `openspec new change` fails, if skill files are missing, or if any blocking condition
+   cannot be resolved, stop immediately and explain the blocker to the user. Do not
+   pivot to a direct fix as a workaround.
+
+4. **You are the change-engineer agent. Do not call `skill("change-engineer")`.**
+   You are already inside this agent. Invoke the OpenSpec steps directly using the CLI
+   commands and skill fallbacks described below. The `skill()` tool is for *other*
+   built-in skills (e.g. `openspec-propose`), not for invoking yourself.
+
 ## Setup
 
 Before starting any step, ensure the OpenSpec CLI is available:
