@@ -15,5 +15,5 @@ data-derivation level — not the hook-call level.
 
 ## 1. Fix ConnectChannel hook violation
 
-- [ ] 1.1 Move `useVault({ vaultId })` call to the top level of `ConnectChannel` (outside the `if (mode === InteracationMode.ADDRESS_VERIFICATION)` block)
-- [ ] 1.2 Retain the `if (mode === InteracationMode.ADDRESS_VERIFICATION)` conditional block for deriving `descriptorString`, `miniscriptPolicy`, `addressIndex`, `walletName`, `hmac`, and `receivingAddress` from the now-unconditionally fetched vault
+- [x] 1.1 Move `useVault({ vaultId })` call to the top level of `ConnectChannel` (outside the `if (mode === InteracationMode.ADDRESS_VERIFICATION)` block)
+- [x] 1.2 Retain the `if (mode === InteracationMode.ADDRESS_VERIFICATION)` conditional block for deriving `descriptorString`, `miniscriptPolicy`, `addressIndex`, `walletName`, `hmac`, and `receivingAddress` from the now-unconditionally fetched vault
