@@ -2,7 +2,7 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -42,8 +42,12 @@ function SetupSigningServer({ route }: { route }) {
     try {
       const { policy } = route.params;
       const { setupData } = await SigningServer.register(policy);
+      const verifier = setupData?.verification?.verifier;
+      if (!verifier) {
+        throw new Error(errorText.somethingWentWrong);
+      }
       setSetupData(setupData);
-      setValidationKey(setupData.verification.verifier);
+      setValidationKey(verifier);
     } catch (err) {
       showToast(err.message || err.toString(), <ToastErrorIcon />);
     }
@@ -105,6 +109,15 @@ function SetupSigningServer({ route }: { route }) {
   useEffect(() => {
     if (setupData && isSetupValidated) setupSigningServerKey();
   }, [setupData, isSetupValidated]);
+
+  const qrData = useMemo(() => {
+    if (!validationKey) return null;
+    try {
+      return authenticator.keyuri('bitcoinkeeper.app', 'Bitcoin Keeper', validationKey);
+    } catch (e) {
+      return null;
+    }
+  }, [validationKey]);
 
   const [otp, setOtp] = useState('');
 
@@ -183,7 +196,7 @@ function SetupSigningServer({ route }: { route }) {
           <WalletHeader title={signingServer.setupServer2FATitle} />
         </Box>
         <Box>
-          {validationKey === '' ? (
+          {!validationKey ? (
             <Box height={hp(200)} justifyContent="center">
               <ActivityIndicator animating size="small" />
             </Box>
@@ -194,18 +207,16 @@ function SetupSigningServer({ route }: { route }) {
                 isDarkMode ? `${colorMode}.modalWhiteBackground` : `${colorMode}.ChampagneBliss`
               }
             >
-              <Box alignItems="center" alignSelf="center" width={wp(250)}>
-                <KeeperQRCode
-                  qrData={authenticator.keyuri(
-                    'bitcoinkeeper.app',
-                    'Bitcoin Keeper',
-                    validationKey
-                  )}
-                  logoBackgroundColor="transparent"
-                  size={wp(200)}
-                  showLogo
-                />
-              </Box>
+              {qrData ? (
+                <Box alignItems="center" alignSelf="center" width={wp(250)}>
+                  <KeeperQRCode
+                    qrData={qrData}
+                    logoBackgroundColor="transparent"
+                    size={wp(200)}
+                    showLogo
+                  />
+                </Box>
+              ) : null}
               <Box>
                 <WalletCopiableData
                   data={validationKey}

@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 
@@ -22,6 +22,19 @@ function SetupAdditionalServerKey({ route }: { route }) {
   const { translations } = useContext(LocalizationContext);
   const { signingServer, common } = translations;
 
+  const qrData = useMemo(() => {
+    if (!validationKey) return null;
+    try {
+      return authenticator.keyuri(
+        'bitcoinkeeper.app',
+        `Bitcoin Keeper - ${label || 'Secondary Auth'} `,
+        validationKey
+      );
+    } catch (e) {
+      return null;
+    }
+  }, [validationKey, label]);
+
   return (
     <ScreenWrapper>
       <View style={styles.Container}>
@@ -33,7 +46,7 @@ function SetupAdditionalServerKey({ route }: { route }) {
           />
         </Box>
         <Box>
-          {validationKey === '' ? (
+          {!validationKey ? (
             <Box height={hp(200)} justifyContent="center">
               <ActivityIndicator animating size="small" />
             </Box>
@@ -44,18 +57,16 @@ function SetupAdditionalServerKey({ route }: { route }) {
                 isDarkMode ? `${colorMode}.modalWhiteBackground` : `${colorMode}.ChampagneBliss`
               }
             >
-              <Box alignItems="center" alignSelf="center" width={wp(250)}>
-                <KeeperQRCode
-                  qrData={authenticator.keyuri(
-                    'bitcoinkeeper.app',
-                    `Bitcoin Keeper - ${label || 'Secondary Auth'} `,
-                    validationKey
-                  )}
-                  logoBackgroundColor="transparent"
-                  size={wp(200)}
-                  showLogo
-                />
-              </Box>
+              {qrData ? (
+                <Box alignItems="center" alignSelf="center" width={wp(250)}>
+                  <KeeperQRCode
+                    qrData={qrData}
+                    logoBackgroundColor="transparent"
+                    size={wp(200)}
+                    showLogo
+                  />
+                </Box>
+              ) : null}
               <Box>
                 <WalletCopiableData
                   data={validationKey}
