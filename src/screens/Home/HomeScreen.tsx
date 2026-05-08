@@ -17,7 +17,7 @@ import MenuFooter from 'src/components/MenuFooter';
 import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
@@ -25,9 +25,9 @@ import BuyBtc from './components/buyBtc/BuyBtc';
 import ConciergeComponent from './components/ConciergeComponent';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
-import { useQuery } from '@realm/react';
-import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
+import Buttons from 'src/components/Buttons';
+import { setRecoveryKeyStatus } from 'src/store/reducers/account';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -37,20 +37,25 @@ function NewHomeScreen({ route }) {
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(true);
+  const [skipWarningModalVisible, setSkipWarningModalVisible] = useState(false);
   const home_header_circle_background = ThemedColor({ name: 'home_header_circle_background' });
 
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, common } = translations;
+  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText } = translations;
   const [selectedOption, setSelectedOption] = useState(
     selectedOptionFromRoute || walletText.homeWallets
   );
-  const backupHistory = useQuery(RealmSchema.BackupHistory);
-  const { recoveryKeyBackedUpByAppId } = useAppSelector((state) => state.account);
+  const { recoveryKeyBackedUpByAppId, recoveryKeyStatusByAppId } = useAppSelector(
+    (state) => state.account
+  );
   const { id } = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any;
-  const shouldShowBackupModal = !(recoveryKeyBackedUpByAppId?.[id] ?? false);
+  const recoveryKeyStatus = recoveryKeyStatusByAppId?.[id]
+    || (recoveryKeyBackedUpByAppId?.[id] ? 'confirmed' : 'generated');
+  const shouldShowBackupModal = recoveryKeyStatus === 'generated' || recoveryKeyStatus === 'viewed';
+  const shouldShowSkippedReminder = recoveryKeyStatus === 'skipped';
 
   useEffect(() => {
     if (selectedOptionFromRoute && selectedOptionFromRoute !== selectedOption) {
@@ -61,6 +66,8 @@ function NewHomeScreen({ route }) {
   useEffect(() => {
     if (shouldShowBackupModal) {
       setBackupModalVisible(true);
+    } else {
+      setBackupModalVisible(false);
     }
   }, [shouldShowBackupModal]);
 
@@ -72,6 +79,7 @@ function NewHomeScreen({ route }) {
         }, 100);
         return () => clearTimeout(timer);
       }
+      return undefined;
     }, [shouldShowBackupModal, selectedOption, walletText.more])
   );
 
@@ -186,15 +194,59 @@ function NewHomeScreen({ route }) {
     }
   }, [homeToastMessage]);
 
+  const openRecoveryKeyFlow = () => {
+    setBackupModalVisible(false);
+    setSkipWarningModalVisible(false);
+    navigation.navigate('ViewRecoveryKeyScreen');
+  };
+
   const BackupModalContent = () => {
     return (
       <Box style={{ gap: hp(10) }}>
         <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
-          {homeTranslation.backupModalDesc}
+          {homeTranslation.recoveryKeyEducationBody}
         </Text>
       </Box>
     );
   };
+
+  const SkipWarningContent = () => (
+    <Box style={{ gap: hp(12) }}>
+      <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
+        {homeTranslation.recoveryKeySkipWarningBody}
+      </Text>
+      <Box
+        style={{ borderRadius: 10, padding: 12 }}
+        backgroundColor={`${colorMode}.seashellWhite`}
+      >
+        <Text color={`${colorMode}.error`}>{homeTranslation.recoveryKeySkipWarningBox}</Text>
+      </Box>
+      <Box
+        style={{ borderRadius: 10, padding: 12 }}
+        backgroundColor={`${colorMode}.seashellWhite`}
+      >
+        <Text color={`${colorMode}.primaryText`}>{homeTranslation.recoveryKeySkipInfoBox}</Text>
+      </Box>
+      <Text color={`${colorMode}.secondaryText`} style={{ fontSize: 13 }}>
+        {homeTranslation.recoveryKeySkipFooter}
+      </Text>
+    </Box>
+  );
+
+  const RecoveryKeyReminder = () => (
+    <Box
+      style={{ borderRadius: 10, padding: 12, marginBottom: hp(10), gap: hp(8) }}
+      backgroundColor={`${colorMode}.seashellWhite`}
+    >
+      <Text medium color={`${colorMode}.primaryText`}>
+        {homeTranslation.recoveryKeyReminderText}
+      </Text>
+      <Buttons
+        primaryText={homeTranslation.recoveryKeyReminderCTA}
+        primaryCallback={openRecoveryKeyFlow}
+      />
+    </Box>
+  );
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
@@ -205,7 +257,12 @@ function NewHomeScreen({ route }) {
       />
 
       <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
-      <Box style={styles.content}>{content}</Box>
+      <Box style={styles.content}>
+        {selectedOption === walletText.homeWallets && shouldShowSkippedReminder && (
+          <RecoveryKeyReminder />
+        )}
+        {content}
+      </Box>
       <MenuFooter
         selectedOption={selectedOption}
         onOptionChange={(option) => {
@@ -215,27 +272,44 @@ function NewHomeScreen({ route }) {
       <KeeperModal
         visible={shouldShowBackupModal && backupModalVisible}
         close={() => {}}
-        title={homeTranslation.backupModalTitle}
-        subTitle={homeTranslation.backupModalSubTitle}
+        title={homeTranslation.recoveryKeyEducationTitle}
+        subTitle=""
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
-        buttonText={common.continue}
+        buttonText={homeTranslation.backUpNow}
         buttonCallback={() => {
+          openRecoveryKeyFlow();
+        }}
+        secondaryButtonText={homeTranslation.skipForNow}
+        secondaryCallback={() => {
           setBackupModalVisible(false);
-          setTimeout(() => {
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'ViewRecoveryKeyScreen' }],
-              })
-            );
-          }, 300);
+          setSkipWarningModalVisible(true);
         }}
         buttonTextColor={`${colorMode}.buttonText`}
         Content={BackupModalContent}
+      />
+      <KeeperModal
+        visible={skipWarningModalVisible}
+        close={() => {}}
+        title={homeTranslation.recoveryKeySkipWarningTitle}
+        subTitle=""
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        buttonBackground={`${colorMode}.pantoneGreen`}
+        showCloseIcon={false}
+        buttonText={homeTranslation.backUpRecoveryKey}
+        buttonCallback={openRecoveryKeyFlow}
+        secondaryButtonText={homeTranslation.continueWithoutBackup}
+        secondaryCallback={() => {
+          setSkipWarningModalVisible(false);
+          dispatch(setRecoveryKeyStatus({ appId: id, status: 'skipped' }));
+        }}
+        buttonTextColor={`${colorMode}.buttonText`}
+        Content={SkipWarningContent}
       />
     </Box>
   );

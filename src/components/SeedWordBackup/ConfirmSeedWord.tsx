@@ -14,7 +14,17 @@ function ConfirmSeedWord(props) {
   const { common } = translations;
   const { colorMode } = useColorMode();
 
-  const { words, errorMessage, secondaryText, title } = props;
+  const {
+    words,
+    errorMessage,
+    secondaryText,
+    title,
+    subtitle,
+    promptLabelBuilder,
+    inputPlaceholder,
+    primaryText,
+    footerText,
+  } = props;
 
   const [seedWord, setSeedWord] = useState('');
   const [index] = useState(Math.floor(cryptoRandom() * words.length));
@@ -51,37 +61,6 @@ function ConfirmSeedWord(props) {
     }
   };
 
-  const getHint = (seedNumber: number) => {
-    switch (seedNumber + 1) {
-      case 1:
-        return 'first';
-      case 2:
-        return 'second';
-      case 3:
-        return 'third';
-      case 4:
-        return 'fourth';
-      case 5:
-        return 'fifth';
-      case 6:
-        return 'sixth';
-      case 7:
-        return 'seventh';
-      case 8:
-        return 'eighth';
-      case 9:
-        return 'ninth';
-      case 10:
-        return 'tenth';
-      case 11:
-        return 'eleventh';
-      case 12:
-        return 'twelfth';
-      default:
-        return '';
-    }
-  };
-
   const getErrorMsg = () => {
     return /[A-Z]/.test(seedWord)
       ? errorText.seedWordAreCaseSensitive
@@ -95,15 +74,17 @@ function ConfirmSeedWord(props) {
           {title ?? BackupWallet.confirmSeedWord}
         </Text>
         <Text fontSize={13} color={`${colorMode}.secondaryText`}>
-          {BackupWallet.confirmBackupSubtitle}
+          {subtitle ?? BackupWallet.confirmBackupSubtitle}
         </Text>
       </Box>
       <Box style={styles.contentContainer}>
-        <Text style={styles.noOfWord}>{`${BackupWallet.enterThe} ${getSeedNumber(index)} ${
-          BackupWallet.seedWord
-        }`}</Text>
+        <Text style={styles.noOfWord}>
+          {promptLabelBuilder
+            ? promptLabelBuilder(index + 1)
+            : `${BackupWallet.enterThe} ${getSeedNumber(index)} ${BackupWallet.seedWord}`}
+        </Text>
         <KeeperTextInput
-          placeholder={BackupWallet.enterSeedWordPlaceholder}
+          placeholder={inputPlaceholder ?? BackupWallet.enterSeedWordPlaceholder}
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"
@@ -122,13 +103,21 @@ function ConfirmSeedWord(props) {
           {getErrorMsg()}
         </Text>
       )}
-      <Box style={styles.seedWordNote}></Box>
+      {footerText ? (
+        <Box style={styles.seedWordNote}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.footerText}>
+            {footerText}
+          </Text>
+        </Box>
+      ) : (
+        <Box style={styles.seedWordNote}></Box>
+      )}
       <Buttons
         secondaryText={secondaryText ?? common.skip}
         secondaryCallback={() => {
           props.closeBottomSheet();
         }}
-        primaryText={common.confirm}
+        primaryText={primaryText ?? common.confirm}
         primaryCallback={() => {
           if (seedWord === words[index]) {
             props.confirmBtnPress();
@@ -157,5 +146,9 @@ const styles = StyleSheet.create({
   },
   seedWordNote: {
     marginVertical: 30,
+  },
+  footerText: {
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

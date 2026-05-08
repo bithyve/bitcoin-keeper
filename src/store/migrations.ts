@@ -38,6 +38,19 @@ const migrations = {
       },
     },
   }),
+  4: (state) => ({
+    ...state,
+    account: {
+      ...state.account,
+      recoveryKeyStatusByAppId: Object.keys(state?.account?.recoveryKeyBackedUpByAppId || {}).reduce(
+        (acc, appId) => ({
+          ...acc,
+          [appId]: state.account.recoveryKeyBackedUpByAppId[appId] ? 'confirmed' : 'generated',
+        }),
+        state?.account?.recoveryKeyStatusByAppId || {}
+      ),
+    },
+  }),
 };
 
 export default migrations;
