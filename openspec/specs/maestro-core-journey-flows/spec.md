@@ -1,7 +1,7 @@
 # maestro-core-journey-flows Specification
 
 ## Purpose
-TBD - created by archiving change add-maestro-core-journey-flows. Update Purpose after archive.
+Define baseline Maestro regression coverage for Bitcoin Keeper core journeys by specifying composed onboarding/setup, wallet viewing, receive/send, app settings, and key-management flow expectations.
 ## Requirements
 ### Requirement: Core journey suite entrypoint
 The system SHALL provide a Maestro flow entrypoint that executes core user journeys for onboarding/setup, wallet viewing, receive, send, app settings, and key-management.
@@ -39,4 +39,3 @@ The suite SHALL include app settings and key-management pathways relevant to Wal
 - **GIVEN** the test account can access settings and manage keys from current app navigation
 - **WHEN** the settings and key-management journey flows run
 - **THEN** the composed suite MUST traverse existing settings and key-management subflows and verify expected navigation/assertion checkpoints
-
