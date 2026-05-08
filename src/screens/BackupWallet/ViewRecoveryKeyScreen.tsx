@@ -41,14 +41,20 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
   );
   const recoveryKeyStatus = recoveryKeyStatusByAppId?.[appId]
     || (recoveryKeyBackedUpByAppId?.[appId] ? 'confirmed' : 'generated');
-  const getOrdinalSuffix = (value: number) => {
-    const remainder10 = value % 10;
-    const remainder100 = value % 100;
-    if (remainder10 === 1 && remainder100 !== 11) return 'st';
-    if (remainder10 === 2 && remainder100 !== 12) return 'nd';
-    if (remainder10 === 3 && remainder100 !== 13) return 'rd';
-    return 'th';
-  };
+  const ordinalSuffixByIndex = {
+    1: 'st',
+    2: 'nd',
+    3: 'rd',
+    4: 'th',
+    5: 'th',
+    6: 'th',
+    7: 'th',
+    8: 'th',
+    9: 'th',
+    10: 'th',
+    11: 'th',
+    12: 'th',
+  } as const;
 
   useEffect(() => {
     if (recoveryKeyStatus !== 'confirmed') {
@@ -151,7 +157,7 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
             inputPlaceholder={backupTxt.recoveryKeyConfirmInputPlaceholder}
             footerText={backupTxt.confirmRecoveryKeyFooter}
             promptLabelBuilder={(indexOneBased: number) =>
-              `${backupTxt.enterThe} ${indexOneBased}${getOrdinalSuffix(indexOneBased)} ${
+              `${backupTxt.enterThe} ${indexOneBased}${ordinalSuffixByIndex[indexOneBased] || 'th'} ${
                 backupTxt.recoveryKeyWordPromptSuffix
               }`
             }

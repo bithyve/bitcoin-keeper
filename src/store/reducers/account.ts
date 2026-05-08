@@ -28,6 +28,13 @@ export type OneTimeBackupStatusByAppId = {
 export type recoveryKeyBackedUpByAppId = {
   [appId: string]: Boolean;
 };
+/**
+ * Recovery key lifecycle for a specific appId:
+ * generated -> default state before user opens backup flow
+ * viewed -> user has seen the words screen
+ * skipped -> user acknowledged risk and continued without confirmation
+ * confirmed -> user passed word confirmation successfully
+ */
 export type RecoveryKeyStatus = 'generated' | 'viewed' | 'confirmed' | 'skipped';
 export type recoveryKeyStatusByAppId = {
   [appId: string]: RecoveryKeyStatus;
