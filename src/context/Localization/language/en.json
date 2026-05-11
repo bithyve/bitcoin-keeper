@@ -181,7 +181,8 @@
     "disclaimer": "Keeper is a community-led, open-source bitcoin wallet. It does not provide financial or investment advice.",
     "maybeLater": "Maybe later",
     "noThanks": "No Thanks",
-    "export": "Export"
+    "export": "Export",
+    "help": "Help"
   },
   "login": {
     "welcomeback": "Welcome Back",

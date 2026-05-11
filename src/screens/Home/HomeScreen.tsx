@@ -22,7 +22,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
-import ConciergeComponent from './components/ConciergeComponent';
+import HelpScreen from 'src/screens/Help/HelpScreen';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { useQuery } from '@realm/react';
@@ -122,11 +122,11 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case walletText.concierge:
+      case common.help:
         return {
           content: (
             <Box>
-              <ConciergeComponent route={route} />
+              <HelpScreen />
             </Box>
           ),
           icon: (
