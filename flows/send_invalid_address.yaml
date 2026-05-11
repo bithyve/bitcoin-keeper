@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Negative-path: entering a non-Bitcoin string as the send address should
 # not advance to the amount screen.  After verifying the error the flow

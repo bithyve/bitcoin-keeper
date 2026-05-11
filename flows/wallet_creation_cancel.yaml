@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Negative-path: start the wallet creation wizard and cancel at the
 # transfer-policy screen to verify the user lands back on the home screen

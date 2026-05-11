@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Happy-path: toggle dark mode on then off inside App Settings and navigate back.
 - tapOn:

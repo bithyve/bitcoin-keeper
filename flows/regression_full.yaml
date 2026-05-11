@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Full regression suite — runs all major happy-path flows followed by
 # the most critical negative-path flows in sequence.
