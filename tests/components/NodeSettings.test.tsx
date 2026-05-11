@@ -7,10 +7,10 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NodeSettings from '../../src/screens/AppSettings/Node/NodeSettings';
 import { render, waitFor, within } from '@testing-library/react-native';
 
-var mockNodes = [];
-var mockNavigationDispatch = jest.fn();
-var mockAppDispatch = jest.fn();
-var mockTranslations = {
+let mockNodes = [];
+let mockNavigationDispatch = jest.fn();
+let mockAppDispatch = jest.fn();
+const mockTranslations = {
   common: {
     disconnectingFromServer: 'Disconnect',
     disconnectingFromServerText: 'Disconnect text',
