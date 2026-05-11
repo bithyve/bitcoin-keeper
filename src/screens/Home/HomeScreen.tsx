@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import { Box, Checkbox, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -37,6 +37,7 @@ function NewHomeScreen({ route }) {
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const [backupModalVisible, setBackupModalVisible] = useState(true);
+  const [acceptedBackupRisk, setAcceptedBackupRisk] = useState(false);
   const home_header_circle_background = ThemedColor({ name: 'home_header_circle_background' });
 
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
@@ -61,6 +62,7 @@ function NewHomeScreen({ route }) {
   useEffect(() => {
     if (shouldShowBackupModal) {
       setBackupModalVisible(true);
+      setAcceptedBackupRisk(false);
     }
   }, [shouldShowBackupModal]);
 
@@ -192,8 +194,35 @@ function NewHomeScreen({ route }) {
         <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
           {homeTranslation.backupModalDesc}
         </Text>
+        <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
+          {homeTranslation.backupModalRiskDesc}
+        </Text>
+        <Box style={styles.checkboxContainer}>
+          <Checkbox
+            testID="checkbox_backup_skip_acknowledgement"
+            value="acceptBackupRisk"
+            isChecked={acceptedBackupRisk}
+            onChange={(isChecked) => setAcceptedBackupRisk(isChecked)}
+            accessibilityLabel="acceptBackupRisk"
+            _checked={{
+              bg: `${colorMode}.pantoneGreen`,
+              borderColor: `${colorMode}.pantoneGreen`,
+              _icon: {
+                color: 'white',
+              },
+            }}
+          />
+          <Text color={`${colorMode}.primaryText`} style={styles.checkboxText}>
+            {homeTranslation.backupModalSkipAcknowledge}
+          </Text>
+        </Box>
       </Box>
     );
+  };
+
+  const closeBackupModal = () => {
+    setBackupModalVisible(false);
+    setAcceptedBackupRisk(false);
   };
 
   return (
@@ -223,8 +252,11 @@ function NewHomeScreen({ route }) {
         buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
         buttonText={common.continue}
+        secondaryButtonText={common.skip}
+        secondaryDisable={!acceptedBackupRisk}
+        secondaryCallback={closeBackupModal}
         buttonCallback={() => {
-          setBackupModalVisible(false);
+          closeBackupModal();
           setTimeout(() => {
             navigation.dispatch(
               CommonActions.reset({
@@ -251,5 +283,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingTop: hp(22),
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(12),
+  },
+  checkboxText: {
+    flex: 1,
+    fontSize: 13,
+    letterSpacing: 0.13,
   },
 });

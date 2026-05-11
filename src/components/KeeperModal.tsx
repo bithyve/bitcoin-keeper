@@ -45,6 +45,7 @@ type ModalProps = {
   loading?: boolean;
   secondaryIcon?: any;
   disable?: boolean;
+  secondaryDisable?: boolean;
 };
 
 function KeeperModal(props: ModalProps) {
@@ -76,6 +77,7 @@ function KeeperModal(props: ModalProps) {
     loading = false,
     secondaryIcon = null,
     disable = false,
+    secondaryDisable = false,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -180,10 +182,11 @@ function KeeperModal(props: ModalProps) {
                   primaryTextColor={
                     buttonTextColor == 'buttonText' ? `${colorMode}.buttonText` : buttonTextColor
                   }
-                  secondaryCallback={secondaryCallback}
-                  secondaryText={secondaryButtonText}
-                  SecondaryIcon={secondaryIcon}
-                  secondaryTextColor={
+                   secondaryCallback={secondaryCallback}
+                   secondaryText={secondaryButtonText}
+                   secondaryDisable={secondaryDisable}
+                   SecondaryIcon={secondaryIcon}
+                   secondaryTextColor={
                     secButtonTextColor == 'headerText'
                       ? `${colorMode}.textGreen`
                       : secButtonTextColor

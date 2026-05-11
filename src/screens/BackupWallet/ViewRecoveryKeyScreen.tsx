@@ -47,6 +47,14 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
   const { backupAllFailure, backupAllSuccess } = useAppSelector((state) => state.bhr);
   const [title, setTitle] = useState(homeTxt.backupModalTitle);
 
+  const navigateHome = () =>
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      })
+    );
+
   useEffect(() => {
     if (backupAllSuccess || backupAllFailure) {
       dispatch(setBackupAllSuccess(false));
@@ -114,7 +122,12 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
             keyExtractor={(item) => item}
           />
         </Box>
-        <Buttons primaryText={common.confirm} primaryCallback={() => setConfirmSeedModal(true)} />
+        <Buttons
+          primaryText={common.confirm}
+          primaryCallback={() => setConfirmSeedModal(true)}
+          secondaryText={common.skip}
+          secondaryCallback={navigateHome}
+        />
       </Box>
       <Box>
         <ModalWrapper
@@ -152,14 +165,7 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
           textColor={`${colorMode}.textGreen`}
           subTitleColor={`${colorMode}.modalSubtitleBlack`}
           buttonText={'Finish'}
-          buttonCallback={() =>
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Home' }],
-              })
-            )
-          }
+          buttonCallback={navigateHome}
         />
         <ActivityIndicatorView visible={loader} />
       </Box>
