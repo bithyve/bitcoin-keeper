@@ -152,7 +152,7 @@ function NodeSettings() {
           <FlatList
             data={nodeList}
             showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             ListFooterComponent={renderNodeListFooter}
             renderItem={({ item }) => (
               <ServerItem
