@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
+import { View } from 'react-native';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 
 jest.mock('src/components/Animations/ScaleSpring', () => ({ children }: React.PropsWithChildren) => children);
@@ -12,7 +13,7 @@ describe('KeyPadView', () => {
         onPressNumber={jest.fn()}
         onDeletePressed={jest.fn()}
         bubbleEffect
-        ClearIcon={<span />}
+        ClearIcon={<View />}
       />
     );
 
@@ -30,7 +31,7 @@ describe('KeyPadView', () => {
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
         bubbleEffect
-        ClearIcon={<span />}
+        ClearIcon={<View />}
       />
     );
 

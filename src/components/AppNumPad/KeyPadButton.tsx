@@ -7,7 +7,7 @@ export interface Props {
   title: string;
   onPressNumber: (value: string) => void;
   keyColor: string;
-  bubbleEffect?: boolean;
+  bubbleEffect: boolean;
 }
 
 function KeyPadButton({ title, onPressNumber, keyColor, bubbleEffect }: Props) {
@@ -52,10 +52,6 @@ function KeyPadButton({ title, onPressNumber, keyColor, bubbleEffect }: Props) {
     </ScaleSpring>
   );
 }
-
-KeyPadButton.defaultProps = {
-  bubbleEffect: false,
-};
 
 const styles = StyleSheet.create({
   keyPadElementTouchable: {

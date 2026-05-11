@@ -1,7 +1,7 @@
 # passcode-keypad-rendering Specification
 
 ## Purpose
-TBD - created by archiving change fix-passcode-keypad-missing-digit. Update Purpose after archive.
+Define the shared passcode keypad requirement so authentication flows always render visible numeric keys `0` through `9` and retain the existing delete control behavior.
 ## Requirements
 ### Requirement: Shared passcode keypad renders all numeric keys
 The system SHALL render all numeric keys from `0` through `9` when the shared passcode keypad is shown in authentication flows that use `KeyPadView`.
@@ -21,4 +21,3 @@ The system SHALL render all numeric keys from `0` through `9` when the shared pa
 - **WHEN** the keypad is displayed
 - **THEN** the delete control MUST remain available
 - **AND** the keypad MUST continue to emit the same numeric key values when pressed
-
