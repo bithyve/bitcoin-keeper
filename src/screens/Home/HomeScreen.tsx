@@ -29,7 +29,8 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { setRecoveryKeyStatus } from 'src/store/reducers/account';
-import RecoveryKeyReminderBanner from 'src/components/RecoveryKeyReminderBanner';
+import UAIView from 'src/screens/Home/components/UAIView';
+import BackupRecoveryIcon from 'src/assets/images/backup_recovery_key.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -242,7 +243,14 @@ function NewHomeScreen({ route }) {
 
       <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
       {recoveryKeyStatus === 'skipped' && (
-        <RecoveryKeyReminderBanner onPress={openEducationSheet} />
+        <Box backgroundColor={`${colorMode}.seashellWhite`}>
+          <UAIView
+            title={homeTranslation.recoveryKeyNotBackedUp}
+            subTitle={homeTranslation.backUpNow}
+            icon={<BackupRecoveryIcon />}
+            primaryCallback={openEducationSheet}
+          />
+        </Box>
       )}
       <Box style={styles.content}>{content}</Box>
       <MenuFooter
