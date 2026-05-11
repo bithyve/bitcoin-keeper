@@ -59,7 +59,10 @@ export const SegmentedController = ({
       />
       {options.map((option, index) => (
         <Pressable key={index} onPress={() => handlePress(index)} style={styles.option}>
-          <Text style={[styles.label, selectedIndex === index && { color: Colors.headerWhite }]}>
+          <Text
+            style={[styles.label, selectedIndex === index && { color: Colors.headerWhite }]}
+            color={`${colorMode}.secondaryText`}
+          >
             {option.label}
           </Text>
           <Text
