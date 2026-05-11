@@ -1,7 +1,7 @@
 # maestro-flow-reliability-and-coverage Specification
 
 ## Purpose
-TBD - created by archiving change improve-maestro-yaml-flows. Update Purpose after archive.
+Define robust, cross-platform Maestro flow requirements for Bitcoin Keeper so core wallet journeys and key negative paths under `flows/` remain valid, maintainable, and reliable in CI.
 ## Requirements
 ### Requirement: Cross-platform Maestro flow syntax and execution stability
 The Maestro flow suite under `flows/` SHALL use valid YAML syntax and stable assertions/selectors that execute reliably on both iOS and Android, with platform-aware conditionals where system UI or permissions differ.
@@ -47,4 +47,3 @@ The `flows/` directory SHALL contain a concise note enumerating known areas that
 - **GIVEN** contributors reviewing E2E scope
 - **WHEN** they inspect `flows/`
 - **THEN** they SHALL find a clear limitations file describing missing or partially automatable coverage boundaries
-

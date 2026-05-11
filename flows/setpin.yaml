@@ -28,14 +28,7 @@ appId: ${APPID}
 - tapOn:
     id: "btn_clear"
 - assertNotVisible: "Passcodes do NOT match"
-- tapOn:
-    id: "key_1"
-- tapOn:
-    id: "key_1"
-- tapOn:
-    id: "key_1"
-- tapOn:
-    id: "key_1"
+- runFlow: _common_enter_passcode_1111.yaml
 - tapOn: "Create"
 - waitForAnimationToEnd:
     timeout: 5000
