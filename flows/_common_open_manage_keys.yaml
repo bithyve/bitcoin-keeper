@@ -4,14 +4,13 @@ appId: ${APPID}
 - runFlow:
     when:
       visible:
-        id: "btn_Manage\nKeys"
+        id: "btn_Manage Keys"
     commands:
       - tapOn:
-          id: "btn_Manage\nKeys"
+          id: "btn_Manage Keys"
 - runFlow:
     when:
-      notVisible:
-        id: "btn_Manage\nKeys"
+      visible: "Manage Keys"
     commands:
       - tapOn: "Manage Keys"
 - extendedWaitUntil:

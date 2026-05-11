@@ -21,20 +21,6 @@ appId: ${APPID}
 - runFlow:
     when:
       visible:
-        id: "btn_manage_singner_setting"
-    commands:
-      - tapOn:
-          id: "btn_manage_singner_setting"
-- runFlow:
-    when:
-      visible:
-        id: "btn_manage_signer_setting"
-    commands:
-      - tapOn:
-          id: "btn_manage_signer_setting"
-- runFlow:
-    when:
-      visible:
         id: "btn_Show and delete keys"
     commands:
       - assertVisible:

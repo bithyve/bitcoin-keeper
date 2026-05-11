@@ -15,11 +15,9 @@ appId: ${APPID}
           id: "btn_App_Backup"
 - runFlow:
     when:
-      visible:
-        id: "btn_App_Backup}"
+      visible: "Backup Wallet"
     commands:
-      - assertVisible:
-          id: "btn_App_Backup}"
+      - assertVisible: "Backup Wallet"
 - assertVisible:
     id: "view_Biometrics"
 - assertVisible:

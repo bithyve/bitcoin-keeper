@@ -18,11 +18,9 @@ appId: ${APPID}
           id: "view_Export_app_individual_phrase"
 - runFlow:
     when:
-      visible:
-        id: "btn_App_Backup}"
+      visible: "Backup Wallet"
     commands:
-      - tapOn:
-          id: "btn_App_Backup}"
+      - tapOn: "Backup Wallet"
       - tapOn:
           id: "view_Export_app_individual_phrase"
 - extendedWaitUntil:
