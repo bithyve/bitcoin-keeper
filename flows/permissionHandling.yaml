@@ -1,0 +1,22 @@
+appId: ${APPID}
+---
+- runFlow: _common_open_wallet.yaml
+- tapOn:
+    id: "btn_Send"
+- runFlow:
+    when:
+      visible:
+        id: "com.android.permissioncontroller:id/permission_deny_button"
+    commands:
+      - tapOn:
+          id: "com.android.permissioncontroller:id/permission_deny_button"
+      - assertVisible: "Scan a bitcoin address"
+- runFlow:
+    when:
+      visible: "Don’t Allow"
+    commands:
+      - tapOn: "Don’t Allow"
+      - assertVisible: "Scan a bitcoin address"
+- runFlow: _common_handle_runtime_permissions.yaml
+- tapOn:
+    id: "btn_back"

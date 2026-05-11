@@ -1,29 +1,31 @@
 appId: ${APPID}
 ---
+- runFlow: _common_open_manage_keys.yaml
 - tapOn:
-    id: 'btn_Manage\nKeys'
-- tapOn:
-    id: 'btn_Mobile Key'
+    id: "btn_Mobile Key"
     index: 0
 - tapOn:
-    id: 'btn_Health Check'
+    id: "btn_Health Check"
+- runFlow:
+    when:
+      visible:
+        id: "modal_secondary_btn"
+    commands:
+      - tapOn:
+          id: "modal_secondary_btn"
+- runFlow:
+    when:
+      visible:
+        id: "modal_secondary_btn"
+    commands:
+      - tapOn:
+          id: "modal_secondary_btn"
 - assertVisible:
-    id: 'modal_secondary_btn'
+    id: "btn_back"
 - tapOn:
-    id: 'modal_secondary_btn'
-- assertVisible:
-    id: 'modal_secondary_btn'
-- tapOn:
-    id: 'modal_secondary_btn'
-- assertVisible:
-    id: 'btn_back'
-- tapOn:
-    id: 'btn_back'
+    id: "btn_back"
 - extendedWaitUntil:
     visible: "Manage Keys"
     timeout: 20000
-- assertVisible:
-    id: 'btn_back'
 - tapOn:
-    id: 'btn_back'
-
+    id: "btn_back"

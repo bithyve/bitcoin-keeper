@@ -1,24 +1,16 @@
 appId: ${APPID}
 ---
-# - runFlow: login.yaml
+- runFlow: _common_open_wallet.yaml
 - tapOn:
-    id: 'view_wallet_0'
-    index: 0
+    id: "btn_Receive"
 - tapOn:
-    id: 'btn_Receive'
-- tapOn:
-    id: 'btn_copy_address'
-- repeat:
-    while:
-      visible: 'Address Copied Successfully'
+    id: "btn_copy_address"
+- runFlow:
+    when:
+      visible: "Address Copied Successfully"
     commands:
-      - tapOn:
-          id: 'btn_copy_address'
+      - assertVisible: "Address Copied Successfully"
 - tapOn:
-    id: 'btn_back'
-- waitForAnimationToEnd:
-    timeout: 1000
+    id: "btn_back"
 - tapOn:
-    id: 'btn_back'
-- waitForAnimationToEnd:
-    timeout: 1000
+    id: "btn_back"

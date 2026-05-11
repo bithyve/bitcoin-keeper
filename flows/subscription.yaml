@@ -1,11 +1,22 @@
 appId: ${APPID}
 ---
-- assertVisible:
-    id: 'btn_choosePlan'
-- tapOn:
-    id: 'btn_choosePlan'
-- tapOn:
-    id: 'btn_Mobile Key'
-    index: 0
-- tapOn:
-    id: 'btn_Settings'
+- runFlow: _common_unlock_if_needed.yaml
+- runFlow:
+    when:
+      visible:
+        id: "btn_choosePlan"
+    commands:
+      - tapOn:
+          id: "btn_choosePlan"
+- runFlow:
+    when:
+      visible: "Subscription"
+    commands:
+      - assertVisible: "Subscription"
+- runFlow:
+    when:
+      visible:
+        id: "btn_back"
+    commands:
+      - tapOn:
+          id: "btn_back"

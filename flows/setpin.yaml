@@ -1,40 +1,46 @@
 appId: ${APPID}
 ---
 - extendedWaitUntil:
-    visible: 'Create a passcode'
+    visible: "Create a passcode"
     timeout: 20000
-- assertVisible: 'Create'
+- assertVisible: "Create"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - waitForAnimationToEnd:
     timeout: 2000
-- assertVisible: 'Create'
-- assertVisible: 'Confirm your passcode'
+- assertVisible: "Create"
+- assertVisible: "Confirm your passcode"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - tapOn:
-    id: 'key_1'
+    id: "key_1"
 - tapOn:
-    id: 'key_4'
-- assertVisible: 'Passcodes do NOT match'
+    id: "key_4"
+- assertVisible: "Passcodes do NOT match"
 - tapOn:
-    id: 'btn_clear'
-- assertNotVisible: 'Passcodes do NOT match'
+    id: "btn_clear"
+- assertNotVisible: "Passcodes do NOT match"
 - tapOn:
-    id: 'key_1'
-- tapOn: 'Create'
+    id: "key_1"
+- tapOn:
+    id: "key_1"
+- tapOn:
+    id: "key_1"
+- tapOn:
+    id: "key_1"
+- tapOn: "Create"
 - waitForAnimationToEnd:
     timeout: 5000
-- assertVisible: 'Continue'
-- tapOn: 'Continue'
+- assertVisible: "Continue"
+- tapOn: "Continue"
 - swipe:
     direction: LEFT
 - swipe:
@@ -43,5 +49,5 @@ appId: ${APPID}
     direction: LEFT
 - waitForAnimationToEnd:
     timeout: 5000
-- assertVisible: 'Start App'
-- tapOn: 'Start App'
+- assertVisible: "Start App"
+- tapOn: "Start App"

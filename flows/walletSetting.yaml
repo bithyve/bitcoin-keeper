@@ -1,22 +1,12 @@
 appId: ${APPID}
 ---
-- tapOn:
-    id: 'view_wallet_0'
-    index: 0
-- swipe:
-    from:
-      id: list_transactions
-    direction: DOWN
-    duration: 2000
-- waitForAnimationToEnd:
-    timeout: 5000
-- repeat:
-    while:
-      visible:
-        id: 'icon_unconfirmed_0'
-    commands:
-      - runFlow: refreshwallet.yaml
+- runFlow: _common_open_wallet.yaml
 - assertVisible:
-    id: 'btn_Settings'
+    id: "btn_Settings"
 - tapOn:
-    id: 'btn_Settings'
+    id: "btn_Settings"
+- assertVisible: "Wallet Settings"
+- assertVisible:
+    id: "view_Wallet_Details"
+- tapOn:
+    id: "btn_back"

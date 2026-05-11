@@ -1,9 +1,12 @@
 appId: ${APPID}
 ---
+- runFlow: _common_open_manage_keys.yaml
 - tapOn:
-    id: 'btn_Manage\nKeys'
-- tapOn:
-    id: 'btn_Mobile Key'
+    id: "btn_Mobile Key"
     index: 0
 - tapOn:
-    id: 'btn_Settings'
+    id: "btn_Settings"
+- assertVisible:
+    id: "btn_back"
+- tapOn:
+    id: "btn_back"

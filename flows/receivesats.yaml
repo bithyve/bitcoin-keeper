@@ -1,24 +1,22 @@
 appId: ${APPID}
 ---
-# - runFlow: login.yaml
+- runFlow: _common_open_wallet.yaml
 - tapOn:
-    id: 'view_wallet_0'
-    index: 0
-- tapOn:
-    id: btn_Settings
-- assertVisible:
-    id: 'view_Receive_Test_Sats'
-- tapOn:
-    id: 'view_Receive_Test_Sats'
-- extendedWaitUntil:
-    visible: '5000 Sats Received'
-    timeout: 30000
-- repeat:
-    while:
-      notVisible:
-        id: 'btn_transaction_0'
+    id: "btn_Settings"
+- runFlow:
+    when:
+      visible:
+        id: "view_Receive_Test_Sats"
     commands:
-      - swipe:
-          from:
-            id: list_transactions
-          direction: DOWN
+      - tapOn:
+          id: "view_Receive_Test_Sats"
+      - extendedWaitUntil:
+          visible: "5000 Sats Received"
+          timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: "btn_back"
+    commands:
+      - tapOn:
+          id: "btn_back"

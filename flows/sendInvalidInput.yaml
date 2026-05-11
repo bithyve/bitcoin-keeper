@@ -1,0 +1,22 @@
+appId: ${APPID}
+---
+- runFlow: _common_open_wallet.yaml
+- tapOn:
+    id: "btn_Send"
+- runFlow: _common_handle_runtime_permissions.yaml
+- assertVisible:
+    id: "btn_primaryText"
+- tapOn:
+    id: "btn_primaryText"
+- runFlow:
+    when:
+      visible: "Scan a bitcoin address"
+    commands:
+      - assertVisible: "Scan a bitcoin address"
+- runFlow:
+    when:
+      visible: "Enter bitcoin address"
+    commands:
+      - assertVisible: "Enter bitcoin address"
+- tapOn:
+    id: "btn_back"

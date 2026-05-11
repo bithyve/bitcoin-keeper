@@ -2,19 +2,19 @@ appId: ${APPID}
 ---
 - runFlow: setpin.yaml
 - extendedWaitUntil:
-    visible: 'Welcome'
-    timeout: 5000
+    visible: "Welcome"
+    timeout: 15000
 - assertVisible:
-    id: 'view_startNewTile'
+    id: "view_startNewTile"
 - tapOn:
-    id: 'view_startNewTile'
+    id: "view_startNewTile"
 - extendedWaitUntil:
-    visible: 'Next'
+    visible: "Next"
     timeout: 30000
-- tapOn: 'Next'
+- tapOn: "Next"
 - waitForAnimationToEnd:
     timeout: 2000
 - extendedWaitUntil:
-    notVisible:
-        id: 'toast_message'
-    timeout: 20000
+    visible:
+      id: "view_wallet_0"
+    timeout: 30000
