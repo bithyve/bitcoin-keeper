@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Negative-path: entering the wrong PIN on the seed-export passcode screen
 # should not reveal the recovery phrase and should stay on the passcode screen.

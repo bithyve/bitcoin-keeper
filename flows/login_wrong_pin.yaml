@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Negative-path: verify that an incorrect PIN shows an error, then log in with the correct PIN.
 - extendedWaitUntil:

@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Negative-path: dedicated passcode-mismatch test that runs independently of
 # the full onboarding flow.  Verifies the mismatch error UI and clear behaviour.

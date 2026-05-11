@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Negative-path: tap the back button at the address-entry step of a Send flow
 # to verify the user is returned cleanly to the wallet screen.

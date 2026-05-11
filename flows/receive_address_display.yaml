@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 # Happy-path: open the receive screen, verify the QR code area and address
 # are visible, copy the address, verify the success toast, then navigate back.
