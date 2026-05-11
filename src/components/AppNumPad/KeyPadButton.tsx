@@ -7,10 +7,11 @@ export interface Props {
   title: string;
   onPressNumber: (value: string) => void;
   keyColor: string;
-  bubbleEffect: boolean;
+  // eslint-disable-next-line react/require-default-props
+  bubbleEffect?: boolean;
 }
 
-function KeyPadButton({ title, onPressNumber, keyColor, bubbleEffect }: Props) {
+function KeyPadButton({ title, onPressNumber, keyColor, bubbleEffect = false }: Props) {
   const [pressed, setPressed] = useState(false);
   const keyPad_colors = ThemedColor({ name: 'keyPad_colors' });
 
