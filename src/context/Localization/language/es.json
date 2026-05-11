@@ -252,7 +252,9 @@
     "securityTipDesc": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.",
     "backupModalTitle": "Confirm your Recovery Key",
     "backupModalSubTitle": "To make sure your Recovery Key is not lost, you need to confirm it.",
-    "backupModalDesc": "Keeper keeps a protected copy of your Keeper data, encrypted using your Recovery Key, to help with app recovery. Keeper cannot read this data."
+    "backupModalDesc": "Keeper keeps a protected copy of your Keeper data, encrypted using your Recovery Key, to help with app recovery. Keeper cannot read this data.",
+    "backupModalRiskDesc": "Skipping this step means you may lose access to this wallet if this device is lost or damaged before you back up the Recovery Key.",
+    "backupModalSkipAcknowledge": "I understand the risks and want to skip Recovery Key confirmation for now."
   },
   "transactions": {
     "Fees": "Fees",
