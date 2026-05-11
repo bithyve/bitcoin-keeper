@@ -5,7 +5,6 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -21,12 +20,12 @@ import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import ServerItem from './components/ServerItem';
 import WarningNote from 'src/components/WarningNote';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import WalletHeader from 'src/components/WalletHeader';
+import ServerItem from './components/ServerItem';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -130,6 +129,16 @@ function NodeSettings() {
     }
   };
 
+  const renderNodeListFooter = () => {
+    if (!isNoNodeConnected || isNodeListEmpty) return null;
+
+    return (
+      <Box testID="server-settings-warning-footer" style={styles.listFooterWarning}>
+        <WarningNote noteText={settings.noNodeWarning2} />
+      </Box>
+    );
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <ActivityIndicatorView visible={loading} />
@@ -143,6 +152,8 @@ function NodeSettings() {
           <FlatList
             data={nodeList}
             showsVerticalScrollIndicator={false}
+            keyExtractor={(item) => item.id.toString()}
+            ListFooterComponent={renderNodeListFooter}
             renderItem={({ item }) => (
               <ServerItem
                 item={item}
@@ -161,13 +172,7 @@ function NodeSettings() {
         )}
       </Box>
       <Box style={styles.footerContainer}>
-        {isNoNodeConnected ? (
-          isNodeListEmpty ? (
-            <WarningNote noteText={settings.noNodeWarning1} />
-          ) : (
-            <WarningNote noteText={settings.noNodeWarning2} />
-          )
-        ) : null}
+        {isNoNodeConnected && isNodeListEmpty ? <WarningNote noteText={settings.noNodeWarning1} /> : null}
 
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
@@ -250,6 +255,9 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     gap: hp(30),
+  },
+  listFooterWarning: {
+    marginTop: hp(10),
   },
 });
 
