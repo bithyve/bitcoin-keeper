@@ -1,0 +1,44 @@
+appId: ${APPID}
+---
+# Negative-path: entering a non-Bitcoin string as the send address should
+# not advance to the amount screen.  After verifying the error the flow
+# navigates back to leave the app in a clean state.
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: 'btn_Send'
+- tapOn:
+    id: 'btn_Send'
+- waitForAnimationToEnd:
+    timeout: 2000
+# Handle Android camera-permission dialog (no-op on iOS)
+- runFlow:
+    when:
+      visible:
+        id: 'com.android.permissioncontroller:id/grant_dialog'
+    commands:
+      - tapOn:
+          id: 'com.android.permissioncontroller:id/permission_allow_foreground_only_button'
+- assertVisible:
+    id: 'input_receive_address'
+# Enter a clearly invalid address string
+- tapOn:
+    id: 'input_receive_address'
+- inputText: 'not_a_valid_address_xyz'
+- waitForAnimationToEnd:
+    timeout: 2000
+# The app should NOT advance to the amount screen
+- assertNotVisible:
+    id: 'input_amount'
+# Navigate back to wallet screen
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

@@ -1,0 +1,45 @@
+appId: ${APPID}
+---
+# Full regression suite — runs all major happy-path flows followed by
+# the most critical negative-path flows in sequence.
+#
+# Prerequisites:
+#   - APPID environment variable is set to the app bundle / package ID.
+#   - The device starts from a freshly-installed app state (or test-reset state).
+#
+# Run with:
+#   maestro test flows/regression_full.yaml
+
+# ── Onboarding ──────────────────────────────────────────────────────────────
+- runFlow: newapp.yaml
+- runFlow: addwallet.yaml
+- runFlow: addNewKey.yaml
+
+# ── Wallet operations ────────────────────────────────────────────────────────
+- runFlow: viewwallet.yaml
+- runFlow: walletSetting.yaml
+- runFlow: editwalletdetails.yaml
+
+# ── Receive / Copy address ───────────────────────────────────────────────────
+- runFlow: receive.yaml
+- runFlow: receive_address_display.yaml
+- runFlow: copywalletaddress.yaml
+
+# ── App settings ─────────────────────────────────────────────────────────────
+- runFlow: appsettings.yaml
+- runFlow: appsettings_toggles.yaml
+
+# ── Key management ───────────────────────────────────────────────────────────
+- runFlow: keySetting.yaml
+- runFlow: healthCheckKey.yaml
+
+# ── Subscription / version history ───────────────────────────────────────────
+- runFlow: subscription.yaml
+- runFlow: versionhistory.yaml
+
+# ── Negative-path flows ───────────────────────────────────────────────────────
+- runFlow: send_cancel.yaml
+- runFlow: send_invalid_address.yaml
+- runFlow: send_empty_amount.yaml
+- runFlow: wallet_creation_cancel.yaml
+- runFlow: exportseed_wrong_pin.yaml

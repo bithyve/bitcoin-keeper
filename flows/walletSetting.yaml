@@ -10,13 +10,20 @@ appId: ${APPID}
     duration: 2000
 - waitForAnimationToEnd:
     timeout: 5000
-- repeat:
-    while:
-      visible:
-        id: 'icon_unconfirmed_0'
-    commands:
-      - runFlow: refreshwallet.yaml
 - assertVisible:
     id: 'btn_Settings'
 - tapOn:
     id: 'btn_Settings'
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertVisible:
+    id: 'btn_back'
+- assertVisible: 'Wallet Settings'
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

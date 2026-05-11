@@ -1,0 +1,55 @@
+appId: ${APPID}
+---
+# Negative-path: submitting the amount screen with an empty amount field
+# should not advance to the fee/confirmation screen.
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: 'btn_Send'
+- tapOn:
+    id: 'btn_Send'
+- waitForAnimationToEnd:
+    timeout: 2000
+# Handle Android camera-permission dialog (no-op on iOS)
+- runFlow:
+    when:
+      visible:
+        id: 'com.android.permissioncontroller:id/grant_dialog'
+    commands:
+      - tapOn:
+          id: 'com.android.permissioncontroller:id/permission_allow_foreground_only_button'
+- assertVisible:
+    id: 'input_receive_address'
+# Enter a valid testnet address to reach the amount screen
+- tapOn:
+    id: 'input_receive_address'
+- inputText: 'tb1qq4yupzkhnzlz8kva9udnud6rw5vezk5qr7kp7s'
+- waitForAnimationToEnd:
+    timeout: 2000
+# Should now be on the amount screen; leave amount empty and try to proceed
+- assertVisible:
+    id: 'input_amount'
+- assertVisible:
+    id: 'btn_primaryText'
+- tapOn:
+    id: 'btn_primaryText'
+- waitForAnimationToEnd:
+    timeout: 2000
+# The fee/confirmation screen should NOT appear
+- assertNotVisible: 'Sending to address'
+# Navigate back to wallet screen
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

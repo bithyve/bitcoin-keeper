@@ -1,0 +1,26 @@
+appId: ${APPID}
+---
+# Happy-path: toggle dark mode on then off inside App Settings and navigate back.
+- tapOn:
+    id: 'btn_AppSettingsIcon'
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertVisible:
+    id: 'btn_back'
+- assertVisible: 'App Settings'
+# Toggle dark mode ON
+- tapOn:
+    id: 'view_Dark_Mode'
+    delay: 500
+- waitForAnimationToEnd:
+    timeout: 1000
+# Toggle dark mode back OFF
+- tapOn:
+    id: 'view_Dark_Mode'
+    delay: 500
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

@@ -8,12 +8,11 @@ appId: ${APPID}
     id: 'btn_Receive'
 - tapOn:
     id: 'btn_copy_address'
-- repeat:
-    while:
-      visible: 'Address Copied Successfully'
-    commands:
-      - tapOn:
-          id: 'btn_copy_address'
+- extendedWaitUntil:
+    visible: 'Address Copied Successfully'
+    timeout: 5000
+- waitForAnimationToEnd:
+    timeout: 3000
 - tapOn:
     id: 'btn_back'
 - waitForAnimationToEnd:
