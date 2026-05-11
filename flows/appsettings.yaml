@@ -13,6 +13,13 @@ appId: ${APPID}
     commands:
       - assertVisible:
           id: "btn_App_Backup"
+- runFlow:
+    when:
+      visible:
+        id: "btn_App_Backup}"
+    commands:
+      - assertVisible:
+          id: "btn_App_Backup}"
 - assertVisible:
     id: "view_Biometrics"
 - assertVisible:
