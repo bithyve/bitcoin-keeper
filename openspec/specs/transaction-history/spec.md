@@ -3,9 +3,13 @@
 ## Purpose
 
 Transaction-History owns every surface where a user views, navigates, and annotates
-past and in-flight transactions for a wallet or vault. It covers the full-list view,
+past and in-flight transactions for a wallet. It covers the full-list view,
 the detail view (with note editing and block-explorer link), the advanced input/output
 breakdown, and the cached-transaction resume flow for unsigned multi-signer transactions.
+
+Unconfirmed transactions (zero confirmations) are included in the wallet balance and
+shown as pending/unconfirmed in the transaction list. The wallet balance must reflect
+unconfirmed funds.
 
 ---
 
@@ -13,9 +17,10 @@ breakdown, and the cached-transaction resume flow for unsigned multi-signer tran
 
 ### Requirement: Transaction List
 
-The app MUST display all confirmed and unconfirmed transactions for a wallet or vault
+The app MUST display all confirmed and unconfirmed transactions for a wallet
 in a single scrollable list. Unconfirmed transactions (zero confirmations) MUST appear
-at the top of the list. Within the confirmed set, transactions MUST be ordered newest
+at the top of the list and MUST be included in the wallet balance shown as pending or
+unconfirmed. Within the confirmed set, transactions MUST be ordered newest
 first by broadcast date.
 
 #### Scenario: List renders with confirmed and unconfirmed entries
@@ -184,25 +189,23 @@ and all output addresses (recipients) for a transaction, with amounts per addres
 
 ---
 
-### Requirement: Vault Transaction List
+### Requirement: Wallet Transaction List
 
-The app MUST display a vault-scoped transaction list that can be filtered to show
-only vault transactions or only wallet transactions. The vault detail screen MUST
-show a preview of the five most recent transactions with a "View All" control that
-navigates to the full list.
+The wallet detail screen MUST show a preview of the five most recent transactions with
+a "View All" control that navigates to the full list.
 
-#### Scenario: Vault detail shows up to five recent transactions
+#### Scenario: Wallet detail shows up to five recent transactions
 
-- GIVEN a vault has eight transactions
-- WHEN the vault detail screen is displayed
+- GIVEN a wallet has eight transactions
+- WHEN the wallet detail screen is displayed
 - THEN at most five transactions are shown in the recent-transactions section
 - AND a "View All" control is visible
 
 #### Scenario: "View All" navigates to the full transaction list
 
-- GIVEN the vault detail screen shows the recent-transactions section with a "View All" control
+- GIVEN the wallet detail screen shows the recent-transactions section with a "View All" control
 - WHEN the user taps "View All"
-- THEN the app navigates to the full transaction history for that vault
+- THEN the app navigates to the full transaction history for that wallet
 
 ---
 
@@ -210,21 +213,22 @@ navigates to the full list.
 
 When a multi-signer PSBT has been created but not yet fully signed and broadcast,
 the app MUST surface it as a pending entry in the transaction list with a distinct
-cached indicator. Tapping the cached entry MUST resume the signing flow rather than
-navigating to a transaction detail screen.
+cached indicator. The user-facing label MUST be "unsigned transaction" or
+"pending signature", not "PSBT". Tapping the cached entry MUST resume the
+signing flow rather than navigating to a transaction detail screen.
 
-#### Scenario: Unsigned PSBT appears in the transaction list
+#### Scenario: Unsigned transaction appears in the transaction list
 
-- GIVEN a PSBT has been created for a vault transaction and signing is still in progress
-- WHEN the user opens the vault or wallet transaction list
-- THEN a cached transaction entry appears in the list with a special cache icon instead
-  of a sent/received icon
+- GIVEN a PSBT has been created for a multi-key wallet transaction and signing is still in progress
+- WHEN the user opens the wallet transaction list
+- THEN a pending/unsigned transaction entry appears in the list with a special cache icon
+  instead of a sent/received icon
 - AND the row has a visually distinct background color
 
-#### Scenario: Tapping a cached transaction resumes signing
+#### Scenario: Tapping an unsigned transaction resumes signing
 
-- GIVEN a cached transaction entry is visible in the list
-- WHEN the user taps the cached entry
+- GIVEN an unsigned transaction entry is visible in the list
+- WHEN the user taps the entry
 - THEN the app restores the previous send state and navigates to the confirmation/signing screen
   so the user can continue the signing process
 
@@ -249,6 +253,16 @@ synced transactions remain visible when the Electrum node is unreachable.
 - WHEN the user pulls down to refresh
 - THEN the app attempts the refresh
 - AND the cached transaction list remains visible without being cleared
+
+---
+
+## Acceptance Criteria
+
+- User-facing copy uses Wallet, not Vault.
+- Unconfirmed transactions are included in wallet balance and shown as pending/unconfirmed.
+- PSBT-backed entries are labeled "unsigned transaction" or "pending signature" in user-facing copy.
+- Multi-key wallet terminology is used (not "vault" or "multisig vault").
+- Transaction history for USDT is out of scope (owned by `usdt` domain).
 
 ---
 
