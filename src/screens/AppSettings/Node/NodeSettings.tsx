@@ -160,15 +160,12 @@ function NodeSettings() {
           </Box>
         )}
       </Box>
+      {isNoNodeConnected ? (
+        <WarningNote
+          noteText={isNodeListEmpty ? settings.noNodeWarning1 : settings.noNodeWarning2}
+        />
+      ) : null}
       <Box style={styles.footerContainer}>
-        {isNoNodeConnected ? (
-          isNodeListEmpty ? (
-            <WarningNote noteText={settings.noNodeWarning1} />
-          ) : (
-            <WarningNote noteText={settings.noNodeWarning2} />
-          )
-        ) : null}
-
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
           primaryText={`${settings.addNewNode}`}
@@ -249,7 +246,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footerContainer: {
-    gap: hp(30),
+    marginTop: hp(30),
   },
 });
 
