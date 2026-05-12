@@ -12,7 +12,6 @@ source for coding agents.
 
 - Acquire tab
 - Buy Bitcoin
-- Sell Bitcoin
 - BTC to USDT swap
 - USDT to BTC swap
 - Ramp buy/sell flow
@@ -166,34 +165,6 @@ When the user's device is configured for GBP as the display currency or is detec
 - WHEN the user taps the buy action and proceeds
 - THEN the wallet's receive address is embedded in the Ramp URL
 - AND the Acquire card label reads "Buy"
-
----
-
-### Requirement: Sell Bitcoin
-
-The app MUST allow the user to sell Bitcoin via Ramp's off-ramp flow from the Acquire tab. The app MUST display a confirmation modal before opening the provider, and MUST open the Ramp sell URL in the device's external browser. No wallet address is required for the sell flow.
-
-#### Scenario: User sells Bitcoin via Ramp
-
-- GIVEN the user is on the Acquire tab and has at least one Bitcoin wallet or vault
-- WHEN the user taps the Sell action on the Bitcoin card and confirms in the modal
-- THEN a loading indicator is shown while the sell URL is fetched
-- AND the device's external browser opens the Ramp Network sell page
-
-#### Scenario: Sell tapped with no wallet available
-
-- GIVEN the user is on the Acquire tab and has no Bitcoin wallets or vaults
-- WHEN the user taps the Sell action on the Bitcoin card
-- THEN the app displays an error message indicating the user has no BTC to sell
-- AND the confirmation modal is not shown
-
-#### Scenario: Sell URL fetch fails
-
-- GIVEN the user has confirmed the sell flow but the relay is unreachable
-- WHEN the URL fetch fails
-- THEN the loading indicator disappears
-- AND an error toast is shown
-- AND the browser is not opened
 
 ---
 

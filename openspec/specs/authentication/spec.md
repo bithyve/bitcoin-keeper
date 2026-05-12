@@ -10,7 +10,7 @@ Authentication owns all flows that gate access to the app: first-launch PIN crea
 
 ### Requirement: App Initialization
 
-On first launch the app MUST detect that no credentials exist and route the user to the PIN creation flow before any wallet functionality is accessible. The app MUST collect the FCM push-notification permission and register the device token immediately after the initial app setup is confirmed.
+On first launch the app MUST detect that no credentials exist and route the user to the PIN creation flow before any wallet functionality is accessible.
 
 #### Scenario: First launch — no existing credentials
 
