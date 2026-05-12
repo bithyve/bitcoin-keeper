@@ -2,7 +2,22 @@
 
 ## Purpose
 
-Signing-Devices owns the complete lifecycle of cryptographic signing keys used in Bitcoin Keeper: adding, labeling, inspecting, hiding, and removing keys of all categories (hardware, software, and assisted). Every vault and multi-sig transaction depends on at least one registered signing device, making this domain a direct dependency of vault creation, the send flow, and health-check flows.
+Signing Devices owns the complete lifecycle of cryptographic signing keys used in
+Bitcoin Keeper: adding, labeling, inspecting, hiding, and removing keys of all
+categories (hardware, software, and assisted). Every wallet and multi-key
+transaction depends on at least one registered signing device.
+
+Internal code may still use `POLICY_SERVER`, `ADVISOR_KEY`, or vault terminology
+where the codebase requires it. User-facing copy must use Wallet and Server Key.
+
+**Server Key trust model:**
+- Server Key is independently generated (not derived from the Recovery Key).
+- Server Key is securely stored server-side.
+- Server Key is sent to the app only once on request.
+- Server Key is not persisted locally after one-time delivery.
+- Server Key is never a sole signer.
+- Keeper cannot spend with Server Key alone.
+- Server Key must only be used as one signer in a multi-key wallet setup.
 
 ---
 
@@ -136,9 +151,17 @@ The app MUST support three software signer types:
 
 ### Requirement: Assisted Keys
 
-The app MUST support POLICY_SERVER (Server Key) as an assisted signing key managed by the BitHyve relay service. The policy server MUST validate transactions against a configurable signing policy before co-signing. Use of a POLICY_SERVER MUST require at least a Hodler (L2) subscription and a vault scheme with a minimum of 2-of-3 (two required signers, at least three total signers).
+The app MUST support `POLICY_SERVER` (Server Key) as an assisted signing key managed
+by the BitHyve relay service. User-facing copy must say **Server Key**, not Policy
+Server. Internal code may continue to use `POLICY_SERVER`.
 
-The app MAY also register an ADVISOR_KEY provided by a third-party advisor in an inheritance planning context.
+The Server Key MUST validate transactions against a configurable signing policy before
+co-signing. Use of a Server Key requires a multi-key wallet scheme with a minimum of
+2-of-3 (two required signers, at least three total signers). No subscription gating.
+
+The app MAY also register an `ADVISOR_KEY` provided by a third-party advisor
+(Keeper Advisor / External Advisor) in an inheritance planning context. If not
+currently implemented, mark as future/out of scope but preserve the product concept.
 
 #### Scenario: Successful Server Key registration with 2FA
 
@@ -153,16 +176,9 @@ The app MAY also register an ADVISOR_KEY provided by a third-party advisor in an
 - WHEN the user enters an incorrect TOTP
 - THEN the app displays an invalid OTP error and does not finalize the registration
 
-#### Scenario: Server Key attempted on L1 subscription (free tier)
-
-- GIVEN the user is on the free (Pleb / L1) subscription
-- WHEN the user attempts to add a Server Key to a vault
-- THEN the app displays an upgrade prompt indicating that Server Key requires Hodler (L2) or above
-- AND the key is not added
-
 #### Scenario: Server Key attempted with insufficient quorum
 
-- GIVEN the user is configuring a vault with fewer than 3 total keys
+- GIVEN the user is configuring a wallet with fewer than 3 total keys
 - WHEN the user tries to include a Server Key
 - THEN the app displays an error indicating the Server Key requires at least a 2-of-3 scheme
 
@@ -209,7 +225,20 @@ The app MUST handle a signer discovered with an UNKNOWN type (e.g., imported fro
 
 - GIVEN the app scans a QR or NFC payload from an unrecognised signer type
 - WHEN the scan succeeds but the device type cannot be auto-detected
-- THEN the app registers it as UNKNOWN and prompts the user to identify the signer type before completing vault addition
+- THEN the app registers it as UNKNOWN and prompts the user to identify the signer type before completing wallet addition
+
+---
+
+## Acceptance Criteria
+
+- User-facing copy uses Wallet and Server Key, not Vault or Policy Server.
+- `POLICY_SERVER` remains internal only if needed.
+- No subscription/tier gating remains.
+- Server Key trust model is correct: independently generated, not derived from Recovery Key, never sole signer.
+- Keeper's primary Recovery Key is always 12 words; external signer seed import (12 or 24 words) does not conflict.
+- Advisor Key (`ADVISOR_KEY`) is handled according to current active advisor product.
+- Manual Health Check is valid.
+- Hardware signer lists include only currently supported devices.
 
 ---
 
@@ -233,14 +262,26 @@ A user MUST be able to assign a custom name and a text description to any regist
 
 ### Requirement: Signer Details and Activity History
 
-The app MUST display a details screen for each registered signer showing: the signer's name, type, master fingerprint, xpub, derivation path, storage category, and a chronological list of health check events. The details screen MUST also indicate which active vaults the signer is participating in.
+The app MUST display a details screen for each registered signer showing: the
+signer's name, type, master fingerprint, xpub, derivation path, storage category,
+and a chronological list of health check events. The details screen MUST also
+indicate which active wallets the signer is participating in.
+
+Health check state for each signer should include:
+- signer available
+- signer unavailable
+- health check due
+- manual health check completed
+- last checked time if shown
+
+Manual Health Check is valid.
 
 #### Scenario: Viewing signer details
 
 - GIVEN a registered signer exists
 - WHEN the user opens the signer's detail screen
 - THEN the screen displays the master fingerprint, xpub (for the relevant script type), derivation path, storage type, and date added
-- AND the associated vault(s) are listed
+- AND the associated wallet(s) are listed
 
 #### Scenario: Viewing signer activity history
 
@@ -248,33 +289,36 @@ The app MUST display a details screen for each registered signer showing: the si
 - WHEN the user opens the signer's detail screen and scrolls to the activity section
 - THEN a chronological list of health check events is displayed, each showing the event type (addition, successful check, failed check, skipped, manual confirmation) and the date
 
-#### Scenario: Signer with no vault activity
+#### Scenario: Signer with no wallet activity
 
-- GIVEN a signer has been added but not yet linked to any vault
+- GIVEN a signer has been added but not yet linked to any wallet
 - WHEN the user opens the signer's detail screen
-- THEN the activity section displays an empty-state message indicating the signer is not yet linked to any vault
+- THEN the activity section displays an empty-state message indicating the signer is not yet linked to any wallet
 
 ---
 
 ### Requirement: Key Deletion
 
-A signer that is not associated with any active (non-archived) vault MUST be permanently deletable after the user confirms the action with their passcode. A signer that is only referenced by archived vaults MUST be archived rather than permanently deleted, preserving audit history.
+A signer that is not associated with any active (non-archived) wallet MUST be
+permanently deletable after the user confirms the action with their passcode. A
+signer that is only referenced by archived wallets MUST be archived rather than
+permanently deleted, preserving audit history.
 
 #### Scenario: Deleting an unused signer
 
-- GIVEN the user has a signer that is not part of any active vault
+- GIVEN the user has a signer that is not part of any active wallet
 - WHEN the user selects the signer for deletion, confirms the passcode, and confirms the warning modal
 - THEN the signer is permanently removed from the key management list
 
-#### Scenario: Attempting to delete an active-vault signer
+#### Scenario: Attempting to delete an active-wallet signer
 
-- GIVEN the signer is currently a key in at least one active vault
+- GIVEN the signer is currently a key in at least one active wallet
 - WHEN the user attempts to delete it
-- THEN the app lists the vault(s) that use this signer and prevents deletion until the signer is removed from those vaults
+- THEN the app lists the wallet(s) that use this signer and prevents deletion until the signer is removed from those wallets
 
-#### Scenario: Deleting a signer only referenced by archived vaults
+#### Scenario: Deleting a signer only referenced by archived wallets
 
-- GIVEN the signer is referenced only in archived (migrated) vaults
+- GIVEN the signer is referenced only in archived (migrated) wallets
 - WHEN the user initiates deletion and confirms with their passcode
 - THEN the signer is archived (not permanently deleted) and no longer appears in the active key list
 
@@ -282,7 +326,10 @@ A signer that is not associated with any active (non-archived) vault MUST be per
 
 ### Requirement: Key Hiding
 
-A user MUST be able to hide any signer from the default key management view without deleting it. Hidden signers MUST be accessible by explicitly choosing to show hidden keys (gated by passcode for Hodler and above tiers). A hidden signer MUST still function in any vault it belongs to.
+A user MUST be able to hide any signer from the default key management view without
+deleting it. Hidden signers MUST be accessible by explicitly choosing to show hidden
+keys (gated by passcode). A hidden signer MUST still function in any wallet it
+belongs to. No subscription gating applies to viewing hidden keys.
 
 #### Scenario: Hiding a signer
 
@@ -294,7 +341,7 @@ A user MUST be able to hide any signer from the default key management view with
 #### Scenario: Viewing hidden signers
 
 - GIVEN one or more signers are hidden
-- WHEN the user on the key management screen chooses to reveal all keys (with passcode verification if required)
+- WHEN the user on the key management screen chooses to reveal all keys (with passcode verification)
 - THEN hidden signers are displayed alongside visible ones
 
 ---
@@ -394,10 +441,10 @@ Signers registered on testnet MUST NOT be selectable for mainnet vaults, and vic
 
 ## Non-Goals
 
-- This spec does not cover the vault creation flow that consumes registered signers; that is specified in `vault/spec.md`.
-- This spec does not cover the health-check scheduling, UAI notification generation, or the pending health-check modal; those are specified in `health-checks/spec.md`.
+- This spec does not cover the wallet creation flow that consumes registered signers; that is specified in `vault/spec.md`.
+- This spec does not cover the health-check scheduling, action item notification generation, or the pending health-check modal; those are specified in `health-checks/spec.md`.
 - This spec does not cover the PSBT signing flow (i.e., using a signer to sign a transaction); that is specified in `send-and-receive/spec.md`.
-- This spec does not cover the collaborative vault setup session or co-signer key exchange coordination; those are specified in `collaborative-wallet/spec.md`.
-- This spec does not cover the inheritance key (ADVISOR_KEY) flow in detail; that is specified in `inheritance/spec.md`.
+- This spec does not cover the Collaborative Wallet setup session or co-signer key exchange coordination; those are specified in `collaborative-wallet/spec.md`.
+- This spec does not cover the Inheritance Key / Advisor Key flow in detail; that is specified in `inheritance/spec.md`.
 - This spec does not cover the signing policy enforcement logic on the server side; only the app-side registration and policy configuration are in scope.
 - This spec does not cover Whirlpool or coin-join key types.
