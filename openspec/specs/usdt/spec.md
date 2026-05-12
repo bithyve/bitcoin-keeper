@@ -2,7 +2,17 @@
 
 ## Purpose
 
-The USDT domain owns the complete lifecycle of TRC-20 USDT stablecoin wallets on the Tron network: wallet creation and import, balance display, receiving funds, gas-free transfers, transaction history and detail, in-app purchase via Ramp Network, and wallet settings (rename, hide, seed export). USDT wallets are surfaced alongside Bitcoin wallets in the unified home-screen wallet list but are visually and functionally distinct from all Bitcoin and multi-sig entities.
+The USDT domain owns the complete lifecycle of TRC-20 USDT stablecoin wallets on the
+Tron network: wallet creation and import, balance display, receiving funds, gas-free
+transfers, transaction history and detail, and wallet settings (rename, hide,
+Recovery Key export).
+
+Buy USDT via Ramp Network is **removed from active scope**. The Buy button and Ramp
+integration MUST NOT be shown to users.
+
+USDT wallets are labeled **USDT Wallet** in user-facing copy. USDT wallets are
+surfaced alongside Bitcoin wallets in the unified home-screen wallet list but are
+visually and functionally distinct from all Bitcoin and multi-key entities.
 
 ---
 
@@ -28,7 +38,7 @@ The app MUST only offer USDT wallet creation and import when the active Bitcoin 
 
 ### Requirement: USDT Wallet Creation
 
-The app MUST allow the user to create a new USDT wallet by supplying a name and optional description. The wallet MUST be derived from the app's primary seed using BIP-85 so that it is always recoverable from the primary mnemonic.
+The app MUST allow the user to create a new USDT wallet by supplying a name and optional description. The app MUST be derived from the app's primary 12-word Recovery Key using BIP-85 so that it is always recoverable from the primary Recovery Key.
 
 #### Scenario: Create a new USDT wallet (happy path)
 
@@ -71,7 +81,7 @@ The app MUST allow the user to import an existing USDT wallet by providing its B
 
 ### Requirement: Wallet List Display
 
-The app MUST display all visible USDT wallets in the unified wallet list on the home screen alongside Bitcoin wallets and vaults. USDT wallets MUST be visually distinguished from Bitcoin wallets. The available balance MUST be shown in USDT units.
+The app MUST display all visible USDT wallets in the unified wallet list on the home screen alongside Bitcoin wallets. USDT wallets MUST be visually distinguished from Bitcoin wallets and labeled as "USDT Wallet". The available balance MUST be shown in USDT units.
 
 #### Scenario: USDT wallet appears in wallet list (happy path)
 
@@ -95,13 +105,15 @@ The app MUST display all visible USDT wallets in the unified wallet list on the 
 
 ### Requirement: USDT Wallet Details
 
-The app MUST provide a detail screen for each USDT wallet showing the wallet name, available balance, and quick-action controls for sending, receiving, and buying USDT. The screen MUST display the most recent transactions and provide navigation to the full transaction history.
+The app MUST provide a detail screen for each USDT wallet showing the wallet name, available balance, and quick-action controls for sending and receiving. The screen MUST display the most recent transactions and provide navigation to the full transaction history.
+
+Note: Buy USDT is removed from scope. The Buy action MUST NOT be shown.
 
 #### Scenario: Open USDT wallet details (happy path)
 
 - GIVEN the user is on the home screen and at least one USDT wallet is visible
 - WHEN the user taps the USDT wallet card
-- THEN the USDT wallet detail screen opens, showing the wallet name, available balance in USDT, and action buttons for Send, Receive, and Buy
+- THEN the USDT wallet detail screen opens, showing the wallet name, available balance in USDT, and action buttons for Send and Receive
 
 #### Scenario: No transactions yet
 
@@ -121,7 +133,7 @@ The app MUST display the wallet's GasFree receive address as a scannable QR code
 - WHEN the user taps the Receive button
 - THEN the receive screen opens showing a QR code encoding the wallet's GasFree address
 - AND the address is also displayed as copyable text below the QR code
-- AND a note warns the user to send only USDT to this address
+- AND a note warns the user: **"Send only USDT TRC-20 to this address. Sending other tokens or using a different network will result in permanent loss of funds."**
 
 ---
 
@@ -257,7 +269,9 @@ The app MUST display a detail view for each USDT transaction showing the transac
 
 ### Requirement: USDT Wallet Settings
 
-The app MUST provide a settings screen for each USDT wallet allowing the user to update the wallet name and description, hide the wallet, and export the wallet seed phrase. Seed phrase export MUST require PIN or biometric re-authentication.
+The app MUST provide a settings screen for each USDT wallet allowing the user to
+update the wallet name and description, hide the wallet, and export the wallet
+Recovery Key. Recovery Key export MUST require PIN or biometric re-authentication.
 
 #### Scenario: Rename wallet and update description (happy path)
 
@@ -273,36 +287,27 @@ The app MUST provide a settings screen for each USDT wallet allowing the user to
 - AND the user is redirected to the home screen
 - AND the wallet no longer appears in the home-screen wallet list
 
-#### Scenario: Export seed phrase — successful authentication
+#### Scenario: Export Recovery Key — successful authentication
 
 - GIVEN the USDT wallet was created from a mnemonic (default or imported type)
-- WHEN the user selects "Wallet Seed Words" in settings and successfully authenticates with PIN or biometrics
-- THEN the app navigates to the seed export screen showing the wallet's mnemonic
+- WHEN the user selects "Wallet Recovery Key" in settings and successfully authenticates with PIN or biometrics
+- THEN the app navigates to the Recovery Key export screen showing the wallet's 12-word Recovery Key
 
-#### Scenario: Export seed phrase — authentication fails
+#### Scenario: Export Recovery Key — authentication fails
 
-- GIVEN the user selects "Wallet Seed Words" in settings
+- GIVEN the user selects "Wallet Recovery Key" in settings
 - WHEN the user fails PIN or biometric verification
-- THEN the app does not reveal the seed phrase and remains on the settings screen
+- THEN the app does not reveal the Recovery Key and remains on the settings screen
 
 ---
 
 ### Requirement: Buy USDT
 
-The app MUST provide an entry point to purchase USDT via the Ramp Network third-party provider. The wallet's GasFree receive address MUST be pre-filled as the destination. The app MUST open the Ramp Network flow in the device's default browser.
-
-#### Scenario: Open Buy USDT screen and proceed (happy path)
-
-- GIVEN the user taps the Buy button on the USDT wallet detail screen
-- WHEN the Buy USDT screen loads
-- THEN the screen displays the Ramp Network branding and the wallet's receive address
-- AND when the user taps "Proceed" the device browser opens the Ramp Network purchase flow with TRON USDT pre-selected and the wallet address pre-filled
-
-#### Scenario: Ramp URL fetch failure
-
-- GIVEN the user taps "Proceed" on the Buy USDT screen
-- WHEN the request to obtain the Ramp URL fails
-- THEN the app shows an error toast and does not open the browser
+> **Status: Removed from Active Scope**
+>
+> The Buy USDT via Ramp Network feature is removed. The Buy button MUST NOT be
+> shown in the USDT wallet detail screen or any other user-facing surface.
+> The Ramp Network integration code may remain but MUST NOT be invoked.
 
 ---
 
@@ -324,11 +329,22 @@ The app MUST fetch and store current BTC and USDT market price data from the Bit
 
 ---
 
+## Acceptance Criteria
+
+- USDT Wallet is labeled "USDT Wallet" in user-facing copy.
+- Buy USDT via Ramp Network is not shown to users.
+- Recovery Key export uses "Recovery Key" language (12-word).
+- Receive screen warns about TRC-20 network requirement with permanent loss warning.
+- USDT transaction history is owned by this spec (not transaction-history domain).
+- No subscription/tier gating remains.
+
+---
+
 ## Non-Goals
 
-- This spec does not cover Bitcoin or multi-sig vault wallets; those are owned by the `wallets` and `vault` domains.
-- This spec does not define the swap flow (BTC ↔ USDT exchange), which is handled by a separate swap domain.
-- This spec does not cover UTXO management, coin control, or BIP-329 label import/export for USDT wallets; those concepts do not apply to the Tron/TRC-20 model.
-- This spec does not cover health checks or signing-device interactions for USDT wallets; USDT wallets are single-key hot wallets derived from the app's primary seed.
-- This spec does not specify Ramp Network's internal purchase or KYC flow; those are third-party responsibilities.
-- This spec does not cover testnet USDT functionality; USDT wallets are only available on mainnet in production builds.
+- This spec does not cover Bitcoin or multi-key wallets; those are owned by the `wallets` and `vault` domains.
+- This spec does not define the swap flow (BTC ↔ USDT exchange).
+- This spec does not cover UTXO management, coin control, or BIP-329 label import/export for USDT wallets.
+- This spec does not cover health checks or signing-device interactions for USDT wallets.
+- This spec does not specify Ramp Network's internal purchase or KYC flow.
+- This spec does not cover testnet USDT functionality.
