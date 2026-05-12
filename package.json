@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "2.5.11",
+  "version": "2.5.12",
   "private": true,
   "scripts": {
     "ios": "npx react-native run-ios --scheme=hexa_keeper_dev --simulator 'iPhone 16' ",

@@ -5,7 +5,6 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -160,15 +159,12 @@ function NodeSettings() {
           </Box>
         )}
       </Box>
+      {isNoNodeConnected ? (
+        <WarningNote
+          noteText={isNodeListEmpty ? settings.noNodeWarning1 : settings.noNodeWarning2}
+        />
+      ) : null}
       <Box style={styles.footerContainer}>
-        {isNoNodeConnected ? (
-          isNodeListEmpty ? (
-            <WarningNote noteText={settings.noNodeWarning1} />
-          ) : (
-            <WarningNote noteText={settings.noNodeWarning2} />
-          )
-        ) : null}
-
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
           primaryText={`${settings.addNewNode}`}
@@ -249,7 +245,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footerContainer: {
-    gap: hp(30),
+    marginTop: hp(30),
   },
 });
 

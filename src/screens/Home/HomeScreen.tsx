@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
@@ -29,8 +29,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { setRecoveryKeyStatus } from 'src/store/reducers/account';
-import UAIView from 'src/screens/Home/components/UAIView';
-import BackupRecoveryIcon from 'src/assets/images/backup_recovery_key.svg';
+import RecoveryKeyIcon from 'src/assets/images/recover_white.svg';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -54,7 +53,9 @@ function NewHomeScreen({ route }) {
   const { id } = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any;
 
   // 'idle' | 'education' | 'skipWarning'
-  const [recoveryKeyFlowState, setRecoveryKeyFlowState] = useState<'idle' | 'education' | 'skipWarning'>('idle');
+  const [recoveryKeyFlowState, setRecoveryKeyFlowState] = useState<
+    'idle' | 'education' | 'skipWarning'
+  >('idle');
   // Session flag: prevent re-showing the education sheet after the user dismisses it
   const hasShownEducationSheetRef = useRef(false);
 
@@ -81,7 +82,11 @@ function NewHomeScreen({ route }) {
 
   useFocusEffect(
     React.useCallback(() => {
-      if (!isConfirmed && !hasShownEducationSheetRef.current && selectedOption !== walletText.more) {
+      if (
+        !isConfirmed &&
+        !hasShownEducationSheetRef.current &&
+        selectedOption !== walletText.more
+      ) {
         const timer = setTimeout(() => {
           openEducationSheet();
         }, 100);
@@ -211,21 +216,12 @@ function NewHomeScreen({ route }) {
 
   const SkipWarningContent = () => (
     <Box style={{ gap: hp(10) }}>
-      <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
-        {homeTranslation.skipWarningBody}
-      </Text>
-      <Box
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={{ padding: hp(12), borderRadius: 8 }}
-      >
+      <Box backgroundColor={`${colorMode}.greyBorder`} style={{ padding: hp(12), borderRadius: 8 }}>
         <Text color={`${colorMode}.primaryText`} style={{ fontSize: 13 }}>
           {homeTranslation.skipWarningBox}
         </Text>
       </Box>
-      <Box
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={{ padding: hp(12), borderRadius: 8 }}
-      >
+      <Box backgroundColor={`${colorMode}.greyBorder`} style={{ padding: hp(12), borderRadius: 8 }}>
         <Text color={`${colorMode}.primaryText`} style={{ fontSize: 13 }}>
           {homeTranslation.skipWarningInfoBox}
         </Text>
@@ -243,14 +239,26 @@ function NewHomeScreen({ route }) {
 
       <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
       {recoveryKeyStatus === 'skipped' && (
-        <Box backgroundColor={`${colorMode}.seashellWhite`}>
-          <UAIView
-            title={homeTranslation.recoveryKeyNotBackedUp}
-            subTitle={homeTranslation.backUpNow}
-            icon={<BackupRecoveryIcon />}
-            primaryCallback={openEducationSheet}
-          />
-        </Box>
+        <TouchableOpacity onPress={openEducationSheet}>
+          <Box
+            backgroundColor={`${colorMode}.DarkSlateGray`}
+            width={'100%'}
+            style={{ paddingHorizontal: wp(22), paddingVertical: hp(10) }}
+            flexDir={'row'}
+            justifyContent={'center'}
+            alignItems={'center'}
+          >
+            <RecoveryKeyIcon />
+            <Box flex={1} marginLeft={wp(15)}>
+              <Text semiBold fontSize={14} color={`${colorMode}.buttonText`}>
+                {homeTranslation.recoveryKeyNotBackedUp}
+              </Text>
+              <Text medium fontSize={12} color={`${colorMode}.buttonText`}>
+                {homeTranslation.backUpNow}
+              </Text>
+            </Box>
+          </Box>
+        </TouchableOpacity>
       )}
       <Box style={styles.content}>{content}</Box>
       <MenuFooter
@@ -288,7 +296,7 @@ function NewHomeScreen({ route }) {
         visible={recoveryKeyFlowState === 'skipWarning'}
         close={() => setRecoveryKeyFlowState('education')}
         title={homeTranslation.skipWarningTitle}
-        subTitle={''}
+        subTitle={homeTranslation.skipWarningBody}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}

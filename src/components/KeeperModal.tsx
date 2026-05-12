@@ -281,7 +281,6 @@ const getStyles = (subTitleWidth) =>
       alignSelf: 'flex-start',
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
-      width: '90%',
       marginTop: wp(5),
     },
     bodyContainer: {
