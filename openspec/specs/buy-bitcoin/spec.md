@@ -1,12 +1,41 @@
 # Buy-Bitcoin Specification
 
+## Status: Deprecated
+
 ## Purpose
 
-Buy-Bitcoin owns the in-app acquisition surface for Bitcoin and USDT: real-time price and market data display, purchasing Bitcoin or USDT via the Ramp Network third-party provider, selling Bitcoin or USDT back through Ramp, and a peer-to-peer BTC↔USDT swap service. The domain surfaces from the Home screen's Acquire tab as well as from individual wallet and vault detail screens.
+Buy/Sell/Swap/Acquire is no longer part of Bitcoin Keeper. This spec is retained
+only as a historical reference if needed and must not be used as an active product
+source for coding agents.
+
+## Removed from Active Scope
+
+- Acquire tab
+- Buy Bitcoin
+- Sell Bitcoin
+- BTC to USDT swap
+- USDT to BTC swap
+- Ramp buy/sell flow
+- Ramp Buy USDT
+- Exchange/on-ramp provider routing
+- Price chart requirements tied to buy/sell/swap flows
+- Buy/sell/swap history
+
+## Acceptance Criteria
+
+- This spec is marked deprecated.
+- No active Keeper OpenSpec package assumes Buy/Sell/Swap/Acquire exists.
+- No active wallet screen requires Acquire tab behavior.
+- No Ramp buy/sell flow remains in active Keeper specs.
 
 ---
 
-## Requirements
+## Historical Content (Archived — Do Not Implement)
+
+The requirements below are preserved as historical reference only. They MUST NOT
+be used as active implementation guidance.
+
+---
 
 ### Requirement: Price and Market Data Display
 
