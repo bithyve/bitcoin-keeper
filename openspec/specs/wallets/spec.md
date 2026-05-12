@@ -2,7 +2,21 @@
 
 ## Purpose
 
-Wallets owns the complete lifecycle of single-signature Bitcoin hot wallets: creation from the app's primary seed, import from an extended key or mnemonic, balance and transaction syncing against the configured Electrum node, wallet settings (rename, describe, hide, delete), and auxiliary features such as xpub display, message signing, label import/export, and testnet test-coin requests. USDT wallets share the management surface but are classified separately and are not covered by this spec.
+Wallets owns the complete lifecycle of single-signature Bitcoin hot wallets in
+Bitcoin Keeper: creation from the app's 12-word Recovery Key, import from an
+extended key or mnemonic, balance and transaction syncing against the configured
+Electrum node, wallet settings (rename, describe, hide, delete), and auxiliary
+features such as xpub display, message signing, label import/export, and testnet
+test-coin requests.
+
+Internally, Keeper uses the term `vault` for all wallet entities in code and
+persisted storage. User-facing copy must use **Wallet** throughout.
+
+Buy, Sell, Swap, and Acquire entry points MUST NOT appear in the wallet creation
+or wallet management flows. Keeper is a self-custody wallet only.
+
+USDT wallets share the management surface but are classified separately and are
+not covered by this spec (see `usdt` domain).
 
 ---
 
@@ -10,7 +24,10 @@ Wallets owns the complete lifecycle of single-signature Bitcoin hot wallets: cre
 
 ### Requirement: Default Wallet Creation
 
-The app MUST allow the user to create a new single-signature Bitcoin wallet by supplying a name, optional description, and a script type. The wallet MUST be derived from the app's primary seed using BIP-85 so that it is always recoverable from the primary mnemonic.
+The app MUST allow the user to create a new single-signature Bitcoin wallet by
+supplying a name, optional description, and a script type. The wallet MUST be
+derived from the app's 12-word Recovery Key using BIP-85 so that it is always
+recoverable from the primary Recovery Key. No subscription gating applies.
 
 #### Scenario: Create a native-SegWit wallet (happy path)
 
@@ -50,6 +67,7 @@ The app MUST allow importing a watch-only or signing wallet using an extended pu
 - WHEN the user enters a name, optional description, and selects P2WPKH as the script type, then confirms
 - THEN a watch-only wallet is created and visible on the home screen
 - AND the wallet has no spending capability (no private key is stored)
+- AND the wallet detail screen displays: "This wallet can show balances and transactions, but cannot send bitcoin."
 
 #### Scenario: Import a signing wallet via extended private key
 
@@ -98,13 +116,20 @@ The app MUST sync confirmed and unconfirmed balances, the UTXO set, and transact
 
 - GIVEN a wallet is synced and notifications are enabled
 - WHEN the sync discovers a new unconfirmed UTXO arriving on an external receive address
-- THEN the app adds an incoming-transaction alert to the UAI stack
+- THEN the app adds an incoming-transaction action item to the alert stack
 
 ---
 
 ### Requirement: Wallet Visibility
 
-The app MUST allow the user to hide a wallet from the home screen. Hidden wallets MUST NOT appear in the default home-screen wallet list but MUST remain accessible and spendable from the wallet management settings.
+The app MUST allow the user to hide a wallet from the home screen. Hidden wallets
+are a visibility/privacy feature. Hidden wallets MUST NOT appear in the default
+home-screen wallet list but MUST remain accessible and spendable from the wallet
+management settings.
+
+> **Note:** Hidden Wallet (visibility/privacy) and Archived Wallet (auto-created
+> after scheme/key migration) are distinct. Archived wallets are not hidden wallets
+> and must be unarchived (not unhidden) before use.
 
 #### Scenario: Hide a wallet
 
@@ -175,20 +200,22 @@ The app MUST allow the user to view and copy the wallet's extended public key (x
 
 ### Requirement: Wallet Seed Access
 
-The app MUST allow the user of a DEFAULT wallet (derived from the primary seed) to view the wallet's BIP-85 child mnemonic after re-authenticating. Watch-only imported wallets MUST NOT expose this option.
+The app MUST allow the user of a DEFAULT wallet (derived from the primary Recovery
+Key) to view the wallet's BIP-85 child Recovery Key after re-authenticating.
+Watch-only imported wallets MUST NOT expose this option.
 
-#### Scenario: View seed words after PIN confirmation
+#### Scenario: View Recovery Key after PIN confirmation
 
 - GIVEN the user is in wallet settings for a DEFAULT wallet
-- WHEN the user selects "Wallet seed words" and successfully completes the PIN or biometric challenge
-- THEN the app displays the wallet's BIP-85 child mnemonic words
+- WHEN the user selects "Wallet Recovery Key" and successfully completes the PIN or biometric challenge
+- THEN the app displays the wallet's 12-word BIP-85 child Recovery Key
 - AND the user can confirm they have recorded them
 
-#### Scenario: Seed words option absent for imported wallets
+#### Scenario: Recovery Key option absent for imported wallets
 
 - GIVEN the user is in wallet settings for an imported (watch-only) wallet
 - WHEN the user views the settings options
-- THEN no "Wallet seed words" option is visible
+- THEN no "Wallet Recovery Key" option is visible
 
 ---
 
@@ -297,14 +324,27 @@ The app MUST distinguish USDT wallets from Bitcoin wallets at every level of the
 
 ---
 
+## Acceptance Criteria
+
+- User-facing copy uses Wallet, not Vault.
+- Internal `vault` code term may remain.
+- Recovery Key (12 words) used in seed-access copy, not "seed words" or "mnemonic".
+- Hidden Wallet (visibility/privacy) distinct from Archived Wallet (migration result).
+- Unconfirmed transactions are included in wallet balance, shown as pending/unconfirmed.
+- Watch-only wallet shows: "This wallet can show balances and transactions, but cannot send bitcoin."
+- Buy, Sell, Swap, Acquire entry points are absent from wallet creation and management.
+- No subscription/tier gating.
+- USDT wallets are in a distinct section (not the Bitcoin wallet list).
+
+---
+
 ## Non-Goals
 
-- Multi-signature vault creation and management are owned by the `vault` spec.
+- Multi-key wallet creation and management are owned by the `vault` spec.
 - The full send flow (fee estimation, PSBT creation, signing, broadcast) is owned by the `send-and-receive` spec.
 - Receive address generation and BIP-21 URI handling are owned by the `send-and-receive` spec.
 - UTXO coin control, labeling, and freezing are owned by the `utxo-management` spec.
 - Transaction history listing, filtering, and per-transaction labels are owned by the `transaction-history` spec.
-- Cloud backup and seed-phrase backup flows are owned by the `backup-and-recovery` spec.
+- Cloud backup and Recovery Key backup flows are owned by the `backup-and-recovery` spec.
 - USDT wallet creation, receive, send, and transaction history are owned by the `usdt` spec.
-- Subscription tier gating on wallet count limits is enforced by the `subscription` spec; this spec only notes that creation may be blocked when limits are reached.
 - The Electrum node configuration (host, port, SSL, Tor) is owned by the `settings` spec.
