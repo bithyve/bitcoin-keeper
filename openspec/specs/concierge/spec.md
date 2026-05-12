@@ -1,8 +1,62 @@
 # Concierge Specification
 
+## Status: Deprecated
+
 ## Purpose
 
-The Concierge domain provides an in-app customer support channel that allows users to submit support tickets, exchange comments with the Keeper support team, and — for eligible subscription tiers — connect directly with a dedicated account manager or schedule an onboarding call. The channel is backed by a third-party ticketing service and surfaces ticket activity through the app's UAI (User Action Item) notification stack.
+Zendesk/ticketing-based Concierge support is no longer part of Bitcoin Keeper. This
+spec is retained only as a historical reference if needed. It must not be used as an
+active product source for coding agents unless a new non-ticketing Concierge product
+is explicitly introduced.
+
+## Removed from Active Scope
+
+- Zendesk ticket creation
+- Ticket list
+- Ticket detail
+- Ticket comments/replies
+- Unread support badge
+- Ticket status tracking
+- Ticket attachment upload
+- Support backend registration for Zendesk/ticketing
+- Ticket notifications
+- Support ticket allowances
+- Subscription-tier support access
+- Account manager tier
+- Paid-tier Concierge access
+
+## Diagnostics
+
+Any diagnostics flow that remains active should be moved to Settings or a dedicated
+Diagnostics spec. Diagnostics must require user consent and must not collect:
+- Recovery Key
+- Passcode/PIN
+- Private keys
+- Signer seed material
+- Biometric data
+
+## Donations
+
+Do not replace Concierge with donations. Donation support belongs in Settings or a
+future Donations spec. Donations must be optional and must never imply paid support.
+
+## Acceptance Criteria
+
+- Zendesk/ticketing Concierge is removed from active scope.
+- No ticket creation/list/detail/comment requirements remain in active specs.
+- No ticket notification requirements remain in active specs.
+- No subscription/tier support logic remains.
+- Any remaining diagnostics flow is moved out of Concierge and requires consent.
+- Donations are handled separately.
+
+---
+
+## Historical Content (Archived — Do Not Implement)
+
+The requirements below are preserved as historical reference only. They MUST NOT
+be used as active implementation guidance.
+
+---
 
 ## Requirements
 
