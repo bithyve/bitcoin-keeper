@@ -3,10 +3,13 @@
 ## Purpose
 
 The UTXO Management domain owns coin-level visibility and control for Bitcoin
-wallets and vaults: displaying the full unspent output set, assigning labels to
-individual outputs and addresses, selecting specific UTXOs as inputs for a
-transaction (coin control), and importing or exporting the complete label set in
-a portable format.
+wallets: displaying the full unspent output set, assigning labels to individual
+outputs and addresses, selecting specific UTXOs as inputs for a transaction
+(coin control), and importing or exporting the complete label set in a portable
+format.
+
+USDT wallets are excluded from this domain. USDT balance management is owned
+by the `usdt` domain.
 
 ---
 
@@ -15,7 +18,7 @@ a portable format.
 ### Requirement: UTXO List
 
 The app MUST display all confirmed and unconfirmed UTXOs for the active wallet
-or vault on the Manage Coins screen, sorted with unconfirmed outputs first, then
+on the Manage Coins screen, sorted with unconfirmed outputs first, then
 by block height in descending order so that the most recently confirmed outputs
 appear at the top.
 
@@ -224,13 +227,13 @@ When no UTXOs are selected the Send button MUST be disabled.
 
 ### Requirement: Miniscript Spending-Path Selection
 
-For Miniscript vaults, the app MUST present a spending-path selector after the
+For Miniscript wallets, the app MUST present a spending-path selector after the
 user confirms their UTXO selection. The user MUST choose a valid Miniscript
 spending path before the selected UTXOs are passed to the Send flow.
 
-#### Scenario: Select UTXOs for a Miniscript vault send
+#### Scenario: Select UTXOs for a Miniscript wallet send
 
-- GIVEN the active wallet is a Miniscript vault and the user has selected UTXOs
+- GIVEN the active wallet is a Miniscript wallet and the user has selected UTXOs
 - WHEN the user taps Send
 - THEN the Miniscript path selector appears listing available spending conditions
 - AND after the user selects a path, the Send screen opens with both the selected
@@ -247,25 +250,23 @@ spending path before the selected UTXOs are passed to the Send flow.
 
 ### Requirement: Label Import and Export (BIP-329)
 
-The app MUST allow the user to export all labels for a wallet or vault to a
-JSONL file compatible with BIP-329, and to import a BIP-329-compatible JSONL or
-JSON label file. This feature MUST be accessible from wallet settings and from
-vault settings.
+The app MUST allow the user to export all labels for a wallet to a JSONL file
+compatible with BIP-329, and to import a BIP-329-compatible JSONL or JSON label
+file. This feature MUST be accessible from wallet settings.
 
 During export the app MUST write one JSON object per line, each containing
-`type`, `ref`, `label`, and `origin` fields, naming the file after the wallet or
-vault.
+`type`, `ref`, `label`, and `origin` fields, naming the file after the wallet.
 
 During import the app MUST parse the file, filter entries whose `origin`
 descriptor matches the current wallet, and persist only those labels. If no
 entries match the current wallet the app MUST display an error and import
 nothing. If the file cannot be parsed the app MUST display an error.
 
-#### Scenario: Export labels for a vault
+#### Scenario: Export wallet labels
 
-- GIVEN a vault has labels on several UTXOs and the user opens vault settings
+- GIVEN a wallet has labels on several UTXOs and the user opens wallet settings
 - WHEN the user selects "Import/Export Wallet Labels" and taps Export Labels
-- THEN the app writes a JSONL file named after the vault containing one BIP-329
+- THEN the app writes a JSONL file named after the wallet containing one BIP-329
   record per label, and confirms success to the user
 
 #### Scenario: Import labels from a BIP-329 file
@@ -290,6 +291,16 @@ nothing. If the file cannot be parsed the app MUST display an error.
 - GIVEN the user selects a file that is neither valid JSON nor valid JSONL
 - WHEN the import is processed
 - THEN the app displays an error message and no labels are added or overwritten
+
+---
+
+## Acceptance Criteria
+
+- User-facing copy uses Wallet, not Vault.
+- Miniscript wallets (not Miniscript vaults) terminology used.
+- BIP-329 import/export UI accessible from wallet settings.
+- UTXO Freezing is explicitly not supported.
+- USDT wallets are excluded from this domain.
 
 ---
 
