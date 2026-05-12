@@ -2,7 +2,11 @@
 
 ## Purpose
 
-The Send-and-Receive domain owns the full transaction lifecycle in Bitcoin Keeper — composing and validating a send, fee estimation, PSBT creation and multi-device signing, transaction broadcast, and receive address generation. It covers both single-signature wallets (where signing is immediate) and multi-signature vaults (which require an accumulation phase for partial signatures from multiple devices before broadcast).
+Send and Receive owns bitcoin sending, receiving, review, signing handoff, broadcast,
+and pending/unconfirmed transaction states for Keeper wallets.
+
+Internal multisig/vault handling can remain where required by code. User-facing copy
+must use Wallet and multi-key wallet instead of vault or multi-signature vault.
 
 ---
 
@@ -10,13 +14,24 @@ The Send-and-Receive domain owns the full transaction lifecycle in Bitcoin Keepe
 
 ### Requirement: Send Phase One — Fee Estimation
 
-The app MUST calculate transaction prerequisites (UTXOs, outputs, and fees) for LOW, MEDIUM, HIGH, and CUSTOM priority levels before presenting a confirmation screen.
+The app MUST calculate transaction prerequisites (UTXOs, outputs, and fees) for LOW,
+MEDIUM, HIGH, and CUSTOM priority levels before presenting a confirmation screen.
 
-The app MUST display the estimated confirmation time (in blocks) alongside the fee amount for each priority level.
+The app MUST display the estimated confirmation time (in blocks) alongside the fee
+amount for each priority level.
 
-The app MUST NOT allow the send flow to proceed if the selected UTXOs cannot cover the send amount plus the estimated fee for the chosen priority.
+The app MUST NOT allow the send flow to proceed if the selected UTXOs cannot cover
+the send amount plus the estimated fee for the chosen priority.
 
-The app MUST NOT allow initiating a send from a watch-only wallet (a wallet without a private key).
+The app MUST NOT allow initiating a send from a watch-only wallet (a wallet without
+a private key). Watch-only copy: "This wallet can show balances and transactions,
+but cannot send bitcoin."
+
+The app MUST NOT allow initiating a send from an archived wallet. To send from an
+archived wallet, the user must unarchive it first.
+
+Unconfirmed bitcoin transactions are included in wallet balance and shown as
+pending/unconfirmed in transaction history.
 
 #### Scenario: Fee estimation succeeds
 
@@ -35,7 +50,13 @@ The app MUST NOT allow initiating a send from a watch-only wallet (a wallet with
 
 - GIVEN the user has a watch-only wallet (imported xpub without a private key)
 - WHEN the user attempts to initiate a send from that wallet
-- THEN the app prevents the send and displays a message indicating the wallet cannot sign transactions
+- THEN the app prevents the send and displays "This wallet can show balances and transactions, but cannot send bitcoin."
+
+#### Scenario: Send attempted from archived wallet
+
+- GIVEN the user has an archived wallet
+- WHEN the user attempts to initiate a send from that wallet
+- THEN the app prevents the send and explains the wallet must be unarchived before use
 
 ---
 
@@ -85,11 +106,28 @@ The user MUST be able to acknowledge the alert and proceed or return to change t
 
 ### Requirement: Send Phase Two — Transaction Preparation
 
-For single-signature wallets, the app MUST sign and finalize the transaction internally in Phase Two, making it ready for immediate broadcast without requiring any external signing device interaction.
+For single-signature wallets, the app MUST sign and finalize the transaction internally
+in Phase Two, making it ready for immediate broadcast without requiring any external
+signing device interaction.
 
-For multi-signature vaults, the app MUST serialize a PSBT with per-signer envelopes and cache it so the user can collect signatures from the required number of signing devices across multiple sessions.
+For multi-key wallets, the app MUST serialize a PSBT with per-signer envelopes and
+cache it so the user can collect signatures from the required number of signing devices
+across multiple sessions.
 
-The app MUST persist a snapshot of the in-progress signing session so the user can leave the signing screen and resume without losing collected signatures.
+The app MUST persist a snapshot of the in-progress signing session so the user can
+leave the signing screen and resume without losing collected signatures.
+
+The final review screen MUST show:
+- Source wallet
+- Recipient address
+- Amount
+- Network fee
+- Total amount if applicable
+- Signer status if multi-key wallet
+- Warning that bitcoin transactions cannot be undone
+
+**Required warning:** "Bitcoin transactions cannot be undone. Check the address and
+amount carefully before sending."
 
 #### Scenario: Single-sig wallet proceeds to broadcast immediately
 
@@ -97,9 +135,9 @@ The app MUST persist a snapshot of the in-progress signing session so the user c
 - WHEN the user confirms the send on the confirmation screen
 - THEN the app signs the transaction internally and advances directly to the broadcast step without requiring any external device
 
-#### Scenario: Multi-sig vault generates PSBT for signing
+#### Scenario: Multi-key wallet generates PSBT for signing
 
-- GIVEN the user has a 2-of-3 multisig vault and confirms a send on the confirmation screen
+- GIVEN the user has a 2-of-3 multi-key wallet and confirms a send on the confirmation screen
 - WHEN Phase Two executes
 - THEN the app creates a PSBT and presents the signing device list screen showing all n required signers
 - AND the app caches the PSBT so the session can be resumed if the user navigates away
@@ -108,22 +146,25 @@ The app MUST persist a snapshot of the in-progress signing session so the user c
 
 ### Requirement: Multi-Signer Signing
 
-The app MUST accumulate partial signatures from the required number of signing devices before the transaction can be broadcast.
+The app MUST accumulate partial signatures from the required number of signing
+devices before the transaction can be broadcast.
 
-The app MUST visually indicate which signers have provided their signature and which are still pending.
+The app MUST visually indicate which signers have provided their signature and
+which are still pending.
 
-The app MUST support collecting signatures from the same signing session across multiple app launches via a persisted transaction snapshot.
+The app MUST support collecting signatures from the same signing session across
+multiple app launches via a persisted transaction snapshot.
 
 #### Scenario: First signer signs, second still pending
 
-- GIVEN a 2-of-3 vault with a PSBT awaiting signatures
+- GIVEN a 2-of-3 multi-key wallet with a PSBT awaiting signatures
 - WHEN the user signs with the first device
 - THEN the signing screen marks that device as signed and shows the remaining signer(s) as pending
 - AND the app does not yet enable the broadcast action
 
 #### Scenario: Threshold reached, broadcast enabled
 
-- GIVEN a 2-of-3 vault PSBT with one signature collected
+- GIVEN a 2-of-3 multi-key wallet PSBT with one signature collected
 - WHEN the user collects a second valid partial signature from a different device
 - THEN the app combines the partial PSBTs, validates the resulting transaction, and enables the broadcast action
 
@@ -261,11 +302,18 @@ The user MUST be able to attach a text note to a transaction at the time of send
 
 ### Requirement: Receive Address Generation
 
-The app MUST generate the next unused receive address for the selected wallet or vault and display it as both a QR code and a copyable address string.
+The app MUST generate the next unused receive address for the selected wallet and
+display it as both a QR code and a copyable address string.
 
-The app MUST allow the user to manually advance to a new address, incrementing the derivation index and generating a fresh address.
+If receive is opened from a wallet, the app MUST avoid redundant wallet selection
+unless required.
 
-The app MUST indicate whether the currently displayed address has been previously used in a transaction via a visible badge ("Used Address" in red / "New Address" in green).
+The app MUST allow the user to manually advance to a new address, incrementing the
+derivation index and generating a fresh address.
+
+The app MUST indicate whether the currently displayed address has been previously
+used in a transaction via a visible badge ("Used Address" in red / "New Address"
+in green).
 
 #### Scenario: Display receive address
 
@@ -291,11 +339,14 @@ The app MUST indicate whether the currently displayed address has been previousl
 
 ### Requirement: Address Verification on Device
 
-The app SHOULD allow users to verify a vault receive address on the signing device for hardware signers that support on-device address display (BitBox02, Ledger, Trezor, Coldcard, Jade, Portal).
+The app SHOULD allow users to verify a wallet receive address on the signing device
+for currently supported hardware signers that support on-device address display
+(BitBox02, Ledger, Trezor, Coldcard, Jade, Portal). Only currently supported
+devices should be listed.
 
 #### Scenario: Verify address on hardware device
 
-- GIVEN the user is viewing the receive screen for a vault and has a compatible hardware signer registered
+- GIVEN the user is viewing the receive screen for a multi-key wallet and has a compatible hardware signer registered
 - WHEN the user taps the "Verify on Device" option for that signer
 - THEN the app navigates to a verification flow for the respective hardware device
 - AND the address shown on the device screen MUST match the address displayed in the app
@@ -349,20 +400,35 @@ The app MUST provide a "Send Max" option that sets the send amount to the wallet
 
 ### Requirement: Miniscript Spending Path Selection
 
-For vaults with Miniscript spending conditions (e.g., timelocked, inheritance, emergency), the app MUST present the user with the available satisfied spending paths and require the user to select one before proceeding with PSBT creation.
+For wallets with Miniscript spending conditions (e.g., timelocked, inheritance,
+emergency), the app MUST present the user with the available satisfied spending
+paths and require the user to select one before proceeding with PSBT creation.
 
-#### Scenario: User selects active spending path for timelocked vault
+#### Scenario: User selects active spending path for timelocked wallet
 
-- GIVEN the user has a Miniscript vault and the primary spending path is currently satisfiable
-- WHEN the user initiates a send from that vault
+- GIVEN the user has a Miniscript wallet and the primary spending path is currently satisfiable
+- WHEN the user initiates a send from that wallet
 - THEN the app presents the spending path options with their satisfaction status
 - AND after the user selects a valid path, PSBT creation proceeds using that path's signing requirements
 
 #### Scenario: Spending path not yet satisfied
 
-- GIVEN the user has a Miniscript vault and the timelock for the inheritance path has not yet elapsed
+- GIVEN the user has a Miniscript wallet and the timelock for the inheritance path has not yet elapsed
 - WHEN the user attempts to use the inheritance path
 - THEN the app indicates that path is not yet available and prevents selection
+
+---
+
+## Acceptance Criteria
+
+- User-facing copy uses Wallet, not Vault.
+- No Buy/Sell/Swap/Acquire references remain.
+- Archived wallets cannot be used until unarchived.
+- Watch-only wallets cannot send; copy says "This wallet can show balances and transactions, but cannot send bitcoin."
+- Send review screen includes source wallet, recipient, amount, fee, and irreversible-warning copy.
+- Required warning is present: "Bitcoin transactions cannot be undone. Check the address and amount carefully before sending."
+- Unconfirmed transactions are included in balance and shown as pending/unconfirmed.
+- Hardware address verification lists only currently supported devices.
 
 ---
 
@@ -371,8 +437,7 @@ For vaults with Miniscript spending conditions (e.g., timelocked, inheritance, e
 - This spec does not cover UTXO selection/coin control; that is owned by the `utxo-management` domain.
 - This spec does not cover transaction history display or transaction labeling after broadcast; that is owned by the `transaction-history` domain.
 - This spec does not cover the creation or configuration of signing devices; that is owned by the `signing-devices` domain.
-- This spec does not cover vault creation or quorum policy setup; that is owned by the `vault` domain.
-- This spec does not cover the buy-bitcoin flow; that is a separate integration handled by the `buy-bitcoin` domain.
-- This spec does not cover fee insight alerts (UAI); those are owned by the `notifications` domain.
+- This spec does not cover wallet creation or quorum policy setup; that is owned by the `vault` domain.
+- This spec does not cover fee insight alerts; those are owned by the `notifications` domain.
 - This spec does not cover Replace-By-Fee (RBF) bumping of already-broadcast transactions.
 - This spec does not cover Lightning Network payments.
