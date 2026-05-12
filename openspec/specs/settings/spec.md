@@ -2,11 +2,29 @@
 
 ## Purpose
 
-The Settings domain owns all app-wide user preferences and configuration surfaces:
-Electrum node management, Tor routing, Bitcoin network selection, display currency,
-unit display, theme, language, login method, wallet visibility management, multi-user
-accounts, and version history. Changes made here persist across app restarts and
-propagate immediately to all other domains that depend on these values.
+Settings owns app preferences, security/privacy settings, wallet management entry
+points, network settings, support/diagnostics entry points, donations, and
+legal/about links.
+
+Settings MUST include a **Support Keeper / Donate** entry point. Donations are
+optional and MUST NOT block wallet creation, backup, recovery, signing, sending,
+receiving, or support access.
+
+Diagnostics must require permission and must never collect:
+- Recovery Key
+- Passcode/PIN
+- Private keys
+- Signer seed material
+- Biometric data
+
+Settings grouping should separate:
+- App preferences
+- Security and privacy
+- Wallet management
+- Network/node settings
+- Support and diagnostics
+- Donations/support project
+- Legal/about links
 
 ---
 
@@ -201,9 +219,9 @@ active.
 
 #### Scenario: Keeper Private tier forces PRIVATE theme variant
 
-- GIVEN the user holds a Keeper Private subscription
-- WHEN  the dark mode toggle is enabled
-- THEN  the PRIVATE dark theme variant is applied instead of the standard dark theme
+> **Note:** Subscription tiers (Keeper Private, Hodler, Diamond Hands, Pleb, L1–L4)
+> are removed from Keeper. The PRIVATE theme variant is no longer subscription-gated.
+> If a theme variant remains, it must not require a subscription.
 
 ---
 
@@ -295,12 +313,21 @@ backup history exists.
 
 ### Requirement: Wallet Management
 
-The app MUST provide a Manage Wallets screen that lists all wallets, vaults, and USDT
-wallets (both visible and hidden). From this screen the user MUST be able to hide a
-wallet, unhide a hidden wallet (after PIN verification), and delete an empty or
-watch-only wallet or vault. Showing all hidden wallets on the same screen MUST require
-PIN verification. Deletion of a wallet or vault that still holds a balance MUST be
-blocked until funds are moved.
+The app MUST provide a Manage Wallets screen that lists all wallets and USDT wallets
+(both visible and hidden). From this screen the user MUST be able to:
+- Hide a wallet (visibility/privacy)
+- Unhide a hidden wallet (after PIN verification)
+- View archived wallets (automatically created after scheme/key migration)
+- Delete an empty or watch-only wallet
+
+**Hidden Wallet** is a visibility/privacy feature. Hidden wallets do not appear in
+the normal wallet list but remain accessible and spendable.
+
+**Archived Wallet** is automatically created after wallet scheme/key migration.
+Archived wallets are not active by default and must be unarchived before use.
+Archiving is not a normal user action.
+
+Deletion of a wallet that still holds a balance MUST be blocked until funds are moved.
 
 #### Scenario: Hide a wallet
 
@@ -412,32 +439,45 @@ General Preferences screen accessible from the Settings menu.
 
 ---
 
-### Requirement: App Settings Screen
+### Requirement: Support Keeper / Donate
 
-The app MUST provide an App Settings sub-screen containing the Bitcoin network mode
-toggle. This screen MUST be accessible from the Settings menu.
+The app MUST provide a **Support Keeper / Donate** entry point in Settings.
+Donations are optional. Donation copy should explain that donations help maintain
+the project. Donations MUST NOT block wallet creation, backup, recovery, signing,
+sending, receiving, or support access.
 
-#### Scenario: Navigate to App Settings
+#### Scenario: User opens Donate / Support Keeper
 
-- GIVEN the user is on the main Settings screen
-- WHEN  the user taps "App Settings"
-- THEN  the App Settings screen opens showing the Bitcoin network mode option
+- GIVEN the user is on the Settings screen
+- WHEN  the user taps "Support Keeper" or "Donate"
+- THEN  the donation screen is displayed with an explanation of how donations
+  support the project
+- AND   the donation flow does not require any previous wallet or account action
+
+---
+
+## Acceptance Criteria
+
+- Settings includes Donate / Support Keeper.
+- Donations are optional and non-gating.
+- No subscription/tier settings remain (no Pleb, Hodler, Diamond Hands, L1/L2/L3/L4,
+  upgrade prompt, Restore Purchases, Keeper Private subscription theme).
+- User-facing copy uses Wallet, not Vault.
+- Hidden Wallet (visibility/privacy) and Archived Wallet (result of migration) are distinct.
+- Archived Wallet must be unarchived before use.
+- Diagnostic sharing excludes secrets (Recovery Key, PIN, private keys, signer seed material, biometric data).
 
 ---
 
 ## Non-Goals
 
-- This spec does not cover the subscription purchase or upgrade flows; those are
-  owned by the `subscription` domain.
-- This spec does not cover the cloud backup or seed backup flows themselves; those
-  are owned by `backup-and-recovery`, even though entry points to those flows exist
-  in the Settings navigation hierarchy.
-- This spec does not cover Canary Vault creation; that is owned by the `vault`
+- This spec does not cover the cloud backup or Recovery Key backup flows themselves;
+  those are owned by `backup-and-recovery`, even though entry points to those flows
+  exist in the Settings navigation hierarchy.
+- This spec does not cover Canary Wallet creation; that is owned by the `vault`
   domain.
 - This spec does not cover wallet creation, renaming, or sync behaviour; those are
   owned by the `wallets` domain.
-- This spec does not cover the Keeper Concierge support channel; that is owned by
-  the `concierge` domain.
 - This spec does not define exchange rate data sources or frequency of refresh beyond
   what is observable in the UI.
 - This spec does not define the internal implementation of Tor tunnelling or the
