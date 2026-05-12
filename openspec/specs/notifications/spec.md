@@ -2,11 +2,15 @@
 
 ## Purpose
 
-The notifications domain governs all mechanisms by which Bitcoin Keeper surfaces
-time-sensitive information to the user: Firebase Cloud Messaging (FCM) push
-notifications received from the BitHyve relay server, and the in-app User Action
-Item (UAI) stack that aggregates locally-generated and server-triggered alerts
-into an ordered, prioritized queue displayed throughout the home screen experience.
+Notifications owns in-app and system-level reminders, alerts, banners, and action
+items that help users notice important wallet, backup, transaction, and security
+events.
+
+**Internal terminology note:**
+- `UAI` (User Action Item) may remain as an internal enum/type name.
+- User-facing copy must NOT show "UAI". Use notification, reminder, alert, banner,
+  or action item instead.
+- `POLICY_SERVER` may remain internal. User-facing copy must say Server Key.
 
 ---
 
@@ -68,67 +72,67 @@ version-specific release announcements.
 
 ---
 
-### Requirement: UAI Stack Persistence and Priority Ordering
+### Requirement: Internal Action Item Stack Persistence and Priority Ordering
 
-The app MUST maintain a persistent, ordered stack of User Action Items. UAIs
+The app MUST maintain a persistent, ordered stack of internal action items. Items
 MUST be sorted first by type priority and second by the time they were last
 actioned (older-actioned items ranked higher). The following priority tiers
 MUST apply:
 
-| Priority | UAI Types |
-|----------|-----------|
-| 100 (highest) | Canary Wallet, Zendesk Ticket, Signing Delay, Incoming Transaction |
-| 90 | Server Backup Failure, Signing Device Health Check, Recovery Phrase Health Check |
-| 70 | Secure Vault |
+| Priority | Internal Action Item Types |
+|----------|----------------------------|
+| 100 (highest) | Canary Wallet, Signing Delay, Incoming Transaction |
+| 90 | Server Backup Failure, Signing Device Health Check, Recovery Key Health Check |
+| 70 | Secure Wallet Setup |
 
-UAIs tagged with a specific Bitcoin network (mainnet or testnet) MUST only
+Items tagged with a specific Bitcoin network (mainnet or testnet) MUST only
 appear when the app is operating on that network.
 
-#### Scenario: UAI stack sorted by priority on home screen
+#### Scenario: Internal action item stack sorted by priority on home screen
 
-- GIVEN the UAI stack contains an Incoming Transaction alert (priority 100) and
+- GIVEN the action item stack contains an Incoming Transaction alert (priority 100) and
   a Server Backup Failure alert (priority 90)
 - WHEN the user navigates to the home screen
 - THEN the Incoming Transaction alert is positioned above the Server Backup
   Failure alert in the home screen header banner
 
-#### Scenario: Network-tagged UAI hidden on wrong network
+#### Scenario: Network-tagged action item hidden on wrong network
 
-- GIVEN a Health Check UAI was created while the app was on mainnet
+- GIVEN a Health Check action item was created while the app was on mainnet
 - WHEN the user switches to testnet
-- THEN the mainnet Health Check UAI does NOT appear in the UAI stack
+- THEN the mainnet Health Check action item does NOT appear in the stack
 
 ---
 
-### Requirement: Home Screen UAI Banner
+### Requirement: Home Screen Alert Banner
 
 The app MUST display a banner beneath the home screen header showing the
-highest-priority unseen UAI with priority 90 or above. The banner MUST show
-the UAI heading and body text. The user MUST be able to tap the banner to
-navigate directly to the relevant screen for that UAI. The user MUST be able
-to dismiss the banner without actioning the underlying UAI.
+highest-priority unseen action item with priority 90 or above. The banner MUST
+show the heading and body text. The user MUST be able to tap the banner to
+navigate directly to the relevant screen for that action item. The user MUST be
+able to dismiss the banner without actioning the underlying item.
 
-#### Scenario: High-priority unseen UAI shown in banner
+#### Scenario: High-priority unseen alert shown in banner
 
-- GIVEN the UAI stack contains an unseen Signing Delay alert (priority 100)
+- GIVEN the action item stack contains an unseen Signing Delay alert (priority 100)
 - WHEN the user is on the home screen
 - THEN a banner appears beneath the header showing the signing delay heading
   and body
 - AND tapping the banner navigates to the Send Confirmation screen for the
   pending delayed transaction
 
-#### Scenario: Banner dismissed without actioning UAI
+#### Scenario: Banner dismissed without actioning item
 
-- GIVEN a UAI banner is visible on the home screen
+- GIVEN an alert banner is visible on the home screen
 - WHEN the user taps the dismiss (X) button on the banner
 - THEN the banner is hidden for the current session
-- AND the UAI remains in the stack and is still visible in the Notifications Center
+- AND the action item remains in the stack and is still visible in the Notifications Center
 
-#### Scenario: No banner when all UAIs are seen or low priority
+#### Scenario: No banner when all items are seen or low priority
 
-- GIVEN all pending UAIs have been marked as seen, or have priority below 90
+- GIVEN all pending action items have been marked as seen, or have priority below 90
 - WHEN the user is on the home screen
-- THEN no UAI banner is displayed beneath the header
+- THEN no alert banner is displayed beneath the header
 
 ---
 
@@ -156,219 +160,229 @@ all UAIs have been seen, the bell MUST display without a dot.
 ### Requirement: Notifications Center
 
 The app MUST provide a dedicated Notifications Center screen accessible from
-the home screen header bell icon. The screen MUST display all pending UAIs in
-two sections: "New" (unseen) and "Seen" (previously viewed), each sorted by
-creation time descending (newest first). Each entry MUST show a heading, body
-text, and an icon representing the UAI type. Tapping an entry MUST navigate
-to or trigger the action relevant to that UAI type. The screen MUST show an
-empty state illustration and message when no pending UAIs exist.
+the home screen header bell icon. The screen MUST display all pending action
+items in two sections: "New" (unseen) and "Seen" (previously viewed), each
+sorted by creation time descending (newest first). Each entry MUST show a
+heading, body text, and an icon representing the type. Tapping an entry MUST
+navigate to or trigger the action relevant to that type. The screen MUST show
+an empty state illustration and message when no pending items exist.
 
 #### Scenario: New and Seen sections displayed
 
-- GIVEN two UAIs exist — one unseen, one previously viewed
+- GIVEN two items exist — one unseen, one previously viewed
 - WHEN the user opens the Notifications Center
-- THEN the unseen UAI appears under the "New" section header
-- AND the previously viewed UAI appears under the "Seen" section header
-- AND all displayed UAIs are marked as seen after opening the screen
+- THEN the unseen item appears under the "New" section header
+- AND the previously viewed item appears under the "Seen" section header
+- AND all displayed items are marked as seen after opening the screen
 
-#### Scenario: Empty state displayed with no pending UAIs
+#### Scenario: Empty state displayed with no pending items
 
-- GIVEN no UAIs are present in the stack
+- GIVEN no action items are present in the stack
 - WHEN the user opens the Notifications Center
 - THEN the screen displays an empty-state illustration and a "No new
   notifications" message instead of a list
 
 ---
 
-### Requirement: UAI Actioning and Dismissal
+### Requirement: Action Item Actioning and Dismissal
 
-The user MUST be able to action (dismiss) any UAI from the Notifications Center
-or from the home screen banner. Actioning a UAI MUST record a lastActioned
-timestamp and remove it from the active displayed stack. A UAI deleted via
+The user MUST be able to action (dismiss) any item from the Notifications Center
+or from the home screen banner. Actioning an item MUST record a lastActioned
+timestamp and remove it from the active displayed stack. An item deleted via
 actioning MUST NOT reappear unless its triggering condition recurs.
 
-#### Scenario: UAI actioned from Notifications Center
+#### Scenario: Item actioned from Notifications Center
 
-- GIVEN a Signing Delay UAI is visible in the Notifications Center
-- WHEN the user taps the primary action button ("View") on that UAI
+- GIVEN a Signing Delay action item is visible in the Notifications Center
+- WHEN the user taps the primary action button ("View") on that item
 - THEN the user is navigated to the Send Confirmation screen for the transaction
-- AND the UAI is marked as lastActioned and removed from the UAI stack display
+- AND the item is marked as lastActioned and removed from the stack display
 
-#### Scenario: UAI auto-cleared when condition resolves
+#### Scenario: Item auto-cleared when condition resolves
 
-- GIVEN a Signing Device Health Check UAI exists for a specific device
+- GIVEN a Signing Device Health Check action item exists for a specific device
 - WHEN the user completes a health check for that device within the required
+  timeframe
+- THEN the next action item checks run automatically removes that item from the stack
+- AND the item does not reappear until the next overdue threshold is reached
   timeframe
 - THEN the next UAI checks run automatically removes that UAI from the stack
 - AND the UAI does not reappear until the next overdue threshold is reached
 
 ---
 
-### Requirement: Secure Vault UAI
+### Requirement: Secure Wallet Setup Reminder
 
-The app MUST generate a Secure Vault UAI when the user has no vault configured.
-This UAI MUST be automatically removed when the user creates their first vault.
+The app MUST generate a Secure Wallet Setup reminder when the user has no
+multi-key wallet configured. User-facing copy must say:
+- "Create Your First Wallet" (when no wallet exists)
+- "Secure Your Wallet" (when a wallet exists but is not fully set up)
+- "Finish Wallet Setup" (when setup is in progress)
 
-#### Scenario: Secure Vault UAI created on first login with no vault
+This reminder MUST be automatically removed when the user creates or completes
+the relevant wallet.
 
-- GIVEN the user has authenticated and no vault exists
-- WHEN the app runs UAI checks after login
-- THEN a "Create Your First Vault" UAI is added to the stack
+#### Scenario: Reminder created on first login with no wallet
 
-#### Scenario: Secure Vault UAI cleared after vault creation
+- GIVEN the user has authenticated and no multi-key wallet exists
+- WHEN the app runs checks after login
+- THEN a "Create Your First Wallet" reminder is added to the stack
 
-- GIVEN a Secure Vault UAI is active
-- WHEN the user creates their first vault
-- THEN the Secure Vault UAI is automatically removed from the stack
+#### Scenario: Reminder cleared after wallet creation
+
+- GIVEN a Secure Wallet Setup reminder is active
+- WHEN the user creates their first wallet
+- THEN the reminder is automatically removed from the stack
 
 ---
 
-### Requirement: Signing Device Health Check UAI
+### Requirement: Signing Device Health Check Reminder
 
-The app MUST generate a UAI for each non-hidden signing device whose last health
-check timestamp exceeds the configured reminder threshold (180 days on mainnet).
-The UAI MUST be cleared automatically when the device's health check is brought
-current. A separate UAI MUST be created for each overdue signing device.
+The app MUST generate a health check reminder for each non-hidden signing device
+whose last health check timestamp exceeds the configured reminder threshold
+(180 days on mainnet). The reminder MUST be cleared automatically when the
+device's health check is brought current. A separate reminder MUST be created
+for each overdue signing device.
 
-#### Scenario: Health check UAI created for overdue signer
+#### Scenario: Health check reminder created for overdue signer
 
 - GIVEN a signing device's last health check was 181 days ago (mainnet)
-- WHEN the app runs UAI checks
-- THEN a "Health check pending" UAI is added to the stack for that signer
+- WHEN the app runs checks
+- THEN a "Health check pending" reminder is added to the stack for that signer
 
-#### Scenario: Health check UAI removed after completing health check
+#### Scenario: Health check reminder removed after completing health check
 
-- GIVEN a Health Check UAI exists for a device
+- GIVEN a Health Check reminder exists for a device
 - WHEN the user completes a successful health check for that device
-- THEN the next UAI checks run removes the UAI from the active stack
+- THEN the next checks run removes the reminder from the active stack
 
-#### Scenario: Health check UAI not created for hidden signers
+#### Scenario: Health check reminder not created for hidden signers
 
 - GIVEN a signing device has been marked as hidden
-- WHEN the app runs UAI checks
-- THEN no Health Check UAI is created for the hidden device
+- WHEN the app runs checks
+- THEN no Health Check reminder is created for the hidden device
 
 ---
 
-### Requirement: Recovery Phrase Health Check UAI
+### Requirement: Recovery Key Health Check Reminder
 
-The app MUST generate a UAI prompting the user to re-confirm their recovery
-phrase when the last confirmed seed backup exceeds the reminder threshold, or
-when no confirmed backup exists. The UAI MUST be cleared when a backup is
+The app MUST generate a reminder prompting the user to re-confirm their Recovery
+Key when the last confirmed backup exceeds the reminder threshold, or when no
+confirmed backup exists. User-facing copy must say **Recovery Key Backup Incomplete**
+or **Recovery Key Health Check**. The reminder MUST be cleared when a backup is
 re-confirmed within the threshold.
 
-#### Scenario: Recovery phrase UAI created when no confirmed backup exists
+#### Scenario: Recovery Key reminder created when no confirmed backup exists
 
-- GIVEN the user has never completed a seed confirmation
-- WHEN the app runs UAI checks
-- THEN a "Backup Recovery Key" UAI is added to the stack
+- GIVEN the user has never completed a Recovery Key confirmation
+- WHEN the app runs checks
+- THEN a "Recovery Key Backup Incomplete" reminder is added to the stack
 
-#### Scenario: Recovery phrase UAI cleared after re-confirmation
+#### Scenario: Recovery Key reminder cleared after re-confirmation
 
-- GIVEN a Recovery Phrase Health Check UAI is active
-- WHEN the user re-confirms their seed phrase successfully
-- THEN the UAI is removed from the stack
+- GIVEN a Recovery Key Health Check reminder is active
+- WHEN the user re-confirms their Recovery Key successfully
+- THEN the reminder is removed from the stack
 
 ---
 
 ### Requirement: Incoming Transaction Alert
 
-The app MUST generate an Incoming Transaction UAI whenever a wallet sync detects
-a new UTXO received at a non-change external address for any non-canary wallet or
-vault. Each new incoming transaction MUST generate a distinct UAI entry. The UAI
+The app MUST generate an Incoming Transaction alert whenever a wallet sync detects
+a new UTXO received at a non-change external address for any non-canary wallet.
+Each new incoming transaction MUST generate a distinct alert entry. The alert
 MUST carry an entity reference that allows direct navigation to the specific
-transaction in the relevant wallet or vault.
+transaction in the relevant wallet.
 
-#### Scenario: Incoming transaction UAI created on wallet sync
+#### Scenario: Incoming transaction alert created on wallet sync
 
 - GIVEN a wallet is synced and a new UTXO is detected at an external receive address
 - WHEN the sync completes
-- THEN an "Incoming Transaction Received" UAI is added to the stack
-- AND the UAI is associated with the wallet or vault and the specific transaction ID
+- THEN an "Incoming Transaction Received" alert is added to the stack
+- AND the alert is associated with the wallet and the specific transaction ID
 
-#### Scenario: Tapping incoming transaction UAI navigates to transaction
+#### Scenario: Tapping incoming transaction alert navigates to transaction
 
-- GIVEN an Incoming Transaction UAI is visible in the Notifications Center
+- GIVEN an Incoming Transaction alert is visible in the Notifications Center
 - WHEN the user taps the "View" action
-- THEN the app navigates directly to the transaction detail within the relevant
-  wallet or vault screen
+- THEN the app navigates directly to the transaction detail within the relevant wallet screen
 
-#### Scenario: Internal (change) address transactions do not trigger UAI
+#### Scenario: Internal (change) address transactions do not trigger alert
 
 - GIVEN a wallet sync detects a UTXO sent to the wallet's own change address
 - WHEN the sync completes
-- THEN no Incoming Transaction UAI is generated
+- THEN no Incoming Transaction alert is generated
 
-#### Scenario: Canary vault transactions do not trigger incoming transaction UAI
+#### Scenario: Canary wallet transactions do not trigger incoming transaction alert
 
-- GIVEN a canary vault receives a transaction
+- GIVEN a canary wallet receives a transaction
 - WHEN the wallet sync completes
-- THEN no Incoming Transaction UAI is created for that vault
+- THEN no Incoming Transaction alert is created for that wallet
 - AND the canary wallet balance change is evaluated separately
 
 ---
 
 ### Requirement: Canary Wallet Alert
 
-The app MUST generate a UAI when the total balance (confirmed + unconfirmed) of
-a canary vault decreases below its previously cached value. The alert MUST
-identify the specific canary vault. The cached balance MUST be updated after each
-sync regardless of whether a UAI was created.
+The app MUST generate a Canary Wallet alert when the total balance (confirmed +
+unconfirmed) of a canary wallet decreases below its previously cached value. The
+alert MUST identify the specific canary wallet. The cached balance MUST be updated
+after each sync regardless of whether an alert was created.
 
-#### Scenario: Canary wallet UAI created on balance decrease
+#### Scenario: Canary wallet alert created on balance decrease
 
-- GIVEN a canary vault had a cached balance of 100,000 sats
+- GIVEN a canary wallet had a cached balance of 100,000 sats
 - WHEN a sync detects the current balance is 80,000 sats
-- THEN a "Canary Wallet Accessed" UAI is created for that vault
+- THEN a "Canary Wallet Accessed" alert is created for that wallet
 
-#### Scenario: No UAI when canary balance is unchanged or increased
+#### Scenario: No alert when canary balance is unchanged or increased
 
-- GIVEN a canary vault had a cached balance of 100,000 sats
+- GIVEN a canary wallet had a cached balance of 100,000 sats
 - WHEN a sync detects the current balance is 100,000 sats or more
-- THEN no Canary Wallet UAI is created
+- THEN no Canary Wallet alert is created
 - AND the cached balance is updated to the current value
 
 ---
 
 ### Requirement: Server Backup Failure Alert
 
-The app MUST generate a Server Backup Failure UAI whenever an automatic cloud
+The app MUST generate a Server Backup Failure alert whenever an automatic cloud
 backup attempt fails or cannot be initiated (e.g., no network connectivity). If
-a Server Backup Failure UAI already exists, a new one MUST replace the prior
-entry. Tapping the UAI MUST trigger a re-attempt of the backup.
+a Server Backup Failure alert already exists, a new one MUST replace the prior
+entry. Tapping the alert MUST trigger a re-attempt of the backup.
 
-#### Scenario: Server backup failure UAI created on failed backup
+#### Scenario: Server backup failure alert created on failed backup
 
 - GIVEN automatic cloud backup is enabled and the device has no network connection
 - WHEN the app attempts an automatic cloud backup
-- THEN a "Assisted Server Backup Has Failed" UAI is created
+- THEN an "Assisted Server Backup Has Failed" alert is created
 - AND a pending backup flag is set so the next online session retries automatically
 
-#### Scenario: Tapping server backup failure UAI triggers retry
+#### Scenario: Tapping server backup failure alert triggers retry
 
-- GIVEN a Server Backup Failure UAI is visible in the Notifications Center
+- GIVEN a Server Backup Failure alert is visible in the Notifications Center
 - WHEN the user taps the "View" action
-- THEN the app initiates a backup of all signers and vaults immediately
+- THEN the app initiates a backup of all signers and wallets immediately
 
 ---
 
 ### Requirement: Signing Delay Alert
 
-The app MUST generate a Signing Delay UAI when a previously submitted
-server-key-delayed transaction has had its delay period expire and the server key
-has produced a signature. The UAI MUST be associated with the transaction ID.
-Tapping the UAI MUST restore the pending send confirmation state and navigate
+The app MUST generate a Signing Delay alert when a previously submitted
+server-key-delayed transaction has had its delay period expire and the Server Key
+has produced a signature. The alert MUST be associated with the transaction ID.
+Tapping the alert MUST restore the pending send confirmation state and navigate
 the user to the Send Confirmation screen.
 
-#### Scenario: Signing delay UAI created when delay period expires
+#### Scenario: Signing delay alert created when delay period expires
 
-- GIVEN a transaction was submitted with a server key signing delay
-- WHEN the delay period elapses and the server key co-signs the transaction
-- THEN a "Server Key Signed Transaction" UAI is added to the stack
+- GIVEN a transaction was submitted with a Server Key signing delay
+- WHEN the delay period elapses and the Server Key co-signs the transaction
+- THEN a "Server Key Signed Transaction" alert is added to the stack
 
-#### Scenario: Tapping signing delay UAI resumes send flow
+#### Scenario: Tapping signing delay alert resumes send flow
 
-- GIVEN a Signing Delay UAI is active
+- GIVEN a Signing Delay alert is active
 - WHEN the user taps the "View" action
 - THEN the send confirmation state is restored from cache
 - AND the user is navigated to the Send Confirmation screen to complete broadcast
@@ -377,44 +391,23 @@ the user to the Send Confirmation screen.
 
 ### Requirement: Policy Delay Alert
 
-The app MUST generate a Policy Delay UAI when a previously submitted policy
+The app MUST generate a Policy Delay alert when a previously submitted policy
 update request's delay period expires and the server has applied the updated
-policy. Tapping the UAI MUST navigate the user to the policy configuration
+policy. Tapping the alert MUST navigate the user to the policy configuration
 screen so they can review or further adjust the active policy.
 
-#### Scenario: Policy delay UAI created on policy application
+#### Scenario: Policy delay alert created on policy application
 
 - GIVEN a policy update was submitted with a delay
 - WHEN the delay expires and the server applies the updated policy
-- THEN a "Server Key Policy Updated" UAI is added to the stack
+- THEN a "Server Key Policy Updated" alert is added to the stack
 
-#### Scenario: Tapping policy delay UAI opens policy configuration
+#### Scenario: Tapping policy delay alert opens policy configuration
 
-- GIVEN a Policy Delay UAI is active
+- GIVEN a Policy Delay alert is active
 - WHEN the user taps the "View" action
-- THEN the user is navigated to the policy configuration screen for the server key
-- AND the UAI is marked as actioned
-
----
-
-### Requirement: Zendesk Ticket UAI
-
-The app MUST generate a Zendesk Ticket UAI when a push notification arrives
-indicating an update to a support ticket. The UAI MUST carry the ticket ID and
-status. Tapping the UAI MUST navigate to the ticket details screen for the
-corresponding ticket.
-
-#### Scenario: Zendesk ticket UAI created from foreground push notification
-
-- GIVEN the app is in the foreground
-- WHEN a push notification arrives for a Zendesk ticket update
-- THEN a Zendesk Ticket UAI is added to the stack with the ticket ID and status
-
-#### Scenario: Tapping Zendesk ticket UAI navigates to ticket details
-
-- GIVEN a Zendesk Ticket UAI is visible in the Notifications Center
-- WHEN the user taps the "View" action
-- THEN the app navigates to the ticket details screen for the referenced ticket
+- THEN the user is navigated to the policy configuration screen for the Server Key
+- AND the alert is marked as actioned
 
 ---
 
@@ -437,57 +430,60 @@ title and body. The modal MUST be dismissible by the user.
 
 When the user taps a push notification while the app is in the background or
 terminated, the app MUST open and navigate directly to the destination relevant
-to that notification type. For Zendesk ticket notifications, the app MUST
-navigate directly to the corresponding ticket details screen.
+to that notification type.
 
-#### Scenario: Tapping Zendesk notification from background state
+#### Scenario: Tapping notification from background state
 
-- GIVEN the app is in the background and a Zendesk ticket update notification arrives
+- GIVEN the app is in the background and a push notification arrives
 - WHEN the user taps the notification
-- THEN the app opens and navigates directly to the ticket details screen for
-  that ticket
-
-#### Scenario: Tapping Zendesk notification from terminated state
-
-- GIVEN the app is terminated (fully closed) and a Zendesk ticket update
-  notification was received
-- WHEN the user taps the notification to open the app
-- THEN the app initializes and navigates to the ticket details screen for that
-  ticket
+- THEN the app opens and navigates directly to the relevant screen
 
 ---
 
-### Requirement: UAI Checks on Login
+### Requirement: Action Item Checks on Login
 
-The app MUST run UAI checks for the following types on every successful
-authentication: Signing Device Health Check, Secure Vault, Recovery Phrase
-Health Check, Zendesk Ticket, Server Backup Failure, Signing Delay, and Policy
-Delay. These checks MUST evaluate current app state and create or clear UAIs
-as appropriate before the home screen is displayed.
+The app MUST run action item checks for the following types on every successful
+authentication: Signing Device Health Check, Secure Wallet Setup, Recovery Key
+Health Check, Server Backup Failure, Signing Delay, and Policy Delay. These
+checks MUST evaluate current app state and create or clear action items as
+appropriate before the home screen is displayed.
 
-#### Scenario: UAI checks run after authentication
+#### Scenario: Action item checks run after authentication
 
 - GIVEN the user has successfully entered their PIN or biometric
 - WHEN the authentication saga completes
-- THEN the app evaluates all required UAI check types
-- AND creates new UAIs for any conditions that are met
-- AND removes stale UAIs whose conditions are no longer true
+- THEN the app evaluates all required action item check types
+- AND creates new action items for any conditions that are met
+- AND removes stale action items whose conditions are no longer true
+
+---
+
+## Acceptance Criteria
+
+- `UAI` remains internal only. User-facing copy uses notification/reminder/alert/action item.
+- User-facing copy uses Wallet and Recovery Key, not Vault or Recovery Phrase.
+- Backup notifications clearly identify backup type (Cloud Backup Failed, Wallet Configuration Backup Failed, Recovery Key Backup Incomplete).
+- No subscription/tier notifications remain.
+- No donation push notifications are added.
+- Zendesk ticket notifications are not active (Concierge is deprecated).
+- Transaction notifications support pending/unconfirmed and confirmed states.
+- Health Check notifications use Wallet, Recovery Key, Server Key, and signer terminology.
 
 ---
 
 ## Non-Goals
 
-- This spec does not cover the Concierge ticket creation or listing flow; only
-  the UAI and push notification surface for Zendesk ticket status updates is
-  within scope.
+- This spec does not cover the Concierge ticket creation or listing flow (Concierge is deprecated).
 - This spec does not cover the Fee Insights screen content or fee data
-  visualization; the `FEE_INISGHT` UAI type is reserved but not yet implemented
+  visualization; the `FEE_INISGHT` internal action item type is reserved but not yet implemented
   as an automated alert.
 - This spec does not govern how health check completion is performed; that is
   covered by the `health-checks` domain spec.
-- This spec does not cover backup initiation flows; only the failure alert UAI
-  surface is within scope.
+- This spec does not cover backup initiation flows; only the failure alert surface
+  is within scope.
 - This spec does not cover in-app release announcements or app changelog content;
   only FCM topic subscription for release messages is referenced.
 - This spec does not govern the signing delay mechanics, PSBT construction, or
-  broadcast flow; only the UAI surface for delay completion is within scope.
+  broadcast flow; only the alert surface for delay completion is within scope.
+- This spec does not cover donation notifications. Donation prompts must be
+  contextual, in-app, non-blocking, and located in Settings or post-success surfaces.
