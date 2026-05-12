@@ -37,6 +37,7 @@ Agents must:
 - use existing theme tokens, styles, spacing, radius, typography, and colors from code where available
 - use existing navigation, card, button, list, modal, sheet, form, and warning patterns
 - build new UI from existing primitives where possible
+- if an SVG is provided as input for a UI element, use that SVG in implementation unless a requirement explicitly says otherwise
 - avoid hardcoding one-off values unless there is no existing token or component pattern
 - keep feature-specific flow and copy decisions inside the relevant requirement spec
 - treat this document as design guidance, not business logic
@@ -586,6 +587,7 @@ Rules:
 - do not put long multi-step flows inside a bottom sheet unless existing Keeper patterns already do this
 - use full screens for complex tasks
 - keep CTA placement predictable
+- keep modal CTA text short and action-specific to prevent button text overflow
 
 # UI content and wording
 
