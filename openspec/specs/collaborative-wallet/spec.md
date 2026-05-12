@@ -1,38 +1,49 @@
-# Collaborative-Wallet Specification
+# Collaborative Wallet Specification
 
 ## Purpose
 
-The collaborative-wallet domain covers the setup, coordination, and management of a 2-of-3 multi-signature vault shared between two or more independent users, each holding their own signing key. It owns the full coordination lifecycle: key exchange, relay-based session synchronization, vault finalization, and post-creation co-signer inspection.
+Collaborative Wallet owns the creation and management flow for a fixed 2-of-3
+shared-control wallet. A Collaborative Wallet lets multiple participants contribute
+signing keys to one wallet setup. It is not a generic custom multisig builder.
+
+Internal implementation may still use vault or descriptor terminology where the
+codebase requires it. User-facing copy must use Collaborative Wallet.
+
+**Note:** Collaborative Wallet is fixed 2-of-3. This is not configurable by the user.
 
 ## Requirements
 
-### Requirement: Vault Scheme
+### Requirement: Wallet Scheme
 
-The app MUST enforce a fixed 2-of-3 quorum for all collaborative vaults. The scheme MUST NOT be configurable by the user at creation time.
+The app MUST enforce a fixed 2-of-3 quorum for all Collaborative Wallets. The
+scheme MUST NOT be configurable by the user at creation time. The UI MUST explain
+that 2 of 3 keys are needed to spend.
 
 #### Scenario: Scheme displayed during setup
 
-- GIVEN a user has navigated to the collaborative vault setup screen
+- GIVEN a user has navigated to the Collaborative Wallet setup screen
 - WHEN the screen is presented
-- THEN the app MUST display that the vault requires 2 signatures out of 3 total keys
+- THEN the app MUST display that the wallet requires 2 signatures out of 3 total keys
 - AND three key slots MUST be shown
 
-#### Scenario: Vault created with wrong number of keys
+#### Scenario: Wallet created with wrong number of keys
 
 - GIVEN the coordinator's setup screen is open
 - WHEN fewer than three key slots have been filled
-- THEN the app MUST NOT allow vault finalization
+- THEN the app MUST NOT allow wallet finalization
 - AND the incomplete key slots MUST remain visible as unfilled placeholders
 
 ---
 
 ### Requirement: Initiator Key Pre-population
 
-When a user initiates a collaborative vault, the app MUST automatically populate the first key slot with the user's own mobile key. The user MUST NOT be required to manually add their own key.
+When a user initiates a Collaborative Wallet, the app MUST automatically populate
+the first key slot with the user's own mobile key. The user MUST NOT be required
+to manually add their own key.
 
 #### Scenario: Opening setup screen as coordinator
 
-- GIVEN a user who has a mobile key available opens the collaborative vault setup screen
+- GIVEN a user who has a mobile key available opens the Collaborative Wallet setup screen
 - WHEN the screen first renders
 - THEN key slot 1 MUST already be filled with the user's own mobile key
 - AND slots 2 and 3 MUST show prompts to add co-signers
@@ -142,21 +153,36 @@ The app MUST prevent the same signer key from being added to more than one slot 
 
 ---
 
-### Requirement: Vault Finalization
+### Requirement: Wallet Finalization
 
-Once all three co-signer keys have been collected, the app MUST automatically finalize the collaborative vault without requiring additional user action. The finalized vault MUST be immediately accessible to the coordinator.
+Once all three co-signer keys have been collected, the app MUST automatically
+finalize the Collaborative Wallet without requiring additional user action. The
+finalized wallet MUST be immediately accessible to the coordinator.
 
-#### Scenario: Third key added completes the vault
+After finalization, the app MUST:
+- Show a wallet-created success state
+- Handle wallet configuration backup/reminder
+- Check Recovery Key backup state
+
+If a final review screen is supported, it MUST show:
+- Wallet name
+- Fixed 2-of-3 scheme
+- Co-signer labels
+- Key fingerprints where available
+- Network
+- Backup/configuration reminder
+
+#### Scenario: Third key added completes the wallet
 
 - GIVEN two keys are already in the session
 - WHEN the third co-signer's key is received (via scan, NFC, file, or relay sync)
-- THEN the app MUST construct the 2-of-3 vault from the three collected keys
-- AND the app MUST present a success confirmation showing the vault scheme and details
+- THEN the app MUST construct the 2-of-3 Collaborative Wallet from the three collected keys
+- AND the app MUST present a success confirmation showing the wallet scheme and details
 
-#### Scenario: Vault generation fails
+#### Scenario: Wallet generation fails
 
 - GIVEN all three keys have been collected
-- WHEN the vault construction encounters an error
+- WHEN the wallet construction encounters an error
 - THEN the app MUST display an error message
 - AND the session state MUST be preserved so the user can retry
 
@@ -164,39 +190,68 @@ Once all three co-signer keys have been collected, the app MUST automatically fi
 
 ### Requirement: Descriptor Sharing After Finalization
 
-After the vault is finalized, the coordinator MUST be able to share the resulting vault descriptor with all participants so each can independently register their copy of the vault.
+After the Collaborative Wallet is finalized, the coordinator MUST be able to share
+the resulting wallet configuration (descriptor) with all participants so each can
+independently register their copy of the wallet.
 
-#### Scenario: Coordinator shares vault descriptor via relay
+#### Scenario: Coordinator shares wallet configuration via relay
 
-- GIVEN the collaborative vault has been finalized by the coordinator
-- WHEN the relay channel is updated with the finalized descriptor
-- THEN each co-signer who syncs the channel MUST receive the descriptor
+- GIVEN the Collaborative Wallet has been finalized by the coordinator
+- WHEN the relay channel is updated with the finalized configuration
+- THEN each co-signer who syncs the channel MUST receive the configuration
 
 ---
 
-### Requirement: Participant Vault Registration
+### Requirement: Participant Wallet Registration
 
-A co-signer who receives a completed vault descriptor MUST be able to register their local copy of the collaborative vault using the shared descriptor, without having performed the initial coordination themselves.
+A co-signer who receives a completed wallet configuration MUST be able to register
+their local copy of the Collaborative Wallet using the shared configuration, without
+having performed the initial coordination themselves.
 
-#### Scenario: Second user registers vault from descriptor
+#### Scenario: Second user registers wallet from configuration
 
-- GIVEN a co-signer has received the vault descriptor out of band
-- WHEN the co-signer imports or scans the descriptor
-- THEN the app MUST register a local read-write copy of the vault linked to that co-signer's own key
-- AND the vault MUST appear in the co-signer's vault list
+- GIVEN a co-signer has received the wallet configuration out of band
+- WHEN the co-signer imports or scans the configuration
+- THEN the app MUST register a local read-write copy of the wallet linked to that co-signer's own key
+- AND the wallet MUST appear in the co-signer's wallet list
 
 ---
 
 ### Requirement: Co-signer Details Inspection
 
-After vault creation, any participant MUST be able to inspect the details of each co-signer's key contribution, including the key fingerprint, derivation path, and extended public key.
+After wallet creation, any participant MUST be able to inspect the details of each
+co-signer's key contribution, including the key fingerprint, derivation path, and
+extended public key.
 
 #### Scenario: View co-signer details
 
-- GIVEN a collaborative vault has been created and is visible in the vault list
+- GIVEN a Collaborative Wallet has been created and is visible in the wallet list
 - WHEN a participant opens the co-signer details view for a specific key slot
 - THEN the app MUST display that co-signer's key fingerprint, label, derivation path, and extended public key
 - AND the information MUST be presented in a copyable or exportable form
+
+---
+
+## Co-signer States
+
+The app MUST handle the following co-signer states:
+- **pending** — key slot is empty and awaiting a co-signer
+- **added** — co-signer key has been successfully collected
+- **failed** — key collection attempt failed
+- **invalid** — the provided key is malformed or from the wrong network
+- **duplicate** — the provided key is already present in another slot
+- **complete** — all three co-signer keys are collected and the wallet is finalized
+
+---
+
+## Acceptance Criteria
+
+- Collaborative Wallet is fixed 2-of-3.
+- User-facing copy uses Collaborative Wallet, not Collaborative Vault.
+- No subscription/tier gating remains.
+- Internal vault references are implementation-only.
+- Co-signer states (pending, added, failed, invalid, duplicate, complete) are handled.
+- Backup/configuration state is handled after wallet creation.
 
 #### Scenario: Co-signer key not yet contributed
 
