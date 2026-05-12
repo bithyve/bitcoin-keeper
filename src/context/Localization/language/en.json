@@ -261,8 +261,8 @@
     "skipWarningBody": "Unexpected software issues, app updates, device loss, or damaged app data can make wallet recovery fail without your Recovery Key.",
     "skipWarningBox": "Your Keeper backup and hot wallets may not be recoverable.",
     "skipWarningInfoBox": "Backing up takes less than a minute and can save your funds and data.",
-    "backUpRecoveryKey": "Back Up Recovery Key",
-    "continueWithoutBackup": "Continue Without Backup",
+    "backUpRecoveryKey": "Backup Now",
+    "continueWithoutBackup": "Skip Backup",
     "skipWarningFooter": "You can back up your Recovery Key anytime from Settings.",
     "recoveryKeyNotBackedUp": "Recovery Key not backed up"
   },
