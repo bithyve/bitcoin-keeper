@@ -2,43 +2,67 @@
 
 ## Purpose
 
-The inheritance domain owns all features related to Bitcoin estate planning in Bitcoin Keeper — Miniscript vaults with timelocked spending paths, inheritance and emergency key management, initial timelock configuration and reset flows, vault migration triggered by timelock changes, printable PDF planning documents, and the advisor discovery screen. It provides the tools a user needs to ensure their bitcoin can be recovered by designated heirs or trusted parties if the primary keyholder becomes unavailable.
+Inheritance helps users prepare wallet access paths, wallet rules, documents, and
+instructions for heirs or trusted parties. Keeper helps with planning and access
+preparation. Keeper does not guarantee legal or practical inheritance recovery and
+does not decide legal ownership.
+
+**Legal clarification:** "Keeper helps you plan access to keys and information.
+It does not decide legal ownership."
+
+Internal implementation may still use vault, Miniscript vault, or descriptor
+terminology where the codebase requires it. User-facing copy must use Wallet.
+
+**Key types (user-facing):**
+- **Inheritance Key** — designed for inheritance planning; provides a delayed
+  access path for a heir/trusted party based on wallet rules.
+- **Emergency Key** — designed for recovery from extended key loss; provides a
+  delayed recovery path according to wallet rules.
+
+These are separate user-facing key types and must not be conflated.
 
 ---
 
 ## Requirements
 
-### Requirement: Inheritance Vault Creation
+### Requirement: Inheritance Wallet Creation
 
-The app MUST allow a user to create a Miniscript vault that includes an Inheritance Key (reserve key) whose co-signing rights activate only after a user-configured initial timelock period elapses. The vault MUST require at least a 2-of-n primary quorum. A single-key vault MUST support an Inheritance Key but MUST NOT support an Emergency Key.
+The app MUST allow a user to create a Miniscript wallet that includes an Inheritance
+Key whose co-signing rights activate only after a user-configured initial timelock
+period elapses. The wallet MUST require at least a 2-of-n primary quorum. A
+single-key wallet MUST support an Inheritance Key but MUST NOT support an Emergency Key.
 
-The user MUST explicitly accept a terms acknowledgement before the inheritance vault is finalised. The app MUST display a warning about the irreversibility of the timelock commitment at the point of acceptance.
+The user MUST explicitly accept a terms acknowledgement before the inheritance wallet
+is finalised. The app MUST display a warning about the irreversibility of the
+timelock commitment at the point of acceptance.
 
-The app MUST retrieve the current Bitcoin block height (or median time past) from the network before finalising the vault, and MUST surface an error and prevent creation if the chain data cannot be fetched.
+The app MUST retrieve the current Bitcoin block height (or median time past) from the
+network before finalising the wallet, and MUST surface an error and prevent creation
+if the chain data cannot be fetched.
 
-#### Scenario: Create 2-of-3 vault with inheritance key and initial timelock
+#### Scenario: Create 2-of-3 wallet with Inheritance Key and initial timelock
 
-- GIVEN the user has a 2-of-3 multisig vault configuration in progress
+- GIVEN the user has a 2-of-3 multisig wallet configuration in progress
 - AND the user navigates to add an Inheritance Key
 - WHEN the user selects an initial timelock duration (e.g. 6 months) and accepts the terms acknowledgement
 - AND the user selects a signing key to serve as the Inheritance Key and sets its activation timelock (e.g. 1 year)
-- AND the user confirms vault creation
-- THEN a Miniscript vault of type INHERITANCE is created with the primary 2-of-3 quorum
-- AND the Inheritance Key becomes co-eligible to sign only after the initial timelock plus the inheritance key's own timelock have elapsed
-- AND the vault appears on the home screen with a confirmed balance of 0
+- AND the user confirms wallet creation
+- THEN a Miniscript wallet with inheritance setup is created with the primary 2-of-3 quorum
+- AND the Inheritance Key becomes co-eligible to sign only after the initial timelock plus the Inheritance Key's own timelock have elapsed
+- AND the wallet appears on the home screen with a confirmed balance of 0
 
-#### Scenario: User does not accept terms — vault not created
+#### Scenario: User does not accept terms — wallet not created
 
 - GIVEN the user has selected an initial timelock duration on the timelock selection screen
 - WHEN the user attempts to proceed without checking the terms acceptance checkbox
-- THEN the confirm button remains disabled and the vault is not created
+- THEN the confirm button remains disabled and the wallet is not created
 
-#### Scenario: Chain data unavailable during vault creation
+#### Scenario: Chain data unavailable during wallet creation
 
 - GIVEN the app cannot reach any configured Electrum node to fetch the current block height
-- WHEN the user attempts to confirm inheritance vault creation
+- WHEN the user attempts to confirm inheritance wallet creation
 - THEN the app surfaces an error informing the user that current chain data could not be fetched
-- AND the vault is not created until the data can be retrieved
+- AND the wallet is not created until the data can be retrieved
 
 ---
 
@@ -132,19 +156,30 @@ The app MUST fetch the current block height or median time past from the network
 
 ### Requirement: Timelock Reset
 
-The current primary keyholder MUST be able to reset any timelock-activated spending path (initial timelock, Inheritance Key timelocks, or Emergency Key timelocks) to a new duration before the timelock expires. Resetting a timelock MUST trigger a vault migration, creating a new Miniscript vault with updated timelock parameters and transferring the designation.
+The current primary keyholder MUST be able to reset any timelock-activated spending
+path (initial timelock, Inheritance Key timelocks, or Emergency Key timelocks) to a
+new duration before the timelock expires. Resetting a timelock MUST trigger a wallet
+migration, creating a new Miniscript wallet with updated timelock parameters.
 
-The app MUST require the current block height or median time past to be fetched successfully before a timelock reset can be submitted. If chain data is unavailable, the app MUST display an error and prevent the reset.
+When migration happens, the previous wallet configuration is archived automatically.
+The archived wallet must be unarchived before use. Archiving is not a normal user action.
 
-If the vault also has Inheritance Keys, resetting the initial timelock MUST be followed by the Inheritance Key reset step. If the vault also has Emergency Keys, resetting the initial timelock or Inheritance Keys MUST be followed by the Emergency Key reset step.
+The app MUST require the current block height or median time past to be fetched
+successfully before a timelock reset can be submitted. If chain data is unavailable,
+the app MUST display an error and prevent the reset.
+
+If the wallet also has Inheritance Keys, resetting the initial timelock MUST be
+followed by the Inheritance Key reset step. If the wallet also has Emergency Keys,
+resetting the initial timelock or Inheritance Keys MUST be followed by the Emergency
+Key reset step.
 
 #### Scenario: Successful initial timelock reset
 
-- GIVEN a Miniscript vault with a 6-month initial timelock and an Inheritance Key
+- GIVEN a Miniscript wallet with a 6-month initial timelock and an Inheritance Key
 - WHEN the user navigates to reset the initial timelock, selects a new duration (e.g. 9 months), and the app successfully fetches the current block height
 - THEN the app navigates to the Inheritance Key reset screen to update its timelock
-- AND upon final confirmation, a new vault is created via migration with the updated timelocks
-- AND the original vault is archived
+- AND upon final confirmation, a new wallet is created via migration with the updated timelocks
+- AND the original wallet is archived automatically
 
 #### Scenario: Initial timelock reset blocked by missing chain data
 
@@ -155,52 +190,41 @@ If the vault also has Inheritance Keys, resetting the initial timelock MUST be f
 
 #### Scenario: Successful Emergency Key timelock reset
 
-- GIVEN a Miniscript vault with one or more Emergency Keys
+- GIVEN a Miniscript wallet with one or more Emergency Keys
 - WHEN the user navigates to reset each Emergency Key's activation duration, selects a new timelock for each, and confirms
-- THEN a new vault is created via migration with the updated Emergency Key timelocks
-- AND the original vault is archived
-- AND the user is redirected to the new vault details screen
+- THEN a new wallet is created via migration with the updated Emergency Key timelocks
+- AND the original wallet is archived automatically
+- AND the user is redirected to the new wallet details screen
 
 ---
 
 ### Requirement: Inheritance Planning Tools
 
-The app MUST provide an Inheritance Planning section containing a set of educational and documentation tools to help the user prepare their estate plan. Access to specific tools is gated by subscription tier.
+The app MUST provide an Inheritance Planning section containing a set of educational
+and documentation tools to help the user prepare their estate plan.
 
-The following tools MUST be available to users on the Diamond Hands tier (L3) and above:
-- **Recovery Phrase Template** — a printable PDF template for recording a seed phrase.
-- **Trusted Contacts Template** — a printable PDF for recording trusted contacts.
-- **Additional Signer Details Template** — a printable PDF for documenting extra signing key information.
+The following documents and templates MUST be available:
+- **Recovery Key Template** — a printable PDF template for recording the 12-word Recovery Key.
+- **Letter to Attorney** — a printable PDF legal template for designating a representative.
+- **Recovery Instructions for Heir** — a printable PDF containing step-by-step wallet recovery guidance.
+- **Trusted Contacts** — a printable PDF for recording trusted contacts.
+- **Additional Key Details** — a printable PDF for documenting extra signing key information.
+- **Key Security Tips** — educational tips about inheritance planning best practices.
 
-The following tools MUST be available to users on the Hodler tier (L2) and above:
-- **Recovery Instructions** — a printable PDF containing step-by-step wallet recovery guidance.
-- **Letter of Attorney** — a printable PDF legal template for designating a representative.
-- **Inheritance Tips** — an educational tips carousel about inheritance planning best practices.
+No subscription/tier gating applies to these planning tools.
 
-The app MUST display an upgrade prompt when a user on a lower tier attempts to access a gated tool.
+#### Scenario: User downloads Recovery Key Template
 
-Each tool card MUST display the last time the user accessed that tool.
-
-#### Scenario: L3 user downloads Recovery Phrase Template
-
-- GIVEN the user is subscribed to the Diamond Hands (L3) plan or above
-- WHEN the user opens the Inheritance Planning section and taps Recovery Phrase Template
-- THEN the app generates a PDF template and navigates to the PDF preview screen
+- GIVEN the user opens the Inheritance Planning section and taps Recovery Key Template
+- WHEN the template is generated
+- THEN the app navigates to the PDF preview screen
 - AND the user can download or share the PDF from the preview screen
 
-#### Scenario: L2 user accesses Letter of Attorney
+#### Scenario: User accesses Letter to Attorney
 
-- GIVEN the user is subscribed to the Hodler (L2) plan or above
-- WHEN the user taps Letter of Attorney in the Inheritance Planning section
-- THEN the app prompts for PIN or biometric authentication before generating the PDF
-- AND upon successful authentication the PDF is generated and the preview screen is shown
-
-#### Scenario: Free-tier user sees upgrade prompt for gated tool
-
-- GIVEN the user is on the Pleb (L1, free) plan
-- WHEN the user opens the Inheritance Planning section
-- THEN the tools gated to L2 and L3 are displayed as disabled
-- AND an upgrade subscription banner is shown above the gated items
+- GIVEN the user taps Letter to Attorney in the Inheritance Planning section
+- WHEN the app prompts for PIN or biometric authentication before generating the PDF
+- THEN upon successful authentication the PDF is generated and the preview screen is shown
 
 ---
 
@@ -256,33 +280,43 @@ The app SHOULD present a guided, paginated slider explaining what an Inheritance
 
 ### Requirement: Inheritance Tips Educational Content
 
-The app MUST provide an Inheritance Tips screen (available to L2 and above) containing a multi-slide educational carousel with at least four tips covering: documenting multi-key setups, educating heirs, selecting a knowledgeable executor, and scheduling regular estate plan reviews.
+The app MUST provide an Inheritance Tips screen containing a multi-slide educational
+carousel with at least four tips covering: documenting multi-key setups, educating
+heirs, selecting a knowledgeable executor, and scheduling regular estate plan reviews.
+No subscription gating applies.
 
-#### Scenario: Tip carousel displayed to eligible user
+#### Scenario: Tip carousel displayed
 
-- GIVEN the user is on the Hodler (L2) plan or above
-- WHEN the user opens Inheritance Tips
+- GIVEN the user opens Inheritance Tips
 - THEN the carousel shows at least four tips, each with a title, illustration, and description
 
 ---
 
 ### Requirement: Safe Keeping and Secure Usage Tips
 
-The app MUST provide two always-accessible tip sections (no subscription gating): Secure Usage Tips and Safe Keeping Tips. These sections MUST be reachable from the Key Security area of the Inheritance Planning section.
+The app MUST provide two tip sections: Secure Usage Tips and Safe Keeping Tips.
+These sections MUST be reachable from the Key Security area of the Inheritance
+Planning section with no subscription gating.
 
-#### Scenario: Free-tier user accesses Secure Usage Tips
+#### Scenario: User accesses Secure Usage Tips
 
-- GIVEN the user is on the Pleb (L1) plan
-- WHEN the user opens the Key Security section and taps Secure Usage Tips
-- THEN the tips content is displayed without an upgrade prompt
+- GIVEN the user opens the Key Security section and taps Secure Usage Tips
+- THEN the tips content is displayed without any gating
 
 ---
 
 ### Requirement: Advisor Discovery
 
-The app MAY provide an advisor directory allowing the user to browse and connect with vetted Bitcoin consultants and estate-planning advisors. The directory MUST be searchable by advisor name. Each advisor listing MUST display the advisor's name, expertise areas, languages, timezone, experience, and a link to book a consultation session.
+The app MAY provide an Advisor (Keeper Advisor / External Advisor) directory allowing
+the user to browse and connect with vetted Bitcoin consultants and estate-planning
+advisors. Advisors are an active product concept and are not the same as heirs.
+Advisors are not automatically legal owners; their role must be explicit.
 
-The app MUST gracefully handle the case where no advisors are available and navigate back with an error message.
+The directory MUST be searchable by advisor name. Each advisor listing MUST display
+the advisor's name, expertise areas, languages, timezone, experience, and a link to
+book a consultation session.
+
+The app MUST gracefully handle the case where no advisors are available.
 
 #### Scenario: User finds and connects with an advisor
 
@@ -290,12 +324,6 @@ The app MUST gracefully handle the case where no advisors are available and navi
 - WHEN the user opens the Advisors screen and searches for an advisor by name
 - THEN matching advisors are displayed with their details
 - AND tapping an advisor's booking link opens the external booking page
-
-#### Scenario: User views advisor expertise and availability
-
-- GIVEN the user opens an advisor's detail page
-- WHEN the detail page loads
-- THEN the page displays the advisor's expertise tags, spoken languages, timezone, experience, and a connect button
 
 #### Scenario: No advisors available
 
@@ -307,24 +335,42 @@ The app MUST gracefully handle the case where no advisors are available and navi
 
 ### Requirement: Canary Wallet Educational Content
 
-The app MUST provide a Canary Wallets informational screen (available to L2 and above) explaining what a canary wallet is and how it can be used as a honeypot detection mechanism. The screen MUST include a call-to-action that navigates the user to the signing keys management section to set up a canary vault.
+The app MUST provide a Canary Wallets informational screen explaining what a canary
+wallet is and how it can be used as a honeypot detection mechanism. The screen MUST
+include a call-to-action that navigates the user to the signing keys management
+section to set up a canary wallet.
 
-#### Scenario: L2 user reads canary wallet explanation and navigates to setup
+#### Scenario: User reads canary wallet explanation and navigates to setup
 
-- GIVEN the user is on the Hodler (L2) plan
-- WHEN the user opens the Canary Wallets screen from Key Security
+- GIVEN the user opens the Canary Wallets screen from Key Security
 - THEN the description, illustration, and setup call-to-action are displayed
 - AND tapping the call-to-action navigates the user to the home screen with the keys tab selected
 
 ---
 
+## Acceptance Criteria
+
+- User-facing copy uses Wallet, not Vault.
+- Inheritance Key and Emergency Key are separate user-facing key types.
+- External Advisor / Keeper Advisor remains active; advisor role is explicit.
+- No subscription/tier gating remains on planning tools.
+- No copy guarantees inheritance recovery.
+- Legal ownership and key access are clearly separated.
+- Wallet migration/archive behavior matches current product rules:
+  - Migration archives the previous wallet automatically.
+  - Archived wallet must be unarchived before use.
+  - Archiving is not a normal user action.
+- Planning documents use Recovery Key Template (not Recovery Phrase Template)
+  and Letter to Attorney (not Letter of Attorney, unless screen name differs).
+
+---
+
 ## Non-Goals
 
-- This spec does not cover the broader vault creation flow or vault migration mechanics in general; those are specified in `vault/spec.md`.
+- This spec does not cover the broader wallet creation flow or wallet migration mechanics in general; those are specified in `vault/spec.md`.
 - This spec does not cover health checks on inheritance-related signing keys; those are specified in `health-checks/spec.md`.
-- This spec does not cover sending from a Miniscript vault (PSBT construction, signing, broadcast); that is specified in `send-and-receive/spec.md`.
-- This spec does not cover the POLICY_SERVER assisted signing configuration (spending limits, signing delays); that is specified in `vault/spec.md`.
-- This spec does not cover cloud backup of vault descriptors or recovery from seed; those are specified in `backup-and-recovery/spec.md`.
-- This spec does not cover UAI (User Action Item) notifications for canary vault balance changes or signing delays; those are specified in `notifications/spec.md`.
-- This spec does not cover the full canary vault lifecycle (creation, alerting, balance monitoring); that is specified in `vault/spec.md` and `notifications/spec.md`.
-- This spec does not define the Calendly-based call scheduling flow; that is in scope for `concierge/spec.md`.
+- This spec does not cover sending from a Miniscript wallet (PSBT construction, signing, broadcast); that is specified in `send-and-receive/spec.md`.
+- This spec does not cover the Server Key assisted signing configuration (spending limits, signing delays); that is specified in `vault/spec.md`.
+- This spec does not cover cloud backup of wallet configuration files or recovery from Recovery Key; those are specified in `backup-and-recovery/spec.md`.
+- This spec does not cover action item notifications for canary wallet balance changes or signing delays; those are specified in `notifications/spec.md`.
+- This spec does not cover the full canary wallet lifecycle (creation, alerting, balance monitoring); that is specified in `vault/spec.md` and `notifications/spec.md`.
