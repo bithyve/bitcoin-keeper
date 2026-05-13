@@ -62,6 +62,7 @@ const SigningDeviceList = () => {
   const [signersLoaded, setSignersLoaded] = useState(false);
   const dispatch = useDispatch();
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { signer: signerText, common, settings } = translations;
   const isMultisig = addSignerFlow
     ? true
@@ -209,7 +210,8 @@ const SigningDeviceList = () => {
                     isOnL2,
                     scheme,
                     signers,
-                    addSignerFlow
+                    addSignerFlow,
+                    bitcoinNetworkType
                   );
                   let message = connectivityStatus;
 

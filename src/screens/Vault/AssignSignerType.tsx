@@ -2,7 +2,7 @@ import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base'
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, NetworkType } from 'src/services/wallets/enums';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
@@ -46,6 +46,7 @@ function AssignSignerType({ route }: IProps) {
   const { isOnL1, isOnL2 } = usePlan();
   const { relaySignersUpdate, relaySignerUpdateError, realySignersUpdateErrorMessage } =
     useAppSelector((state) => state.bhr);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -131,7 +132,9 @@ function AssignSignerType({ route }: IProps) {
                     isOnL1,
                     isOnL2,
                     { m: 2, n: 3 },
-                    appSigners
+                    appSigners,
+                    false,
+                    bitcoinNetworkType
                   );
 
                   if (type === SignerType.POLICY_SERVER) {

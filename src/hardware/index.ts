@@ -344,7 +344,8 @@ export const getDeviceStatus = (
   isOnL2: boolean,
   scheme: VaultScheme | null,
   existingSigners: Signer[],
-  addSignerFlow: boolean = false
+  addSignerFlow: boolean = false,
+  networkType?: NetworkType
 ) => {
   switch (type) {
     case SignerType.TAPSIGNER:
@@ -370,7 +371,7 @@ export const getDeviceStatus = (
         return { message: '', disabled: false, displayToast: false };
       }
     case SignerType.POLICY_SERVER:
-      return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners);
+      return getPolicyServerStatus(type, isOnL1, scheme, addSignerFlow, existingSigners, networkType);
     case SignerType.PORTAL:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
@@ -387,8 +388,14 @@ const getPolicyServerStatus = (
   isOnL1: boolean,
   scheme: VaultScheme | null,
   addSignerFlow: boolean,
-  existingSigners
+  existingSigners,
+  networkType?: NetworkType
 ) => {
+  // check 0: Testnet — Server Key is not supported on Testnet
+  if (networkType === NetworkType.TESTNET) {
+    return { disabled: true, message: 'Not available on Testnet.', displayToast: false };
+  }
+
   // check 1: Subscription Tier(Server Key is only available on L2 and above)
   if (isOnL1) {
     return {

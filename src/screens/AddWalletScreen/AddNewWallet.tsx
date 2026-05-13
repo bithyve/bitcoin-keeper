@@ -18,7 +18,8 @@ import CheckDarkIcon from 'src/assets/images/check-dark-icon.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import UpgradeSubscription from '../InheritanceToolsAndTips/components/UpgradeSubscription';
-import { MiniscriptTypes } from 'src/services/wallets/enums';
+import { MiniscriptTypes, NetworkType } from 'src/services/wallets/enums';
+import { useAppSelector } from 'src/store/hooks';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -378,6 +379,8 @@ const EnhancedSecurityModal = ({
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletText, signer: signerText } = translations;
   const { isOnL3Above } = usePlan();
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const isTestnet = bitcoinNetworkType === NetworkType.TESTNET;
 
   return (
     <KeeperModal
@@ -390,6 +393,7 @@ const EnhancedSecurityModal = ({
       title={walletText.enhancedSecurityOption}
       subTitle={walletText.enhancedSecurityDesc2}
       buttonText={common.saveChanges}
+      disable={isTestnet}
       buttonCallback={() => {
         onClose();
         setInheritanceKeySelected(pendingInheritanceKeySelected);
@@ -412,7 +416,7 @@ const EnhancedSecurityModal = ({
               </Box>
             )}
             <Pressable
-              disabled={!isOnL3Above}
+              disabled={!isOnL3Above || isTestnet}
               onPress={() => setPendingInheritanceKeySelected(!pendingInheritanceKeySelected)}
             >
               <Box
@@ -424,7 +428,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above || isTestnet ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     {signerText.inheritanceKey}
@@ -449,14 +453,14 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
+                  color={!isOnL3Above || isTestnet ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
-                  {signerText.extraKeyAddedAfterTime}
+                  {isTestnet ? 'Not available on Testnet.' : signerText.extraKeyAddedAfterTime}
                 </Text>
               </Box>
             </Pressable>
             <Pressable
-              disabled={!isOnL3Above}
+              disabled={!isOnL3Above || isTestnet}
               onPress={() => setPendingEmergencyKeySelected(!pendingEmergencyKeySelected)}
             >
               <Box
@@ -468,7 +472,7 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={16}
                     color={
-                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                      !isOnL3Above || isTestnet ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                     }
                   >
                     {signerText.emergencyKey}
@@ -493,15 +497,15 @@ const EnhancedSecurityModal = ({
                 </Box>
                 <Text
                   fontSize={12}
-                  color={!isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
+                  color={!isOnL3Above || isTestnet ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`}
                 >
-                  {signerText.keyDelayedFullControl}
+                  {isTestnet ? 'Not available on Testnet.' : signerText.keyDelayedFullControl}
                 </Text>
               </Box>
             </Pressable>
             {showAdvancedEnhancedOptions && (
               <Pressable
-                disabled={!isOnL3Above}
+                disabled={!isOnL3Above || isTestnet}
                 onPress={() => setPendingInitialTimelockSelected(!pendingInitialTimelockSelected)}
               >
                 <Box
@@ -513,7 +517,7 @@ const EnhancedSecurityModal = ({
                     <Text
                       fontSize={16}
                       color={
-                        !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
+                        !isOnL3Above || isTestnet ? `${colorMode}.secondaryGrey` : `${colorMode}.greenWhiteText`
                       }
                     >
                       Wallet Timelock
@@ -539,10 +543,10 @@ const EnhancedSecurityModal = ({
                   <Text
                     fontSize={12}
                     color={
-                      !isOnL3Above ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
+                      !isOnL3Above || isTestnet ? `${colorMode}.secondaryGrey` : `${colorMode}.secondaryText`
                     }
                   >
-                    An initial timelock before funds can be spent from the wallet
+                    {isTestnet ? 'Not available on Testnet.' : 'An initial timelock before funds can be spent from the wallet'}
                   </Text>
                 </Box>
               </Pressable>

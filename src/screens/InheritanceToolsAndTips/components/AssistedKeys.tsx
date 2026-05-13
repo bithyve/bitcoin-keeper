@@ -8,12 +8,16 @@ import InheritanceKeyIcon from 'src/assets/images/inheritance-key.svg';
 import AssistedKeysSlider from '../AssistedKeysSlider';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { useAppSelector } from 'src/store/hooks';
+import { NetworkType } from 'src/services/wallets/enums';
 
 function InheritanceTips({}) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { inheritancePlanning } = translations;
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const isTestnet = bitcoinNetworkType === NetworkType.TESTNET;
   const tips = [
     {
       title: inheritancePlanning.inheritanceKey,
@@ -21,13 +25,15 @@ function InheritanceTips({}) {
       icon: <InheritanceKeyIcon />,
       paragraph2: inheritancePlanning.inheritanceKeyParagraph2,
       paragraph: inheritancePlanning.inheritanceKeyParagraph1,
-      callback: () =>
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'AddNewWallet',
-            params: { isAddInheritanceKeyFromParams: true, scheme: { m: 2, n: 3 } },
-          })
-        ),
+      callback: isTestnet
+        ? () => {}
+        : () =>
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'AddNewWallet',
+                params: { isAddInheritanceKeyFromParams: true, scheme: { m: 2, n: 3 } },
+              })
+            ),
 
       buttonIcon: <InheritanceKey />,
       buttonTitle: inheritancePlanning.inheritanceKeyCtaTitle,
