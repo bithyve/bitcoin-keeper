@@ -21,11 +21,11 @@ import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ServerItem from './components/ServerItem';
-import WarningNote from 'src/components/WarningNote';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import WalletHeader from 'src/components/WalletHeader';
+import Text from 'src/components/KeeperText';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -159,11 +159,15 @@ function NodeSettings() {
           </Box>
         )}
       </Box>
-      {isNoNodeConnected ? (
-        <WarningNote
-          noteText={isNodeListEmpty ? settings.noNodeWarning1 : settings.noNodeWarning2}
-        />
-      ) : null}
+      {isNoNodeConnected && (
+        <Text
+          key={'node-connection-error'}
+          color={`${colorMode}.alertRed`}
+          style={{ textAlign: 'center' }}
+        >
+          {'Currently in Offline Mode'}
+        </Text>
+      )}
       <Box style={styles.footerContainer}>
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
@@ -245,7 +249,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footerContainer: {
-    marginTop: hp(30),
+    marginTop: hp(10),
   },
 });
 
