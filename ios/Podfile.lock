@@ -3959,7 +3959,7 @@ SPEC CHECKSUMS:
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
-  hermes-engine: c35a887d0a1856e5c339a78517f0fb3357a135b5
+  hermes-engine: aa404dd2f865314cd211641ddff59d06039dbcf1
   HtmlToPdf: 6a9c28f54ec810d1d120a698a9b3c83e2bdb1672
   libportal-ios: d9aa55474e2d5be8e38e96345dd37be34fda45b4
   libportal-react-native: 91b6bec36f7e92a0bcc4e9d51d6ce3ee7c163728

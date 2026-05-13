@@ -252,7 +252,19 @@
     "securityTipDesc": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.",
     "backupModalTitle": "Confirm your Recovery Key",
     "backupModalSubTitle": "To make sure your Recovery Key is not lost, you need to confirm it.",
-    "backupModalDesc": "Keeper keeps a protected copy of your Keeper data, encrypted using your Recovery Key, to help with app recovery. Keeper cannot read this data."
+    "backupModalDesc": "Keeper keeps a protected copy of your Keeper data, encrypted using your Recovery Key, to help with app recovery. Keeper cannot read this data.",
+    "educationSheetTitle": "Protect Your Recovery Key",
+    "educationSheetBody": "Your Recovery Key helps restore your Keeper backup and hot wallets if you change devices or need to recover the app.\n\nOnly you control this key. Keeper cannot recover it for you.",
+    "backUpNow": "Back Up Now",
+    "skipForNow": "Skip for Now",
+    "skipWarningTitle": "Continue Without Backup?",
+    "skipWarningBody": "Unexpected software issues, app updates, device loss, or damaged app data can make wallet recovery fail without your Recovery Key.",
+    "skipWarningBox": "Your Keeper backup and hot wallets may not be recoverable.",
+    "skipWarningInfoBox": "Backing up takes less than a minute and can save your funds and data.",
+    "backUpRecoveryKey": "Backup Now",
+    "continueWithoutBackup": "Skip Backup",
+    "skipWarningFooter": "You can back up your Recovery Key anytime from Settings.",
+    "recoveryKeyNotBackedUp": "Recovery Key not backed up"
   },
   "transactions": {
     "Fees": "Fees",

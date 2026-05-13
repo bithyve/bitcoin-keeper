@@ -5,7 +5,6 @@ import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
