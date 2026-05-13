@@ -28,7 +28,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useSigners from 'src/hooks/useSigners';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import BackupModalContent from './BackupModal';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import WalletHeader from 'src/components/WalletHeader';
 
@@ -37,7 +36,7 @@ function AppBackupSettings() {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { settings, common, error: errorText, home, wallet: walletText } = translations;
-  const { primaryMnemonic, publicId } = useQuery(RealmSchema.KeeperApp).map(
+  const { publicId } = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
   const { isOnL2Above: isCanaryWalletAllowed } = usePlan();
@@ -46,7 +45,6 @@ function AppBackupSettings() {
   const { allCanaryVaults } = useCanaryVault({ getAll: true });
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [canaryVaultLoading, setCanaryVaultLoading] = useState(false);
-  const [backupModalVisible, setBackupModalVisible] = useState(false);
   const [canaryWalletId, setCanaryWalletId] = useState<string>();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -167,36 +165,10 @@ function AppBackupSettings() {
             }}
             onSuccess={() => {
               setConfirmPassVisible(false);
-              setBackupModalVisible(true);
+              navigation.dispatch(CommonActions.navigate('ViewRecoveryKeyScreen'));
             }}
           />
         )}
-      />
-      <KeeperModal
-        visible={backupModalVisible}
-        close={() => setBackupModalVisible(false)}
-        title={settings.RKBackupTitle}
-        subTitle={settings.RKBackupSubTitle}
-        subTitleWidth={wp(320)}
-        modalBackground={`${colorMode}.primaryBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.modalGreenTitle`}
-        secondaryButtonText={common.cancel}
-        secondaryCallback={() => setBackupModalVisible(false)}
-        secButtonTextColor={`${colorMode}.greenText`}
-        showCloseIcon={false}
-        buttonText={common.backupNow}
-        buttonCallback={() => {
-          setBackupModalVisible(false),
-            navigation.dispatch(
-              CommonActions.navigate('ExportSeed', {
-                seed: primaryMnemonic,
-                next: false,
-                viewRecoveryKeys: true,
-              })
-            );
-        }}
-        Content={BackupModalContent}
       />
       <Box style={styles.fingerprint}>
         <WalletCopiableData

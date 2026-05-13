@@ -235,7 +235,7 @@ export const useSettingKeeper = () => {
       icon: <RecoveryKeyIcon width={14} height={14} />,
       onPress: () => {
         if (data.length === 0) {
-          dispatch(credsAuthenticated(false));
+
           setConfirmPass(true);
         } else {
           navigation.navigate('WalletBackHistory');
