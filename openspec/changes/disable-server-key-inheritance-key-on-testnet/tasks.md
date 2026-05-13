@@ -1,0 +1,31 @@
+## 1. Inspect Component APIs
+
+- [ ] 1.1 Confirm `KeeperModal` props — verify whether a `buttonDisabled` prop exists or whether the callback must be conditionally wrapped
+- [ ] 1.2 Confirm `AssistedKeysSlider` / `AssistedKeysSliderContent` — verify how the CTA button is rendered and whether a `disabled` prop or a null `callback` suppresses it
+
+## 2. Server Key — SigningDeviceList
+
+- [ ] 2.1 Read `bitcoinNetworkType` from Redux in `SigningDeviceList.tsx` (`useAppSelector((state) => state.settings)`)
+- [ ] 2.2 Derive `const isTestnet = bitcoinNetworkType === NetworkType.TESTNET` in the component
+- [ ] 2.3 After calling `getDeviceStatus()`, override result for `SignerType.POLICY_SERVER` when `isTestnet`: set `disabled = true` and `message = 'Not available on Testnet.'`
+- [ ] 2.4 Pass the effective values to `SigningDeviceCard`
+
+## 3. Enhanced Security Modal — AddNewWallet
+
+- [ ] 3.1 Read `bitcoinNetworkType` from Redux in `EnhancedSecurityModal` and derive `isTestnet`
+- [ ] 3.2 Inheritance Key card: add `|| isTestnet` to its `disabled` prop; conditionally replace subtext with "Not available on Testnet." when `isTestnet`
+- [ ] 3.3 Emergency Key card: same pattern as 3.2
+- [ ] 3.4 Wallet Timelock card: same pattern as 3.2
+- [ ] 3.5 "Save Changes" button: disable when `isTestnet` (via `buttonDisabled` prop or no-op callback wrapper per finding from task 1.1)
+
+## 4. Inheritance Key CTA — AssistedKeys
+
+- [ ] 4.1 Read `bitcoinNetworkType` from Redux in `AssistedKeys.tsx` and derive `isTestnet`
+- [ ] 4.2 Set the Inheritance Key item `callback` to `undefined` or a no-op when `isTestnet` (or pass a `disabled` prop if the slider component supports it per finding from task 1.2)
+
+## 5. Verification
+
+- [ ] 5.1 Switch app to Testnet — confirm Server Key card in Software signer list is greyed, non-tappable, shows "Not available on Testnet."
+- [ ] 5.2 Switch app to Testnet — open Enhanced Security modal, confirm all three cards are greyed and subtext shows "Not available on Testnet.", confirm "Save Changes" is disabled
+- [ ] 5.3 Switch app to Testnet — open Inheritance Planning → Assisted Keys slide, confirm CTA button is inert
+- [ ] 5.4 Switch app to Mainnet — confirm all three areas behave exactly as before (no regression)
