@@ -33,7 +33,9 @@ The dev instance for Signing Server (Server Key) has been terminated, making Ser
 
 ## Impact
 
-- **`src/screens/Vault/SigningDeviceList.tsx`** — post-process `getDeviceStatus()` result for `SignerType.POLICY_SERVER` to force `disabled = true` on Testnet.
+- **`src/hardware/index.ts`** — add optional `networkType?: NetworkType` param to `getDeviceStatus()` and `getPolicyServerStatus()`; return disabled + "Not available on Testnet." when `NetworkType.TESTNET`.
+- **`src/screens/Vault/SigningDeviceList.tsx`** — pass `bitcoinNetworkType` from Redux into `getDeviceStatus()`.
+- **`src/screens/Vault/AssignSignerType.tsx`** — pass `bitcoinNetworkType` from Redux into `getDeviceStatus()` (existing POLICY_SERVER override in that screen remains unchanged).
 - **`src/screens/AddWalletScreen/AddNewWallet.tsx`** — `EnhancedSecurityModal`: add `isTestnet` guard to Inheritance Key, Emergency Key, and Wallet Timelock `Pressable` cards and to the "Save Changes" button.
 - **`src/screens/InheritanceToolsAndTips/components/AssistedKeys.tsx`** — disable CTA `callback` on Testnet.
 - **Environments affected**: Testnet only (both dev builds where `isDevMode()` is true, and production builds where the user has manually switched to Testnet in App Settings → Network Type).

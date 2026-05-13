@@ -3,12 +3,12 @@
 - [ ] 1.1 Confirm `KeeperModal` props — verify whether a `buttonDisabled` prop exists or whether the callback must be conditionally wrapped
 - [ ] 1.2 Confirm `AssistedKeysSlider` / `AssistedKeysSliderContent` — verify how the CTA button is rendered and whether a `disabled` prop or a null `callback` suppresses it
 
-## 2. Server Key — SigningDeviceList
+## 2. Server Key — getDeviceStatus + callers
 
-- [ ] 2.1 Read `bitcoinNetworkType` from Redux in `SigningDeviceList.tsx` (`useAppSelector((state) => state.settings)`)
-- [ ] 2.2 Derive `const isTestnet = bitcoinNetworkType === NetworkType.TESTNET` in the component
-- [ ] 2.3 After calling `getDeviceStatus()`, override result for `SignerType.POLICY_SERVER` when `isTestnet`: set `disabled = true` and `message = 'Not available on Testnet.'`
-- [ ] 2.4 Pass the effective values to `SigningDeviceCard`
+- [ ] 2.1 Add optional `networkType?: NetworkType` parameter to `getDeviceStatus()` in `src/hardware/index.ts` (last positional param, default `undefined`)
+- [ ] 2.2 Pass `networkType` through to `getPolicyServerStatus()` and add testnet check as the first guard: return `{ disabled: true, message: 'Not available on Testnet.', displayToast: false }` when `networkType === NetworkType.TESTNET`
+- [ ] 2.3 In `SigningDeviceList.tsx`: read `bitcoinNetworkType` from Redux and pass it as the `networkType` argument to `getDeviceStatus()`
+- [ ] 2.4 In `AssignSignerType.tsx`: read `bitcoinNetworkType` from Redux and pass it as the `networkType` argument to `getDeviceStatus()` (the existing POLICY_SERVER override in that screen is unaffected)
 
 ## 3. Enhanced Security Modal — AddNewWallet
 

@@ -27,20 +27,29 @@ Three feature groups have entry points that must be disabled on Testnet:
 
 ## Decisions
 
-### Decision 1: Override `getDeviceStatus()` result in `SigningDeviceList`, not inside the utility
+### Decision 1: Pass `networkType` into `getDeviceStatus()` and handle the testnet check inside `getPolicyServerStatus()`
 
 **Options considered:**
-- A. Pass `networkType` into `getDeviceStatus()` — would require touching the utility signature and all its callers (`SigningDeviceList`, `AssignSignerType`, etc.).
-- B. Override the result in `SigningDeviceList` after calling `getDeviceStatus()` — localised change, zero impact on callers. Precedent already exists: `AssignSignerType.tsx` overrides the result for `POLICY_SERVER` (`disabled = false`) using the same pattern.
+- A. Pass `networkType` into `getDeviceStatus()` — touches the function signature and its two callers (`SigningDeviceList`, `AssignSignerType`), but keeps the gate logic co-located with all other `POLICY_SERVER` status logic.
+- B. Override the result in the caller after `getDeviceStatus()` returns — localised to the caller but duplicates guard logic outside the utility where all other status checks live.
 
-**Decision:** Option B. Apply a post-call override in `SigningDeviceList` only for `POLICY_SERVER` when `isTestnet` is true.
+**Decision:** Option A. Add an optional `networkType?: NetworkType` parameter to `getDeviceStatus()`. Pass it through to `getPolicyServerStatus()`. Inside `getPolicyServerStatus()`, check testnet first (before subscription or scheme checks) and return `{ disabled: true, message: 'Not available on Testnet.', displayToast: false }`. Both callers (`SigningDeviceList` and `AssignSignerType`) pass `bitcoinNetworkType` from Redux.
 
 ```
-const { disabled, message, displayToast } = getDeviceStatus(...)
-const effectiveDisabled = disabled || (isTestnet && type === SignerType.POLICY_SERVER)
-const effectiveMessage  = (isTestnet && type === SignerType.POLICY_SERVER)
-  ? 'Not available on Testnet.'
-  : message
+// hardware/index.ts — updated signatures
+export const getDeviceStatus = (
+  type, isNfcSupported, isOnL1, isOnL2, scheme, existingSigners,
+  addSignerFlow, networkType?: NetworkType   // ← new optional param
+)
+
+const getPolicyServerStatus = (
+  type, isOnL1, scheme, addSignerFlow, existingSigners, networkType?: NetworkType
+) => {
+  if (networkType === NetworkType.TESTNET) {
+    return { disabled: true, message: 'Not available on Testnet.', displayToast: false };
+  }
+  // existing checks follow unchanged
+}
 ```
 
 ### Decision 2: Additive `isTestnet` guard in `EnhancedSecurityModal` — independent of L3 gate
@@ -64,6 +73,7 @@ The `AssistedKeysSlider` accepts items with a `callback` field. On Testnet, `cal
 
 ## Risks / Trade-offs
 
+- **`getDeviceStatus()` callers must be updated** → Both `SigningDeviceList` and `AssignSignerType` call this function. `AssignSignerType` already overrides the POLICY_SERVER result (`disabled = false`); its override will continue to apply after the new parameter is added. The `networkType` param is optional with a default of `undefined`, so callers that don't pass it are unaffected.
 - **`KeeperModal` `buttonDisabled` prop may not exist** → Mitigation: Check `KeeperModal` props at implementation time. If not present, wrap `buttonCallback` in a conditional no-op rather than adding a new prop to the shared component.
 - **`AssistedKeysSlider` CTA disabled state may not render visually** → Mitigation: Inspect `AssistedKeysSlider` and `AssistedKeysSliderContent` to confirm the button renders as disabled when `callback` is null or a separate `disabled` prop exists. Add one if needed.
 - **User manually toggling network mid-session** → Not a risk: Redux state is reactive; all `useAppSelector` reads update on next render automatically.
