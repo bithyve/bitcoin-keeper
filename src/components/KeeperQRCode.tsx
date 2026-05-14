@@ -13,12 +13,14 @@ function KeeperQRCode({
   ecl = 'L',
   logoBackgroundColor,
   showLogo = false,
+  onError,
 }: {
   qrData: any;
   size: number;
   ecl?: 'L' | 'M' | 'Q' | 'H';
   logoBackgroundColor?: string;
   showLogo?: boolean;
+  onError?: (error: Error) => void;
 }) {
   const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
@@ -36,6 +38,7 @@ function KeeperQRCode({
           ecl={ecl}
           logo={showLogo ? (privateTheme ? KeeperPrivateNewLogo : KeeperNewLogo) : undefined}
           logoSize={size * 0.2}
+          onError={onError}
         />
       )}
     </Box>

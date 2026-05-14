@@ -33,7 +33,7 @@ function SetupAdditionalServerKey({ route }: { route }) {
           />
         </Box>
         <Box>
-          {validationKey === '' ? (
+          {!validationKey ? (
             <Box height={hp(200)} justifyContent="center">
               <ActivityIndicator animating size="small" />
             </Box>
