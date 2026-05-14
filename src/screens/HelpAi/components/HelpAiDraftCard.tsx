@@ -1,9 +1,6 @@
-import React from 'react';
-import { useColorMode } from '@gluestack-ui/themed-native-base';
-import { View } from 'react-native';
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { HelpDraft } from 'src/models/interfaces/HelpAi';
 
@@ -31,8 +28,13 @@ const HelpAiDraftCard = ({
   onCancel,
   onRetry,
 }: HelpAiDraftCardProps) => {
-  const { colorMode } = useColorMode();
-  const isDarkMode = colorMode === 'dark';
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+  const [, forceUpdate] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => forceUpdate((n) => n + 1), 100);
+    return () => clearTimeout(t);
+  }, [draftStatus]);
   const uiColors = React.useMemo(
     () => ({
       surface: isDarkMode ? '#1f1f1f' : '#ffffff',
@@ -64,28 +66,41 @@ const HelpAiDraftCard = ({
         marginTop: hp(10),
       }}
     >
-      <Text medium color={uiColors.primaryText}>
+      <Text style={{ fontWeight: '600', color: uiColors.primaryText }}>
         {draft.kind === 'bug' ? 'Bug Draft' : 'Feature Draft'}
       </Text>
 
-      {fields.map((field) => (
-        <View key={field.label} style={{ marginTop: hp(7) }}>
-          <Text fontSize={12} color={uiColors.secondaryText} medium>
-            {field.label}
-          </Text>
-          {Array.isArray(field.value) ? (
-            field.value.map((line, idx) => (
-              <Text key={`${field.label}-${idx}`} fontSize={12} color={uiColors.primaryText}>
-                {`${idx + 1}. ${line}`}
-              </Text>
-            ))
-          ) : (
-            <Text fontSize={12} color={uiColors.primaryText}>
-              {field.value}
+      {fields.map((field) => {
+        const isArray = Array.isArray(field.value);
+        const arrayValue = isArray ? (field.value as string[]) : [];
+        const stringValue = isArray ? '' : (field.value as string) ?? '';
+        return (
+          <View key={field.label} style={{ marginTop: hp(7) }}>
+            <Text style={{ fontSize: 12, color: uiColors.secondaryText, fontWeight: '600' }}>
+              {field.label}
             </Text>
-          )}
-        </View>
-      ))}
+            <View style={{ display: isArray ? 'flex' : 'none' }}>
+              {arrayValue.map((line, idx) => (
+                <Text
+                  key={`${field.label}-${idx}`}
+                  style={{ fontSize: 12, color: uiColors.primaryText }}
+                >
+                  {`${idx + 1}. ${line}`}
+                </Text>
+              ))}
+            </View>
+            <Text
+              style={{
+                fontSize: 12,
+                color: uiColors.primaryText,
+                display: isArray ? 'none' : 'flex',
+              }}
+            >
+              {stringValue}
+            </Text>
+          </View>
+        );
+      })}
 
       {draftStatus === 'pending_review' && (
         <View style={{ marginTop: hp(12) }}>
@@ -95,7 +110,7 @@ const HelpAiDraftCard = ({
 
       {draftStatus === 'confirming_public_submission' && (
         <View style={[{ marginTop: hp(12) }, styles.gap10]}>
-          <Text fontSize={12} color={uiColors.secondaryText}>
+          <Text style={{ fontSize: 12, color: uiColors.secondaryText }}>
             This will create a public GitHub issue. Confirm only if you are comfortable sharing this
             information publicly.
           </Text>
@@ -111,9 +126,7 @@ const HelpAiDraftCard = ({
       {draftStatus === 'submitting' && (
         <View style={[{ marginTop: hp(12) }, styles.row]}>
           <ActivityIndicator size="small" />
-          <Text fontSize={12} color={uiColors.secondaryText}>
-            Submitting issue...
-          </Text>
+          <Text style={{ fontSize: 12, color: uiColors.secondaryText }}>Submitting issue...</Text>
         </View>
       )}
 
@@ -126,7 +139,7 @@ const HelpAiDraftCard = ({
 
       {draftStatus === 'submitted' && (
         <View style={{ marginTop: hp(12) }}>
-          <Text fontSize={12} color={uiColors.pantoneGreen}>
+          <Text style={{ fontSize: 12, color: uiColors.pantoneGreen }}>
             Submitted successfully.
           </Text>
         </View>

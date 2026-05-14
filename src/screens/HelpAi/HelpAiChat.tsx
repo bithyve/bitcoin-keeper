@@ -28,6 +28,7 @@ import HelpAiShell from './components/HelpAiShell';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-dark.svg';
 import Colors from 'src/theme/Colors';
+import { batch } from 'react-redux';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import {
   appendHelpAiMessage,
@@ -175,33 +176,37 @@ const HelpAiChat = ({ navigation, route }) => {
         text: response.reply,
         time: new Date().toISOString(),
       };
-      dispatch(
-        setHelpAiRawMessages({ conversationId, messages: [...nextHistory, aiMsg].slice(-20) })
-      );
-      appendMessage({
+      const aiRenderMsg: HelpAiRenderMessage = {
         id: nowId(),
         type: 'ai',
         text: response.reply,
         sources: response.sources,
-      });
-
-      if (response.draft && (response.intent === 'bug' || response.intent === 'feature')) {
-        dispatch(setHelpAiDraft({ conversationId, draft: response.draft }));
-        dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'pending_review' }));
-      }
-
-      if (
+      };
+      const escalationRenderMsg: HelpAiRenderMessage | null =
         response.escalationCard &&
         response.conversationState?.escalationStage !== lastEscalationStage
-      ) {
+          ? { id: nowId(), type: 'escalation', card: response.escalationCard }
+          : null;
+
+      batch(() => {
         dispatch(
-          setHelpAiEscalationStage({
-            conversationId,
-            escalationStage: response.conversationState.escalationStage,
-          })
+          setHelpAiRawMessages({ conversationId, messages: [...nextHistory, aiMsg].slice(-20) })
         );
-        appendMessage({ id: nowId(), type: 'escalation', card: response.escalationCard });
-      }
+        dispatch(appendHelpAiMessage({ conversationId, message: aiRenderMsg }));
+        if (response.draft && (response.intent === 'bug' || response.intent === 'feature')) {
+          dispatch(setHelpAiDraft({ conversationId, draft: response.draft }));
+          dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'pending_review' }));
+        }
+        if (escalationRenderMsg) {
+          dispatch(
+            setHelpAiEscalationStage({
+              conversationId,
+              escalationStage: response.conversationState.escalationStage,
+            })
+          );
+          dispatch(appendHelpAiMessage({ conversationId, message: escalationRenderMsg }));
+        }
+      });
 
       setLastFailedText(null);
     } catch (error) {
@@ -370,34 +375,34 @@ const HelpAiChat = ({ navigation, route }) => {
           contentContainerStyle={styles.messagesContainer}
         />
 
-        {typing ? (
-          <View style={styles.typingCtr}>
-            <ActivityIndicator size="small" />
-            <Text fontSize={12} color={uiColors.secondaryText}>
-              Assistant is typing...
-            </Text>
-          </View>
-        ) : null}
+        <View style={[styles.typingCtr, { display: typing ? 'flex' : 'none' }]}>
+          <ActivityIndicator size="small" />
+          <Text fontSize={12} color={uiColors.secondaryText}>
+            Assistant is typing...
+          </Text>
+        </View>
 
-        {draft && draftStatus !== 'submitted' ? (
-          <HelpAiDraftCard
-            draft={draft}
-            draftStatus={draftStatus}
-            onReview={() =>
-              dispatch(
-                setHelpAiDraftStatus({
-                  conversationId,
-                  draftStatus: 'confirming_public_submission',
-                })
-              )
-            }
-            onConfirm={submitDraftIssue}
-            onCancel={() =>
-              dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'pending_review' }))
-            }
-            onRetry={submitDraftIssue}
-          />
-        ) : null}
+        <View style={{ display: draft && draftStatus !== 'submitted' ? 'flex' : 'none' }}>
+          {draft ? (
+            <HelpAiDraftCard
+              draft={draft}
+              draftStatus={draftStatus}
+              onReview={() =>
+                dispatch(
+                  setHelpAiDraftStatus({
+                    conversationId,
+                    draftStatus: 'confirming_public_submission',
+                  })
+                )
+              }
+              onConfirm={submitDraftIssue}
+              onCancel={() =>
+                dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'pending_review' }))
+              }
+              onRetry={submitDraftIssue}
+            />
+          ) : null}
+        </View>
 
         <View
           style={[
@@ -433,13 +438,14 @@ const HelpAiChat = ({ navigation, route }) => {
           </Pressable>
         </View>
 
-        {lastFailedText ? (
-          <Pressable style={styles.retryBar} onPress={() => sendToChat(lastFailedText)}>
-            <Text fontSize={12} color={uiColors.link} medium>
-              Retry last failed message
-            </Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          style={[styles.retryBar, { display: lastFailedText ? 'flex' : 'none' }]}
+          onPress={() => lastFailedText && sendToChat(lastFailedText)}
+        >
+          <Text fontSize={12} color={uiColors.link} medium>
+            Retry last failed message
+          </Text>
+        </Pressable>
       </View>
     </HelpAiShell>
   );
