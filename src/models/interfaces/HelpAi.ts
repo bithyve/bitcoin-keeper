@@ -34,6 +34,9 @@ export type HelpEscalationCard = {
     url?: string;
     route?: string;
     mailto?: string;
+    toEmail?: string;
+    subject?: string;
+    body?: string;
   };
 };
 

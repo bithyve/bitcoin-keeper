@@ -42,6 +42,7 @@ import {
   type HelpAiDraftStatus,
   type HelpAiRenderMessage,
 } from 'src/store/reducers/helpAi';
+import { GREETINGS } from 'src/constants/ChatAiGreetings';
 
 const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
 
@@ -88,11 +89,12 @@ const HelpAiChat = ({ navigation, route }) => {
   const persistedThread = useAppSelector((state) =>
     state.helpAi.threads.find((thread) => thread.conversationId === conversationId)
   );
+  const greetings = useRef(GREETINGS[Math.floor(Math.random() * GREETINGS.length)]);
 
   const defaultIntro: HelpAiRenderMessage = {
     id: 'help-ai-intro',
     type: 'ai',
-    text: 'Hi. I am Keeper Help. Ask your question and I will help with troubleshooting, bug drafts, or feature drafts.',
+    text: greetings.current,
   };
   const messages = persistedThread?.messages?.length ? persistedThread.messages : [defaultIntro];
   const rawChatMessages = persistedThread?.rawMessages || [];
@@ -131,9 +133,18 @@ const HelpAiChat = ({ navigation, route }) => {
       if (card.type === 'telegram' && card.ctaAction.url) {
         await Linking.openURL(card.ctaAction.url);
       } else if (card.type === 'advisor') {
-        navigation.navigate('Advisors');
-      } else if (card.type === 'developer_email' && card.ctaAction.mailto) {
-        await Linking.openURL(card.ctaAction.mailto);
+        navigation.navigate(card.ctaAction.route || 'Advisors');
+      } else if (card.type === 'developer_email') {
+        const { toEmail, subject, body, mailto } = card.ctaAction;
+        if (toEmail) {
+          const params: string[] = [];
+          if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
+          if (body) params.push(`body=${encodeURIComponent(body)}`);
+          const query = params.length ? `?${params.join('&')}` : '';
+          await Linking.openURL(`mailto:${toEmail}${query}`);
+        } else if (mailto) {
+          await Linking.openURL(mailto);
+        }
       }
     } catch (error) {
       showToast('Unable to open this action right now');
