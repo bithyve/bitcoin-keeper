@@ -126,6 +126,8 @@ import { AppStackParams } from './types';
 import { registerSentryNavigationContainer } from 'src/services/sentry';
 import KeyHistory from 'src/screens/Vault/KeyHistory';
 import NodeSelection from 'src/screens/AppSettings/Node/NodeSelection';
+import HelpAiEntry from 'src/screens/HelpAi/HelpAiEntry';
+import HelpAiChat from 'src/screens/HelpAi/HelpAiChat';
 import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
 import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
 import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
@@ -356,6 +358,8 @@ function AppStack() {
         <Stack.Screen name="ResetInitialTimelock" component={ResetInitialTimelock} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
         <Stack.Screen name="ResetEmergencyKey" component={ResetEmergencyKey} />
+        <Stack.Screen name="HelpAiEntry" component={HelpAiEntry} />
+        <Stack.Screen name="HelpAiChat" component={HelpAiChat} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />

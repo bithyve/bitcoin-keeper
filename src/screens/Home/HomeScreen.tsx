@@ -22,12 +22,12 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
-import HelpScreen from 'src/screens/Help/HelpScreen';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
+import HelpAiEntry from '../HelpAi/HelpAiEntry';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -126,7 +126,7 @@ function NewHomeScreen({ route }) {
         return {
           content: (
             <Box>
-              <HelpScreen />
+              <HelpAiEntry route={route} />
             </Box>
           ),
           icon: (
