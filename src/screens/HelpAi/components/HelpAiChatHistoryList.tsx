@@ -1,4 +1,5 @@
-import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
+import { View } from 'react-native';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
@@ -37,8 +38,8 @@ const HelpAiChatHistoryList = ({
   const { colorMode } = useColorMode();
 
   return (
-    <Box style={styles.container}>
-      <Text color={`${colorMode}.GreyText`} fontSize={13} style={styles.title}>
+    <View style={styles.container}>
+      <Text color={colorMode === 'dark' ? '#a5a5a5' : '#878787'} fontSize={13} style={styles.title}>
         Recent chats
       </Text>
 
@@ -49,33 +50,46 @@ const HelpAiChatHistoryList = ({
             onPress={() => onOpenChat(thread.conversationId)}
             style={styles.itemPressable}
           >
-            <Box
-              style={styles.itemCard}
-              borderWidth={1}
-              borderColor={`${colorMode}.separator`}
-              backgroundColor={`${colorMode}.textInputBackground`}
+            <View
+              style={[
+                styles.itemCard,
+                {
+                  borderWidth: 1,
+                  borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
+                  backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
+                },
+              ]}
             >
-              <Box style={styles.itemHeader}>
-                <Text medium color={`${colorMode}.primaryText`} numberOfLines={1} style={{ maxWidth: '70%' }}>
+              <View style={styles.itemHeader}>
+                <Text
+                  medium
+                  color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
+                  numberOfLines={1}
+                  style={{ maxWidth: '70%' }}
+                >
                   {thread.title || 'New chat'}
                 </Text>
-                <Text fontSize={11} color={`${colorMode}.secondaryText`}>
+                <Text fontSize={11} color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}>
                   {formatRelativeTime(thread.updatedAt)}
                 </Text>
-              </Box>
+              </View>
 
-              <Text fontSize={12} color={`${colorMode}.secondaryText`} numberOfLines={2}>
+              <Text
+                fontSize={12}
+                color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
+                numberOfLines={2}
+              >
                 {thread.lastMessage || 'No messages yet'}
               </Text>
-            </Box>
+            </View>
           </Pressable>
         ))}
       </ScrollView>
 
-      <Box style={styles.ctaCtr}>
+      <View style={styles.ctaCtr}>
         <Buttons primaryText={'Start New Chat'} primaryCallback={onStartNewChat} fullWidth />
-      </Box>
-    </Box>
+      </View>
+    </View>
   );
 };
 

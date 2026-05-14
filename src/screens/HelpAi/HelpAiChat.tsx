@@ -1,8 +1,9 @@
-import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  InteractionManager,
   Linking,
   Platform,
   Pressable,
@@ -62,8 +63,24 @@ const HelpAiChat = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
+  const uiColors = useMemo(
+    () => ({
+      surface: isDarkMode ? '#1f1f1f' : '#ffffff',
+      separator: isDarkMode ? '#3a3a3a' : '#d8d8d8',
+      primaryText: isDarkMode ? Colors.bodyText : Colors.secondaryBlack,
+      secondaryText: isDarkMode ? Colors.darkGrey : Colors.secondaryDarkGrey,
+      buttonText: '#ffffff',
+      link: Colors.primaryGreen,
+      error: isDarkMode ? Colors.CrimsonRed : Colors.redAlert,
+      userBubble: Colors.primaryGreen,
+      aiBubble: isDarkMode ? Colors.SecondaryBlack : Colors.dullGreen,
+      inputText: isDarkMode ? '#ffffff' : '#101010',
+      placeholderText: isDarkMode ? '#9b9b9b' : '#8a8a8a',
+    }),
+    [isDarkMode]
+  );
   const { showToast } = useToastMessage();
-  const listRef = useRef<FlatList>(null);
+  const listRef = useRef<FlatList<HelpAiRenderMessage>>(null);
   const generatedConversationId = useMemo(() => `conv_${Date.now().toString(36)}`, []);
   const conversationId = route?.params?.conversationId || generatedConversationId;
   const initialPrompt = route?.params?.prefillText || '';
@@ -94,12 +111,18 @@ const HelpAiChat = ({ navigation, route }) => {
   }, [conversationId, dispatch]);
 
   const scrollToBottom = () => {
-    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
+    InteractionManager.runAfterInteractions(() => {
+      requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
+    });
   };
+
+  useEffect(() => {
+    if (!messages.length) return;
+    scrollToBottom();
+  }, [messages.length]);
 
   const appendMessage = (message: HelpAiRenderMessage) => {
     dispatch(appendHelpAiMessage({ conversationId, message }));
-    scrollToBottom();
   };
 
   const handleEscalationCardAction = async (card: HelpEscalationCard) => {
@@ -233,118 +256,127 @@ const HelpAiChat = ({ navigation, route }) => {
   const renderMessage = ({ item }: { item: HelpAiRenderMessage }) => {
     if (item.type === 'escalation') {
       return (
-        <Box
-          style={styles.card}
-          backgroundColor={`${colorMode}.textInputBackground`}
-          borderColor={`${colorMode}.separator`}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: uiColors.surface,
+              borderColor: uiColors.separator,
+            },
+          ]}
         >
-          <Text medium color={`${colorMode}.primaryText`}>
+          <Text medium color={uiColors.primaryText}>
             {item.card.title}
           </Text>
-          <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+          <Text fontSize={12} color={uiColors.secondaryText}>
             {item.card.description}
           </Text>
-          <Box mt={hp(8)}>
+          <View style={styles.cardCtaCtr}>
             <Buttons
               primaryText={item.card.ctaLabel}
               primaryCallback={() => handleEscalationCardAction(item.card)}
               fullWidth
             />
-          </Box>
-        </Box>
+          </View>
+        </View>
       );
     }
 
     if (item.type === 'issue') {
       return (
-        <Box
-          style={styles.card}
-          backgroundColor={`${colorMode}.textInputBackground`}
-          borderColor={`${colorMode}.separator`}
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: uiColors.surface,
+              borderColor: uiColors.separator,
+            },
+          ]}
         >
-          <Text medium color={`${colorMode}.primaryText`}>
+          <Text medium color={uiColors.primaryText}>
             {`Issue #${item.issueNumber} created`}
           </Text>
-          <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+          <Text fontSize={12} color={uiColors.secondaryText}>
             {item.text}
           </Text>
           <Pressable onPress={() => Linking.openURL(item.issueUrl)}>
-            <Text fontSize={12} color={`${colorMode}.pantoneGreen`} style={styles.linkText}>
+            <Text fontSize={12} color={uiColors.link} style={styles.linkText}>
               {item.issueUrl}
             </Text>
           </Pressable>
-        </Box>
+        </View>
       );
     }
 
     if (item.type === 'system_error') {
       return (
-        <Box style={styles.systemErrorCtr}>
-          <Text fontSize={12} color={`${colorMode}.error`}>
+        <View style={styles.systemErrorCtr}>
+          <Text fontSize={12} color={uiColors.error}>
             {item.text}
           </Text>
           {item.retryText ? (
             <Pressable onPress={() => sendToChat(item.retryText)}>
-              <Text fontSize={12} color={`${colorMode}.pantoneGreen`} medium>
+              <Text fontSize={12} color={uiColors.link} medium>
                 Retry
               </Text>
             </Pressable>
           ) : null}
-        </Box>
+        </View>
       );
     }
 
     const isUser = item.type === 'user';
     const sources = item.type === 'ai' ? item.sources : undefined;
     return (
-      <Box
-        alignSelf={isUser ? 'flex-end' : 'flex-start'}
-        maxWidth={'86%'}
-        borderRadius={12}
-        px={wp(12)}
-        py={hp(10)}
-        mb={hp(8)}
-        backgroundColor={isUser ? `${colorMode}.pantoneGreen` : `${colorMode}.dullGreen`}
-        borderWidth={1}
-        borderColor={isUser ? `${colorMode}.pantoneGreen` : `${colorMode}.separator`}
+      <View
+        style={[
+          styles.bubble,
+          isUser ? styles.userBubble : styles.aiBubble,
+          {
+            backgroundColor: isUser ? uiColors.userBubble : uiColors.aiBubble,
+            borderColor: isUser ? uiColors.userBubble : uiColors.separator,
+          },
+        ]}
       >
-        <Text color={isUser ? `${colorMode}.buttonText` : `${colorMode}.primaryText`} fontSize={13}>
+        <Text color={isUser ? uiColors.buttonText : uiColors.primaryText} fontSize={13}>
           {item.text}
         </Text>
         {sources?.length > 0 && (
-          <Box mt={hp(6)}>
+          <View style={styles.sourcesCtr}>
             {sources.map((source, idx) => (
-              <Pressable key={idx} onPress={() => Linking.openURL(source.url)}>
-                <Text fontSize={11} color={`${colorMode}.pantoneGreen`} style={styles.linkText}>
+              <Pressable
+                key={`${source.url}-${source.title}-${idx}`}
+                onPress={() => Linking.openURL(source.url)}
+              >
+                <Text fontSize={11} color={uiColors.link} style={styles.linkText}>
                   {source.title}
                 </Text>
               </Pressable>
             ))}
-          </Box>
+          </View>
         )}
-      </Box>
+      </View>
     );
   };
 
   return (
     <HelpAiShell title={'Help AI Chat'}>
-      <Box style={styles.container}>
+      <View style={styles.container}>
         <FlatList
           ref={listRef}
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={renderMessage}
           contentContainerStyle={styles.messagesContainer}
-          onContentSizeChange={scrollToBottom}
         />
 
         {typing ? (
-          <Box style={styles.typingCtr}>
+          <View style={styles.typingCtr}>
             <ActivityIndicator size="small" />
-            <Text fontSize={12} color={`${colorMode}.secondaryText`}>
+            <Text fontSize={12} color={uiColors.secondaryText}>
               Assistant is typing...
             </Text>
-          </Box>
+          </View>
         ) : null}
 
         {draft && draftStatus !== 'submitted' ? (
@@ -371,17 +403,17 @@ const HelpAiChat = ({ navigation, route }) => {
           style={[
             styles.inputBar,
             {
-              borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
-              backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
+              borderColor: uiColors.separator,
+              backgroundColor: uiColors.surface,
             },
           ]}
         >
           <TextInput
-            style={[styles.input, { color: colorMode === 'dark' ? '#ffffff' : '#101010' }]}
+            style={[styles.input, { color: uiColors.inputText }]}
             value={input}
             onChangeText={setInput}
             placeholder={'Type your message'}
-            placeholderTextColor={colorMode === 'dark' ? '#9b9b9b' : '#8a8a8a'}
+            placeholderTextColor={uiColors.placeholderText}
             editable={!sending}
             multiline
           />
@@ -403,12 +435,12 @@ const HelpAiChat = ({ navigation, route }) => {
 
         {lastFailedText ? (
           <Pressable style={styles.retryBar} onPress={() => sendToChat(lastFailedText)}>
-            <Text fontSize={12} color={`${colorMode}.pantoneGreen`} medium>
+            <Text fontSize={12} color={uiColors.link} medium>
               Retry last failed message
             </Text>
           </Pressable>
         ) : null}
-      </Box>
+      </View>
     </HelpAiShell>
   );
 };
@@ -455,6 +487,26 @@ const styles = StyleSheet.create({
     padding: wp(12),
     marginBottom: hp(8),
     gap: hp(4),
+  },
+  cardCtaCtr: {
+    marginTop: hp(8),
+  },
+  bubble: {
+    maxWidth: '86%',
+    borderRadius: 12,
+    paddingHorizontal: wp(12),
+    paddingVertical: hp(10),
+    marginBottom: hp(8),
+    borderWidth: 1,
+  },
+  userBubble: {
+    alignSelf: 'flex-end',
+  },
+  aiBubble: {
+    alignSelf: 'flex-start',
+  },
+  sourcesCtr: {
+    marginTop: hp(6),
   },
   linkText: {
     marginTop: hp(6),

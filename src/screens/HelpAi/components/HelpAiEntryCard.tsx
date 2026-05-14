@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
@@ -23,44 +24,57 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
   const { colorMode } = useColorMode();
 
   return (
-    <Box style={styles.container}>
+    <View style={styles.container}>
       <CircleIconWrapper
         width={wp(60)}
         icon={<ConciergeNeedHelpIcon />}
-        backgroundColor={`${colorMode}.separator`}
+        backgroundColor={colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8'}
       />
 
-      <Text style={styles.title} fontSize={22} medium color={`${colorMode}.primaryText`}>
+      <Text
+        style={styles.title}
+        fontSize={22}
+        medium
+        color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
+      >
         Keeper Help AI
       </Text>
 
-      <Text style={styles.subtitle} fontSize={13} color={`${colorMode}.secondaryText`}>
+      <Text
+        style={styles.subtitle}
+        fontSize={13}
+        color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
+      >
         Ask questions, troubleshoot issues, and create bug or feature drafts for developer review.
       </Text>
 
-      <Box style={styles.buttonCtr}>
+      <View style={styles.buttonCtr}>
         <Buttons primaryText={'Open Help Chat'} primaryCallback={onStartChat} fullWidth />
-      </Box>
+      </View>
 
-      <Box style={styles.suggestionsCtr}>
+      <View style={styles.suggestionsCtr}>
         {suggestions.map((suggestion) => (
-          <Box
+          <View
             key={suggestion}
-            style={styles.suggestionPill}
-            borderColor={`${colorMode}.separator`}
-            backgroundColor={`${colorMode}.textInputBackground`}
+            style={[
+              styles.suggestionPill,
+              {
+                borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
+                backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
+              },
+            ]}
           >
             <Text
               fontSize={12}
-              color={`${colorMode}.secondaryText`}
+              color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
               onPress={() => onPromptPress(suggestion)}
             >
               {suggestion}
             </Text>
-          </Box>
+          </View>
         ))}
-      </Box>
-    </Box>
+      </View>
+    </View>
   );
 };
 
