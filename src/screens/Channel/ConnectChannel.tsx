@@ -130,6 +130,8 @@ function ConnectChannel() {
   const [newNote, setNewNote] = useState<string | null>(null);
   const [infoModal, setInfoModal] = useState(false);
 
+  const { activeVault: vault } = useVault({ vaultId });
+
   let descriptorString = null;
   let miniscriptPolicy = null;
   let addressIndex = null;
@@ -139,7 +141,6 @@ function ConnectChannel() {
   let room;
 
   if (mode === InteracationMode.ADDRESS_VERIFICATION) {
-    const { activeVault: vault } = useVault({ vaultId });
     if (vault.type === VaultType.MINISCRIPT) {
       miniscriptPolicy = generateOutputDescriptors(vault);
       addressIndex = receiveAddressIndex;
