@@ -206,7 +206,8 @@ export default class Relay {
 
   public static getTestcoins = async (
     recipientAddress: string,
-    network: any
+    network: any,
+    appId: string
   ): Promise<{
     txid: any;
     funded: any;
@@ -218,6 +219,7 @@ export default class Relay {
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
         recipientAddress,
+        appId,
       });
       const { txid, funded } = res.data;
       return {
@@ -225,6 +227,9 @@ export default class Relay {
         funded,
       };
     } catch (err) {
+      if (err.response?.status === 429) {
+        throw new Error('FAUCET_DAILY_LIMIT_REACHED');
+      }
       if (err.response) throw new Error(err.response.data.err);
       if (err.code) throw new Error(err.code);
     }

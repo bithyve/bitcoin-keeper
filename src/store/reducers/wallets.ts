@@ -17,6 +17,7 @@ export type WalletsState = {
 
   testCoinsReceived: boolean;
   testCoinsFailed: boolean;
+  testCoinsQuotaReached: boolean;
 
   introModal: boolean;
   err: string;
@@ -36,6 +37,7 @@ const initialState: WalletsState = {
 
   testCoinsReceived: false,
   testCoinsFailed: false,
+  testCoinsQuotaReached: false,
 
   introModal: true,
 
@@ -60,6 +62,9 @@ const walletSlice = createSlice({
     },
     setTestCoinsFailed: (state, action: PayloadAction<boolean>) => {
       state.testCoinsFailed = action.payload;
+    },
+    setTestCoinsQuotaReached: (state, action: PayloadAction<boolean>) => {
+      state.testCoinsQuotaReached = action.payload;
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
@@ -108,6 +113,7 @@ export const {
   walletsSynched,
   setTestCoinsReceived,
   setTestCoinsFailed,
+  setTestCoinsQuotaReached,
   setIntroModal,
   walletGenerationFailed,
   newWalletCreated,
@@ -123,6 +129,7 @@ const walletPersistConfig = {
   blacklist: [
     'testCoinsReceived',
     'testCoinsFailed',
+    'testCoinsQuotaReached',
     'hasNewWalletsGenerationFailed',
     'hasNewWalletsGenerationSucceeded',
     'isGeneratingNewWallet',
