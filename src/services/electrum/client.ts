@@ -7,6 +7,10 @@ import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
 import ecc from '../wallets/operations/taproot-utils/noble_ecc';
 import { store } from 'src/store/store';
+import {
+  classifyElectrumConnectionError,
+  ElectrumConnectionErrorType,
+} from './errorClassification';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -26,6 +30,11 @@ const ELECTRUM_CLIENT_DEFAULTS = {
   activePeer: null,
   peers: [],
 };
+
+let lastConnectionError: {
+  type: ElectrumConnectionErrorType;
+  message: string;
+} | null = null;
 
 // eslint-disable-next-line import/no-mutable-exports
 export let ELECTRUM_CLIENT: {
@@ -109,6 +118,7 @@ export default class ElectrumClient {
           node: ELECTRUM_CLIENT.activePeer.host,
         });
 
+        lastConnectionError = null;
         ELECTRUM_CLIENT.isClientConnected = true;
         ELECTRUM_CLIENT.activePeer.isConnected = true;
       }
@@ -116,7 +126,16 @@ export default class ElectrumClient {
       ELECTRUM_CLIENT.isClientConnected = false;
       if (ELECTRUM_CLIENT.activePeer) ELECTRUM_CLIENT.activePeer.isConnected = false;
 
-      console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
+      const errorType = classifyElectrumConnectionError(error);
+      const errorMessage = error?.message || String(error);
+      lastConnectionError = {
+        type: errorType,
+        message: errorMessage,
+      };
+      console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), {
+        errorType,
+        message: errorMessage,
+      });
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
     }
@@ -139,12 +158,20 @@ export default class ElectrumClient {
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       const nextPeer = ElectrumClient.getNextPeer();
       if (!nextPeer) {
-        console.log(
-          'Unable to connect to any electrum server. Please switch network and try again!'
-        );
+        const fallbackError =
+          'Unable to connect to any electrum server. Please switch network and try again!';
+        const error = lastConnectionError?.message || fallbackError;
+        const errorType = lastConnectionError?.type || 'network';
+
+        console.log('Unable to connect to any electrum server', {
+          errorType,
+          error,
+        });
+
         return {
           connected: ELECTRUM_CLIENT.isClientConnected,
-          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+          error,
+          errorType,
         };
       }
 
@@ -425,6 +452,7 @@ export default class ElectrumClient {
     let timeoutId = null;
 
     let conncetionError = null;
+    let connectionErrorType: ElectrumConnectionErrorType | null = null;
     try {
       const ver = await Promise.race([
         new Promise((resolve) => {
@@ -437,16 +465,20 @@ export default class ElectrumClient {
       ]);
       if (ver === 'timeout') throw new Error('Connection time-out');
 
-      if (ver && ver[0]) return { connected: true, error: conncetionError };
+      if (ver && ver[0]) return { connected: true, error: conncetionError, errorType: null };
       else throw new Error('failed to connect');
     } catch (err) {
-      console.log({ err });
+      connectionErrorType = classifyElectrumConnectionError(err);
+      console.log({
+        err,
+        errorType: connectionErrorType,
+      });
       conncetionError = err;
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
       client.close();
     }
 
-    return { connected: false, error: conncetionError };
+    return { connected: false, error: conncetionError, errorType: connectionErrorType };
   }
 }

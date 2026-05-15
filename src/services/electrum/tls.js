@@ -12,11 +12,16 @@ import TcpSocket from 'react-native-tcp-socket';
  * @constructor
  */
 function connect(config, callback) {
+  const rejectUnauthorized = config.rejectUnauthorized !== false;
+
   return TcpSocket.connectTLS(
     {
       port: config.port,
       host: config.host,
-      tlsCheckValidity: config.rejectUnauthorized,
+      // Keep both flags for compatibility across react-native-tcp-socket variants.
+      rejectUnauthorized,
+      tlsCheckValidity: rejectUnauthorized,
+      servername: config.servername || config.host,
     },
     callback
   );

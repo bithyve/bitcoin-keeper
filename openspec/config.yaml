@@ -1,0 +1,92 @@
+schema: spec-driven
+
+context: |
+  ## Project: Bitcoin Keeper
+  Bitcoin Keeper is a professional-grade, Bitcoin-only mobile wallet for iOS and Android,
+  focused on security, multi-sig Vault management, and hardware signer integration.
+
+  ## Tech Stack
+  - Language: TypeScript (strict mode, esnext target)
+  - Framework: React Native 0.83.9
+  - UI: Gluestack UI (NativeBase-compatible theme), React Native Linear Gradient, Responsive Screen/Fontsize
+  - State: Redux Toolkit + Redux-Saga (side effects) + Redux Persist (with versioned migrations in src/store/migrations.ts)
+  - Navigation: React Navigation v6 — Native Stack navigators, centralized in src/navigation/Navigator.tsx
+  - Storage: Realm DB (primary), MMKV (fast KV), react-native-keychain (secure secrets)
+  - Bitcoin/Crypto: bitcoinjs-lib, bip39, bip21, coinselect, secp256k1
+  - Hardware Protocols: cktap-protocol-react-native (TAPSIGNER/SATSCARD), libportal-react-native
+  - Networking: axios, electrum-client (Electrum node connectivity)
+  - Testing: Jest + @testing-library/react-native; native modules mocked in __mocks__/
+  - CI/CD: Fastlane (iOS + Android), App Center pre-build hooks
+  - Patching: patch-package for upstream dependency fixes (patches/)
+
+  ## Architecture
+  - src/assets/       — Static assets (images, icons, fonts)
+  - src/components/   — Reusable UI components
+  - src/constants/    — App-wide constants (network params, signer types, etc.)
+  - src/context/      — React Contexts (app-level providers)
+  - src/hardware/     — Hardware wallet integration logic (Coldcard, Jade, Ledger, etc.)
+  - src/hooks/        — Custom hooks for business logic extraction
+  - src/models/       — TypeScript interfaces/classes for domain objects (Wallet, Vault, UTXO, Signer, etc.)
+  - src/nativemodules/— Custom native bridges for specialized hardware/NFC protocols
+  - src/navigation/   — Navigation stack configuration
+  - src/screens/      — Feature-based screen directories (Vault, WalletDetails, Send, Receive, Settings, etc.)
+  - src/services/     — External service integrations (Electrum, NFC, QR, Wallets)
+  - src/store/        — Redux store: slices/, sagas/, actions/, migrations.ts, store.ts
+
+  ## Domain Knowledge
+  - Wallet types: single-sig Hot Wallets and multi-sig Vaults (2-of-3, 3-of-5, etc.)
+  - Signers: Software keys, Hardware wallets (Coldcard, Jade, Ledger, BitBox, Passport, Keystone, etc.), Mobile keys, Assisted keys
+  - UTXO management: coin control, labeling, freezing, whirlpool mixing
+  - Transaction lifecycle: PSBT (BIP-174) based signing flow across multiple signers
+  - Inheritance & collaborative custody tools
+  - Backup: BHR (Bitcoin Heritage Recovery) encrypted cloud + manual seed backup
+  - Node connectivity: user-configurable Electrum server (mainnet/testnet)
+  - Subscription tiers gating advanced features (Hodler, Diamond Hands, etc.)
+
+  ## Design System
+  The canonical UI design system is defined in `DESIGN.md` at the repo root.
+  All UI implementation must follow `DESIGN.md` for:
+  - Colors, typography, spacing, radius, and shape tokens
+  - Layout patterns (cards, lists, headers, bottom sheets, grids, buttons)
+  - Existing component reuse (see the Key Existing Components table in DESIGN.md)
+  - Security UX principles and state handling (loading, error, empty, offline, etc.)
+  - Product feel and wording style
+  Agents must read `DESIGN.md` before implementing or modifying any screen or component.
+  The existing React Native codebase is the implementation source of truth;
+  DESIGN.md provides the visual judgment layer when codebase tokens are ambiguous or absent.
+
+  ## Conventions
+  - PascalCase for React components and screen files; camelCase for functions and variables
+  - Feature-based folders inside src/screens/ (each folder = one feature)
+  - Business logic extracted into custom hooks; screens stay presentational where possible
+  - Redux actions split into sagaActions (saga-triggered) and slice reducers
+  - All Bitcoin amounts internally in satoshis (number); display formatting in utility helpers
+  - Network (mainnet/testnet/signet) flows through a global app-level context
+  - Use Given/When/Then format for acceptance scenarios
+
+rules:
+  proposal:
+    - State whether the change affects mainnet-only, testnet, or both environments
+    - Identify any hardware signer compatibility implications
+    - Call out subscription tier gating if applicable
+    - Include a "Non-goals" section to prevent scope creep
+    - Note security/privacy impact (key material handling, network calls, storage)
+  specs:
+    - Use Given/When/Then format for all scenarios
+    - Cover both happy path and key failure/edge cases (e.g., insufficient UTXOs, signer unavailable, network offline)
+    - Reference the relevant domain model types (Wallet, Vault, Signer, UTXO) by name
+    - State amounts in satoshis in scenarios; note display format separately if relevant
+  design:
+    - Specify which Redux slice(s) and saga(s) are involved
+    - Include data flow for any PSBT signing or hardware wallet interaction
+    - Call out Realm schema changes or MMKV key additions
+    - List all affected files (new and modified)
+    - Note any migration needed (store version bump in migrations.ts)
+    - For any UI-touching change, read DESIGN.md and reference the relevant tokens,
+      patterns, and existing components used; note any new component needed and justify it
+    - Confirm the agent implementation checklist in DESIGN.md before finalizing UI design
+  tasks:
+    - Group tasks by layer: UI Components, Business Logic / Hooks, Store (Slice + Saga), Storage, Tests
+    - Keep each task completable in a single focused session
+    - Add a task for updating the Redux Persist migration version if store shape changes
+    - Add a task for unit/integration tests covering the new behaviour

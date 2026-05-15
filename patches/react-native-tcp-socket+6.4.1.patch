@@ -1,0 +1,38 @@
+diff --git a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+index e0f719f..6908996 100644
+--- a/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
++++ b/node_modules/react-native-tcp-socket/android/src/main/java/com/asterinet/react/tcpsocket/TcpSocketClient.java
+@@ -51,7 +51,6 @@ class TcpSocketClient extends TcpSocket {
+         // Get the addresses
+         final String localAddress = options.hasKey("localAddress") ? options.getString("localAddress") : "0.0.0.0";
+         final InetAddress localInetAddress = InetAddress.getByName(localAddress);
+-        final InetAddress remoteInetAddress = InetAddress.getByName(address);
+         if (network != null)
+             network.bindSocket(socket);
+         // setReuseAddress
+@@ -66,7 +65,8 @@ class TcpSocketClient extends TcpSocket {
+         // bind
+         socket.bind(new InetSocketAddress(localInetAddress, localPort));
+         final int connectTimeout = options.hasKey("connectTimeout") ? options.getInt("connectTimeout") : 0; 
+-        socket.connect(new InetSocketAddress(remoteInetAddress, port), connectTimeout);
++        // Keep the original hostname to let TLS stacks build SNI/peer identity correctly.
++        socket.connect(new InetSocketAddress(address, port), connectTimeout);
+         if (socket instanceof SSLSocket) ((SSLSocket) socket).startHandshake();
+         startListening();
+     }
+@@ -74,7 +74,14 @@ class TcpSocketClient extends TcpSocket {
+     public void startTLS(Context context, ReadableMap tlsOptions) throws IOException, GeneralSecurityException {
+         if (socket instanceof SSLSocket) return;
+         SSLSocketFactory ssf = getSSLSocketFactory(context, tlsOptions);
+-        SSLSocket sslSocket = (SSLSocket) ssf.createSocket(socket, socket.getInetAddress().getHostAddress(), socket.getPort(), true);
++        String peerHost = socket.getInetAddress().getHostName();
++        if (tlsOptions.hasKey("host")) {
++            String host = tlsOptions.getString("host");
++            if (host != null && !host.isEmpty()) {
++                peerHost = host;
++            }
++        }
++        SSLSocket sslSocket = (SSLSocket) ssf.createSocket(socket, peerHost, socket.getPort(), true);
+         sslSocket.setUseClientMode(true);
+         sslSocket.startHandshake();
+         socket = sslSocket;
