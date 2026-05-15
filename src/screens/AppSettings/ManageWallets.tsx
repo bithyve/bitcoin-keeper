@@ -10,7 +10,6 @@ import { EntityKind, VaultType, VisibilityType } from 'src/services/wallets/enum
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import CollaborativeIcon from 'src/assets/images/collaborative_vault_white.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
-import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import VaultIcon from 'src/assets/images/vault_icon.svg';
 import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import ShowIcon from 'src/assets/images/show.svg';
@@ -388,7 +387,6 @@ function ManageWallets() {
           <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
             {settings.ManageWalletsEmptySubtitle}
           </Text>
-          <EmptyState />
         </Box>
       ) : (
         <FlatList

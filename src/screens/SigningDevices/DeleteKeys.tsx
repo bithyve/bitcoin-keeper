@@ -10,7 +10,6 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import Text from 'src/components/KeeperText';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import DeleteIcon from 'src/assets/images/delete_bin.svg';
-import EmptyState from 'src/assets/images/empty-state-illustration.svg';
 import ShowIcon from 'src/assets/images/show.svg';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
@@ -228,7 +227,6 @@ function DeleteKeys({ route }) {
             <Text color={`${colorMode}.secondaryText`} style={styles.emptySubText}>
               {signerText.clickToUnhide}
             </Text>
-            <EmptyState />
           </Box>
         ) : (
           <ScrollView
