@@ -36,6 +36,12 @@ export interface AddressPubs {
   [address: string]: string; // address to pub matching
 }
 
+export interface AddressReceiveMetadata {
+  highestReceivedReceiveAddressIndex: number;
+  receiveAddressReceiveCount: { [address: string]: number };
+  changeAddressReceiveCount: { [address: string]: number };
+}
+
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
@@ -45,6 +51,7 @@ export interface WalletSpecs {
   receivingAddress?: string; // current receiving address(external chain)
   addresses?: AddressCache; // cached addresses
   addressPubs?: AddressPubs; // cached pubs
+  addressReceiveMetadata?: AddressReceiveMetadata; // cached receive history used for dust classification
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances

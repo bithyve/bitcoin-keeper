@@ -62,6 +62,11 @@ import { store } from 'src/store/store';
 import BIP32Factory from 'bip32';
 const bip32 = BIP32Factory(ecc);
 import bitcoinMessage from 'bitcoinjs-message';
+import {
+  filterSpendableUTXOs,
+  normalizeAddressReceiveMetadata,
+  updateAddressReceiveMetadata,
+} from './spendability';
 
 bitcoinJS.initEccLib(ecc);
 
@@ -504,6 +509,9 @@ export default class WalletOperations {
         internal: wallet.specs.addresses?.internal || {},
       };
       const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
+      let addressReceiveMetadata = normalizeAddressReceiveMetadata(
+        wallet.specs.addressReceiveMetadata
+      );
       let balances: Balances = {
         confirmed: 0,
         unconfirmed: 0,
@@ -638,6 +646,13 @@ export default class WalletOperations {
           ),
           network
         );
+
+        addressReceiveMetadata = updateAddressReceiveMetadata({
+          metadata: addressReceiveMetadata,
+          externalAddresses,
+          internalAddresses,
+          utxosByAddress,
+        });
 
         for (const address in utxosByAddress) {
           const utxos = utxosByAddress[address];
@@ -780,6 +795,7 @@ export default class WalletOperations {
         wallet.specs.totalExternalAddresses = totalExternalAddresses;
         wallet.specs.addresses = addressCache;
         wallet.specs.addressPubs = addressPubs;
+        wallet.specs.addressReceiveMetadata = addressReceiveMetadata;
         wallet.specs.receivingAddress =
           WalletOperations.getNextFreeExternalAddress(wallet).receivingAddress;
         wallet.specs.hasNewUpdates = walletHasNewUpdates;
@@ -1013,7 +1029,10 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = filterSpendableUTXOs(wallet.id, [
+        ...wallet.specs.confirmedUTXOs,
+        ...wallet.specs.unconfirmedUTXOs,
+      ]);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1098,7 +1117,10 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = filterSpendableUTXOs(wallet.id, [
+        ...wallet.specs.confirmedUTXOs,
+        ...wallet.specs.unconfirmedUTXOs,
+      ]);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1267,7 +1289,10 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = filterSpendableUTXOs(wallet.id, [
+        ...wallet.specs.confirmedUTXOs,
+        ...wallet.specs.unconfirmedUTXOs,
+      ]);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);

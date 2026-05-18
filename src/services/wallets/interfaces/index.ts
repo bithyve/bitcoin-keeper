@@ -133,12 +133,27 @@ export interface UTXO {
   height: number;
 }
 
+export enum UTXOSpendabilityStatus {
+  SPENDABLE = 'SPENDABLE',
+  DO_NOT_SPEND = 'DO_NOT_SPEND',
+}
+
+export enum UTXOSpendabilityReason {
+  POTENTIAL_DUST_PAYMENT = 'POTENTIAL_DUST_PAYMENT',
+  LINKED_TO_POTENTIAL_DUST_SPEND = 'LINKED_TO_POTENTIAL_DUST_SPEND',
+  MARKED_MANUALLY = 'MARKED_MANUALLY',
+}
+
 export interface UTXOInfo {
   id: string;
   txId: string;
   vout: number;
   walletId: string;
   labels?: Array<{ name: string; type: LabelType }>;
+  spendabilityStatus?: UTXOSpendabilityStatus;
+  spendabilityReason?: UTXOSpendabilityReason;
+  isUserOverride?: boolean;
+  dustToastShown?: boolean;
 }
 
 export interface BIP329Label {

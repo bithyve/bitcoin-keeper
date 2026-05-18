@@ -12,7 +12,7 @@ import {
   XpubTypes,
 } from '../enums';
 
-import { AddressCache, AddressPubs, WalletPresentationData } from './wallet';
+import { AddressCache, AddressPubs, AddressReceiveMetadata, WalletPresentationData } from './wallet';
 import { KeyInfo, KeyInfoMap, Path, Phase } from '../operations/miniscript/policy-generator';
 
 export interface VaultPresentationData extends WalletPresentationData {}
@@ -25,6 +25,7 @@ export interface VaultSpecs {
   receivingAddress?: string; // current receiving address(external chain)
   addresses?: AddressCache; // cached addresses
   addressPubs?: AddressPubs; // cached pubs
+  addressReceiveMetadata?: AddressReceiveMetadata; // cached receive history used for dust classification
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
