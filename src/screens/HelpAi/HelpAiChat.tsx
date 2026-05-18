@@ -246,7 +246,11 @@ const HelpAiChat = ({ navigation, route }) => {
         confirm: true,
         idempotencyKey,
         draft,
-        metadata: chatMeta,
+        metadata: {
+          appVersion: chatMeta.appVersion,
+          platform: chatMeta.platform,
+          device: chatMeta.device,
+        },
       });
 
       dispatch(incrementHelpAiIssueCount({ conversationId }));

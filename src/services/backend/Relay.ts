@@ -739,7 +739,7 @@ export default class Relay {
     confirm: true;
     idempotencyKey: string;
     draft: HelpDraft;
-    metadata: HelpChatMetadata;
+    metadata: Pick<HelpChatMetadata, 'appVersion' | 'platform' | 'device'>;
   }): Promise<HelpIssueSubmitResponse> => {
     try {
       const res = await RestClient.post(`${RELAY}submitHelpIssue`, payload);

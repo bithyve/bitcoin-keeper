@@ -171,6 +171,7 @@ export const {
 const helpAiPersistConfig = {
   key: 'helpAi',
   storage: reduxStorage,
+  whitelist: ['threads', 'activeConversationId'],
 };
 
 export default persistReducer(helpAiPersistConfig, helpAiSlice.reducer);
