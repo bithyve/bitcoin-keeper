@@ -3,10 +3,9 @@ import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
-import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import ConciergeNeedHelpIcon from 'src/assets/images/conciergeNeedHelp.svg';
+import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 
 type HelpAiEntryCardProps = {
   onStartChat: () => void;
@@ -14,10 +13,10 @@ type HelpAiEntryCardProps = {
 };
 
 const suggestions = [
-  'My signer is not working',
-  'I need help with vault setup',
-  'I want to report a bug',
-  'I have a feature request',
+  'Why is my transaction pending?',
+  'How do I backup my wallet?',
+  "Something isn't working",
+  'I have an idea for Keeper',
 ];
 
 const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) => {
@@ -25,19 +24,14 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
 
   return (
     <View style={styles.container}>
-      <CircleIconWrapper
-        width={wp(60)}
-        icon={<ConciergeNeedHelpIcon />}
-        backgroundColor={colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8'}
-      />
-
+      <ChatBubbleIcon width={wp(120)} height={hp(120)} />
       <Text
         style={styles.title}
         fontSize={22}
         medium
         color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
       >
-        Keeper Help AI
+        No conversations yet
       </Text>
 
       <Text
@@ -45,34 +39,39 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
         fontSize={13}
         color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
       >
-        Ask questions, troubleshoot issues, and create bug or feature drafts for developer review.
+        Ask Keeper a question, report a problem, or share an idea.
       </Text>
 
       <View style={styles.buttonCtr}>
         <Buttons primaryText={'Open Help Chat'} primaryCallback={onStartChat} fullWidth />
       </View>
 
-      <View style={styles.suggestionsCtr}>
-        {suggestions.map((suggestion) => (
-          <View
-            key={suggestion}
-            style={[
-              styles.suggestionPill,
-              {
-                borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
-                backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
-              },
-            ]}
-          >
-            <Text
-              fontSize={12}
-              color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
-              onPress={() => onPromptPress(suggestion)}
+      <View style={styles.suggestionCtr}>
+        <View style={styles.suggestionsCtr}>
+          {suggestions.map((suggestion) => (
+            <View
+              key={suggestion}
+              style={[
+                styles.suggestionPill,
+                {
+                  borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
+                  backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
+                },
+              ]}
             >
-              {suggestion}
-            </Text>
-          </View>
-        ))}
+              <Text
+                fontSize={12}
+                color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
+                onPress={() => onPromptPress(suggestion)}
+              >
+                {suggestion}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <Text style={styles.warningText} color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}>
+          Never share seed words or private keys.
+        </Text>
       </View>
     </View>
   );
@@ -106,6 +105,15 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     paddingHorizontal: wp(14),
     paddingVertical: hp(8),
+  },
+  warningText: {
+    marginBottom: hp(20),
+    textAlign: 'center',
+  },
+  suggestionCtr: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'space-between',
   },
 });
 

@@ -380,7 +380,7 @@ const HelpAiChat = ({ navigation, route }) => {
   };
 
   return (
-    <HelpAiShell title={'Help AI Chat'}>
+    <HelpAiShell title={'Keeper Help'}>
       <View style={styles.container}>
         <FlatList
           ref={listRef}

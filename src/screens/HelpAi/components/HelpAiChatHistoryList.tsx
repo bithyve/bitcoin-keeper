@@ -6,6 +6,8 @@ import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { HelpAiThread } from 'src/store/reducers/helpAi';
+import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
+import Colors from 'src/theme/Colors';
 
 type HelpAiChatHistoryListProps = {
   threads: HelpAiThread[];
@@ -48,39 +50,52 @@ const HelpAiChatHistoryList = ({
           <Pressable
             key={thread.conversationId}
             onPress={() => onOpenChat(thread.conversationId)}
-            style={styles.itemPressable}
+            style={({ pressed }) => [styles.itemPressable, { opacity: pressed ? 0.75 : 1 }]}
           >
             <View
               style={[
                 styles.itemCard,
                 {
-                  borderWidth: 1,
-                  borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
-                  backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
+                  borderColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
+                  backgroundColor: colorMode === 'dark' ? '#1a1a1a' : '#faf9f7',
                 },
               ]}
             >
-              <View style={styles.itemHeader}>
+              {/* Left accent bar */}
+              <View style={[styles.accentBar, { backgroundColor: Colors.primaryGreen }]} />
+
+              <View style={styles.cardBody}>
+                {/* Icon + header row */}
+                <View style={styles.itemHeader}>
+                  <View style={styles.iconAndTitle}>
+                    <View style={styles.iconWrap}>
+                      <ChatBubbleIcon width={wp(18)} height={wp(18)} />
+                    </View>
+                    <Text
+                      medium
+                      fontSize={17}
+                      color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
+                      numberOfLines={1}
+                      style={styles.threadTitle}
+                    >
+                      {thread.title || 'New chat'}
+                    </Text>
+                  </View>
+                  <Text fontSize={11} color={colorMode === 'dark' ? '#696969' : '#ababab'}>
+                    {formatRelativeTime(thread.updatedAt)}
+                  </Text>
+                </View>
+
+                {/* Preview */}
                 <Text
-                  medium
-                  color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
+                  fontSize={12}
+                  color={colorMode === 'dark' ? '#7a7a7a' : '#9a9590'}
                   numberOfLines={1}
-                  style={{ maxWidth: '70%' }}
+                  style={styles.previewText}
                 >
-                  {thread.title || 'New chat'}
-                </Text>
-                <Text fontSize={11} color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}>
-                  {formatRelativeTime(thread.updatedAt)}
+                  {thread.lastMessage || 'No messages yet'}
                 </Text>
               </View>
-
-              <Text
-                fontSize={12}
-                color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
-                numberOfLines={2}
-              >
-                {thread.lastMessage || 'No messages yet'}
-              </Text>
             </View>
           </Pressable>
         ))}
@@ -96,29 +111,63 @@ const HelpAiChatHistoryList = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: wp(18),
-    paddingTop: hp(14),
+    paddingHorizontal: wp(12),
   },
   title: {
-    marginBottom: hp(10),
+    // marginBottom: hp(10),
   },
   listContent: {
     paddingBottom: hp(20),
-    gap: hp(10),
+    gap: hp(5),
   },
   itemPressable: {
     width: '100%',
   },
   itemCard: {
-    borderRadius: 12,
-    paddingVertical: hp(12),
-    paddingHorizontal: wp(12),
-    gap: hp(6),
+    borderRadius: 14,
+    borderWidth: 1,
+    overflow: 'hidden',
+    flexDirection: 'row',
+  },
+  accentBar: {
+    width: 4,
+    borderTopLeftRadius: 14,
+    borderBottomLeftRadius: 14,
+  },
+  cardBody: {
+    flex: 1,
+    paddingVertical: hp(10),
+    paddingHorizontal: wp(10),
+    gap: hp(0),
   },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: wp(10),
+    alignItems: 'center',
+    gap: wp(8),
+  },
+  iconAndTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(8),
+    flex: 1,
+  },
+  iconWrap: {
+    width: wp(32),
+    height: wp(32),
+    borderRadius: wp(100),
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: Colors.primaryGreen,
+  },
+  threadTitle: {
+    flex: 1,
+    maxWidth: '70%',
+  },
+  previewText: {
+    lineHeight: hp(18),
+    paddingLeft: wp(40),
   },
   ctaCtr: {
     paddingBottom: hp(12),

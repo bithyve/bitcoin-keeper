@@ -144,11 +144,7 @@ function NewHomeScreen({ route }) {
         };
       case common.help:
         return {
-          content: (
-            <Box>
-              <HelpAiEntry route={route} />
-            </Box>
-          ),
+          content: <HelpAiEntry route={route} />,
           icon: (
             <CircleIconWrapper
               width={wp(39)}
