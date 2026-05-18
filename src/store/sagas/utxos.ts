@@ -1,7 +1,12 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { call, delay, fork, put } from 'redux-saga/effects';
-import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
+import {
+  BIP329Label,
+  UTXO,
+  UTXOSpendabilityReason,
+  UTXOSpendabilityStatus,
+} from 'src/services/wallets/interfaces';
 import { LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -9,8 +14,14 @@ import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilitie
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
+import { upsertWalletUTXOSpendability } from 'src/services/wallets/operations/spendability';
 
-import { ADD_LABELS, BULK_UPDATE_LABELS, IMPORT_LABELS } from '../sagaActions/utxos';
+import {
+  ADD_LABELS,
+  BULK_UPDATE_LABELS,
+  IMPORT_LABELS,
+  UPDATE_UTXO_SPENDABILITY,
+} from '../sagaActions/utxos';
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 import { checkBackupCondition, setServerBackupFailed } from './bhr';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -199,6 +210,42 @@ export function* importLabelsWorker({
   }
 }
 
+export function* updateUTXOSpendabilityWorker({
+  payload,
+}: {
+  payload: {
+    walletId: string;
+    utxo: { txId: string; vout: number };
+    spendabilityStatus: UTXOSpendabilityStatus;
+    spendabilityReason?: UTXOSpendabilityReason;
+    isUserOverride?: boolean;
+    dustToastShown?: boolean;
+  };
+}) {
+  try {
+    yield put(setSyncingUTXOs(true));
+
+    yield call(upsertWalletUTXOSpendability, {
+      walletId: payload.walletId,
+      utxo: payload.utxo,
+      spendabilityStatus: payload.spendabilityStatus,
+      spendabilityReason: payload.spendabilityReason,
+      isUserOverride: payload.isUserOverride,
+      dustToastShown: payload.dustToastShown,
+    });
+
+    yield put(resetState());
+  } catch (e) {
+    yield put(setSyncingUTXOError(e));
+  } finally {
+    yield put(setSyncingUTXOs(false));
+  }
+}
+
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
 export const bulkUpdateLabelWatcher = createWatcher(bulkUpdateLabelsWorker, BULK_UPDATE_LABELS);
 export const importLabelsWatcher = createWatcher(importLabelsWorker, IMPORT_LABELS);
+export const updateUTXOSpendabilityWatcher = createWatcher(
+  updateUTXOSpendabilityWorker,
+  UPDATE_UTXO_SPENDABILITY
+);

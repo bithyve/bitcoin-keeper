@@ -39,6 +39,10 @@ export const UTXOInfoSchema: ObjectSchema = {
     vout: 'int',
     walletId: 'string',
     labels: { type: 'list', objectType: `${RealmSchema.Label}` },
+    spendabilityStatus: { type: 'string', default: 'SPENDABLE' },
+    spendabilityReason: 'string?',
+    isUserOverride: { type: 'bool', default: false },
+    dustToastShown: { type: 'bool', default: false },
   },
   primaryKey: 'id',
 };
@@ -128,6 +132,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
     addressPubs: 'mixed?',
+    addressReceiveMetadata: 'mixed?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: { type: 'object', objectType: RealmSchema.Balances },

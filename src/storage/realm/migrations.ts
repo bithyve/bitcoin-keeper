@@ -475,4 +475,20 @@ export const runRealmMigrations = ({
       }
     }
   }
+
+  if (oldRealm.schemaVersion < 107) {
+    const utxoInfos = newRealm.objects(RealmSchema.UTXOInfo) as any;
+
+    for (const utxoInfo of utxoInfos) {
+      if (!utxoInfo.spendabilityStatus) {
+        utxoInfo.spendabilityStatus = 'SPENDABLE';
+      }
+      if (utxoInfo.isUserOverride === undefined || utxoInfo.isUserOverride === null) {
+        utxoInfo.isUserOverride = false;
+      }
+      if (utxoInfo.dustToastShown === undefined || utxoInfo.dustToastShown === null) {
+        utxoInfo.dustToastShown = false;
+      }
+    }
+  }
 };

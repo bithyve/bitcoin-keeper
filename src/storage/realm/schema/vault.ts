@@ -224,6 +224,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
     addressPubs: 'mixed?',
+    addressReceiveMetadata: 'mixed?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: `${RealmSchema.Balances}`,
