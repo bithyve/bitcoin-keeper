@@ -146,6 +146,7 @@ export interface CalculateCustomFeeAction extends Action {
     customEstimatedBlocks: string;
     selectedUTXOs?: UTXO[];
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
+    donateDustMode?: boolean;
   };
 }
 
@@ -159,6 +160,7 @@ export const calculateCustomFee = (payload: {
   customEstimatedBlocks: string;
   selectedUTXOs?: UTXO[];
   miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
+  donateDustMode?: boolean;
 }): CalculateCustomFeeAction => ({
   type: CALCULATE_CUSTOM_FEE,
   payload,

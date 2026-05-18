@@ -47,6 +47,7 @@ import { dropTransactionSnapshot } from '../reducers/cachedTxn';
 import * as bitcoin from 'bitcoinjs-lib';
 import axios from 'axios';
 import { setHomeToastMessage } from '../reducers/bhr';
+import { DONATE_DUST_UNBUILDABLE_ERROR } from 'src/services/wallets/operations/spendability';
 const EX_RATE_API = 'https://api.coingecko.com/api/v3/exchange_rates';
 
 export function* fetchFeeRatesWorker() {
@@ -394,6 +395,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       customEstimatedBlocks,
       selectedUTXOs,
       miniscriptSelectedSatisfier,
+      donateDustMode,
     } = payload;
 
     let outputs;
@@ -447,7 +449,9 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       yield put(
         customFeeCalculated({
           successful: false,
-          err: 'Fee is too high for your balance, please select another option',
+          err: donateDustMode
+            ? DONATE_DUST_UNBUILDABLE_ERROR
+            : 'Fee is too high for your balance, please select another option',
         })
       );
     }

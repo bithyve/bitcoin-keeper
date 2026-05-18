@@ -40,6 +40,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
 import SigningServer from 'src/services/backend/SigningServer';
 import WalletOperations from 'src/services/wallets/operations';
+import {
+  classifyUTXOForDust,
+  getUTXOId,
+} from 'src/services/wallets/operations/spendability';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
@@ -61,10 +65,71 @@ import ElectrumClient, {
 } from 'src/services/electrum/client';
 import idx from 'idx';
 import _ from 'lodash';
-import { SyncedWallet } from 'src/services/wallets/interfaces';
+import {
+  SyncedWallet,
+  UTXO,
+  UTXOInfo,
+  UTXOSpendabilityReason,
+  UTXOSpendabilityStatus,
+} from 'src/services/wallets/interfaces';
 import { checkSignerAccountsMatch, getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import { COLLABORATIVE_SCHEME } from 'src/screens/SigningDevices/SetupCollaborativeWallet';
 import { RootState } from '../store';
+
+const normalizeUTXOInfo = (record: any): UTXOInfo =>
+  typeof record?.toJSON === 'function' ? record.toJSON() : record;
+
+export const loadWalletSpendabilityRecords = (walletId: string): UTXOInfo[] => {
+  const records = dbManager.getObjectByField(RealmSchema.UTXOInfo, walletId, 'walletId') as any;
+  if (!records) return [];
+  if (Array.isArray(records)) return records.map(normalizeUTXOInfo);
+  const normalized: UTXOInfo[] = [];
+  if (typeof records.forEach === 'function') {
+    records.forEach((record) => normalized.push(normalizeUTXOInfo(record)));
+  }
+  return normalized;
+};
+
+export const loadWalletSpendabilityMap = (walletId: string): Map<string, UTXOInfo> => {
+  const map = new Map<string, UTXOInfo>();
+  loadWalletSpendabilityRecords(walletId).forEach((record) => map.set(record.id, record));
+  return map;
+};
+
+export const spendabilityMapToRecord = (map: Map<string, UTXOInfo>): Record<string, UTXOInfo> => {
+  const record: Record<string, UTXOInfo> = {};
+  map.forEach((value, key) => { record[key] = value; });
+  return record;
+};
+
+export const upsertUTXOSpendabilityToDb = ({
+  walletId,
+  utxo,
+  spendabilityStatus = UTXOSpendabilityStatus.SPENDABLE,
+  spendabilityReason,
+  isUserOverride = false,
+  dustToastShown = false,
+}: {
+  walletId: string;
+  utxo: Pick<UTXO, 'txId' | 'vout'>;
+  spendabilityStatus?: UTXOSpendabilityStatus;
+  spendabilityReason?: UTXOSpendabilityReason;
+  isUserOverride?: boolean;
+  dustToastShown?: boolean;
+}) => {
+  const id = getUTXOId(utxo);
+  return dbManager.createObject(RealmSchema.UTXOInfo, {
+    id,
+    txId: utxo.txId,
+    vout: utxo.vout,
+    walletId,
+    labels: [],
+    spendabilityStatus,
+    spendabilityReason,
+    isUserOverride,
+    dustToastShown,
+  });
+};
 
 import {
   initiateVaultMigration,
@@ -109,6 +174,7 @@ import {
   updateAppImageWorker,
   updateVaultImageWorker,
 } from './bhr';
+import { setHomeToastMessage } from '../reducers/bhr';
 import {
   relaySignersUpdateFail,
   relaySignersUpdateSuccess,
@@ -128,6 +194,7 @@ import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
 import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
+import { setWalletSpendabilityMap } from '../reducers/utxos';
 import { updateDelayedPolicyUpdate } from '../reducers/storage';
 import { accountNoFromDerivationPath } from 'src/utils/service-utilities/utils';
 
@@ -650,6 +717,151 @@ function* refreshWalletsWorker({
     for (const synchedWalletWithUTXOs of synchedWallets) {
       const { synchedWallet } = synchedWalletWithUTXOs;
       if (!synchedWallet.specs.hasNewUpdates && !options.hardRefresh) continue; // no new updates found
+
+      const spendabilityMap = loadWalletSpendabilityMap(synchedWallet.id);
+      const externalAddresses = {};
+      const internalAddresses = {};
+
+      Object.entries(synchedWallet.specs.addresses?.external || {}).forEach(([index, address]) => {
+        externalAddresses[address as string] = parseInt(index, 10);
+      });
+
+      Object.entries(synchedWallet.specs.addresses?.internal || {}).forEach(([index, address]) => {
+        internalAddresses[address as string] = parseInt(index, 10);
+      });
+
+      const currentUTXOs = [
+        ...synchedWallet.specs.confirmedUTXOs,
+        ...synchedWallet.specs.unconfirmedUTXOs,
+      ];
+      let shouldShowDustToast = false;
+
+      for (const utxo of currentUTXOs) {
+        const utxoId = getUTXOId(utxo);
+        if (spendabilityMap.has(utxoId)) continue;
+
+        const classification = classifyUTXOForDust({
+          utxo,
+          externalAddresses,
+          internalAddresses,
+          addressReceiveMetadata: synchedWallet.specs.addressReceiveMetadata,
+        });
+
+        const isPotentialDustPayment =
+          classification.spendabilityReason === 'POTENTIAL_DUST_PAYMENT';
+        const shouldMarkToastShown = options.addNotifications && isPotentialDustPayment;
+        if (shouldMarkToastShown) {
+          shouldShowDustToast = true;
+        }
+
+        upsertUTXOSpendabilityToDb({
+          walletId: synchedWallet.id,
+          utxo,
+          spendabilityStatus: classification.spendabilityStatus,
+          spendabilityReason: classification.spendabilityReason,
+          isUserOverride: false,
+          dustToastShown: shouldMarkToastShown,
+        });
+
+        spendabilityMap.set(utxoId, {
+          id: utxoId,
+          txId: utxo.txId,
+          vout: utxo.vout,
+          walletId: synchedWallet.id,
+          spendabilityStatus: classification.spendabilityStatus,
+          spendabilityReason: classification.spendabilityReason,
+          isUserOverride: false,
+          dustToastShown: shouldMarkToastShown,
+        });
+      }
+
+      const currentUTXOIds = new Set(currentUTXOs.map((utxo) => getUTXOId(utxo)));
+      const spentPotentialDustRecords = Array.from(spendabilityMap.values()).filter(
+        (record) =>
+          record.spendabilityReason === UTXOSpendabilityReason.POTENTIAL_DUST_PAYMENT &&
+          !currentUTXOIds.has(record.id)
+      );
+
+      if (spentPotentialDustRecords.length) {
+        const txids = synchedWallet.specs.transactions.map((txn) => txn.txid);
+        const txMap = yield call(ElectrumClient.getTransactionsById, txids);
+
+        for (const record of spentPotentialDustRecords) {
+          const spendingTxs = Object.values(txMap || {}).filter((tx: any) =>
+            (tx.vin || []).some(
+              (vin) => vin.txid === record.txId && Number(vin.vout) === Number(record.vout)
+            )
+          );
+
+          for (const spendingTx of spendingTxs as any[]) {
+            yield fork(bulkUpdateLabelsWorker, {
+              payload: {
+                labelChanges: {
+                  added: [{ isSystem: true, name: 'Potential dust spend' }],
+                  deleted: [],
+                },
+                txId: spendingTx.txid,
+                wallet: synchedWallet as any,
+              },
+            });
+
+            (spendingTx.vout || []).forEach((output, outputIndex) => {
+              const outputAddress = output?.scriptPubKey?.addresses?.[0];
+              if (!outputAddress) return;
+
+              const isWalletOwnedOutputAddress =
+                externalAddresses[outputAddress] !== undefined ||
+                internalAddresses[outputAddress] !== undefined;
+              if (!isWalletOwnedOutputAddress) return;
+
+              const descendantId = `${spendingTx.txid}:${outputIndex}`;
+              if (!currentUTXOIds.has(descendantId)) return;
+
+              const existingRecord = spendabilityMap.get(descendantId);
+              if (existingRecord?.isUserOverride) return;
+
+              upsertUTXOSpendabilityToDb({
+                walletId: synchedWallet.id,
+                utxo: {
+                  txId: spendingTx.txid,
+                  vout: outputIndex,
+                },
+                spendabilityStatus: UTXOSpendabilityStatus.DO_NOT_SPEND,
+                spendabilityReason: UTXOSpendabilityReason.LINKED_TO_POTENTIAL_DUST_SPEND,
+                isUserOverride: false,
+                dustToastShown: true,
+              });
+
+              spendabilityMap.set(descendantId, {
+                id: descendantId,
+                txId: spendingTx.txid,
+                vout: outputIndex,
+                walletId: synchedWallet.id,
+                spendabilityStatus: UTXOSpendabilityStatus.DO_NOT_SPEND,
+                spendabilityReason: UTXOSpendabilityReason.LINKED_TO_POTENTIAL_DUST_SPEND,
+                isUserOverride: false,
+                dustToastShown: true,
+              });
+            });
+          }
+        }
+      }
+
+      if (shouldShowDustToast) {
+        yield put(
+          setHomeToastMessage({
+            message: 'Potential dust payment found',
+            isError: false,
+          })
+        );
+      }
+
+      yield put(
+        setWalletSpendabilityMap({
+          walletId: synchedWallet.id,
+          map: spendabilityMapToRecord(spendabilityMap),
+        })
+      );
 
       for (const utxo of synchedWalletWithUTXOs.newUTXOs) {
         const labelChanges = {

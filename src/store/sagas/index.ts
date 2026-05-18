@@ -64,7 +64,12 @@ import {
   setupKeeperAppWatcher,
 } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
-import { addLabelsWatcher, bulkUpdateLabelWatcher, importLabelsWatcher } from './utxos';
+import {
+  addLabelsWatcher,
+  bulkUpdateLabelWatcher,
+  importLabelsWatcher,
+  updateUTXOSpendabilityWatcher,
+} from './utxos';
 import { connectToNodeWatcher } from './network';
 import {
   loadConciergeUserWatcher,
@@ -163,6 +168,7 @@ const rootSaga = function* () {
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
     importLabelsWatcher,
+    updateUTXOSpendabilityWatcher,
     // concierge
     loadConciergeUserWatcher,
     addTicketStatusUAIWatcher,

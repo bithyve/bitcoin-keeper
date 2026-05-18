@@ -14,7 +14,11 @@ import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilitie
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
-import { upsertWalletUTXOSpendability } from 'src/services/wallets/operations/spendability';
+import {
+  loadWalletSpendabilityMap,
+  spendabilityMapToRecord,
+  upsertUTXOSpendabilityToDb,
+} from './wallets';
 
 import {
   ADD_LABELS,
@@ -22,7 +26,7 @@ import {
   IMPORT_LABELS,
   UPDATE_UTXO_SPENDABILITY,
 } from '../sagaActions/utxos';
-import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
+import { resetState, setSyncingUTXOError, setSyncingUTXOs, setWalletSpendabilityMap } from '../reducers/utxos';
 import { checkBackupCondition, setServerBackupFailed } from './bhr';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 
@@ -225,7 +229,7 @@ export function* updateUTXOSpendabilityWorker({
   try {
     yield put(setSyncingUTXOs(true));
 
-    yield call(upsertWalletUTXOSpendability, {
+    yield call(upsertUTXOSpendabilityToDb, {
       walletId: payload.walletId,
       utxo: payload.utxo,
       spendabilityStatus: payload.spendabilityStatus,
@@ -233,6 +237,14 @@ export function* updateUTXOSpendabilityWorker({
       isUserOverride: payload.isUserOverride,
       dustToastShown: payload.dustToastShown,
     });
+
+    const updatedMap = loadWalletSpendabilityMap(payload.walletId);
+    yield put(
+      setWalletSpendabilityMap({
+        walletId: payload.walletId,
+        map: spendabilityMapToRecord(updatedMap),
+      })
+    );
 
     yield put(resetState());
   } catch (e) {

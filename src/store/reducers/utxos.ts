@@ -1,13 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
+import { UTXOInfo } from 'src/services/wallets/interfaces';
 
 const initialState: {
   syncingUTXOs: boolean;
   apiError: any;
+  spendability: { [walletId: string]: Record<string, UTXOInfo> };
 } = {
   syncingUTXOs: false,
   apiError: null,
+  spendability: {},
 };
 
 const utxoSlice = createSlice({
@@ -23,10 +26,17 @@ const utxoSlice = createSlice({
     resetState: (state) => {
       state = initialState;
     },
+    setWalletSpendabilityMap: (
+      state,
+      action: { payload: { walletId: string; map: Record<string, UTXOInfo> } }
+    ) => {
+      state.spendability[action.payload.walletId] = action.payload.map;
+    },
   },
 });
 
-export const { setSyncingUTXOs, setSyncingUTXOError, resetState } = utxoSlice.actions;
+export const { setSyncingUTXOs, setSyncingUTXOError, resetState, setWalletSpendabilityMap } =
+  utxoSlice.actions;
 
 const utxoPersistConfig = {
   key: 'utxos',
