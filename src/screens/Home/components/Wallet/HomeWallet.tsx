@@ -43,6 +43,7 @@ import {
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { hasDoNotSpendUTXOs } from 'src/services/wallets/operations/spendability';
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -60,6 +61,7 @@ const HomeWallet = () => {
   const { usdtWallets, createWallet } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const utxoSpendability = useAppSelector((state) => state.utxos.spendability);
 
   const dispatch = useDispatch();
   const [showAddWalletModal, setShowAddWalletModal] = useState(false);
@@ -208,6 +210,13 @@ const HomeWallet = () => {
         navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
       }
     };
+    const showDoNotSpendDot =
+      item.entityKind !== EntityKind.USDT_WALLET &&
+      hasDoNotSpendUTXOs(
+        new Map(Object.entries(utxoSpendability[item.id] || {})),
+        [...item.specs.confirmedUTXOs, ...item.specs.unconfirmedUTXOs]
+      );
+
     return (
       <TouchableOpacity
         onPress={() => handleWalletPress(item, navigation)}
@@ -231,6 +240,7 @@ const HomeWallet = () => {
           wallet={item}
           isShowAmount={isShowAmount}
           setIsShowAmount={setIsShowAmount}
+          showAlertDot={showDoNotSpendDot}
         />
       </TouchableOpacity>
     );

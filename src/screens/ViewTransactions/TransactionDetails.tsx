@@ -67,6 +67,9 @@ function TransactionDetails({ route }) {
   const { transactions, common } = translations;
   const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
   const { labels } = useLabelsNew({ txid: transaction.txid });
+  const hasPotentialDustSpendLabel = (labels[transaction.txid] || []).some(
+    (label) => label.name === 'Potential dust spend'
+  );
   const [visible, setVisible] = React.useState(false);
   const close = () => setVisible(false);
   const noteRef = useRef();
@@ -261,6 +264,16 @@ function TransactionDetails({ route }) {
                 showIcon={false}
                 letterSpacing={2.4}
               />
+              {hasPotentialDustSpendLabel ? (
+                <InfoCard
+                  title={'Potential dust spend'}
+                  describtion={
+                    'This transaction may have spent a suspicious small amount together with other wallet funds. This may have reduced wallet privacy.'
+                  }
+                  showIcon={false}
+                  numberOfLines={3}
+                />
+              ) : null}
             </Box>
             <Pressable
               onPress={() => {

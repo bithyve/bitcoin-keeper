@@ -5,6 +5,9 @@ import DeleteCross from 'src/assets/images/deletelabel.svg';
 import Text from 'src/components/KeeperText';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';
 import { hp, wp } from 'src/constants/responsive';
+import Colors from 'src/theme/Colors';
+
+const DO_NOT_SPEND_LABEL = 'Do Not Spend';
 
 function LabelItem({
   item,
@@ -52,7 +55,7 @@ function LabelItem({
           onLayout(event, index);
         }
       }}
-      backgroundColor={getLabelColor(item.name)}
+      backgroundColor={item.name === DO_NOT_SPEND_LABEL ? Colors.red : getLabelColor(item.name)}
     >
       <TouchableOpacity
         style={styles.labelEditContainer}

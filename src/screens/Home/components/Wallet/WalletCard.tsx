@@ -26,6 +26,7 @@ type WalletCardProps = {
   allowHideBalance?: boolean;
   isShowAmount?: boolean;
   setIsShowAmount?: () => void;
+  showAlertDot?: boolean;
 };
 
 const WalletCard: React.FC<WalletCardProps> = ({
@@ -41,6 +42,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
   allowHideBalance = true,
   isShowAmount,
   setIsShowAmount,
+  showAlertDot = false,
 }) => {
   const defaultHexagonBackgroundColor = Colors.headerWhite;
   const { getWalletIcon } = useWalletAsset();
@@ -68,6 +70,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
           <CardPill key={tag} heading={tag} backgroundColor={color} />
         ))}
       </Box>
+      {showAlertDot ? <Box style={styles.redDot} /> : null}
 
       <Box style={styles.bottomContainer}>
         <Box style={styles.bottomLeft}>
@@ -153,6 +156,15 @@ const styles = StyleSheet.create({
   },
   secondCard: {
     maxWidth: wp(80),
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 10,
+    position: 'absolute',
+    right: wp(14),
+    top: hp(14),
+    backgroundColor: Colors.red,
   },
   usdtContainer: {},
 });

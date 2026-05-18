@@ -8,6 +8,7 @@ import { UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
+import { markDoNotSpendUTXO, markSpendableUTXO } from 'src/store/sagaActions/utxos';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
@@ -28,6 +29,14 @@ import { EditNoteContent } from '../ViewTransactions/TransactionDetails';
 import KeeperModal from 'src/components/KeeperModal';
 import LabelsEditor, { getLabelChanges } from './components/LabelsEditor';
 import WalletHeader from 'src/components/WalletHeader';
+import Buttons from 'src/components/Buttons';
+import {
+  getUTXOId,
+} from 'src/services/wallets/operations/spendability';
+import {
+  UTXOSpendabilityReason,
+  UTXOSpendabilityStatus,
+} from 'src/services/wallets/interfaces';
 
 function UTXOLabeling() {
   const { showToast } = useToastMessage();
@@ -50,6 +59,15 @@ function UTXOLabeling() {
   const { transactions: txTranslations, wallet: walletTranslations, common } = translations;
 
   const dispatch = useDispatch();
+  const utxoSpendability = useAppSelector((state) => state.utxos.spendability);
+  const spendabilityMap = new Map(Object.entries(utxoSpendability[wallet.id] || {}));
+  const utxoSpendabilityInfo = spendabilityMap.get(getUTXOId(utxo));
+  const [spendabilityStatus, setSpendabilityStatus] = useState<UTXOSpendabilityStatus>(
+    utxoSpendabilityInfo?.spendabilityStatus || UTXOSpendabilityStatus.SPENDABLE
+  );
+  const [spendabilityReason, setSpendabilityReason] = useState<UTXOSpendabilityReason | undefined>(
+    utxoSpendabilityInfo?.spendabilityReason
+  );
 
   function InfoCard({
     title,
@@ -140,6 +158,17 @@ function UTXOLabeling() {
     );
   };
 
+  const getSpendabilityReasonText = () => {
+    if (spendabilityReason === UTXOSpendabilityReason.POTENTIAL_DUST_PAYMENT)
+      return 'Potential dust payment';
+    if (spendabilityReason === UTXOSpendabilityReason.LINKED_TO_POTENTIAL_DUST_SPEND)
+      return 'Linked to potential dust spend';
+    if (spendabilityReason === UTXOSpendabilityReason.MARKED_MANUALLY) return 'Marked manually';
+    return '';
+  };
+
+  const isDoNotSpend = spendabilityStatus === UTXOSpendabilityStatus.DO_NOT_SPEND;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -212,9 +241,42 @@ function UTXOLabeling() {
               Icon={colorMode === 'light' ? <Link /> : <LinkWhite />}
               onIconPress={() => redirectToBlockExplorer('tx')}
             />
+            {isDoNotSpend ? (
+              <>
+                <InfoCard title={'Do Not Spend'} description={getSpendabilityReasonText()} />
+                {spendabilityReason !== UTXOSpendabilityReason.MARKED_MANUALLY ? (
+                  <InfoCard
+                    title={'Reason'}
+                    description={
+                      'Keeper marked this coin Do Not Spend to help protect wallet privacy.'
+                    }
+                    numberOfLines={3}
+                  />
+                ) : null}
+              </>
+            ) : null}
           </Box>
         </Box>
       </ScrollView>
+      <Box style={styles.ctaBtnWrapper}>
+        <Buttons
+          primaryText={isDoNotSpend ? 'Mark Spendable' : 'Mark Do Not Spend'}
+          fullWidth
+          primaryCallback={() => {
+            if (isDoNotSpend) {
+              dispatch(markSpendableUTXO({ walletId: wallet.id, utxo }));
+              setSpendabilityStatus(UTXOSpendabilityStatus.SPENDABLE);
+              setSpendabilityReason(undefined);
+              showToast('Coin marked spendable', <TickIcon />);
+            } else {
+              dispatch(markDoNotSpendUTXO({ walletId: wallet.id, utxo }));
+              setSpendabilityStatus(UTXOSpendabilityStatus.DO_NOT_SPEND);
+              setSpendabilityReason(UTXOSpendabilityReason.MARKED_MANUALLY);
+              showToast('Coin marked Do Not Spend', <TickIcon />);
+            }
+          }}
+        />
+      </Box>
       <KeeperModal
         visible={txNoteModalVisible}
         modalBackground={`${colorMode}.modalWhiteBackground`}

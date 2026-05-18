@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useMemo, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -15,6 +15,10 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LabelItem from 'src/screens/UTXOManagement/components/LabelItem';
+import {
+  getUTXOId,
+} from 'src/services/wallets/operations/spendability';
+import { UTXOSpendabilityStatus } from 'src/services/wallets/interfaces';
 
 export function UTXOLabel(props: {
   labels: Array<{ name: string; isSystem: boolean }>;
@@ -111,6 +115,7 @@ function UTXOElement({
   colorMode,
   labels,
   currentWallet,
+  isDoNotSpend,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection;
@@ -119,27 +124,48 @@ function UTXOElement({
   const { labels: txNoteLabels } = useLabelsNew({ txid: item.txId });
   const hasTransactionNote = txNoteLabels && txNoteLabels[item.txId]?.[0]?.name;
 
+  const toggleUTXOSelection = () => {
+    const mapToUpdate = selectedUTXOMap;
+    if (selectedUTXOMap[utxoId]) {
+      delete mapToUpdate[utxoId];
+    } else {
+      mapToUpdate[utxoId] = true;
+    }
+    setSelectedUTXOMap(mapToUpdate);
+    let utxoSum = 0;
+    utxoState.forEach((utxo) => {
+      const eachUTXOId = `${utxo.txId}${utxo.vout}`;
+      if (mapToUpdate[eachUTXOId]) {
+        utxoSum += utxo.value;
+      }
+    });
+    setSelectionTotal(utxoSum);
+  };
+
   return (
     <Box style={styles.utxoElementWrapper} borderBottomColor={`${colorMode}.separator`}>
       <TouchableOpacity
         style={styles.utxoCardContainer}
         onPress={() => {
           if (allowSelection) {
-            const mapToUpdate = selectedUTXOMap;
-            if (selectedUTXOMap[utxoId]) {
-              delete mapToUpdate[utxoId];
-            } else {
-              mapToUpdate[utxoId] = true;
+            if (isDoNotSpend && !selectedUTXOMap[utxoId]) {
+              Alert.alert(
+                'Use Do Not Spend Coin?',
+                'This coin was marked Do Not Spend to help protect wallet privacy. Spending it with other coins may reduce privacy.',
+                [
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'Use Coin',
+                    onPress: toggleUTXOSelection,
+                  },
+                ]
+              );
+              return;
             }
-            setSelectedUTXOMap(mapToUpdate);
-            let utxoSum = 0;
-            utxoState.forEach((utxo) => {
-              const utxoId = `${utxo.txId}${utxo.vout}`;
-              if (mapToUpdate[utxoId]) {
-                utxoSum += utxo.value;
-              }
-            });
-            setSelectionTotal(utxoSum);
+            toggleUTXOSelection();
           } else {
             navigation.dispatch(
               CommonActions.navigate('UTXOLabeling', { utxo: item, wallet: currentWallet })
@@ -248,6 +274,14 @@ function UTXOList({
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   const { labels } = useLabelsNew({ utxos: utxoState });
+  const utxoSpendability = useAppSelector((state) => state.utxos.spendability);
+  const spendabilityMap = useMemo(
+    () =>
+      currentWallet
+        ? new Map(Object.entries(utxoSpendability[currentWallet.id] || {}))
+        : new Map(),
+    [utxoSpendability, currentWallet?.id]
+  );
   const dispatch = useDispatch();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
@@ -271,8 +305,21 @@ function UTXOList({
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
+        (() => {
+          const baseLabels = labels ? labels[`${item.txId}:${item.vout}`] || [] : [];
+          const utxoSpendability = spendabilityMap.get(getUTXOId(item));
+          const hasDoNotSpendLabel = baseLabels.some((label) => label.name === 'Do Not Spend');
+          const rowLabels =
+            utxoSpendability?.spendabilityStatus === UTXOSpendabilityStatus.DO_NOT_SPEND &&
+            !hasDoNotSpendLabel
+              ? [{ name: 'Do Not Spend', isSystem: true }, ...baseLabels]
+              : baseLabels;
+          const isDoNotSpend =
+            utxoSpendability?.spendabilityStatus === UTXOSpendabilityStatus.DO_NOT_SPEND;
+
+          return (
         <UTXOElement
-          labels={labels ? labels[`${item.txId}:${item.vout}`] || [] : []}
+          labels={rowLabels}
           item={item}
           enableSelection={enableSelection}
           selectedUTXOMap={selectedUTXOMap}
@@ -282,7 +329,10 @@ function UTXOList({
           navigation={navigation}
           colorMode={colorMode}
           currentWallet={currentWallet}
+          isDoNotSpend={isDoNotSpend}
         />
+          );
+        })()
       )}
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}
       showsVerticalScrollIndicator={false}

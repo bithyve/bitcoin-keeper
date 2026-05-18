@@ -24,6 +24,7 @@ import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import WalletDetailHeader from './components/WalletDetailHeader';
 import DetailCards from './components/DetailCards';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { hasDoNotSpendUTXOs } from 'src/services/wallets/operations/spendability';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -69,6 +70,16 @@ function WalletDetails({ route }: ScreenProps) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [pullRefresh, setPullRefresh] = useState(false);
   const viewAll_color = ThemedColor({ name: 'viewAll_color' });
+  const utxoSpendability = useAppSelector((state) => state.utxos.spendability);
+  const spendabilityMap = wallet
+    ? new Map(Object.entries(utxoSpendability[wallet.id] || {}))
+    : new Map();
+  const showDoNotSpendInfo =
+    !!wallet &&
+    hasDoNotSpendUTXOs(spendabilityMap, [
+      ...wallet.specs.confirmedUTXOs,
+      ...wallet.specs.unconfirmedUTXOs,
+    ]);
 
   useEffect(() => {
     dispatch(sendPhaseOneReset());
@@ -128,6 +139,7 @@ function WalletDetails({ route }: ScreenProps) {
         totalBalance={wallet.specs.balances.confirmed + wallet.specs.balances.unconfirmed}
         description={wallet.presentationData.description}
         wallet={wallet}
+        showDoNotSpendInfo={showDoNotSpendInfo}
       />
       <Box style={styles.detailCardsContainer}>
         <Box style={styles.detailCards}>

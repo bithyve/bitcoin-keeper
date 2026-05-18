@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
   calculateCustomFee,
   calculateSendMaxFee,
@@ -50,6 +50,7 @@ import CurrencyInfo from '../Home/components/CurrencyInfo';
 import CustomPriorityModal from './CustomPriorityModal';
 import PriorityModal from './PriorityModal';
 import WalletHeader from 'src/components/WalletHeader';
+import { getSpendableBalance, getTotalBalance } from 'src/services/wallets/operations/spendability';
 
 const capitalizeFirstLetter = (string) => {
   if (!string) return '';
@@ -84,6 +85,8 @@ function AddSendAmount({ route }) {
     totalRecipients = 1,
     currentRecipientIdx = 1,
     miniscriptSelectedSatisfier = null,
+    donateDustMode = false,
+    donateDustFeePerByte = 1,
   }: {
     sender: Wallet | Vault;
     internalRecipients: (Wallet | Vault)[];
@@ -102,6 +105,8 @@ function AddSendAmount({ route }) {
     totalRecipients: number;
     currentRecipientIdx: number;
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
+    donateDustMode?: boolean;
+    donateDustFeePerByte?: number;
   } = route.params;
   const [amount, setAmount] = useState(prefillAmount || '0');
   const [amountToSend, setAmountToSend] = useState('0');
@@ -112,6 +117,7 @@ function AddSendAmount({ route }) {
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
   const { averageTxFees } = useAppSelector((state) => state.network);
+  const utxoSpendability = useAppSelector((state) => state.utxos.spendability);
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -122,7 +128,14 @@ function AddSendAmount({ route }) {
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
     parentScreen === WALLETSETTINGS;
-  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const allWalletUTXOs = [...sender.specs.confirmedUTXOs, ...sender.specs.unconfirmedUTXOs];
+  const totalWalletBalance = getTotalBalance(allWalletUTXOs);
+  const spendabilityMap = useMemo(
+    () => new Map(Object.entries(utxoSpendability[sender.id] || {})),
+    [utxoSpendability, sender.id]
+  );
+  const spendableWalletBalance = getSpendableBalance(spendabilityMap, allWalletUTXOs);
+  const availableBalance = spendableWalletBalance;
 
   const isDarkMode = colorMode === 'dark';
   const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
@@ -130,12 +143,15 @@ function AddSendAmount({ route }) {
   const [isSendingMax, setIsSendingMax] = useState(isSendMax);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
-  const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
-  const [customFeePerByte, setCustomFeePerByte] = useState(0);
+  const [transactionPriority, setTransactionPriority] = useState(
+    donateDustMode ? TxPriority.CUSTOM : TxPriority.LOW
+  );
+  const [customFeePerByte, setCustomFeePerByte] = useState(
+    donateDustMode ? donateDustFeePerByte : 0
+  );
   const [customEstBlocks, setCustomEstBlocks] = useState(0);
   const [estimationSign, setEstimationSign] = useState('≈');
-  const balance = idx(sender, (_) => _.specs.balances);
-  let availableToSpend = balance.confirmed + balance.unconfirmed;
+  let availableToSpend = spendableWalletBalance;
 
   const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
   if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
@@ -144,6 +160,11 @@ function AddSendAmount({ route }) {
     const totalSpent = finalRecipients.reduce((sum, recipient) => sum + recipient.amount, 0);
     availableToSpend -= totalSpent;
   }
+
+  const showDoNotSpendBalanceHelper =
+    !haveSelectedUTXOs &&
+    Number(amountToSend) > availableToSpend &&
+    Number(amountToSend) <= totalWalletBalance;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -280,6 +301,14 @@ function AddSendAmount({ route }) {
   }, [isMoveAllFunds, sendMaxFee, selectedUTXOs, transactionPriority, customFeePerByte]);
 
   useEffect(() => {
+    if (!donateDustMode) return;
+    const lowEstimatedBlocks = averageTxFees?.[bitcoinNetworkType]?.[TxPriority.LOW]?.estimatedBlocks;
+    if (lowEstimatedBlocks) {
+      setCustomEstBlocks(lowEstimatedBlocks);
+    }
+  }, [donateDustMode, averageTxFees, bitcoinNetworkType]);
+
+  useEffect(() => {
     if (!currentAmount) {
       setAmountToSend('');
       return;
@@ -340,6 +369,7 @@ function AddSendAmount({ route }) {
           customEstimatedBlocks: customEstBlocks.toString(),
           selectedUTXOs,
           miniscriptSelectedSatisfier,
+          donateDustMode,
         })
       );
     }
@@ -356,6 +386,7 @@ function AddSendAmount({ route }) {
         transactionPriority,
         customFeePerByte,
         miniscriptSelectedSatisfier,
+        donateDustMode,
       })
     );
   };
@@ -389,6 +420,12 @@ function AddSendAmount({ route }) {
       showToast(errorText.enterValidAmount);
       return;
     }
+
+    if (donateDustMode) {
+      navigateToNext();
+      return;
+    }
+
     const amountInSats = isSendingMax
       ? satsEnabled
         ? maxAmountToSend
@@ -584,11 +621,19 @@ function AddSendAmount({ route }) {
         currencyCode={currencyCode}
         specificBitcoinAmount={maxAmountToSend}
       />
+      {showDoNotSpendBalanceHelper ? (
+        <Text fontSize={12} color={`${colorMode}.textBlack`} style={{ marginTop: hp(8) }}>
+          Some coins are marked Do Not Spend and are not available for this payment.
+        </Text>
+      ) : null}
 
       {currentRecipientIdx === totalRecipients ? (
         <TouchableOpacity
-          onPress={() => setTransPriorityModalVisible(true)}
+          onPress={() => {
+            if (!donateDustMode) setTransPriorityModalVisible(true);
+          }}
           testID="transaction_priority"
+          disabled={donateDustMode}
         >
           <Box
             style={[styles.dashedButton]}

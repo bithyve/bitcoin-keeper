@@ -9,7 +9,14 @@ import idx from 'idx';
 import KeeperFooter from '../KeeperFooter';
 import { useColorMode } from '@gluestack-ui/themed-native-base';
 
-function UTXOFooter({ setEnableSelection, enableSelection, wallet, utxos }) {
+function UTXOFooter({
+  setEnableSelection,
+  enableSelection,
+  wallet,
+  utxos,
+  onDonateDust,
+  canDonateDust,
+}) {
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   const { colorMode } = useColorMode();
@@ -30,6 +37,13 @@ function UTXOFooter({ setEnableSelection, enableSelection, wallet, utxos }) {
       Icon: colorMode === 'light' ? SendGreen : SendWhite,
       onPress: () => setEnableSelection(!enableSelection),
       disabled: !utxos.length,
+    },
+    {
+      text: 'Donate Dust',
+      Icon: colorMode === 'light' ? SendGreen : SendWhite,
+      onPress: onDonateDust,
+      disabled: !canDonateDust,
+      hideItem: !canDonateDust,
     },
   ];
 

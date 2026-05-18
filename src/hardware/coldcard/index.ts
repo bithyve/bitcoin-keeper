@@ -4,14 +4,13 @@ import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HWErrorType } from 'src/models/enums/Hardware';
 import { XpubTypes } from 'src/services/wallets/enums';
-import { getWalletConfig } from '..';
 import HWError from '../HWErrorState';
 
-export const registerToColcard = async ({ vault }: { vault: Vault }) => {
-  const config = getWalletConfig({ vault });
-  const enc = NFC.encodeTextRecord(config);
-  await NFC.send(NfcTech.Ndef, enc);
-};
+// export const registerToColcard = async ({ vault }: { vault: Vault }) => {
+//   const config = getWalletConfig({ vault }); // add support for miniscript vaults before using this function
+//   const enc = NFC.encodeTextRecord(config);
+//   await NFC.send(NfcTech.Ndef, enc);
+// };
 
 export const extractColdCardExport = (data, isMultisig) => {
   const xpubDetails: XpubDetailsType = {};

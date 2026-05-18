@@ -22,6 +22,7 @@ interface Props {
   totalBalance?: number;
   allowHideBalance?: boolean;
   wallet?: any;
+  showDoNotSpendInfo?: boolean;
 }
 
 const WalletDetailHeader = ({
@@ -35,6 +36,7 @@ const WalletDetailHeader = ({
   totalBalance,
   allowHideBalance,
   wallet,
+  showDoNotSpendInfo = false,
 }: Props) => {
   const navigation = useNavigation();
   return (
@@ -76,6 +78,11 @@ const WalletDetailHeader = ({
             <Text semiBold color={Colors.headerWhite} style={styles.title}>
               {title}
             </Text>
+            {showDoNotSpendInfo ? (
+              <Text color={Colors.headerWhite} style={styles.doNotSpendInfo}>
+                Includes Do Not Spend coins
+              </Text>
+            ) : null}
           </Box>
           <Box style={styles.bottomRight}>
             <BalanceComponent
@@ -134,6 +141,11 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     marginBottom: hp(5),
+  },
+  doNotSpendInfo: {
+    fontSize: 12,
+    marginTop: hp(4),
+    opacity: 0.95,
   },
   bottomRight: {
     justifyContent: 'flex-end',

@@ -7,6 +7,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { EntityKind } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { hasDoNotSpendUTXOs } from 'src/services/wallets/operations/spendability';
+import { useAppSelector } from 'src/store/hooks';
 
 interface Props {
   setShowMore?: (value: boolean) => void;
@@ -29,6 +31,10 @@ const DetailCards = ({
   const { translations } = useContext(LocalizationContext);
   const { usdtWalletText, buyBTC: buyBTCText, common } = translations;
   const navigation = useNavigation();
+  const utxoSpendability = useAppSelector((state) => state.utxos.spendability);
+  const spendabilityMap = wallet
+    ? new Map(Object.entries(utxoSpendability[wallet.id] || {}))
+    : new Map();
 
   const CardsData = [
     {
@@ -75,6 +81,13 @@ const DetailCards = ({
           : setShowMore?.(true);
       },
       disableOption: false,
+      showDot:
+        wallet?.entityKind === EntityKind.WALLET
+          ? hasDoNotSpendUTXOs(spendabilityMap, [
+              ...wallet.specs.confirmedUTXOs,
+              ...wallet.specs.unconfirmedUTXOs,
+            ])
+          : false,
     },
   ].filter(Boolean);
 
@@ -85,7 +98,7 @@ const DetailCards = ({
 
   return (
     <Box style={styles.container} backgroundColor="transparent">
-      {CardsData.map(({ id, icon: Icon, title, callback, disableOption }) => (
+      {CardsData.map(({ id, icon: Icon, title, callback, disableOption, showDot }) => (
         <TouchableOpacity
           key={id}
           onPress={callback}
@@ -102,6 +115,7 @@ const DetailCards = ({
             <Text fontSize={11} style={styles.title} numberOfLines={2} ellipsizeMode="tail">
               {title}
             </Text>
+            {showDot ? <Box style={styles.redDot} /> : null}
           </Box>
         </TouchableOpacity>
       ))}
@@ -136,5 +150,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     maxWidth: '100%',
+  },
+  redDot: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 10,
+    backgroundColor: '#F72E2C',
   },
 });

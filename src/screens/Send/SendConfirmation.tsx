@@ -67,6 +67,7 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import MultiSendSvg from 'src/assets/images/@.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import Relay from 'src/services/backend/Relay';
+import { DONATE_DUST_UNBUILDABLE_ERROR } from 'src/services/wallets/operations/spendability';
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
@@ -82,6 +83,7 @@ export interface SendConfirmationRouteParams {
   customFeePerByte: number;
   miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   tipMessage: string;
+  donateDustMode?: boolean;
 }
 
 export interface tnxDetailsProps {
@@ -113,6 +115,7 @@ function SendConfirmation({ route }) {
     customFeePerByte: initialCustomFeePerByte,
     miniscriptSelectedSatisfier,
     tipMessage = '',
+    donateDustMode = false,
   }: SendConfirmationRouteParams = route.params;
   const navigation = useNavigation();
   const exchangeRates = useExchangeRates();
@@ -125,6 +128,12 @@ function SendConfirmation({ route }) {
   );
   const customTxRecipientsOptions = useAppSelector(
     (state) => state.sendAndReceive.customPrioritySendPhaseOne?.outputs?.customTxRecipients
+  );
+  const customPriorityHasFailed = useAppSelector(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne?.hasFailed
+  );
+  const customPriorityFailureMessage = useAppSelector(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne?.failedErrorMessage
   );
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
 
@@ -546,6 +555,14 @@ function SendConfirmation({ route }) {
     }
   }, [sendPhaseTwoFailed]);
 
+  useEffect(() => {
+    if (!donateDustMode) return;
+    if (!customPriorityHasFailed) return;
+
+    showToast(customPriorityFailureMessage || DONATE_DUST_UNBUILDABLE_ERROR, <ToastErrorIcon />);
+    navigation.goBack();
+  }, [donateDustMode, customPriorityHasFailed, customPriorityFailureMessage]);
+
   const createZendeskTipTicket = async () => {
     await Relay.createZendeskTicket({
       desc: tipMessage.trim(),
@@ -682,10 +699,10 @@ function SendConfirmation({ route }) {
             <TouchableOpacity
               testID="btn_transactionPriority"
               onPress={() => setTransPriorityModalVisible(true)}
-              disabled={isCachedTransaction} // disable change priority for AutoTransfers
+              disabled={isCachedTransaction || donateDustMode} // disable change priority for AutoTransfers and Donate Dust
             >
               <TransactionPriorityDetails
-                disabled={isCachedTransaction}
+                disabled={isCachedTransaction || donateDustMode}
                 transactionPriority={transactionPriority}
                 txFeeInfo={txFeeInfo}
                 getBalance={getBalance}
@@ -817,35 +834,37 @@ function SendConfirmation({ route }) {
         )}
       />
       {/* Transaction Priority Modal */}
-      <KeeperModal
-        visible={transPriorityModalVisible}
-        close={() => setTransPriorityModalVisible(false)}
-        title={walletTranslations.transactionPriority}
-        subTitle={walletTranslations.transactionPrioritySubTitle}
-        buttonText={common.confirm}
-        buttonCallback={() => {
-          setTransPriorityModalVisible(false), setTransactionPriority;
-        }}
-        secondaryButtonText={common.cancel}
-        secondaryCallback={() => setTransPriorityModalVisible(false)}
-        Content={() => (
-          <PriorityModal
-            selectedPriority={transactionPriority}
-            setSelectedPriority={setTransactionPriority}
-            averageTxFees={averageTxFees[bitcoinNetworkType]}
-            txFeeInfo={txFeeInfo}
-            customFeePerByte={customFeePerByte}
-            onOpenCustomPriorityModal={() => {
-              dispatch(customPrioritySendPhaseOneStatusReset());
-              setVisibleCustomPriorityModal(true);
-            }}
-            customEstBlocks={customEstBlocks}
-            setCustomEstBlocks={setCustomEstBlocks}
-            estimationSign={estimationSign}
-            setEstimationSign={setEstimationSign}
-          />
-        )}
-      />
+      {!donateDustMode ? (
+        <KeeperModal
+          visible={transPriorityModalVisible}
+          close={() => setTransPriorityModalVisible(false)}
+          title={walletTranslations.transactionPriority}
+          subTitle={walletTranslations.transactionPrioritySubTitle}
+          buttonText={common.confirm}
+          buttonCallback={() => {
+            setTransPriorityModalVisible(false), setTransactionPriority;
+          }}
+          secondaryButtonText={common.cancel}
+          secondaryCallback={() => setTransPriorityModalVisible(false)}
+          Content={() => (
+            <PriorityModal
+              selectedPriority={transactionPriority}
+              setSelectedPriority={setTransactionPriority}
+              averageTxFees={averageTxFees[bitcoinNetworkType]}
+              txFeeInfo={txFeeInfo}
+              customFeePerByte={customFeePerByte}
+              onOpenCustomPriorityModal={() => {
+                dispatch(customPrioritySendPhaseOneStatusReset());
+                setVisibleCustomPriorityModal(true);
+              }}
+              customEstBlocks={customEstBlocks}
+              setCustomEstBlocks={setCustomEstBlocks}
+              estimationSign={estimationSign}
+              setEstimationSign={setEstimationSign}
+            />
+          )}
+        />
+      ) : null}
       {/* High fee alert Modal */}
       <KeeperModal
         visible={highFeeAlertVisible}
@@ -955,7 +974,7 @@ function SendConfirmation({ route }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         Content={otpContent}
       />
-      {visibleCustomPriorityModal && (
+      {!donateDustMode && visibleCustomPriorityModal && (
         <CustomPriorityModal
           visible={visibleCustomPriorityModal}
           close={() => setVisibleCustomPriorityModal(false)}
