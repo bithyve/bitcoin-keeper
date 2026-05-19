@@ -181,26 +181,6 @@ The wallet card on the home screen MUST show the standard red dot indicator when
 
 ---
 
-### Requirement: Wallet Details Do Not Spend Warning Line
-
-The Wallet Details screen MUST show a non-tappable line below the wallet name/subtitle when the wallet contains at least one current Do Not Spend UTXO:
-
-> **Includes Do Not Spend coins**
-
-#### Scenario: Warning line appears when Do Not Spend UTXOs exist
-
-- GIVEN the Wallet Details screen is open for a wallet with at least one Do Not Spend UTXO
-- WHEN the screen renders
-- THEN the line "Includes Do Not Spend coins" is displayed below the wallet name/subtitle
-
-#### Scenario: Warning line is absent when no Do Not Spend UTXOs exist
-
-- GIVEN the Wallet Details screen is open for a wallet with no Do Not Spend UTXOs
-- WHEN the screen renders
-- THEN no "Includes Do Not Spend coins" line is displayed
-
----
-
 ### Requirement: View All Coins Red Dot Indicator
 
 The **View All Coins** card in the Wallet Details quick-action strip MUST show the standard red dot indicator when the wallet contains at least one current Do Not Spend UTXO.

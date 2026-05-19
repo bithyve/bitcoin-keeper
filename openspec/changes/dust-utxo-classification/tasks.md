@@ -46,7 +46,7 @@
 
 ## 9. UI — Wallet Details
 
-- [x] 9.1 In `WalletDetails` screen (`src/screens/WalletDetails/WalletDetails.tsx`): call `useUTXOSpendability` for the current wallet and conditionally render a non-tappable "Includes Do Not Spend coins" text line below the wallet name/subtitle when `hasDoNotSpendUTXOs` is true
+- [x] 9.1 ~~In `WalletDetails` screen: render a non-tappable "Includes Do Not Spend coins" text line (removed per product decision)~~ — no UI change on WalletDetails
 - [x] 9.2 In `DetailCards` (`src/screens/WalletDetails/components/DetailCards.tsx`): pass `showDot` to the View All Coins card entry when the wallet `hasDoNotSpendUTXOs` — add `showDot` prop rendering to that card item
 
 ## 10. UI — Manage Coins (UTXOManagement / UTXOList)
