@@ -5,7 +5,6 @@ import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 
 type HelpAiEntryCardProps = {
   onStartChat: () => void;
@@ -24,7 +23,6 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
 
   return (
     <View style={styles.container}>
-      <ChatBubbleIcon width={wp(120)} height={hp(120)} />
       <Text
         style={styles.title}
         fontSize={22}
