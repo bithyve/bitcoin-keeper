@@ -2151,5 +2151,13 @@
     "importInfoDesc1": "Bitcoin Keeper supports importing GasFree USDT wallets only. If you're using a compatible wallet provider that also supports gas-free transactions on the Tron network, you can import your wallet using your 12 or 24-word recovery phrase.",
     "importInfoDesc2": "Once imported, you’ll be able to access and manage your USDT without needing TRX.",
     "importInfoDescNote": "Note: Standard TRC-20 wallets that require TRX to move funds are not supported."
+  },
+  "askAi": {
+    "ask": "Ask",
+    "askKeeper": "Ask Keeper",
+    "noConversationsYet": "No conversations yet",
+    "subtitle": "Get help, report a problem, or share an idea.",
+    "openHelpChat": "Start a conversation",
+    "neverShareSeedWarning": "Never share seed words or private keys."
   }
 }

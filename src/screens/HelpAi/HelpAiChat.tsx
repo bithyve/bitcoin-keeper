@@ -1,5 +1,5 @@
 import { useColorMode } from '@gluestack-ui/themed-native-base';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -42,6 +42,7 @@ import {
   type HelpAiRenderMessage,
 } from 'src/store/reducers/helpAi';
 import { GREETINGS } from 'src/constants/ChatAiGreetings';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
 
@@ -80,6 +81,8 @@ const HelpAiChat = ({ navigation, route }) => {
     }),
     [isDarkMode]
   );
+  const { translations } = useContext(LocalizationContext);
+  const { askAi } = translations;
   const { showToast } = useToastMessage();
   const listRef = useRef<FlatList<HelpAiRenderMessage>>(null);
   const generatedConversationId = useMemo(() => `conv_${Date.now().toString(36)}`, []);
@@ -392,7 +395,7 @@ const HelpAiChat = ({ navigation, route }) => {
   };
 
   return (
-    <HelpAiShell title={'Keeper Help'}>
+    <HelpAiShell title={askAi.askKeeper}>
       <View style={styles.container}>
         <View style={styles.scrollArea}>
           <FlatList

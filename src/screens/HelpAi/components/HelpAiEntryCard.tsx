@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type HelpAiEntryCardProps = {
   onStartChat: () => void;
@@ -20,6 +21,8 @@ const suggestions = [
 
 const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) => {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { askAi } = translations;
 
   return (
     <View style={styles.container}>
@@ -29,7 +32,7 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
         medium
         color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
       >
-        No conversations yet
+        {askAi.noConversationsYet}
       </Text>
 
       <Text
@@ -37,11 +40,11 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
         fontSize={13}
         color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
       >
-        Ask Keeper a question, report a problem, or share an idea.
+        {askAi.subtitle}
       </Text>
 
       <View style={styles.buttonCtr}>
-        <Buttons primaryText={'Open Help Chat'} primaryCallback={onStartChat} fullWidth />
+        <Buttons primaryText={askAi.openHelpChat} primaryCallback={onStartChat} fullWidth />
       </View>
 
       <View style={styles.suggestionCtr}>
@@ -68,7 +71,7 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
           ))}
         </View>
         <Text style={styles.warningText} color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}>
-          Never share seed words or private keys.
+          {askAi.neverShareSeedWarning}
         </Text>
       </View>
     </View>

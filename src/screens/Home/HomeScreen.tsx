@@ -44,7 +44,7 @@ function NewHomeScreen({ route }) {
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, common } = translations;
+  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, askAi } = translations;
   const [selectedOption, setSelectedOption] = useState(
     selectedOptionFromRoute || walletText.homeWallets
   );
@@ -142,7 +142,7 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case common.help:
+      case askAi.ask:
         return {
           content: <HelpAiEntry route={route} />,
           icon: (

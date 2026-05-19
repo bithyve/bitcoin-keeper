@@ -170,7 +170,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const getHeaderTitle = useCallback(
     (title: string) => {
       if (title === walletTranslation.more) title = common.moreOptions;
-      if (title === common.help) title = 'Keeper Help';
       return capitalizeEachWord(title);
     },
     [title, walletTranslation.more, common.moreOptions]
