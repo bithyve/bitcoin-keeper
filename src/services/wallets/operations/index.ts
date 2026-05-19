@@ -1013,7 +1013,9 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = [...(wallet.specs.confirmedUTXOs ?? []), ...(wallet.specs.unconfirmedUTXOs ?? [])].filter(
+        (u) => u.spendability !== 'doNotSpend'
+      );
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1098,7 +1100,9 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = [...(wallet.specs.confirmedUTXOs ?? []), ...(wallet.specs.unconfirmedUTXOs ?? [])].filter(
+        (u) => u.spendability !== 'doNotSpend'
+      );
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);

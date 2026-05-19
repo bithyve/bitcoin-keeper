@@ -122,7 +122,15 @@ function AddSendAmount({ route }) {
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
     parentScreen === WALLETSETTINGS;
-  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const totalBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const spendableBalance = [
+    ...(sender.specs.confirmedUTXOs ?? []),
+    ...(sender.specs.unconfirmedUTXOs ?? []),
+  ]
+    .filter((u) => u.spendability !== 'doNotSpend')
+    .reduce((sum, u) => sum + u.value, 0);
+  // availableBalance is kept for backward-compat references (e.g. send-max guard)
+  const availableBalance = spendableBalance;
 
   const isDarkMode = colorMode === 'dark';
   const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
@@ -135,7 +143,7 @@ function AddSendAmount({ route }) {
   const [customEstBlocks, setCustomEstBlocks] = useState(0);
   const [estimationSign, setEstimationSign] = useState('≈');
   const balance = idx(sender, (_) => _.specs.balances);
-  let availableToSpend = balance.confirmed + balance.unconfirmed;
+  let availableToSpend = spendableBalance;
 
   const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
   if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
@@ -144,6 +152,12 @@ function AddSendAmount({ route }) {
     const totalSpent = finalRecipients.reduce((sum, recipient) => sum + recipient.amount, 0);
     availableToSpend -= totalSpent;
   }
+
+  const hasDoNotSpendWarning =
+    !haveSelectedUTXOs &&
+    Number(amountToSend) > 0 &&
+    Number(amountToSend) > spendableBalance &&
+    Number(amountToSend) <= totalBalance;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -221,8 +235,12 @@ function AddSendAmount({ route }) {
       } else if (availableToSpend < Number(amountToSend)) {
         setErrorMessage(errorText.selectEnoughUTXOstoAccommodateFee);
       } else setErrorMessage('');
-    } else if (availableToSpend < Number(amountToSend)) {
+    } else if (availableToSpend < Number(amountToSend) && Number(amountToSend) > totalBalance) {
+      // Total balance is also insufficient — standard error
       setErrorMessage(errorText.amountEnteredMoreThanAvailable);
+    } else if (availableToSpend < Number(amountToSend)) {
+      // Spendable balance blocked by Do Not Spend coins — warning handled inline, clear error
+      setErrorMessage('');
     } else setErrorMessage('');
   }, [amountToSend, selectedUTXOs.length]);
 
@@ -585,6 +603,24 @@ function AddSendAmount({ route }) {
         specificBitcoinAmount={maxAmountToSend}
       />
 
+      {hasDoNotSpendWarning && (
+        <Box style={styles.doNotSpendWarningBox}>
+          <Text style={styles.doNotSpendWarningText} color={`${colorMode}.warning`}>
+            {errorText.someCoinsDoNotSpend}
+          </Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.dispatch(CommonActions.navigate('UTXOManagement', { data: sender }))
+            }
+            testID="btn_viewCoins"
+          >
+            <Text style={styles.viewCoinsText} color={`${colorMode}.accent`}>
+              {errorText.viewCoins}
+            </Text>
+          </TouchableOpacity>
+        </Box>
+      )}
+
       {currentRecipientIdx === totalRecipients ? (
         <TouchableOpacity
           onPress={() => setTransPriorityModalVisible(true)}
@@ -711,6 +747,19 @@ const styles = StyleSheet.create({
   },
   ctaBtnWrapper: {
     marginTop: hp(30),
+  },
+  doNotSpendWarningBox: {
+    marginHorizontal: wp(15),
+    marginTop: hp(8),
+    marginBottom: hp(4),
+    gap: hp(4),
+  },
+  doNotSpendWarningText: {
+    fontSize: 13,
+  },
+  viewCoinsText: {
+    fontSize: 13,
+    textDecorationLine: 'underline',
   },
   RecipientInfo: {
     flexDirection: 'row',
