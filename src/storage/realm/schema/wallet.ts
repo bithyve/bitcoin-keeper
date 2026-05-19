@@ -65,6 +65,8 @@ export const UTXOSchema: ObjectSchema = {
     value: 'int',
     address: 'string',
     height: 'int',
+    spendability: 'string?',
+    isManualOverride: { type: 'bool', default: false },
   },
 };
 
