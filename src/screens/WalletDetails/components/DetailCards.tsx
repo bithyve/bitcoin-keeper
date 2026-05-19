@@ -1,12 +1,13 @@
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { EntityKind } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import Colors from 'src/theme/Colors';
 
 interface Props {
   setShowMore?: (value: boolean) => void;
@@ -15,6 +16,7 @@ interface Props {
   buyCallback?: () => void;
   disabled?: boolean;
   wallet?: any;
+  hasDoNotSpendUTXOs?: boolean;
 }
 
 const DetailCards = ({
@@ -24,6 +26,7 @@ const DetailCards = ({
   buyCallback,
   disabled,
   wallet,
+  hasDoNotSpendUTXOs = false,
 }: Props) => {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -75,6 +78,7 @@ const DetailCards = ({
           : setShowMore?.(true);
       },
       disableOption: false,
+      showDot: wallet?.entityKind === EntityKind.WALLET && hasDoNotSpendUTXOs,
     },
   ].filter(Boolean);
 
@@ -85,7 +89,7 @@ const DetailCards = ({
 
   return (
     <Box style={styles.container} backgroundColor="transparent">
-      {CardsData.map(({ id, icon: Icon, title, callback, disableOption }) => (
+      {CardsData.map(({ id, icon: Icon, title, callback, disableOption, showDot }) => (
         <TouchableOpacity
           key={id}
           onPress={callback}
@@ -98,7 +102,10 @@ const DetailCards = ({
             borderColor={`${colorMode}.separator`}
             style={styles.card}
           >
-            <ThemedSvg name={Icon} width={18} height={18} />
+            <View>
+              <ThemedSvg name={Icon} width={18} height={18} />
+              {showDot && <View style={styles.cardDot} />}
+            </View>
             <Text fontSize={11} style={styles.title} numberOfLines={2} ellipsizeMode="tail">
               {title}
             </Text>
@@ -136,5 +143,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
     maxWidth: '100%',
+  },
+  cardDot: {
+    position: 'absolute',
+    top: -3,
+    right: -3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.CrimsonRed,
   },
 });

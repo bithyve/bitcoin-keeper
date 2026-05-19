@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useMemo, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -15,6 +15,8 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LabelItem from 'src/screens/UTXOManagement/components/LabelItem';
+import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
+import Colors from 'src/theme/Colors';
 
 export function UTXOLabel(props: {
   labels: Array<{ name: string; isSystem: boolean }>;
@@ -111,6 +113,7 @@ function UTXOElement({
   colorMode,
   labels,
   currentWallet,
+  isDoNotSpend,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection;
@@ -193,7 +196,7 @@ function UTXOElement({
                 </Box>
               </Box>
             ) : null}
-            {labels.length === 0 ? (
+            {labels.length === 0 && !isDoNotSpend ? (
               <Box style={styles.utxoLabelView} backgroundColor={`${colorMode}.gray`}>
                 <Text color={`${colorMode}.placeHolderTextColor`} style={styles.addLabelsText}>
                   + {walletTranslation.AddLabels}
@@ -201,7 +204,14 @@ function UTXOElement({
               </Box>
             ) : (
               <Box marginTop={hp(8)}>
-                <UTXOLabel labels={labels} isSelecting={allowSelection} />
+                {isDoNotSpend && (
+                  <View style={[styles.doNotSpendChip]}>
+                    <Text style={styles.labelText} color={Colors.headerWhite}>
+                      Do Not Spend
+                    </Text>
+                  </View>
+                )}
+                {labels.length > 0 && <UTXOLabel labels={labels} isSelecting={allowSelection} />}
               </Box>
             )}
           </Box>
@@ -248,6 +258,7 @@ function UTXOList({
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   const { labels } = useLabelsNew({ utxos: utxoState });
+  const { getSpendability } = useUTXOSpendability(currentWallet ?? null);
   const dispatch = useDispatch();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
@@ -282,6 +293,7 @@ function UTXOList({
           navigation={navigation}
           colorMode={colorMode}
           currentWallet={currentWallet}
+          isDoNotSpend={getSpendability(item.txId, item.vout) === 'doNotSpend'}
         />
       )}
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}
@@ -403,5 +415,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: hp(10),
     marginLeft: hp(5),
+  },
+  doNotSpendChip: {
+    paddingHorizontal: wp(10),
+    paddingVertical: wp(3),
+    borderRadius: 20,
+    backgroundColor: Colors.CrimsonRed,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    marginLeft: 3,
+    marginTop: hp(5),
   },
 });

@@ -7,7 +7,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
-import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
+import { addLabels, bulkUpdateLabels, markUTXOSpendability } from 'src/store/sagaActions/utxos';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
@@ -28,6 +28,8 @@ import { EditNoteContent } from '../ViewTransactions/TransactionDetails';
 import KeeperModal from 'src/components/KeeperModal';
 import LabelsEditor, { getLabelChanges } from './components/LabelsEditor';
 import WalletHeader from 'src/components/WalletHeader';
+import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
+import Colors from 'src/theme/Colors';
 
 function UTXOLabeling() {
   const { showToast } = useToastMessage();
@@ -50,6 +52,10 @@ function UTXOLabeling() {
   const { transactions: txTranslations, wallet: walletTranslations, common } = translations;
 
   const dispatch = useDispatch();
+  const { getSpendability } = useUTXOSpendability(wallet ?? null);
+  const currentSpendability = getSpendability(utxo.txId, utxo.vout);
+  const isDoNotSpend = currentSpendability === 'doNotSpend';
+  const isManualOverride = !!(utxo as any).isManualOverride;
 
   function InfoCard({
     title,
@@ -213,6 +219,42 @@ function UTXOLabeling() {
               onIconPress={() => redirectToBlockExplorer('tx')}
             />
           </Box>
+          {/* Spendability section */}
+          <Box style={styles.spendabilitySection} borderTopColor={`${colorMode}.separator`}>
+            {isDoNotSpend ? (
+              <>
+                <Text style={styles.spendabilityReasonText} color="rgba(217, 44, 44, 1)">
+                  {isManualOverride ? 'Marked manually' : 'Potential dust payment'}
+                </Text>
+                <Text style={styles.spendabilityExplainText} color={`${colorMode}.GreyText`}>
+                  Keeper marked this coin Do Not Spend to help protect wallet privacy.
+                </Text>
+                <TouchableOpacity
+                  style={[styles.spendabilityCta, { backgroundColor: Colors.CyanGreen }]}
+                  onPress={() => {
+                    dispatch(markUTXOSpendability({ wallet, txId: utxo.txId, vout: utxo.vout, spendability: 'spendable' }));
+                    showToast('Coin marked spendable', <TickIcon />);
+                  }}
+                >
+                  <Text color={Colors.headerWhite} style={styles.spendabilityCtaText}>
+                    Mark Spendable
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={[styles.spendabilityCta, { backgroundColor: Colors.CrimsonRed }]}
+                onPress={() => {
+                  dispatch(markUTXOSpendability({ wallet, txId: utxo.txId, vout: utxo.vout, spendability: 'doNotSpend' }));
+                  showToast('Coin marked Do Not Spend', <TickIcon />);
+                }}
+              >
+                <Text color={Colors.headerWhite} style={styles.spendabilityCtaText}>
+                  Mark Do Not Spend
+                </Text>
+              </TouchableOpacity>
+            )}
+          </Box>
         </Box>
       </ScrollView>
       <KeeperModal
@@ -322,6 +364,30 @@ const styles = StyleSheet.create({
   descText: {
     fontSize: 12,
     marginBottom: hp(7),
+  },
+  spendabilitySection: {
+    marginTop: hp(20),
+    paddingTop: hp(16),
+    borderTopWidth: 1,
+    paddingHorizontal: wp(5),
+  },
+  spendabilityReasonText: {
+    fontSize: 13,
+    marginBottom: hp(6),
+  },
+  spendabilityExplainText: {
+    fontSize: 12,
+    marginBottom: hp(16),
+  },
+  spendabilityCta: {
+    paddingVertical: hp(14),
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: hp(4),
+  },
+  spendabilityCtaText: {
+    fontSize: 14,
   },
 });
 
