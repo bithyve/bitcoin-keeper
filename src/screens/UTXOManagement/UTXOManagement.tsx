@@ -106,11 +106,14 @@ function UTXOManagement({ route }: ScreenProps) {
   );
 
   useEffect(() => {
-    setSelectedWallet(wallet);
     if (!walletSyncing[wallet.id]) {
       dispatch(refreshWallets([wallet], { hardRefresh: false }));
     }
   }, []);
+
+  useEffect(() => {
+    setSelectedWallet(wallet);
+  }, [wallet]);
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs

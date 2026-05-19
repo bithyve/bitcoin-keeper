@@ -5,8 +5,10 @@ import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import { UTXO } from 'src/services/wallets/interfaces';
-import { LabelRefType, NetworkType } from 'src/services/wallets/enums';
+import { EntityKind, LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import { useDispatch } from 'react-redux';
+import useWallets from 'src/hooks/useWallets';
+import useVault from 'src/hooks/useVault';
 import { addLabels, bulkUpdateLabels, markUTXOSpendability } from 'src/store/sagaActions/utxos';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -52,7 +54,12 @@ function UTXOLabeling() {
   const { transactions: txTranslations, wallet: walletTranslations, common } = translations;
 
   const dispatch = useDispatch();
-  const { getSpendability } = useUTXOSpendability(wallet ?? null);
+  // Live reactive wallet from Realm so spendability updates immediately after saga writes
+  const liveWalletResult = useWallets({ walletIds: [wallet.id] }).wallets[0];
+  const liveVaultResult = useVault({ vaultId: wallet.id }).activeVault;
+  const liveWallet =
+    wallet.entityKind === EntityKind.VAULT ? liveVaultResult : liveWalletResult;
+  const { getSpendability } = useUTXOSpendability(liveWallet ?? null);
   const currentSpendability = getSpendability(utxo.txId, utxo.vout);
   const isDoNotSpend = currentSpendability === 'doNotSpend';
   const isManualOverride = !!(utxo as any).isManualOverride;
