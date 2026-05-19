@@ -131,6 +131,8 @@ import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
 import { updateDelayedPolicyUpdate } from '../reducers/storage';
 import { accountNoFromDerivationPath } from 'src/utils/service-utilities/utils';
+import { classifyDustUTXO } from 'src/services/wallets/operations/dustClassification';
+import { setPendingDustToast } from '../reducers/utxos';
 
 export interface NewVaultDetails {
   name?: string;
@@ -636,6 +638,30 @@ function* refreshWalletsWorker({
 
     const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
+    // Build pre-sync spendability snapshot and capture preSyncNextFreeAddressIndex per wallet
+    const preSyncSnapshots = new Map<
+      string,
+      Map<string, { spendability?: string; isManualOverride?: boolean }>
+    >();
+    const preSyncNextFreeAddressIndexMap = new Map<string, number>();
+    for (const wallet of wallets) {
+      const snapshot = new Map<string, { spendability?: string; isManualOverride?: boolean }>();
+      const specs = (wallet as any).specs;
+      if (specs) {
+        const allUTXOs = [...(specs.confirmedUTXOs || []), ...(specs.unconfirmedUTXOs || [])];
+        for (const utxo of allUTXOs) {
+          if (utxo.spendability !== undefined || utxo.isManualOverride !== undefined) {
+            snapshot.set(`${utxo.txId}:${utxo.vout}`, {
+              spendability: utxo.spendability,
+              isManualOverride: utxo.isManualOverride,
+            });
+          }
+        }
+        preSyncNextFreeAddressIndexMap.set(wallet.id, specs.nextFreeAddressIndex ?? 0);
+      }
+      preSyncSnapshots.set(wallet.id, snapshot);
+    }
+
     const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
       WalletOperations.syncWalletsViaElectrumClient,
       wallets,
@@ -705,7 +731,50 @@ function* refreshWalletsWorker({
           specs: synchedWallet.specs,
         });
       }
-    }
+
+      // Restore spendability from snapshot; classify new UTXOs; toast on new dust
+      const walletSnapshot = preSyncSnapshots.get(synchedWallet.id) || new Map();
+      const preSyncNFAI = preSyncNextFreeAddressIndexMap.get(synchedWallet.id) ?? 0;
+      const newDustUTXOs: any[] = [];
+
+      const allSynchedUTXOs = [
+        ...((synchedWallet as any).specs.confirmedUTXOs || []),
+        ...((synchedWallet as any).specs.unconfirmedUTXOs || []),
+      ];
+
+      for (const utxo of allSynchedUTXOs) {
+        const key = `${utxo.txId}:${utxo.vout}`;
+        const existing = walletSnapshot.get(key);
+        if (existing !== undefined) {
+          // Restore previously known state (handles hard refresh wipe)
+          utxo.spendability = existing.spendability;
+          utxo.isManualOverride = existing.isManualOverride ?? false;
+        } else {
+          // New UTXO — classify fresh
+          const classification = classifyDustUTXO(utxo, synchedWallet as any, preSyncNFAI);
+          utxo.spendability = classification;
+          utxo.isManualOverride = false;
+          if (classification === 'doNotSpend') {
+            newDustUTXOs.push(utxo);
+          }
+        }
+      }
+
+      // Write updated specs (with spendability) back to Realm
+      if (synchedWallet.entityKind === EntityKind.VAULT) {
+        yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
+          specs: synchedWallet.specs,
+        });
+      } else {
+        yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
+          specs: synchedWallet.specs,
+        });
+      }
+
+      if (options.addNotifications && newDustUTXOs.length > 0) {
+        yield put(setPendingDustToast(synchedWallet.id));
+      }
+    } // end for (synchedWalletWithUTXOs)
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(
