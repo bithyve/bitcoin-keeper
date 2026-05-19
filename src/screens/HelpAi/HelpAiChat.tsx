@@ -3,17 +3,16 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  InteractionManager,
   Linking,
   Platform,
   Pressable,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import {
@@ -114,14 +113,14 @@ const HelpAiChat = ({ navigation, route }) => {
   }, [conversationId, dispatch]);
 
   const scrollToBottom = () => {
-    InteractionManager.runAfterInteractions(() => {
-      requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
-    });
+    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
   };
 
   useEffect(() => {
-    if (!messages.length) return;
-    scrollToBottom();
+    if (!messages.length) return undefined;
+    // Small delay to let FlatList measure new content before scrolling
+    const t = setTimeout(scrollToBottom, 150);
+    return () => clearTimeout(t);
   }, [messages.length]);
 
   const appendMessage = (message: HelpAiRenderMessage) => {
@@ -285,10 +284,10 @@ const HelpAiChat = ({ navigation, route }) => {
             },
           ]}
         >
-          <Text medium color={uiColors.primaryText}>
+          <Text style={[styles.textMedium, { color: uiColors.primaryText }]}>
             {item.card.title}
           </Text>
-          <Text fontSize={12} color={uiColors.secondaryText}>
+          <Text style={[styles.textSmall, { color: uiColors.secondaryText, marginTop: hp(4) }]}>
             {item.card.description}
           </Text>
           <View style={styles.cardCtaCtr}>
@@ -313,14 +312,20 @@ const HelpAiChat = ({ navigation, route }) => {
             },
           ]}
         >
-          <Text medium color={uiColors.primaryText}>
+          <Text style={[styles.textMedium, { color: uiColors.primaryText }]}>
             {`Issue #${item.issueNumber} created`}
           </Text>
-          <Text fontSize={12} color={uiColors.secondaryText}>
+          <Text style={[styles.textSmall, { color: uiColors.secondaryText, marginTop: hp(4) }]}>
             {item.text}
           </Text>
           <Pressable onPress={() => Linking.openURL(item.issueUrl)}>
-            <Text fontSize={12} color={uiColors.link} style={styles.linkText}>
+            <Text
+              style={[
+                styles.textSmall,
+                styles.linkText,
+                { color: uiColors.link, marginTop: hp(4) },
+              ]}
+            >
               {item.issueUrl}
             </Text>
           </Pressable>
@@ -331,12 +336,10 @@ const HelpAiChat = ({ navigation, route }) => {
     if (item.type === 'system_error') {
       return (
         <View style={styles.systemErrorCtr}>
-          <Text fontSize={12} color={uiColors.error}>
-            {item.text}
-          </Text>
+          <Text style={[styles.textSmall, { color: uiColors.error }]}>{item.text}</Text>
           {item.retryText ? (
             <Pressable onPress={() => sendToChat(item.retryText)}>
-              <Text fontSize={12} color={uiColors.link} medium>
+              <Text style={[styles.textSmall, styles.textMediumWeight, { color: uiColors.link }]}>
                 Retry
               </Text>
             </Pressable>
@@ -349,6 +352,7 @@ const HelpAiChat = ({ navigation, route }) => {
     const sources = item.type === 'ai' ? item.sources : undefined;
     return (
       <View
+        collapsable={false}
         style={[
           styles.bubble,
           isUser ? styles.userBubble : styles.aiBubble,
@@ -358,7 +362,13 @@ const HelpAiChat = ({ navigation, route }) => {
           },
         ]}
       >
-        <Text color={isUser ? uiColors.buttonText : uiColors.primaryText} fontSize={13}>
+        <Text
+          style={{
+            color: isUser ? uiColors.buttonText : uiColors.primaryText,
+            fontSize: 13,
+            lineHeight: 18,
+          }}
+        >
           {item.text}
         </Text>
         {sources?.length > 0 && (
@@ -368,7 +378,9 @@ const HelpAiChat = ({ navigation, route }) => {
                 key={`${source.url}-${source.title}-${idx}`}
                 onPress={() => Linking.openURL(source.url)}
               >
-                <Text fontSize={11} color={uiColors.link} style={styles.linkText}>
+                <Text
+                  style={[styles.linkText, { fontSize: 11, lineHeight: 16, color: uiColors.link }]}
+                >
                   {source.title}
                 </Text>
               </Pressable>
@@ -382,41 +394,52 @@ const HelpAiChat = ({ navigation, route }) => {
   return (
     <HelpAiShell title={'Keeper Help'}>
       <View style={styles.container}>
-        <FlatList
-          ref={listRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMessage}
-          contentContainerStyle={styles.messagesContainer}
-        />
-
-        <View style={[styles.typingCtr, { display: typing ? 'flex' : 'none' }]}>
-          <ActivityIndicator size="small" />
-          <Text fontSize={12} color={uiColors.secondaryText}>
-            Assistant is typing...
-          </Text>
-        </View>
-
-        <View style={{ display: draft && draftStatus !== 'submitted' ? 'flex' : 'none' }}>
-          {draft ? (
-            <HelpAiDraftCard
-              draft={draft}
-              draftStatus={draftStatus}
-              onReview={() =>
-                dispatch(
-                  setHelpAiDraftStatus({
-                    conversationId,
-                    draftStatus: 'confirming_public_submission',
-                  })
-                )
-              }
-              onConfirm={submitDraftIssue}
-              onCancel={() =>
-                dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'pending_review' }))
-              }
-              onRetry={submitDraftIssue}
-            />
-          ) : null}
+        <View style={styles.scrollArea}>
+          <FlatList
+            ref={listRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View collapsable={false} style={styles.messageWrapper}>
+                {renderMessage({ item })}
+              </View>
+            )}
+            contentContainerStyle={styles.messagesContainer}
+            keyboardShouldPersistTaps="handled"
+            ListFooterComponent={
+              <>
+                {typing && (
+                  <View style={styles.typingCtr}>
+                    <ActivityIndicator size="small" />
+                    <Text style={[styles.textSmall, { color: uiColors.secondaryText }]}>
+                      Assistant is typing...
+                    </Text>
+                  </View>
+                )}
+                {draft && draftStatus !== 'submitted' && (
+                  <HelpAiDraftCard
+                    draft={draft}
+                    draftStatus={draftStatus}
+                    onReview={() =>
+                      dispatch(
+                        setHelpAiDraftStatus({
+                          conversationId,
+                          draftStatus: 'confirming_public_submission',
+                        })
+                      )
+                    }
+                    onConfirm={submitDraftIssue}
+                    onCancel={() =>
+                      dispatch(
+                        setHelpAiDraftStatus({ conversationId, draftStatus: 'pending_review' })
+                      )
+                    }
+                    onRetry={submitDraftIssue}
+                  />
+                )}
+              </>
+            }
+          />
         </View>
 
         <View
@@ -453,14 +476,13 @@ const HelpAiChat = ({ navigation, route }) => {
           </Pressable>
         </View>
 
-        <Pressable
-          style={[styles.retryBar, { display: lastFailedText ? 'flex' : 'none' }]}
-          onPress={() => lastFailedText && sendToChat(lastFailedText)}
-        >
-          <Text fontSize={12} color={uiColors.link} medium>
-            Retry last failed message
-          </Text>
-        </Pressable>
+        {lastFailedText ? (
+          <Pressable style={styles.retryBar} onPress={() => sendToChat(lastFailedText)}>
+            <Text style={[styles.textSmall, styles.textMediumWeight, { color: uiColors.link }]}>
+              Retry last failed message
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
     </HelpAiShell>
   );
@@ -475,6 +497,13 @@ const styles = StyleSheet.create({
   messagesContainer: {
     paddingVertical: hp(14),
   },
+  scrollArea: {
+    flex: 1,
+    minHeight: 0,
+  },
+  messageWrapper: {
+    overflow: 'hidden',
+  },
   inputBar: {
     borderWidth: 1,
     borderRadius: 12,
@@ -482,12 +511,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: wp(8),
     alignItems: 'flex-end',
+    flexShrink: 0,
   },
   input: {
     flex: 1,
     maxHeight: hp(100),
     minHeight: hp(42),
     fontSize: 13,
+    lineHeight: 18,
+    ...Platform.select({
+      ios: {
+        paddingVertical: hp(12),
+      },
+      android: {
+        textAlignVertical: 'center',
+        paddingTop: 0,
+        paddingBottom: 0,
+      },
+    }),
   },
   sendBtn: {
     borderRadius: 100,
@@ -507,7 +548,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: wp(12),
     marginBottom: hp(8),
-    gap: hp(4),
+    overflow: 'hidden',
   },
   cardCtaCtr: {
     marginTop: hp(8),
@@ -519,6 +560,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp(10),
     marginBottom: hp(8),
     borderWidth: 1,
+    overflow: 'hidden',
   },
   userBubble: {
     alignSelf: 'flex-end',
@@ -542,6 +584,18 @@ const styles = StyleSheet.create({
   retryBar: {
     alignSelf: 'center',
     marginTop: hp(8),
+  },
+  textSmall: {
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  textMedium: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  textMediumWeight: {
+    fontWeight: '500',
   },
 });
 

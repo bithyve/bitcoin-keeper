@@ -30,6 +30,8 @@ const HelpAiDraftCard = ({
 }: HelpAiDraftCardProps) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
+  // Workaround: react-redux 7.x does not reliably trigger child re-renders
+  // with React 19 when parent passes new props via useAppSelector.
   const [, forceUpdate] = useState(0);
   useEffect(() => {
     const t = setTimeout(() => forceUpdate((n) => n + 1), 100);
@@ -72,32 +74,32 @@ const HelpAiDraftCard = ({
 
       {fields.map((field) => {
         const isArray = Array.isArray(field.value);
-        const arrayValue = isArray ? (field.value as string[]) : [];
-        const stringValue = isArray ? '' : (field.value as string) ?? '';
         return (
           <View key={field.label} style={{ marginTop: hp(7) }}>
             <Text style={{ fontSize: 12, color: uiColors.secondaryText, fontWeight: '600' }}>
               {field.label}
             </Text>
-            <View style={{ display: isArray ? 'flex' : 'none' }}>
-              {arrayValue.map((line, idx) => (
-                <Text
-                  key={`${field.label}-${idx}`}
-                  style={{ fontSize: 12, color: uiColors.primaryText }}
-                >
-                  {`${idx + 1}. ${line}`}
-                </Text>
-              ))}
-            </View>
-            <Text
-              style={{
-                fontSize: 12,
-                color: uiColors.primaryText,
-                display: isArray ? 'none' : 'flex',
-              }}
-            >
-              {stringValue}
-            </Text>
+            {isArray ? (
+              <View>
+                {(field.value as string[]).map((line, idx) => (
+                  <Text
+                    key={`${field.label}-${idx}`}
+                    style={{ fontSize: 12, color: uiColors.primaryText }}
+                  >
+                    {`${idx + 1}. ${line}`}
+                  </Text>
+                ))}
+              </View>
+            ) : (
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: uiColors.primaryText,
+                }}
+              >
+                {(field.value as string) ?? ''}
+              </Text>
+            )}
           </View>
         );
       })}
