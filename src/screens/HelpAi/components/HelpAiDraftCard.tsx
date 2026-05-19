@@ -1,3 +1,4 @@
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Buttons from 'src/components/Buttons';
@@ -28,8 +29,8 @@ const HelpAiDraftCard = ({
   onCancel,
   onRetry,
 }: HelpAiDraftCardProps) => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { colorMode } = useColorMode();
+  const isDarkMode = colorMode === 'dark';
   // Workaround: react-redux 7.x does not reliably trigger child re-renders
   // with React 19 when parent passes new props via useAppSelector.
   const [, forceUpdate] = useState(0);
