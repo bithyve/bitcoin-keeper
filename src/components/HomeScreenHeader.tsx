@@ -166,6 +166,15 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     },
   };
 
+
+  const getHeaderTitle = useCallback(
+    (title: string) => {
+      if (title === walletTranslation.more) title = common.moreOptions;
+      return capitalizeEachWord(title);
+    },
+    [title, walletTranslation.more, common.moreOptions]
+  );
+
   return (
     <Box backgroundColor={backgroundColor}>
       <Box backgroundColor={backgroundColor} style={[styles.wrapper]}>
@@ -178,7 +187,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.headerWhite`}
               medium
             >
-              {capitalizeEachWord(title === walletTranslation.more ? common.moreOptions : title)}
+              {getHeaderTitle(title)}
             </Text>
           </Box>
 

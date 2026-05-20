@@ -1,5 +1,12 @@
 import { NetworkType } from 'src/services/wallets/enums';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
+import {
+  HelpChatMessage,
+  HelpChatMetadata,
+  HelpChatResponse,
+  HelpDraft,
+  HelpIssueSubmitResponse,
+} from 'src/models/interfaces/HelpAi';
 import axios, { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
@@ -704,4 +711,49 @@ export default class Relay {
     }
     return res ? res.data || res.json : null;
   };
+
+  public static helpChat = async (payload: {
+    conversationId: string;
+    messages: HelpChatMessage[];
+    userText: string;
+    metadata: HelpChatMetadata;
+  }): Promise<HelpChatResponse> => {
+    try {
+      const res = await RestClient.post(`${RELAY}chat`, payload);
+      return res.data as HelpChatResponse;
+    } catch (err: any) {
+      console.log('🚀 ~ Relay ~ helpChat ~ err:', err);
+      if (err.response) {
+        throw new Error(err.response.data?.error || err.response.data?.err || 'Unknown error');
+      }
+      if (err.code) {
+        throw new Error(err.code);
+      }
+      throw new Error('An unexpected error occurred');
+    }
+  };
+
+  public static submitHelpIssue = async (payload: {
+    conversationId: string;
+    kind: 'bug' | 'feature';
+    confirm: true;
+    idempotencyKey: string;
+    draft: HelpDraft;
+    metadata: Pick<HelpChatMetadata, 'appVersion' | 'platform' | 'device'>;
+  }): Promise<HelpIssueSubmitResponse> => {
+    try {
+      const res = await RestClient.post(`${RELAY}submitHelpIssue`, payload);
+      return res.data as HelpIssueSubmitResponse;
+    } catch (err: any) {
+      console.log('🚀 ~ Relay ~ submitHelpIssue ~ err:', err);
+      if (err.response) {
+        throw new Error(err.response.data?.error || err.response.data?.err || 'Unknown error');
+      }
+      if (err.code) {
+        throw new Error(err.code);
+      }
+      throw new Error('An unexpected error occurred');
+    }
+  };
 }
+
