@@ -44,40 +44,6 @@ The available balance shown to the user in the send flow MUST reflect only UTXOs
 
 ---
 
-### Requirement: Insufficient Spendable Balance Warning
-
-When the total wallet balance is sufficient to cover the send amount but the spendable balance (excluding Do Not Spend UTXOs) is not, the send flow MUST display an inline helper message and a **View Coins** button. The existing insufficient balance error MUST also be shown.
-
-Helper copy: **Some coins are marked Do Not Spend and are not available for this payment.**
-
-The **View Coins** button MUST navigate the user to the Manage Coins screen for the sending wallet.
-
-This warning MUST NOT be shown when total balance is also insufficient (standard insufficient balance error applies instead).
-
-This warning MUST NOT be shown when the user has already manually selected UTXOs (`selectedUTXOs.length > 0`).
-
-#### Scenario: Helper copy shown when spendable balance is insufficient but total balance is not
-
-- GIVEN a wallet where spendable balance < send amount AND total balance >= send amount
-- WHEN the user enters the send amount
-- THEN the helper copy "Some coins are marked Do Not Spend and are not available for this payment." MUST be displayed inline
-- AND a **View Coins** button MUST be shown
-
-#### Scenario: View Coins button navigates to Manage Coins
-
-- GIVEN the insufficient spendable balance helper copy is shown
-- WHEN the user taps **View Coins**
-- THEN the app MUST navigate to the Manage Coins screen for the sending wallet
-
-#### Scenario: Standard insufficient balance error shown when total balance is also insufficient
-
-- GIVEN a wallet where total balance < send amount
-- WHEN the user enters the send amount
-- THEN the standard insufficient balance error MUST be shown
-- AND the Do Not Spend helper copy MUST NOT be shown
-
----
-
 ### Requirement: Do Not Spend Manual Selection Warning
 
 When the user is in manual coin selection mode and taps a UTXO with `spendability === 'doNotSpend'` that is not yet selected, the app MUST display a warning modal before adding the UTXO to the selection.

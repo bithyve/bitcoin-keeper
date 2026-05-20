@@ -9,13 +9,13 @@
 - [x] 2.2 Replace `availableBalance` (used for the balance display header) with `spendableBalance` when no UTXOs are manually selected; keep the UTXO-sum path (`selectedUTXOs.reduce(...)`) unchanged for the manual-selection case
 - [x] 2.3 Replace `availableToSpend` initial value (`balance.confirmed + balance.unconfirmed`) with `spendableBalance` so the inline validation logic uses the filtered balance
 
-## 3. Send Flow — Insufficient Spendable Balance Warning
+## 3. ~~Send Flow — Insufficient Spendable Balance Warning~~ (removed — spendable balance is the hard cap; no special warning needed)
 
-- [x] 3.1 In `AddSendAmount.tsx`: compute `totalBalance` as `sender.specs.balances.confirmed + sender.specs.balances.unconfirmed` (keep as before) and derive a boolean `hasDoNotSpendWarning = !haveSelectedUTXOs && Number(amountToSend) > spendableBalance && Number(amountToSend) <= totalBalance`
-- [x] 3.2 In the `useEffect` that sets `errorMessage`: when `hasDoNotSpendWarning` is true, do not set/clear the error message based on `availableToSpend` comparison (the insufficient-balance error still fires from the saga); keep existing error logic otherwise
-- [x] 3.3 In the JSX of `AddSendAmount.tsx`: render an inline `Box` below the amount entry that is visible only when `hasDoNotSpendWarning` is true, containing the helper copy "Some coins are marked Do Not Spend and are not available for this payment." in warning-style text
-- [x] 3.4 In the same inline box: add a **View Coins** `TouchableOpacity` / button that dispatches `CommonActions.navigate('UTXOManagement', { wallet: sender })` on press
-- [x] 3.5 Add new i18n keys to `src/context/Localization/language/en.json` (under `error` or a suitable group): `"someCoinsDoNotSpend": "Some coins are marked Do Not Spend and are not available for this payment."` and `"viewCoins": "View Coins"` (skip if `viewCoins` already exists)
+- ~~3.1 totalBalance + hasDoNotSpendWarning computation~~ (removed)
+- ~~3.2 errorMessage useEffect special-case for doNotSpend~~ (removed)
+- ~~3.3 Inline warning Box JSX~~ (removed)
+- ~~3.4 View Coins button~~ (removed)
+- ~~3.5 someCoinsDoNotSpend / viewCoins i18n keys~~ (removed)
 
 ## 4. Manual Coin Selection — Do Not Spend Warning Modal
 
@@ -31,4 +31,4 @@
 
 - [ ] 5.1 Unit test for `prepareTransactionPrerequisites`: given a wallet with a mix of spendable and `doNotSpend` UTXOs and no `selectedUTXOs`, assert the coinselect input pool contains only spendable UTXOs
 - [ ] 5.2 Unit test for `prepareTransactionPrerequisites`: given `selectedUTXOs` containing a `doNotSpend` UTXO, assert it is NOT filtered out
-- [ ] 5.3 Unit test for the `hasDoNotSpendWarning` condition: verify it is true when `amountToSend > spendableBalance && amountToSend <= totalBalance && !haveSelectedUTXOs`, and false otherwise
+- [ ] 5.3 Unit test for `spendableBalance` computation: verify it excludes doNotSpend UTXOs and equals total when no doNotSpend UTXOs exist

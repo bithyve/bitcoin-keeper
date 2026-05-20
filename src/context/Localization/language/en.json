@@ -2029,8 +2029,6 @@
     "amountEnteredMoreThanAvailable": "Amount entered is more than available to spend",
     "enterValidAmount": "Please enter a valid amount",
     "insufficientBalance": "Insufficient balance for the amount to be sent + fees",
-    "someCoinsDoNotSpend": "Some coins are marked Do Not Spend and are not available for this payment.",
-    "viewCoins": "View Coins",
     "feeRateLessThanOne": "Fee rate cannot be less than 1 sat/vbyte",
     "pendingTransactonSuccesful": "New pending transaction saved successfully",
     "invalidPhase": "Invalid phase/path selection",
