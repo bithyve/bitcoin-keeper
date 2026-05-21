@@ -176,6 +176,7 @@ import { SwapAllHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapAllH
 import { TipBottomSheet } from 'src/components/Modal/TipBottomSheet';
 import { SendTip } from 'src/screens/Send/SendTip';
 import { ViewRecoveryKeyScreen } from 'src/screens/BackupWallet/ViewRecoveryKeyScreen';
+import RagChunkAdminScreen from 'src/screens/AppSettings/RagChunkAdminScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -385,6 +386,7 @@ function AppStack() {
         <Stack.Screen name="SwapAllHistory" component={SwapAllHistory} />
         <Stack.Screen name="SendTip" component={SendTip} />
         <Stack.Screen name="ViewRecoveryKeyScreen" component={ViewRecoveryKeyScreen} />
+        <Stack.Screen name="RagChunkAdmin" component={RagChunkAdminScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );
