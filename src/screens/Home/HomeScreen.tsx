@@ -3,6 +3,7 @@ import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
+import { NetworkType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -50,6 +51,7 @@ function NewHomeScreen({ route }) {
   );
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { recoveryKeyStatusByAppId } = useAppSelector((state) => state.account);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { id } = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any;
 
   // 'idle' | 'education' | 'skipWarning'
@@ -233,7 +235,17 @@ function NewHomeScreen({ route }) {
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
 
-      <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
+      <HomeScreenHeader
+        colorMode={colorMode}
+        title={selectedOption}
+        titleSuffix={
+          [walletText.homeWallets, walletText.keys].includes(selectedOption) &&
+          bitcoinNetworkType === NetworkType.TESTNET
+            ? ' (Testnet)'
+            : undefined
+        }
+        circleIconWrapper={icon}
+      />
       {recoveryKeyStatus === 'skipped' && (
         <TouchableOpacity onPress={openEducationSheet}>
           <Box

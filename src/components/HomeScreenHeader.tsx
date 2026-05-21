@@ -31,12 +31,14 @@ interface HomeScreenHeaderProps {
   colorMode: string;
   circleIconWrapper: React.ReactNode;
   title: string;
+  titleSuffix?: string;
 }
 
 const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   colorMode,
   circleIconWrapper,
   title,
+  titleSuffix,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -187,7 +189,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.headerWhite`}
               medium
             >
-              {getHeaderTitle(title)}
+              {getHeaderTitle(title)}{titleSuffix ?? ''}
             </Text>
           </Box>
 
