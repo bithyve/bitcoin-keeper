@@ -27,8 +27,10 @@ appId: io.hexawallet.keeper
       visible:
         id: 'com.android.permissioncontroller:id/grant_dialog'
     commands:
+      # Android: grant camera permission for QR scanner
       - tapOn:
           id: 'com.android.permissioncontroller:id/permission_allow_foreground_only_button'
+# iOS: camera permission alert handled natively by the OS before this point
 - assertTrue: ${output.text_header_title = "Send"}
 - assertTrue: ${output.text_header_subtitle = "Scan a bitcoin address"}
 - assertVisible:

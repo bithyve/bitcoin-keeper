@@ -1,0 +1,38 @@
+appId: ${APPID}
+---
+# Negative-path: start the wallet creation wizard and cancel at the
+# transfer-policy screen to verify the user lands back on the home screen
+# without a new wallet being created.
+- assertVisible:
+    id: 'wallet_list'
+- swipe:
+    from:
+      id: 'wallet_list'
+    direction: LEFT
+- assertVisible:
+    id: 'btn_add_wallet'
+- tapOn:
+    id: 'btn_add_wallet'
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertVisible:
+    id: 'btn_Hot Wallet'
+# Begin hot-wallet creation
+- tapOn:
+    id: 'btn_Hot Wallet'
+- waitForAnimationToEnd:
+    timeout: 2000
+# Should now be on the transfer-policy / wallet-name screen; cancel it
+- assertVisible:
+    id: 'btn_back'
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+# Should be back on the wallet-type picker or home; press back once more to reach home
+- assertVisible:
+    id: 'btn_back'
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

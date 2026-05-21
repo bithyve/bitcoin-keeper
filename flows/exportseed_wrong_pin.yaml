@@ -1,0 +1,53 @@
+appId: ${APPID}
+---
+# Negative-path: entering the wrong PIN on the seed-export passcode screen
+# should not reveal the recovery phrase and should stay on the passcode screen.
+- tapOn:
+    id: 'btn_AppSettingsIcon'
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertVisible:
+    id: 'btn_App_Backup'
+- tapOn:
+    id: 'btn_App_Backup'
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertVisible:
+    id: 'view_Export_app_individual_phrase'
+- tapOn:
+    id: 'view_Export_app_individual_phrase'
+    waitToSettleTimeoutMs: 500
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: 'Confirm Passcode'
+# Enter an intentionally wrong PIN: 9-9-9-9
+- tapOn:
+    id: 'key_9'
+- tapOn:
+    id: 'key_9'
+- tapOn:
+    id: 'key_9'
+- tapOn:
+    id: 'key_9'
+- assertVisible:
+    id: 'btn_primaryText'
+- tapOn:
+    id: 'btn_primaryText'
+- waitForAnimationToEnd:
+    timeout: 3000
+# Should remain on the passcode screen (NOT advance to recovery phrase)
+- assertNotVisible: 'Recovery Phrase'
+- assertVisible: 'Confirm Passcode'
+# Navigate back to home screen
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

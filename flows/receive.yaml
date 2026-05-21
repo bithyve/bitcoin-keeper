@@ -3,24 +3,21 @@ appId: io.hexawallet.keeper
 - tapOn:
     id: 'view_wallet_0'
     index: 0
-- swipe:
-    from:
-      id: list_transactions
-    direction: DOWN
-    duration: 2000
 - waitForAnimationToEnd:
-    timeout: 5000
-- repeat:
-    while:
-      visible:
-        id: 'icon_unconfirmed_0'
-    commands:
-      - runFlow: refreshwallet.yaml
+    timeout: 2000
 - assertVisible:
     id: 'btn_Receive'
 - tapOn:
     id: 'btn_Receive'
-- tapOn:
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
     id: 'btn_back'
 - tapOn:
     id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

@@ -1,9 +1,13 @@
-appId: io.hexawallet.keeper
+appId: ${APPID}
 ---
+# Negative-path: dedicated passcode-mismatch test that runs independently of
+# the full onboarding flow.  Verifies the mismatch error UI and clear behaviour.
+# NOTE: This flow expects the app to be on the "Create a passcode" screen
+# (fresh install / test-reset state).
 - extendedWaitUntil:
     visible: 'Create a passcode'
     timeout: 20000
-- assertVisible: 'Create'
+# Enter first PIN: 1-1-1-1
 - tapOn:
     id: 'key_1'
 - tapOn:
@@ -14,7 +18,7 @@ appId: io.hexawallet.keeper
     id: 'key_1'
 - waitForAnimationToEnd:
     timeout: 2000
-- assertVisible: 'Create'
+# On the confirm screen enter a MISMATCHED PIN: 1-1-1-4
 - assertVisible: 'Confirm your passcode'
 - tapOn:
     id: 'key_1'
@@ -24,11 +28,12 @@ appId: io.hexawallet.keeper
     id: 'key_1'
 - tapOn:
     id: 'key_4'
+# Verify the mismatch error is shown
 - assertVisible: 'Passcodes do NOT match'
+# Clear and re-enter the correct matching PIN
 - tapOn:
     id: 'btn_clear'
 - assertNotVisible: 'Passcodes do NOT match'
-# Re-enter all 4 digits of the correct passcode (1-1-1-1)
 - tapOn:
     id: 'key_1'
 - tapOn:
@@ -39,6 +44,7 @@ appId: io.hexawallet.keeper
     id: 'key_1'
 - waitForAnimationToEnd:
     timeout: 2000
+# PIN accepted — complete onboarding
 - assertVisible: 'Continue'
 - tapOn: 'Continue'
 - swipe:

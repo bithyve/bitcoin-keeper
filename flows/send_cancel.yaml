@@ -1,0 +1,41 @@
+appId: ${APPID}
+---
+# Negative-path: tap the back button at the address-entry step of a Send flow
+# to verify the user is returned cleanly to the wallet screen.
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: 'btn_Send'
+- tapOn:
+    id: 'btn_Send'
+- waitForAnimationToEnd:
+    timeout: 2000
+# Handle Android camera-permission dialog (no-op on iOS)
+- runFlow:
+    when:
+      visible:
+        id: 'com.android.permissioncontroller:id/grant_dialog'
+    commands:
+      - tapOn:
+          id: 'com.android.permissioncontroller:id/permission_allow_foreground_only_button'
+- assertVisible:
+    id: 'input_receive_address'
+- assertVisible:
+    id: 'btn_back'
+# Cancel by pressing back without entering anything
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+# Should be back on the wallet detail screen
+- assertVisible:
+    id: 'btn_Send'
+- assertVisible:
+    id: 'btn_Receive'
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

@@ -1,0 +1,33 @@
+appId: ${APPID}
+---
+# Negative-path: verify that an incorrect PIN shows an error, then log in with the correct PIN.
+- extendedWaitUntil:
+    visible: 'Enter your passcode'
+    timeout: 20000
+# Enter a deliberately wrong PIN: 9-9-9-9
+- tapOn: '9'
+- tapOn: '9'
+- tapOn: '9'
+- tapOn: '9'
+- assertVisible: 'Proceed'
+- tapOn: 'Proceed'
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: 'Incorrect password'
+- assertVisible: 'Retry'
+# Recover by entering the correct PIN: 1-1-1-1
+- tapOn: 'Retry'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- tapOn: '1'
+- assertVisible: 'Proceed'
+- tapOn: 'Proceed'
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: 'Next'
+    timeout: 30000
+- tapOn: 'Next'
+- waitForAnimationToEnd:
+    timeout: 2000

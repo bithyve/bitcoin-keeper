@@ -8,7 +8,7 @@ appId: io.hexawallet.keeper
 - assertVisible: 'App Settings'
 - assertVisible: 'Configure your app here'
 - assertVisible:
-    id: 'btn_App_Backup}'
+    id: 'btn_App_Backup'
 - assertVisible:
     id: 'view_Biometrics'
 - assertVisible:
@@ -22,7 +22,7 @@ appId: io.hexawallet.keeper
 - assertVisible:
     id: 'view_Language_&_Currency'
 - assertVisible:
-    id: 'view_ KeeperTelegram'
+    id: 'view_KeeperTelegram'
 - assertVisible:
     id: 'view_keeperTwitter'
 - assertVisible:

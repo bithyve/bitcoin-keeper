@@ -1,0 +1,37 @@
+appId: ${APPID}
+---
+# Happy-path: open the receive screen, verify the QR code area and address
+# are visible, copy the address, verify the success toast, then navigate back.
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: 'btn_Receive'
+- tapOn:
+    id: 'btn_Receive'
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: 'btn_back'
+# Verify the copy-address control is present
+- assertVisible:
+    id: 'btn_copy_address'
+# Copy address and wait for success confirmation
+- tapOn:
+    id: 'btn_copy_address'
+- extendedWaitUntil:
+    visible: 'Address Copied Successfully'
+    timeout: 5000
+- waitForAnimationToEnd:
+    timeout: 3000
+# Navigate back to wallet screen
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000

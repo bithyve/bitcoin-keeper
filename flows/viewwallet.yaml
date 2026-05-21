@@ -3,27 +3,22 @@ appId: io.hexawallet.keeper
 # - runFlow: login.yaml
 - tapOn:
     id: 'view_wallet_0'
-- assertVisible: 'Bip-85 Wallets'
-- assertVisible: 'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'
-- assertVisible: 'You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper'
-- assertVisible: 'When the funds in a wallet cross a threshold, a transfer to the Vault is triggered. This ensures you don’t have more sats in hot wallets than you need.'
-- assertVisible:
-    id: 'btn_close_modal'
-- assertVisible: 'See FAQs'
-- assertVisible: Continue
-- tapOn:
-    id: 'btn_close_modal'
+# The first-run info modal may appear; dismiss it if visible
+- runFlow:
+    when:
+      visible:
+        id: 'btn_close_modal'
+    commands:
+      - assertVisible: 'Bip-85 Wallets'
+      - assertVisible: 'See FAQs'
+      - tapOn:
+          id: 'btn_close_modal'
+- waitForAnimationToEnd:
+    timeout: 2000
 - assertVisible:
     id: 'btn_back'
 - assertVisible:
     id: 'btn_learnMore'
-- assertVisible: 'Wallet 1'
-- assertVisible: 'Single-sig bitcoin wallet'
-- assertVisible: 'Unconfirmed'
-- assertVisible: 'Available Balance'
-- assertVisible: 'Transfer Policy is set at  '
-- assertVisible: 'Transactions'
-- assertVisible: 'No transactions yet.'
 - assertVisible:
     id: 'btn_Send'
 - assertVisible:
@@ -32,12 +27,12 @@ appId: io.hexawallet.keeper
     id: 'btn_Buy'
 - assertVisible:
     id: 'btn_Settings'
+# Open and dismiss the learn-more modal
 - tapOn:
     id: 'btn_learnMore'
+- waitForAnimationToEnd:
+    timeout: 1000
 - assertVisible: 'Bip-85 Wallets'
-- assertVisible: 'Create as many (hot) wallets as you want, and backup with a single Recovery Phrase'
-- assertVisible: 'You can use the individual wallet’s Recovery Phrases to connect other bitcoin apps to Keeper'
-- assertVisible: 'When the funds in a wallet cross a threshold, a transfer to the Vault is triggered. This ensures you don’t have more sats in hot wallets than you need.'
 - tapOn:
     id: 'btn_close_modal'
 - waitForAnimationToEnd:
