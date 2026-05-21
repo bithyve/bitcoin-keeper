@@ -13,12 +13,41 @@ type KVStore = {
   clearAll: () => void;
 };
 
+const createMemoryStore = (): KVStore => {
+  const map = new Map<string, unknown>();
+  return {
+    set: (key: string, value: any) => {
+      map.set(key, value);
+    },
+    getString: (key: string) => {
+      const v = map.get(key);
+      return typeof v === 'string' ? v : undefined;
+    },
+    getNumber: (key: string) => {
+      const v = map.get(key);
+      return typeof v === 'number' ? v : 0;
+    },
+    getBoolean: (key: string) => {
+      const v = map.get(key);
+      return typeof v === 'boolean' ? v : false;
+    },
+    getAllKeys: () => Array.from(map.keys()),
+    contains: (key: string) => map.has(key),
+    remove: (key: string) => map.delete(key),
+    clearAll: () => {
+      map.clear();
+    },
+  };
+};
+
 export const Storage: KVStore = (() => {
   try {
     return createMMKV();
   } catch (error) {
     console.log('MMKV unavailable in current runtime, using in-memory fallback:', error);
-    throw error;
+    // Be resilient: if MMKV fails for any reason (e.g. debugger),
+    // fall back so the app can still boot.
+    return createMemoryStore();
   }
 })();
 

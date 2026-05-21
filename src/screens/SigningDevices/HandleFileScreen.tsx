@@ -43,6 +43,22 @@ const HandleFileScreen = ({ route, navigation }) => {
   const { error: errorText, coldcard, signer: signerText, externalKey } = translations;
 
   const exportCallback = () => {
+    (async () => {
+      try {
+        const directoryPath = RNFS.DownloadDirectoryPath || RNFS.DocumentDirectoryPath;
+        const localFilePath = `${directoryPath}/keeper-${Date.now()}.psbt`;
+        const encoding = [SignerType.KEYSTONE].includes(signerType) ? 'base64' : 'utf8';
+
+        const exists = await RNFS.exists(directoryPath);
+        if (!exists) {
+          await RNFS.mkdir(directoryPath);
+        }
+
+        await RNFS.writeFile(localFilePath, fileData, encoding);
+      } catch (error) {
+        showToast(error?.message || errorText.pickValidFile, <ToastErrorIcon />);
+      }
+    })();
     exportFile(fileData, `keeper-${Date.now()}.psbt`, (error) =>
       showToast(error.message, <ToastErrorIcon />)
     );

@@ -168,17 +168,6 @@ export type AppStackParams = {
   ResetInitialTimelock: undefined;
   ResetInheritanceKey: undefined;
   ResetEmergencyKey: undefined;
-  HelpAiEntry: undefined;
-  HelpAiChat:
-    | {
-        prefillText?: string;
-        conversationId?: string;
-        startFresh?: boolean;
-        screenName?: string;
-        tags?: string[];
-        errorDetails?: string;
-      }
-    | undefined;
   KeeperConcierge: undefined;
   TechnicalSupport: {
     newTicketId: string;
