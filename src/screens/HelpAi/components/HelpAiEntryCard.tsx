@@ -50,24 +50,24 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
       <View style={styles.suggestionCtr}>
         <View style={styles.suggestionsCtr}>
           {suggestions.map((suggestion) => (
-            <View
-              key={suggestion}
-              style={[
-                styles.suggestionPill,
-                {
-                  borderColor: colorMode === 'dark' ? '#3a3a3a' : '#d8d8d8',
-                  backgroundColor: colorMode === 'dark' ? '#1f1f1f' : '#ffffff',
-                },
-              ]}
-            >
-              <Text
-                fontSize={12}
-                color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
-                onPress={() => onPromptPress(suggestion)}
-              >
-                {suggestion}
-              </Text>
-            </View>
+            <React.Fragment key={suggestion}>
+              <View style={[styles.suggestionPill]}>
+                <Text
+                  fontSize={12}
+                  color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
+                  onPress={() => onPromptPress(suggestion)}
+                >
+                  {suggestion}
+                </Text>
+              </View>
+              <View
+                style={{
+                  height: hp(2),
+                  width: '100%',
+                  backgroundColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
+                }}
+              />
+            </React.Fragment>
           ))}
         </View>
         <Text style={styles.warningText} color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}>
@@ -102,8 +102,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   suggestionPill: {
-    borderWidth: 1,
-    borderRadius: 100,
     paddingHorizontal: wp(14),
     paddingVertical: hp(8),
   },

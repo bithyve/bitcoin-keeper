@@ -41,10 +41,6 @@ const HelpAiChatHistoryList = ({
 
   return (
     <View style={styles.container}>
-      <Text color={colorMode === 'dark' ? '#a5a5a5' : '#878787'} fontSize={13} style={styles.title}>
-        Recent chats
-      </Text>
-
       <ScrollView contentContainerStyle={styles.listContent}>
         {threads.map((thread) => (
           <Pressable
@@ -57,20 +53,16 @@ const HelpAiChatHistoryList = ({
                 styles.itemCard,
                 {
                   borderColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
-                  backgroundColor: colorMode === 'dark' ? '#1a1a1a' : '#faf9f7',
                 },
               ]}
             >
-              {/* Left accent bar */}
-              <View style={[styles.accentBar, { backgroundColor: Colors.primaryGreen }]} />
-
+              <View style={styles.iconWrap}>
+                <ChatBubbleIcon width={wp(18)} height={wp(18)} />
+              </View>
               <View style={styles.cardBody}>
                 {/* Icon + header row */}
                 <View style={styles.itemHeader}>
                   <View style={styles.iconAndTitle}>
-                    <View style={styles.iconWrap}>
-                      <ChatBubbleIcon width={wp(18)} height={wp(18)} />
-                    </View>
                     <Text
                       medium
                       fontSize={17}
@@ -81,7 +73,7 @@ const HelpAiChatHistoryList = ({
                       {thread.title || 'New chat'}
                     </Text>
                   </View>
-                  <Text fontSize={11} color={colorMode === 'dark' ? '#696969' : '#ababab'}>
+                  <Text fontSize={11} color={colorMode === 'dark' ? '#696969' : '#677e7c'}>
                     {formatRelativeTime(thread.updatedAt)}
                   </Text>
                 </View>
@@ -97,6 +89,14 @@ const HelpAiChatHistoryList = ({
                 </Text>
               </View>
             </View>
+            <View
+              style={[
+                styles.spacer,
+                {
+                  backgroundColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
+                },
+              ]}
+            />
           </Pressable>
         ))}
       </ScrollView>
@@ -113,21 +113,17 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(12),
   },
-  title: {
-    // marginBottom: hp(10),
-  },
+  title: {},
   listContent: {
     paddingBottom: hp(20),
-    gap: hp(5),
   },
   itemPressable: {
     width: '100%',
   },
   itemCard: {
-    borderRadius: 14,
-    borderWidth: 1,
     overflow: 'hidden',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   accentBar: {
     width: 4,
@@ -136,8 +132,6 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     flex: 1,
-    paddingVertical: hp(10),
-    paddingHorizontal: wp(10),
     gap: hp(0),
   },
   itemHeader: {
@@ -155,10 +149,10 @@ const styles = StyleSheet.create({
   iconWrap: {
     width: wp(32),
     height: wp(32),
+    marginRight: wp(8),
     borderRadius: wp(100),
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
     backgroundColor: Colors.primaryGreen,
   },
   threadTitle: {
@@ -167,11 +161,15 @@ const styles = StyleSheet.create({
   },
   previewText: {
     lineHeight: hp(18),
-    paddingLeft: wp(40),
   },
   ctaCtr: {
     paddingBottom: hp(12),
     paddingTop: hp(6),
+  },
+  spacer: {
+    height: hp(2),
+    width: '100%',
+    marginVertical: hp(5),
   },
 });
 

@@ -415,7 +415,7 @@ const HelpAiChat = ({ navigation, route }) => {
                   <View style={styles.typingCtr}>
                     <ActivityIndicator size="small" />
                     <Text style={[styles.textSmall, { color: uiColors.secondaryText }]}>
-                      Assistant is typing...
+                      Keeper is typing...
                     </Text>
                   </View>
                 )}
