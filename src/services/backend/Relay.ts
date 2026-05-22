@@ -755,5 +755,40 @@ export default class Relay {
       throw new Error('An unexpected error occurred');
     }
   };
+
+  public static ragChunkAccessCheck = async (
+    publicId: string
+  ): Promise<{
+    allowed: boolean;
+    message?: string;
+  }> => {
+    try {
+      const res = await RestClient.get(
+        `${RELAY}ragChunkAccessCheck?publicId=${encodeURIComponent(publicId)}`
+      );
+      return res.data as { allowed: boolean; message?: string };
+    } catch (err) {
+      if (err?.response?.data) {
+        return err.response.data;
+      }
+      return { allowed: false, message: 'Access not available' };
+    }
+  };
+
+  public static addRagChunkFrontend = async (payload: {
+    publicId: string;
+    content: string;
+    title?: string;
+    url?: string;
+  }): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}addRagChunkFrontend`, payload);
+      return res.data;
+    } catch (err) {
+      if (err?.response?.data?.err) throw new Error(err.response.data.err);
+      if (err?.message) throw new Error(err.message);
+      throw new Error('An unexpected error occurred');
+    }
+  };
 }
 

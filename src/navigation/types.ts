@@ -17,6 +17,7 @@ export type AppStackParams = {
   PassportConfigRecovery: undefined;
   AppSettings: undefined;
   AppVersionHistory: undefined;
+  RagChunkAdmin: undefined;
   TorSettings: undefined;
   ManageWallets: undefined;
   PreviewPDF: undefined;
