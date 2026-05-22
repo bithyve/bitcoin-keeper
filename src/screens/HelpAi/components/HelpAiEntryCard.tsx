@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
-import { useColorMode } from '@gluestack-ui/themed-native-base';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native';
-import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
+import Colors from 'src/theme/Colors';
+import LockIcon from 'src/assets/images/lockLightGreen.svg';
+import PencilWhite from 'src/assets/images/edit_white.svg';
+import ChatBubble from 'src/assets/images/chatBubble.svg';
 
 type HelpAiEntryCardProps = {
   onStartChat: () => void;
@@ -20,60 +21,47 @@ const suggestions = [
 ];
 
 const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) => {
-  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { askAi } = translations;
 
   return (
     <View style={styles.container}>
-      <Text
-        style={styles.title}
-        fontSize={22}
-        medium
-        color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
-      >
-        {askAi.noConversationsYet}
-      </Text>
+      {Platform.OS === 'android' && (
+        <ChatBubble style={{ marginVertical: hp(20) }} width={wp(64)} height={hp(64)} />
+      )}
+      <Text style={styles.title}>{askAi.noConversationsYet}</Text>
+      <Text style={styles.subtitle}>{askAi.subtitle}</Text>
 
-      <Text
-        style={styles.subtitle}
-        fontSize={13}
-        color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
-      >
-        {askAi.subtitle}
-      </Text>
-
-      <View style={styles.buttonCtr}>
-        <Buttons primaryText={askAi.openHelpChat} primaryCallback={onStartChat} fullWidth />
+      <View style={styles.hrCtr}>
+        <View style={styles.hr} />
+        <Text style={styles.tryText}>Try asking about</Text>
+        <View style={styles.hr} />
       </View>
-
       <View style={styles.suggestionCtr}>
         <View style={styles.suggestionsCtr}>
-          {suggestions.map((suggestion) => (
-            <React.Fragment key={suggestion}>
-              <View style={[styles.suggestionPill]}>
-                <Text
-                  fontSize={12}
-                  color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}
-                  onPress={() => onPromptPress(suggestion)}
-                >
-                  {suggestion}
-                </Text>
-              </View>
-              <View
-                style={{
-                  height: hp(2),
-                  width: '100%',
-                  backgroundColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
-                }}
-              />
-            </React.Fragment>
+          {suggestions.map((suggestion, idx) => (
+            <View
+              style={[
+                styles.suggestionPill,
+                idx != suggestions.length - 1 && { borderBottomWidth: 2 },
+              ]}
+              key={suggestion}
+            >
+              <Text style={styles.suggestionText} onPress={() => onPromptPress(suggestion)}>
+                {suggestion}
+              </Text>
+            </View>
           ))}
         </View>
-        <Text style={styles.warningText} color={colorMode === 'dark' ? '#a5a5a5' : '#878787'}>
-          {askAi.neverShareSeedWarning}
-        </Text>
+        <View style={styles.warningCtr}>
+          <LockIcon height={hp(18)} width={wp(18)} />
+          <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
+        </View>
       </View>
+
+      <Pressable onPress={onStartChat} style={styles.addContainer}>
+        <PencilWhite height={hp(22)} width={wp(22)} />
+      </Pressable>
     </View>
   );
 };
@@ -87,10 +75,16 @@ const styles = StyleSheet.create({
   },
   title: {
     marginTop: hp(16),
+    fontSize: 24,
+    fontFamily: Fonts.LoraSemiBold,
+    color: '#213b39',
   },
   subtitle: {
     marginTop: hp(8),
+    fontSize: 14,
+    fontFamily: Fonts.InterRegular,
     textAlign: 'center',
+    color: Colors.DarkSlateGray,
   },
   buttonCtr: {
     width: wp(280),
@@ -103,16 +97,66 @@ const styles = StyleSheet.create({
   },
   suggestionPill: {
     paddingHorizontal: wp(14),
-    paddingVertical: hp(8),
+    paddingVertical: hp(4),
+    width: '90%',
+    paddingBottom: 15,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    borderBottomColor: Colors.greyBorder,
+  },
+  suggestionText: {
+    fontSize: 15,
+    fontFamily: Fonts.InterRegular,
+    color: Colors.DarkSlateGray,
   },
   warningText: {
     marginBottom: hp(20),
     textAlign: 'center',
+    color: Colors.DarkSlateGray,
+    fontFamily: Fonts.InterRegular,
   },
   suggestionCtr: {
     flex: 1,
     width: '100%',
     justifyContent: 'space-between',
+  },
+  warningCtr: {
+    flexDirection: 'row',
+    gap: wp(8),
+  },
+  addContainer: {
+    padding: wp(15),
+    borderRadius: wp(35),
+    backgroundColor: Colors.primaryGreen,
+    position: 'absolute',
+    bottom: wp(35),
+    right: wp(0),
+    elevation: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // ios
+    shadowColor: 'black',
+    shadowOffset: { width: 10, height: 20 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  hrCtr: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    gap: wp(8),
+    paddingTop: hp(30),
+    paddingBottom: hp(5),
+  },
+  hr: {
+    width: '20%',
+    height: 1,
+    backgroundColor: Colors.greyBorder,
+  },
+  tryText: {
+    fontSize: 13,
+    fontFamily: Fonts.InterRegular,
+    color: Colors.DarkSlateGray,
   },
 });
 

@@ -26,6 +26,7 @@ import HelpAiDraftCard from './components/HelpAiDraftCard';
 import HelpAiShell from './components/HelpAiShell';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-dark.svg';
+import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 import Colors from 'src/theme/Colors';
 import { batch } from 'react-redux';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -72,10 +73,10 @@ const HelpAiChat = ({ navigation, route }) => {
       primaryText: isDarkMode ? Colors.bodyText : Colors.secondaryBlack,
       secondaryText: isDarkMode ? Colors.darkGrey : Colors.secondaryDarkGrey,
       buttonText: '#ffffff',
-      link: Colors.primaryGreen,
+      link: isDarkMode ? Colors.mintGreen : Colors.primaryGreen,
       error: isDarkMode ? Colors.CrimsonRed : Colors.redAlert,
       userBubble: Colors.primaryGreen,
-      aiBubble: isDarkMode ? Colors.SecondaryBlack : Colors.dullGreen,
+      aiBubble: isDarkMode ? Colors.SecondaryBlack : 'white',
       inputText: isDarkMode ? '#ffffff' : '#101010',
       placeholderText: isDarkMode ? '#9b9b9b' : '#8a8a8a',
     }),
@@ -353,7 +354,8 @@ const HelpAiChat = ({ navigation, route }) => {
 
     const isUser = item.type === 'user';
     const sources = item.type === 'ai' ? item.sources : undefined;
-    return (
+
+    const bubble = (
       <View
         collapsable={false}
         style={[
@@ -368,7 +370,7 @@ const HelpAiChat = ({ navigation, route }) => {
         <Text
           style={{
             color: isUser ? uiColors.buttonText : uiColors.primaryText,
-            fontSize: 13,
+            fontSize: 15,
             lineHeight: 18,
           }}
         >
@@ -392,6 +394,18 @@ const HelpAiChat = ({ navigation, route }) => {
         )}
       </View>
     );
+
+    if (!isUser) {
+      return (
+        <View style={styles.aiBubbleRow}>
+          <View style={styles.aiAvatar}>
+            <ChatBubbleIcon width={wp(18)} height={wp(18)} />
+          </View>
+          {bubble}
+        </View>
+      );
+    }
+    return bubble;
   };
 
   return (
@@ -445,17 +459,12 @@ const HelpAiChat = ({ navigation, route }) => {
           />
         </View>
 
-        <View
-          style={[
-            styles.inputBar,
-            {
-              borderColor: uiColors.separator,
-              backgroundColor: uiColors.surface,
-            },
-          ]}
-        >
+        <View style={styles.inputBar}>
           <TextInput
-            style={[styles.input, { color: uiColors.inputText }]}
+            style={[
+              styles.input,
+              { color: uiColors.inputText, backgroundColor: uiColors.aiBubble },
+            ]}
             value={input}
             onChangeText={setInput}
             placeholder={'Type your message'}
@@ -499,6 +508,7 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     paddingVertical: hp(14),
+    gap: hp(5),
   },
   scrollArea: {
     flex: 1,
@@ -508,13 +518,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   inputBar: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: wp(8),
     flexDirection: 'row',
     gap: wp(8),
     alignItems: 'flex-end',
     flexShrink: 0,
+    paddingTop: hp(5),
   },
   input: {
     flex: 1,
@@ -522,6 +530,10 @@ const styles = StyleSheet.create({
     minHeight: hp(42),
     fontSize: 13,
     lineHeight: 18,
+    borderWidth: 1,
+    borderColor: Colors.greyBorder,
+    borderRadius: 20,
+    paddingHorizontal: wp(12),
     ...Platform.select({
       ios: {
         paddingVertical: hp(12),
@@ -558,7 +570,7 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: '86%',
-    borderRadius: 12,
+    borderRadius: 16,
     paddingHorizontal: wp(12),
     paddingVertical: hp(10),
     marginBottom: hp(8),
@@ -599,6 +611,20 @@ const styles = StyleSheet.create({
   },
   textMediumWeight: {
     fontWeight: '500',
+  },
+  aiBubbleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: wp(6),
+  },
+  aiAvatar: {
+    borderRadius: wp(50),
+    backgroundColor: Colors.primaryGreen,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginBottom: hp(8),
+    padding: 8,
   },
 });
 

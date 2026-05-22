@@ -1,13 +1,13 @@
 import { useColorMode } from '@gluestack-ui/themed-native-base';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
-import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
+import Fonts from 'src/constants/Fonts';
 import { hp, wp } from 'src/constants/responsive';
 import { HelpAiThread } from 'src/store/reducers/helpAi';
 import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 import Colors from 'src/theme/Colors';
+import PencilWhite from 'src/assets/images/edit_white.svg';
 
 type HelpAiChatHistoryListProps = {
   threads: HelpAiThread[];
@@ -42,68 +42,60 @@ const HelpAiChatHistoryList = ({
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.listContent}>
-        {threads.map((thread) => (
+        {threads.map((thread, idx) => (
           <Pressable
             key={thread.conversationId}
             onPress={() => onOpenChat(thread.conversationId)}
             style={({ pressed }) => [styles.itemPressable, { opacity: pressed ? 0.75 : 1 }]}
           >
-            <View
-              style={[
-                styles.itemCard,
-                {
-                  borderColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
-                },
-              ]}
-            >
+            <View style={[styles.itemCard]}>
               <View style={styles.iconWrap}>
-                <ChatBubbleIcon width={wp(18)} height={wp(18)} />
+                <ChatBubbleIcon width={wp(22)} height={wp(22)} />
               </View>
               <View style={styles.cardBody}>
                 {/* Icon + header row */}
                 <View style={styles.itemHeader}>
                   <View style={styles.iconAndTitle}>
                     <Text
-                      medium
-                      fontSize={17}
-                      color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
+                      style={[
+                        styles.threadTitle,
+                        { color: colorMode === 'dark' ? '#e7e7e7' : '#272421' },
+                      ]}
                       numberOfLines={1}
-                      style={styles.threadTitle}
                     >
                       {thread.title || 'New chat'}
                     </Text>
                   </View>
-                  <Text fontSize={11} color={colorMode === 'dark' ? '#696969' : '#677e7c'}>
+                  <Text
+                    style={[
+                      styles.metaText,
+                      { color: colorMode === 'dark' ? '#696969' : '#677e7c' },
+                    ]}
+                  >
                     {formatRelativeTime(thread.updatedAt)}
                   </Text>
                 </View>
 
                 {/* Preview */}
                 <Text
-                  fontSize={12}
-                  color={colorMode === 'dark' ? '#7a7a7a' : '#9a9590'}
+                  style={[
+                    styles.previewText,
+                    { color: colorMode === 'dark' ? '#7a7a7a' : '#9a9590' },
+                  ]}
                   numberOfLines={1}
-                  style={styles.previewText}
                 >
                   {thread.lastMessage || 'No messages yet'}
                 </Text>
               </View>
             </View>
-            <View
-              style={[
-                styles.spacer,
-                {
-                  backgroundColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
-                },
-              ]}
-            />
+            {idx < threads.length - 1 && <View style={styles.spacer} />}
           </Pressable>
         ))}
       </ScrollView>
 
-      <View style={styles.ctaCtr}>
-        <Buttons primaryText={'Start New Chat'} primaryCallback={onStartNewChat} fullWidth />
-      </View>
+      <Pressable onPress={onStartNewChat} style={styles.addContainer}>
+        <PencilWhite height={hp(22)} width={wp(22)} />
+      </Pressable>
     </View>
   );
 };
@@ -112,6 +104,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(12),
+    width: '100%',
   },
   title: {},
   listContent: {
@@ -124,11 +117,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  accentBar: {
-    width: 4,
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
   },
   cardBody: {
     flex: 1,
@@ -147,10 +135,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconWrap: {
-    width: wp(32),
-    height: wp(32),
     marginRight: wp(8),
     borderRadius: wp(100),
+    padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.primaryGreen,
@@ -158,18 +145,46 @@ const styles = StyleSheet.create({
   threadTitle: {
     flex: 1,
     maxWidth: '70%',
+    fontSize: 17,
+    fontWeight: '500',
+  },
+  metaText: {
+    fontSize: 11,
+    fontFamily: Fonts.InterRegular,
   },
   previewText: {
+    fontSize: 13,
+    fontFamily: Fonts.InterRegular,
     lineHeight: hp(18),
+    maxWidth: '90%',
   },
   ctaCtr: {
     paddingBottom: hp(12),
     paddingTop: hp(6),
   },
   spacer: {
-    height: hp(2),
-    width: '100%',
-    marginVertical: hp(5),
+    height: hp(1),
+    width: '95%',
+    marginVertical: hp(10),
+    backgroundColor: Colors.greyBorder,
+    opacity: 0.5,
+    alignSelf: 'center',
+  },
+  addContainer: {
+    padding: wp(15),
+    borderRadius: wp(35),
+    backgroundColor: Colors.primaryGreen,
+    position: 'absolute',
+    bottom: wp(20),
+    right: wp(20),
+    elevation: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // ios
+    shadowColor: 'black',
+    shadowOffset: { width: 10, height: 20 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
   },
 });
 
