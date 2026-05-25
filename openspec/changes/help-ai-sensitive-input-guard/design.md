@@ -85,17 +85,13 @@ The `bip39` library is already a project dependency (used in `bhr.ts`, `storage.
 
 ---
 
-### Decision 6: Refined keyword list
+### Decision 6: No keyword-label detection
 
-**Remove**: `passphrase` — blocks too many legitimate questions about BIP39 passphrase features on hardware signers.
+**Choice**: Do not detect keyword phrases like "seed phrase", "private key", "mnemonic", etc.
 
-**Keep / Add**:
-- `seed phrase`, `recovery phrase`, `backup phrase`, `secret phrase`
-- `mnemonic`
-- `private key`, `secret key`, `privatekey`
-- `xpriv` (the label, separate from the actual key format pattern)
+**Rationale**: Keyword labels are not themselves sensitive data — they are words used to discuss sensitive data. A user asking "how do I set up a seed phrase?" or "why did my private key export fail?" should not be blocked. The cryptographic format detectors (extended keys, WIF) and the BIP39 word-sequence detector already catch the actual material that must not leave the device. Adding keyword matching on top creates false positives without meaningfully improving security.
 
-These are labels that indicate the user is *describing* sensitive material even if they haven't pasted it yet.
+**Alternative considered**: Block keyword phrases as an early warning signal. Rejected — the signal-to-noise ratio is poor. The real threat is the user accidentally pasting actual key material, which the format and mnemonic detectors handle precisely.
 
 ## Risks / Trade-offs
 

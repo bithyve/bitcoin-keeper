@@ -61,18 +61,17 @@ The system SHALL detect and block any chat message containing a string that matc
 
 ---
 
-### Requirement: Block keyword phrases that describe sensitive key material
-The system SHALL detect and block any chat message containing any of the following case-insensitive phrases: `seed phrase`, `recovery phrase`, `backup phrase`, `secret phrase`, `mnemonic`, `private key`, `privatekey`, `secret key`, `xpriv`.
+### Requirement: Do not block keyword-only messages
+The system SHALL NOT block chat messages solely because they contain words like "seed phrase", "private key", "mnemonic", or similar labels. Only actual cryptographic material (extended keys, WIF keys) and BIP39 mnemonic sequences SHALL trigger blocking.
 
-#### Scenario: User types "my seed phrase is"
-- **WHEN** the user attempts to send a message containing the phrase "seed phrase"
-- **THEN** the message MUST NOT be transmitted to the backend
-- **AND** a toast message SHALL be shown
-
-#### Scenario: User asks about BIP39 passphrase (not blocked)
-- **WHEN** the user sends a message containing the word "passphrase" without any other sensitive pattern
-- **THEN** the message SHALL be transmitted normally
+#### Scenario: User asks about seed phrase setup
+- **WHEN** the user sends a message like "How do I set up a seed phrase backup?"
+- **THEN** the message SHALL be transmitted normally to the backend
 - **AND** no sensitive-data block SHALL trigger
+
+#### Scenario: User mentions private key in a question
+- **WHEN** the user sends a message like "Why did my private key export fail on Coldcard?"
+- **THEN** the message SHALL be transmitted normally
 
 ---
 

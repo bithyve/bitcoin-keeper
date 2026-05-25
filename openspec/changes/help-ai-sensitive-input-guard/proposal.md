@@ -8,7 +8,7 @@ The Ask Keeper AI chat feature must never transmit sensitive Bitcoin key materia
 - **Add** cryptographic format detection: extended private keys (`xprv`/`yprv`/`zprv` + variants) and extended public keys (`xpub`/`ypub`/`zpub` + variants) only when they match the actual long base58 key format (not the word alone)
 - **Add** WIF private key format detection (51–52 char base58 strings starting with `5`, `K`, `L`, or `c`)
 - **Add** BIP39 mnemonic sequence detection: flag input containing 8 or more consecutive tokens that are all valid BIP39 words, using a pre-built `Set` from the full 2048-word English wordlist
-- **Refine** keyword list: remove `passphrase` (too many false positives for legitimate questions), add `recovery phrase`, `backup phrase`, `secret phrase`, `secret key`
+- **Remove** keyword-label matching entirely — labels like "seed phrase" or "private key" are not actual sensitive data; the cryptographic format and mnemonic detectors cover the real risk
 - **Add** draft scan gate in `submitDraftIssue()`: scan all draft fields before any API call; hard-block submission if sensitive data is detected and show a clear explanation
 - **Add** unit tests for all detection categories, including true-positive mnemonic/key fixtures and natural-language false-negative cases
 

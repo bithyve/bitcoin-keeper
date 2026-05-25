@@ -123,46 +123,15 @@ describe('detectSensitiveInput — WIF key detection', () => {
 });
 
 
-describe('detectSensitiveInput — keyword detection', () => {
-  const keywordCases: [string, string][] = [
-    ['seed phrase', 'my seed phrase is lost'],
-    ['recovery phrase', 'I need to enter my recovery phrase'],
-    ['backup phrase', 'where do I find my backup phrase'],
-    ['mnemonic', 'the mnemonic for my wallet'],
-    ['private key', 'my private key was compromised'],
-    ['secret key', 'what is a secret key'],
-    ['xpriv', 'I have an xpriv from my hardware wallet'],
-  ];
-
-  it.each(keywordCases)('blocks message containing "%s"', (_keyword, message) => {
-    const result = detectSensitiveInput(message);
-    expect(result).not.toBeNull();
-    expect(result?.kind).toBe('keyword');
-  });
-
-  it('returns null for a message containing only the word "passphrase"', () => {
-    expect(detectSensitiveInput('How do I set a passphrase on my Coldcard?')).toBeNull();
-    expect(detectSensitiveInput('What is a BIP39 passphrase?')).toBeNull();
-    expect(detectSensitiveInput('I forgot my passphrase')).toBeNull();
-  });
-
-  it('returns null for normal help questions', () => {
-    expect(detectSensitiveInput('How do I add a new signer?')).toBeNull();
-    expect(detectSensitiveInput('My transaction has been pending for 2 days')).toBeNull();
-    expect(detectSensitiveInput('Something is not working in the app')).toBeNull();
-  });
-});
-
-
 describe('detectSensitiveInDraft', () => {
-  it('returns a result when the title field contains a keyword phrase', () => {
+  it('returns a result when the title field contains a BIP39 mnemonic sequence', () => {
     const draft: HelpDraft = {
       kind: 'bug',
-      title: 'Issue with my seed phrase backup',
+      title: 'abandon ability able about above absent absorb abstract',
     };
     const result = detectSensitiveInDraft(draft);
     expect(result).not.toBeNull();
-    expect(result?.kind).toBe('keyword');
+    expect(result?.kind).toBe('mnemonic');
   });
 
   it('returns a result when a steps entry contains a BIP39 mnemonic sequence', () => {

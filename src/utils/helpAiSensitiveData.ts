@@ -2,7 +2,7 @@ import { HelpDraft } from 'src/models/interfaces/HelpAi';
 import { BIP39_WORD_SET } from 'src/constants/bip39WordSet';
 
 export type SensitiveDetectionResult = {
-  kind: 'mnemonic' | 'extended_private_key' | 'extended_public_key' | 'wif_key' | 'keyword';
+  kind: 'mnemonic' | 'extended_private_key' | 'extended_public_key' | 'wif_key';
   message: string;
 };
 
@@ -31,24 +31,6 @@ const EXTENDED_PUBLIC_KEY_PATTERN =
  *   c…  = testnet              (52 chars)
  */
 const WIF_KEY_PATTERN = /\b[5KLc][1-9A-HJ-NP-Za-km-z]{49,51}\b/;
-
-/**
- * Keyword phrases that indicate the user is describing sensitive key material,
- * even if they haven't pasted the actual value.
- * "passphrase" is intentionally excluded — too many false positives for
- * legitimate BIP39 passphrase feature questions.
- */
-const KEYWORD_PATTERNS: RegExp[] = [
-  /seed\s+phrase/i,
-  /recovery\s+phrase/i,
-  /backup\s+phrase/i,
-  /secret\s+phrase/i,
-  /\bmnemonic\b/i,
-  /private\s+key/i,
-  /\bprivatekey\b/i,
-  /secret\s+key/i,
-  /\bxpriv\b/i,
-];
 
 /** Minimum number of consecutive BIP39 words to flag as a potential mnemonic. */
 const MNEMONIC_THRESHOLD = 8;
@@ -104,18 +86,6 @@ function detectMnemonic(text: string): SensitiveDetectionResult | null {
   return null;
 }
 
-function detectKeywords(text: string): SensitiveDetectionResult | null {
-  for (const pattern of KEYWORD_PATTERNS) {
-    if (pattern.test(text)) {
-      return {
-        kind: 'keyword',
-        message: 'Please remove any sensitive information like seed phrases or private keys before sending.',
-      };
-    }
-  }
-  return null;
-}
-
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
@@ -130,8 +100,7 @@ export function detectSensitiveInput(text: string): SensitiveDetectionResult | n
     detectExtendedPrivateKey(text) ??
     detectExtendedPublicKey(text) ??
     detectWIF(text) ??
-    detectMnemonic(text) ??
-    detectKeywords(text)
+    detectMnemonic(text)
   );
 }
 
