@@ -1,0 +1,29 @@
+appId: ${APPID}
+---
+- runFlow:
+    when:
+      visible:
+        id: "key_1"
+    commands:
+      - tapOn:
+          id: "key_1"
+      - tapOn:
+          id: "key_1"
+      - tapOn:
+          id: "key_1"
+      - tapOn:
+          id: "key_1"
+- runFlow:
+    when:
+      notVisible:
+        id: "key_1"
+    commands:
+      - tapOn: "1"
+      - tapOn: "1"
+      - tapOn: "1"
+      - tapOn: "1"
+- runFlow:
+    when:
+      visible: "Proceed"
+    commands:
+      - tapOn: "Proceed"

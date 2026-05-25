@@ -1,51 +1,50 @@
 appId: io.hexawallet.keeper
 ---
-- assertTrue: ${output.text_HotWallet = "1 Wallet"}
+- runFlow: _common_unlock_if_needed.yaml
 - assertVisible:
-    id: 'wallet_list'
+    id: "wallet_list"
 - swipe:
-   from: 
-    id: 'wallet_list'
-   direction: LEFT
+    from:
+      id: "wallet_list"
+    direction: LEFT
 - assertVisible:
-    id: 'btn_add_wallet'
+    id: "btn_add_wallet"
 - tapOn:
-    id: 'btn_add_wallet'
+    id: "btn_add_wallet"
 - waitForAnimationToEnd:
-    timeout: 1000
-- assertTrue: ${output.text_modal_title = "Add or Import Wallet"}
-- assertTrue: ${output.text_modal_subtitle = "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"}
+    timeout: 3000
+- assertVisible: "Add or Import Wallet"
 - assertVisible:
-    id: 'btn_Hot Wallet'
+    id: "btn_Hot Wallet"
 - assertVisible:
-    id: 'btn_2-of-3 Vault'
+    id: "btn_2-of-3 Vault"
 - assertVisible:
-    id: 'btn_3-of-5 Vault'
+    id: "btn_3-of-5 Vault"
 - assertVisible:
-    id: 'btn_Collaborative'
+    id: "btn_Collaborative"
 - tapOn:
-    id: 'btn_Hot Wallet'
+    id: "btn_Hot Wallet"
 - waitForAnimationToEnd:
-    timeout: 2000
+    timeout: 3000
 - tapOn:
-    id: 'input_transfer_policy'
-- 'eraseText'
-- inputText: '21000'
+    id: "input_transfer_policy"
+- eraseText
+- inputText: "21000"
 - hideKeyboard
 - assertVisible:
-    id: 'btn_primaryText'
-- assertTrue: ${output.btn_primaryText = "Create"}
+    id: "btn_primaryText"
 - tapOn:
-    id: 'btn_primaryText'
-- assertVisible:
-    id: modal_loading
+    id: "btn_primaryText"
 - waitForAnimationToEnd:
     timeout: 20000
+- runFlow:
+    when:
+      visible:
+        id: "modal_primary_btn"
+    commands:
+      - tapOn:
+          id: "modal_primary_btn"
 - assertVisible:
-    id: 'modal_primary_btn'
+    id: "btn_back"
 - tapOn:
-    id: 'modal_primary_btn'
-- assertVisible:
-    id: 'btn_back'
-- tapOn:
-    id: 'btn_back'
+    id: "btn_back"

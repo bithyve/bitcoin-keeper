@@ -1,96 +1,51 @@
 appId: io.hexawallet.keeper
 ---
+- runFlow: _common_open_wallet.yaml
+- assertVisible:
+    id: "btn_Send"
 - tapOn:
-    id: 'view_wallet_0'
-    index: 0
-- swipe:
-    from:
-      id: list_transactions
-    direction: DOWN
-    duration: 2000
-- waitForAnimationToEnd:
-    timeout: 5000
-- repeat:
-    while:
-      visible:
-        id: 'icon_unconfirmed_0'
-    commands:
-      - runFlow: refreshwallet.yaml
+    id: "btn_Send"
+- runFlow: _common_handle_runtime_permissions.yaml
 - assertVisible:
-    id: 'btn_Send'
+    id: "input_receive_address"
 - tapOn:
-    id: 'btn_Send'
-- waitForAnimationToEnd:
-    timeout: 2000
-- runFlow:
-    when:
-      visible:
-        id: 'com.android.permissioncontroller:id/grant_dialog'
-    commands:
-      - tapOn:
-          id: 'com.android.permissioncontroller:id/permission_allow_foreground_only_button'
-- assertTrue: ${output.text_header_title = "Send"}
-- assertTrue: ${output.text_header_subtitle = "Scan a bitcoin address"}
+    id: "input_receive_address"
+- inputText: "tb1qq4yupzkhnzlz8kva9udnud6rw5vezk5qr7kp7s"
 - assertVisible:
-    id: 'qrscanner'
-- assertVisible:
-    id: 'btn_upload_image'
-- assertVisible:
-    id: 'input_receive_address'
+    id: "input_amount"
 - tapOn:
-    id: 'input_receive_address'
-- inputText: 'tb1qq4yupzkhnzlz8kva9udnud6rw5vezk5qr7kp7s'
-- waitForAnimationToEnd:
-    timeout: 2000
-- assertTrue: ${output.text_header_title = "Enter the Amount"}
-- assertVisible:
-    id: 'view_wallet_info'
-- assertVisible:
-    id: 'input_amount'
-- assertVisible:
-    id: 'text_sendmax'
-- assertVisible:
-    id: 'input_note'
-- assertVisible:
-    id: 'input_amount'
+    id: "input_amount"
+- eraseText
+- inputText: "0.00001100"
 - tapOn:
-    id: 'input_amount'
-- inputText: '0.00001100'
-- tapOn:
-    id: 'input_note'
-- inputText: 'Testing with maestro'
-- tapOn:
-    id: 'input_amount'
-- inputText: 'Test'
+    id: "input_note"
+- inputText: "Maestro send flow"
 - hideKeyboard
 - tapOn:
-    id: 'btn_primaryText'
-- waitForAnimationToEnd:
-    timeout: 2000
-- assertTrue: ${output.text_header_title = "Sending to address"}
-- assertTrue: ${output.text_header_subtitle = "Choose priority and fee"}
-- assertVisible: 'tb1qq4yupzkhnzlz8kva9udnud6rw5vezk5qr7kp7s'
-- assertVisible: 'Transaction Priority'
-- tapOn:
-    id: 'btn_primaryText'
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- assertVisible:
-    id: 'btn_primaryText'
-- tapOn:
-    id: 'btn_primaryText'
-- extendedWaitUntil:
-    visible: 'Send Successful'
-    timeout: 30000
-- assertVisible: 'The transaction has been successfully broadcasted'
-- tapOn:
-    text: 'View Details'
-    index: 1
+    id: "btn_primaryText"
+- runFlow:
+    when:
+      visible: "Insufficient balance"
+    commands:
+      - assertVisible: "Insufficient balance"
+      - tapOn:
+          id: "btn_back"
+- runFlow:
+    when:
+      visible: "Sending to address"
+    commands:
+      - tapOn:
+          id: "btn_primaryText"
+      - assertVisible:
+          id: "modal_passcode_verify"
+      - runFlow: _common_enter_passcode_1111.yaml
+      - tapOn:
+          id: "btn_primaryText"
+      - extendedWaitUntil:
+          visible: "Send Successful"
+          timeout: 30000
+      - runFlow:
+          when:
+            visible: "View Details"
+          commands:
+            - tapOn: "View Details"

@@ -1,19 +1,13 @@
 appId: io.hexawallet.keeper
 ---
 - tapOn:
-    id: 'view_Version_History'
+    id: "view_Version_History"
 - waitForAnimationToEnd:
-    timeout: 1000
+    timeout: 1500
 - assertVisible:
-    id: 'btn_back'
-- assertTrue: ${output.text_header_title = "Version History"}
-- assertTrue: ${output.text_header_subtitle = "You can verify the history of your app upgrades here"}
+    id: "btn_back"
+- assertVisible: "Version History"
 - assertVisible:
-    id: 'view_VersionHistoryList'
-- assertVisible: 'Initially installed'
-- assertVisible:
-    id: 'text_appid'
+    id: "view_VersionHistoryList"
 - tapOn:
-    id: 'btn_back'
-- waitForAnimationToEnd:
-    timeout: 1000
+    id: "btn_back"

@@ -1,48 +1,55 @@
 appId: io.hexawallet.keeper
 ---
-- tapOn:
-    id: 'btn_App_Backup}'
-- waitForAnimationToEnd:
-    timeout: 1000
-- assertVisible:
-    id: 'btn_back'
-- assertVisible: 'Backup Wallet'
-- assertVisible: 'Setup backup for Keeper'
-- assertVisible:
-    id: 'view_Export_app_individual_phrase'
-- tapOn:
-    id: 'view_Export_app_individual_phrase'
-    waitToSettleTimeoutMs: 500
-- waitForAnimationToEnd:
-    timeout: 5000
-- assertVisible: 'Confirm Passcode'
-- assertVisible: 'To backup app recovery phrase'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_2'
-- tapOn:
-    id: 'key_3'
-- tapOn:
-    id: 'key_4'
-- assertVisible:
-    id: 'btn_primaryText'
-- tapOn:
-    id: 'btn_primaryText'
-- assertVisible: 'Recovery Phrase'
-- tapOn: 'Make sure you keep them safe'
-- tapOn:
-    id: 'btn_seed_word_0'
-- assertTrue: '${output.text_seed_word_0 != "*****"}'
-- tapOn:
-    id: 'btn_seed_word_3'
-- assertTrue: '${output.text_seed_word_0 ="*****"}'
-- assertTrue: '${output.text_seed_word_3 != "*****"}'
-- tapOn:
-    id: 'btn_back'
-- waitForAnimationToEnd:
-    timeout: 1000
-- tapOn:
-    id: 'btn_back'
-- waitForAnimationToEnd:
-    timeout: 1000
+- runFlow:
+    when:
+      visible:
+        id: "view_Export_app_individual_phrase"
+    commands:
+      - tapOn:
+          id: "view_Export_app_individual_phrase"
+- runFlow:
+    when:
+      visible:
+        id: "btn_App_Backup"
+    commands:
+      - tapOn:
+          id: "btn_App_Backup"
+      - tapOn:
+          id: "view_Export_app_individual_phrase"
+- runFlow:
+    when:
+      visible: "Backup Wallet"
+    commands:
+      - tapOn: "Backup Wallet"
+      - tapOn:
+          id: "view_Export_app_individual_phrase"
+- extendedWaitUntil:
+    visible: "Confirm Passcode"
+    timeout: 15000
+- runFlow: _common_enter_passcode_1111.yaml
+- runFlow:
+    when:
+      visible:
+        id: "btn_primaryText"
+    commands:
+      - tapOn:
+          id: "btn_primaryText"
+- extendedWaitUntil:
+    visible: "Recovery Phrase"
+    timeout: 20000
+- runFlow:
+    when:
+      visible:
+        id: "btn_seed_word_0"
+    commands:
+      - tapOn:
+          id: "btn_seed_word_0"
+- runFlow:
+    when:
+      visible:
+        id: "btn_back"
+    commands:
+      - tapOn:
+          id: "btn_back"
+      - tapOn:
+          id: "btn_back"

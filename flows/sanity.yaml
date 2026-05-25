@@ -2,5 +2,15 @@ appId: io.hexawallet.keeper
 ---
 - runFlow: newapp.yaml
 - runFlow: addwallet.yaml
+- runFlow: viewwallet.yaml
+- runFlow: walletSetting.yaml
+- runFlow: receive.yaml
+- runFlow: copywalletaddress.yaml
+- runFlow: sendInvalidInput.yaml
+- runFlow: cancellationNavigation.yaml
 - runFlow: addNewKey.yaml
-
+- runFlow: keySetting.yaml
+- runFlow: healthCheckKey.yaml
+- runFlow: appsettings.yaml
+- runFlow: buyBTC.yaml
+- runFlow: subscription.yaml

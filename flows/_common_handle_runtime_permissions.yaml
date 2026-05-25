@@ -1,0 +1,26 @@
+appId: ${APPID}
+---
+- runFlow:
+    when:
+      visible:
+        id: "com.android.permissioncontroller:id/permission_allow_foreground_only_button"
+    commands:
+      - tapOn:
+          id: "com.android.permissioncontroller:id/permission_allow_foreground_only_button"
+- runFlow:
+    when:
+      visible:
+        id: "com.android.permissioncontroller:id/permission_allow_button"
+    commands:
+      - tapOn:
+          id: "com.android.permissioncontroller:id/permission_allow_button"
+- runFlow:
+    when:
+      visible: "Allow While Using App"
+    commands:
+      - tapOn: "Allow While Using App"
+- runFlow:
+    when:
+      visible: "Allow Once"
+    commands:
+      - tapOn: "Allow Once"

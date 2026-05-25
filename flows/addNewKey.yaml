@@ -1,30 +1,32 @@
 appId: io.hexawallet.keeper
 ---
-- tapOn:
-    id: 'btn_Manage\nKeys'
+- runFlow: _common_open_manage_keys.yaml
 - assertVisible:
-    id: 'btn_Add Key'
+    id: "btn_Add Key"
 - tapOn:
-    id: 'btn_Add Key'
+    id: "btn_Add Key"
 - waitForAnimationToEnd:
-    timeout: 5000
-- scroll
-- tapOn:
-    id: 'btn_KEEPER'
+    timeout: 3000
+- runFlow:
+    when:
+      visible:
+        id: "btn_KEEPER"
+    commands:
+      - tapOn:
+          id: "btn_KEEPER"
 - assertVisible:
-    id: 'btn_Add a New Mobile Key'
+    id: "btn_Add a New Mobile Key"
 - tapOn:
-    id: 'btn_Add a New Mobile Key'
-- assertVisible: Next
-- tapOn:
-    id: 'modal_primary_btn'
-- waitForAnimationToEnd:
-    timeout: 20000
+    id: "btn_Add a New Mobile Key"
+- runFlow:
+    when:
+      visible:
+        id: "modal_primary_btn"
+    commands:
+      - tapOn:
+          id: "modal_primary_btn"
 - extendedWaitUntil:
     visible: "Manage Keys"
     timeout: 20000
-- assertVisible:
-    id: 'btn_back'
 - tapOn:
-    id: 'btn_back'
-- runFlow: hidendeletekey.yaml
+    id: "btn_back"

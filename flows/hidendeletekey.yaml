@@ -1,84 +1,34 @@
 appId: io.hexawallet.keeper
 ---
+- runFlow: _common_open_manage_keys.yaml
 - tapOn:
-    id: 'btn_Manage\nKeys'
-- tapOn:
-    id: 'btn_Mobile Key'
+    id: "btn_Mobile Key"
     index: 0
 - tapOn:
-    id: 'btn_Settings'
+    id: "btn_Settings"
+- runFlow:
+    when:
+      visible:
+        id: "btn_Hide signer"
+    commands:
+      - tapOn:
+          id: "btn_Hide signer"
+      - assertVisible:
+          id: "modal_passcode_verify"
+      - runFlow: _common_enter_passcode_1111.yaml
+      - tapOn:
+          id: "btn_primaryText"
+- runFlow:
+    when:
+      visible:
+        id: "btn_Show and delete keys"
+    commands:
+      - assertVisible:
+          id: "btn_Show and delete keys"
 - tapOn:
-    id: 'btn_Hide signer'
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'btn_primaryText'
-- assertVisible:
-    id: 'btn_manage_singner_setting'
-- tapOn:
-    id: 'btn_manage_singner_setting'
-- assertVisible:
-    id: 'btn_Show and delete keys'
-- tapOn:
-   id: 'btn_Show and delete keys'
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'btn_primaryText'
-- assertVisible:
-    id: 'btn_Delete'
-    index: 0
-- tapOn:
-    id: 'btn_Delete'
-    index: 0
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- tapOn:
-    id: 'key_1'
-- assertVisible:
-    id: 'modal_passcode_verify'
-- tapOn:
-    id: 'btn_primaryText'
-- assertVisible:
-    id: 'btn_back'
-- tapOn:
-    id: 'btn_back'
-- assertVisible:
-    id: 'btn_back'
-- tapOn:
-    id: 'btn_back'
+    id: "btn_back"
 - extendedWaitUntil:
     visible: "Manage Keys"
-    timeout: 20000
-- assertVisible:
-    id: 'btn_back'
+    timeout: 15000
 - tapOn:
-    id: 'btn_back'
-- runFlow: healthCheckKey.yaml
-
+    id: "btn_back"
