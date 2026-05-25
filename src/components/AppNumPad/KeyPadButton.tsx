@@ -1,6 +1,5 @@
-import { StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, TouchableOpacity, Animated, Text as NativeText } from 'react-native';
 import React, { useState } from 'react';
-import Text from 'src/components/KeeperText';
 import ScaleSpring from '../Animations/ScaleSpring';
 import ThemedColor from '../ThemedColor/ThemedColor';
 
@@ -8,10 +7,11 @@ export interface Props {
   title: string;
   onPressNumber: (value: string) => void;
   keyColor: string;
+  // eslint-disable-next-line react/require-default-props
   bubbleEffect?: boolean;
 }
 
-const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleEffect }: Props) => {
+function KeyPadButton({ title, onPressNumber, keyColor, bubbleEffect = false }: Props) {
   const [pressed, setPressed] = useState(false);
   const keyPad_colors = ThemedColor({ name: 'keyPad_colors' });
 
@@ -46,13 +46,13 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor, bubbleE
           />
         )}
 
-        <Text style={styles.keyPadElementText} color={keyColor}>
+        <NativeText allowFontScaling={false} style={[styles.keyPadElementText, { color: keyColor }]}>
           {title}
-        </Text>
+        </NativeText>
       </TouchableOpacity>
     </ScaleSpring>
   );
-};
+}
 
 const styles = StyleSheet.create({
   keyPadElementTouchable: {
@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
   keyPadElementText: {
     fontSize: 25,
     lineHeight: 30,
+    textAlign: 'center',
     zIndex: 1,
     opacity: 1,
   },
