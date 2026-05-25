@@ -60,6 +60,7 @@ import AskKeeperLock from 'src/assets/images/ask_keeper_lock.svg';
 import LockIcon from 'src/assets/images/lockLightGreen.svg';
 import Fonts from 'src/constants/Fonts';
 import ChatIcon from 'src/assets/images/chat.svg';
+import { sanitizeHelpAiReplyLinks, sanitizeHelpAiSources } from 'src/utils/helpAiLinkPolicy';
 
 const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
 
@@ -209,16 +210,19 @@ const HelpAiChat = ({ navigation, route }) => {
         metadata,
       });
 
+      const sanitizedReply = sanitizeHelpAiReplyLinks(response.reply);
+      const sanitizedSources = sanitizeHelpAiSources(response.sources);
+
       const aiMsg: HelpChatMessage = {
         role: 'ai',
-        text: response.reply,
+        text: sanitizedReply,
         time: new Date().toISOString(),
       };
       const aiRenderMsg: HelpAiRenderMessage = {
         id: nowId(),
         type: 'ai',
-        text: response.reply,
-        sources: response.sources,
+        text: sanitizedReply,
+        sources: sanitizedSources,
       };
       const escalationRenderMsg: HelpAiRenderMessage | null =
         response.escalationCard &&
