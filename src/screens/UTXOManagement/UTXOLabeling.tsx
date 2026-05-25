@@ -63,6 +63,13 @@ function UTXOLabeling() {
   const currentSpendability = getSpendability(utxo.txId, utxo.vout);
   const isDoNotSpend = currentSpendability === 'doNotSpend';
   const isManualOverride = !!(utxo as any).isManualOverride;
+  const dustReason: 'initial' | 'descendant' | 'adjacent' | undefined = (utxo as any).dustReason;
+
+  const dustReasonLabel = isManualOverride
+    ? 'Marked manually'
+    : dustReason === 'descendant' || dustReason === 'adjacent'
+    ? 'Linked to potential dust spend'
+    : 'Potential dust payment';
 
   function InfoCard({
     title,
@@ -231,7 +238,7 @@ function UTXOLabeling() {
             {isDoNotSpend ? (
               <>
                 <Text style={styles.spendabilityReasonText} color="rgba(217, 44, 44, 1)">
-                  {isManualOverride ? 'Marked manually' : 'Potential dust payment'}
+                  {dustReasonLabel}
                 </Text>
                 <Text style={styles.spendabilityExplainText} color={`${colorMode}.GreyText`}>
                   Keeper marked this coin Do Not Spend to help protect wallet privacy.

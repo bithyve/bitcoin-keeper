@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
@@ -8,7 +8,6 @@ import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
-import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { UTXO } from 'src/services/wallets/interfaces';
 import { EntityKind, NetworkType, TxPriority, VaultType } from 'src/services/wallets/enums';
@@ -117,10 +116,9 @@ function UTXOManagement({ route }: ScreenProps) {
   const wallet = vaultId
     ? useVault({ vaultId }).activeVault
     : useWallets({ walletIds: [id] }).wallets[0];
-  const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && selectedWallet ? !!walletSyncing[selectedWallet.id] : false;
+  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslation } = translations;
   const { showToast } = useToastMessage();
@@ -145,27 +143,26 @@ function UTXOManagement({ route }: ScreenProps) {
 
   useEffect(() => {
     if (!walletSyncing[wallet.id]) {
-      dispatch(refreshWallets([wallet], { hardRefresh: false }));
+      dispatch(refreshWallets([wallet], { hardRefresh: true, dustScan: true }));
     }
   }, []);
 
-  useEffect(() => {
-    setSelectedWallet(wallet);
-  }, [wallet]);
-
-  const utxos = selectedWallet
-    ? selectedWallet.specs.confirmedUTXOs
-        ?.map((utxo) => {
-          utxo.confirmed = true;
-          return utxo;
-        })
-        .concat(
-          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-            utxo.confirmed = false;
-            return utxo;
-          })
-        )
-    : [];
+  const utxos = useMemo(
+    () =>
+      wallet
+        ? [
+            ...(wallet.specs.confirmedUTXOs?.map((utxo) => ({
+              ...utxo,
+              confirmed: true,
+            })) ?? []),
+            ...(wallet.specs.unconfirmedUTXOs?.map((utxo) => ({
+              ...utxo,
+              confirmed: false,
+            })) ?? []),
+          ]
+        : [],
+    [wallet]
+  );
 
   const doNotSpendUTXOs: UTXO[] = (utxos ?? []).filter(
     (u) => u.spendability === 'doNotSpend'
@@ -177,8 +174,8 @@ function UTXOManagement({ route }: ScreenProps) {
     setIsCheckingDonation(true);
     dispatch(
       calculateSendMaxFee({
-        wallet: selectedWallet,
-        recipients: [{ address: selectedWallet.networkType === NetworkType.MAINNET ? KEEPER_DONATION_ADDRESS_MAINNET : KEEPER_DONATION_ADDRESS_TESTNET, amount: 0 }],
+        wallet,
+        recipients: [{ address: wallet.networkType === NetworkType.MAINNET ? KEEPER_DONATION_ADDRESS_MAINNET : KEEPER_DONATION_ADDRESS_TESTNET, amount: 0 }],
         selectedUTXOs: doNotSpendUTXOs,
         feePerByte: averageTxFees?.[bitcoinNetworkType]?.[TxPriority.LOW]?.feePerByte,
       })
@@ -210,8 +207,8 @@ function UTXOManagement({ route }: ScreenProps) {
       dispatch(sendPhaseOneReset());
       dispatch(
         sendPhaseOne({
-          wallet: selectedWallet,
-          recipients: [{ address: selectedWallet.networkType === NetworkType.MAINNET ? KEEPER_DONATION_ADDRESS_MAINNET : KEEPER_DONATION_ADDRESS_TESTNET, amount: donationAmount }],
+          wallet,
+          recipients: [{ address: wallet.networkType === NetworkType.MAINNET ? KEEPER_DONATION_ADDRESS_MAINNET : KEEPER_DONATION_ADDRESS_TESTNET, amount: donationAmount }],
           selectedUTXOs: doNotSpendUTXOs,
         })
       );
@@ -230,9 +227,9 @@ function UTXOManagement({ route }: ScreenProps) {
       setDonationSheetVisible(false);
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
-          sender: selectedWallet,
+          sender: wallet,
           internalRecipients: [],
-          addresses: [selectedWallet.networkType === NetworkType.MAINNET ? KEEPER_DONATION_ADDRESS_MAINNET : KEEPER_DONATION_ADDRESS_TESTNET],
+          addresses: [wallet.networkType === NetworkType.MAINNET ? KEEPER_DONATION_ADDRESS_MAINNET : KEEPER_DONATION_ADDRESS_TESTNET],
           amounts: [pendingDonationAmount],
           selectedUTXOs: doNotSpendUTXOs,
           transactionPriority: TxPriority.LOW,
@@ -273,7 +270,7 @@ function UTXOManagement({ route }: ScreenProps) {
           setSelectionTotal={setSelectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
-          currentWallet={selectedWallet}
+          currentWallet={wallet}
           emptyIcon={
             routeName === 'Vault' ? <ThemedSvg name={'NoTransactionIcon'} /> : NoTransactionIcon
           }
@@ -282,7 +279,7 @@ function UTXOManagement({ route }: ScreenProps) {
           {utxos?.length ? (
             <Footer
               utxos={utxos}
-              wallet={selectedWallet}
+              wallet={wallet}
               setEnableSelection={setEnableSelection}
               enableSelection={enableSelection}
               selectedUTXOs={selectedUTXOs}
