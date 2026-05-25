@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { Box, HStack, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import CheckIcon from 'src/assets/images/checked.svg';
 import TimeIcon from 'src/assets/images/time.svg';

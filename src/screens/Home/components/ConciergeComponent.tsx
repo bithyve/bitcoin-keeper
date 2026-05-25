@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';
@@ -34,16 +34,16 @@ const ConciergeComponent = ({ route }) => {
   const { accountManagerDetails } = useAppSelector((state) => state?.concierge);
 
   const conciergeData: ConciergeItem[] = [
-    {
-      title: conciergeText.askQuestion,
-      subtitle: conciergeText.submitTicket,
-      iconName: isDarkMode ? <ConciergeWhiteIcon /> : <AskQuestionIcon />,
-      buttonText: conciergeText.takeMeThere,
-      callback: () => {
-        navigation.navigate('KeeperSupport');
-      },
-      buttonIcon: TakeMeThereIcon,
-    },
+    // {
+    //   title: conciergeText.askQuestion,
+    //   subtitle: conciergeText.submitTicket,
+    //   iconName: isDarkMode ? <ConciergeWhiteIcon /> : <AskQuestionIcon />,
+    //   buttonText: conciergeText.takeMeThere,
+    //   callback: () => {
+    //     navigation.navigate('KeeperSupport');
+    //   },
+    //   buttonIcon: TakeMeThereIcon,
+    // },
     {
       title: conciergeText.hireAdvisor,
       subtitle: conciergeText.whiteGlovedService,

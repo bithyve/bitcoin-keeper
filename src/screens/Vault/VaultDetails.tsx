@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { FlatList, Pressable, RefreshControl, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -530,7 +530,6 @@ function VaultDetails({ navigation, route }: ScreenProps) {
             isCollaborativeWallet={isCollaborativeWallet}
           />
         </Box>
-        <Box></Box>
       </VStack>
       <KeeperModal
         visible={introModal}
@@ -557,27 +556,27 @@ function VaultDetails({ navigation, route }: ScreenProps) {
         textColor={green_modal_text_color}
         Content={VaultContent}
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          dispatch(setIntroModal(false));
-          isCanaryWallet &&
-            dispatch(setShowTipModal({ status: true, address: config.ADDRESS.canary }));
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: isCollaborativeWallet
-                  ? [ConciergeTag.COLLABORATIVE_Wallet]
-                  : [ConciergeTag.VAULT],
-                screenName: 'vault-details',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   dispatch(setIntroModal(false));
+        //   isCanaryWallet &&
+        //     dispatch(setShowTipModal({ status: true, address: config.ADDRESS.canary }));
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: isCollaborativeWallet
+        //           ? [ConciergeTag.COLLABORATIVE_Wallet]
+        //           : [ConciergeTag.VAULT],
+        //         screenName: 'vault-details',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
           isCanaryWallet &&
@@ -692,6 +691,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+    overflow: 'visible',
   },
   vaultInfoContainer: {
     flexDirection: 'row',
@@ -715,7 +715,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   bottomSection: {
-    paddingTop: wp(65),
     paddingBottom: 20,
     flex: 1,
     justifyContent: 'space-between',
@@ -941,15 +940,23 @@ const styles = StyleSheet.create({
     marginTop: hp(15),
   },
   detailCardsContainer: {
+    position: 'relative',
     zIndex: 1000,
+    elevation: 20,
+    overflow: 'visible',
+    height: hp(120),
+    marginTop: -hp(50),
   },
   detailCards: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0,
-    transform: [{ translateY: hp(50) }],
+    zIndex: 1000,
+    elevation: 20,
   },
 });
 

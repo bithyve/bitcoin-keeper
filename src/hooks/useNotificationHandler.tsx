@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { notificationType } from 'src/models/enums/Notifications';
 import { useDispatch } from 'react-redux';
 import { addTicketStatusUAI } from 'src/store/sagaActions/concierge';
@@ -14,8 +15,10 @@ const NotificationHandler = () => {
   const [foregroundNotifcation, setForegroundNotifcation] = useState<any>({});
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
+
   useEffect(() => {
-    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+    const app = getApp();
+    const unsubscribe = onMessage(getMessaging(app), async (remoteMessage) => {
       if (remoteMessage.data?.notificationType === notificationType.REMOTE_KEY_SHARE) {
         setForegroundNotifcation(remoteMessage);
         setShowRemoteNotificationModel(true);

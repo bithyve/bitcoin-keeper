@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import React, { useContext, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';

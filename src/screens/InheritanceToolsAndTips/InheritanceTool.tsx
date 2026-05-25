@@ -1,4 +1,4 @@
-import { ScrollView } from 'native-base';
+import { ScrollView } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import OptionCard from 'src/components/OptionCard';
 import VaultGreenIcon from 'src/assets/images/vault_green.svg';

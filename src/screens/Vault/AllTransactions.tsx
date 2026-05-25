@@ -1,6 +1,6 @@
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useState } from 'react';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { useQuery } from '@realm/react';
 import { useDispatch } from 'react-redux';
 

@@ -1,7 +1,7 @@
 import { Image, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, useColorMode, VStack } from 'native-base';
+import { Box, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';

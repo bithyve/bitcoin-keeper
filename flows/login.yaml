@@ -1,4 +1,4 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 - extendedWaitUntil:
     visible: 'Enter your passcode'

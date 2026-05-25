@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler , TouchableOpacity} from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -11,10 +11,11 @@ import ArrowIconWhite from 'src/assets/images/icon_arrow_white.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recover from 'src/assets/images/recover-app-icon.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging, getToken } from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import BounceLoader from 'src/components/BounceLoader';
@@ -23,7 +24,6 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';
 import IconSettings from 'src/assets/images/settings.svg';
 import IconGreySettings from 'src/assets/images/settings_grey.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Colors from 'src/theme/Colors';
 import { useIsFocused } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
@@ -128,7 +128,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   async function updateFCM() {
     try {
-      const token = await messaging().getToken();
+      const app = getApp();
+      const token = await getToken(getMessaging(app));
       dispatch(updateFCMTokens([token]));
     } catch (error) {
       //
@@ -164,7 +165,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   async function createNewApp() {
     try {
-      const fcmToken = await messaging().getToken();
+      const app = getApp();
+      const fcmToken = await getToken(getMessaging(app));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
       dispatch(setupKeeperApp());

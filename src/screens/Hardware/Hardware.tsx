@@ -1,4 +1,4 @@
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';

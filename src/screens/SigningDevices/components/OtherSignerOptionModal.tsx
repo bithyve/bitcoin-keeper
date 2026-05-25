@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
@@ -10,7 +10,7 @@ import { hp, wp } from 'src/constants/responsive';
 import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import DocumentPicker from 'react-native-document-picker';
+import { errorCodes, isErrorWithCode, pick, types } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -24,8 +24,8 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
 
   const selectFile = async () => {
     try {
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
+      const result = await pick({
+        type: [types.allFiles],
       });
       try {
         const filePath = result[0].uri.split('%20').join(' ');
@@ -36,7 +36,7 @@ function OtherSignerOptionModal({ setOptionModal, navigatetoQR, setData, readFro
         showToast(errorText.validCoSignerFile, <ToastErrorIcon />);
       }
     } catch (err) {
-      if (err.toString().includes('user canceled')) {
+      if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
         // user cancelled
         return;
       }

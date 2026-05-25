@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { TextInput, StyleSheet, TouchableOpacity, Image, Pressable } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';

@@ -1,8 +1,9 @@
 import { Dimensions, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext } from 'react';
 import Pdf from 'react-native-pdf';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Share from 'react-native-share';
+import ReactNativeBlobUtil from 'react-native-blob-util';
 
 import DownloadIcon from 'src/assets/images/download.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -16,22 +17,33 @@ function PreviewPDF({ route }: any) {
   const { source } = route.params;
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const DownloadPDF = () => {
-    Share.open({
-      url: Platform.OS === 'ios' ? source : `file://${source}`,
-      excludedActivityTypes: [
-        'copyToPasteBoard',
-        'markupAsPDF',
-        'addToReadingList',
-        'assignToContact',
-        'mail',
-        'default',
-        'message',
-        'postToFacebook',
-        'print',
-        'saveToCameraRoll',
-      ],
-    });
+  const DownloadPDF = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        await ReactNativeBlobUtil.android.actionViewIntent(source, 'application/pdf');
+      } catch (err) {
+        console.log('err:', err);
+      }
+    } else {
+      Share.open({
+        url: source,
+        type: 'application/pdf',
+        excludedActivityTypes: [
+          'copyToPasteBoard',
+          'markupAsPDF',
+          'addToReadingList',
+          'assignToContact',
+          'mail',
+          'default',
+          'message',
+          'postToFacebook',
+          'print',
+          'saveToCameraRoll',
+        ],
+      }).catch((err) => {
+        console.log('err:', err);
+      });
+    }
   };
 
   return (
@@ -53,7 +65,14 @@ function PreviewPDF({ route }: any) {
       />
 
       <Box style={styles.container}>
-        <Pdf trustAllCerts={false} source={{ uri: source }} style={styles.pdf} />
+        {Platform.OS == 'android' ? (
+          <Pdf trustAllCerts={false} source={{ uri: source }} style={styles.pdf} />
+        ) : (
+          <Box style={styles.infoContainer}>
+            <Text>Preview is unavailable</Text>
+            <Text>Download the pdf to view</Text>
+          </Box>
+        )}
       </Box>
     </ScreenWrapper>
   );
@@ -79,6 +98,13 @@ const styles = StyleSheet.create({
   },
   downloadBtnText: {
     fontSize: 14,
+  },
+  infoContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

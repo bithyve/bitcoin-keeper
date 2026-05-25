@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect, useRef } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import Buttons from 'src/components/Buttons';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import {
@@ -721,24 +721,24 @@ function ConfirmWalletDetails({ route }) {
         showCloseIcon={true}
         DarkCloseIcon
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setAdvancedSettingsVisible(false);
-          setVisibleModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.WALLET],
-                screenName: 'add-wallet-advanced-settings',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setAdvancedSettingsVisible(false);
+        //   setVisibleModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.WALLET],
+        //         screenName: 'add-wallet-advanced-settings',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => setVisibleModal(false)}
       />
     </ScreenWrapper>

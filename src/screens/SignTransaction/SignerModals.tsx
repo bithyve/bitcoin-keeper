@@ -1,6 +1,6 @@
 import { Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
 import useAsync from 'src/hooks/useAsync';
 import Instruction from 'src/components/Instruction';
-import { getSignerNameFromType } from 'src/hardware';
+import { getPsbtForHwi, getSignerNameFromType } from 'src/hardware';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import QRComms from 'src/assets/images/qr_comms.svg';
 import NfcComms from 'src/assets/images/nfc_comms.svg';
@@ -713,6 +713,27 @@ function SignerModals({
     ? serializedPSBTEnvelopFromProps
     : serializedPSBTEnvelops?.filter((envelop) => envelop.xfp === activeXfp)[0];
 
+  const getPreparedColdcardEnvelop = async (activeVault) => {
+    if (!serializedPSBTEnvelop?.serializedPSBT) {
+      throw new Error('Missing PSBT for Coldcard signing');
+    }
+
+    if (!activeVault) {
+      return serializedPSBTEnvelop;
+    }
+
+    const { serializedPSBT } = await getPsbtForHwi(
+      serializedPSBTEnvelop.serializedPSBT,
+      activeVault,
+      { throwOnError: true }
+    );
+
+    return {
+      ...serializedPSBTEnvelop,
+      serializedPSBT,
+    };
+  };
+
   const [coldCardContentModal, setColdCardContentModal] = useState(false);
   const [passportContentModal, setPassportContentModal] = useState(false);
   const [keystoneContentModal, setKeystoneContentModal] = useState(false);
@@ -905,8 +926,10 @@ function SignerModals({
           );
         }
         if (signer.type === SignerType.COLDCARD) {
-          const navigateToSignWithColdCard = () => {
+          const navigateToSignWithColdCard = async () => {
             setColdCardContentModal(false);
+            const preparedEnvelop = await getPreparedColdcardEnvelop(activeVault);
+
             if (signingMode === SigningMode.FILE) {
               navigation.dispatch(
                 CommonActions.navigate({
@@ -916,7 +939,7 @@ function SignerModals({
                     subTitle: signerText.uploadAndPasteFile,
                     ctaText: common.proceed,
                     onFileExtract: onFileSign,
-                    fileData: serializedPSBTEnvelop.serializedPSBT,
+                    fileData: preparedEnvelop.serializedPSBT,
                     fileType: 'PSBT',
                     signerType: signer.type,
                     signer,
@@ -936,6 +959,7 @@ function SignerModals({
                   isMultisig,
                   vaultId,
                   isRemoteKey,
+                  serializedPSBTEnvelop: preparedEnvelop,
                 })
               );
             }

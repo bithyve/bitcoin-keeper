@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import MockWrapper from '../Vault/MockWrapper';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import QRScanner from 'src/components/QRScanner';
 import { useRoute } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -21,7 +21,6 @@ import WalletHeader from 'src/components/WalletHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { manipulateKruxData } from 'src/hardware/krux';
 import { manipulateSpecterData } from 'src/hardware/specter';

@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useMemo, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, wp, windowHeight } from 'src/constants/responsive';

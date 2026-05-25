@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, VStack } from 'native-base';
+import { ScrollView, VStack } from '@gluestack-ui/themed-native-base';
 import TicketItem from './TicketItem';
 import { hp } from 'src/constants/responsive';
 import { StyleSheet } from 'react-native';

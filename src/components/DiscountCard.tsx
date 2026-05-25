@@ -1,9 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { Box, HStack, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Text from './KeeperText';
 type DiscountCardProps = {
   card: any;

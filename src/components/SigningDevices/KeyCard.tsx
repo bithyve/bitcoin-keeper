@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, VStack, HStack, useColorMode } from 'native-base';
+import { Box, VStack, HStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 import Text from 'src/components/KeeperText';
 import ActionChip from 'src/components/ActionChip';

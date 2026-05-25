@@ -2,7 +2,7 @@ import { Platform, View } from 'react-native';
 
 import DeviceInfo from 'react-native-device-info';
 import React from 'react';
-import { StatusBar, useColorMode } from 'native-base';
+import { StatusBar, useColorMode } from '@gluestack-ui/themed-native-base';
 
 function StatusBarComponent({ padding = 0, color = null, extraPadding = 0 }) {
   const { colorMode } = useColorMode();

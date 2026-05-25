@@ -1,4 +1,4 @@
-import { Box, TextArea, useColorMode } from 'native-base';
+import { Box, TextArea, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
@@ -121,6 +121,9 @@ const CreateTicket = ({ navigation, route }) => {
       id: 'networkInfo',
     },
   ];
+  useEffect(() => {
+    navigation.goBack();
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {

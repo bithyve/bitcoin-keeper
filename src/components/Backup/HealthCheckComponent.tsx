@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';

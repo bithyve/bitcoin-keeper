@@ -1,4 +1,4 @@
-import { Box, KeyboardAvoidingView, ScrollView, useColorMode } from 'native-base';
+import { Box, KeyboardAvoidingView, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Platform } from 'react-native';
 import Buttons from 'src/components/Buttons';

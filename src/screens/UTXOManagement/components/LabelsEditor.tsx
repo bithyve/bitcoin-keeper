@@ -1,12 +1,12 @@
 import { StyleSheet, TouchableOpacity, Keyboard, Vibration } from 'react-native';
-import { View, useColorMode, Box, Input } from 'native-base';
+import { View, useColorMode, Box, Input } from '@gluestack-ui/themed-native-base';
 import Buttons from 'src/components/Buttons';
 import ConfirmSquare from 'src/assets/images/confirm-square.svg';
 import ConfirmSquareGreen from 'src/assets/images/confirm-square-green.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { resetState, setSyncingUTXOError } from 'src/store/reducers/utxos';
 import LabelItem from './LabelItem';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';

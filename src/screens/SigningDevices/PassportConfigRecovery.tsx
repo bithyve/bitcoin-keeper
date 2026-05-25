@@ -1,6 +1,6 @@
 import { Platform, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import React, { useCallback, useContext, useState } from 'react';
-import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
@@ -9,7 +9,7 @@ import ImportIcon from 'src/assets/images/import.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import OptionCard from 'src/components/OptionCard';
 import RNFS from 'react-native-fs';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import { pick, types } from '@react-native-documents/picker';
 import Colors from 'src/theme/Colors';
 import QRScanner from 'src/components/QRScanner';
 import WalletHeader from 'src/components/WalletHeader';
@@ -32,7 +32,7 @@ function PassportConfigRecovery() {
 
   const handleDocumentSelection = useCallback(async () => {
     try {
-      const response = await DocumentPicker.pick({
+      const response = await pick({
         presentationStyle: 'fullScreen',
         type: [types.docx, types.allFiles],
         allowMultiSelection: false,

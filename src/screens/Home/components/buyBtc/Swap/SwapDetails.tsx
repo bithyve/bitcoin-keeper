@@ -1,5 +1,5 @@
 import { CommonActions } from '@react-navigation/native';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Buttons from 'src/components/Buttons';

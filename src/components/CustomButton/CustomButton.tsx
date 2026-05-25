@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native';
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 
 export interface Props {
   value: string;

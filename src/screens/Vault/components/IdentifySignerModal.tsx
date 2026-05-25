@@ -1,6 +1,6 @@
 import React, { useCallback, useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import Text from 'src/components/KeeperText';

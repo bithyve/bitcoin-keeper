@@ -1,7 +1,7 @@
 import React, { useContext, useMemo, useEffect, useState } from 'react';
 import { StyleSheet, Platform, FlatList, Pressable } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -173,26 +173,26 @@ function CloudBackupScreen() {
         modalBackground={green_modal_background}
         textColor={green_modal_text_color}
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setShowModal(false);
-          if (setBackupModal) {
-            dispatch(setBackupModal(false));
-          }
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.SETTINGS],
-                screenName: 'cloud-backup',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setShowModal(false);
+        //   if (setBackupModal) {
+        //     dispatch(setBackupModal(false));
+        //   }
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.SETTINGS],
+        //         screenName: 'cloud-backup',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => {
           setShowModal(false);
           if (setBackupModal) {

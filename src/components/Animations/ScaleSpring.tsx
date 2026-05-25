@@ -12,10 +12,11 @@ function ScaleSpring({ children }) {
   }));
 
   const tap = Gesture.Tap()
-    .onTouchesDown(() => {
-      scale.value = withSpring(0.6);
+    .shouldCancelWhenOutside(true)
+    .onBegin(() => {
+      scale.value = withSpring(0.9);
     })
-    .onTouchesUp(() => {
+    .onFinalize(() => {
       scale.value = withSpring(1);
     });
 

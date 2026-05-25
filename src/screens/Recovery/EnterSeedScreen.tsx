@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import { Box, Input, Pressable, ScrollView, View, useColorMode } from 'native-base';
+import { Box, Input, Pressable, ScrollView, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
@@ -26,7 +26,6 @@ import Breadcrumbs from 'src/components/Breadcrumbs';
 import Dropdown from 'src/components/Dropdown';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import { ConciergeTag } from 'src/store/sagaActions/concierge';
 import RecoverySuccessModalContent from './RecoverySuccessModalContent';
 import { resetSeedWords, setAppImageError, setSeedWord } from 'src/store/reducers/bhr';
 import Fonts from 'src/constants/Fonts';
@@ -36,7 +35,6 @@ import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { updateSignerDetails, updateVaultSignersXpriv } from 'src/store/sagaActions/wallets';
-import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import { setShowTipModal } from 'src/store/reducers/settings';
 import config from 'src/utils/service-utilities/config';
 import { resetPasscodeTimeout } from 'src/store/reducers/storage';
@@ -421,12 +419,15 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const handleInputChange = (text, index) => {
-    const data = [...seedData];
-    data[index].name = text.trim();
-    data[index].invalid = false;
+    const updatedItem = {
+      ...seedData[index],
+      name: text.trim(),
+      invalid: false,
+    };
+    const data = seedData.map((item, itemIndex) => (itemIndex === index ? updatedItem : item));
     setSeedData(data);
 
-    dispatch(setSeedWord({ index, wordItem: data[index] }));
+    dispatch(setSeedWord({ index, wordItem: updatedItem }));
 
     if (text.length > 1) {
       setOnChangeIndex(index);
@@ -437,20 +438,22 @@ function EnterSeedScreen({ route, navigation }) {
   };
 
   const handleInputFocus = (index) => {
-    const data = [...seedData];
-    data[index].invalid = false;
+    const data = seedData.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, invalid: false } : item
+    );
     setSeedData(data);
     setSuggestedWords([]);
     setOnChangeIndex(index);
   };
 
   const handleInputBlur = (index) => {
-    const data = [...seedData];
-    if (!bip39.wordlists.english.includes(data[index].name)) {
-      data[index].invalid = true;
-    }
+    const updatedItem = {
+      ...seedData[index],
+      invalid: !bip39.wordlists.english.includes(seedData[index].name),
+    };
+    const data = seedData.map((item, itemIndex) => (itemIndex === index ? updatedItem : item));
     setSeedData(data);
-    dispatch(setSeedWord({ index, wordItem: seedData[index] }));
+    dispatch(setSeedWord({ index, wordItem: updatedItem }));
   };
 
   const getRequiredWordsCount = () => {
@@ -466,18 +469,18 @@ function EnterSeedScreen({ route, navigation }) {
 
   const getPosition = (index: number) => {
     if ([0, 1, 12, 13, 18, 19, 20, 21].includes(index)) {
-      return 1;
-    } else if ([2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 22, 23].includes(index)) {
       return 2;
+    } else if ([2, 3, 6, 7, 8, 9, 10, 11, 14, 15, 22, 23].includes(index)) {
+      return 1;
     } else if ([4, 5, 16, 17].includes(index)) {
-      return 3;
+      return 2;
     } else {
       return 1;
     }
   };
 
-  const seedItem = (item: seedWordItem, index: number) => {
-    if (
+  const shouldRenderSeedIndex = (index: number) => {
+    return (
       (step === 1 && index < 12) ||
       (step === 2 &&
         (selectedNumberOfWords === SEED_WORDS_18 ||
@@ -489,52 +492,52 @@ function EnterSeedScreen({ route, navigation }) {
           selectedNumberOfWordsFromParams === SEED_WORDS_24) &&
         index >= 12 &&
         index < 24)
-    ) {
-      return (
-        <Box style={styles.inputListWrapper}>
-          <Input
-            fontWeight={500}
-            fontFamily={item.name === '' ? 'Arial' : Fonts.LoraSemiBold}
-            backgroundColor={`${colorMode}.primaryBackground`}
-            borderColor={
-              item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.primaryBackground`
+    );
+  };
+
+  const seedItem = (item: seedWordItem, index: number) => {
+    return (
+      <Box key={item.id} style={styles.inputListWrapper}>
+        <Input
+          fontWeight={500}
+          fontFamily={item.name === '' ? 'Arial' : Fonts.LoraSemiBold}
+          backgroundColor={`${colorMode}.primaryBackground`}
+          borderColor={
+            item.invalid && item.name != '' ? '#F58E6F' : `${colorMode}.primaryBackground`
+          }
+          _focus={{ borderColor: `${colorMode}.primaryBackground` }}
+          ref={(el) => (inputRef.current[index] = el)}
+          style={styles.input}
+          placeholder={`Enter ${getPlaceholderSuperScripted(index)} word`}
+          placeholderTextColor={`${colorMode}.SlateGreen`}
+          value={item?.name}
+          textContentType="none"
+          returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
+          autoCorrect={false}
+          autoCapitalize="none"
+          blurOnSubmit={false}
+          keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
+          onLayout={() => handleLayout(index)}
+          onChangeText={(text) => handleInputChange(text, index)}
+          onBlur={() => handleInputBlur(index)}
+          onFocus={() => {
+            handleInputFocus(index);
+          }}
+          onSubmitEditing={() => {
+            dispatch(setSeedWord({ index, wordItem: seedData[index] }));
+            setSuggestedWords([]);
+            Keyboard.dismiss();
+          }}
+          testID={`input_seedWord${getPlaceholder(index)}`}
+          _input={
+            colorMode === 'dark' && {
+              selectionColor: Colors.bodyText,
+              cursorColor: Colors.bodyText,
             }
-            _focus={{ borderColor: `${colorMode}.primaryBackground` }}
-            ref={(el) => (inputRef.current[index] = el)}
-            style={styles.input}
-            placeholder={`Enter ${getPlaceholderSuperScripted(index)} word`}
-            placeholderTextColor={`${colorMode}.SlateGreen`}
-            value={item?.name}
-            textContentType="none"
-            returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
-            autoCorrect={false}
-            autoCapitalize="none"
-            blurOnSubmit={false}
-            keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
-            onLayout={() => handleLayout(index)}
-            onChangeText={(text) => handleInputChange(text, index)}
-            onBlur={() => handleInputBlur(index)}
-            onFocus={() => {
-              handleInputFocus(index);
-            }}
-            onSubmitEditing={() => {
-              dispatch(setSeedWord({ index, wordItem: seedData[index] }));
-              setSuggestedWords([]);
-              Keyboard.dismiss();
-            }}
-            testID={`input_seedWord${getPlaceholder(index)}`}
-            _input={
-              colorMode === 'dark' && {
-                selectionColor: Colors.bodyText,
-                cursorColor: Colors.bodyText,
-              }
-            }
-          />
-        </Box>
-      );
-    } else {
-      return null;
-    }
+          }
+        />
+      </Box>
+    );
   };
 
   const renderSuggestions = () => {
@@ -562,9 +565,16 @@ function EnterSeedScreen({ route, navigation }) {
               key={word ? `${word + wordIndex}` : wordIndex}
               style={styles.suggestionTouchView}
               onPress={() => {
-                const updatedSeedData = [...seedData];
-                updatedSeedData[onChangeIndex].name = word.trim();
+                const updatedItem = {
+                  ...seedData[onChangeIndex],
+                  name: word.trim(),
+                  invalid: false,
+                };
+                const updatedSeedData = seedData.map((item, itemIndex) =>
+                  itemIndex === onChangeIndex ? updatedItem : item
+                );
                 setSeedData(updatedSeedData);
+                dispatch(setSeedWord({ index: onChangeIndex, wordItem: updatedItem }));
                 setSuggestedWords([]);
                 if (onChangeIndex < (step === 1 ? 11 : requiredWordsCount - 1)) {
                   inputRef.current[onChangeIndex + 1]?.focus();
@@ -667,6 +677,7 @@ function EnterSeedScreen({ route, navigation }) {
               <Dropdown
                 label={selectedNumberOfWords}
                 options={options}
+                selectedOption={selectedNumberOfWords}
                 onOptionSelect={selectNumberOfWords}
               />
             </Box>
@@ -680,7 +691,9 @@ function EnterSeedScreen({ route, navigation }) {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {seedData?.map((item, index) => seedItem(item, index))}
+            {seedData
+              ?.filter((_, index) => shouldRenderSeedIndex(index))
+              .map((item) => seedItem(item, item.id - 1))}
           </ScrollView>
           {renderSuggestions()}
         </Box>
@@ -695,19 +708,19 @@ function EnterSeedScreen({ route, navigation }) {
           <Buttons
             primaryCallback={handleNext}
             primaryText={common.next}
-            secondaryText={isRecovery || isUSDTWallet ? null : common.needHelp}
+            // secondaryText={isRecovery || isUSDTWallet ? null : common.needHelp}
             fullWidth={isRecovery}
-            secondaryCallback={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'CreateTicket',
-                  params: {
-                    tags: [ConciergeTag.VAULT],
-                    screenName: 'sign-transaction-seed-key',
-                  },
-                })
-              );
-            }}
+            // secondaryCallback={() => {
+            //   navigation.dispatch(
+            //     CommonActions.navigate({
+            //       name: 'CreateTicket',
+            //       params: {
+            //         tags: [ConciergeTag.VAULT],
+            //         screenName: 'sign-transaction-seed-key',
+            //       },
+            //     })
+            //   );
+            // }}
             primaryLoading={recoveryLoading}
           />
         </Box>
@@ -787,23 +800,23 @@ function EnterSeedScreen({ route, navigation }) {
           Content={UsdtWalletImportContent}
           DarkCloseIcon
           buttonText={common.Okay}
-          secondaryButtonText={common.needHelp}
+          // secondaryButtonText={common.needHelp}
           buttonTextColor={green_modal_button_text}
           buttonBackground={green_modal_button_background}
-          secButtonTextColor={green_modal_sec_button_text}
-          secondaryIcon={<ConciergeNeedHelp />}
-          secondaryCallback={() => {
-            setShowInfo(false);
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'CreateTicket',
-                params: {
-                  tags: [ConciergeTag.WALLET],
-                  screenName: 'import-usdt-wallet-seed-key',
-                },
-              })
-            );
-          }}
+          // secButtonTextColor={green_modal_sec_button_text}
+          // secondaryIcon={<ConciergeNeedHelp />}
+          // secondaryCallback={() => {
+          //   setShowInfo(false);
+          //   navigation.dispatch(
+          //     CommonActions.navigate({
+          //       name: 'CreateTicket',
+          //       params: {
+          //         tags: [ConciergeTag.WALLET],
+          //         screenName: 'import-usdt-wallet-seed-key',
+          //       },
+          //     })
+          //   );
+          // }}
           buttonCallback={() => setShowInfo(false)}
         />
       </KeyboardAvoidingView>

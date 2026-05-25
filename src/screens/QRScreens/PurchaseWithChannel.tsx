@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Box, VStack, useColorMode } from 'native-base';
+import { Box, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
 import config, { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';

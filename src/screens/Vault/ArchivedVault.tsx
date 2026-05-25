@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { FlatList, Box, useColorMode } from 'native-base';
+import { FlatList, Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import EmptyState from 'src/assets/images/empty-state-illustration.svg';

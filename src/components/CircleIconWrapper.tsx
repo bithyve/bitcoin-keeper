@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { Image, StyleSheet, PixelRatio } from 'react-native';
 
 type Props = {
@@ -19,6 +19,7 @@ function CircleIconWrapper({ icon, width = 50, backgroundColor, image = null }: 
           width: scaledWidth,
           height: scaledWidth,
           borderRadius: scaledWidth / 2,
+          overflow: 'hidden',
         },
       ]}
     >

@@ -1,7 +1,7 @@
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { captureError } from 'src/services/sentry';
-import DocumentPicker from 'react-native-document-picker';
+import { errorCodes, isErrorWithCode, pick, types } from '@react-native-documents/picker';
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
 
 const saveToLocal = async (filePath, saveToFiles, onError) => {
@@ -58,8 +58,8 @@ export const exportFile = async (
 
 export const importFile = async (onFileRead, onError, encoding = null) => {
   try {
-    const result = await DocumentPicker.pick({
-      type: [DocumentPicker.types.allFiles],
+    const result = await pick({
+      type: [types.allFiles],
     });
     try {
       const filePath = result[0].uri.split('%20').join(' ');
@@ -70,7 +70,7 @@ export const importFile = async (onFileRead, onError, encoding = null) => {
       onError(err);
     }
   } catch (err) {
-    if (err.toString().includes('user canceled')) {
+    if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
       // user cancelled
       return;
     }

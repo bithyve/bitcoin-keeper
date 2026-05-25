@@ -1,10 +1,9 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import Text from 'src/components/KeeperText';
 import { wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/Edit-Icon.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { numberWithCommas } from 'src/utils/utilities';
 
 type Props = {

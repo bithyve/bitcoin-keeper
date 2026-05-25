@@ -1,5 +1,5 @@
-import { StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Box, Input, ScrollView, useColorMode } from 'native-base';
+import { StyleSheet, TouchableWithoutFeedback, Keyboard , TouchableOpacity} from 'react-native';
+import { Box, Input, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -14,14 +14,13 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import QRScanner from 'src/components/QRScanner';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/services/wallets/enums';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import WalletHeader from 'src/components/WalletHeader';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import Instruction from 'src/components/Instruction';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
@@ -173,26 +172,26 @@ function ScanQR() {
             textColor={`${colorMode}.headerWhite`}
             Content={learnMoreContent}
             buttonText={common.Okay}
-            secondaryButtonText={common.needHelp}
+            // secondaryButtonText={common.needHelp}
             buttonTextColor={`${colorMode}.pantoneGreen`}
             buttonBackground={`${colorMode}.whiteSecButtonText`}
-            secButtonTextColor={`${colorMode}.whiteSecButtonText`}
-            secondaryIcon={<ConciergeNeedHelp />}
+            // secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+            // secondaryIcon={<ConciergeNeedHelp />}
             buttonCallback={() => {
               setVisibleModal(false);
             }}
-            secondaryCallback={() => {
-              setVisibleModal(false);
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'CreateTicket',
-                  params: {
-                    tags: [ConciergeTag.COLLABORATIVE_Wallet],
-                    screenName: 'add-co-signer',
-                  },
-                })
-              );
-            }}
+            // secondaryCallback={() => {
+            //   setVisibleModal(false);
+            //   navigation.dispatch(
+            //     CommonActions.navigate({
+            //       name: 'CreateTicket',
+            //       params: {
+            //         tags: [ConciergeTag.COLLABORATIVE_Wallet],
+            //         screenName: 'add-co-signer',
+            //       },
+            //     })
+            //   );
+            // }}
             learnMoreButtonText={common.needMoreHelp}
           />
           <KeeperModal

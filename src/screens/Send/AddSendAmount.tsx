@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -530,6 +530,17 @@ function AddSendAmount({ route }) {
     }
   };
 
+  const openCustomPriorityModal = () => {
+    dispatch(customPrioritySendPhaseOneStatusReset());
+    setTransPriorityModalVisible(false);
+    setVisibleCustomPriorityModal(true);
+  };
+
+  const closeCustomPriorityModal = (reopenTransactionPriority = true) => {
+    setVisibleCustomPriorityModal(false);
+    setTransPriorityModalVisible(reopenTransactionPriority);
+  };
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <WalletHeader
@@ -652,10 +663,7 @@ function AddSendAmount({ route }) {
             setSelectedPriority={setTransactionPriority}
             averageTxFees={averageTxFees[bitcoinNetworkType]}
             customFeePerByte={customFeePerByte}
-            onOpenCustomPriorityModal={() => {
-              dispatch(customPrioritySendPhaseOneStatusReset());
-              setVisibleCustomPriorityModal(true);
-            }}
+            onOpenCustomPriorityModal={openCustomPriorityModal}
             customEstBlocks={customEstBlocks}
             setCustomEstBlocks={setCustomEstBlocks}
             estimationSign={estimationSign}
@@ -666,24 +674,26 @@ function AddSendAmount({ route }) {
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
           visible={visibleCustomPriorityModal}
-          close={() => setVisibleCustomPriorityModal(false)}
+          close={() => closeCustomPriorityModal()}
           title={vault.CustomPriority}
           secondaryButtonText={common.Goback}
-          secondaryCallback={() => setVisibleCustomPriorityModal(false)}
+          secondaryCallback={() => closeCustomPriorityModal()}
           subTitle="Enter amount in sats/vbyte"
           network={sender?.networkType}
           recipients={[...finalRecipients, { address, amount: 0 }]}
           sender={sender}
           selectedUTXOs={selectedUTXOs}
           buttonCallback={(setCustomTxPriority, customFeePerByte) => {
-            setVisibleCustomPriorityModal(false);
             if (setCustomTxPriority) {
+              closeCustomPriorityModal();
               setTransactionPriority(TxPriority.CUSTOM);
               setCustomFeePerByte(Number(customFeePerByte));
             } else {
               if (customFeePerByte === '0') {
-                setTransPriorityModalVisible(false);
+                closeCustomPriorityModal(false);
                 showToast(errorText.feeRateLessThanOne, <ToastErrorIcon />);
+              } else {
+                closeCustomPriorityModal();
               }
             }
           }}

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Box, ScrollView, useColorMode, VStack } from 'native-base';
+import { Box, ScrollView, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';

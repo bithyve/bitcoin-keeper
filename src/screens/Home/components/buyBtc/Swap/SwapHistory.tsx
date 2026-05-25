@@ -1,6 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { useQuery } from '@realm/react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';

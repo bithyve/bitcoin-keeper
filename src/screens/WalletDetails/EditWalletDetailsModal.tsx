@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Box, useColorMode } from 'native-base';
+import { View, Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useDispatch } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';

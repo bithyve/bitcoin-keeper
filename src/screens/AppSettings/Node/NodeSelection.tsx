@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -262,7 +262,10 @@ const NodeSelection = () => {
           )}
         </ScrollView>
 
-        <Box style={[styles.footerContainer, { alignItems: activeTab === 0 ? null : 'center' }]}>
+        <Box
+          key={`footer-${activeTab}`}
+          style={[styles.footerContainer, activeTab !== 0 && { alignItems: 'center' }]}
+        >
           {activeTab === 0 ? (
             <Note title={common.note} subtitle={settings.publicServerNote} />
           ) : (

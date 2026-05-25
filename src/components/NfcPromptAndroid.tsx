@@ -1,5 +1,5 @@
 import { Animated, Modal, Platform, StyleSheet } from 'react-native';
-import { Pressable, useColorMode, View } from 'native-base';
+import { Pressable, useColorMode, View } from '@gluestack-ui/themed-native-base';
 
 import NFCSVG from 'src/assets/images/nfc.svg';
 import React, { useContext } from 'react';

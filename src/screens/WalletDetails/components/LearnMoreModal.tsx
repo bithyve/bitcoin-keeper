@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React, { useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
@@ -46,23 +46,23 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       Content={() => <LinkedWalletContent />}
       DarkCloseIcon
       buttonText={common.Okay}
-      secondaryButtonText={common.needHelp}
+      // secondaryButtonText={common.needHelp}
       buttonTextColor={`${colorMode}.pantoneGreen`}
       buttonBackground={`${colorMode}.whiteSecButtonText`}
-      secButtonTextColor={`${colorMode}.whiteSecButtonText`}
-      secondaryIcon={<ConciergeNeedHelp />}
-      secondaryCallback={() => {
-        dispatch(setIntroModal(false));
-        navigation.dispatch(
-          CommonActions.navigate({
-            name: 'CreateTicket',
-            params: {
-              tags: [ConciergeTag.WALLET],
-              screenName: 'wallet-details',
-            },
-          })
-        );
-      }}
+      // secButtonTextColor={`${colorMode}.whiteSecButtonText`}
+      // secondaryIcon={<ConciergeNeedHelp />}
+      // secondaryCallback={() => {
+      //   dispatch(setIntroModal(false));
+      //   navigation.dispatch(
+      //     CommonActions.navigate({
+      //       name: 'CreateTicket',
+      //       params: {
+      //         tags: [ConciergeTag.WALLET],
+      //         screenName: 'wallet-details',
+      //       },
+      //     })
+      //   );
+      // }}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />
   );

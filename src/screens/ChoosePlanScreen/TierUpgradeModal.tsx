@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import UpgradeLightIllustration from 'src/assets/images/upgrade-illustration.svg';
 import DowngradeLightIllustration from 'src/assets/images/downgrade-illustration.svg';
 import UpgradeDarkIllustration from 'src/assets/images/upgrade-dark-illustration.svg';

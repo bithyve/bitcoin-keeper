@@ -1,4 +1,4 @@
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, HStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 import { windowWidth } from 'src/constants/responsive';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';

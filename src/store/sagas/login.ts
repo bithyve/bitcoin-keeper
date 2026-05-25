@@ -10,7 +10,8 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { getMessaging, subscribeToTopic } from '@react-native-firebase/messaging';
 import Relay from 'src/services/backend/Relay';
 import semver from 'semver';
 import { uaiType } from 'src/models/interfaces/Uai';
@@ -127,7 +128,8 @@ function* credentialsStorageWorker({ payload }) {
       ])
     );
 
-    messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
+    const app = getApp();
+    subscribeToTopic(getMessaging(app), getReleaseTopic(DeviceInfo.getVersion()));
 
     yield put(connectToNode());
   } catch (error) {

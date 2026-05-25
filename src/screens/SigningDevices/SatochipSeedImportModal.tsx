@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import {Platform, StyleSheet} from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions } from '@react-navigation/native';
 import { SatochipCard } from 'satochip-react-native';
 import * as bip39 from 'bip39';

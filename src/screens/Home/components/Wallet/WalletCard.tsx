@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: windowWidth * 0.88,
     height: wp(180),
-    padding: wp(20),
     borderRadius: 15,
     position: 'relative',
     overflow: 'hidden',

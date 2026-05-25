@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import useBalance from 'src/hooks/useBalance';
 import BTC from 'src/assets/images/btc.svg';
 import { useAppSelector } from 'src/store/hooks';

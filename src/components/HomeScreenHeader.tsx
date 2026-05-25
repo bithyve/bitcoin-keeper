@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
-import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { StyleSheet , TouchableOpacity} from 'react-native';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import NotificationDotIcon from 'src/assets/images/header-notifications-dot-icon.svg';
 import { capitalizeEachWord } from 'src/utils/utilities';

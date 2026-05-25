@@ -1,4 +1,4 @@
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';

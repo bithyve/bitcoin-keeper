@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
+import { Box, HStack, Pressable, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { windowWidth, wp } from 'src/constants/responsive';

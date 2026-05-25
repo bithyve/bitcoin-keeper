@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import AssistedKeysContentSlider from './components/AssistedKeysSliderContent';
 import { wp } from 'src/constants/responsive';
 

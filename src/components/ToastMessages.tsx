@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -36,19 +36,14 @@ const styles = StyleSheet.create({
   toast: {
     flexDirection: 'row',
     borderRadius: 10,
+    borderWidth: 0,
+    overflow: 'hidden',
     alignItems: 'center',
     width: windowWidth * 0.9,
     paddingLeft: 15,
     bottom: hp(40),
     minHeight: hp(70),
     fontSize: 13,
-    elevation: 6,
-    shadowOpacity: 0.6,
-    shadowRadius: 3,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
   },
   toastMsgText: {
     marginLeft: 5,

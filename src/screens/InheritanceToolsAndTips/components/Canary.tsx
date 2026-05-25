@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';

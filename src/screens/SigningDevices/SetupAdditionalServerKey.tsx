@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';

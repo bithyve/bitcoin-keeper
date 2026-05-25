@@ -1,6 +1,5 @@
-import { useColorMode } from 'native-base';
-import { StyleSheet } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import AddGreen from 'src/assets/images/add-plus-green.svg';

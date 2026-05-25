@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import KeeperModal from 'src/components/KeeperModal';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp } from 'src/constants/responsive';
 import WalletHeader from 'src/components/WalletHeader';
@@ -15,11 +14,12 @@ import Buttons from 'src/components/Buttons';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { CommonActions } from '@react-navigation/native';
 import { backupAllSignersAndVaults, seedBackedUp } from 'src/store/sagaActions/bhr';
 import { useDispatch } from 'react-redux';
-import { setRecoveryKeyBackedUp } from 'src/store/reducers/account';
+import { setRecoveryKeyStatus } from 'src/store/reducers/account';
 import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import {
   setAutomaticCloudBackup,
   setBackupAllFailure,
@@ -33,26 +33,27 @@ type KeeperApp = {
 
 export const ViewRecoveryKeyScreen = ({ navigation }) => {
   const { colorMode } = useColorMode();
-  const { home: homeTxt, common, BackupWallet:backupTxt } = useContext(LocalizationContext).translations;
+  const { home: homeTxt, common, BackupWallet: backupTxt } = useContext(LocalizationContext).translations;
   const { primaryMnemonic, id: appId } = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0] as KeeperApp;
   const [words, _] = useState(primaryMnemonic.split(' '));
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const seedTextColor = ThemedColor({ name: 'seedTextColor' });
-  const [confirmSeedModal, setConfirmSeedModal] = useState(true);
+  const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [loader, setLoader] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const dispatch = useDispatch();
   const { backupAllFailure, backupAllSuccess } = useAppSelector((state) => state.bhr);
-  const [title, setTitle] = useState(homeTxt.backupModalTitle);
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
     if (backupAllSuccess || backupAllFailure) {
       dispatch(setBackupAllSuccess(false));
       dispatch(setBackupAllFailure(false));
       dispatch(setAutomaticCloudBackup(true));
-      setShowSuccess(true);
+      setLoader(false);
+      showToast(backupTxt.recoveryKeyBackedUpSuccessfully, <TickIcon />);
+      navigation.goBack();
     }
   }, [backupAllSuccess, backupAllFailure]);
 
@@ -97,12 +98,12 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={title} enableBack={false} />
+      <WalletHeader title={backupTxt.yourRecoveryKey} enableBack={true} backCallback={() => navigation.goBack()} />
       <Box style={styles.ctr}>
         <Box>
           <Box style={styles.desc}>
-            <Text>{backupTxt.recoveryConfirmDesc1}</Text>
-            <Text>{backupTxt.recoveryConfirmDesc2}</Text>
+            <Text>{backupTxt.writeDownRecoveryKey}</Text>
+            <Text style={styles.warningNote}>{backupTxt.doNotStoreDigitally}: {backupTxt.doNotStoreDigitallyBody}</Text>
           </Box>
 
           {/* Seed Words */}
@@ -113,8 +114,14 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
             renderItem={renderSeedCard}
             keyExtractor={(item) => item}
           />
+          <Text style={styles.noOneLooking}>{backupTxt.makeNoOneLooking}</Text>
         </Box>
-        <Buttons primaryText={common.confirm} primaryCallback={() => setConfirmSeedModal(true)} />
+        <Buttons
+          primaryText={backupTxt.iHaveWrittenItDown}
+          primaryCallback={() => setConfirmSeedModal(true)}
+          secondaryText={common.back}
+          secondaryCallback={() => navigation.goBack()}
+        />
       </Box>
       <Box>
         <ModalWrapper
@@ -123,44 +130,22 @@ export const ViewRecoveryKeyScreen = ({ navigation }) => {
           position="center"
         >
           <ConfirmSeedWord
-            title={homeTxt.backupModalTitle}
-            errorMessage={'Incorrect word. Try again.'}
-            secondaryText={'Write it down'}
+            title={backupTxt.confirmSeedWord}
+            errorMessage={'That word does not match. Please check your Recovery Key and try again.'}
+            secondaryText={common.back}
             closeBottomSheet={() => {
               setConfirmSeedModal(false);
-              setTitle('Write down your Recovery Key');
             }}
             words={words}
             confirmBtnPress={() => {
               setConfirmSeedModal(false);
               setLoader(true);
               dispatch(seedBackedUp());
-              dispatch(setRecoveryKeyBackedUp({ appId, status: true }));
+              dispatch(setRecoveryKeyStatus({ appId, status: 'confirmed' }));
               dispatch(backupAllSignersAndVaults());
             }}
           />
         </ModalWrapper>
-
-        <KeeperModal
-          visible={showSuccess}
-          dismissible={false}
-          title={backupTxt.recoveryKeyConfirmDialog}
-          subTitle={backupTxt.recoveryKeyConfirmDialogSubTitle}
-          close={() => {}}
-          showCloseIcon={false}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          textColor={`${colorMode}.textGreen`}
-          subTitleColor={`${colorMode}.modalSubtitleBlack`}
-          buttonText={'Finish'}
-          buttonCallback={() =>
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Home' }],
-              })
-            )
-          }
-        />
         <ActivityIndicatorView visible={loader} />
       </Box>
     </ScreenWrapper>
@@ -176,6 +161,18 @@ const styles = StyleSheet.create({
   desc: {
     marginVertical: hp(10),
     gap: hp(10),
+  },
+
+  warningNote: {
+    fontSize: 13,
+    opacity: 0.7,
+  },
+
+  noOneLooking: {
+    fontSize: 13,
+    textAlign: 'center',
+    marginTop: hp(8),
+    opacity: 0.7,
   },
 
   seedCardContainer: {

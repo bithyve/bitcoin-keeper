@@ -6,7 +6,7 @@ import RecieveIcon from 'src/assets/images/send-diagonal-arrow-down.svg';
 import RecieveIconWhite from 'src/assets/images/send-diagonal-arrow-down.svg';
 
 import idx from 'idx';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import FooterActions from 'src/components/FooterActions';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
