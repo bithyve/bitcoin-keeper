@@ -18,6 +18,11 @@ const HELP_AI_ALLOWED_LINK_DOMAINS = [
   'docs.coinkite.com',
   'suite.trezor.io',
   'support.ledger.com',
+  'youtube.com',
+  'coingecko.com',
+  'github.com',
+  'en.bitcoin.it',
+  'medium.com',
 ];
 
 const URL_IN_TEXT_PATTERN = /https?:\/\/[^\s<>()\[\]{}"]+/gi;
