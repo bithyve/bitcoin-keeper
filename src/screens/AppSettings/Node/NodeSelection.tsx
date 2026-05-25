@@ -1,6 +1,6 @@
 import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Keyboard, ScrollView as RNScrollView, StyleSheet } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TabBar from 'src/components/TabBar';
 import { hp, wp } from 'src/constants/responsive';
@@ -84,6 +84,7 @@ const NodeSelection = () => {
   const [port, setPort] = useState('');
   const [useSSL, setUseSSL] = useState(true);
   const [connectionError, setConnectionError] = useState('');
+  const scrollRef = useRef<RNScrollView>(null);
   const isDarkMode = colorMode === 'dark';
 
   const tabsData = [{ label: settings.publicServer }, { label: settings.privateElectrum }];
@@ -236,6 +237,8 @@ const NodeSelection = () => {
           tabs={tabsData}
           activeTab={activeTab}
           setActiveTab={(tab) => {
+            Keyboard.dismiss();
+            scrollRef.current?.scrollTo({ y: 0, animated: false });
             setConnectionError('');
             setActiveTab(tab);
           }}
@@ -243,7 +246,7 @@ const NodeSelection = () => {
       </Box>
 
       <Box style={styles.tabContentContainer}>
-        <ScrollView>
+        <ScrollView ref={scrollRef as any}>
           {activeTab === 0 ? (
             <PublicServer
               currentlySelectedNode={currentlySelectedNode}
