@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
@@ -26,9 +26,9 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
 
   return (
     <View style={styles.container}>
-      {Platform.OS === 'android' && (
-        <ChatBubble style={{ marginVertical: hp(20) }} width={wp(64)} height={hp(64)} />
-      )}
+      <View style={styles.chatBubbleBox}>
+        <ChatBubble width={wp(64)} height={hp(64)} />
+      </View>
       <Text style={styles.title}>{askAi.noConversationsYet}</Text>
       <Text style={styles.subtitle}>{askAi.subtitle}</Text>
 
@@ -54,7 +54,9 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
           ))}
         </View>
         <View style={styles.warningCtr}>
-          <LockIcon height={hp(18)} width={wp(18)} />
+          <View style={styles.warningIconBox}>
+            <LockIcon height={hp(18)} width={wp(18)} />
+          </View>
           <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
         </View>
       </View>
@@ -122,7 +124,19 @@ const styles = StyleSheet.create({
   },
   warningCtr: {
     flexDirection: 'row',
+
     gap: wp(8),
+  },
+  warningIconBox: {
+    width: wp(18),
+    height: hp(18),
+    overflow: 'hidden',
+  },
+  chatBubbleBox: {
+    width: wp(64),
+    height: hp(64),
+    marginVertical: hp(20),
+    overflow: 'hidden',
   },
   addContainer: {
     padding: wp(15),

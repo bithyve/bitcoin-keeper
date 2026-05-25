@@ -485,7 +485,9 @@ const HelpAiChat = ({ navigation, route }) => {
 
         <View style={styles.inputBar}>
           <View style={styles.warningCtr}>
-            <LockIcon height={hp(18)} width={wp(18)} />
+            <View style={styles.warningIconBox}>
+              <LockIcon height={hp(15)} width={wp(15)} />
+            </View>
             <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
           </View>
           <View style={styles.inputWrapper}>
@@ -725,8 +727,14 @@ const styles = StyleSheet.create({
   },
   warningCtr: {
     flexDirection: 'row',
-    gap: wp(8),
+    alignItems: 'center',
+    gap: wp(6),
     alignSelf: 'center',
+  },
+  warningIconBox: {
+    width: wp(15),
+    height: hp(15),
+    overflow: 'hidden',
   },
   warningText: {
     textAlign: 'center',
