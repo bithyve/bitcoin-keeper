@@ -1,0 +1,4 @@
+appId: ${APPID}
+---
+- runFlow: walletSetting.yaml
+- runFlow: healthCheckKey.yaml

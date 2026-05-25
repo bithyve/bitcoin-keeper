@@ -1,0 +1,4 @@
+appId: ${APPID}
+---
+- runFlow: receive.yaml
+- runFlow: send.yaml

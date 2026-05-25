@@ -1,0 +1,7 @@
+appId: ${APPID}
+---
+- runFlow: core_onboarding_setup.yaml
+- runFlow: core_wallet_viewing.yaml
+- runFlow: core_app_settings.yaml
+- runFlow: core_key_management.yaml
+- runFlow: core_receive_send.yaml
