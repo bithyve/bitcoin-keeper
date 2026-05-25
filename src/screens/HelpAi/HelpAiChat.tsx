@@ -43,6 +43,13 @@ import {
   type HelpAiRenderMessage,
 } from 'src/store/reducers/helpAi';
 import { GREETINGS } from 'src/constants/ChatAiGreetings';
+import {
+  HELP_AI_ESCALATION_ADVISOR_ROUTE,
+  HELP_AI_ESCALATION_DEV_EMAIL,
+  HELP_AI_ESCALATION_DEV_EMAIL_BODY,
+  HELP_AI_ESCALATION_DEV_EMAIL_SUBJECT,
+  HELP_AI_ESCALATION_TELEGRAM_URL,
+} from 'src/constants/helpAiEscalation';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
@@ -133,21 +140,16 @@ const HelpAiChat = ({ navigation, route }) => {
 
   const handleEscalationCardAction = async (card: HelpEscalationCard) => {
     try {
-      if (card.type === 'telegram' && card.ctaAction.url) {
-        await Linking.openURL(card.ctaAction.url);
+      if (card.type === 'telegram') {
+        await Linking.openURL(HELP_AI_ESCALATION_TELEGRAM_URL);
       } else if (card.type === 'advisor') {
-        navigation.navigate(card.ctaAction.route || 'Advisors');
+        navigation.navigate(HELP_AI_ESCALATION_ADVISOR_ROUTE);
       } else if (card.type === 'developer_email') {
-        const { toEmail, subject, body, mailto } = card.ctaAction;
-        if (toEmail) {
-          const params: string[] = [];
-          if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
-          if (body) params.push(`body=${encodeURIComponent(body)}`);
-          const query = params.length ? `?${params.join('&')}` : '';
-          await Linking.openURL(`mailto:${toEmail}${query}`);
-        } else if (mailto) {
-          await Linking.openURL(mailto);
-        }
+        const subject = encodeURIComponent(HELP_AI_ESCALATION_DEV_EMAIL_SUBJECT);
+        const body = encodeURIComponent(HELP_AI_ESCALATION_DEV_EMAIL_BODY);
+        await Linking.openURL(
+          `mailto:${HELP_AI_ESCALATION_DEV_EMAIL}?subject=${subject}&body=${body}`
+        );
       }
     } catch (error) {
       showToast('Unable to open this action right now');

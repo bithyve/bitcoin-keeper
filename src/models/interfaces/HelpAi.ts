@@ -30,14 +30,6 @@ export type HelpEscalationCard = {
   title: string;
   description: string;
   ctaLabel: string;
-  ctaAction: {
-    url?: string;
-    route?: string;
-    mailto?: string;
-    toEmail?: string;
-    subject?: string;
-    body?: string;
-  };
 };
 
 export type HelpChatResponse = {
