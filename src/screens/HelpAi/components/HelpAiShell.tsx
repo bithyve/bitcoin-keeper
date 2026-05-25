@@ -8,9 +8,10 @@ type HelpAiShellProps = {
   title: string;
   children: React.ReactNode;
   onBack?: () => void;
+  onInfoPress?: () => void;
 };
 
-const HelpAiShell = ({ title, children, onBack }: HelpAiShellProps) => {
+const HelpAiShell = ({ title, children, onBack, onInfoPress }: HelpAiShellProps) => {
   const { colorMode } = useColorMode();
 
   return (
@@ -22,7 +23,12 @@ const HelpAiShell = ({ title, children, onBack }: HelpAiShellProps) => {
         style={{ flex: 1 }}
       >
         <View style={{ paddingHorizontal: 24 }}>
-          <WalletHeader title={title} onPressHandler={onBack} />
+          <WalletHeader
+            title={title}
+            onPressHandler={onBack}
+            learnMore={!!onInfoPress}
+            learnMorePressed={onInfoPress}
+          />
         </View>
         <View style={{ flex: 1 }}>{children}</View>
       </KeyboardAvoidingView>

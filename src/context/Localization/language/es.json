@@ -2158,6 +2158,12 @@
     "noConversationsYet": "No conversations yet",
     "subtitle": "Get help, report a problem, or share an idea.",
     "openHelpChat": "Start a conversation",
-    "neverShareSeedWarning": "Never share seed words or private keys."
+    "neverShareSeedWarning": "Never share seed words or private keys.",
+    "disclaimerTitle": "Before you use Ask Keeper",
+    "disclaimerPoint1": "Never share seed words, private keys, or wallet secrets.",
+    "disclaimerPoint2": "Ask Keeper may sometimes be incorrect or incomplete.",
+    "disclaimerPoint3": "Your messages are processed securely to help Ask Keeper respond.",
+    "disclaimerLearnMore": "Learn more about Ask Keeper",
+    "disclaimerCta": "Got it"
   }
 }

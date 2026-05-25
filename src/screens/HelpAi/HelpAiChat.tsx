@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import Buttons from 'src/components/Buttons';
+import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import {
@@ -45,12 +46,20 @@ import {
 import { GREETINGS } from 'src/constants/ChatAiGreetings';
 import {
   HELP_AI_ESCALATION_ADVISOR_ROUTE,
+  HELP_AI_DISCLAIMER_STORAGE_KEY,
   HELP_AI_ESCALATION_DEV_EMAIL,
   HELP_AI_ESCALATION_DEV_EMAIL_BODY,
   HELP_AI_ESCALATION_DEV_EMAIL_SUBJECT,
+  HELP_AI_LEARN_MORE_URL,
   HELP_AI_ESCALATION_TELEGRAM_URL,
 } from 'src/constants/helpAiEscalation';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hasItem, setItem } from 'src/storage';
+import AskKeeperShield from 'src/assets/images/ask_keeper_shield.svg';
+import AskKeeperInfo from 'src/assets/images/ask_keeper_info.svg';
+import AskKeeperLock from 'src/assets/images/ask_keeper_lock.svg';
+import LockIcon from 'src/assets/images/lockLightGreen.svg';
+import Fonts from 'src/constants/Fonts';
 
 const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
 
@@ -91,6 +100,7 @@ const HelpAiChat = ({ navigation, route }) => {
   );
   const { translations } = useContext(LocalizationContext);
   const { askAi } = translations;
+  const disclaimerPoints = [askAi.disclaimerPoint1, askAi.disclaimerPoint2, askAi.disclaimerPoint3];
   const { showToast } = useToastMessage();
   const listRef = useRef<FlatList<HelpAiRenderMessage>>(null);
   const generatedConversationId = useMemo(() => `conv_${Date.now().toString(36)}`, []);
@@ -118,10 +128,22 @@ const HelpAiChat = ({ navigation, route }) => {
   const [sending, setSending] = useState(false);
   const [typing, setTyping] = useState(false);
   const [lastFailedText, setLastFailedText] = useState<string | null>(null);
+  const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
 
   useEffect(() => {
     dispatch(createHelpAiThread({ conversationId }));
   }, [conversationId, dispatch]);
+
+  useEffect(() => {
+    if (!hasItem(HELP_AI_DISCLAIMER_STORAGE_KEY)) {
+      setShowDisclaimerModal(true);
+    }
+  }, []);
+
+  const dismissDisclaimerModal = () => {
+    setItem(HELP_AI_DISCLAIMER_STORAGE_KEY, true);
+    setShowDisclaimerModal(false);
+  };
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
@@ -411,7 +433,7 @@ const HelpAiChat = ({ navigation, route }) => {
   };
 
   return (
-    <HelpAiShell title={askAi.askKeeper}>
+    <HelpAiShell title={askAi.askKeeper} onInfoPress={() => setShowDisclaimerModal(true)}>
       <View style={styles.container}>
         <View style={styles.scrollArea}>
           <FlatList
@@ -462,32 +484,38 @@ const HelpAiChat = ({ navigation, route }) => {
         </View>
 
         <View style={styles.inputBar}>
-          <TextInput
-            style={[
-              styles.input,
-              { color: uiColors.inputText, backgroundColor: uiColors.aiBubble },
-            ]}
-            value={input}
-            onChangeText={setInput}
-            placeholder={'Type your message'}
-            placeholderTextColor={uiColors.placeholderText}
-            editable={!sending}
-            multiline
-          />
-          <Pressable
-            style={[
-              styles.sendBtn,
-              { opacity: sending ? 0.6 : 1, backgroundColor: Colors.primaryGreen },
-            ]}
-            onPress={() => sendToChat(input)}
-            disabled={sending}
-          >
-            {isDarkMode ? (
-              <PaperPlaneDark height={hp(15)} width={hp(15)} />
-            ) : (
-              <PaperPlaneLight height={hp(15)} width={hp(15)} />
-            )}
-          </Pressable>
+          <View style={styles.warningCtr}>
+            <LockIcon height={hp(18)} width={wp(18)} />
+            <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
+          </View>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[
+                styles.input,
+                { color: uiColors.inputText, backgroundColor: uiColors.aiBubble },
+              ]}
+              value={input}
+              onChangeText={setInput}
+              placeholder={'Type your message'}
+              placeholderTextColor={uiColors.placeholderText}
+              editable={!sending}
+              multiline
+            />
+            <Pressable
+              style={[
+                styles.sendBtn,
+                { opacity: sending ? 0.6 : 1, backgroundColor: Colors.primaryGreen },
+              ]}
+              onPress={() => sendToChat(input)}
+              disabled={sending}
+            >
+              {isDarkMode ? (
+                <PaperPlaneDark height={hp(15)} width={hp(15)} />
+              ) : (
+                <PaperPlaneLight height={hp(15)} width={hp(15)} />
+              )}
+            </Pressable>
+          </View>
         </View>
 
         {lastFailedText ? (
@@ -498,6 +526,46 @@ const HelpAiChat = ({ navigation, route }) => {
           </Pressable>
         ) : null}
       </View>
+      <KeeperModal
+        visible={showDisclaimerModal}
+        close={dismissDisclaimerModal}
+        title={askAi.disclaimerTitle}
+        showCloseIcon={false}
+        buttonText={askAi.disclaimerCta}
+        buttonCallback={dismissDisclaimerModal}
+        centerTitle
+        Content={() => (
+          <View>
+            <View style={styles.disclaimerRow}>
+              <AskKeeperShield width={hp(45)} height={hp(45)} />
+              <Text style={[styles.disclaimerText, { color: uiColors.primaryText }]}>
+                {disclaimerPoints[0]}
+              </Text>
+            </View>
+            <View style={styles.disclaimerRow}>
+              <AskKeeperInfo width={hp(45)} height={hp(45)} />
+              <Text style={[styles.disclaimerText, { color: uiColors.primaryText }]}>
+                {disclaimerPoints[1]}
+              </Text>
+            </View>
+            <View style={styles.disclaimerRow}>
+              <AskKeeperLock width={hp(45)} height={hp(45)} />
+              <Text style={[styles.disclaimerText, { color: uiColors.primaryText }]}>
+                {disclaimerPoints[2]}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => Linking.openURL(HELP_AI_LEARN_MORE_URL)}
+              style={styles.learnMoreCtr}
+            >
+              <Text style={[styles.learnMoreText, { color: Colors.primaryGreen }]}>
+                {askAi.disclaimerLearnMore}
+              </Text>
+              <Text style={[styles.learnMoreArrow, { color: Colors.primaryGreen }]}>›</Text>
+            </Pressable>
+          </View>
+        )}
+      />
     </HelpAiShell>
   );
 };
@@ -520,10 +588,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   inputBar: {
-    flexDirection: 'row',
-    gap: wp(8),
-    alignItems: 'flex-end',
-    flexShrink: 0,
     paddingTop: hp(5),
   },
   input: {
@@ -627,6 +691,54 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     marginBottom: hp(8),
     padding: 8,
+  },
+  disclaimerText: {
+    fontSize: 14,
+    lineHeight: 18,
+    flex: 1,
+  },
+  disclaimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(12),
+    marginBottom: hp(18),
+  },
+  learnMoreCtr: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.greyBorder,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: wp(6),
+    paddingTop: hp(12),
+    marginTop: hp(2),
+    marginBottom: hp(8),
+  },
+  learnMoreText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  learnMoreArrow: {
+    fontSize: 24,
+    lineHeight: 24,
+  },
+  warningCtr: {
+    flexDirection: 'row',
+    gap: wp(8),
+    alignSelf: 'center',
+  },
+  warningText: {
+    textAlign: 'center',
+    color: Colors.DarkSlateGray,
+    fontFamily: Fonts.InterRegular,
+    marginBottom: 4,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    gap: wp(8),
+    alignItems: 'flex-end',
+    flexShrink: 0,
   },
 });
 
