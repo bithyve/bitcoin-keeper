@@ -143,7 +143,7 @@ function UTXOManagement({ route }: ScreenProps) {
 
   useEffect(() => {
     if (!walletSyncing[wallet.id]) {
-      dispatch(refreshWallets([wallet], { hardRefresh: true, dustScan: true }));
+      dispatch(refreshWallets([wallet], { hardRefresh: true }));
     }
   }, []);
 

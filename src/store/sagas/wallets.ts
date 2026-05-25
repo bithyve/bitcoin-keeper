@@ -131,7 +131,7 @@ import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
 import { updateDelayedPolicyUpdate } from '../reducers/storage';
 import { accountNoFromDerivationPath } from 'src/utils/service-utilities/utils';
-import { classifyDustUTXO } from 'src/services/wallets/operations/dustClassification';
+import { classifyDustByAddress } from 'src/services/wallets/operations/dustClassification';
 import { setPendingDustToast } from '../reducers/utxos';
 
 export interface NewVaultDetails {
@@ -609,7 +609,7 @@ function* refreshWalletsWorker({
 }: {
   payload: {
     wallets: (Wallet | Vault)[];
-    options: { hardRefresh?: boolean; addNotifications?: boolean };
+    options: { hardRefresh?: boolean; addNotifications?: boolean; dustScan?: boolean };
   };
 }) {
   let { wallets, options } = payload;
@@ -638,26 +638,32 @@ function* refreshWalletsWorker({
 
     const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
-    // Build pre-sync spendability snapshot and capture preSyncNextFreeAddressIndex per wallet
+    // Build pre-sync spendability snapshot per wallet
     const preSyncSnapshots = new Map<
       string,
-      Map<string, { spendability?: string; isManualOverride?: boolean }>
+      Map<string, { spendability?: string; isManualOverride?: boolean; dustReason?: string }>
     >();
-    const preSyncNextFreeAddressIndexMap = new Map<string, number>();
     for (const wallet of wallets) {
-      const snapshot = new Map<string, { spendability?: string; isManualOverride?: boolean }>();
+      const snapshot = new Map<
+        string,
+        { spendability?: string; isManualOverride?: boolean; dustReason?: string }
+      >();
       const specs = (wallet as any).specs;
       if (specs) {
         const allUTXOs = [...(specs.confirmedUTXOs || []), ...(specs.unconfirmedUTXOs || [])];
         for (const utxo of allUTXOs) {
-          if (utxo.spendability !== undefined || utxo.isManualOverride !== undefined) {
+          if (
+            utxo.spendability !== undefined ||
+            utxo.isManualOverride !== undefined ||
+            utxo.dustReason !== undefined
+          ) {
             snapshot.set(`${utxo.txId}:${utxo.vout}`, {
               spendability: utxo.spendability,
               isManualOverride: utxo.isManualOverride,
+              dustReason: utxo.dustReason,
             });
           }
         }
-        preSyncNextFreeAddressIndexMap.set(wallet.id, specs.nextFreeAddressIndex ?? 0);
       }
       preSyncSnapshots.set(wallet.id, snapshot);
     }
@@ -719,43 +725,127 @@ function* refreshWalletsWorker({
         }
       }
 
-      if (synchedWallet.entityKind === EntityKind.VAULT) {
-        yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
-          specs: synchedWallet.specs,
-        });
-        if (synchedWallet.type === VaultType.CANARY) {
-          yield put(uaiChecks([uaiType.CANARAY_WALLET]));
-        }
-      } else {
-        yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
-          specs: synchedWallet.specs,
-        });
+      if (synchedWallet.entityKind === EntityKind.VAULT && synchedWallet.type === VaultType.CANARY) {
+        yield put(uaiChecks([uaiType.CANARAY_WALLET]));
       }
 
       // Restore spendability from snapshot; classify new UTXOs; toast on new dust
       const walletSnapshot = preSyncSnapshots.get(synchedWallet.id) || new Map();
-      const preSyncNFAI = preSyncNextFreeAddressIndexMap.get(synchedWallet.id) ?? 0;
       const newDustUTXOs: any[] = [];
 
+      // Build {address: index} maps from wallet's cached address objects
+      const rawExternal: Record<string, string> =
+        (synchedWallet as any).specs.addresses?.external || {};
+      const rawInternal: Record<string, string> =
+        (synchedWallet as any).specs.addresses?.internal || {};
+      const externalAddresses: Record<string, number> = {};
+      for (const [idx, addr] of Object.entries(rawExternal)) {
+        externalAddresses[addr] = parseInt(idx, 10);
+      }
+      const internalAddresses: Record<string, number> = {};
+      for (const [idx, addr] of Object.entries(rawInternal)) {
+        internalAddresses[addr] = parseInt(idx, 10);
+      }
+
+      // Dust scan backfill — populate walletOutputs for any transaction missing it.
+      // Only runs during an explicit dust scan; skipped on normal/hard refresh.
+      if (options.dustScan) {
+        const txsMissingOutputs = ((synchedWallet as any).specs.transactions || []).filter(
+          (tx: any) => tx.walletOutputs.length === 0
+        );
+
+        if (txsMissingOutputs.length > 0) {
+          const txidsToFetch = txsMissingOutputs.map((tx: any) => tx.txid);
+          try {
+            const rawTxs: Record<string, any> = yield call(
+              [ElectrumClient, ElectrumClient.getTransactionsById],
+              txidsToFetch
+            );
+            for (const tx of txsMissingOutputs) {
+              const rawTx = rawTxs[tx.txid];
+              if (!rawTx) continue;
+              const walletOuts: Array<{ address: string; valueSats: number }> = [];
+              for (const vout of rawTx.vout || []) {
+                const addr = vout?.scriptPubKey?.addresses?.[0];
+                if (!addr) continue;
+                if (
+                  externalAddresses[addr] !== undefined ||
+                  internalAddresses[addr] !== undefined
+                ) {
+                  walletOuts.push({
+                    address: addr,
+                    valueSats: Math.round(vout.value * 1e8),
+                  });
+                }
+              }
+              tx.walletOutputs = walletOuts;
+            }
+          } catch (backfillErr) {
+            // Non-fatal: classification will skip txs without walletOutputs
+            console.warn('walletOutputs backfill failed:', backfillErr);
+          }
+        }
+      }
+      // Build manual-override address set; call address-taint classifier
+      const manualOverrideAddresses = new Set<string>();
       const allSynchedUTXOs = [
         ...((synchedWallet as any).specs.confirmedUTXOs || []),
         ...((synchedWallet as any).specs.unconfirmedUTXOs || []),
       ];
+      for (const utxo of allSynchedUTXOs) {
+        const key = `${utxo.txId}:${utxo.vout}`;
+        const snap = walletSnapshot.get(key);
+        if (snap?.isManualOverride) {
+          manualOverrideAddresses.add(utxo.address);
+        }
+      }
 
+      const { taintedAddresses, initialTaintAddresses, dustSpendTxids } =
+        classifyDustByAddress(
+          synchedWallet as any,
+          externalAddresses,
+          internalAddresses,
+          manualOverrideAddresses,
+          options.dustScan ? 'full' : 'current'
+        );
+
+      // Mark UTXOs — only restore snapshot when user made a manual override;
+      // always re-run classification otherwise so reclassification is not blocked.
       for (const utxo of allSynchedUTXOs) {
         const key = `${utxo.txId}:${utxo.vout}`;
         const existing = walletSnapshot.get(key);
-        if (existing !== undefined) {
-          // Restore previously known state (handles hard refresh wipe)
+        if (existing?.isManualOverride) {
+          // User explicitly changed this UTXO — honour their choice
           utxo.spendability = existing.spendability;
-          utxo.isManualOverride = existing.isManualOverride ?? false;
-        } else {
-          // New UTXO — classify fresh
-          const classification = classifyDustUTXO(utxo, synchedWallet as any, preSyncNFAI);
-          utxo.spendability = classification;
+          utxo.isManualOverride = true;
+          utxo.dustReason = existing.dustReason;
+        } else if (taintedAddresses.has(utxo.address)) {
+          const wasAlreadyDust = existing?.spendability === 'doNotSpend';
+          utxo.spendability = 'doNotSpend';
           utxo.isManualOverride = false;
-          if (classification === 'doNotSpend') {
+          if (!initialTaintAddresses.has(utxo.address)) {
+            utxo.dustReason = 'descendant';
+          } else if ((utxo.value as number) < 5000) {
+            utxo.dustReason = 'initial';
+          } else {
+            utxo.dustReason = 'adjacent';
+          }
+          if (!wasAlreadyDust) {
             newDustUTXOs.push(utxo);
+          }
+        } else {
+          utxo.spendability = 'spendable';
+          utxo.isManualOverride = false;
+          utxo.dustReason = undefined;
+        }
+      }
+
+      // Label transactions that spent from a tainted address
+      for (const tx of (synchedWallet as any).specs.transactions || []) {
+        if (dustSpendTxids.has(tx.txid)) {
+          if (!Array.isArray(tx.tags)) tx.tags = [];
+          if (!tx.tags.includes('potential-dust-spend')) {
+            tx.tags.push('potential-dust-spend');
           }
         }
       }
