@@ -27,7 +27,6 @@ import HelpAiDraftCard from './components/HelpAiDraftCard';
 import HelpAiShell from './components/HelpAiShell';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
 import PaperPlaneDark from 'src/assets/images/paper-plane-dark.svg';
-import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 import Colors from 'src/theme/Colors';
 import { batch } from 'react-redux';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -60,6 +59,7 @@ import AskKeeperInfo from 'src/assets/images/ask_keeper_info.svg';
 import AskKeeperLock from 'src/assets/images/ask_keeper_lock.svg';
 import LockIcon from 'src/assets/images/lockLightGreen.svg';
 import Fonts from 'src/constants/Fonts';
+import ChatIcon from 'src/assets/images/chat.svg';
 
 const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
 
@@ -423,7 +423,7 @@ const HelpAiChat = ({ navigation, route }) => {
       return (
         <View style={styles.aiBubbleRow}>
           <View style={styles.aiAvatar}>
-            <ChatBubbleIcon width={wp(18)} height={wp(18)} />
+            <ChatIcon width={wp(18)} height={wp(18)} />
           </View>
           {bubble}
         </View>
@@ -608,8 +608,7 @@ const styles = StyleSheet.create({
       },
       android: {
         textAlignVertical: 'center',
-        paddingTop: 0,
-        paddingBottom: 0,
+        paddingVertical: hp(8),
       },
     }),
   },
@@ -687,7 +686,7 @@ const styles = StyleSheet.create({
   },
   aiAvatar: {
     borderRadius: wp(50),
-    backgroundColor: Colors.primaryGreen,
+    backgroundColor: '#c6ddd1',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,

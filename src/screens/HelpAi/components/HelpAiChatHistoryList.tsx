@@ -5,9 +5,9 @@ import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import Fonts from 'src/constants/Fonts';
 import { hp, wp } from 'src/constants/responsive';
 import { HelpAiThread } from 'src/store/reducers/helpAi';
-import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 import Colors from 'src/theme/Colors';
 import PencilWhite from 'src/assets/images/edit_white.svg';
+import ChatIcon from 'src/assets/images/chat.svg';
 
 type HelpAiChatHistoryListProps = {
   threads: HelpAiThread[];
@@ -50,7 +50,7 @@ const HelpAiChatHistoryList = ({
           >
             <View style={[styles.itemCard]}>
               <View style={styles.iconWrap}>
-                <ChatBubbleIcon width={wp(22)} height={wp(22)} />
+                <ChatIcon width={wp(22)} height={wp(22)} />
               </View>
               <View style={styles.cardBody}>
                 {/* Icon + header row */}
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.primaryGreen,
+    backgroundColor: '#c6ddd1',
   },
   threadTitle: {
     flex: 1,
