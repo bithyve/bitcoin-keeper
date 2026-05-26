@@ -320,6 +320,14 @@ function VaultSettings({ route }) {
         );
       },
     },
+    {
+      title: walletText.dustReport,
+      description: walletText.dustReportDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () =>
+        navigation.dispatch(CommonActions.navigate('DustReport', { walletId: vault.id })),
+    },
   ].filter(Boolean);
 
   return (
