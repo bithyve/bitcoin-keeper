@@ -201,6 +201,7 @@ export type AppStackParams = {
   ImportedWalletSetup: undefined;
   SendTip: undefined;
   ViewRecoveryKeyScreen: undefined;
+  AskKeeperInfo: undefined;
 };
 
 // Usage:

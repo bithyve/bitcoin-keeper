@@ -780,6 +780,7 @@ export default class Relay {
     content: string;
     title?: string;
     url?: string;
+    ragTimestamp?: string;
   }): Promise<any> => {
     try {
       const res = await RestClient.post(`${RELAY}addRagChunkFrontend`, payload);

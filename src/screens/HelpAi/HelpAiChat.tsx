@@ -49,7 +49,6 @@ import {
   HELP_AI_ESCALATION_DEV_EMAIL,
   HELP_AI_ESCALATION_DEV_EMAIL_BODY,
   HELP_AI_ESCALATION_DEV_EMAIL_SUBJECT,
-  HELP_AI_LEARN_MORE_URL,
   HELP_AI_ESCALATION_TELEGRAM_URL,
 } from 'src/constants/helpAiEscalation';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -64,6 +63,7 @@ import { sanitizeHelpAiReplyLinks, sanitizeHelpAiSources } from 'src/utils/helpA
 import { detectSensitiveInput, detectSensitiveInDraft } from 'src/utils/helpAiSensitiveData';
 
 const nowId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const LOCK_ICON_SIZE = hp(15);
 
 const buildMetadata = async (): Promise<HelpChatMetadata> => {
   const appVersion = DeviceInfo.getVersion();
@@ -499,7 +499,7 @@ const HelpAiChat = ({ navigation, route }) => {
         <View style={styles.inputBar}>
           <View style={styles.warningCtr}>
             <View style={styles.warningIconBox}>
-              <LockIcon height={hp(15)} width={wp(15)} />
+              <LockIcon height={LOCK_ICON_SIZE} width={LOCK_ICON_SIZE} />
             </View>
             <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
           </View>
@@ -572,7 +572,10 @@ const HelpAiChat = ({ navigation, route }) => {
               </Text>
             </View>
             <Pressable
-              onPress={() => Linking.openURL(HELP_AI_LEARN_MORE_URL)}
+              onPress={() => {
+                navigation.navigate('AskKeeperInfo');
+                setShowDisclaimerModal(false);
+              }}
               style={styles.learnMoreCtr}
             >
               <Text style={[styles.learnMoreText, { color: Colors.primaryGreen }]}>
@@ -744,17 +747,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: wp(6),
     alignSelf: 'center',
+    marginBottom: hp(5),
   },
   warningIconBox: {
-    width: wp(15),
-    height: hp(15),
+    width: LOCK_ICON_SIZE,
+    height: LOCK_ICON_SIZE,
     overflow: 'hidden',
   },
   warningText: {
-    textAlign: 'center',
+    paddingTop: hp(3),
     color: Colors.DarkSlateGray,
     fontFamily: Fonts.InterRegular,
     marginBottom: 4,
+    fontSize: 14,
   },
   inputWrapper: {
     flexDirection: 'row',
