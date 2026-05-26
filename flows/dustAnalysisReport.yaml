@@ -1,0 +1,156 @@
+appId: io.hexawallet.keeper
+---
+# Tests the complete Dust Report flow available from Wallet Settings.
+# Covers: settings entry point, start screen, scanning phase, result screens
+# (findings and empty state), error state cancel path, and the inline
+# Donate Dust confirmation sheet.
+
+# ── Navigate to Wallet Settings ───────────────────────────────────────────
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 3000
+- swipe:
+    from:
+      id: 'list_transactions'
+    direction: DOWN
+    duration: 2000
+- waitForAnimationToEnd:
+    timeout: 5000
+- repeat:
+    while:
+      visible:
+        id: 'icon_unconfirmed_0'
+    commands:
+      - runFlow: refreshwallet.yaml
+- tapOn:
+    id: 'btn_Settings'
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Wallet Settings: assert Dust Report row ───────────────────────────────
+- assertVisible: 'Dust Report'
+- assertVisible: 'View potential dust activity for this wallet'
+
+# ── Open Dust Report ──────────────────────────────────────────────────────
+- tapOn:
+    id: 'btn_setting_Dust Report'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Start screen assertions ───────────────────────────────────────────────
+- assertTrue: ${output.text_header_title = "Dust Report"}
+- assertVisible: 'Keeper can scan this wallet for dust activity and show coins that may reduce privacy if spent.'
+- assertVisible:
+    id: 'btn_primaryText'
+- assertVisible:
+    id: 'btn_secondaryText'
+
+# ── Cancel from start screen ──────────────────────────────────────────────
+- tapOn:
+    id: 'btn_secondaryText'
+- waitForAnimationToEnd:
+    timeout: 1000
+# Back on Wallet Settings
+- assertVisible: 'Dust Report'
+
+# ── Re-open and Run Report ────────────────────────────────────────────────
+- tapOn:
+    id: 'btn_setting_Dust Report'
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: 'btn_primaryText'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Scanning phase assertions ─────────────────────────────────────────────
+- assertTrue: ${output.text_header_title = "Scanning Wallet"}
+- assertVisible: 'Keeper is checking this wallet for potential dust activity. This may take a few minutes.'
+
+# Wait up to 90 s for the scan to finish (Electrum round-trip + backfill)
+- extendedWaitUntil:
+    notVisible: 'Scanning Wallet'
+    timeout: 90000
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Result screen: findings or empty state ────────────────────────────────
+- runFlow:
+    when:
+      visible: 'Dust Report'
+    commands:
+      # ── Findings result ─────────────────────────────────────────────────
+      - runFlow:
+          when:
+            visible: 'Keeper found coins or transactions that may reduce wallet privacy.'
+          commands:
+            - assertVisible: 'Keeper found coins or transactions that may reduce wallet privacy.'
+            # Summary card
+            - assertVisible: 'Do Not Spend coins'
+            - assertVisible: 'Amount marked Do Not Spend'
+            - assertVisible: 'Past dust spends'
+            - assertVisible: 'Last scanned'
+            # Section headers
+            - assertVisible: 'Active Dust'
+            - assertVisible: 'Linked Coins'
+            - assertVisible: 'Past Dust Spends'
+            # Inline Donate Dust CTA (only when eligible DNS UTXOs exist)
+            - runFlow:
+                when:
+                  id: 'btn_secondaryText'
+                commands:
+                  - tapOn:
+                      id: 'btn_secondaryText'
+                  - waitForAnimationToEnd:
+                      timeout: 1000
+                  # Donate Dust confirmation modal
+                  - assertVisible: 'Donate Dust'
+                  - assertVisible: 'Donating can help clear dust / Do Not Spend coins for better privacy.'
+                  # Dismiss via Cancel
+                  - tapOn:
+                      id: 'btn_secondaryText'
+                  - waitForAnimationToEnd:
+                      timeout: 1000
+            # Done CTA
+            - tapOn:
+                id: 'btn_primaryText'
+            - waitForAnimationToEnd:
+                timeout: 1000
+
+- runFlow:
+    when:
+      visible: 'No Dust Found'
+    commands:
+      # ── Empty state ─────────────────────────────────────────────────────
+      - assertTrue: ${output.text_header_title = "No Dust Found"}
+      - assertVisible: 'Keeper did not find potential dust activity in this wallet.'
+      # No "Donate Dust" secondary button in empty state
+      - assertNotVisible: 'Donate Dust'
+      - tapOn:
+          id: 'btn_primaryText'
+      - waitForAnimationToEnd:
+          timeout: 1000
+
+# ── Error state path (separate run) ──────────────────────────────────────
+# This block is skipped unless a network failure causes the scan to fail.
+- runFlow:
+    when:
+      visible: 'Report Not Completed'
+    commands:
+      - assertTrue: ${output.text_header_title = "Report Not Completed"}
+      - assertVisible: 'Keeper could not complete the dust report. Try again.'
+      - assertVisible: 'Try Again'
+      - assertVisible: 'Cancel'
+      # Cancel returns to Wallet Settings
+      - tapOn:
+          id: 'btn_secondaryText'
+      - waitForAnimationToEnd:
+          timeout: 1000
+
+# ── Navigate back to Home ─────────────────────────────────────────────────
+- tapOn:
+    id: 'btn_back'
+    repeat: 2
+    delay: 500

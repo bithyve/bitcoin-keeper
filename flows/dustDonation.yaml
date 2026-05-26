@@ -1,0 +1,80 @@
+appId: io.hexawallet.keeper
+---
+# Precondition: Wallet at index 0 must have at least one UTXO classified as
+# doNotSpend so that the Donate Dust footer CTA and the confirmation sheet are
+# available. This flow exercises the donation confirmation UI and the cancel
+# path. The actual broadcast is not triggered so no test funds are spent.
+
+# ── Navigate to Wallet Details ─────────────────────────────────────────────
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# ── Open Manage Coins ─────────────────────────────────────────────────────
+- tapOn: 'View All Coins'
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# ── Assert Donate Dust footer CTA is visible ─────────────────────────────
+- assertVisible:
+    id: 'btn_Donate Dust'
+
+# ── Tap Donate Dust to open confirmation sheet ────────────────────────────
+- tapOn:
+    id: 'btn_Donate Dust'
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# ── Assert confirmation modal content ────────────────────────────────────
+- assertVisible: 'Donate Dust?'
+- assertVisible: 'Donating can help clear dust / Do Not Spend coins for better privacy.'
+
+# ── Cancel path: sheet closes without navigating ─────────────────────────
+- tapOn:
+    id: 'btn_secondaryText'
+- waitForAnimationToEnd:
+    timeout: 1000
+# Modal dismissed; Manage Coins screen is still visible
+- assertVisible:
+    id: 'btn_Donate Dust'
+
+# ── Confirm path: tap Donate Dust primary button ──────────────────────────
+- tapOn:
+    id: 'btn_Donate Dust'
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: 'Donate Dust?'
+- tapOn:
+    id: 'btn_primaryText'
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# After confirming, one of two outcomes occurs:
+# 1. Navigation to SendConfirmation (donation amount > fee)
+# 2. Toast "These coins are too small to donate" (amount <= fee)
+- runFlow:
+    when:
+      visible: 'Sending to address'
+    commands:
+      # Donation mode: fee priority switcher must NOT be visible (locked to Low)
+      - assertNotVisible: 'Transaction Priority'
+      # Navigate back without broadcasting
+      - tapOn:
+          id: 'btn_back'
+      - waitForAnimationToEnd:
+          timeout: 1000
+- runFlow:
+    when:
+      visible: 'These coins are too small to donate on their own.'
+    commands:
+      - assertVisible: 'These coins are too small to donate on their own.'
+
+# ── Navigate back to Home ─────────────────────────────────────────────────
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 500
+- tapOn:
+    id: 'btn_back'
