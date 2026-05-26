@@ -568,7 +568,8 @@
     "donateDustConfirmBody": "Donating can help clear dust / Do Not Spend coins for better privacy.",
     "lastScannedNever": "Never",
     "runReport": "Run Report",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "tooSmallToDonate": "Dust amount is too small to donate after fees"
   },
   "vault": {
     "Addsigner": "Add a Signer",

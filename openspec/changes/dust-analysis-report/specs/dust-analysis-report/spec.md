@@ -170,7 +170,7 @@ The "Donate Dust" CTA SHALL appear on the report result screen only when the wal
 
 ### Requirement: Last scanned timestamp persistence
 
-The system SHALL persist the last-scanned timestamp for each wallet in MMKV under the key `dust-report-lastScanned-{walletId}` as a millisecond epoch number. The timestamp SHALL be written immediately after a successful scan completes (when `walletSyncing[walletId]` drops to `false`). If the key is absent, the summary card SHALL display "Never" as the last scanned value.
+The system SHALL persist the last-scanned timestamp for each wallet or vault in MMKV under the key `dust-report-lastScanned-{walletId}` as a millisecond epoch number. The timestamp SHALL be written immediately after a successful scan completes (when `walletSyncing[walletId]` drops to `false`). If the key is absent, the summary card SHALL display "Never" as the last scanned value.
 
 #### Scenario: Timestamp written after successful scan
 

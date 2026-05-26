@@ -14,6 +14,7 @@ import {
   setSendMaxFee,
 } from 'src/store/reducers/send_and_receive';
 import useWallets from 'src/hooks/useWallets.tsx';
+import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
@@ -114,7 +115,9 @@ export function useDustReport(walletId: string) {
   const { wallet: walletTranslation } = translations;
 
   const { wallets } = useWallets();
-  const wallet = wallets.find((w) => w.id === walletId);
+  const walletResult = wallets.find((w) => w.id === walletId);
+  const { activeVault } = useVault({ vaultId: walletId });
+  const wallet = walletResult ?? activeVault;
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);

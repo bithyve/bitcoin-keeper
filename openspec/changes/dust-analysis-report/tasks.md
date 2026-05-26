@@ -37,9 +37,11 @@
 - [x] 3.6 Implement **Error phase** render: title "Report Not Completed", body copy per spec, `Buttons` primaryText="Try Again" / secondaryText="Cancel"
 - [x] 3.7 Implement **Donate Dust inline confirmation** — `KeeperModal` with `visible={donateDustVisible}`, title "Donate Dust", body copy "Donating can help clear dust / Do Not Spend coins for better privacy.", primaryText="Donate Dust", secondaryText="Cancel"; on confirm: build donation transaction (all DNS UTXOs → donation address at low fee rate) and navigate to Send signing screen with locked parameters; on cancel: close sheet
 
-## 4. Wallet Settings Entry Point
+## 4. Wallet & Vault Settings Entry Points
 
 - [x] 4.1 In `src/screens/WalletDetails/WalletSettings.tsx`, add a new action object to the `actions` array: `{ title: walletTranslation.dustReport, description: walletTranslation.dustReportDesc, icon: null, isDiamond: false, onPress: () => navigation.navigate('DustReport', { walletId: wallet.id }) }`
+- [x] 4.2 In `src/screens/Vault/VaultSettings.tsx`, add a new action object to the `actions` array: `{ title: walletText.dustReport, description: walletText.dustReportDesc, icon: null, isDiamond: false, onPress: () => navigation.dispatch(CommonActions.navigate('DustReport', { walletId: vault.id })) }`
+- [x] 4.3 In `src/hooks/useDustReport.ts`, import `useVault` and resolve the entity as `walletResult ?? activeVault` so the hook transparently supports both wallet and vault IDs
 
 ## 5. Internationalisation
 
@@ -70,6 +72,7 @@
   - `lastScannedNever`: `"Never"`
   - `runReport`: `"Run Report"`
   - `tryAgain`: `"Try Again"`
+  - `tooSmallToDonate`: `"Dust amount is too small to donate after fees"`
 
 ## 6. Tests
 
