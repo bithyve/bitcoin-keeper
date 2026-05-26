@@ -67,6 +67,7 @@ export const UTXOSchema: ObjectSchema = {
     height: 'int',
     spendability: 'string?',
     isManualOverride: { type: 'bool', default: false },
+    dustReason: 'string?',
   },
 };
 
@@ -76,6 +77,15 @@ export const AddressCacheSchema: ObjectSchema = {
   properties: {
     external: 'mixed?',
     internal: 'mixed?',
+  },
+};
+
+export const WalletOutputSchema: ObjectSchema = {
+  name: RealmSchema.WalletOutput,
+  embedded: true,
+  properties: {
+    address: 'string',
+    valueSats: 'int',
   },
 };
 
@@ -94,6 +104,7 @@ export const TransactionSchema: ObjectSchema = {
     senderAddresses: 'string[]',
     blockTime: 'int?',
     tags: 'string[]',
+    walletOutputs: `${RealmSchema.WalletOutput}[]`,
   },
 };
 

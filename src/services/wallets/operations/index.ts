@@ -342,6 +342,7 @@ export default class WalletOperations {
       }
     }
 
+    const walletOutputs: Array<{ address: string; valueSats: number }> = [];
     for (const output of outputs) {
       if (!output?.scriptPubKey?.addresses) continue; // OP_RETURN w/ no value(tx0)
 
@@ -352,6 +353,7 @@ export default class WalletOperations {
           internalAddresses[outputAddress] !== undefined
         ) {
           amount += output.value;
+          walletOutputs.push({ address: outputAddress, valueSats: Math.round(output.value * 1e8) });
         }
         recipientAddresses.push(outputAddress);
       }
@@ -370,6 +372,7 @@ export default class WalletOperations {
       recipientAddresses,
       senderAddresses,
       blockTime: tx.blocktime,
+      walletOutputs,
     };
     return transaction;
   };

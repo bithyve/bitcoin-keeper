@@ -289,8 +289,6 @@ function UTXOList({
   const sortedUTXOs = useMemo(
     () =>
       [...utxoState].sort((a, b) => {
-        console.log(a);
-        console.log(b);
         if (!a.height && !b.height) return 0;
         if (!a.height) return -1;
         if (!b.height) return 1;

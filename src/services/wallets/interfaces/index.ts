@@ -123,6 +123,7 @@ export interface Transaction {
   senderAddresses?: string[];
   blockTime?: number;
   tags?: string[];
+  walletOutputs: Array<{ address: string; valueSats: number }>;
 }
 
 export interface Balances {
@@ -137,6 +138,7 @@ export interface UTXO {
   height: number;
   spendability?: UTXOSpendability;
   isManualOverride?: boolean;
+  dustReason?: 'initial' | 'descendant' | 'adjacent';
 }
 
 export interface UTXOInfo {
