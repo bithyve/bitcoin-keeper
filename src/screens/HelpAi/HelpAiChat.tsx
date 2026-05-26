@@ -567,7 +567,10 @@ const HelpAiChat = ({ navigation, route }) => {
               </Text>
             </View>
             <Pressable
-              onPress={() => Linking.openURL(HELP_AI_LEARN_MORE_URL)}
+              onPress={() => {
+                navigation.navigate('AskKeeperInfo');
+                setShowDisclaimerModal(false);
+              }}
               style={styles.learnMoreCtr}
             >
               <Text style={[styles.learnMoreText, { color: Colors.primaryGreen }]}>
