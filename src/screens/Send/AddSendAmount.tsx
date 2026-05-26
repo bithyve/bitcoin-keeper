@@ -122,7 +122,13 @@ function AddSendAmount({ route }) {
     parentScreen === MANAGEWALLETS ||
     parentScreen === VAULTSETTINGS ||
     parentScreen === WALLETSETTINGS;
-  const availableBalance = sender.specs.balances.confirmed + sender.specs.balances.unconfirmed;
+  const spendableBalance = [
+    ...(sender.specs.confirmedUTXOs ?? []),
+    ...(sender.specs.unconfirmedUTXOs ?? []),
+  ]
+    .filter((u) => u.spendability !== 'doNotSpend')
+    .reduce((sum, u) => sum + u.value, 0);
+  const availableBalance = spendableBalance;
 
   const isDarkMode = colorMode === 'dark';
   const [localCurrencyKind, setLocalCurrencyKind] = useState(currentCurrency);
@@ -135,7 +141,7 @@ function AddSendAmount({ route }) {
   const [customEstBlocks, setCustomEstBlocks] = useState(0);
   const [estimationSign, setEstimationSign] = useState('≈');
   const balance = idx(sender, (_) => _.specs.balances);
-  let availableToSpend = balance.confirmed + balance.unconfirmed;
+  let availableToSpend = spendableBalance;
 
   const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
   if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
