@@ -61,8 +61,7 @@ import LockIcon from 'src/assets/images/lockLightGreen.svg';
 import Fonts from 'src/constants/Fonts';
 import ChatIcon from 'src/assets/images/chat.svg';
 import { sanitizeHelpAiReplyLinks, sanitizeHelpAiSources } from 'src/utils/helpAiLinkPolicy';
-
-const SENSITIVE_INPUT_PATTERN = /(seed\s*phrase|mnemonic|xpriv|private\s*key|passphrase)/i;
+import { detectSensitiveInput, detectSensitiveInDraft } from 'src/utils/helpAiSensitiveData';
 
 const nowId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -181,8 +180,9 @@ const HelpAiChat = ({ navigation, route }) => {
 
   const sendToChat = async (text: string) => {
     if (!text.trim()) return;
-    if (SENSITIVE_INPUT_PATTERN.test(text)) {
-      showToast('Please remove any secret data like seed phrases or private keys before sending.');
+    const sensitiveResult = detectSensitiveInput(text.trim());
+    if (sensitiveResult) {
+      showToast(sensitiveResult.message);
       return;
     }
 
@@ -267,6 +267,12 @@ const HelpAiChat = ({ navigation, route }) => {
 
   const submitDraftIssue = async () => {
     if (!draft || !chatMeta) return;
+
+    const draftSensitiveResult = detectSensitiveInDraft(draft);
+    if (draftSensitiveResult) {
+      showToast(draftSensitiveResult.message);
+      return;
+    }
 
     try {
       dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'submitting' }));
