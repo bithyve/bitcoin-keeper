@@ -32,6 +32,7 @@ const RagChunkAdminScreen = () => {
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [ragTimestamp, setRagTimestamp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [responseData, setResponseData] = useState<any>(null);
 
@@ -57,11 +58,28 @@ const RagChunkAdminScreen = () => {
     setContent('');
     setTitle('');
     setUrl('');
+    setRagTimestamp('');
+  };
+
+  const isValidDate = (value: string): boolean => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const date = new Date(`${value}T00:00:00Z`);
+    if (isNaN(date.getTime())) return false;
+    const [year, month, day] = value.split('-').map(Number);
+    return (
+      date.getUTCFullYear() === year &&
+      date.getUTCMonth() + 1 === month &&
+      date.getUTCDate() === day
+    );
   };
 
   const submitChunk = async () => {
     if (!content || content.trim().length < 10) {
       Alert.alert('Error', 'Content must be at least 10 characters long');
+      return;
+    }
+    if (ragTimestamp.trim().length && !isValidDate(ragTimestamp.trim())) {
+      Alert.alert('Error', 'Date must be in YYYY-MM-DD format (e.g. 2025-07-22)');
       return;
     }
     setSubmitting(true);
@@ -71,12 +89,14 @@ const RagChunkAdminScreen = () => {
         content: string;
         title?: string;
         url?: string;
+        ragTimestamp?: string;
       } = {
         publicId,
         content: content.trim(),
       };
       if (title.trim().length) payload.title = title.trim();
       if (url.trim().length) payload.url = url.trim();
+      if (ragTimestamp.trim().length) payload.ragTimestamp = ragTimestamp.trim();
       const result = await Relay.addRagChunkFrontend(payload);
       setResponseData(result);
     } catch (error) {
@@ -116,8 +136,10 @@ const RagChunkAdminScreen = () => {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
+            <Text style={[styles.fieldLabel, { color: uiColors.secondaryText }]}>
+              Title (optional)
+            </Text>
             <TextInput
-              placeholder="Title (optional)"
               placeholderTextColor={uiColors.placeholderText}
               value={title}
               onChangeText={setTitle}
@@ -126,8 +148,10 @@ const RagChunkAdminScreen = () => {
                 { borderColor: uiColors.separator, color: uiColors.primaryText },
               ]}
             />
+            <Text style={[styles.fieldLabel, { color: uiColors.secondaryText }]}>
+              URL (optional)
+            </Text>
             <TextInput
-              placeholder="URL (optional)"
               placeholderTextColor={uiColors.placeholderText}
               value={url}
               onChangeText={setUrl}
@@ -138,8 +162,25 @@ const RagChunkAdminScreen = () => {
                 { borderColor: uiColors.separator, color: uiColors.primaryText },
               ]}
             />
+            <Text style={[styles.fieldLabel, { color: uiColors.secondaryText }]}>
+              Date (YYYY-MM-DD, optional)
+            </Text>
             <TextInput
-              placeholder="Content (required)"
+              placeholderTextColor={uiColors.placeholderText}
+              value={ragTimestamp}
+              onChangeText={setRagTimestamp}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="numeric"
+              style={[
+                styles.input,
+                { borderColor: uiColors.separator, color: uiColors.primaryText },
+              ]}
+            />
+            <Text style={[styles.fieldLabel, { color: uiColors.secondaryText }]}>
+              Content (required)
+            </Text>
+            <TextInput
               placeholderTextColor={uiColors.placeholderText}
               value={content}
               onChangeText={setContent}
@@ -188,6 +229,10 @@ const styles = StyleSheet.create({
   info: {
     textAlign: 'center',
     marginBottom: hp(8),
+  },
+  fieldLabel: {
+    fontSize: 12,
+    marginBottom: hp(3),
   },
   input: {
     borderWidth: 1,
