@@ -82,6 +82,7 @@ export interface SendConfirmationRouteParams {
   customFeePerByte: number;
   miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
   tipMessage: string;
+  isDonation?: boolean;
 }
 
 export interface tnxDetailsProps {
@@ -113,6 +114,7 @@ function SendConfirmation({ route }) {
     customFeePerByte: initialCustomFeePerByte,
     miniscriptSelectedSatisfier,
     tipMessage = '',
+    isDonation = false,
   }: SendConfirmationRouteParams = route.params;
   const navigation = useNavigation();
   const exchangeRates = useExchangeRates();
@@ -679,22 +681,23 @@ function SendConfirmation({ route }) {
               />,
             ])}
 
-            <TouchableOpacity
-              testID="btn_transactionPriority"
-              onPress={() => setTransPriorityModalVisible(true)}
-              disabled={isCachedTransaction} // disable change priority for AutoTransfers
-            >
-              <TransactionPriorityDetails
-                disabled={isCachedTransaction}
-                transactionPriority={transactionPriority}
-                txFeeInfo={txFeeInfo}
-                getBalance={getBalance}
-                getCurrencyIcon={getCurrencyIcon}
-                getSatUnit={getSatUnit}
-                estimationSign={estimationSign}
-              />
-            </TouchableOpacity>
-            {showMore && [
+            {!isDonation && (
+              <TouchableOpacity
+                testID="btn_transactionPriority"
+                onPress={() => setTransPriorityModalVisible(true)}
+                disabled={isCachedTransaction} // disable change priority for AutoTransfers
+              >
+                <TransactionPriorityDetails
+                  disabled={isCachedTransaction}
+                  transactionPriority={transactionPriority}
+                  txFeeInfo={txFeeInfo}
+                  getBalance={getBalance}
+                  getCurrencyIcon={getCurrencyIcon}
+                  getSatUnit={getSatUnit}
+                  estimationSign={estimationSign}
+                />
+              </TouchableOpacity>
+            )}            {showMore && [
               <Box key="btcBox">
                 <Text
                   medium
@@ -773,8 +776,8 @@ function SendConfirmation({ route }) {
       <KeeperModal
         visible={visibleModal}
         close={!isMoveAllFunds ? viewDetails : viewManageWallets}
-        title={walletTranslations.SendSuccess}
-        subTitle={walletTranslations.transactionBroadcasted}
+        title={isDonation ? walletTranslations.dustDonated : walletTranslations.SendSuccess}
+        subTitle={isDonation ? '' : walletTranslations.transactionBroadcasted}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}

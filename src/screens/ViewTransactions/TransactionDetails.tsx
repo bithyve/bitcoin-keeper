@@ -262,6 +262,21 @@ function TransactionDetails({ route }) {
                 letterSpacing={2.4}
               />
             </Box>
+            {transaction.tags?.includes('potential-dust-spend') && (
+              <Box
+                style={styles.dustSpendWarning}
+                backgroundColor={`${colorMode}.boxSecondaryBackground`}
+                borderColor="rgba(217, 44, 44, 0.3)"
+              >
+                <Text style={styles.dustSpendWarningTitle} color="rgba(217, 44, 44, 1)">
+                  Potential dust spend
+                </Text>
+                <Text style={styles.dustSpendWarningBody} color={`${colorMode}.GreyText`}>
+                  This transaction may have spent a suspicious small amount together with other
+                  wallet funds. This may have reduced wallet privacy.
+                </Text>
+              </Box>
+            )}
             <Pressable
               onPress={() => {
                 navigation.dispatch(
@@ -413,6 +428,23 @@ const styles = StyleSheet.create({
   unitText: {
     fontSize: 14,
     fontWeight: '400',
+  },
+  dustSpendWarning: {
+    marginHorizontal: wp(20),
+    marginTop: hp(10),
+    marginBottom: hp(5),
+    padding: wp(15),
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  dustSpendWarningTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  dustSpendWarningBody: {
+    fontSize: 12,
+    lineHeight: 18,
   },
 });
 export default TransactionDetails;

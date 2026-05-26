@@ -1,6 +1,7 @@
 import {
   BIP85ConfigSchema,
   TransactionSchema,
+  WalletOutputSchema,
   UTXOSchema,
   WalletDerivationDetailsSchema,
   WalletPresentationDataSchema,
@@ -64,6 +65,7 @@ export default [
   Tags,
   AddressCacheSchema,
   LabelSchema,
+  WalletOutputSchema,
   TransactionSchema,
   WalletSpecsSchema,
   VaultSchema,

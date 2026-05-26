@@ -1,154 +1,443 @@
-import { classifyDustUTXO } from 'src/services/wallets/operations/dustClassification';
-import { UTXO } from 'src/services/wallets/interfaces';
-import { TransactionType } from 'src/services/wallets/enums';
+import { classifyDustByAddress } from 'src/services/wallets/operations/dustClassification';
 
-function makeUTXO(overrides: Partial<UTXO> = {}): UTXO {
-  return {
-    txId: 'aaaa',
-    vout: 0,
-    value: 1000,
-    address: 'addr1',
-    height: 100,
-    ...overrides,
-  };
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+function makeWallet(transactions: any[] = []): any {
+  return { specs: { transactions } };
 }
 
-function makeSynchedWallet(overrides: any = {}): any {
-  return {
-    specs: {
-      nextFreeAddressIndex: 5,
-      addresses: {
-        external: { '0': 'addr_ext_0', '1': 'addr_ext_1', '3': 'addr_ext_3' },
-        internal: { '0': 'addr_int_0', '1': 'addr_int_1' },
-      },
-      transactions: [],
-      confirmedUTXOs: [],
-      unconfirmedUTXOs: [],
-    },
-    ...overrides,
-  };
+/** external: { index: address }, internal: { index: address } → inverted maps */
+function makeAddrMaps(
+  ext: Record<string, string>,
+  int: Record<string, string>
+): {
+  externalAddresses: Record<string, number>;
+  internalAddresses: Record<string, number>;
+} {
+  const externalAddresses: Record<string, number> = {};
+  for (const [idx, addr] of Object.entries(ext)) externalAddresses[addr] = parseInt(idx, 10);
+  const internalAddresses: Record<string, number> = {};
+  for (const [idx, addr] of Object.entries(int)) internalAddresses[addr] = parseInt(idx, 10);
+  return { externalAddresses, internalAddresses };
 }
 
-describe('classifyDustUTXO', () => {
-  const PRE_SYNC_NFAI = 4; // nextFreeAddressIndex before sync = 4, so highestReceivedIdx = 3
+const NO_OVERRIDES = new Set<string>();
 
-  test('12.1.1 — above threshold: value >= 5000 → spendable', () => {
-    const utxo = makeUTXO({ value: 5000, address: 'addr_ext_0' });
-    const wallet = makeSynchedWallet();
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('spendable');
-  });
+// ── Phase 0 / Phase 1: Initial taint detection ─────────────────────────────
 
-  test('12.1.2 — reused receive address (hasReceivedBefore) → doNotSpend', () => {
-    const utxo = makeUTXO({ value: 999, address: 'addr_ext_0' });
-    const wallet = makeSynchedWallet({
-      specs: {
-        ...makeSynchedWallet().specs,
-        transactions: [
-          { address: 'addr_ext_0', transactionType: TransactionType.RECEIVED },
-          { address: 'addr_ext_0', transactionType: TransactionType.RECEIVED },
-        ],
+describe('classifyDustByAddress — initial taint detection', () => {
+  test('fresh address with single small receive is NOT tainted', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps(
+      { '5': 'addrB' },
+      {}
+    );
+    const wallet = makeWallet([
+      {
+        txid: 'tx1',
+        blockTime: 1000,
+        recipientAddresses: ['addrB'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrB', valueSats: 3000 }],
       },
-    });
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('doNotSpend');
+    ]);
+    const { taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(taintedAddresses.has('addrB')).toBe(false);
   });
 
-  test('12.1.3 — out-of-order receive address → doNotSpend', () => {
-    // PRE_SYNC_NFAI = 4 → highestReceivedIdx = 3; address at index 1 < 3 → out-of-order
-    const utxo = makeUTXO({ value: 999, address: 'addr_ext_1' });
-    const wallet = makeSynchedWallet({
-      specs: {
-        ...makeSynchedWallet().specs,
-        transactions: [
-          { address: 'addr_ext_1', transactionType: TransactionType.RECEIVED },
-        ],
+  test('reused receive address with dust receive IS initially tainted', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps({ '2': 'addrA' }, {});
+    const wallet = makeWallet([
+      {
+        txid: 'tx0',
+        blockTime: 500,
+        recipientAddresses: ['addrA'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrA', valueSats: 80000 }],
       },
-    });
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('doNotSpend');
-  });
-
-  test('12.1.4 — fresh receive address (index == highestReceivedIdx, first time) → spendable', () => {
-    // Index 3 == highestReceivedIdx; only 1 receive tx → not reused
-    const utxo = makeUTXO({ value: 999, address: 'addr_ext_3' });
-    const wallet = makeSynchedWallet({
-      specs: {
-        ...makeSynchedWallet().specs,
-        transactions: [
-          { address: 'addr_ext_3', transactionType: TransactionType.RECEIVED },
-        ],
+      {
+        txid: 'tx1',
+        blockTime: 1000,
+        recipientAddresses: ['addrA'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrA', valueSats: 546 }],
       },
-    });
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('spendable');
+    ]);
+    const { taintedAddresses, initialTaintAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(initialTaintAddresses.has('addrA')).toBe(true);
+    expect(taintedAddresses.has('addrA')).toBe(true);
   });
 
-  test('12.1.5 — reused change address (hasReceivedBefore) → doNotSpend', () => {
-    const utxo = makeUTXO({ value: 999, address: 'addr_int_0' });
-    const wallet = makeSynchedWallet({
-      specs: {
-        ...makeSynchedWallet().specs,
-        transactions: [
-          { address: 'addr_int_0', transactionType: TransactionType.RECEIVED },
-          { address: 'addr_int_0', transactionType: TransactionType.RECEIVED },
-        ],
+  test('out-of-order address evaluated at historical blockTime IS initially tainted', () => {
+    // addrD (index 5) received first at blockTime 500, then addrC (index 3) at blockTime 1000
+    const { externalAddresses, internalAddresses } = makeAddrMaps(
+      { '5': 'addrD', '3': 'addrC' },
+      {}
+    );
+    const wallet = makeWallet([
+      {
+        txid: 'tx_d',
+        blockTime: 500,
+        recipientAddresses: ['addrD'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrD', valueSats: 50000 }],
       },
-    });
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('doNotSpend');
-  });
-
-  test('12.1.6 — fresh change address (only 1 receive tx) → spendable', () => {
-    const utxo = makeUTXO({ value: 999, address: 'addr_int_1' });
-    const wallet = makeSynchedWallet({
-      specs: {
-        ...makeSynchedWallet().specs,
-        transactions: [
-          { address: 'addr_int_1', transactionType: TransactionType.RECEIVED },
-        ],
+      {
+        txid: 'tx_c',
+        blockTime: 1000,
+        recipientAddresses: ['addrC'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrC', valueSats: 2000 }],
       },
-    });
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('spendable');
+    ]);
+    const { initialTaintAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(initialTaintAddresses.has('addrC')).toBe(true);
   });
 
-  test('unknown address → safe default spendable', () => {
-    const utxo = makeUTXO({ value: 999, address: 'unknown_address' });
-    const wallet = makeSynchedWallet();
-    expect(classifyDustUTXO(utxo, wallet, PRE_SYNC_NFAI)).toBe('spendable');
+  test('reused change address with dust receive IS initially tainted', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps({}, { '0': 'changeAddr' });
+    const wallet = makeWallet([
+      {
+        txid: 'tx0',
+        blockTime: 500,
+        recipientAddresses: ['changeAddr'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'changeAddr', valueSats: 10000 }],
+      },
+      {
+        txid: 'tx1',
+        blockTime: 1000,
+        recipientAddresses: ['changeAddr'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'changeAddr', valueSats: 500 }],
+      },
+    ]);
+    const { initialTaintAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(initialTaintAddresses.has('changeAddr')).toBe(true);
   });
 
-  test('no addresses on wallet → safe default spendable', () => {
-    const utxo = makeUTXO({ value: 999, address: 'addr_ext_0' });
-    const wallet = { specs: { transactions: [], confirmedUTXOs: [], unconfirmedUTXOs: [] } };
-    expect(classifyDustUTXO(utxo, wallet as any, PRE_SYNC_NFAI)).toBe('spendable');
+  test('large UTXO at tainted address is also in taintedAddresses', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps({ '2': 'addrA' }, {});
+    const wallet = makeWallet([
+      {
+        txid: 'tx0',
+        blockTime: 500,
+        recipientAddresses: ['addrA'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrA', valueSats: 80000 }],
+      },
+      {
+        txid: 'tx1',
+        blockTime: 1000,
+        recipientAddresses: ['addrA'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrA', valueSats: 546 }],
+      },
+    ]);
+    const { taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(taintedAddresses.has('addrA')).toBe(true);
+  });
+
+  test('already-spent dust (walletOutputs on historical tx) is detected even if no current UTXO', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps({ '1': 'addrA' }, {});
+    // Tx0: first receive, Tx1: dust receive (triggering), Tx2: both spent — no current UTXOs
+    const wallet = makeWallet([
+      {
+        txid: 'tx0',
+        blockTime: 400,
+        recipientAddresses: ['addrA'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrA', valueSats: 90000 }],
+      },
+      {
+        txid: 'tx1',
+        blockTime: 700,
+        recipientAddresses: ['addrA'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrA', valueSats: 546 }],
+      },
+    ]);
+    const { initialTaintAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(initialTaintAddresses.has('addrA')).toBe(true);
   });
 });
 
-describe('pre-sync snapshot: manual override preserved on hard refresh simulation', () => {
-  test('12.2 — UTXO previously marked doNotSpend (isManualOverride=true) is restored from snapshot', () => {
-    // Simulate what refreshWalletsWorker does:
-    // 1. Build pre-sync snapshot from existing UTXOs
+// ── Phase 2: BFS forward propagation ──────────────────────────────────────
+
+describe('classifyDustByAddress — BFS forward propagation', () => {
+  function setupPropagationWallet() {
+    // addrX is initially tainted
+    // Tx1: addrX sends to addrD (change) — addrD should be tainted (layer 1)
+    // Tx2: addrD sends to addrE (change) — addrE should be tainted (layer 2)
+    const { externalAddresses, internalAddresses } = makeAddrMaps(
+      { '3': 'addrX' },
+      { '0': 'addrD', '1': 'addrE' }
+    );
+    const wallet = makeWallet([
+      // Tx triggering initial taint on addrX
+      {
+        txid: 'tx_dust',
+        blockTime: 100,
+        recipientAddresses: ['addrX'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrX', valueSats: 546 }],
+      },
+      // Tx showing addrX had received before (makes it reused)
+      {
+        txid: 'tx_prior',
+        blockTime: 50,
+        recipientAddresses: ['addrX'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrX', valueSats: 100000 }],
+      },
+      // Tx1: addrX sends to external + addrD (change)
+      {
+        txid: 'tx1',
+        blockTime: 200,
+        recipientAddresses: ['external_recipient', 'addrD'],
+        senderAddresses: ['addrX'],
+        walletOutputs: [],
+      },
+      // Tx2: addrD sends to addrE (change)
+      {
+        txid: 'tx2',
+        blockTime: 300,
+        recipientAddresses: ['external_recipient2', 'addrE'],
+        senderAddresses: ['addrD'],
+        walletOutputs: [],
+      },
+    ]);
+    return { wallet, externalAddresses, internalAddresses };
+  }
+
+  test('layer-1 descendant address is tainted', () => {
+    const { wallet, externalAddresses, internalAddresses } = setupPropagationWallet();
+    const { taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(taintedAddresses.has('addrD')).toBe(true);
+  });
+
+  test('layer-2 descendant address is tainted', () => {
+    const { wallet, externalAddresses, internalAddresses } = setupPropagationWallet();
+    const { taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(taintedAddresses.has('addrE')).toBe(true);
+  });
+
+  test('external (non-wallet-owned) recipient is NOT tainted', () => {
+    const { wallet, externalAddresses, internalAddresses } = setupPropagationWallet();
+    const { taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(taintedAddresses.has('external_recipient')).toBe(false);
+    expect(taintedAddresses.has('external_recipient2')).toBe(false);
+  });
+
+  test('layer-1 tainted addresses are marked descendant, not initial', () => {
+    const { wallet, externalAddresses, internalAddresses } = setupPropagationWallet();
+    const { initialTaintAddresses, taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(initialTaintAddresses.has('addrD')).toBe(false);
+    expect(taintedAddresses.has('addrD')).toBe(true);
+  });
+});
+
+// ── Manual override breaks the chain ─────────────────────────────────────
+
+describe('classifyDustByAddress — manual override breaks BFS chain', () => {
+  test('override on initially-tainted address prevents propagation to layer-1', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps(
+      { '3': 'addrX' },
+      { '0': 'addrD' }
+    );
+    const manualOverrides = new Set(['addrX']);
+    const wallet = makeWallet([
+      {
+        txid: 'tx_prior',
+        blockTime: 50,
+        recipientAddresses: ['addrX'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrX', valueSats: 100000 }],
+      },
+      {
+        txid: 'tx_dust',
+        blockTime: 100,
+        recipientAddresses: ['addrX'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrX', valueSats: 546 }],
+      },
+      {
+        txid: 'tx1',
+        blockTime: 200,
+        recipientAddresses: ['addrD'],
+        senderAddresses: ['addrX'],
+        walletOutputs: [],
+      },
+    ]);
+    const { taintedAddresses, initialTaintAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, manualOverrides
+    );
+    // addrX is still in initialTaint (it received dust) but chain is broken
+    expect(initialTaintAddresses.has('addrX')).toBe(true);
+    // addrD must NOT be tainted
+    expect(taintedAddresses.has('addrD')).toBe(false);
+  });
+
+  test('override on descendant address prevents further propagation', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps(
+      { '3': 'addrX' },
+      { '0': 'addrD', '1': 'addrE' }
+    );
+    // addrD has manual override — breaks chain at layer 1, addrE should not be tainted
+    const manualOverrides = new Set(['addrD']);
+    const wallet = makeWallet([
+      {
+        txid: 'tx_prior',
+        blockTime: 50,
+        recipientAddresses: ['addrX'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrX', valueSats: 100000 }],
+      },
+      {
+        txid: 'tx_dust',
+        blockTime: 100,
+        recipientAddresses: ['addrX'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrX', valueSats: 546 }],
+      },
+      {
+        txid: 'tx1',
+        blockTime: 200,
+        recipientAddresses: ['addrD'],
+        senderAddresses: ['addrX'],
+        walletOutputs: [],
+      },
+      {
+        txid: 'tx2',
+        blockTime: 300,
+        recipientAddresses: ['addrE'],
+        senderAddresses: ['addrD'],
+        walletOutputs: [],
+      },
+    ]);
+    const { taintedAddresses } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, manualOverrides
+    );
+    // addrD is tainted (it IS in taintedAddresses from propagation)
+    expect(taintedAddresses.has('addrD')).toBe(true);
+    // addrE must NOT be tainted (chain broken at addrD)
+    expect(taintedAddresses.has('addrE')).toBe(false);
+  });
+});
+
+// ── Phase 3: dustSpendTxids ───────────────────────────────────────────────
+
+describe('classifyDustByAddress — dustSpendTxids', () => {
+  test('transaction where tainted address is a sender is included in dustSpendTxids', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps({ '3': 'addrX' }, {});
+    const wallet = makeWallet([
+      {
+        txid: 'tx_prior',
+        blockTime: 50,
+        recipientAddresses: ['addrX'],
+        senderAddresses: [],
+        walletOutputs: [{ address: 'addrX', valueSats: 100000 }],
+      },
+      {
+        txid: 'tx_dust',
+        blockTime: 100,
+        recipientAddresses: ['addrX'],
+        senderAddresses: ['attacker'],
+        walletOutputs: [{ address: 'addrX', valueSats: 546 }],
+      },
+      {
+        txid: 'tx_spend',
+        blockTime: 200,
+        recipientAddresses: ['external'],
+        senderAddresses: ['addrX'],
+        walletOutputs: [],
+      },
+    ]);
+    const { dustSpendTxids } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(dustSpendTxids.has('tx_spend')).toBe(true);
+  });
+
+  test('transaction with no tainted sender is NOT in dustSpendTxids', () => {
+    const { externalAddresses, internalAddresses } = makeAddrMaps({ '3': 'addrX' }, {});
+    const wallet = makeWallet([
+      {
+        txid: 'tx_clean',
+        blockTime: 200,
+        recipientAddresses: ['addrX'],
+        senderAddresses: ['clean_sender'],
+        walletOutputs: [{ address: 'addrX', valueSats: 50000 }],
+      },
+    ]);
+    const { dustSpendTxids } = classifyDustByAddress(
+      wallet, externalAddresses, internalAddresses, NO_OVERRIDES
+    );
+    expect(dustSpendTxids.has('tx_clean')).toBe(false);
+  });
+});
+
+// ── Pre-sync snapshot: dustReason survives hard refresh ───────────────────
+
+describe('pre-sync snapshot — dustReason preserved on hard refresh', () => {
+  test('dustReason is included in snapshot and restored after refresh', () => {
     const existingUTXOs: any[] = [
-      { txId: 'tx1', vout: 0, value: 500, address: 'addr_ext_0', height: 50, spendability: 'doNotSpend', isManualOverride: true },
+      {
+        txId: 'tx1',
+        vout: 0,
+        value: 500,
+        address: 'addrX',
+        height: 50,
+        spendability: 'doNotSpend',
+        isManualOverride: false,
+        dustReason: 'initial',
+      },
     ];
     const snapshot = new Map<string, any>();
     for (const utxo of existingUTXOs) {
-      if (utxo.spendability !== undefined || utxo.isManualOverride !== undefined) {
+      if (
+        utxo.spendability !== undefined ||
+        utxo.isManualOverride !== undefined ||
+        utxo.dustReason !== undefined
+      ) {
         snapshot.set(`${utxo.txId}:${utxo.vout}`, {
           spendability: utxo.spendability,
           isManualOverride: utxo.isManualOverride,
+          dustReason: utxo.dustReason,
         });
       }
     }
 
-    // 2. After hard refresh, this UTXO still exists (same txId:vout)
-    const postSyncUTXO: any = { txId: 'tx1', vout: 0, value: 500, address: 'addr_ext_0', height: 50 };
-
-    // 3. Apply restore logic
-    const key = `${postSyncUTXO.txId}:${postSyncUTXO.vout}`;
-    const existing = snapshot.get(key);
-    if (existing !== undefined) {
-      postSyncUTXO.spendability = existing.spendability;
-      postSyncUTXO.isManualOverride = existing.isManualOverride ?? false;
+    const postSyncUTXO: any = { txId: 'tx1', vout: 0, value: 500, address: 'addrX', height: 50 };
+    const snap = snapshot.get(`${postSyncUTXO.txId}:${postSyncUTXO.vout}`);
+    if (snap !== undefined) {
+      postSyncUTXO.spendability = snap.spendability;
+      postSyncUTXO.isManualOverride = snap.isManualOverride ?? false;
+      postSyncUTXO.dustReason = snap.dustReason;
     }
 
+    expect(postSyncUTXO.dustReason).toBe('initial');
     expect(postSyncUTXO.spendability).toBe('doNotSpend');
-    expect(postSyncUTXO.isManualOverride).toBe(true);
+    expect(postSyncUTXO.isManualOverride).toBe(false);
   });
 });
+
