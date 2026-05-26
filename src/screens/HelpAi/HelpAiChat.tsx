@@ -310,7 +310,7 @@ const HelpAiChat = ({ navigation, route }) => {
     }
   };
 
-  const renderMessage = ({ item }: { item: HelpAiRenderMessage }) => {
+  const renderMessage = ({ item, index }: { item: HelpAiRenderMessage; index: number }) => {
     if (item.type === 'escalation') {
       return (
         <View
@@ -322,10 +322,10 @@ const HelpAiChat = ({ navigation, route }) => {
             },
           ]}
         >
-          <Text style={[styles.textMedium, { color: uiColors.primaryText }]}>
+          <Text testID={`escalation_title_${index}`} style={[styles.textMedium, { color: uiColors.primaryText }]}>
             {item.card.title}
           </Text>
-          <Text style={[styles.textSmall, { color: uiColors.secondaryText, marginTop: hp(4) }]}>
+          <Text testID={`escalation_description_${index}`} style={[styles.textSmall, { color: uiColors.secondaryText, marginTop: hp(4) }]}>
             {item.card.description}
           </Text>
           <View style={styles.cardCtaCtr}>
@@ -350,14 +350,15 @@ const HelpAiChat = ({ navigation, route }) => {
             },
           ]}
         >
-          <Text style={[styles.textMedium, { color: uiColors.primaryText }]}>
+          <Text testID={`issue_title_${index}`} style={[styles.textMedium, { color: uiColors.primaryText }]}>
             {`Issue #${item.issueNumber} created`}
           </Text>
-          <Text style={[styles.textSmall, { color: uiColors.secondaryText, marginTop: hp(4) }]}>
+          <Text testID={`issue_description_${index}`} style={[styles.textSmall, { color: uiColors.secondaryText, marginTop: hp(4) }]}>
             {item.text}
           </Text>
           <Pressable onPress={() => Linking.openURL(item.issueUrl)}>
             <Text
+              testID={`issue_url_${index}`}
               style={[
                 styles.textSmall,
                 styles.linkText,
@@ -374,10 +375,10 @@ const HelpAiChat = ({ navigation, route }) => {
     if (item.type === 'system_error') {
       return (
         <View style={styles.systemErrorCtr}>
-          <Text style={[styles.textSmall, { color: uiColors.error }]}>{item.text}</Text>
+          <Text testID={`system_error_${index}`} style={[styles.textSmall, { color: uiColors.error }]}>{item.text}</Text>
           {item.retryText ? (
             <Pressable onPress={() => sendToChat(item.retryText)}>
-              <Text style={[styles.textSmall, styles.textMediumWeight, { color: uiColors.link }]}>
+              <Text testID={`system_error_retry_${index}`} style={[styles.textSmall, styles.textMediumWeight, { color: uiColors.link }]}>
                 Retry
               </Text>
             </Pressable>
@@ -402,6 +403,7 @@ const HelpAiChat = ({ navigation, route }) => {
         ]}
       >
         <Text
+          testID={`${item.type}_message_${index}`}
           style={{
             color: isUser ? uiColors.buttonText : uiColors.primaryText,
             fontSize: 15,
@@ -418,6 +420,7 @@ const HelpAiChat = ({ navigation, route }) => {
                 onPress={() => Linking.openURL(source.url)}
               >
                 <Text
+                  testID={`source_${index}_${idx}`}
                   style={[styles.linkText, { fontSize: 11, lineHeight: 16, color: uiColors.link }]}
                 >
                   {source.title}
@@ -450,9 +453,9 @@ const HelpAiChat = ({ navigation, route }) => {
             ref={listRef}
             data={messages}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View collapsable={false} style={styles.messageWrapper}>
-                {renderMessage({ item })}
+            renderItem={({ item, index }) => (
+              <View testID={`message_${index}`} collapsable={false} style={styles.messageWrapper}>
+                {renderMessage({ item, index })}
               </View>
             )}
             contentContainerStyle={styles.messagesContainer}
@@ -502,6 +505,7 @@ const HelpAiChat = ({ navigation, route }) => {
           </View>
           <View style={styles.inputWrapper}>
             <TextInput
+              testID="input_message"
               style={[
                 styles.input,
                 { color: uiColors.inputText, backgroundColor: uiColors.aiBubble },
@@ -514,6 +518,7 @@ const HelpAiChat = ({ navigation, route }) => {
               multiline
             />
             <Pressable
+              testID="btn_send"
               style={[
                 styles.sendBtn,
                 { opacity: sending ? 0.6 : 1, backgroundColor: Colors.primaryGreen },

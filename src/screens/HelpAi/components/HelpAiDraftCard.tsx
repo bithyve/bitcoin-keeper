@@ -60,6 +60,7 @@ const HelpAiDraftCard = ({
 
   return (
     <View
+      testID="help_ai_draft_card"
       style={{
         borderWidth: 1,
         borderColor: uiColors.separator,

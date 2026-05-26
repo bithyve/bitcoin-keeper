@@ -61,7 +61,7 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
         </View>
       </View>
 
-      <Pressable onPress={onStartChat} style={styles.addContainer}>
+      <Pressable testID='fab_start_chat' onPress={onStartChat} style={styles.addContainer}>
         <PencilWhite height={hp(22)} width={wp(22)} />
       </Pressable>
     </View>

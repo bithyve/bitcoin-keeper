@@ -8,6 +8,9 @@ export enum IToastCategory {
   DEFAULT = 'DEFAULT',
   SIGNING_DEVICE = 'SIGNING_DEVICE',
 }
+
+const TOAST_CONTAINER_TEST_ID = 'toast_container';
+
 const useToastMessage = () => {
   const Toast = useToast();
   const activeToastsRef = useRef<{ [message: string]: any }>({});
@@ -54,7 +57,14 @@ const useToastMessage = () => {
         m: 0,
       },
       render: () => (
-        <Pressable onPress={() => Toast.close(toastId)}>
+        <Pressable
+          testID={TOAST_CONTAINER_TEST_ID}
+          nativeID={TOAST_CONTAINER_TEST_ID}
+          accessibilityLabel={TOAST_CONTAINER_TEST_ID}
+          accessibilityRole="alert"
+          collapsable={false}
+          onPress={() => Toast.close(toastId)}
+        >
           <HexaToastMessages Image={image} error={error} ToastBody={title} />
         </Pressable>
       ),
@@ -84,6 +94,5 @@ const useToastMessage = () => {
 
   return { showToast };
 };
-
 
 export default useToastMessage;

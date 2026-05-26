@@ -44,6 +44,7 @@ const HelpAiChatHistoryList = ({
       <ScrollView contentContainerStyle={styles.listContent}>
         {threads.map((thread, idx) => (
           <Pressable
+            testID={`chat_thread_${idx}`}
             key={thread.conversationId}
             onPress={() => onOpenChat(thread.conversationId)}
             style={({ pressed }) => [styles.itemPressable, { opacity: pressed ? 0.75 : 1 }]}
@@ -57,6 +58,7 @@ const HelpAiChatHistoryList = ({
                 <View style={styles.itemHeader}>
                   <View style={styles.iconAndTitle}>
                     <Text
+                      testID={`chat_thread_title_${idx}`}
                       style={[
                         styles.threadTitle,
                         { color: colorMode === 'dark' ? '#e7e7e7' : '#272421' },
@@ -67,6 +69,7 @@ const HelpAiChatHistoryList = ({
                     </Text>
                   </View>
                   <Text
+                      testID={`chat_thread_time_${idx}`}
                     style={[
                       styles.metaText,
                       { color: colorMode === 'dark' ? '#696969' : '#677e7c' },
@@ -78,6 +81,7 @@ const HelpAiChatHistoryList = ({
 
                 {/* Preview */}
                 <Text
+                  testID={`chat_thread_preview_${idx}`}
                   style={[
                     styles.previewText,
                     { color: colorMode === 'dark' ? '#7a7a7a' : '#9a9590' },
@@ -93,7 +97,7 @@ const HelpAiChatHistoryList = ({
         ))}
       </ScrollView>
 
-      <Pressable onPress={onStartNewChat} style={styles.addContainer}>
+      <Pressable testID='fab_start_chat' onPress={onStartNewChat} style={styles.addContainer}>
         <PencilWhite height={hp(22)} width={wp(22)} />
       </Pressable>
     </View>
