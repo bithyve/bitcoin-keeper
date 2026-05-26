@@ -20,6 +20,8 @@ const suggestions = [
   'I have an idea for Keeper',
 ];
 
+const LOCK_ICON_SIZE = hp(15);
+
 const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) => {
   const { translations } = useContext(LocalizationContext);
   const { askAi } = translations;
@@ -55,7 +57,7 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
         </View>
         <View style={styles.warningCtr}>
           <View style={styles.warningIconBox}>
-            <LockIcon height={hp(18)} width={wp(18)} />
+            <LockIcon height={LOCK_ICON_SIZE} width={LOCK_ICON_SIZE} />
           </View>
           <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
         </View>
@@ -116,6 +118,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: Colors.DarkSlateGray,
     fontFamily: Fonts.InterRegular,
+    fontSize: 14,
   },
   suggestionCtr: {
     flex: 1,
@@ -128,8 +131,8 @@ const styles = StyleSheet.create({
     gap: wp(8),
   },
   warningIconBox: {
-    width: wp(18),
-    height: hp(18),
+    width: LOCK_ICON_SIZE,
+    height: LOCK_ICON_SIZE,
     overflow: 'hidden',
   },
   chatBubbleBox: {
