@@ -809,7 +809,7 @@ function* refreshWalletsWorker({
           options.dustScan ? 'full' : 'current'
         );
 
-      // Mark UTXOs — only restore snapshot when user made a manual override;
+      // Mark UTXOs — only restore snapshot for soft/hard refresh or when user made a manual override;
       // always re-run classification otherwise so reclassification is not blocked.
       for (const utxo of allSynchedUTXOs) {
         const key = `${utxo.txId}:${utxo.vout}`;
@@ -834,9 +834,18 @@ function* refreshWalletsWorker({
             newDustUTXOs.push(utxo);
           }
         } else {
-          utxo.spendability = 'spendable';
-          utxo.isManualOverride = false;
-          utxo.dustReason = undefined;
+          // In 'current' mode (soft/hard refresh), preserve any existing doNotSpend
+          // classification that was set by a prior dust scan. Only a full dust scan has
+          // authority to clear those markings, because only it has the full BFS picture.
+          if (!options.dustScan && existing?.spendability === 'doNotSpend') {
+            utxo.spendability = existing.spendability;
+            utxo.isManualOverride = false;
+            utxo.dustReason = existing.dustReason;
+          } else {
+            utxo.spendability = 'spendable';
+            utxo.isManualOverride = false;
+            utxo.dustReason = undefined;
+          }
         }
       }
 

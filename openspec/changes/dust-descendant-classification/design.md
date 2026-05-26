@@ -151,6 +151,8 @@ The `dustScan` flag would typically be triggered by a dedicated UI action (e.g. 
 
 **Alternatives considered**: Always run full scan on hard refresh — rejected; makes hard refresh noticeably slower. Run BFS but not backfill on hard refresh — rejected; without `walletOutputs`, Phase 1 full-history scan cannot run, making the BFS result incomplete.
 
+**Scan mode preservation invariant**: During soft/hard refresh, any UTXO not detected as tainted by the current (current-UTXOs-only) scan MUST retain its `doNotSpend` classification if the pre-sync snapshot shows it was `doNotSpend` without `isManualOverride`. This prevents the limited current-mode scan from silently clearing `'descendant'` or `'adjacent'` markings set by a prior full dust scan. Only a full dust scan — which re-runs the complete BFS from scratch — is authorised to clear such markings.
+
 ---
 
 ## Data Flow
@@ -203,6 +205,9 @@ refreshWalletsWorker(payload: { wallets, options })
 │              if address NOT in initialTaintAddresses → dustReason = 'descendant'
 │              else if utxo.value < 5000           → dustReason = 'initial'
 │              else                                 → dustReason = 'adjacent'
+│            else if NOT dustScan AND snapshot.spendability == 'doNotSpend':
+│              preserve snapshot (doNotSpend + dustReason from prior dust scan)
+│              rationale: only a full scan has the BFS picture to safely clear these
 │            else:
 │              spendability = 'spendable'; dustReason = undefined
 │

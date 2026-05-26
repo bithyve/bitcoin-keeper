@@ -171,6 +171,20 @@ The `dustReason` field MUST be persisted on the UTXO and MUST survive hard refre
 - WHEN the user performs a pull-to-refresh (hard refresh)
 - THEN W retains `spendability: 'spendable'` after the refresh
 
+#### Scenario: Non-manual doNotSpend from prior dust scan is preserved across soft/hard refresh
+
+- GIVEN UTXO V has `spendability: 'doNotSpend'` and `dustReason: 'descendant'` set by a prior dust scan (no `isManualOverride`)
+- AND the current soft or hard refresh does not detect V's address as tainted (the dust UTXO that triggered it may already be spent)
+- WHEN the refresh completes
+- THEN V retains `spendability: 'doNotSpend'` and `dustReason: 'descendant'`
+
+#### Scenario: Full dust scan can clear a descendant marking if the address is no longer reachable via BFS
+
+- GIVEN UTXO V was previously marked `doNotSpend` with `dustReason: 'descendant'` by an earlier dust scan
+- AND the user subsequently marked the upstream tainted address as Spendable (`isManualOverride: true`), breaking the BFS chain
+- WHEN a new dust scan runs
+- THEN V is no longer reachable via BFS from any tainted address and is reclassified as `spendable`
+
 ---
 
 ### Requirement: Potential Dust Spend Transaction Label
@@ -220,20 +234,29 @@ During a dust scan the app MUST run the full three-phase classification:
 
 During a normal (soft) refresh or hard refresh, the app MUST run **only** current UTXO classification: for each current UTXO with `valueSats < 5,000`, evaluate address reuse and out-of-order conditions using existing transaction history data (no Electrum calls, no walletOutputs, no BFS, no tx labels).
 
+**Preservation of prior dust scan results**: During a soft or hard refresh, if a UTXO is not found in the current scan's tainted set, the app MUST preserve any existing `doNotSpend` classification and `dustReason` that was set by a prior dust scan (i.e. snapshot `spendability === 'doNotSpend'` without `isManualOverride`). Only an explicit dust scan (with full BFS) has authority to clear such markings, because only it has a complete picture of the spending graph.
+
 Manual override semantics are identical across all modes: any UTXO with `isManualOverride: true` is never reclassified automatically.
 
-#### Scenario: Normal refresh classifies initial taint only
+#### Scenario: Normal refresh classifies initial taint only (no prior dust scan)
 
-- GIVEN a wallet whose address X received 546 sats on a reused address (initially tainted), and address D was funded by a spend from X (descendant)
+- GIVEN a wallet whose address X received 546 sats on a reused address (initially tainted), and address D was funded by a spend from X (descendant), and NO prior dust scan has ever run
 - WHEN a normal wallet sync runs (no `dustScan` flag)
 - THEN the UTXO at X is marked Do Not Spend with `dustReason: 'initial'`
-- AND the UTXO at D is NOT marked Do Not Spend (BFS skipped)
+- AND the UTXO at D is NOT marked Do Not Spend (BFS skipped; no prior classification to preserve)
 
-#### Scenario: Hard refresh classifies initial taint only, no descendants
+#### Scenario: Normal refresh preserves descendant Do Not Spend from a prior dust scan
 
-- GIVEN the same wallet above
+- GIVEN a prior dust scan already marked the UTXO at address D as `doNotSpend` with `dustReason: 'descendant'`
+- WHEN a subsequent normal (soft) or hard refresh runs (no `dustScan` flag) and the current scan does not detect D as initially tainted
+- THEN the UTXO at D retains `spendability: 'doNotSpend'` and `dustReason: 'descendant'`
+- AND the classification from the prior dust scan is NOT overwritten
+
+#### Scenario: Hard refresh classifies initial taint only, no descendants (no prior dust scan)
+
+- GIVEN the same wallet above (no prior dust scan)
 - WHEN the user pulls to refresh (hard refresh, no `dustScan` flag)
-- THEN initial taint detection runs and the `walletOutputs` backfill runs if needed
+- THEN initial taint detection runs against current UTXOs only
 - AND BFS propagation is NOT run; the UTXO at D remains Spendable
 
 #### Scenario: Dust scan classifies initial taint AND propagates to descendants
