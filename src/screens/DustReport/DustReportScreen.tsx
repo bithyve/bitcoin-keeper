@@ -189,7 +189,7 @@ function DustReportScreen({ route }: Props) {
               {t.dustReportStartBody}
             </Text>
           </Box>
-          <Box style={styles.footerContainer}>
+          <Box>
             <Buttons
               primaryText={t.runReport}
               primaryCallback={runScan}
@@ -210,22 +210,15 @@ function DustReportScreen({ route }: Props) {
             </Text>
             <Box style={styles.progressContainer}>
               {progressItems.slice(0, progressStep + 1).map((item, idx) => (
-                <Text
-                  key={idx}
-                  color={`${colorMode}.primaryText`}
-                  style={styles.progressItem}
-                >
+                <Text key={idx} color={`${colorMode}.primaryText`} style={styles.progressItem}>
                   {'· '}
                   {item}
                 </Text>
               ))}
             </Box>
           </Box>
-          <Box style={styles.footerContainer}>
-            <Buttons
-              secondaryText={common.cancel}
-              secondaryCallback={onCancel}
-            />
+          <Box>
+            <Buttons secondaryText={common.cancel} secondaryCallback={onCancel} />
           </Box>
         </Box>
       )}
@@ -260,10 +253,7 @@ function DustReportScreen({ route }: Props) {
                 label="Past dust spends"
                 value={String(reportData.pastDustSpends.length)}
               />
-              <SummaryRow
-                label="Last scanned"
-                value={lastScanned ?? t.lastScannedNever}
-              />
+              <SummaryRow label="Last scanned" value={lastScanned ?? t.lastScannedNever} />
             </Box>
 
             {/* Active Dust section */}
@@ -289,10 +279,7 @@ function DustReportScreen({ route }: Props) {
             </SectionCard>
 
             {/* Past Dust Spends section */}
-            <SectionCard
-              title={t.pastDustSpendsTitle}
-              emptyText={t.noPastDustSpends}
-            >
+            <SectionCard title={t.pastDustSpendsTitle} emptyText={t.noPastDustSpends}>
               {reportData.pastDustSpends.map((tx, idx) => (
                 <TxRow key={`${tx.txid}-${idx}`} tx={tx} />
               ))}
@@ -301,19 +288,13 @@ function DustReportScreen({ route }: Props) {
             <Box style={{ height: hp(120) }} />
           </ScrollView>
 
-          <Box style={styles.stickyFooter}>
+          <Box>
             <Buttons
               primaryText={common.done}
               primaryCallback={onDone}
-              secondaryText={
-                reportData.hasEligibleDustForDonation
-                  ? 'Donate Dust'
-                  : undefined
-              }
+              secondaryText={reportData.hasEligibleDustForDonation ? 'Donate Dust' : undefined}
               secondaryCallback={
-                reportData.hasEligibleDustForDonation
-                  ? () => setDonateDustVisible(true)
-                  : undefined
+                reportData.hasEligibleDustForDonation ? () => setDonateDustVisible(true) : undefined
               }
             />
           </Box>
@@ -328,7 +309,7 @@ function DustReportScreen({ route }: Props) {
               {t.noDustFoundBody}
             </Text>
           </Box>
-          <Box style={styles.footerContainer}>
+          <Box>
             <Buttons primaryText={common.done} primaryCallback={onDone} />
           </Box>
         </Box>
@@ -342,7 +323,7 @@ function DustReportScreen({ route }: Props) {
               {t.reportNotCompletedBody}
             </Text>
           </Box>
-          <Box style={styles.footerContainer}>
+          <Box>
             <Buttons
               primaryText={t.tryAgain}
               primaryCallback={tryAgain}
@@ -390,7 +371,6 @@ function DustReportScreen({ route }: Props) {
 const styles = StyleSheet.create({
   phaseContainer: {
     flex: 1,
-    paddingHorizontal: wp(24),
   },
   bodyContainer: {
     flex: 1,
@@ -399,9 +379,6 @@ const styles = StyleSheet.create({
   bodyText: {
     fontSize: 14,
     lineHeight: 22,
-  },
-  footerContainer: {
-    paddingBottom: hp(24),
   },
   progressContainer: {
     marginTop: hp(24),
@@ -415,7 +392,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: wp(24),
     paddingTop: hp(16),
   },
   summaryCard: {
@@ -497,10 +473,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     color: '#F24822',
     fontWeight: '600',
-  },
-  stickyFooter: {
-    paddingHorizontal: wp(24),
-    paddingBottom: hp(24),
   },
 });
 
