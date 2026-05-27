@@ -176,6 +176,9 @@ function UTXOLabeling() {
         <LabelsEditor
           utxo={utxo}
           wallet={wallet}
+          readOnlyLabels={
+            isDoNotSpend ? [{ name: 'Do Not Spend', isSystem: true }] : []
+          }
           onLabelsSaved={() => {
             showToast(walletTranslations.LabelsSavedSuccessfully, <TickIcon />);
             navigation.goBack();

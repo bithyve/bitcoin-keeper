@@ -16,7 +16,13 @@ import { hp, wp } from 'src/constants/responsive';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
+function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved, readOnlyLabels = [] }: {
+  utxo?: any;
+  address?: string;
+  wallet: any;
+  onLabelsSaved: () => void;
+  readOnlyLabels?: { name: string; isSystem: boolean }[];
+}) {
   const { labels } = useLabelsNew({ address, utxos: utxo ? [utxo] : [] });
   const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
   const { showToast } = useToastMessage();
@@ -145,8 +151,17 @@ function LabelsEditor({ utxo = null, address = null, wallet, onLabelsSaved }) {
             {label && label !== '' ? <ConfirmSquareGreen /> : <ConfirmSquare />}
           </TouchableOpacity>
         </Box>
-        {existingLabels && existingLabels.length > 0 && (
+        {(existingLabels.length > 0 || readOnlyLabels.length > 0) && (
           <View style={styles.listSubContainer}>
+            {readOnlyLabels.map((item, index) => (
+              <LabelItem
+                item={item}
+                index={index}
+                key={`readonly:${item.name}`}
+                editable={false}
+                backgroundColor={item.name === 'Do Not Spend' ? Colors.CrimsonRed : undefined}
+              />
+            ))}
             {existingLabels.map((item, index) => (
               <LabelItem
                 item={item}
