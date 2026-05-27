@@ -16,6 +16,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import useDustReport from 'src/hooks/useDustReport';
 import { UTXO, Transaction } from 'src/services/wallets/interfaces';
+import moment from 'moment';
 
 type Props = NativeStackScreenProps<AppStackParams, 'DustReport'>;
 
@@ -54,6 +55,9 @@ function UTXORow({ utxo, reason }: { utxo: UTXO; reason: string }) {
         <Text color={`${colorMode}.secondaryText`} style={styles.rowReason}>
           {reason}
         </Text>
+        <Text color={`${colorMode}.secondaryText`} style={styles.rowId} numberOfLines={1}>
+          {utxo.txId}:{utxo.vout}
+        </Text>
       </Box>
       <DoNotSpendChip />
     </Box>
@@ -63,8 +67,10 @@ function UTXORow({ utxo, reason }: { utxo: UTXO; reason: string }) {
 function TxRow({ tx }: { tx: Transaction }) {
   const { colorMode } = useColorMode();
   const date = tx.blockTime
-    ? new Date(tx.blockTime * 1000).toLocaleDateString()
-    : tx.date ?? '—';
+    ? moment(tx.blockTime * 1000).format('DD MMM YY • HH:mm A')
+    : tx.date
+    ? moment(tx.date).format('DD MMM YY • HH:mm A')
+    : '—';
   return (
     <Box style={styles.row}>
       <Box style={styles.rowLeft}>
@@ -74,6 +80,9 @@ function TxRow({ tx }: { tx: Transaction }) {
         </Text>
         <Text color={`${colorMode}.secondaryText`} style={styles.rowReason}>
           Potential dust spend
+        </Text>
+        <Text color={`${colorMode}.secondaryText`} style={styles.rowId} numberOfLines={1}>
+          {tx.txid}
         </Text>
       </Box>
     </Box>
@@ -470,6 +479,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     marginTop: hp(2),
+  },
+  rowId: {
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: hp(2),
+    fontFamily: 'monospace',
   },
   chip: {
     backgroundColor: 'rgba(242, 72, 34, 0.12)',

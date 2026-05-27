@@ -272,7 +272,7 @@ function TransactionDetails({ route }) {
                   Potential dust spend
                 </Text>
                 <Text style={styles.dustSpendWarningBody} color={`${colorMode}.GreyText`}>
-                  This transaction may have spent a suspicious small amount together with other
+                  This transaction has spent dust UTXO(s) together with other
                   wallet funds. This may have reduced wallet privacy.
                 </Text>
               </Box>
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   dustSpendWarning: {
     marginHorizontal: wp(20),
     marginTop: hp(10),
-    marginBottom: hp(5),
+    marginBottom: hp(15),
     padding: wp(15),
     borderRadius: 10,
     borderWidth: 1,
