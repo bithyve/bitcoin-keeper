@@ -89,7 +89,7 @@ appId: io.hexawallet.keeper
             - assertVisible: 'Keeper found coins or transactions that may reduce wallet privacy.'
             # Summary card
             - assertVisible: 'Do Not Spend coins'
-            - assertVisible: 'Amount marked Do Not Spend'
+            - assertVisible: 'Amount'
             - assertVisible: 'Past dust spends'
             - assertVisible: 'Last scanned'
             # Section headers

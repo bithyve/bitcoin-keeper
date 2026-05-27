@@ -59,7 +59,7 @@ When the scan finds at least one Active Dust UTXO, Linked Coin, or Past Dust Spe
 - GIVEN the scan has completed and wallet `W` has 3 UTXOs with `spendability === 'doNotSpend'` (values: 400, 600, 800 sats) and 1 transaction tagged `potential-dust-spend`
 - WHEN the report result screen renders
 - THEN the summary card shows "Do Not Spend coins: 3"
-- AND "Amount marked Do Not Spend: 1,800 sats"
+- AND "Amount: 1,800 sats"
 - AND "Past dust spends: 1"
 - AND "Last scanned" shows the timestamp written to MMKV at scan completion
 

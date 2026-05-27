@@ -217,7 +217,7 @@ function DustReportScreen({ route }: Props) {
                 value={String(reportData.doNotSpendUTXOs.length)}
               />
               <SummaryRow
-                label="Amount marked Do Not Spend"
+                label="Amount"
                 value={`${reportData.amountMarkedDNS.toLocaleString()} sats`}
               />
               <SummaryRow
