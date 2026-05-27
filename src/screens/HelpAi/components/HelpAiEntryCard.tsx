@@ -7,6 +7,7 @@ import Colors from 'src/theme/Colors';
 import LockIcon from 'src/assets/images/lockLightGreen.svg';
 import PencilWhite from 'src/assets/images/edit_white.svg';
 import ChatBubble from 'src/assets/images/chatBubble.svg';
+import Fab from 'src/components/Fab';
 
 type HelpAiEntryCardProps = {
   onStartChat: () => void;
@@ -62,10 +63,11 @@ const HelpAiEntryCard = ({ onStartChat, onPromptPress }: HelpAiEntryCardProps) =
           <Text style={styles.warningText}>{askAi.neverShareSeedWarning}</Text>
         </View>
       </View>
-
-      <Pressable testID='fab_start_chat' onPress={onStartChat} style={styles.addContainer}>
-        <PencilWhite height={hp(22)} width={wp(22)} />
-      </Pressable>
+      <Fab
+        icon={<PencilWhite height={hp(22)} width={wp(22)} />}
+        onPress={onStartChat}
+        containerStyle={{ right: wp(-10) }}
+      />
     </View>
   );
 };
@@ -140,22 +142,6 @@ const styles = StyleSheet.create({
     height: hp(64),
     marginVertical: hp(20),
     overflow: 'hidden',
-  },
-  addContainer: {
-    padding: wp(15),
-    borderRadius: wp(35),
-    backgroundColor: Colors.primaryGreen,
-    position: 'absolute',
-    bottom: wp(35),
-    right: wp(0),
-    elevation: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // ios
-    shadowColor: 'black',
-    shadowOffset: { width: 10, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
   },
   hrCtr: {
     flexDirection: 'row',

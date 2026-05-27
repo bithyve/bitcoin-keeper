@@ -1,7 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
-import React, { useContext, useState } from 'react';
-import { ScrollView, StyleSheet, ViewStyle } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import { useIndicatorHook } from 'src/hooks/useIndicatorHook';
@@ -11,29 +11,21 @@ import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import { SignerType } from 'src/services/wallets/enums';
 import { getKeyUID } from 'src/utils/utilities';
 import { windowWidth, wp } from 'src/constants/responsive';
-import DashedCta from 'src/components/DashedCta';
-import Plus from 'src/assets/images/add-plus-white.svg';
-import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HardwareModalMap, { InteracationMode } from 'src/screens/Vault/HardwareModalMap';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 
-const SignerList = ({ navigation, handleModalOpen }) => {
+const SignerList = ({ navigation }) => {
   const { signers } = useSigners('', false);
   const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const { signer: signerText } = translations;
   const [showSSModal, setShowSSModal] = useState(false);
 
   const list = signers.filter((signer) => !signer.hidden);
   const { typeBasedIndicator } = useIndicatorHook({
     types: [uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.RECOVERY_PHRASE_HEALTH_CHECK],
   });
-  const HexagonIcon = ThemedColor({ name: 'HexagonIcon' });
-  const dashed_CTA_background = ThemedColor({ name: 'dashed_CTA_background' });
 
   const handleCardSelect = (signer) => {
     navigation.dispatch(
@@ -47,17 +39,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-
-  const customStyle: ViewStyle = {
-    width: windowWidth * 0.42,
-    height: wp(135),
-    borderRadius: 10,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 3,
-  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
@@ -94,17 +75,6 @@ const SignerList = ({ navigation, handleModalOpen }) => {
               />
             );
           })}
-          <DashedCta
-            backgroundColor={dashed_CTA_background}
-            hexagonBackgroundColor={HexagonIcon}
-            textColor={`${colorMode}.greenWhiteText`}
-            name={signerText.addKey}
-            callback={handleModalOpen}
-            icon={<Plus width={12.9} height={12.9} />}
-            iconWidth={33}
-            iconHeight={30}
-            customStyle={customStyle}
-          />
         </Box>
         <HardwareModalMap
           visible={showSSModal}

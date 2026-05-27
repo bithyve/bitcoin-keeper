@@ -8,6 +8,7 @@ import { HelpAiThread } from 'src/store/reducers/helpAi';
 import Colors from 'src/theme/Colors';
 import PencilWhite from 'src/assets/images/edit_white.svg';
 import ChatIcon from 'src/assets/images/chat.svg';
+import Fab from 'src/components/Fab';
 
 type HelpAiChatHistoryListProps = {
   threads: HelpAiThread[];
@@ -69,7 +70,7 @@ const HelpAiChatHistoryList = ({
                     </Text>
                   </View>
                   <Text
-                      testID={`chat_thread_time_${idx}`}
+                    testID={`chat_thread_time_${idx}`}
                     style={[
                       styles.metaText,
                       { color: colorMode === 'dark' ? '#696969' : '#677e7c' },
@@ -96,10 +97,11 @@ const HelpAiChatHistoryList = ({
           </Pressable>
         ))}
       </ScrollView>
-
-      <Pressable testID='fab_start_chat' onPress={onStartNewChat} style={styles.addContainer}>
-        <PencilWhite height={hp(22)} width={wp(22)} />
-      </Pressable>
+      <Fab
+        icon={<PencilWhite height={hp(22)} width={wp(22)} />}
+        onPress={onStartNewChat}
+        containerStyle={{ right: wp(22) }}
+      />
     </View>
   );
 };
@@ -173,22 +175,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.greyBorder,
     opacity: 0.5,
     alignSelf: 'center',
-  },
-  addContainer: {
-    padding: wp(15),
-    borderRadius: wp(35),
-    backgroundColor: Colors.primaryGreen,
-    position: 'absolute',
-    bottom: wp(20),
-    right: wp(20),
-    elevation: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // ios
-    shadowColor: 'black',
-    shadowOffset: { width: 10, height: 20 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
   },
 });
 
