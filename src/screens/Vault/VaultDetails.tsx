@@ -34,6 +34,7 @@ import { SentryErrorBoundary } from 'src/services/sentry';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import useWalletAsset from 'src/hooks/useWalletAsset';
+import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
 import ConciergeNeedHelp from 'src/assets/images/conciergeNeedHelp.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
@@ -190,6 +191,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
     ELECTRUM_CLIENT.isClientConnected && walletSyncing && vault ? !!walletSyncing[vault.id] : false;
 
   const isDarkMode = colorMode === 'dark';
+  const { hasDoNotSpendUTXOs } = useUTXOSpendability(vault ?? null);
   const { getWalletIcon, getWalletCardGradient, getWalletTags } = useWalletAsset();
   const WalletIcon = getWalletIcon(vault);
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
@@ -485,6 +487,8 @@ function VaultDetails({ navigation, route }: ScreenProps) {
           <DetailCards
             setShowMore={setShowMore}
             disabled={vault.archived}
+            wallet={vault}
+            hasDoNotSpendUTXOs={hasDoNotSpendUTXOs}
             sendCallback={async () => {
               if (timeUntilTimelockExpires) {
                 setShowTimelockModal(true);
@@ -640,6 +644,7 @@ function VaultDetails({ navigation, route }: ScreenProps) {
                   }, 300);
                 }}
                 Icon={<CoinIcon />}
+                showDot={hasDoNotSpendUTXOs}
               />
               {!isCanaryWallet && (
                 <MoreCard

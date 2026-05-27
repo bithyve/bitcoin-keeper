@@ -78,7 +78,7 @@ const DetailCards = ({
           : setShowMore?.(true);
       },
       disableOption: false,
-      showDot: wallet?.entityKind === EntityKind.WALLET && hasDoNotSpendUTXOs,
+      showDot: hasDoNotSpendUTXOs,
     },
   ].filter(Boolean);
 

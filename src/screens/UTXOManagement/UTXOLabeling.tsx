@@ -67,7 +67,9 @@ function UTXOLabeling() {
 
   const dustReasonLabel = isManualOverride
     ? 'Marked manually'
-    : dustReason === 'descendant' || dustReason === 'adjacent'
+    : dustReason === 'adjacent'
+    ? 'Linked to potential dust payment'
+    : dustReason === 'descendant'
     ? 'Linked to potential dust spend'
     : 'Potential dust payment';
 
@@ -174,6 +176,9 @@ function UTXOLabeling() {
         <LabelsEditor
           utxo={utxo}
           wallet={wallet}
+          readOnlyLabels={
+            isDoNotSpend ? [{ name: 'Do Not Spend', isSystem: true }] : []
+          }
           onLabelsSaved={() => {
             showToast(walletTranslations.LabelsSavedSuccessfully, <TickIcon />);
             navigation.goBack();

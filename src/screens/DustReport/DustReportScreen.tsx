@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
@@ -9,10 +9,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Instruction from 'src/components/Instruction';
+import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import useDustReport from 'src/hooks/useDustReport';
 import { UTXO, Transaction } from 'src/services/wallets/interfaces';
+import moment from 'moment';
 
 type Props = NativeStackScreenProps<AppStackParams, 'DustReport'>;
 
@@ -51,6 +55,9 @@ function UTXORow({ utxo, reason }: { utxo: UTXO; reason: string }) {
         <Text color={`${colorMode}.secondaryText`} style={styles.rowReason}>
           {reason}
         </Text>
+        <Text color={`${colorMode}.secondaryText`} style={styles.rowId} numberOfLines={1}>
+          {utxo.txId}:{utxo.vout}
+        </Text>
       </Box>
       <DoNotSpendChip />
     </Box>
@@ -60,8 +67,10 @@ function UTXORow({ utxo, reason }: { utxo: UTXO; reason: string }) {
 function TxRow({ tx }: { tx: Transaction }) {
   const { colorMode } = useColorMode();
   const date = tx.blockTime
-    ? new Date(tx.blockTime * 1000).toLocaleDateString()
-    : tx.date ?? '—';
+    ? moment(tx.blockTime * 1000).format('DD MMM YY • HH:mm A')
+    : tx.date
+    ? moment(tx.date).format('DD MMM YY • HH:mm A')
+    : '—';
   return (
     <Box style={styles.row}>
       <Box style={styles.rowLeft}>
@@ -71,6 +80,9 @@ function TxRow({ tx }: { tx: Transaction }) {
         </Text>
         <Text color={`${colorMode}.secondaryText`} style={styles.rowReason}>
           Potential dust spend
+        </Text>
+        <Text color={`${colorMode}.secondaryText`} style={styles.rowId} numberOfLines={1}>
+          {tx.txid}
         </Text>
       </Box>
     </Box>
@@ -116,6 +128,12 @@ function DustReportScreen({ route }: Props) {
   const { translations } = useContext(LocalizationContext);
   const { wallet: t, common } = translations;
 
+  const [infoVisible, setInfoVisible] = useState(false);
+  const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
+  const green_modal_background = ThemedColor({ name: 'green_modal_background' });
+  const green_modal_button_background = ThemedColor({ name: 'green_modal_button_background' });
+  const green_modal_button_text = ThemedColor({ name: 'green_modal_button_text' });
+
   const {
     phase,
     progressStep,
@@ -132,6 +150,17 @@ function DustReportScreen({ route }: Props) {
 
   const progressItems = [t.scanProgressCoins, t.scanProgressTxs, t.scanProgressReport];
 
+  function infoModalContent() {
+    return (
+      <Box>
+        <Instruction textColor={green_modal_text_color} text={t.dustInfoWhatIs} />
+        <Instruction textColor={green_modal_text_color} text={t.dustInfoInitial} />
+        <Instruction textColor={green_modal_text_color} text={t.dustInfoAdjacent} />
+        <Instruction textColor={green_modal_text_color} text={t.dustInfoDescendant} />
+      </Box>
+    );
+}
+
   const screenTitle =
     phase === 'scanning'
       ? t.scanningWalletTitle
@@ -143,7 +172,14 @@ function DustReportScreen({ route }: Props) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={screenTitle} />
+      <WalletHeader
+        title={screenTitle}
+        rightComponent={
+          <Pressable onPress={() => setInfoVisible(true)}>
+            <ThemedSvg name={'info_icon'} />
+          </Pressable>
+        }
+      />
 
       {/* ── Start phase ──────────────────────────────────────────────── */}
       {phase === 'start' && (
@@ -217,7 +253,7 @@ function DustReportScreen({ route }: Props) {
                 value={String(reportData.doNotSpendUTXOs.length)}
               />
               <SummaryRow
-                label="Amount marked Do Not Spend"
+                label="Amount"
                 value={`${reportData.amountMarkedDNS.toLocaleString()} sats`}
               />
               <SummaryRow
@@ -247,7 +283,7 @@ function DustReportScreen({ route }: Props) {
                 <UTXORow
                   key={`${utxo.txId}:${utxo.vout}-${idx}`}
                   utxo={utxo}
-                  reason={t.linkedToDustSpend}
+                  reason={utxo.dustReason === 'adjacent' ? t.linkedToPayment : t.linkedToDustSpend}
                 />
               ))}
             </SectionCard>
@@ -316,6 +352,21 @@ function DustReportScreen({ route }: Props) {
           </Box>
         </Box>
       )}
+
+      {/* ── Info / Learn More modal ──────────────────────────────────── */}
+      <KeeperModal
+        visible={infoVisible}
+        close={() => setInfoVisible(false)}
+        title={t.dustReportLearnMoreTitle}
+        modalBackground={green_modal_background}
+        textColor={green_modal_text_color}
+        Content={infoModalContent}
+        DarkCloseIcon
+        buttonText={common.Okay}
+        buttonTextColor={green_modal_button_text}
+        buttonBackground={green_modal_button_background}
+        buttonCallback={() => setInfoVisible(false)}
+      />
 
       {/* ── Donate Dust confirmation modal ───────────────────────────── */}
       <KeeperModal
@@ -428,6 +479,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     marginTop: hp(2),
+  },
+  rowId: {
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: hp(2),
+    fontFamily: 'monospace',
   },
   chip: {
     backgroundColor: 'rgba(242, 72, 34, 0.12)',

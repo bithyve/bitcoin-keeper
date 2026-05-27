@@ -573,13 +573,19 @@
     "noLinkedCoins": "No linked coins found.",
     "noPastDustSpends": "No past dust spends found.",
     "potentialDustPayment": "Potential dust payment",
+    "linkedToPayment": "Linked to potential dust payment",
     "linkedToDustSpend": "Linked to potential dust spend",
     "potentialDustSpend": "Potential dust spend",
     "donateDustConfirmBody": "Donating can help clear dust / Do Not Spend coins for better privacy.",
     "lastScannedNever": "Never",
     "runReport": "Run Report",
     "tryAgain": "Try Again",
-    "tooSmallToDonate": "Dust amount is too small to donate after fees"
+    "tooSmallToDonate": "Dust amount is too small to donate after fees",
+    "dustReportLearnMoreTitle": "About Dust Report",
+    "dustInfoWhatIs": "Dust is a very small amount of bitcoin (under 5,000 sats) sent to a wallet address to trace its activity. Spending it alongside other coins can link them on the blockchain and reduce your privacy.",
+    "dustInfoInitial": "Active Dust: A coin under 5,000 sats received on an address that has already been used before (a reused address). Spending it can reveal connections between your past and future transactions.",
+    "dustInfoAdjacent": "Linked Coins: Coins connected to dust in two ways. First, coins at the same address where dust was received (a poisoned address). Second, coins received in a transaction that spent a dust coin (a descendant coin).",
+    "dustInfoDescendant": "Past Dust Spends: Transactions in your history where a Do Not Spend coin was already used. These transactions have confirmed a link between your addresses and dust activity."
   },
   "vault": {
     "Addsigner": "Add a Signer",

@@ -59,7 +59,7 @@ When the scan finds at least one Active Dust UTXO, Linked Coin, or Past Dust Spe
 - GIVEN the scan has completed and wallet `W` has 3 UTXOs with `spendability === 'doNotSpend'` (values: 400, 600, 800 sats) and 1 transaction tagged `potential-dust-spend`
 - WHEN the report result screen renders
 - THEN the summary card shows "Do Not Spend coins: 3"
-- AND "Amount marked Do Not Spend: 1,800 sats"
+- AND "Amount: 1,800 sats"
 - AND "Past dust spends: 1"
 - AND "Last scanned" shows the timestamp written to MMKV at scan completion
 
@@ -80,7 +80,8 @@ When the scan finds at least one Active Dust UTXO, Linked Coin, or Past Dust Spe
 
 - GIVEN the scan has completed and wallet `W` has UTXOs with `dustReason === 'adjacent'` or `dustReason === 'descendant'` and `spendability === 'doNotSpend'`
 - WHEN the Linked Coins section renders
-- THEN each row displays the UTXO value in sats, the label "Do Not Spend", and the reason "Linked to potential dust spend"
+- THEN each row with `dustReason === 'adjacent'` displays the reason "Linked to potential dust payment"
+- AND each row with `dustReason === 'descendant'` displays the reason "Linked to potential dust spend"
 
 #### Scenario: Linked Coins section empty state
 
