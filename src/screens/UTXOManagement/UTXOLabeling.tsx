@@ -67,7 +67,9 @@ function UTXOLabeling() {
 
   const dustReasonLabel = isManualOverride
     ? 'Marked manually'
-    : dustReason === 'descendant' || dustReason === 'adjacent'
+    : dustReason === 'adjacent'
+    ? 'Linked to potential dust payment'
+    : dustReason === 'descendant'
     ? 'Linked to potential dust spend'
     : 'Potential dust payment';
 

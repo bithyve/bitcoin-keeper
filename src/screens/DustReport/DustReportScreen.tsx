@@ -247,7 +247,7 @@ function DustReportScreen({ route }: Props) {
                 <UTXORow
                   key={`${utxo.txId}:${utxo.vout}-${idx}`}
                   utxo={utxo}
-                  reason={t.linkedToDustSpend}
+                  reason={utxo.dustReason === 'adjacent' ? t.linkedToPayment : t.linkedToDustSpend}
                 />
               ))}
             </SectionCard>

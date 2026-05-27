@@ -563,6 +563,7 @@
     "noLinkedCoins": "No linked coins found.",
     "noPastDustSpends": "No past dust spends found.",
     "potentialDustPayment": "Potential dust payment",
+    "linkedToPayment": "Linked to potential dust payment",
     "linkedToDustSpend": "Linked to potential dust spend",
     "potentialDustSpend": "Potential dust spend",
     "donateDustConfirmBody": "Donating can help clear dust / Do Not Spend coins for better privacy.",

@@ -80,7 +80,8 @@ When the scan finds at least one Active Dust UTXO, Linked Coin, or Past Dust Spe
 
 - GIVEN the scan has completed and wallet `W` has UTXOs with `dustReason === 'adjacent'` or `dustReason === 'descendant'` and `spendability === 'doNotSpend'`
 - WHEN the Linked Coins section renders
-- THEN each row displays the UTXO value in sats, the label "Do Not Spend", and the reason "Linked to potential dust spend"
+- THEN each row with `dustReason === 'adjacent'` displays the reason "Linked to potential dust payment"
+- AND each row with `dustReason === 'descendant'` displays the reason "Linked to potential dust spend"
 
 #### Scenario: Linked Coins section empty state
 
