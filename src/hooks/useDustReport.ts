@@ -72,7 +72,7 @@ function deriveReportData(wallet: any): DustReportData {
   ];
 
   const activeDust = allUTXOs.filter(
-    (u) => u.spendability === 'doNotSpend' && u.dustReason === 'initial'
+    (u) => u.spendability === 'doNotSpend' && (u.dustReason === 'initial' || !u.dustReason) // for manually marked Do Not Spend coins without a dustReason, treat them as active dust for report purposes
   );
 
   const linkedCoins = allUTXOs.filter(
