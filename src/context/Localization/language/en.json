@@ -581,11 +581,11 @@
     "runReport": "Run Report",
     "tryAgain": "Try Again",
     "tooSmallToDonate": "Dust amount is too small to donate after fees",
-    "dustReportLearnMoreTitle": "About Dust Report",
-    "dustInfoWhatIs": "Dust is a very small amount of bitcoin (under 5,000 sats) sent to a wallet address to trace its activity. Spending it alongside other coins can link them on the blockchain and reduce your privacy.",
-    "dustInfoInitial": "Active Dust: A coin under 5,000 sats received on an address that has already been used before (a reused address). Spending it can reveal connections between your past and future transactions.",
-    "dustInfoAdjacent": "Linked Coins: Coins connected to dust in two ways. First, coins at the same address where dust was received (a poisoned address). Second, coins received in a transaction that spent a dust coin (a descendant coin).",
-    "dustInfoDescendant": "Past Dust Spends: Transactions in your history where a Do Not Spend coin was already used. These transactions have confirmed a link between your addresses and dust activity."
+    "dustReportLearnMoreTitle": "About Your Dust Report",
+    "dustInfoWhatIs": "The Dust Report scans your wallet for small coins that could be used to trace your transactions. Any suspicious coins are automatically marked as Do Not Spend to protect your privacy.",
+    "dustInfoInitial": "Coins marked Do Not Spend, and any related coins in your wallet, are isolated. Avoid spending them alongside your other funds, as this can link your addresses and reduce your privacy.",
+    "dustInfoAdjacent": "If you believe the flagged coins are dust, you can donate them. This removes them from your wallet entirely and also supports the app's development.",
+    "dustInfoDescendant": "If you think a coin was flagged by mistake, open UTXO Management, select the coin, and mark it as Spendable to use it normally again."
   },
   "vault": {
     "Addsigner": "Add a Signer",
