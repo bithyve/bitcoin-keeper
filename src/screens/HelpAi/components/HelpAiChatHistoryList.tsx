@@ -1,13 +1,14 @@
 import { useColorMode } from '@gluestack-ui/themed-native-base';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
-import Buttons from 'src/components/Buttons';
-import Text from 'src/components/KeeperText';
+import Fonts from 'src/constants/Fonts';
 import { hp, wp } from 'src/constants/responsive';
 import { HelpAiThread } from 'src/store/reducers/helpAi';
-import ChatBubbleIcon from 'src/assets/images/chatBubble.svg';
 import Colors from 'src/theme/Colors';
+import PencilWhite from 'src/assets/images/edit_white.svg';
+import ChatIcon from 'src/assets/images/chat.svg';
+import Fab from 'src/components/Fab';
 
 type HelpAiChatHistoryListProps = {
   threads: HelpAiThread[];
@@ -41,69 +42,66 @@ const HelpAiChatHistoryList = ({
 
   return (
     <View style={styles.container}>
-      <Text color={colorMode === 'dark' ? '#a5a5a5' : '#878787'} fontSize={13} style={styles.title}>
-        Recent chats
-      </Text>
-
       <ScrollView contentContainerStyle={styles.listContent}>
-        {threads.map((thread) => (
+        {threads.map((thread, idx) => (
           <Pressable
+            testID={`chat_thread_${idx}`}
             key={thread.conversationId}
             onPress={() => onOpenChat(thread.conversationId)}
             style={({ pressed }) => [styles.itemPressable, { opacity: pressed ? 0.75 : 1 }]}
           >
-            <View
-              style={[
-                styles.itemCard,
-                {
-                  borderColor: colorMode === 'dark' ? '#2e2e2e' : '#ece9e3',
-                  backgroundColor: colorMode === 'dark' ? '#1a1a1a' : '#faf9f7',
-                },
-              ]}
-            >
-              {/* Left accent bar */}
-              <View style={[styles.accentBar, { backgroundColor: Colors.primaryGreen }]} />
-
+            <View style={[styles.itemCard]}>
+              <View style={styles.iconWrap}>
+                <ChatIcon width={wp(22)} height={wp(22)} />
+              </View>
               <View style={styles.cardBody}>
                 {/* Icon + header row */}
                 <View style={styles.itemHeader}>
                   <View style={styles.iconAndTitle}>
-                    <View style={styles.iconWrap}>
-                      <ChatBubbleIcon width={wp(18)} height={wp(18)} />
-                    </View>
                     <Text
-                      medium
-                      fontSize={17}
-                      color={colorMode === 'dark' ? '#e7e7e7' : '#272421'}
+                      testID={`chat_thread_title_${idx}`}
+                      style={[
+                        styles.threadTitle,
+                        { color: colorMode === 'dark' ? '#e7e7e7' : '#272421' },
+                      ]}
                       numberOfLines={1}
-                      style={styles.threadTitle}
                     >
                       {thread.title || 'New chat'}
                     </Text>
                   </View>
-                  <Text fontSize={11} color={colorMode === 'dark' ? '#696969' : '#ababab'}>
+                  <Text
+                    testID={`chat_thread_time_${idx}`}
+                    style={[
+                      styles.metaText,
+                      { color: colorMode === 'dark' ? '#696969' : '#677e7c' },
+                    ]}
+                  >
                     {formatRelativeTime(thread.updatedAt)}
                   </Text>
                 </View>
 
                 {/* Preview */}
                 <Text
-                  fontSize={12}
-                  color={colorMode === 'dark' ? '#7a7a7a' : '#9a9590'}
+                  testID={`chat_thread_preview_${idx}`}
+                  style={[
+                    styles.previewText,
+                    { color: colorMode === 'dark' ? '#7a7a7a' : '#9a9590' },
+                  ]}
                   numberOfLines={1}
-                  style={styles.previewText}
                 >
                   {thread.lastMessage || 'No messages yet'}
                 </Text>
               </View>
             </View>
+            {idx < threads.length - 1 && <View style={styles.spacer} />}
           </Pressable>
         ))}
       </ScrollView>
-
-      <View style={styles.ctaCtr}>
-        <Buttons primaryText={'Start New Chat'} primaryCallback={onStartNewChat} fullWidth />
-      </View>
+      <Fab
+        icon={<PencilWhite height={hp(22)} width={wp(22)} />}
+        onPress={onStartNewChat}
+        containerStyle={{ right: wp(22) }}
+      />
     </View>
   );
 };
@@ -112,32 +110,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(12),
+    width: '100%',
   },
-  title: {
-    // marginBottom: hp(10),
-  },
+  title: {},
   listContent: {
     paddingBottom: hp(20),
-    gap: hp(5),
   },
   itemPressable: {
     width: '100%',
   },
   itemCard: {
-    borderRadius: 14,
-    borderWidth: 1,
     overflow: 'hidden',
     flexDirection: 'row',
-  },
-  accentBar: {
-    width: 4,
-    borderTopLeftRadius: 14,
-    borderBottomLeftRadius: 14,
+    alignItems: 'center',
   },
   cardBody: {
     flex: 1,
-    paddingVertical: hp(10),
-    paddingHorizontal: wp(10),
     gap: hp(0),
   },
   itemHeader: {
@@ -153,25 +141,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconWrap: {
-    width: wp(32),
-    height: wp(32),
+    marginRight: wp(8),
     borderRadius: wp(100),
+    padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center',
-    backgroundColor: Colors.primaryGreen,
+    backgroundColor: '#c6ddd1',
   },
   threadTitle: {
     flex: 1,
     maxWidth: '70%',
+    fontSize: 17,
+    fontWeight: '500',
+  },
+  metaText: {
+    fontSize: 11,
+    fontFamily: Fonts.InterRegular,
   },
   previewText: {
+    fontSize: 13,
+    fontFamily: Fonts.InterRegular,
     lineHeight: hp(18),
-    paddingLeft: wp(40),
+    maxWidth: '90%',
   },
   ctaCtr: {
     paddingBottom: hp(12),
     paddingTop: hp(6),
+  },
+  spacer: {
+    height: hp(1),
+    width: '95%',
+    marginVertical: hp(10),
+    backgroundColor: Colors.greyBorder,
+    opacity: 0.5,
+    alignSelf: 'center',
   },
 });
 

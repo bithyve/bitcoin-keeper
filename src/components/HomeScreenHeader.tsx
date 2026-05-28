@@ -31,12 +31,14 @@ interface HomeScreenHeaderProps {
   colorMode: string;
   circleIconWrapper: React.ReactNode;
   title: string;
+  titleSuffix?: string;
 }
 
 const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   colorMode,
   circleIconWrapper,
   title,
+  titleSuffix,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -170,7 +172,6 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   const getHeaderTitle = useCallback(
     (title: string) => {
       if (title === walletTranslation.more) title = common.moreOptions;
-      if (title === common.help) title = 'Keeper Help';
       return capitalizeEachWord(title);
     },
     [title, walletTranslation.more, common.moreOptions]
@@ -188,7 +189,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.headerWhite`}
               medium
             >
-              {getHeaderTitle(title)}
+              {getHeaderTitle(title)}{titleSuffix ?? ''}
             </Text>
           </Box>
 

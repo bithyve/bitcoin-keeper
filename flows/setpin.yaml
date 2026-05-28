@@ -35,6 +35,7 @@ appId: io.hexawallet.keeper
     timeout: 5000
 - assertVisible: 'Continue'
 - tapOn: 'Continue'
+- tapOn: 'Cancel'
 - swipe:
     direction: LEFT
 - swipe:
@@ -43,5 +44,5 @@ appId: io.hexawallet.keeper
     direction: LEFT
 - waitForAnimationToEnd:
     timeout: 5000
-- assertVisible: 'Start App'
-- tapOn: 'Start App'
+- assertVisible: 'Get Started'
+- tapOn: 'Get Started'
