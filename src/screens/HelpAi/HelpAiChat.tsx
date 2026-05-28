@@ -23,6 +23,10 @@ import {
   HelpEscalationCard,
 } from 'src/models/interfaces/HelpAi';
 import Relay from 'src/services/backend/Relay';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import HelpAiDraftCard from './components/HelpAiDraftCard';
 import HelpAiShell from './components/HelpAiShell';
 import PaperPlaneLight from 'src/assets/images/paper-plane-light.svg';
@@ -62,6 +66,35 @@ import ChatIcon from 'src/assets/images/chat.svg';
 import { sanitizeHelpAiReplyLinks, sanitizeHelpAiSources } from 'src/utils/helpAiLinkPolicy';
 import { detectSensitiveInput, detectSensitiveInDraft } from 'src/utils/helpAiSensitiveData';
 
+// Enhanced error handler to distinguish between all backend rate limit codes
+const getHelpAiFriendlyError = (error: any, scope: 'chat' | 'issue'): string => {
+  const rawMessage = error?.message || error?.error || '';
+
+  if (rawMessage.includes('HELP_AI_NEW_CHAT_LIMIT_REACHED')) {
+    return 'You have reached your daily new chat creation limit. Please try again after 24 hours.';
+  }
+  if (rawMessage.includes('HELP_AI_DAILY_MESSAGE_LIMIT_REACHED')) {
+    return 'You have reached your daily message limit for this chat. Please try again after 24 hours.';
+  }
+  if (rawMessage.includes('HELP_AI_ISSUE_LIMIT_REACHED')) {
+    return 'You have reached your daily issue submission limit. Please try again after 24 hours.';
+  }
+  if (rawMessage.includes('HELP_AI_RATE_LIMIT_REACHED')) {
+    return 'You have reached a rate limit. Please try again after 24 hours.';
+  }
+  if (rawMessage.includes('429')) {
+    return scope === 'chat'
+      ? 'Chat is temporarily rate-limited. Please try again shortly.'
+      : 'Issue submission is temporarily rate-limited. Please try again shortly.';
+  }
+  return (
+    rawMessage ||
+    (scope === 'chat'
+      ? 'Unable to send message. Please retry.'
+      : 'Issue submission failed. Please retry.')
+  );
+};
+
 const nowId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const LOCK_ICON_SIZE = hp(15);
 
@@ -80,6 +113,9 @@ const buildMetadata = async (): Promise<HelpChatMetadata> => {
 
 const HelpAiChat = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
+  const { id: appId } = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0] as unknown as KeeperApp;
   const { colorMode } = useColorMode();
   const isDarkMode = colorMode === 'dark';
   const uiColors = useMemo(
@@ -180,6 +216,10 @@ const HelpAiChat = ({ navigation, route }) => {
 
   const sendToChat = async (text: string) => {
     if (!text.trim()) return;
+    if (!appId) {
+      showToast('Missing app id. Please restart the app and try again.');
+      return;
+    }
     const sensitiveResult = detectSensitiveInput(text.trim());
     if (sensitiveResult) {
       showToast(sensitiveResult.message);
@@ -197,13 +237,12 @@ const HelpAiChat = ({ navigation, route }) => {
       if (!chatMeta) {
         dispatch(setHelpAiChatMeta({ conversationId, chatMeta: metadata }));
       }
-
       const nextHistory: HelpChatMessage[] = [
         ...rawChatMessages,
         { role: 'user' as const, text: outboundText, time: new Date().toISOString() },
       ].slice(-20);
-
       const response: HelpChatResponse = await Relay.helpChat({
+        appId,
         conversationId,
         messages: nextHistory,
         userText: outboundText,
@@ -212,7 +251,6 @@ const HelpAiChat = ({ navigation, route }) => {
 
       const sanitizedReply = sanitizeHelpAiReplyLinks(response.reply);
       const sanitizedSources = sanitizeHelpAiSources(response.sources);
-
       const aiMsg: HelpChatMessage = {
         role: 'ai',
         text: sanitizedReply,
@@ -229,7 +267,6 @@ const HelpAiChat = ({ navigation, route }) => {
         response.conversationState?.escalationStage !== lastEscalationStage
           ? { id: nowId(), type: 'escalation', card: response.escalationCard }
           : null;
-
       batch(() => {
         dispatch(
           setHelpAiRawMessages({ conversationId, messages: [...nextHistory, aiMsg].slice(-20) })
@@ -249,16 +286,10 @@ const HelpAiChat = ({ navigation, route }) => {
           dispatch(appendHelpAiMessage({ conversationId, message: escalationRenderMsg }));
         }
       });
-
       setLastFailedText(null);
     } catch (error) {
+      showToast(getHelpAiFriendlyError(error, 'chat'));
       setLastFailedText(outboundText);
-      appendMessage({
-        id: nowId(),
-        type: 'system_error',
-        text: 'Message failed to send. Please retry.',
-        retryText: outboundText,
-      });
     } finally {
       setSending(false);
       setTyping(false);
@@ -267,6 +298,10 @@ const HelpAiChat = ({ navigation, route }) => {
 
   const submitDraftIssue = async () => {
     if (!draft || !chatMeta) return;
+    if (!appId) {
+      showToast('Missing app id. Please restart the app and try again.');
+      return;
+    }
 
     const draftSensitiveResult = detectSensitiveInDraft(draft);
     if (draftSensitiveResult) {
@@ -278,6 +313,7 @@ const HelpAiChat = ({ navigation, route }) => {
       dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'submitting' }));
       const idempotencyKey = `issue-${conversationId}-${issueCount}`;
       const response = await Relay.submitHelpIssue({
+        appId,
         conversationId,
         kind: draft.kind,
         confirm: true,
@@ -306,7 +342,7 @@ const HelpAiChat = ({ navigation, route }) => {
       });
     } catch (error) {
       dispatch(setHelpAiDraftStatus({ conversationId, draftStatus: 'failed_retryable' }));
-      showToast(error?.message || 'Issue submission failed. Please retry.');
+      showToast(getHelpAiFriendlyError(error, 'issue'));
     }
   };
 
@@ -521,7 +557,10 @@ const HelpAiChat = ({ navigation, route }) => {
               testID="btn_send"
               style={[
                 styles.sendBtn,
-                { opacity: sending ? 0.6 : 1, backgroundColor: Colors.primaryGreen },
+                {
+                opacity: sending ? 0.6 : 1,
+                backgroundColor: Colors.primaryGreen,
+              },
               ]}
               onPress={() => sendToChat(input)}
               disabled={sending}
