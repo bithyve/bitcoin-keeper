@@ -1002,6 +1002,17 @@ export default class WalletOperations {
     return averageTxFeeByNetwork;
   };
 
+  /**
+   * Returns all wallet UTXOs that are eligible for automatic coin selection —
+   * i.e. every UTXO whose spendability is not 'doNotSpend'.
+   * Used as the shared fallback pool in calculateSendMaxFee,
+   * prepareTransactionPrerequisites, and prepareCustomTransactionPrerequisites.
+   */
+  private static getSpendableUTXOs = (wallet: Wallet | Vault): UTXO[] =>
+    [...(wallet.specs.confirmedUTXOs ?? []), ...(wallet.specs.unconfirmedUTXOs ?? [])].filter(
+      (u) => u.spendability !== 'doNotSpend'
+    );
+
   static calculateSendMaxFee = (
     wallet: Wallet | Vault,
     recipients: {
@@ -1016,9 +1027,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...(wallet.specs.confirmedUTXOs ?? []), ...(wallet.specs.unconfirmedUTXOs ?? [])].filter(
-        (u) => u.spendability !== 'doNotSpend'
-      );
+      inputUTXOs = WalletOperations.getSpendableUTXOs(wallet);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1103,9 +1112,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...(wallet.specs.confirmedUTXOs ?? []), ...(wallet.specs.unconfirmedUTXOs ?? [])].filter(
-        (u) => u.spendability !== 'doNotSpend'
-      );
+      inputUTXOs = WalletOperations.getSpendableUTXOs(wallet);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1274,7 +1281,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = WalletOperations.getSpendableUTXOs(wallet);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
