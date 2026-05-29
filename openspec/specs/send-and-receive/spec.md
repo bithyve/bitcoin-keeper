@@ -33,6 +33,9 @@ archived wallet, the user must unarchive it first.
 Unconfirmed bitcoin transactions are included in wallet balance and shown as
 pending/unconfirmed in transaction history.
 
+The automatic coin selection pool MUST exclude UTXOs with `spendability === 'doNotSpend'`
+when no UTXOs have been manually pre-selected. Manually pre-selected UTXOs are used as-is regardless of spendability.
+
 #### Scenario: Fee estimation succeeds
 
 - GIVEN the user has a wallet with a confirmed or unconfirmed spendable balance
@@ -57,6 +60,24 @@ pending/unconfirmed in transaction history.
 - GIVEN the user has an archived wallet
 - WHEN the user attempts to initiate a send from that wallet
 - THEN the app prevents the send and explains the wallet must be unarchived before use
+
+#### Scenario: Do Not Spend UTXOs excluded from automatic coin selection
+
+- GIVEN a wallet contains UTXOs where some have spendability Do Not Spend and no UTXOs have been manually pre-selected
+- WHEN the send phase one calculation runs
+- THEN only UTXOs with spendability Spendable are considered for the transaction inputs
+
+---
+
+### Requirement: Available Balance
+
+The available balance shown to the user in the send flow MUST reflect only UTXOs that are spendable (i.e., `spendability !== 'doNotSpend'`). The balance MUST be computed from the filtered UTXO arrays at display time, not from the pre-computed `specs.balances` aggregate.
+
+#### Scenario: Spendable balance displayed in send flow
+
+- GIVEN a wallet contains both spendable UTXOs and Do Not Spend UTXOs
+- WHEN the user opens the send amount entry screen
+- THEN the balance displayed MUST equal the sum of values for spendable UTXOs only
 
 ---
 
