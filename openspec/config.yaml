@@ -15,7 +15,7 @@ context: |
   - Bitcoin/Crypto: bitcoinjs-lib, bip39, bip21, coinselect, secp256k1
   - Hardware Protocols: cktap-protocol-react-native (TAPSIGNER/SATSCARD), libportal-react-native
   - Networking: axios, electrum-client (Electrum node connectivity)
-  - Testing: Jest + @testing-library/react-native; native modules mocked in __mocks__/
+  - Testing: Jest + @testing-library/react-native; Maestro E2E flows in flows/; native modules mocked in __mocks__/
   - CI/CD: Fastlane (iOS + Android), App Center pre-build hooks
   - Patching: patch-package for upstream dependency fixes (patches/)
 
@@ -32,6 +32,7 @@ context: |
   - src/screens/      — Feature-based screen directories (Vault, WalletDetails, Send, Receive, Settings, etc.)
   - src/services/     — External service integrations (Electrum, NFC, QR, Wallets)
   - src/store/        — Redux store: slices/, sagas/, actions/, migrations.ts, store.ts
+  - flows/            — Maestro E2E YAML flows for critical user journeys and regressions
 
   ## Domain Knowledge
   - Wallet types: single-sig Hot Wallets and multi-sig Vaults (2-of-3, 3-of-5, etc.)
@@ -42,6 +43,7 @@ context: |
   - Backup: BHR (Bitcoin Heritage Recovery) encrypted cloud + manual seed backup
   - Node connectivity: user-configurable Electrum server (mainnet/testnet)
   - Subscription tiers gating advanced features (Hodler, Diamond Hands, etc.)
+  - E2E quality bar: user-facing flow changes should be validated with Maestro locally or via Maestro MCP
 
   ## Design System
   The canonical UI design system is defined in `DESIGN.md` at the repo root.
@@ -63,6 +65,8 @@ context: |
   - All Bitcoin amounts internally in satoshis (number); display formatting in utility helpers
   - Network (mainnet/testnet/signet) flows through a global app-level context
   - Use Given/When/Then format for acceptance scenarios
+  - New UI screens and reusable components should include stable `testID` props for automation and Maestro regression coverage
+  - For UI journey changes, update or add Maestro flow coverage in flows/ where applicable
 
 rules:
   proposal:
@@ -71,11 +75,13 @@ rules:
     - Call out subscription tier gating if applicable
     - Include a "Non-goals" section to prevent scope creep
     - Note security/privacy impact (key material handling, network calls, storage)
+    - For UI/user-journey changes, state expected Maestro flow impact (new flow, updated flow, or no flow change with rationale)
   specs:
     - Use Given/When/Then format for all scenarios
     - Cover both happy path and key failure/edge cases (e.g., insufficient UTXOs, signer unavailable, network offline)
     - Reference the relevant domain model types (Wallet, Vault, Signer, UTXO) by name
     - State amounts in satoshis in scenarios; note display format separately if relevant
+    - For UI/user-journey acceptance scenarios, include expected Maestro-verifiable checkpoints (screen text, CTA availability, error state)
   design:
     - Specify which Redux slice(s) and saga(s) are involved
     - Include data flow for any PSBT signing or hardware wallet interaction
@@ -85,8 +91,10 @@ rules:
     - For any UI-touching change, read DESIGN.md and reference the relevant tokens,
       patterns, and existing components used; note any new component needed and justify it
     - Confirm the agent implementation checklist in DESIGN.md before finalizing UI design
+    - For UI/user-journey changes, specify affected Maestro flow files under flows/ and whether selectors/assertions need updates
   tasks:
-    - Group tasks by layer: UI Components, Business Logic / Hooks, Store (Slice + Saga), Storage, Tests
+    - Group tasks by layer: UI Components, Business Logic / Hooks, Store (Slice + Saga), Storage, Tests, E2E Flows (Maestro)
     - Keep each task completable in a single focused session
     - Add a task for updating the Redux Persist migration version if store shape changes
     - Add a task for unit/integration tests covering the new behaviour
+    - For UI/user-journey changes, add a task to run/update relevant Maestro flows (local CLI or Maestro MCP) and record pass/fail outcome
