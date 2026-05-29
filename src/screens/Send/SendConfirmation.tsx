@@ -652,7 +652,14 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <WalletHeader title={common.sendConfirmation} rightComponent={<CurrencyTypeSwitch />} />
+      <WalletHeader
+        title={
+          bitcoinNetworkType === NetworkType.TESTNET
+            ? `${common.sendConfirmation} (Testnet)`
+            : common.sendConfirmation
+        }
+        rightComponent={<CurrencyTypeSwitch />}
+      />
 
       <ScrollView
         style={styles.container}

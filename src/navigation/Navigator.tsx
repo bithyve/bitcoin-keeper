@@ -127,6 +127,8 @@ import { AppStackParams } from './types';
 import { registerSentryNavigationContainer } from 'src/services/sentry';
 import KeyHistory from 'src/screens/Vault/KeyHistory';
 import NodeSelection from 'src/screens/AppSettings/Node/NodeSelection';
+import HelpAiEntry from 'src/screens/HelpAi/HelpAiEntry';
+import HelpAiChat from 'src/screens/HelpAi/HelpAiChat';
 import KeeperConcierge from 'src/screens/KeeperConcierge/KeeperConcierge';
 import TechnicalSupport from 'src/screens/KeeperConcierge/TechnicalSupport';
 import TicketDetails from 'src/screens/KeeperConcierge/TicketDetails';
@@ -175,6 +177,8 @@ import { SwapAllHistory } from 'src/screens/Home/components/buyBtc/Swap/SwapAllH
 import { TipBottomSheet } from 'src/components/Modal/TipBottomSheet';
 import { SendTip } from 'src/screens/Send/SendTip';
 import { ViewRecoveryKeyScreen } from 'src/screens/BackupWallet/ViewRecoveryKeyScreen';
+import RagChunkAdminScreen from 'src/screens/AppSettings/RagChunkAdminScreen';
+import AskKeeperInfoScreen from 'src/screens/HelpAi/AskKeeperInfoScreen';
 
 function LoginStack() {
   const Stack = createNativeStackNavigator();
@@ -358,6 +362,8 @@ function AppStack() {
         <Stack.Screen name="ResetInitialTimelock" component={ResetInitialTimelock} />
         <Stack.Screen name="ResetInheritanceKey" component={ResetInheritanceKey} />
         <Stack.Screen name="ResetEmergencyKey" component={ResetEmergencyKey} />
+        <Stack.Screen name="HelpAiEntry" component={HelpAiEntry} />
+        <Stack.Screen name="HelpAiChat" component={HelpAiChat} />
         <Stack.Screen name="KeeperConcierge" component={KeeperConcierge} />
         <Stack.Screen name="TechnicalSupport" component={TechnicalSupport} />
         <Stack.Screen name="TicketDetails" component={TicketDetails} />
@@ -383,6 +389,8 @@ function AppStack() {
         <Stack.Screen name="SwapAllHistory" component={SwapAllHistory} />
         <Stack.Screen name="SendTip" component={SendTip} />
         <Stack.Screen name="ViewRecoveryKeyScreen" component={ViewRecoveryKeyScreen} />
+        <Stack.Screen name="RagChunkAdmin" component={RagChunkAdminScreen} />
+        <Stack.Screen name="AskKeeperInfo" component={AskKeeperInfoScreen} />
       </Stack.Navigator>
     </RealmProvider>
   );

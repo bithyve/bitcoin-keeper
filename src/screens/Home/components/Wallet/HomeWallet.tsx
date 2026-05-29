@@ -43,6 +43,8 @@ import {
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Fab from 'src/components/Fab';
+import AddIcon from 'src/assets/images/add_white.svg';
 import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
 import { clearDustToast } from 'src/store/reducers/utxos';
 
@@ -278,16 +280,9 @@ const HomeWallet = () => {
   return (
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <DashedCta
-        backgroundColor={dashed_CTA_background}
-        hexagonBackgroundColor={DashedCta_hexagonBackgroundColor}
-        textColor={`${colorMode}.greenWhiteText`}
-        name={walletText.addWallet}
-        callback={() => setPickWalletType(true)}
-        icon={<ThemedSvg name={'add_wallet_plus_icon'} width={9} height={9} />}
-        iconWidth={22}
-        iconHeight={20}
-        cardStyles={styles.DashedCtaStyle}
+      <Fab
+        icon={<AddIcon height={hp(22)} width={wp(22)} />}
+        onPress={() => setPickWalletType(true)}
       />
       <FlatList
         data={allWallets}

@@ -19,7 +19,7 @@ import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import ReceiveAddress from './ReceiveAddress';
 import useSigners from 'src/hooks/useSigners';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, NetworkType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ReceiveQR from './ReceiveQR';
 import AddressUsageBadge from './AddressUsageBadge';
@@ -104,6 +104,7 @@ function ReceiveScreen({ route }: { route }) {
 
   const { satsEnabled }: { satsEnabled: boolean } = useAppSelector((state) => state.settings);
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
 
@@ -350,7 +351,11 @@ function ReceiveScreen({ route }: { route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ flexDirection: 'row', marginBottom: hp(25) }}>
         <WalletHeader
-          title={common.receive}
+          title={
+            bitcoinNetworkType === NetworkType.TESTNET
+              ? `${common.receive} (Testnet)`
+              : common.receive
+          }
           titleColor={`${colorMode}.primaryText`}
           rightComponent={
             <TouchableOpacity

@@ -31,6 +31,7 @@ import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg
 import PrivateManageWallet from 'src/assets/privateImages/manage-wallet-icon.svg';
 import MultiUserIcon from 'src/assets/images/MultiUserIcon.svg';
 import InheritanceDocumentIcon from 'src/assets/images/inheritanceDocumentIcon.svg';
+import ConciergeWhite from 'src/assets/images/faqWhiteIcon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -274,6 +275,13 @@ export const useSettingKeeper = () => {
   ];
 
   const General = [
+    {
+      title: 'Advisors',
+      description: 'Get expert advice',
+      icon: <ConciergeWhite width={15} height={15} />,
+      onPress: () => navigation.navigate('Advisors'),
+      isDiamond: false,
+    },
     {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,

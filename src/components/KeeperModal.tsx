@@ -45,6 +45,7 @@ type ModalProps = {
   loading?: boolean;
   secondaryIcon?: any;
   disable?: boolean;
+  centerTitle?: boolean;
 };
 
 function KeeperModal(props: ModalProps) {
@@ -76,6 +77,7 @@ function KeeperModal(props: ModalProps) {
     loading = false,
     secondaryIcon = null,
     disable = false,
+    centerTitle = false,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -130,7 +132,9 @@ function KeeperModal(props: ModalProps) {
             </TouchableOpacity>
           )}
           {title || subTitle ? (
-            <Modal.Header style={styles.headerContainer}>
+            <Modal.Header
+              style={[styles.headerContainer, { alignSelf: centerTitle ? 'center' : 'flex-start' }]}
+            >
               <Text
                 testID="text_modal_title"
                 style={styles.title}
@@ -278,7 +282,7 @@ const getStyles = (subTitleWidth) =>
     },
     headerContainer: {
       flexDirection: 'column',
-      alignSelf: 'flex-start',
+
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
       marginTop: wp(5),
