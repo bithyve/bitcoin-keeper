@@ -1,0 +1,195 @@
+appId: io.hexawallet.keeper
+---
+- assertVisible: "Ask"
+- tapOn: "Ask"
+- assertVisible:
+    id: "fab_start_chat"
+- assertVisible: "No conversations yet"
+- assertVisible: "Get help, report a problem, or share an idea."
+- assertVisible: "Never share seed words or private keys."
+- tapOn:
+    id: "fab_start_chat"
+- assertVisible: "Before you use Ask Keeper"
+- assertVisible:
+    id: "btn_primaryText"
+- tapOn:
+    id: "btn_primaryText"
+- assertVisible:
+    id: "input_message"
+- assertVisible:
+    id: "btn_send"
+- assertVisible:
+    id: "message_0"
+- assertVisible:
+    id: "btn_back"
+- assertVisible: "Ask Keeper"
+- assertVisible:
+    id: "btn_learn_more"
+- tapOn:
+    id: "btn_learn_more"
+- assertVisible: "Before you use Ask Keeper"
+- tapOn: "Got it"
+- tapOn:
+    id: "input_message"
+- inputText: "Hello"
+- tapOn:
+    id: "btn_send"
+- extendedWaitUntil:
+    visible: 
+        id: "message_1"
+    timeout: 5000
+- tapOn:
+    id: "btn_back"
+- assertVisible:
+    id: "chat_thread_0"
+- assertVisible:
+    id: "chat_thread_title_0"
+- assertVisible:
+    id: "chat_thread_preview_0"
+- assertVisible:
+    id: "chat_thread_title_0"
+    text: "Hello"
+- tapOn:
+    id: "chat_thread_0"
+
+
+- tapOn:
+    id: "input_message"
+- inputText: "What is keeper?"
+- tapOn:
+    id: "btn_send"
+- assertVisible:
+    id: "message_3"
+
+- tapOn:
+    id: "input_message"
+- inputText: "Here is my seed: abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+- tapOn:
+    id: "btn_send"
+- assertVisible:
+    id: toast_container
+- assertVisible:
+    id: toast_message
+- assertVisible:
+    text: "This looks like a seed phrase. Please remove it — seed words must never be shared."
+
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: "input_message"
+- eraseText: 200
+
+- tapOn:
+    id: "input_message"
+- inputText: "Here is my xPUB: xpub661MyMwAqRbcF8xHh9Yx8RJWb1x1o1t4bmPqhGV8eK3opgVetwYqKqRR3YKHyCuXapnwMaijvSEezwEWj1vDLteA94ppWKqhzyzk5mpQxbP"
+- tapOn:
+    id: "btn_send"
+- assertVisible:
+    id: toast_container
+- assertVisible:
+    id: toast_message
+- assertVisible:
+    text: "This looks like an extended public key (xpub). Please remove it — sharing your xpub exposes your full transaction history."
+- tapOn:
+    id: "input_message"
+- eraseText: 250
+
+- tapOn:
+    id: "input_message"
+- inputText: "I want to suggest a feature to add new signer"
+- tapOn:
+    id: "btn_send"
+- tapOn:
+    id: "input_message"
+- inputText: "Yes"
+- tapOn:
+    id: "btn_send"
+- assertVisible:
+    id: "help_ai_draft_card"
+- assertVisible: "Review & Submit"
+- tapOn: "Review & Submit"
+- scroll
+- assertVisible: "Confirm Public Submission"
+- assertVisible: "Cancel"
+- tapOn: "Confirm Public Submission"
+
+
+- tapOn:
+    id: "input_message"
+- inputText: "My balances are not showing, I want to talk to support. I am panicking"
+- tapOn:
+    id: "btn_send"
+- assertVisible: "Open Advisor"
+
+- tapOn:
+    id: "btn_back"
+
+
+- tapOn:
+    id: "fab_start_chat"
+
+- tapOn:
+    id: "input_message"
+- evalScript: |
+        ${
+            output.supportQuestions = [
+                "Answer only \"Yes\" or \"No\": Is keeper free to use?",
+                "Answer only \"Yes\" or \"No\": Can Bitcoin Keeper create multisig wallets compatible with other standard Bitcoin wallets?",
+                "Answer only \"Yes\" or \"No\": Does Bitcoin Keeper avoid proprietary wallet formats?",
+                "Answer only \"Yes\" or \"No\": Is keeper open source?",
+                "Answer only \"Yes\" or \"No\": Can users recover their funds without depending on the Keeper app?",
+                "Answer only \"Yes\" or \"No\": Does Keeper ever custody user private keys?",
+                "Answer only \"Yes\" or \"No\": Can multiple hardware wallet brands be used together in one multisig setup?",
+                "Answer only \"Yes\" or \"No\": Can a 2-of-3 multisig wallet still work if one device is lost?",
+                "Answer only \"Yes\" or \"No\": Are xpubs or wallet descriptors important for multisig recovery?",
+                "Answer only \"Yes\" or \"No\": Can Keeper import multisig wallets created in another wallet application?",
+                "Answer only \"Yes\" or \"No\": Does Keeper support coinjoin?",
+                "Answer only \"Yes\" or \"No\": Does Keeper support Whirlpool?",
+                "Answer only \"Yes\" or \"No\": Can Keeper export wallet configuration details for backup purposes?",
+                "Answer only \"Yes\" or \"No\": Does Keeper support air-gapped signing workflows?",
+                "Answer only \"Yes\" or \"No\": Can a compromised signer key be replaced in a multisig setup?",
+                "Answer only \"Yes\" or \"No\": Does Keeper support inheritance-oriented wallet structures?",
+                "Answer only \"Yes\" or \"No\": Can Keeper support timelock-based inheritance setups?",
+                "Answer only \"Yes\" or \"No\": Can Keeper be used for collaborative custody with multiple people?",
+                "Answer only \"Yes\" or \"No\": Does Keeper support watch-only wallets?",
+                "Answer only \"Yes\" or \"No\": Can Keeper be used without creating an online account?",
+                "Answer only \"Yes\" or \"No\": Are all major wallet features currently free to use?",
+                "Answer only \"Yes\" or \"No\": Does Keeper support UTXO management or coin control features?",
+                "Answer only \"Yes\" or \"No\": Can Keeper connect to a personal Electrum server?",
+                "Answer only \"Yes\" or \"No\": Does Keeper include privacy-enhancing networking options like Tor?",
+                "Answer only \"Yes\" or \"No\": Can software keys and hardware keys coexist in one multisig vault?",
+                "Answer only \"Yes\" or \"No\": Can receiving addresses be independently verified on hardware devices?",
+                "Answer only \"Yes\" or \"No\": Does Keeper provide recovery guidance for lost or failed signing devices?",
+                "Answer only \"Yes\" or \"No\": Can Keeper-created multisig wallets be restored in another standards-compatible wallet?",
+                "Answer only \"Yes\" or \"No\": Should I test wallet recovery procedures before storing significant Bitcoin amounts?"
+            ]
+        }
+- evalScript: ${output.supportQuestionIndex = 0}
+- repeat:
+    while:
+        true: ${output.supportQuestionIndex < output.supportQuestions.length}
+    commands:
+        - evalScript: ${output.currentMessageIndex = output.supportQuestionIndex * 2}
+        - tapOn:
+            id: "input_message"
+        - inputText: ${output.supportQuestions[output.supportQuestionIndex]}
+        - tapOn:
+            id: "btn_send"
+        - assertVisible:
+            id: ${"message_" + output.currentMessageIndex}
+        - assertVisible:
+            id: ${"user_message_" + output.currentMessageIndex}
+            # text: ${output.supportQuestions[output.supportQuestionIndex]}
+        - extendedWaitUntil:
+            visible:
+                id: ${"message_" + (output.currentMessageIndex + 1)}
+            timeout: 10000
+        - extendedWaitUntil:
+            visible:
+                id: ${"ai_message_" + (output.currentMessageIndex + 1)}
+            timeout: 10000
+        - evalScript: ${output.supportQuestionIndex = output.supportQuestionIndex + 1}
+
+- tapOn:
+    id: "btn_back"
+- tapOn: "Wallets"

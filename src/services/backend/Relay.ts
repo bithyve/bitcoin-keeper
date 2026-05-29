@@ -1,5 +1,12 @@
 import { NetworkType } from 'src/services/wallets/enums';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
+import {
+  HelpChatMessage,
+  HelpChatMetadata,
+  HelpChatResponse,
+  HelpDraft,
+  HelpIssueSubmitResponse,
+} from 'src/models/interfaces/HelpAi';
 import axios, { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork } from 'src/services/wallets/interfaces';
 import config from 'src/utils/service-utilities/config';
@@ -704,4 +711,97 @@ export default class Relay {
     }
     return res ? res.data || res.json : null;
   };
+
+  public static helpChat = async (payload: {
+    appId: string;
+    conversationId: string;
+    messages: HelpChatMessage[];
+    userText: string;
+    metadata: HelpChatMetadata;
+  }): Promise<HelpChatResponse> => {
+    try {
+      const res = await RestClient.post(`${RELAY}chat`, payload);
+      return res.data as HelpChatResponse;
+    } catch (err: any) {
+      console.log('🚀 ~ Relay ~ helpChat ~ err:', err);
+      if (err.response) {
+        if (err.response.status === 429) {
+          const backendError = err.response.data?.error || err.response.data?.err;
+          if (backendError) {
+            throw new Error(backendError);
+          }
+          throw new Error('HELP_AI_CHAT_RATE_LIMIT_REACHED'); // Fallback if no specific error is provided
+        }
+        throw new Error(err.response.data?.error || err.response.data?.err || 'Unknown error');
+      }
+      if (err.code) {
+        throw new Error(err.code);
+      }
+      throw new Error('An unexpected error occurred');
+    }
+  };
+
+  public static submitHelpIssue = async (payload: {
+    appId: string;
+    conversationId: string;
+    kind: 'bug' | 'feature';
+    confirm: true;
+    idempotencyKey: string;
+    draft: HelpDraft;
+    metadata: Pick<HelpChatMetadata, 'appVersion' | 'platform' | 'device'>;
+  }): Promise<HelpIssueSubmitResponse> => {
+    try {
+      const res = await RestClient.post(`${RELAY}submitHelpIssue`, payload);
+      return res.data as HelpIssueSubmitResponse;
+    } catch (err: any) {
+      console.log('🚀 ~ Relay ~ submitHelpIssue ~ err:', err);
+      if (err.response) {
+        if (err.response.status === 429) {
+          throw new Error('HELP_AI_ISSUE_RATE_LIMIT_REACHED');
+        }
+        throw new Error(err.response.data?.error || err.response.data?.err || 'Unknown error');
+      }
+      if (err.code) {
+        throw new Error(err.code);
+      }
+      throw new Error('An unexpected error occurred');
+    }
+  };
+
+  public static ragChunkAccessCheck = async (
+    publicId: string
+  ): Promise<{
+    allowed: boolean;
+    message?: string;
+  }> => {
+    try {
+      const res = await RestClient.get(
+        `${RELAY}ragChunkAccessCheck?publicId=${encodeURIComponent(publicId)}`
+      );
+      return res.data as { allowed: boolean; message?: string };
+    } catch (err) {
+      if (err?.response?.data) {
+        return err.response.data;
+      }
+      return { allowed: false, message: 'Access not available' };
+    }
+  };
+
+  public static addRagChunkFrontend = async (payload: {
+    publicId: string;
+    content: string;
+    title?: string;
+    url?: string;
+    ragTimestamp?: string;
+  }): Promise<any> => {
+    try {
+      const res = await RestClient.post(`${RELAY}addRagChunkFrontend`, payload);
+      return res.data;
+    } catch (err) {
+      if (err?.response?.data?.err) throw new Error(err.response.data.err);
+      if (err?.message) throw new Error(err.message);
+      throw new Error('An unexpected error occurred');
+    }
+  };
 }
+

@@ -3,6 +3,7 @@ import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
+import { NetworkType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -22,7 +23,6 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
-import ConciergeComponent from './components/ConciergeComponent';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { useQuery } from '@realm/react';
@@ -30,6 +30,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import { setRecoveryKeyStatus } from 'src/store/reducers/account';
 import RecoveryKeyIcon from 'src/assets/images/recover_white.svg';
+import HelpAiEntry from '../HelpAi/HelpAiEntry';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -44,12 +45,13 @@ function NewHomeScreen({ route }) {
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, common } = translations;
+  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, askAi } = translations;
   const [selectedOption, setSelectedOption] = useState(
     selectedOptionFromRoute || walletText.homeWallets
   );
   const backupHistory = useQuery(RealmSchema.BackupHistory);
   const { recoveryKeyStatusByAppId } = useAppSelector((state) => state.account);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { id } = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any;
 
   // 'idle' | 'education' | 'skipWarning'
@@ -142,13 +144,9 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case walletText.concierge:
+      case askAi.ask:
         return {
-          content: (
-            <Box>
-              <ConciergeComponent route={route} />
-            </Box>
-          ),
+          content: <HelpAiEntry route={route} />,
           icon: (
             <CircleIconWrapper
               width={wp(39)}
@@ -237,7 +235,17 @@ function NewHomeScreen({ route }) {
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
 
-      <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
+      <HomeScreenHeader
+        colorMode={colorMode}
+        title={selectedOption}
+        titleSuffix={
+          [walletText.homeWallets, walletText.keys].includes(selectedOption) &&
+          bitcoinNetworkType === NetworkType.TESTNET
+            ? ' (Testnet)'
+            : undefined
+        }
+        circleIconWrapper={icon}
+      />
       {recoveryKeyStatus === 'skipped' && (
         <TouchableOpacity onPress={openEducationSheet}>
           <Box
