@@ -66,7 +66,17 @@ function detectWIF(text: string): SensitiveDetectionResult | null {
 }
 
 function detectMnemonic(text: string): SensitiveDetectionResult | null {
-  const tokens = text.toLowerCase().trim().split(/\s+/);
+  // Normalize before tokenizing so common paste formats don't bypass detection:
+  //   "abandon, ability, able..."  (comma-separated)
+  //   "1. abandon 2. ability..."   (numbered with dot)
+  //   "1) abandon 2) ability..."   (numbered with parenthesis)
+  // Replace every non-letter character with a space, then collapse runs.
+  const normalized = text
+    .toLowerCase()
+    .replace(/[^a-z]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const tokens = normalized.split(' ').filter((t) => t.length > 0);
   let consecutiveCount = 0;
 
   for (const token of tokens) {

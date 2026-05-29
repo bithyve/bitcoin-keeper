@@ -51,6 +51,30 @@ describe('detectSensitiveInput — mnemonic detection', () => {
     expect(result).not.toBeNull();
     expect(result?.kind).toBe('mnemonic');
   });
+
+  it('detects comma-separated seed words', () => {
+    const result = detectSensitiveInput(
+      'abandon, ability, able, about, above, absent, absorb, abstract'
+    );
+    expect(result).not.toBeNull();
+    expect(result?.kind).toBe('mnemonic');
+  });
+
+  it('detects numbered seed words with dot prefix (e.g. from backup card)', () => {
+    const result = detectSensitiveInput(
+      '1. abandon 2. ability 3. able 4. about 5. above 6. absent 7. absorb 8. abstract'
+    );
+    expect(result).not.toBeNull();
+    expect(result?.kind).toBe('mnemonic');
+  });
+
+  it('detects numbered seed words with parenthesis prefix', () => {
+    const result = detectSensitiveInput(
+      '1) abandon 2) ability 3) able 4) about 5) above 6) absent 7) absorb 8) abstract'
+    );
+    expect(result).not.toBeNull();
+    expect(result?.kind).toBe('mnemonic');
+  });
 });
 
 

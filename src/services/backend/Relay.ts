@@ -714,6 +714,7 @@ export default class Relay {
   };
 
   public static helpChat = async (payload: {
+    appId: string;
     conversationId: string;
     messages: HelpChatMessage[];
     userText: string;
@@ -725,6 +726,13 @@ export default class Relay {
     } catch (err: any) {
       console.log('🚀 ~ Relay ~ helpChat ~ err:', err);
       if (err.response) {
+        if (err.response.status === 429) {
+          const backendError = err.response.data?.error || err.response.data?.err;
+          if (backendError) {
+            throw new Error(backendError);
+          }
+          throw new Error('HELP_AI_CHAT_RATE_LIMIT_REACHED'); // Fallback if no specific error is provided
+        }
         throw new Error(err.response.data?.error || err.response.data?.err || 'Unknown error');
       }
       if (err.code) {
@@ -735,6 +743,7 @@ export default class Relay {
   };
 
   public static submitHelpIssue = async (payload: {
+    appId: string;
     conversationId: string;
     kind: 'bug' | 'feature';
     confirm: true;
@@ -764,6 +773,9 @@ export default class Relay {
     } catch (err: any) {
       console.log('🚀 ~ Relay ~ submitHelpIssue ~ err:', err);
       if (err.response) {
+        if (err.response.status === 429) {
+          throw new Error('HELP_AI_ISSUE_RATE_LIMIT_REACHED');
+        }
         throw new Error(err.response.data?.error || err.response.data?.err || 'Unknown error');
       }
       if (err.code) {
