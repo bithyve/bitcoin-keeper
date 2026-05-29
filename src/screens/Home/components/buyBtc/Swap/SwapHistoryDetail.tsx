@@ -1,4 +1,4 @@
-import { Box, HStack, ScrollView, useColorMode } from 'native-base';
+import { Box, HStack, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Text from 'src/components/KeeperText';

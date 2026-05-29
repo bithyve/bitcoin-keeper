@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, SafeAreaView, FlatList, Dimensions, BackHandler } from 'react-native';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import TipsSliderContentComponent from './components/TipsSliderContentComponent';
 import { wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';

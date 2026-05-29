@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import Text from 'src/components/KeeperText';

@@ -1,11 +1,10 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/services/wallets/interfaces';
-import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -22,11 +21,11 @@ import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ServerItem from './components/ServerItem';
-import WarningNote from 'src/components/WarningNote';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import WalletHeader from 'src/components/WalletHeader';
+import Text from 'src/components/KeeperText';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -156,19 +155,20 @@ function NodeSettings() {
           />
         ) : (
           <Box flex={1}>
-            <EmptyListIllustration listType="nodes" />
+            <EmptyListIllustration listType="nodes" hideIllustration />
           </Box>
         )}
       </Box>
+      {isNoNodeConnected && (
+        <Text
+          key={'node-connection-error'}
+          color={`${colorMode}.alertRed`}
+          style={{ textAlign: 'center' }}
+        >
+          {'Currently in Offline Mode'}
+        </Text>
+      )}
       <Box style={styles.footerContainer}>
-        {isNoNodeConnected ? (
-          isNodeListEmpty ? (
-            <WarningNote noteText={settings.noNodeWarning1} />
-          ) : (
-            <WarningNote noteText={settings.noNodeWarning2} />
-          )
-        ) : null}
-
         <Buttons
           primaryCallback={() => navigation.dispatch(CommonActions.navigate('NodeSelection'))}
           primaryText={`${settings.addNewNode}`}
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footerContainer: {
-    gap: hp(30),
+    marginTop: hp(10),
   },
 });
 

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, useColorMode, View } from 'native-base';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import usePlan from 'src/hooks/usePlan';
@@ -46,7 +45,7 @@ const SettingCard: React.FC<SettingCardProps> = ({
   return (
     <>
       {header && (
-        <Box>
+        <Box style={{ paddingHorizontal: wp(21) }}>
           <Text
             color={isDarkMode ? `${colorMode}.headerWhite` : `${colorMode}.BrownNeedHelp`}
             fontSize={14}
@@ -69,11 +68,12 @@ const SettingCard: React.FC<SettingCardProps> = ({
             : item?.isDiamond
             ? isOnL3Above
             : true;
+          const itemPressHandler = item.onPress || item.onRightPress;
 
           return (
             <React.Fragment key={index}>
               <TouchableOpacity
-                onPress={applyDiamondCheck ? item.onPress : null}
+                onPress={applyDiamondCheck ? itemPressHandler : null}
                 disabled={!applyDiamondCheck}
                 testID={`btn_setting_${item.title}`}
               >
@@ -95,7 +95,11 @@ const SettingCard: React.FC<SettingCardProps> = ({
                     )}
                     <Box style={styles.textContainer}>
                       <Text
-                        color={applyDiamondCheck ? titleColor : `${colorMode}.secondaryLightGrey`}
+                        color={
+                          applyDiamondCheck
+                            ? titleColor ?? `${colorMode}.balanceText`
+                            : `${colorMode}.secondaryLightGrey`
+                        }
                         fontSize={14}
                         medium
                         style={styles.title}

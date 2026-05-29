@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback, useContext } from 'react';
-import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { StyleSheet , TouchableOpacity} from 'react-native';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import NotificationSimpleIcon from 'src/assets/images/header-notification-simple-icon.svg';
 import NotificationDotIcon from 'src/assets/images/header-notifications-dot-icon.svg';
 import { capitalizeEachWord } from 'src/utils/utilities';
@@ -32,12 +31,14 @@ interface HomeScreenHeaderProps {
   colorMode: string;
   circleIconWrapper: React.ReactNode;
   title: string;
+  titleSuffix?: string;
 }
 
 const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
   colorMode,
   circleIconWrapper,
   title,
+  titleSuffix,
 }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -167,6 +168,15 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
     },
   };
 
+
+  const getHeaderTitle = useCallback(
+    (title: string) => {
+      if (title === walletTranslation.more) title = common.moreOptions;
+      return capitalizeEachWord(title);
+    },
+    [title, walletTranslation.more, common.moreOptions]
+  );
+
   return (
     <Box backgroundColor={backgroundColor}>
       <Box backgroundColor={backgroundColor} style={[styles.wrapper]}>
@@ -179,7 +189,7 @@ const HomeScreenHeader: React.FC<HomeScreenHeaderProps> = ({
               color={`${colorMode}.headerWhite`}
               medium
             >
-              {capitalizeEachWord(title === walletTranslation.more ? common.moreOptions : title)}
+              {getHeaderTitle(title)}{titleSuffix ?? ''}
             </Text>
           </Box>
 

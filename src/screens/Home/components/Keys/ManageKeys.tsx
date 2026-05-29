@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -18,6 +18,9 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { SignerType } from 'src/services/wallets/enums';
 import { setShowTipModal } from 'src/store/reducers/settings';
 import config from 'src/utils/service-utilities/config';
+import Fab from 'src/components/Fab';
+import AddIcon from 'src/assets/images/add_white.svg';
+import { hp, wp } from 'src/constants/responsive';
 
 const ManageKeys = ({ addedSigner }) => {
   const { colorMode } = useColorMode();
@@ -96,26 +99,37 @@ const ManageKeys = ({ addedSigner }) => {
   }, []);
 
   return (
-    <Box style={styles.containerWrapper}>
-      <Box style={styles.contentContainer}>
-        <SignerList navigation={navigation} handleModalOpen={handleModalOpen} />
-      </Box>
-      <KeeperModal
-        visible={modalVisible}
-        close={handleModalClose}
-        title={vaultText.Addsigner}
-        subTitle={vaultText.SelectSignerSubtitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        textColor={`${colorMode}.textGreen`}
-        subTitleColor={`${colorMode}.modalSubtitleBlack`}
-        Content={() => (
-          <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
-        )}
-      />
+    <>
+      <Box style={styles.containerWrapper}>
+        <Fab
+          icon={<AddIcon height={hp(22)} width={wp(22)} />}
+          onPress={handleModalOpen}
+          containerStyle={{ right: wp(22.5) }}
+        />
+        <Box style={styles.contentContainer}>
+          <SignerList navigation={navigation} />
+        </Box>
+        <KeeperModal
+          visible={modalVisible}
+          close={handleModalClose}
+          title={vaultText.Addsigner}
+          subTitle={vaultText.SelectSignerSubtitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.textGreen`}
+          subTitleColor={`${colorMode}.modalSubtitleBlack`}
+          Content={() => (
+            <SignerContent navigation={navigation} handleModalClose={handleModalClose} />
+          )}
+        />
 
-      <KeyAddedModal visible={keyAddedModalVisible} close={closeAddKeyModal} signer={addedSigner} />
-      {inProgress && <ActivityIndicatorView visible={inProgress} />}
-    </Box>
+        <KeyAddedModal
+          visible={keyAddedModalVisible}
+          close={closeAddKeyModal}
+          signer={addedSigner}
+        />
+        {inProgress && <ActivityIndicatorView visible={inProgress} />}
+      </Box>
+    </>
   );
 };
 
@@ -124,6 +138,7 @@ export default ManageKeys;
 const styles = StyleSheet.create({
   containerWrapper: {
     paddingHorizontal: '4.5%',
+    flex: 1,
   },
   contentContainer: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Checked from 'src/assets/images/tick_icon.svg';

@@ -1,5 +1,5 @@
-import { Box, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import React, { useEffect, useRef, useState } from 'react';
 import { Pressable, Animated, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/constants/responsive';
@@ -23,21 +23,23 @@ export const SegmentedController = ({
   const { colorMode } = useColorMode();
   const [containerWidth, setContainerWidth] = useState(0);
   const HexagonIconBackGround = ThemedColor({ name: 'HexagonIcon' });
-  const translateX = new Animated.Value(
-    selectedIndex != 0
-      ? selectedIndex * ((containerWidth - 2 * CONTAINER_PADDING) / length)
-      : CONTAINER_PADDING
-  );
+  const translateX = useRef(new Animated.Value(CONTAINER_PADDING)).current;
+  const segmentWidth =
+    length > 0 ? Math.max((containerWidth - 2 * CONTAINER_PADDING) / length, 0) : 0;
 
-  const handlePress = (index) => {
-    setSelectedIndex(index);
+  const getTranslateX = (index: number) => CONTAINER_PADDING + index * segmentWidth;
+
+  useEffect(() => {
+    if (!segmentWidth) return;
+
     Animated.spring(translateX, {
-      toValue:
-        index != 0
-          ? index * ((containerWidth - 2 * CONTAINER_PADDING) / length)
-          : CONTAINER_PADDING,
+      toValue: getTranslateX(selectedIndex),
       useNativeDriver: true,
     }).start();
+  }, [selectedIndex, segmentWidth, translateX]);
+
+  const handlePress = (index: number) => {
+    setSelectedIndex(index);
   };
 
   return (
@@ -47,10 +49,11 @@ export const SegmentedController = ({
       onLayout={(event) => setContainerWidth(event.nativeEvent.layout.width)}
     >
       <Animated.View
+        pointerEvents="none"
         style={[
           styles.selectedBackground,
           { backgroundColor: HexagonIconBackGround },
-          { width: (containerWidth - 2 * CONTAINER_PADDING) / length },
+          { width: segmentWidth },
           { transform: [{ translateX }] },
         ]}
       />

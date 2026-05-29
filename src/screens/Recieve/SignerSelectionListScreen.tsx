@@ -1,15 +1,7 @@
-import {
-  Dimensions,
-  FlatList,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  Vibration,
-  View,
-} from 'react-native';
+import { FlatList, Platform, StyleSheet, TouchableOpacity, Vibration, View } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Next from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -25,14 +17,17 @@ import { SignerType, VaultType } from 'src/services/wallets/enums';
 import useVault from 'src/hooks/useVault';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import NFC from 'src/services/nfc';
-import { HCESession, HCESessionContext } from 'react-native-hce';
 import { NfcTech } from 'react-native-nfc-manager';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import WalletHeader from 'src/components/WalletHeader';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
-const { width } = Dimensions.get('screen');
+type HceSessionContextValue = { session: any };
+const hceModule = Platform.OS === 'android' ? require('react-native-hce') : null;
+const HCESessionContext: React.Context<HceSessionContextValue> =
+  hceModule?.HCESessionContext ?? React.createContext<HceSessionContextValue>({ session: null });
+const HCESession = hceModule?.HCESession;
 
 function SignerSelectionListScreen() {
   const { params } = useRoute();
@@ -62,6 +57,7 @@ function SignerSelectionListScreen() {
   const { activeVault } = useVault({ vaultId, includeArchived: false });
   const [nfcVisible, setNfcVisible] = useState(false);
   const { session } = useContext(HCESessionContext);
+  console.log('🚀 ~ SignerSelectionListScreen ~ session:', session);
   const { translations } = useContext(LocalizationContext);
   const { vault: vaultTranslations } = translations;
 
@@ -69,6 +65,10 @@ function SignerSelectionListScreen() {
   const isIos = Platform.OS === 'ios';
 
   useEffect(() => {
+    if (!isAndroid || !session || !HCESession?.Events) {
+      return undefined;
+    }
+
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
@@ -96,7 +96,7 @@ function SignerSelectionListScreen() {
   const cleanUp = () => {
     setNfcVisible(false);
     Vibration.cancel();
-    if (isAndroid) {
+    if (isAndroid && session) {
       NFC.stopTagSession(session);
     }
   };
@@ -204,31 +204,15 @@ const SignerCard = ({ onPress, signer }) => {
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>
-              <Text
-                color={`${colorMode}.textBlack`}
-                fontSize={14}
-                letterSpacing={1.12}
-                maxWidth={width * 0.6}
-              >
+              <Text color={`${colorMode}.textBlack`} fontSize={14}>
                 {`${signerName} (${signer.masterFingerprint})`}
               </Text>
               {signer.signerDescription ? (
-                <Text
-                  numberOfLines={1}
-                  color={`${colorMode}.greenText`}
-                  fontSize={12}
-                  letterSpacing={0.6}
-                  maxWidth={width * 0.6}
-                >
+                <Text numberOfLines={1} color={`${colorMode}.greenText`} fontSize={12}>
                   {signer.signerDescription}
                 </Text>
               ) : (
-                <Text
-                  color={`${colorMode}.GreyText`}
-                  fontSize={12}
-                  marginRight={10}
-                  letterSpacing={0.6}
-                >
+                <Text color={`${colorMode}.GreyText`} fontSize={12}>
                   {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}
                 </Text>
               )}

@@ -1,4 +1,4 @@
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';

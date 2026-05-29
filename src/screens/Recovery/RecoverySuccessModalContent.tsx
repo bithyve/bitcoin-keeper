@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import { Box, HStack } from 'native-base';
-import { useColorMode } from 'native-base';
+import { Box, HStack } from '@gluestack-ui/themed-native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, windowWidth, wp } from '../../constants/responsive';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import AsterisksIcon from 'src/assets/images/asterisks.svg';

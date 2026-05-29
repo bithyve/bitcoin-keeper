@@ -1,7 +1,7 @@
-import { Box, Input, KeyboardAvoidingView, ScrollView, useColorMode } from 'native-base';
+import { Box, Input, KeyboardAvoidingView, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import { StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import Buttons from 'src/components/Buttons';
 import KeeperTextInput from 'src/components/KeeperTextInput';
 import ScreenWrapper from 'src/components/ScreenWrapper';

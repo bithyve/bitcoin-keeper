@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, useColorMode, VStack } from 'native-base';
+import { Box, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/utils/service-utilities/config';

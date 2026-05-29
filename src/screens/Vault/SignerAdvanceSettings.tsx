@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Center, ScrollView, useColorMode, View } from 'native-base';
+import { Box, Center, ScrollView, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Clipboard, Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -1162,23 +1162,23 @@ function SignerAdvanceSettings({ route }: any) {
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setDetailModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.KEYS],
-                screenName: 'signing-device-details',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setDetailModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.KEYS],
+        //         screenName: 'signing-device-details',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => setDetailModal(false)}
       />
       <KeeperModal

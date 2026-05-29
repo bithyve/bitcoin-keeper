@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
+import { Box, HStack, Pressable, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';

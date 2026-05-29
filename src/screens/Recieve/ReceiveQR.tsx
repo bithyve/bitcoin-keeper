@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperQRCode from 'src/components/KeeperQRCode';

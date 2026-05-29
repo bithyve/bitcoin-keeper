@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/constants/responsive';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';

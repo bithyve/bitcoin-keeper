@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect } from 'react';
 import Colors from 'src/theme/Colors';
 import PlebContainer from './Component/PlebContainer';
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: wp(10),
     justifyContent: 'center',
+    alignSelf: 'center',
   },
 
   bottomLinkWrapper: {
@@ -180,9 +181,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.13,
   },
   disclaimer: {
-    maxWidth: '99%',
+    maxWidth: '90%',
     fontSize: 11,
     textAlign: 'center',
     marginVertical: hp(10),
+    alignSelf: 'center',
   },
 });

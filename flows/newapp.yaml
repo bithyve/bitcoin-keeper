@@ -1,16 +1,14 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 - runFlow: setpin.yaml
 - extendedWaitUntil:
-    visible: 'Welcome'
+    visible: 'Welcome to Bitcoin Keeper'
     timeout: 5000
-- assertVisible:
-    id: 'view_startNewTile'
-- tapOn:
-    id: 'view_startNewTile'
+- assertVisible: 'Start New'
+- tapOn: 'Start New'
 - extendedWaitUntil:
     visible: 'Next'
-    timeout: 30000
+    timeout: 200000
 - tapOn: 'Next'
 - waitForAnimationToEnd:
     timeout: 2000
@@ -18,3 +16,99 @@ appId: ${APPID}
     notVisible:
         id: 'toast_message'
     timeout: 20000
+- extendedWaitUntil:
+    visible: 'Protect Your Recovery Key'
+    timeout: 10000
+- assertVisible: "Skip for Now"
+- assertVisible: "Back Up Now"
+- tapOn: "Skip for Now"
+- extendedWaitUntil:
+    visible: 'Continue Without Backup?'
+    timeout: 5000
+- assertVisible: "Skip Backup"
+- assertVisible: "Backup Now"
+- tapOn: "Skip Backup"
+
+
+- tapOn: "Keys"
+- tapOn: "Ask"
+- tapOn: "More"
+- tapOn: "Wallets"
+- tapOn: "Mobile Wallet"
+- assertVisible: "Pull Down to Refresh"
+- tapOn: "Okay"
+- tapOn: "Receive\nBitcoin"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    point: 6%,8%
+- tapOn: "More"
+- tapOn: "Recovery Key"
+- tapOn:
+    id: "key_1"
+- tapOn:
+    id: "key_1"
+- tapOn:
+    id: "key_1"
+- tapOn:
+    id: "key_1"
+- tapOn: "Proceed"
+- tapOn: "Backup Now"
+- evalScript: ${output.seedWordIndex = 0}
+
+- repeat:
+    while:
+      true: ${output.seedWordIndex <= 12}
+    commands:
+      - tapOn:
+          id: ${"btn_seed_word_" + output.seedWordIndex}
+      - copyTextFrom:
+          id: ${"text_seed_word_" + output.seedWordIndex}
+      - evalScript: ${output["W" + output.seedWordIndex] = maestro.copiedText}
+      - evalScript: ${output.seedWordIndex = output.seedWordIndex + 1}
+
+- tapOn: "Next"
+- tapOn: "Skip"
+- tapOn:
+    id: "btn_back"
+- scroll
+- tapOn:
+    id: "btn_setting_Dark Mode"
+- tapOn:
+    id: "btn_setting_Dark Mode"
+- tapOn:
+    id: "btn_setting_General Preferences"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    id: "btn_setting_App Settings"
+- tapOn:
+    id: "btn_setting_Server Settings"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    id: "btn_setting_App Access"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    id: "btn_setting_Tor Settings"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    id: "btn_setting_Version History"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    id: "btn_setting_Multi User Mode"
+- tapOn:
+    id: "btn_back"
+- tapOn:
+    id: "btn_setting_Network Type"
+- assertVisible: "Network Type"
+- tapOn:
+    id: "btn_close_modal"
+- tapOn:
+    id: "btn_back"
+- tapOn: "Wallets"
+
+

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import WalletUtilities from 'src/services/wallets/operations/utils';

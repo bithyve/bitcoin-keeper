@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import { wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';

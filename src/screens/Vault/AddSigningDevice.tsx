@@ -1,5 +1,5 @@
-import { ScrollView, StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
@@ -44,7 +44,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { SETUPCOLLABORATIVEWALLET, ADDRESERVEKEY, ADDEMERGENCYKEY } from 'src/navigation/contants';
 import { SentryErrorBoundary } from 'src/services/sentry';
 import KeyAddedModal from 'src/components/KeyAddedModal';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
@@ -147,9 +147,11 @@ const onSignerSelect = (
         setVaultKeys(vaultKeys);
         setHotWalletSelected(false);
         setHotWalletInstanceNum(null);
-      }
-      catch (error){
-        showToast(`This key is invalid. You may need to remove and reimport it. Error: ${error.message}`, <ToastErrorIcon />);
+      } catch (error) {
+        showToast(
+          `This key is invalid. You may need to remove and reimport it. Error: ${error.message}`,
+          <ToastErrorIcon />
+        );
         return;
       }
     } else {
@@ -352,9 +354,6 @@ const handleSignerSelect = (
 };
 
 function Footer({
-  amfSigners,
-  invalidSS,
-  invalidMessage,
   areSignersValid,
   relayVaultUpdateLoading,
   colorMode,
@@ -362,7 +361,6 @@ function Footer({
   isCollaborativeFlow,
   isAssistedWalletFlow,
   hasInitialTimelock,
-  setTimelockCautionModal,
   isReserveKeyFlow,
   isEmergencyKeyFlow,
   isAddInheritanceKey,
@@ -385,28 +383,6 @@ function Footer({
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const renderNotes = () => {
-    const notes = [];
-    if (amfSigners.length) {
-      const message = `* ${amfSigners.join(
-        ' and '
-      )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`;
-      notes.push(
-        <Box style={styles.noteContainer} key={message}>
-          <Note title={common.note} subtitle={message} />
-        </Box>
-      );
-    }
-    if (invalidSS) {
-      const message = invalidMessage;
-      notes.push(
-        <Box style={styles.noteContainer} key={message}>
-          <Note title="WARNING" subtitle={message} subtitleColor="error" />
-        </Box>
-      );
-    }
-    return notes;
-  };
 
   const handleProceedButtonClick = () => {
     if (onGoBack) {
@@ -425,7 +401,6 @@ function Footer({
 
   return (
     <Box style={styles.bottomContainer}>
-      {!(isCollaborativeFlow || isAssistedWalletFlow) && renderNotes()}
       {!(isCollaborativeFlow || isAssistedWalletFlow) &&
       !isReserveKeyFlow &&
       !isEmergencyKeyFlow ? (
@@ -620,6 +595,9 @@ function Signers({
   isAssistedWalletFlow,
   isReserveKeyFlow,
   isEmergencyKeyFlow,
+  amfSigners,
+  invalidSS,
+  invalidMessage,
   signerFilters,
   coSigners,
   setExternalKeyAddedModal,
@@ -1044,6 +1022,12 @@ function Signers({
 
   const isDarkMode = colorMode === 'dark';
   const signer: Signer = keyToRotate ? signerMap[getKeyUID(keyToRotate)] : null;
+  const amfMessage = amfSigners.length
+    ? `* ${amfSigners.join(
+        ' and '
+      )} does not support Testnet directly, so the app creates a proxy Testnet key for you in the beta app`
+    : null;
+  const warningMessage = invalidMessage?.trim() || null;
 
   return (
     <Box style={styles.signerContainer}>
@@ -1097,12 +1081,22 @@ function Signers({
                   ).length ? (
                   <>{renderCollaborativeSigners()}</>
                 ) : (
-                  <EmptyListIllustration listType="keys" />
+                  <EmptyListIllustration listType="keys" hideIllustration />
                 )}
               </Box>
             </Box>
           ) : (
-            <EmptyListIllustration listType="keys" />
+            <EmptyListIllustration listType="keys" hideIllustration />
+          )}
+          {!isCollaborativeFlow && !isAssistedWalletFlow && !!amfMessage && (
+            <Box style={styles.noteContainer}>
+              <Note title={common.note} subtitle={amfMessage} />
+            </Box>
+          )}
+          {!isCollaborativeFlow && !isAssistedWalletFlow && invalidSS && !!warningMessage && (
+            <Box style={styles.noteContainer}>
+              <Note title="WARNING" subtitle={warningMessage} subtitleColor="error" />
+            </Box>
           )}
           <HardwareModalMap
             visible={showSSModal}
@@ -1268,6 +1262,7 @@ function AddSigningDevice() {
   const newVault = allVaults.filter((v) => v.id === generatedVaultId)[0];
   const [vaultCreatedModalVisible, setVaultCreatedModalVisible] = useState(false);
   const [inProgress, setInProgress] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleModalClose = () => {
     setKeyAddedModalVisible(false);
@@ -1456,7 +1451,7 @@ function AddSigningDevice() {
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} flex={1}>
-      <SafeAreaView style={styles.topContainer}>
+      <View style={[styles.topContainer, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <Box style={styles.topSection}>
           <WalletHeader title={vaultTranslation.selectYourWalletKeys} />
         </Box>
@@ -1495,8 +1490,12 @@ function AddSigningDevice() {
             signerMap={signerMap}
             setCreating={setCreating}
             isCollaborativeFlow={isCollaborativeFlow}
+            isAssistedWalletFlow={isAssistedWallet}
             isReserveKeyFlow={isReserveKeyFlow}
             isEmergencyKeyFlow={isEmergencyKeyFlow}
+            amfSigners={amfSigners}
+            invalidSS={invalidSS}
+            invalidMessage={invalidMessage}
             signerFilters={signerFilters}
             coSigners={coSigners}
             setExternalKeyAddedModal={setExternalKeyAddedModal}
@@ -1509,14 +1508,12 @@ function AddSigningDevice() {
           />
         </Box>
         <Footer
-          amfSigners={amfSigners}
-          invalidSS={invalidSS}
-          invalidMessage={invalidMessage}
           areSignersValid={areSignersValid || hotWalletSelected}
           relayVaultUpdateLoading={relayVaultUpdateLoading}
           colorMode={colorMode}
           setCreating={setCreating}
           isCollaborativeFlow={isCollaborativeFlow}
+          isAssistedWalletFlow={isAssistedWallet}
           isReserveKeyFlow={isReserveKeyFlow}
           isEmergencyKeyFlow={isEmergencyKeyFlow}
           isAddInheritanceKey={isAddInheritanceKey}
@@ -1585,7 +1582,7 @@ function AddSigningDevice() {
           close={handleModalClose}
           signer={addedSigner}
         />
-      </SafeAreaView>
+      </View>
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </Box>
   );

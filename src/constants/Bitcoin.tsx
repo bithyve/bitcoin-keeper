@@ -1,5 +1,5 @@
 import { NetworkType } from 'src/services/wallets/enums';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 import Colors from 'src/theme/Colors';

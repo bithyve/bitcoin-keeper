@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useNavigation } from '@react-navigation/native';
 import BackLightButton from 'src/assets/images/back-white.svg';
 import BackDarkButton from 'src/assets/images/back-secondary-white.svg';

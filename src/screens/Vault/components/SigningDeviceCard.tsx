@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { useNavigation } from '@react-navigation/native';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { SignerType } from 'src/services/wallets/enums';
 import UpgradeSubscription from 'src/screens/InheritanceToolsAndTips/components/UpgradeSubscription';
 import HardwareModalMap, { InteracationMode } from '../HardwareModalMap';

@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

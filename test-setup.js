@@ -49,11 +49,18 @@ jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock
 
 jest.mock('@sentry/react-native', () => ({
   init: jest.fn(),
+  wrap: jest.fn((Component) => Component),
+  withErrorBoundary: jest.fn((Component) => Component),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  reactNavigationIntegration: jest.fn(() => ({
+    registerNavigationContainer: jest.fn(),
+  })),
   ReactNavigationInstrumentation: jest.fn(),
   ReactNativeTracing: jest.fn(),
 }));
 
-jest.mock('native-base', () => ({
+jest.mock('@gluestack-ui/themed-native-base', () => ({
   useToast: () => ({ show: jest.fn() }),
   useColorMode: () => ({ colorMode: 'light', toggleColorMode: jest.fn() }),
   extendTheme: jest.fn(() => ({})),

@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
 import Text from 'src/components/KeeperText';
 import { sha256 } from 'bitcoinjs-lib/src/crypto';

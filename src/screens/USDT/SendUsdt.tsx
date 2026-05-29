@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { Box, KeyboardAvoidingView, ScrollView, useColorMode, useToast } from 'native-base';
+import { Box, KeyboardAvoidingView, ScrollView, useColorMode, useToast } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import { Platform, Pressable, StyleSheet } from 'react-native';
 import Buttons from 'src/components/Buttons';

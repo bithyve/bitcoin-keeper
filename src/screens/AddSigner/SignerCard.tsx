@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable } from '@gluestack-ui/themed-native-base';
 import { Image, StyleSheet, ViewStyle } from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';

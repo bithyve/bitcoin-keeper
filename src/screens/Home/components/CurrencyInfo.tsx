@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import BTC from 'src/assets/images/btc.svg';
 import Hidden from 'src/assets/images/hidden.svg';
-import { Box, HStack } from 'native-base';
+import { Box, HStack } from '@gluestack-ui/themed-native-base';
 import useBalance from 'src/hooks/useBalance';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
@@ -43,7 +43,7 @@ function CurrencyInfo({
             <Box style={styles.rowCenter}>
               <Text
                 color={color}
-                style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth || null }}
+                style={{ fontSize, paddingVertical: 5, maxWidth: balanceMaxWidth }}
                 bold={bold}
                 numberOfLines={1}
                 testID="text_balance"

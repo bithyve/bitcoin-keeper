@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import RightArrowLight from 'src/assets/images/icon_arrow.svg';

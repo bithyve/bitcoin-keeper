@@ -1,6 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView } from '@gluestack-ui/themed-native-base';
 import { Dimensions, StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';

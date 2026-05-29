@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, IBoxProps } from 'native-base';
+import { Box, IBoxProps } from '@gluestack-ui/themed-native-base';
 
 interface IKeeperGradientProps extends IBoxProps {
   colors: Array<string>;

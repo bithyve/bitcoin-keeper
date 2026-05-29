@@ -63,7 +63,7 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { resetVaultMigration } from 'src/store/reducers/vaults';
 import KeeperModal from 'src/components/KeeperModal';
 import useSigners from 'src/hooks/useSigners';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 

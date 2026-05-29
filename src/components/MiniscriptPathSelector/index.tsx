@@ -1,5 +1,5 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle, useContext } from 'react';
-import { Box, useColorMode } from 'native-base';
+import React, { useState, useEffect, useImperativeHandle, useContext } from 'react';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Pressable, StyleSheet } from 'react-native';
 import { Path, Phase } from 'src/services/wallets/operations/miniscript/policy-generator';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -32,10 +32,13 @@ export interface MiniscriptPathSelectorRef {
   selectVaultSpendingPaths: () => Promise<void>;
 }
 
-export const MiniscriptPathSelector = forwardRef<
-  MiniscriptPathSelectorRef,
-  MiniscriptPathSelectorProps
->(({ vault, onPathSelected, onError, onCancel }: MiniscriptPathSelectorProps, ref) => {
+export const MiniscriptPathSelector = ({
+  vault,
+  onPathSelected,
+  onError,
+  onCancel,
+  ref,
+}: MiniscriptPathSelectorProps & { ref?: React.Ref<MiniscriptPathSelectorRef> }) => {
   const { colorMode } = useColorMode();
   const [modalVisible, setModalVisible] = useState(false);
   const [pathsModalVisible, setPathsModalVisible] = useState(false);
@@ -395,7 +398,7 @@ export const MiniscriptPathSelector = forwardRef<
       )}
     </>
   );
-});
+};
 
 const styles = StyleSheet.create({
   optionTitle: {

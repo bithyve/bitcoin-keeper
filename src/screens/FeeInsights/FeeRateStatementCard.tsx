@@ -1,10 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Fonts from 'src/constants/Fonts';
 import Text from 'src/components/KeeperText';
 import BTC_UP from 'src/assets/images/btc_up.svg';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { generateFeeStatement } from 'src/utils/feeInisghtUtil';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

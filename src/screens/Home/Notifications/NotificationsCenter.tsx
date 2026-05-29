@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { memo, useEffect, useState, useMemo, useContext } from 'react';
 import { ActivityIndicator, StyleSheet, SectionList } from 'react-native';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';

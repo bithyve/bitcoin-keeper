@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import ResellerCard from './ResellerCard';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import usePlan from 'src/hooks/usePlan';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';

@@ -1,4 +1,4 @@
-import { Modal } from 'native-base';
+import { Modal } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import { ActivityIndicator } from 'react-native';
 

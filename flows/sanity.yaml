@@ -1,6 +1,7 @@
-appId: ${APPID}
+appId: io.hexawallet.keeper
 ---
 - runFlow: newapp.yaml
+- runFlow: support_chat.yaml
 - runFlow: addwallet.yaml
 - runFlow: addNewKey.yaml
 

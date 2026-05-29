@@ -7,7 +7,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import KeeperFooter from '../KeeperFooter';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 
 function UTXOFooter({ setEnableSelection, enableSelection, wallet, utxos }) {
   const { translations } = useContext(LocalizationContext);

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
 import ConnectIcon from 'src/assets/images/connectNode.svg';

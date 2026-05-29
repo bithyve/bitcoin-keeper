@@ -21,6 +21,7 @@ import cachedTxnReducer from './reducers/cachedTxn';
 import signerReducer from './reducers/signer';
 import accountReducer from './reducers/account';
 import swapReducer from './reducers/swap';
+import helpAiReducer from './reducers/helpAi';
 
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
@@ -42,6 +43,7 @@ const appReducer = combineReducers({
   signer: signerReducer,
   account: accountReducer,
   swap: swapReducer,
+  helpAi: helpAiReducer,
 });
 
 const rootReducer = (state, action) => {
@@ -60,7 +62,7 @@ const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   blacklist: ['login', 'bhr', 'sendAndReceive', 'utxos', 'concierge', 'settings'],
-  version: 3, // redux persist migration version(initiate to the latest migration version once the migration state is written)
+  version: 4, // redux persist migration version(initiate to the latest migration version once the migration state is written)
   migrate: createMigrate(reduxPersistMigrations, {
     debug: false,
   }),

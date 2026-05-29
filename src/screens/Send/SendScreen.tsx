@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Pressable,
 } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -80,6 +80,7 @@ function SendScreen({ route }) {
     currentRecipientIdx = 1,
     note: txNote = '',
     miniscriptSelectedSatisfier = null,
+    selectedWalletIdFromSelection = null,
   } = route.params as {
     sender: Wallet | Vault;
     selectedUTXOs?: UTXO[];
@@ -96,6 +97,7 @@ function SendScreen({ route }) {
     currentRecipientIdx: number;
     note: string;
     miniscriptSelectedSatisfier?: MiniscriptTxSelectedSatisfier;
+    selectedWalletIdFromSelection?: string | null;
   };
 
   const { translations } = useContext(LocalizationContext);
@@ -173,6 +175,22 @@ function SendScreen({ route }) {
     if (internalRecipientWallet) handleSelectWallet(internalRecipientWallet);
   }, [internalRecipientWallet]);
 
+  useEffect(() => {
+    if (selectedWalletIdFromSelection === undefined || selectedWalletIdFromSelection === null) {
+      return;
+    }
+
+    const selected = allWallets.find((wallet) => wallet.id === selectedWalletIdFromSelection);
+    if (selected) {
+      handleSelectWallet(selected);
+    }
+
+    navigation.setParams({
+      ...route.params,
+      selectedWalletIdFromSelection: null,
+    });
+  }, [selectedWalletIdFromSelection, allWallets]);
+
   const handleSelectWallet = (wallet) => {
     setPaymentInfo('');
     setSelectedWallet(wallet);
@@ -221,7 +239,7 @@ function SendScreen({ route }) {
           name: 'SelectWallet',
           params: {
             sender,
-            handleSelectWallet,
+            sourceRouteKey: route.key,
           },
         })
       );
@@ -234,7 +252,7 @@ function SendScreen({ route }) {
     navigation.dispatch(
       CommonActions.navigate('SelectWallet', {
         sender,
-        handleSelectWallet,
+        sourceRouteKey: route.key,
         selectedWalletIdFromParams: selectedWallet?.id,
       })
     );
@@ -369,7 +387,7 @@ function SendScreen({ route }) {
                   setPaymentInfo(data);
                 }}
                 paddingLeft={5}
-                isDisabled={selectedWallet}
+                isDisabled={!!selectedWallet}
                 InputRightComponent={
                   <Pressable
                     onPress={() => {
@@ -481,6 +499,7 @@ function SendScreen({ route }) {
           setShowAdvancedSettingsModal(false);
         }}
         secondaryButtonText={common.cancel}
+        secondaryCallback={() => setShowAdvancedSettingsModal(false)}
         Content={() => (
           <Box>
             <Text>{settings.numberOfRecipients}</Text>

@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import DotView from 'src/components/DotView';
 import moment from 'moment';

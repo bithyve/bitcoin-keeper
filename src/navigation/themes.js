@@ -1,5 +1,5 @@
 import Colors from 'src/theme/Colors';
-import { extendTheme } from 'native-base';
+import { extendTheme } from '@gluestack-ui/themed-native-base';
 import Fonts from 'src/constants/Fonts';
 
 export const customTheme = extendTheme({

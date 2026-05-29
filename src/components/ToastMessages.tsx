@@ -1,10 +1,13 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { windowWidth, hp, wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from './KeeperText';
+
+const TOAST_MESSAGE_TEST_ID = 'toast_message';
+const TOAST_MESSAGE_TEXT_TEST_ID = 'toast_message_text';
 
 function HexaToastMessages({
   Image = null,
@@ -17,9 +20,18 @@ function HexaToastMessages({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.warmbeige`} style={styles.toast} testID="toast_message">
+    <Box
+      backgroundColor={`${colorMode}.warmbeige`}
+      style={styles.toast}
+      testID={TOAST_MESSAGE_TEST_ID}
+      nativeID={TOAST_MESSAGE_TEST_ID}
+      accessibilityLabel={TOAST_MESSAGE_TEST_ID}
+      collapsable={false}
+    >
       {error ? <ToastErrorIcon /> : Image ? <Box>{Image}</Box> : null}
       <Text
+        testID={TOAST_MESSAGE_TEXT_TEST_ID}
+        nativeID={TOAST_MESSAGE_TEXT_TEST_ID}
         color={`${colorMode}.primaryBackground`}
         style={[
           styles.toastMsgText,
@@ -36,19 +48,14 @@ const styles = StyleSheet.create({
   toast: {
     flexDirection: 'row',
     borderRadius: 10,
+    borderWidth: 0,
+    overflow: 'hidden',
     alignItems: 'center',
     width: windowWidth * 0.9,
     paddingLeft: 15,
     bottom: hp(40),
     minHeight: hp(70),
     fontSize: 13,
-    elevation: 6,
-    shadowOpacity: 0.6,
-    shadowRadius: 3,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
   },
   toastMsgText: {
     marginLeft: 5,

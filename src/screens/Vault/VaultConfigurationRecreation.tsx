@@ -1,6 +1,6 @@
 import { Platform, StyleSheet, KeyboardAvoidingView, Keyboard } from 'react-native';
 import React, { useCallback, useContext, useState } from 'react';
-import { Box, Input, ScrollView, View, useColorMode } from 'native-base';
+import { Box, Input, ScrollView, View, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
@@ -9,7 +9,7 @@ import ImportIcon from 'src/assets/images/import.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import OptionCard from 'src/components/OptionCard';
 import RNFS from 'react-native-fs';
-import DocumentPicker, { types } from 'react-native-document-picker';
+import { pick, types } from '@react-native-documents/picker';
 import Colors from 'src/theme/Colors';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -49,7 +49,7 @@ function VaultConfigurationCreation() {
 
   const handleDocumentSelection = useCallback(async () => {
     try {
-      const response = await DocumentPicker.pick({
+      const response = await pick({
         presentationStyle: 'fullScreen',
         type: [types.docx, types.allFiles],
         allowMultiSelection: false,
@@ -184,23 +184,23 @@ function VaultConfigurationCreation() {
         Content={ImportVaultContent}
         DarkCloseIcon
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setShowModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.WALLET],
-                screenName: 'import-wallet-config-file',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setShowModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.WALLET],
+        //         screenName: 'import-wallet-config-file',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => setShowModal(false)}
       />
     </ScreenWrapper>

@@ -17,6 +17,7 @@ export type AppStackParams = {
   PassportConfigRecovery: undefined;
   AppSettings: undefined;
   AppVersionHistory: undefined;
+  RagChunkAdmin: undefined;
   TorSettings: undefined;
   ManageWallets: undefined;
   PreviewPDF: undefined;
@@ -168,6 +169,17 @@ export type AppStackParams = {
   ResetInitialTimelock: undefined;
   ResetInheritanceKey: undefined;
   ResetEmergencyKey: undefined;
+  HelpAiEntry: undefined;
+  HelpAiChat:
+    | {
+        prefillText?: string;
+        conversationId?: string;
+        startFresh?: boolean;
+        screenName?: string;
+        tags?: string[];
+        errorDetails?: string;
+      }
+    | undefined;
   KeeperConcierge: undefined;
   TechnicalSupport: {
     newTicketId: string;
@@ -189,6 +201,7 @@ export type AppStackParams = {
   ImportedWalletSetup: undefined;
   SendTip: undefined;
   ViewRecoveryKeyScreen: undefined;
+  AskKeeperInfo: undefined;
 };
 
 // Usage:

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Text from 'src/components/KeeperText';
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import { windowWidth, wp } from 'src/constants/responsive';
 
 interface PlebContainerProps {

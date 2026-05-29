@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import CopyIcon from 'src/assets/images/copy.svg';
 import CopyIconWhite from 'src/assets/images/copy-white.svg';
 import { Share, StyleSheet } from 'react-native';

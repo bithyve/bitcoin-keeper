@@ -8,7 +8,7 @@ import {
   BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

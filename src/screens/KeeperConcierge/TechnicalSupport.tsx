@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import ContentWrapper from 'src/components/ContentWrapper';
 import { Image, StyleSheet } from 'react-native';

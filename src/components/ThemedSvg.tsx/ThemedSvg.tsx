@@ -1,4 +1,5 @@
 import React from 'react';
+import { View } from 'react-native';
 
 import { useSelector } from 'react-redux';
 import themeIcons from './ThemedIcons';
@@ -12,7 +13,11 @@ const ThemedSvg = ({ name, ...props }) => {
     return null;
   }
 
-  return <IconComponent {...props} />;
+  return (
+    <View pointerEvents="none">
+      <IconComponent {...props} />
+    </View>
+  );
 };
 
 export default ThemedSvg;

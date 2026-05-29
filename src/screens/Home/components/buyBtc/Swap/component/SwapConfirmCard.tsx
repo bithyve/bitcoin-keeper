@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import HexagonIcon from 'src/components/HexagonIcon';

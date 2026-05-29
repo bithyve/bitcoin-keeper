@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BTC from 'src/assets/images/btc.svg';

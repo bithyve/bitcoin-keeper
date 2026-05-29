@@ -13,6 +13,9 @@ module.exports = {
   moduleNameMapper: {
     '^@react-native-clipboard/clipboard$': '<rootDir>/__mocks__/react-native-clipboard.js',
     '^@react-native-community/netinfo$': '<rootDir>/__mocks__/react-native-community-netinfo.js',
+    '^@react-native-documents/picker$': '<rootDir>/__mocks__/@react-native-documents/picker.js',
+    '^@realm/react$': '<rootDir>/__mocks__/@realm/react.js',
+    '^react-native-mmkv$': '<rootDir>/__mocks__/react-native-mmkv.js',
   },
   moduleDirectories: ['node_modules', 'src'],
 };

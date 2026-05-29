@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import InheritanceHeader from '../InheritanceHeader';
 import InheritanceKey from 'src/assets/images/iks-green.svg';

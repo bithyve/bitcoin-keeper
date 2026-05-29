@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, TouchableOpacity, Vibration } from 'react-native';
-import { Box, Center, useColorMode } from 'native-base';
+import { Box, Center, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
@@ -80,6 +80,7 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import HexagonIcon from 'src/components/HexagonIcon';
 
 export const SignersReqVault = [
+  SignerType.COLDCARD,
   SignerType.LEDGER,
   SignerType.TREZOR,
   SignerType.BITBOX02,
@@ -291,7 +292,7 @@ function SigningDeviceDetails({ route }) {
   const signerVaults: Vault[] = [];
 
   const [nfcVisible, setNfcVisible] = React.useState(false);
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const manage_signer_backGround = ThemedColor({ name: 'manage_signer_backGround' });
   const HexagonIconColor = ThemedColor({ name: 'HexagonIcon' });
   const green_modal_text_color = ThemedColor({ name: 'green_modal_text_color' });
@@ -309,6 +310,7 @@ function SigningDeviceDetails({ route }) {
     }
   };
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
@@ -958,23 +960,23 @@ function SigningDeviceDetails({ route }) {
               subTitleWidth={wp(280)}
               DarkCloseIcon
               buttonText={common.Okay}
-              secondaryButtonText={common.needHelp}
+              // secondaryButtonText={common.needHelp}
               buttonTextColor={green_modal_button_text}
               buttonBackground={green_modal_button_background}
-              secButtonTextColor={green_modal_sec_button_text}
-              secondaryIcon={<ConciergeNeedHelp />}
-              secondaryCallback={() => {
-                setDetailModal(false);
-                navigation.dispatch(
-                  CommonActions.navigate({
-                    name: 'CreateTicket',
-                    params: {
-                      tags: [ConciergeTag.KEYS],
-                      screenName: 'signing-device-details',
-                    },
-                  })
-                );
-              }}
+              // secButtonTextColor={green_modal_sec_button_text}
+              // secondaryIcon={<ConciergeNeedHelp />}
+              // secondaryCallback={() => {
+              //   setDetailModal(false);
+              //   navigation.dispatch(
+              //     CommonActions.navigate({
+              //       name: 'CreateTicket',
+              //       params: {
+              //         tags: [ConciergeTag.KEYS],
+              //         screenName: 'signing-device-details',
+              //       },
+              //     })
+              //   );
+              // }}
               buttonCallback={() => setDetailModal(false)}
             />
             <KeeperModal
@@ -1105,14 +1107,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   topSection: {
-    height: '25%',
     paddingHorizontal: 20,
     paddingTop: hp(15),
+    paddingBottom: hp(12),
   },
   bottomSection: {
     borderTopRightRadius: 30,
     borderTopLeftRadius: 30,
     flex: 1,
+    minHeight: 0,
+    overflow: 'hidden',
   },
   skipHealthIllustration: {
     marginLeft: wp(25),
@@ -1144,7 +1148,7 @@ const styles = StyleSheet.create({
   },
   recentHistoryText: {
     fontSize: 16,
-    paddingTop: hp(43),
+    paddingTop: Platform.OS === 'ios' ? hp(18) : hp(43),
     paddingBottom: hp(10),
     paddingHorizontal: wp(10),
   },
@@ -1171,7 +1175,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   flex1: {
-    flexGrow: 1,
+    flex: 1,
   },
   healthCheckContainer: {
     marginHorizontal: wp(15),
@@ -1220,13 +1224,17 @@ const styles = StyleSheet.create({
     paddingBottom: hp(220),
   },
   emptyWrapper: {
-    marginTop: hp(15),
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: '90%',
+    paddingVertical: hp(20),
   },
   emptyStateContainer: {
-    marginLeft: wp(20),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: wp(172),
+    height: hp(154),
+    overflow: 'hidden',
   },
   emptyText: {
     fontSize: 14,
@@ -1255,7 +1263,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   paddedArea: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: '5%',
   },
   footerWrapper: {

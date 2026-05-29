@@ -1,6 +1,6 @@
 import { DimensionValue, StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Text from './KeeperText';
 import openLink from 'src/utils/OpenLink';
