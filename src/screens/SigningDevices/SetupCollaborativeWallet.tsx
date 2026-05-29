@@ -1,5 +1,5 @@
 import { Platform, StyleSheet } from 'react-native';
-import { Box, FlatList, useColorMode } from 'native-base';
+import { Box, FlatList, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Signer, Vault, VaultSigner, signerXpubs } from 'src/services/wallets/interfaces/vault';
@@ -53,11 +53,16 @@ import { useQuery } from '@realm/react';
 import CollaborativeModals from './components/CollaborativeModals';
 import SignerCard from '../AddSigner/SignerCard';
 import { fetchKeyExpression } from '../WalletDetails/CosignerDetails';
-import { HCESession, HCESessionContext } from 'react-native-hce';
 import idx from 'idx';
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 let previousContent = null;
+
+type HceSessionContextValue = { session: any };
+const hceModule = Platform.OS === 'android' ? require('react-native-hce') : null;
+const HCESessionContext: React.Context<HceSessionContextValue> =
+  hceModule?.HCESessionContext ?? React.createContext<HceSessionContextValue>({ session: null });
+const HCESession = hceModule?.HCESession;
 
 function SignerItem({
   vaultKey,
@@ -447,19 +452,28 @@ function SetupCollaborativeWallet() {
   };
 
   useEffect(() => {
-    if (isAndroid) {
-      if (nfcModal) {
-        NFC.startTagSession({ session, content: '', writable: true });
-      } else {
-        NFC.stopTagSession(session);
-      }
+    if (!isAndroid || !session) {
+      return () => {
+        nfcManager.cancelTechnologyRequest();
+      };
     }
+
+    if (nfcModal) {
+      NFC.startTagSession({ session, content: '', writable: true });
+    } else {
+      NFC.stopTagSession(session);
+    }
+
     return () => {
       nfcManager.cancelTechnologyRequest();
     };
-  }, [nfcModal]);
+  }, [isAndroid, nfcModal, session]);
 
   useEffect(() => {
+    if (!isAndroid || !session || !HCESession?.Events) {
+      return undefined;
+    }
+
     const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
       try {
         const data = idx(session, (_) => _.application.content.content);
@@ -485,7 +499,7 @@ function SetupCollaborativeWallet() {
       unsubDisconnect();
       NFC.stopTagSession(session);
     };
-  }, [session]);
+  }, [isAndroid, session]);
 
   const onFileExtract = async (fileData) => {
     try {

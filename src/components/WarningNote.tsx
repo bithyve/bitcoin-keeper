@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React from 'react';
 import WarningIcon from 'src/assets/images/warning-exclamation-light.svg';
 import CircleIconWrapper from './CircleIconWrapper';

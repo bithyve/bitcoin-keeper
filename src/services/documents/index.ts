@@ -1,11 +1,11 @@
 import { Platform } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { errorCodes, isErrorWithCode, pick, types } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 
 const pickDocument = async () => {
   try {
-    const result = await DocumentPicker.pick({
-      type: [DocumentPicker.types.allFiles],
+    const result = await pick({
+      type: [types.allFiles],
     });
     try {
       const filePath = result[0].uri.split('%20').join(' ');
@@ -16,7 +16,7 @@ const pickDocument = async () => {
     }
   } catch (error) {
     // user cancelled
-    if (error.toString().includes('user canceled')) {
+    if (isErrorWithCode(error) && error.code === errorCodes.OPERATION_CANCELED) {
       return null;
     }
     return error;

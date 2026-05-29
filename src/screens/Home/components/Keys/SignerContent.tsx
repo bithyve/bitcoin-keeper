@@ -1,4 +1,4 @@
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { hp } from 'src/constants/responsive';

@@ -1,5 +1,6 @@
 export default {
   readFile: jest.fn(() => Promise.resolve('mocked content')),
+  copyFile: jest.fn(() => Promise.resolve()),
   writeFile: jest.fn(() => Promise.resolve()),
   unlink: jest.fn(() => Promise.resolve()),
   exists: jest.fn(() => Promise.resolve(true)),

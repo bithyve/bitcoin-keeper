@@ -31,6 +31,7 @@ import {
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
+  setTestCoinsQuotaReached,
   setSignerPolicyError,
 } from 'src/store/reducers/wallets';
 
@@ -833,14 +834,22 @@ function* testcoinsWorker({ payload }) {
   const { wallet } = payload;
   const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
+  const appId: string = yield select((state: RootState) => state.storage.appId);
 
-  const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);
-
-  if (!txid) {
-    yield put(setTestCoinsFailed(true));
-  } else {
-    yield put(setTestCoinsReceived(true));
-    yield put(refreshWallets([wallet], { hardRefresh: true }));
+  try {
+    const { txid } = yield call(Relay.getTestcoins, receivingAddress, network, appId);
+    if (!txid) {
+      yield put(setTestCoinsFailed(true));
+    } else {
+      yield put(setTestCoinsReceived(true));
+      yield put(refreshWallets([wallet], { hardRefresh: true }));
+    }
+  } catch (err) {
+    if (err.message === 'FAUCET_DAILY_LIMIT_REACHED') {
+      yield put(setTestCoinsQuotaReached(true));
+    } else {
+      yield put(setTestCoinsFailed(true));
+    }
   }
 }
 

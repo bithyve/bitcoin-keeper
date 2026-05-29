@@ -13,7 +13,7 @@ import { Vault } from 'src/services/wallets/interfaces/vault';
 import { EntityKind, VaultType } from 'src/services/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useWallets from 'src/hooks/useWallets';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetSyncing } from 'src/store/reducers/wallets';

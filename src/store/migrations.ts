@@ -38,6 +38,21 @@ const migrations = {
       },
     },
   }),
+  4: (state) => {
+    // Migrate recoveryKeyBackedUpByAppId (Boolean) → recoveryKeyStatusByAppId (RecoveryKeyStatus)
+    const oldMap: Record<string, boolean> = state?.account?.recoveryKeyBackedUpByAppId ?? {};
+    const newMap: Record<string, string> = {};
+    for (const appId of Object.keys(oldMap)) {
+      newMap[appId] = oldMap[appId] === true ? 'confirmed' : 'generated';
+    }
+    return {
+      ...state,
+      account: {
+        ...state.account,
+        recoveryKeyStatusByAppId: newMap,
+      },
+    };
+  },
 };
 
 export default migrations;

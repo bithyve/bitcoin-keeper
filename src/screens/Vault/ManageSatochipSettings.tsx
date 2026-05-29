@@ -1,4 +1,4 @@
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
 import { StyleSheet } from 'react-native';

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Vibration } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
 import {
@@ -68,7 +68,7 @@ function VaultSettings({ route }) {
   const [needHelpModal, setNeedHelpModal] = useState(false);
   const [walletConfigModal, setWalletConfigModal] = useState(route?.params?.exportConfig || false);
   const [visible, setVisible] = React.useState(false);
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const [importExportLabelsModal, setImportExportLabelsModal] = useState(false);
 
   const walletDescriptor = generateAbbreviatedOutputDescriptors(vault);
@@ -92,6 +92,7 @@ function VaultSettings({ route }) {
     }
   };
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
@@ -372,23 +373,23 @@ function VaultSettings({ route }) {
         subTitleWidth={wp(280)}
         DarkCloseIcon
         buttonText={common.Okay}
-        secondaryButtonText={common.needHelp}
+        // secondaryButtonText={common.needHelp}
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
-        secButtonTextColor={green_modal_sec_button_text}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setNeedHelpModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.WALLET],
-                screenName: 'wallet-settings',
-              },
-            })
-          );
-        }}
+        // secButtonTextColor={green_modal_sec_button_text}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setNeedHelpModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.WALLET],
+        //         screenName: 'wallet-settings',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonCallback={() => setNeedHelpModal(false)}
       />
       <KeeperModal

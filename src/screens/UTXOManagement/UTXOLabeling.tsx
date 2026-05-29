@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import { UTXO } from 'src/services/wallets/interfaces';
 import { LabelRefType, NetworkType } from 'src/services/wallets/enums';

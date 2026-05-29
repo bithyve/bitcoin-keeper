@@ -1,8 +1,9 @@
-import { StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
+import { NetworkType } from 'src/services/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useDispatch } from 'react-redux';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -17,17 +18,19 @@ import MenuFooter from 'src/components/MenuFooter';
 import HomeWallet from './components/Wallet/HomeWallet';
 import ManageKeys from './components/Keys/ManageKeys';
 import KeeperSettings from './components/Settings/keeperSettings';
-import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import BuyBtc from './components/buyBtc/BuyBtc';
-import ConciergeComponent from './components/ConciergeComponent';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
+import { setRecoveryKeyStatus } from 'src/store/reducers/account';
+import RecoveryKeyIcon from 'src/assets/images/recover_white.svg';
+import HelpAiEntry from '../HelpAi/HelpAiEntry';
 
 function NewHomeScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -36,21 +39,35 @@ function NewHomeScreen({ route }) {
   const { addedSigner, selectedOption: selectedOptionFromRoute } = route.params || {};
   const { wallets } = useWallets({ getAll: true });
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
-  const [backupModalVisible, setBackupModalVisible] = useState(true);
   const home_header_circle_background = ThemedColor({ name: 'home_header_circle_background' });
 
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage, homeToastMessage } =
     useAppSelector((state) => state.bhr);
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, common } = translations;
+  const { home: homeTranslation, wallet: walletText, buyBTC: buyBTCText, askAi } = translations;
   const [selectedOption, setSelectedOption] = useState(
     selectedOptionFromRoute || walletText.homeWallets
   );
   const backupHistory = useQuery(RealmSchema.BackupHistory);
-  const { recoveryKeyBackedUpByAppId } = useAppSelector((state) => state.account);
+  const { recoveryKeyStatusByAppId } = useAppSelector((state) => state.account);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
   const { id } = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any;
-  const shouldShowBackupModal = !(recoveryKeyBackedUpByAppId?.[id] ?? false);
+
+  // 'idle' | 'education' | 'skipWarning'
+  const [recoveryKeyFlowState, setRecoveryKeyFlowState] = useState<
+    'idle' | 'education' | 'skipWarning'
+  >('idle');
+  // Session flag: prevent re-showing the education sheet after the user dismisses it
+  const hasShownEducationSheetRef = useRef(false);
+
+  const recoveryKeyStatus = recoveryKeyStatusByAppId?.[id];
+  const isConfirmed = recoveryKeyStatus === 'confirmed';
+
+  const openEducationSheet = () => {
+    setRecoveryKeyFlowState('education');
+    hasShownEducationSheetRef.current = true;
+  };
 
   useEffect(() => {
     if (selectedOptionFromRoute && selectedOptionFromRoute !== selectedOption) {
@@ -58,21 +75,26 @@ function NewHomeScreen({ route }) {
     }
   }, [selectedOptionFromRoute]);
 
+  // Show education sheet once per session when Recovery Key is not confirmed
   useEffect(() => {
-    if (shouldShowBackupModal) {
-      setBackupModalVisible(true);
+    if (!isConfirmed && !hasShownEducationSheetRef.current) {
+      openEducationSheet();
     }
-  }, [shouldShowBackupModal]);
+  }, [isConfirmed]);
 
   useFocusEffect(
     React.useCallback(() => {
-      if (shouldShowBackupModal && selectedOption !== walletText.more) {
+      if (
+        !isConfirmed &&
+        !hasShownEducationSheetRef.current &&
+        selectedOption !== walletText.more
+      ) {
         const timer = setTimeout(() => {
-          setBackupModalVisible(true);
+          openEducationSheet();
         }, 100);
         return () => clearTimeout(timer);
       }
-    }, [shouldShowBackupModal, selectedOption, walletText.more])
+    }, [isConfirmed, selectedOption, walletText.more])
   );
 
   const getContent = () => {
@@ -122,13 +144,9 @@ function NewHomeScreen({ route }) {
             />
           ),
         };
-      case walletText.concierge:
+      case askAi.ask:
         return {
-          content: (
-            <Box>
-              <ConciergeComponent route={route} />
-            </Box>
-          ),
+          content: <HelpAiEntry route={route} />,
           icon: (
             <CircleIconWrapper
               width={wp(39)}
@@ -186,15 +204,28 @@ function NewHomeScreen({ route }) {
     }
   }, [homeToastMessage]);
 
-  const BackupModalContent = () => {
-    return (
-      <Box style={{ gap: hp(10) }}>
-        <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
-          {homeTranslation.backupModalDesc}
+  const EducationSheetContent = () => (
+    <Box style={{ gap: hp(10) }}>
+      <Text color={`${colorMode}.primaryText`} style={{ fontSize: 14, letterSpacing: 0.13 }}>
+        {homeTranslation.educationSheetBody}
+      </Text>
+    </Box>
+  );
+
+  const SkipWarningContent = () => (
+    <Box style={{ gap: hp(10) }}>
+      <Box backgroundColor={`${colorMode}.greyBorder`} style={{ padding: hp(12), borderRadius: 8 }}>
+        <Text color={`${colorMode}.primaryText`} style={{ fontSize: 13 }}>
+          {homeTranslation.skipWarningBox}
         </Text>
       </Box>
-    );
-  };
+      <Box backgroundColor={`${colorMode}.greyBorder`} style={{ padding: hp(12), borderRadius: 8 }}>
+        <Text color={`${colorMode}.primaryText`} style={{ fontSize: 13 }}>
+          {homeTranslation.skipWarningInfoBox}
+        </Text>
+      </Box>
+    </Box>
+  );
 
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.container}>
@@ -204,7 +235,39 @@ function NewHomeScreen({ route }) {
         setElectrumErrorVisible={setElectrumErrorVisible}
       />
 
-      <HomeScreenHeader colorMode={colorMode} title={selectedOption} circleIconWrapper={icon} />
+      <HomeScreenHeader
+        colorMode={colorMode}
+        title={selectedOption}
+        titleSuffix={
+          [walletText.homeWallets, walletText.keys].includes(selectedOption) &&
+          bitcoinNetworkType === NetworkType.TESTNET
+            ? ' (Testnet)'
+            : undefined
+        }
+        circleIconWrapper={icon}
+      />
+      {recoveryKeyStatus === 'skipped' && (
+        <TouchableOpacity onPress={openEducationSheet}>
+          <Box
+            backgroundColor={`${colorMode}.DarkSlateGray`}
+            width={'100%'}
+            style={{ paddingHorizontal: wp(22), paddingVertical: hp(10) }}
+            flexDir={'row'}
+            justifyContent={'center'}
+            alignItems={'center'}
+          >
+            <RecoveryKeyIcon />
+            <Box flex={1} marginLeft={wp(15)}>
+              <Text semiBold fontSize={14} color={`${colorMode}.buttonText`}>
+                {homeTranslation.recoveryKeyNotBackedUp}
+              </Text>
+              <Text medium fontSize={12} color={`${colorMode}.buttonText`}>
+                {homeTranslation.backUpNow}
+              </Text>
+            </Box>
+          </Box>
+        </TouchableOpacity>
+      )}
       <Box style={styles.content}>{content}</Box>
       <MenuFooter
         selectedOption={selectedOption}
@@ -212,30 +275,55 @@ function NewHomeScreen({ route }) {
           navigation.navigate('Home', { selectedOption: option });
         }}
       />
+
+      {/* Education Sheet */}
       <KeeperModal
-        visible={shouldShowBackupModal && backupModalVisible}
-        close={() => {}}
-        title={homeTranslation.backupModalTitle}
-        subTitle={homeTranslation.backupModalSubTitle}
+        visible={recoveryKeyFlowState === 'education'}
+        close={() => setRecoveryKeyFlowState('idle')}
+        title={homeTranslation.educationSheetTitle}
+        subTitle={''}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonBackground={`${colorMode}.pantoneGreen`}
         showCloseIcon={false}
-        buttonText={common.continue}
+        buttonText={homeTranslation.backUpNow}
         buttonCallback={() => {
-          setBackupModalVisible(false);
-          setTimeout(() => {
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'ViewRecoveryKeyScreen' }],
-              })
-            );
-          }, 300);
+          setRecoveryKeyFlowState('idle');
+          dispatch(setRecoveryKeyStatus({ appId: id, status: 'viewed' }));
+          navigation.navigate('ViewRecoveryKeyScreen');
         }}
         buttonTextColor={`${colorMode}.buttonText`}
-        Content={BackupModalContent}
+        secondaryButtonText={homeTranslation.skipForNow}
+        secondaryCallback={() => setRecoveryKeyFlowState('skipWarning')}
+        Content={EducationSheetContent}
+      />
+
+      {/* Skip Warning Sheet */}
+      <KeeperModal
+        visible={recoveryKeyFlowState === 'skipWarning'}
+        close={() => setRecoveryKeyFlowState('education')}
+        title={homeTranslation.skipWarningTitle}
+        subTitle={homeTranslation.skipWarningBody}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        showCloseIcon={false}
+        buttonBackground={`${colorMode}.pantoneGreen`}
+        buttonText={homeTranslation.backUpRecoveryKey}
+        buttonCallback={() => {
+          setRecoveryKeyFlowState('idle');
+          dispatch(setRecoveryKeyStatus({ appId: id, status: 'viewed' }));
+          navigation.navigate('ViewRecoveryKeyScreen');
+        }}
+        buttonTextColor={`${colorMode}.buttonText`}
+        secondaryButtonText={homeTranslation.continueWithoutBackup}
+        secondaryCallback={() => {
+          dispatch(setRecoveryKeyStatus({ appId: id, status: 'skipped' }));
+          setRecoveryKeyFlowState('idle');
+        }}
+        Content={SkipWarningContent}
+        subTitleWidth={wp(270)}
       />
     </Box>
   );

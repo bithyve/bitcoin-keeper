@@ -1,5 +1,5 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Box, ScrollView, VStack, useColorMode } from 'native-base';
+import { ActivityIndicator, StyleSheet , TouchableOpacity} from 'react-native';
+import { Box, ScrollView, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
@@ -44,7 +44,6 @@ import { getKeyUID } from 'src/utils/utilities';
 import BackgroundTimer from 'react-native-background-timer';
 import { useAppSelector } from 'src/store/hooks';
 import WalletHeader from 'src/components/WalletHeader';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import KeeperModal from 'src/components/KeeperModal';
 import Instruction from 'src/components/Instruction';
 import ColdCardUSBInstruction from '../Vault/components/ColdCardUSBInstruction';

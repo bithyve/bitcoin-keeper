@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import { windowHeight } from 'src/constants/responsive';
 

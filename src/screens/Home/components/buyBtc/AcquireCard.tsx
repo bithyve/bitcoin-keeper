@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';

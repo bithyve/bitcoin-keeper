@@ -1,8 +1,8 @@
 import QRCode from 'react-native-qrcode-svg';
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Platform, StyleSheet } from 'react-native';
 
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useSelector } from 'react-redux';
 import KeeperNewLogo from 'src/assets/images/keeper-new-logo.png';
 import KeeperPrivateNewLogo from 'src/assets/privateImages/keeper-private-new-logo.png';
@@ -23,10 +23,24 @@ function KeeperQRCode({
   const { colorMode } = useColorMode();
   const themeMode = useSelector((state: any) => state?.settings?.themeMode);
   const privateTheme = themeMode === 'PRIVATE' || themeMode === 'PRIVATE_LIGHT';
+
+  // Workaround for react-native-svg not painting on initial mount with Fabric (new architecture) on iOS.
+  // Toggling the key forces a remount of the QRCode SVG after the first frame.
+  const [renderKey, setRenderKey] = useState(0);
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      requestAnimationFrame(() => setRenderKey(1));
+    }
+  }, []);
+
   return (
-    <Box style={styles.qrWrapper} borderColor={`${colorMode}.headerWhite`}>
+    <Box
+      style={[styles.qrWrapper, { width: size + 20, height: size + 20 }]}
+      borderColor={`${colorMode}.headerWhite`}
+    >
       {qrData && (
         <QRCode
+          key={renderKey}
           value={qrData}
           {...(logoBackgroundColor ? { logoBackgroundColor } : {})}
           size={size}
@@ -42,6 +56,10 @@ function KeeperQRCode({
 const styles = StyleSheet.create({
   qrWrapper: {
     borderWidth: 10,
+    position: 'relative',
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

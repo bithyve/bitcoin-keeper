@@ -1,4 +1,4 @@
-import { Box, HStack, useColorMode, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import {
   Camera,

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -61,7 +61,7 @@ function WalletCopiableData({ title, data, dataType, copy, width = '90%', height
               msg = walletTranslation.xpubCopied;
               break;
             case '2fa':
-              msg = walletTranslation['2faCopied'];
+              msg = 'Copied to clipboard';
               break;
             case 'address':
               msg = walletTranslation.addressCopied;

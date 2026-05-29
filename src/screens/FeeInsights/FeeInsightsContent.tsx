@@ -4,7 +4,7 @@ import { windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import FeeDataStats from './FeeDataStats';
 import Relay from 'src/services/backend/Relay';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { generateFeeInsightStatement } from 'src/utils/feeInisghtUtil';
 import FeeInsightCard from './FeeInsightCard';
 import FeeDataSource from './FeeDataSource';

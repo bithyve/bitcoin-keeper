@@ -3,7 +3,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Success from 'src/assets/images/Success.svg';
 import Text from 'src/components/KeeperText';
 import { Vault } from 'src/services/wallets/interfaces/vault';
-import { useColorMode, Box } from 'native-base';
+import { useColorMode, Box } from '@gluestack-ui/themed-native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function VaultCreatedModal({

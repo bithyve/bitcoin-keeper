@@ -1,7 +1,7 @@
 import { Keyboard, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, useColorMode } from 'native-base';
+import { Box, Input, useColorMode } from '@gluestack-ui/themed-native-base';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import AddContactLight from 'src/assets/images/add-contact-light.svg';
@@ -9,7 +9,7 @@ import { hp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { importFile } from 'src/services/fs';
 import { SignerType } from 'src/services/wallets/enums';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Colors from 'src/theme/Colors';
 import MenuOption from 'src/components/MenuOption';
 import WalletHeader from 'src/components/WalletHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

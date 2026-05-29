@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import { Box, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import useSigners from 'src/hooks/useSigners';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
@@ -269,20 +269,20 @@ function ManageSigners({ route }: ScreenProps) {
         buttonTextColor={green_modal_button_text}
         buttonBackground={green_modal_button_background}
         secButtonTextColor={green_modal_sec_button_text}
-        secondaryButtonText={common.needHelp}
-        secondaryIcon={<ConciergeNeedHelp />}
-        secondaryCallback={() => {
-          setShowLearnMoreModal(false);
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'CreateTicket',
-              params: {
-                tags: [ConciergeTag.KEYS],
-                screenName: 'manage-keys',
-              },
-            })
-          );
-        }}
+        // secondaryButtonText={common.needHelp}
+        // secondaryIcon={<ConciergeNeedHelp />}
+        // secondaryCallback={() => {
+        //   setShowLearnMoreModal(false);
+        //   navigation.dispatch(
+        //     CommonActions.navigate({
+        //       name: 'CreateTicket',
+        //       params: {
+        //         tags: [ConciergeTag.KEYS],
+        //         screenName: 'manage-keys',
+        //       },
+        //     })
+        //   );
+        // }}
         buttonText={common.Okay}
         buttonCallback={() => setShowLearnMoreModal(false)}
         Content={() => (
@@ -474,7 +474,7 @@ function SignersList({
             );
           })}
           {isNonVaultManageSignerFlow && list.length == 0 && shellAssistedKeys.length == 0 && (
-            <EmptyListIllustration listType="keys" />
+            <EmptyListIllustration listType="keys" hideIllustration />
           )}
         </Box>
 
@@ -510,6 +510,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+    paddingTop: hp(15),
   },
   topSection: {
     height: '25%',

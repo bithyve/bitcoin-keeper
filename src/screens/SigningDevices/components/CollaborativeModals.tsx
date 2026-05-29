@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Pressable, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { useDispatch, useSelector } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
 import { ConciergeTag } from 'src/models/enums/ConciergeTag';
@@ -173,23 +173,23 @@ function CollaborativeModals({
           textColor={green_modal_text_color}
           Content={() => <AddCoSignerContent />}
           buttonText={common.Okay}
-          secondaryButtonText={common.needHelp}
+          // secondaryButtonText={common.needHelp}
           buttonTextColor={green_modal_button_text}
           buttonBackground={green_modal_button_background}
-          secButtonTextColor={green_modal_sec_button_text}
-          secondaryIcon={<ConciergeNeedHelp />}
-          secondaryCallback={() => {
-            setLearnMoreModal?.(false);
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'CreateTicket',
-                params: {
-                  tags: [ConciergeTag.COLLABORATIVE_Wallet],
-                  screenName: 'setup-collaborative-vault',
-                },
-              })
-            );
-          }}
+          // secButtonTextColor={green_modal_sec_button_text}
+          // secondaryIcon={<ConciergeNeedHelp />}
+          // secondaryCallback={() => {
+          //   setLearnMoreModal?.(false);
+          //   navigation.dispatch(
+          //     CommonActions.navigate({
+          //       name: 'CreateTicket',
+          //       params: {
+          //         tags: [ConciergeTag.COLLABORATIVE_Wallet],
+          //         screenName: 'setup-collaborative-vault',
+          //       },
+          //     })
+          //   );
+          // }}
           buttonCallback={() => setLearnMoreModal?.(false)}
         />
       )}

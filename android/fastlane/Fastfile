@@ -60,6 +60,7 @@ platform :android do
     key_password = ENV["KEY_PASSWORD"]
     key_alias = ENV["KEY_ALIAS"]
     releaseFilePath = File.join(Dir.pwd, "../app", "release.keystore")
+    bump_version_code()
     gradle(task: 'clean')
     gradle(
       task: 'bundle',

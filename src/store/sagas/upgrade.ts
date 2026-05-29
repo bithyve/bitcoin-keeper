@@ -5,7 +5,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
-import messaging from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import {
+  getMessaging,
+  subscribeToTopic,
+  unsubscribeFromTopic,
+} from '@react-native-firebase/messaging';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { BIP329Label, UTXOInfo } from 'src/services/wallets/interfaces';
 import { LabelRefType, SignerType, XpubTypes } from 'src/services/wallets/enums';
@@ -95,8 +100,10 @@ function* updateVersionHistoryWorker({
       date: new Date().toString(),
       title: `Upgraded from ${previousVersion} to ${newVersion}`,
     });
-    messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
-    messaging().subscribeToTopic(getReleaseTopic(newVersion));
+    const firebaseApp = getApp();
+    const messagingInstance = getMessaging(firebaseApp);
+    unsubscribeFromTopic(messagingInstance, getReleaseTopic(previousVersion));
+    subscribeToTopic(messagingInstance, getReleaseTopic(newVersion));
   } catch (error) {
     console.log({ error });
   }

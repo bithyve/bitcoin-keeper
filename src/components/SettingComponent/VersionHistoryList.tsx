@@ -1,6 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { FlatList, Box, useColorMode } from 'native-base';
+import { FlatList, Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import moment from 'moment';
 
 import { RealmSchema } from 'src/storage/realm/enum';

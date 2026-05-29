@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
 import SettingCard from '../Home/components/Settings/Component/SettingCard';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import idx from 'idx';

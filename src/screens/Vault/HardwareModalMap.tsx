@@ -13,7 +13,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import {
   KeyGenerationMode,
@@ -2060,8 +2060,8 @@ function HardwareModalMap({
     }
   };
 
-  const { session } = useContext(HCESessionContext);
   const isAndroid = Platform.OS === 'android';
+  const { session } = isAndroid ? useContext(HCESessionContext) : {};
 
   useEffect(() => {
     if (isAndroid) {
@@ -2077,7 +2077,7 @@ function HardwareModalMap({
   }, [nfcVisible]);
 
   useEffect(() => {
-    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+    const unsubConnect = session?.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
       try {
         // content written from iOS to android
         const data = idx(session, (_) => _.application.content.content);
@@ -2093,12 +2093,12 @@ function HardwareModalMap({
         closeNfc();
       }
     });
-    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+    const unsubDisconnect = session?.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       closeNfc();
     });
     return () => {
-      unsubConnect();
-      unsubDisconnect();
+      unsubConnect?.();
+      unsubDisconnect?.();
       NFC.stopTagSession(session);
     };
   }, [session]);

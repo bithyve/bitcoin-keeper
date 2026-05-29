@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import DeviceCard from './DeviceCard';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import { hp } from 'src/constants/responsive';
 import BitBox from 'src/assets/images/bit-box-2.svg';

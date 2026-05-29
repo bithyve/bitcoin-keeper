@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React, { useContext } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, wp } from 'src/constants/responsive';
 import { hideOnboarding } from 'src/store/reducers/concierge';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -32,7 +32,7 @@ function ConciergeOnboardingModal({ visible }) {
 
   return (
     <KeeperModal
-      visible={visible}
+      visible={false}
       close={handleCloseModal}
       title={concierge.welcomeToConcierge}
       subTitle={concierge.getAnsweredWithConcierge}

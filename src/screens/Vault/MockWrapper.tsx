@@ -8,7 +8,7 @@ import useToastMessage, { IToastCategory } from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
-import { View } from 'native-base';
+import { View } from '@gluestack-ui/themed-native-base';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import useUnkownSigners from 'src/hooks/useUnkownSigners';
 import { InteracationMode } from './HardwareModalMap';

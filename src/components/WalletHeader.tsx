@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box } from '@gluestack-ui/themed-native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Text from 'src/components/KeeperText';
@@ -89,20 +89,20 @@ const WalletHeader: React.FC<Props> = ({
             </TouchableOpacity>
           )}
           {title && (
-            <Text color={titleColor} style={styles.title} medium numberOfLines={1}>
+            <Text testID="header_title" color={titleColor} style={styles.title} medium numberOfLines={1}>
               {title}
             </Text>
           )}
         </Box>
         {learnMore && (
-          <TouchableOpacity style={styles.infoIcon} onPress={learnMorePressed}>
+          <TouchableOpacity testID="btn_learn_more" style={styles.infoIcon} onPress={learnMorePressed}>
             <ThemedSvg name={'info_icon'} />
           </TouchableOpacity>
         )}
         {rightComponent && <Box>{rightComponent}</Box>}
       </Box>
       {subTitle && (
-        <Text color={subtitleColor} style={styles.subTitle}>
+        <Text testID="header_subtitle" color={subtitleColor} style={styles.subTitle}>
           {subTitle}
         </Text>
       )}

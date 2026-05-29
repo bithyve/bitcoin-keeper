@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Toast, useColorMode } from 'native-base';
+import { Box, Toast, useColorMode } from '@gluestack-ui/themed-native-base';
 import { SignerType, XpubTypes } from 'src/services/wallets/enums';
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';

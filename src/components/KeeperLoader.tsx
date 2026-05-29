@@ -1,9 +1,9 @@
 import React from 'react';
-import { Box, Modal, useColorMode } from 'native-base';
+import { Box, Modal, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Platform, StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import LoadingAnimation from './Loader';
@@ -13,7 +13,6 @@ function KeeperLoader(props) {
   const {
     visible,
     close,
-    modalBackground = [`${colorMode}.primaryBackground`, `${colorMode}.primaryBackground`],
     textColor = `${colorMode}.black`,
     subTitleColor = `${colorMode}.secondaryText`,
     loadingContent,
@@ -23,8 +22,7 @@ function KeeperLoader(props) {
         <Text
           color={`${colorMode}.greenText`}
           fontSize={13}
-          letterSpacing={0.65}
-          marginTop={hp(60)}
+          style={{ letterSpacing: 0.65, marginTop: hp(60) }}
         >
           {loadingContent?.message}
         </Text>
@@ -32,7 +30,8 @@ function KeeperLoader(props) {
     ),
     dismissible = true,
   } = props;
-  const { bottom } = useSafeAreaInsets();
+  const insets = React.useContext(SafeAreaInsetsContext);
+  const bottom = insets?.bottom ?? 0;
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
 
   return (

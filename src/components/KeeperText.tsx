@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextProps } from 'react-native';
-import { Text as NativeBaseText } from 'native-base';
+import { Text as NativeBaseText } from '@gluestack-ui/themed-native-base';
 
 interface KeeperTextProps extends TextProps {
   // eslint-disable-next-line react/require-default-props

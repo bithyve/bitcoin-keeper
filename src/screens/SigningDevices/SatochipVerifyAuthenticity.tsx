@@ -1,5 +1,5 @@
 import { Platform, StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SatochipCard } from 'satochip-react-native';
 import {getCardInfo, handleSatochipError} from 'src/hardware/satochip';

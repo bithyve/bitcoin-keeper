@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { MultisigScriptType, SignerType, VaultType, NetworkType } from 'src/services/wallets/enums';
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import Share from 'react-native-share';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -425,6 +425,7 @@ function SignTransactionScreen() {
             withNfcModal,
             serializedPSBTEnvelop,
             closeNfc,
+            vault: defaultVault,
           });
         } else if (SignerType.MOBILE_KEY === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithMobileKey({

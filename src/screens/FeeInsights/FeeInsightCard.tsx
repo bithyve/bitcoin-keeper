@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import Fonts from 'src/constants/Fonts';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import BTC_DOWN from 'src/assets/images/btc_down.svg';
 import BTC_UP from 'src/assets/images/btc_up.svg';
 

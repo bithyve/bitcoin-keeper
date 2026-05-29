@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Box, StatusBar, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {

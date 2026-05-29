@@ -527,7 +527,11 @@ export const extractKeyFromDescriptor = (data) => {
   return { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig };
 };
 
-export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
+export const getPsbtForHwi = async (
+  serializedPSBT: string,
+  vault: Vault,
+  options: { throwOnError?: boolean } = {}
+) => {
   try {
     const { bitcoinNetworkType } = store.getState().settings;
     const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, {
@@ -557,6 +561,11 @@ export const getPsbtForHwi = async (serializedPSBT: string, vault: Vault) => {
     return { serializedPSBT: psbt.toBase64() };
   } catch (_) {
     captureError(_);
+
+    if (options.throwOnError) {
+      throw new Error(_.message || 'Failed to prepare PSBT for hardware signing');
+    }
+
     return { serializedPSBT };
   }
 };

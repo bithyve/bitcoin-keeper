@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Badge, Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { StyleSheet } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { hp, wp } from 'src/constants/responsive';
@@ -21,7 +21,7 @@ function AddressUsageBadge({ used }: Props) {
 
   return (
     // TODO: Export colors to theme file
-    <Badge
+    <Box
       bgColor={used ? `${colorMode}.alertRed` : `${colorMode}.newBadgeGreen`}
       rounded="full"
       style={styles.addressTypeBadge}
@@ -36,7 +36,7 @@ function AddressUsageBadge({ used }: Props) {
           {used ? walletTranslation.UsedAddress : walletTranslation.NewAddress}
         </Text>
       </Box>
-    </Badge>
+    </Box>
   );
 }
 
@@ -46,19 +46,21 @@ const styles = StyleSheet.create({
     height: hp(25),
     marginLeft: wp(14),
     marginBottom: hp(5),
+    justifyContent: 'center',
+    paddingHorizontal: wp(10),
   },
   addressTypeText: {
     fontSize: 11,
-    height: '100%',
     textAlign: 'center',
-    marginTop: hp(5.5),
     minWidth: wp(75),
+    lineHeight: 11,
   },
   container: {
     width: '100%',
     gap: 5,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

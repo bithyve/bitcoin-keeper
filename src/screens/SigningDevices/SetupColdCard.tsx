@@ -1,9 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet , TouchableOpacity} from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/services/wallets/enums';
 import { getColdcardDetails, getConfigDetails } from 'src/hardware/coldcard';
 
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useContext, useState } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -35,7 +35,6 @@ import { hp, wp } from 'src/constants/responsive';
 import ColdCardIllustration from 'src/assets/images/ColdCardSetup.svg';
 import Instruction from 'src/components/Instruction';
 import KeeperModal from 'src/components/KeeperModal';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import InfoIconDark from 'src/assets/images/info-Dark-icon.svg';
 import InfoIcon from 'src/assets/images/info_icon.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';

@@ -1,9 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { Box, ScrollView, useColorMode } from 'native-base';
-import { Share, StyleSheet } from 'react-native';
+import { Box, ScrollView, useColorMode } from '@gluestack-ui/themed-native-base';
+import { Share, StyleSheet , TouchableOpacity} from 'react-native';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/copy-icon.svg';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useRoute } from '@react-navigation/native';
 import { captureError } from 'src/services/sentry';

@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
+import { Box, HStack, Pressable, VStack, useColorMode } from '@gluestack-ui/themed-native-base';
 import { Linking, Platform, TouchableOpacity, Vibration } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
@@ -96,7 +96,7 @@ function SignWithColdCard({ route }: { route }) {
   const isNotColdcard = signer.type != SignerType.COLDCARD;
 
   const [externalKeyNfc, setExternalKeyNfc] = React.useState(false);
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const { translations } = useContext(LocalizationContext);
   const { error: errorText, common, signer: signerText } = translations;
 
@@ -109,6 +109,7 @@ function SignWithColdCard({ route }: { route }) {
   };
   useEffect(() => {
     if (isNotColdcard) {
+      if (Platform.OS !== 'android') return;
       const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
         cleanUp();
       });

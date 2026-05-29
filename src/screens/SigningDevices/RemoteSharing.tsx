@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Share } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, ScrollView, useColorMode, VStack } from 'native-base';
+import { Box, ScrollView, useColorMode, VStack } from '@gluestack-ui/themed-native-base';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParams } from 'src/navigation/types';
 import Buttons from 'src/components/Buttons';

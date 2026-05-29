@@ -1,5 +1,5 @@
 import { CommonActions, useIsFocused, useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import UpgradeIcon from 'src/assets/images/UpgradeCTAs.svg';
 import InheritanceContactIcon from 'src/assets/images/inheritancecontacticon.svg';
 import InheritanceRecoveryIcon from 'src/assets/images/inheritanceRecoveryIcon.svg';
@@ -31,6 +31,7 @@ import KeeperPrivateIconWhite from 'src/assets/images/KeeperPrivateIconWhite.svg
 import PrivateManageWallet from 'src/assets/privateImages/manage-wallet-icon.svg';
 import MultiUserIcon from 'src/assets/images/MultiUserIcon.svg';
 import InheritanceDocumentIcon from 'src/assets/images/inheritanceDocumentIcon.svg';
+import ConciergeWhite from 'src/assets/images/faqWhiteIcon.svg';
 
 import Switch from 'src/components/Switch/Switch';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -40,7 +41,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { backupAllSignersAndVaults, deleteBackup } from 'src/store/sagaActions/bhr';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -74,6 +75,8 @@ export const useSettingKeeper = () => {
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
   const [showDeleteBackup, setShowDeleteBackup] = useState(false);
+  const themeToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const backupToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { translations } = useContext(LocalizationContext);
   const {
     vault: vaultText,
@@ -112,9 +115,31 @@ export const useSettingKeeper = () => {
     }
   }, [colorMode, isOnL4]);
 
-  const changeThemeMode = () => {
+  const changeThemeMode = useCallback(() => {
     toggleColorMode();
-  };
+  }, [toggleColorMode]);
+
+  const debouncedThemeModeToggle = useCallback(() => {
+    if (themeToggleTimeoutRef.current) {
+      clearTimeout(themeToggleTimeoutRef.current);
+    }
+
+    themeToggleTimeoutRef.current = setTimeout(() => {
+      changeThemeMode();
+    }, 300);
+  }, [changeThemeMode]);
+
+  useEffect(() => {
+    return () => {
+      if (themeToggleTimeoutRef.current) {
+        clearTimeout(themeToggleTimeoutRef.current);
+      }
+      if (backupToggleTimeoutRef.current) {
+        clearTimeout(backupToggleTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (backupAllSuccess && isFocused) {
       dispatch(setBackupAllSuccess(false));
@@ -145,18 +170,20 @@ export const useSettingKeeper = () => {
     }
   }, [backupAllFailure]);
 
-  const toggleAutomaticBackupMode = async () => {
+  const toggleAutomaticBackupMode = useCallback(() => {
     if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults());
     else setShowDeleteBackup(true);
-  };
+  }, [automaticCloudBackup, dispatch]);
 
-  const toggleDebounce = (callback, delay = 300) => {
-    let timeoutId;
-    return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => callback(), delay);
-    };
-  };
+  const debouncedAutomaticBackupToggle = useCallback(() => {
+    if (backupToggleTimeoutRef.current) {
+      clearTimeout(backupToggleTimeoutRef.current);
+    }
+
+    backupToggleTimeoutRef.current = setTimeout(() => {
+      toggleAutomaticBackupMode();
+    }, 300);
+  }, [toggleAutomaticBackupMode]);
 
   const planData = [
     {
@@ -235,13 +262,13 @@ export const useSettingKeeper = () => {
       title: settings.assistedServerBackup,
       description: settings.assistedServerBackupSubtitle,
       icon: <CloudBackupIcon width={14} height={14} />,
-      onPress: () => {},
+      onPress: debouncedAutomaticBackupToggle,
       rightIcon: isOnL2Above ? (
-        <Switch onValueChange={() => {}} value={automaticCloudBackup} />
+        <Switch onValueChange={debouncedAutomaticBackupToggle} value={automaticCloudBackup} />
       ) : (
         <UpgradeIcon width={64} height={20} />
       ),
-      onRightPress: toggleDebounce(() => toggleAutomaticBackupMode()),
+      onRightPress: debouncedAutomaticBackupToggle,
       isDiamond: false,
       isHodler: true,
     },
@@ -249,18 +276,25 @@ export const useSettingKeeper = () => {
 
   const General = [
     {
+      title: 'Advisors',
+      description: 'Get expert advice',
+      icon: <ConciergeWhite width={15} height={15} />,
+      onPress: () => navigation.navigate('Advisors'),
+      isDiamond: false,
+    },
+    {
       title: settings.DarkMode,
       description: settings.DarkModeSubTitle,
       icon: <DarkModeIcon width={14} height={14} />,
-      onPress: toggleDebounce(() => changeThemeMode()),
+      onPress: debouncedThemeModeToggle,
       rightIcon: (
         <Switch
-          onValueChange={toggleDebounce(() => changeThemeMode())}
+          onValueChange={debouncedThemeModeToggle}
           value={colorMode === 'dark'}
           testID="switch_darkmode"
         />
       ),
-      onRightPress: toggleDebounce(() => changeThemeMode()),
+      onRightPress: debouncedThemeModeToggle,
       isDiamond: false,
     },
     {

@@ -181,7 +181,8 @@
     "disclaimer": "Keeper is a community-led, open-source bitcoin wallet. It does not provide financial or investment advice.",
     "maybeLater": "Maybe later",
     "noThanks": "No Thanks",
-    "export": "Export"
+    "export": "Export",
+    "help": "Help"
   },
   "login": {
     "welcomeback": "Welcome Back",
@@ -252,7 +253,19 @@
     "securityTipDesc": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.",
     "backupModalTitle": "Confirm your Recovery Key",
     "backupModalSubTitle": "To make sure your Recovery Key is not lost, you need to confirm it.",
-    "backupModalDesc": "Keeper keeps a protected copy of your Keeper data, encrypted using your Recovery Key, to help with app recovery. Keeper cannot read this data."
+    "backupModalDesc": "Keeper keeps a protected copy of your Keeper data, encrypted using your Recovery Key, to help with app recovery. Keeper cannot read this data.",
+    "educationSheetTitle": "Protect Your Recovery Key",
+    "educationSheetBody": "Your Recovery Key helps restore your Keeper backup and hot wallets if you change devices or need to recover the app.\n\nOnly you control this key. Keeper cannot recover it for you.",
+    "backUpNow": "Back Up Now",
+    "skipForNow": "Skip for Now",
+    "skipWarningTitle": "Continue Without Backup?",
+    "skipWarningBody": "Unexpected software issues, app updates, device loss, or damaged app data can make wallet recovery fail without your Recovery Key.",
+    "skipWarningBox": "Your Keeper backup and hot wallets may not be recoverable.",
+    "skipWarningInfoBox": "Backing up takes less than a minute and can save your funds and data.",
+    "backUpRecoveryKey": "Backup Now",
+    "continueWithoutBackup": "Skip Backup",
+    "skipWarningFooter": "You can back up your Recovery Key anytime from Settings.",
+    "recoveryKeyNotBackedUp": "Recovery Key not backed up"
   },
   "transactions": {
     "Fees": "Fees",
@@ -420,6 +433,10 @@
     "recievedSats": "Testnet Sats Received",
     "recievedSatsTitle": "Receive Test Sats",
     "recieveSatsDesc": "Receive test sats in your",
+    "faucetDailyLimitHint": "You can request test sats up to 5 times per day.",
+    "faucetDailyLimitTitle": "Daily Limit Reached",
+    "faucetDailyLimitBody": "You can request test sats up to 5 times per day. Try again after midnight UTC.",
+    "faucetDailyLimitError": "Daily limit reached. Try again after midnight UTC.",
     "Singlekey": "Single-key",
     "multikey2of3": "2 of 3 multi-key",
     "multikey3of5": "3 of 5 multi-key",
@@ -1155,7 +1172,14 @@
     "recoveryKeyConfirmDialog": "Recovery Key confirmed",
     "recoveryKeyConfirmDialogSubTitle": "Your Recovery Key is confirmed. You remain fully in control of your keys.",
     "recoveryConfirmDesc1": "If you have already written down your Recovery Key, confirm it below.",
-    "recoveryConfirmDesc2": "If not, write these 12 words down and store them safely. Do not store them digitally."
+    "recoveryConfirmDesc2": "If not, write these 12 words down and store them safely. Do not store them digitally.",
+    "iHaveWrittenItDown": "I've Written It Down",
+    "yourRecoveryKey": "Your Recovery Key",
+    "writeDownRecoveryKey": "Write down these 12 words in order and store them safely offline.",
+    "doNotStoreDigitally": "Do not store digitally",
+    "doNotStoreDigitallyBody": "Never save your Recovery Key in screenshots, cloud storage, or any digital format.",
+    "makeNoOneLooking": "Make sure no one is watching your screen.",
+    "recoveryKeyBackedUpSuccessfully": "Recovery Key backed up successfully"
   },
   "importWallet": {
     "addDetails": "Add details",
@@ -2134,5 +2158,19 @@
     "importInfoDesc1": "Bitcoin Keeper supports importing GasFree USDT wallets only. If you're using a compatible wallet provider that also supports gas-free transactions on the Tron network, you can import your wallet using your 12 or 24-word recovery phrase.",
     "importInfoDesc2": "Once imported, you’ll be able to access and manage your USDT without needing TRX.",
     "importInfoDescNote": "Note: Standard TRC-20 wallets that require TRX to move funds are not supported."
+  },
+  "askAi": {
+    "ask": "Ask",
+    "askKeeper": "Ask Keeper",
+    "noConversationsYet": "No conversations yet",
+    "subtitle": "Get help, report a problem, or share an idea.",
+    "openHelpChat": "Start a conversation",
+    "neverShareSeedWarning": "Never share seed words or private keys.",
+    "disclaimerTitle": "Before you use Ask Keeper",
+    "disclaimerPoint1": "Never share seed words, private keys, or wallet secrets.",
+    "disclaimerPoint2": "Ask Keeper may sometimes be incorrect or incomplete.",
+    "disclaimerPoint3": "Your messages are processed securely to help Ask Keeper respond.",
+    "disclaimerLearnMore": "Learn more about Ask Keeper",
+    "disclaimerCta": "Got it"
   }
 }

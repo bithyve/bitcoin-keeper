@@ -1,0 +1,73 @@
+diff --git a/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm b/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm
+index bbf761a..8029a8d 100644
+--- a/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm
++++ b/node_modules/react-native-screens/ios/RCTConvert+RNScreens.mm
+@@ -1,6 +1,5 @@
+ #import "RCTConvert+RNScreens.h"
+-
+-#if !RCT_NEW_ARCH_ENABLED
++#import <React/RCTConvert.h>
+ 
+ #import "RNSEnums.h"
+ 
+@@ -65,5 +64,3 @@ + (NSMutableDictionary *)blurEffectsForIOSVersion
+     integerValue)
+ 
+ @end
+-
+-#endif // !RCT_NEW_ARCH_ENABLED
+diff --git a/node_modules/react-native-screens/ios/RNSScreen.mm b/node_modules/react-native-screens/ios/RNSScreen.mm
+index 826a6cd..0565522 100644
+--- a/node_modules/react-native-screens/ios/RNSScreen.mm
++++ b/node_modules/react-native-screens/ios/RNSScreen.mm
+@@ -2248,6 +2248,7 @@ @implementation RNSScreenManager
+ 
+ RCT_EXPORT_MODULE()
+ 
++#if !RCT_NEW_ARCH_ENABLED
+ // we want to handle the case when activityState is nil
+ RCT_REMAP_VIEW_PROPERTY(activityState, activityStateOrNil, NSNumber)
+ RCT_EXPORT_VIEW_PROPERTY(customAnimationOnSwipe, BOOL);
+@@ -2294,6 +2295,7 @@ @implementation RNSScreenManager
+ RCT_EXPORT_VIEW_PROPERTY(sheetInitialDetent, NSInteger);
+ RCT_EXPORT_VIEW_PROPERTY(sheetExpandsWhenScrolledToEdge, BOOL);
+ #endif
++#endif // !RCT_NEW_ARCH_ENABLED
+ 
+ #if !TARGET_OS_TV && !TARGET_OS_VISION
+ // See:
+diff --git a/node_modules/react-native-screens/ios/RNSScreenStack.mm b/node_modules/react-native-screens/ios/RNSScreenStack.mm
+index effc07f..745a955 100644
+--- a/node_modules/react-native-screens/ios/RNSScreenStack.mm
++++ b/node_modules/react-native-screens/ios/RNSScreenStack.mm
+@@ -1560,8 +1560,10 @@ @implementation RNSScreenStackManager {
+ 
+ RCT_EXPORT_MODULE()
+ 
++#if !RCT_NEW_ARCH_ENABLED
+ RCT_EXPORT_VIEW_PROPERTY(onFinishTransitioning, RCTDirectEventBlock);
+ RCT_EXPORT_VIEW_PROPERTY(iosPreventReattachmentOfDismissedScreens, BOOL);
++#endif // !RCT_NEW_ARCH_ENABLED
+ 
+ #ifdef RCT_NEW_ARCH_ENABLED
+ #else
+diff --git a/node_modules/react-native-screens/ios/RNSScreenStackHeaderConfig.mm b/node_modules/react-native-screens/ios/RNSScreenStackHeaderConfig.mm
+index 7d8e494..672768a 100644
+--- a/node_modules/react-native-screens/ios/RNSScreenStackHeaderConfig.mm
++++ b/node_modules/react-native-screens/ios/RNSScreenStackHeaderConfig.mm
+@@ -1272,6 +1272,7 @@ - (RCTShadowView *)shadowView
+ 
+ #endif // RCT_NEW_ARCH_ENABLED
+ 
++#if !RCT_NEW_ARCH_ENABLED
+ RCT_EXPORT_VIEW_PROPERTY(title, NSString)
+ RCT_EXPORT_VIEW_PROPERTY(titleFontFamily, NSString)
+ RCT_EXPORT_VIEW_PROPERTY(titleFontSize, NSNumber)
+@@ -1304,6 +1305,7 @@ - (RCTShadowView *)shadowView
+ RCT_EXPORT_VIEW_PROPERTY(headerRightBarButtonItems, NSArray)
+ RCT_EXPORT_VIEW_PROPERTY(onPressHeaderBarButtonItem, RCTDirectEventBlock);
+ RCT_EXPORT_VIEW_PROPERTY(onPressHeaderBarButtonMenuItem, RCTDirectEventBlock);
++#endif // !RCT_NEW_ARCH_ENABLED
+ 
+ @end
+ 

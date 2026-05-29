@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useState } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
@@ -36,7 +36,7 @@ function RegisterMultisig({
   const { colorMode } = useColorMode();
   const [visible, setVisible] = useState(false);
   const { showToast } = useToastMessage();
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
 
   const isIos = Platform.OS === 'ios';
   const isAndroid = Platform.OS === 'android';

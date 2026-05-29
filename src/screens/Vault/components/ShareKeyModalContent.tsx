@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
 import Text from 'src/components/KeeperText';
@@ -37,7 +37,7 @@ function ShareKeyModalContent({
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const [nfcVisible, setNfcVisible] = useState(false);
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const isAndroid = Platform.OS === 'android';
   const isIos = Platform.OS === 'ios';
 
@@ -124,6 +124,7 @@ function ShareKeyModalContent({
   };
 
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });

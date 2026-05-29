@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, StyleSheet, Vibration } from 'react-native';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -47,7 +47,7 @@ function ContactDetails({ route }) {
   const isIos = Platform.OS === 'ios';
   const useNdef = isAndroid && !isIos;
   const [visible, setVisible] = useState(false);
-  const { session } = useContext(HCESessionContext);
+  const { session } = Platform.OS === 'android' ? useContext(HCESessionContext) : {};
   const { collaborativeSession } = useAppSelector((state) => state.vault);
 
   const shareWithFile = async () => {
@@ -118,6 +118,7 @@ function ContactDetails({ route }) {
     }
   };
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeBaseProvider } from 'native-base';
+import { NativeBaseProvider } from '@gluestack-ui/themed-native-base';
 
 import { customTheme } from '../navigation/themes';
 

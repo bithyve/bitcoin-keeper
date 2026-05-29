@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import * as SecureStore from 'src/storage/secure-store';

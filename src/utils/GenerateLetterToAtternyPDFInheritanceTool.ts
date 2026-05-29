@@ -1,4 +1,4 @@
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import { generatePDF } from 'react-native-html-to-pdf';
 
 const GenerateLetterToAtternyPDFInheritanceTool = async (fingerPrints) => {
   try {
@@ -105,7 +105,7 @@ const GenerateLetterToAtternyPDFInheritanceTool = async (fingerPrints) => {
       directory: 'Documents',
       base64: true,
     };
-    const file = await RNHTMLtoPDF.convert(options);
+    const file = await generatePDF(options);
     return file.filePath;
   } catch (error: any) {
     return error;

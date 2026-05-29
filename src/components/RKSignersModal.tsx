@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useContext } from 'react';
+import React, { useState, useRef, useImperativeHandle, useContext } from 'react';
 import useSignerMap from 'src/hooks/useSignerMap';
 import SignerModals from '../screens/SignTransaction/SignerModals';
 import { ScriptTypes, SignerType, XpubTypes } from 'src/services/wallets/enums';
@@ -19,7 +19,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import KeeperModal from 'src/components/KeeperModal';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import { SIGNTRANSACTION } from 'src/navigation/contants';
 import { useDispatch } from 'react-redux';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
@@ -41,7 +41,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ThemedSvg from './ThemedSvg.tsx/ThemedSvg';
 import { hp } from 'src/constants/responsive';
 
-const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
+const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId, ref }) => {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const serializedPSBTEnvelop = {
@@ -81,7 +81,11 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   const { withModal, nfcVisible: TSNfcVisible } = useTapsignerModal(card);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const satoCard = useRef(new SatochipCard()).current;
-  const { nfcVisible: satochipNfcVisible, withModal: satochipWithModal, closeNfc: closeSatochipNfc } = useSatochipModal(satoCard);
+  const {
+    nfcVisible: satochipNfcVisible,
+    withModal: satochipWithModal,
+    closeNfc: closeSatochipNfc,
+  } = useSatochipModal(satoCard);
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
@@ -331,49 +335,49 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
         return signedPSBT;
       } else if (SignerType.SATOCHIP === signerType) {
         const currentKey = {
-            derivationPath: signer.signerXpubs[XpubTypes.P2WSH][0].derivationPath,
+          derivationPath: signer.signerXpubs[XpubTypes.P2WSH][0].derivationPath,
         };
         const inputs = getInputsFromPSBT(serializedPSBTEnvelop.serializedPSBT);
         const inputsToSign = getInputsToSignFromPSBT(serializedPSBTEnvelop.serializedPSBT, signer);
         const signingPayload = [
-            {
-                payloadTarget: signer.type,
-                inputsToSign,
-                inputs,
-            },
+          {
+            payloadTarget: signer.type,
+            inputsToSign,
+            inputs,
+          },
         ];
 
         const { signingPayload: signedPayload } = await signTransactionWithSatochip({
-            setSatochipModal,
-            signingPayload,
-            currentKey,
-            withModal: satochipWithModal,
-            closeNfc: closeSatochipNfc,
-            defaultVault: {},
-            serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
-            card: satoCard,
-            pin: satochipPin,
-            signer,
+          setSatochipModal,
+          signingPayload,
+          currentKey,
+          withModal: satochipWithModal,
+          closeNfc: closeSatochipNfc,
+          defaultVault: {},
+          serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
+          card: satoCard,
+          pin: satochipPin,
+          signer,
         });
         const psbt = bitcoin.Psbt.fromBase64(serializedPSBTEnvelop.serializedPSBT);
         signedPayload[0].inputsToSign.forEach(
-            ({ inputIndex, signature, publicKey, sighashType }) => {
-                psbt.addSignedDigest(
-                    inputIndex,
-                    Buffer.from(publicKey, 'hex'),
-                    Buffer.from(signature, 'hex'),
-                    sighashType
-                );
-            }
+          ({ inputIndex, signature, publicKey, sighashType }) => {
+            psbt.addSignedDigest(
+              inputIndex,
+              Buffer.from(publicKey, 'hex'),
+              Buffer.from(signature, 'hex'),
+              sighashType
+            );
+          }
         );
         const signedPSBT = psbt.toBase64();
         dispatch(
-            healthCheckStatusUpdate([
-                {
-                    signerId: signer.masterFingerprint,
-                    status: hcStatusType.HEALTH_CHECK_SIGNING,
-                },
-            ])
+          healthCheckStatusUpdate([
+            {
+              signerId: signer.masterFingerprint,
+              status: hcStatusType.HEALTH_CHECK_SIGNING,
+            },
+          ])
         );
         return signedPSBT;
       } else if (SignerType.PORTAL === signerType) {
@@ -610,4 +614,4 @@ const RKSignersModal = ({ signer, psbt, isMiniscript, vaultId }, ref) => {
   );
 };
 
-export default forwardRef(RKSignersModal);
+export default RKSignersModal;

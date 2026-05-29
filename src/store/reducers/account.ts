@@ -29,6 +29,12 @@ export type recoveryKeyBackedUpByAppId = {
   [appId: string]: Boolean;
 };
 
+export type RecoveryKeyStatus = 'generated' | 'viewed' | 'confirmed' | 'skipped';
+
+export type recoveryKeyStatusByAppId = {
+  [appId: string]: RecoveryKeyStatus;
+};
+
 export type DefaultWalletCreatedByAppId = {
   [appId: string]: {
     [NetworkType.MAINNET]: boolean;
@@ -50,6 +56,7 @@ const initialState: {
   defaultWalletCreatedByAppId: DefaultWalletCreatedByAppId;
   personalBackupPasswordByAppId: personalBackupPasswordByAppId;
   recoveryKeyBackedUpByAppId: recoveryKeyBackedUpByAppId;
+  recoveryKeyStatusByAppId: recoveryKeyStatusByAppId;
 } = {
   allAccounts: [],
   tempDetails: null,
@@ -60,6 +67,7 @@ const initialState: {
   defaultWalletCreatedByAppId: {},
   personalBackupPasswordByAppId: {},
   recoveryKeyBackedUpByAppId: {},
+  recoveryKeyStatusByAppId: {},
 };
 
 const accountSlice = createSlice({
@@ -166,6 +174,14 @@ const accountSlice = createSlice({
     setRecoveryKeyBackedUp: (state, action: PayloadAction<{ appId: string; status: boolean }>) => {
       (state.recoveryKeyBackedUpByAppId ??= {})[action.payload.appId] = action.payload.status;
     },
+
+    setRecoveryKeyStatus: (state, action: PayloadAction<{ appId: string; status: RecoveryKeyStatus }>) => {
+      (state.recoveryKeyStatusByAppId ??= {})[action.payload.appId] = action.payload.status;
+      // Keep legacy boolean field in sync so existing code depending on it still works
+      if (action.payload.status === 'confirmed') {
+        (state.recoveryKeyBackedUpByAppId ??= {})[action.payload.appId] = true;
+      }
+    },
   },
 });
 
@@ -182,5 +198,6 @@ export const {
   saveDefaultWalletState,
   setPersonalBackupPassword,
   setRecoveryKeyBackedUp,
+  setRecoveryKeyStatus,
 } = accountSlice.actions;
 export default accountSlice.reducer;

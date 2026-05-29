@@ -97,7 +97,7 @@ import KruxLogoDark from 'src/assets/images/KruxLogoDark.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
-import { useColorMode } from 'native-base';
+import { useColorMode } from '@gluestack-ui/themed-native-base';
 
 const getColouredIcon = (LightComponent, DarkComponent, isLight, width, height) => {
   const component = isLight ? LightComponent : DarkComponent;
