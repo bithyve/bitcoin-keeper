@@ -73,6 +73,41 @@ maestro test flows/addwallet.yaml
 maestro test --verbose flows/refreshwallet.yaml
 ```
 
+### 5. Use Maestro MCP server in VS Code
+
+This workspace includes MCP server config in `.vscode/mcp.json`.
+
+Configured server:
+- server name: `maestro`
+- type: `stdio`
+- command: `maestro`
+- args: `["mcp"]`
+
+MCP usage workflow in chat:
+
+1. Ask the agent to list devices.
+2. Ask the agent to inspect the current screen.
+3. Ask the agent to run one flow and report failures.
+4. Ask the agent to update selectors/assertions and re-run.
+
+Example prompts:
+- "List Maestro devices and inspect the app screen."
+- "Run flows/dustSanity.yaml and summarize failures."
+- "Update flows/dustSanity.yaml selectors for the current UI and run again."
+
+Optional cloud execution with MCP:
+
+When local devices are unavailable, use MCP cloud tools:
+- `list_cloud_devices`
+- `run_on_cloud`
+- `get_cloud_run_status`
+
+Authenticate first with:
+
+```bash
+maestro login
+```
+
 ## Folder Structure
 
 ```text
@@ -124,7 +159,6 @@ Run add wallet flow:
 ```bash
 maestro test flows/addwallet.yaml
 ```
-
 
 ## Notes
 
