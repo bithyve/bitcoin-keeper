@@ -1,0 +1,545 @@
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
+import { useDispatch } from 'react-redux';
+import KeeperModal from 'src/components/KeeperModal';
+import Text from 'src/components/KeeperText';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import { useAppSelector } from 'src/store/hooks';
+import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { UI_REQUEST } from '@onekeyfe/hd-core';
+import {
+  ensureOneKeyBLEReady,
+  fetchOneKeySignerData,
+  getOneKeyDeviceInfo,
+  onekeyUIEmitter,
+  ONEKEY_UI_EVENT,
+  searchOneKeyDevices,
+  verifyAddressOnOneKey,
+  type OneKeyUIEvent,
+} from 'src/services/onekeyBle';
+import {
+  getDeviceImage,
+  getDeviceDisplayName,
+  getDeviceTypeName,
+} from 'src/services/onekeyBle/deviceConstants';
+import { setupUSBSigner } from 'src/hardware/signerSetup';
+import { addSigningDevice, updateKeyDetails } from 'src/store/sagaActions/vaults';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
+import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
+import type { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import { captureError } from 'src/services/sentry';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import type { Signer } from 'src/services/wallets/interfaces/vault';
+import type { SearchDevice } from '@onekeyfe/hd-core';
+
+// ─── SDK UI event descriptions ──────────────────────────────────────────────
+
+const UI_PROMPTS: Record<string, string> = {
+  [UI_REQUEST.REQUEST_PIN]: 'Please enter PIN on your OneKey device',
+  [UI_REQUEST.REQUEST_BUTTON]: 'Please confirm on your OneKey device',
+  [UI_REQUEST.REQUEST_PASSPHRASE]: 'Please enter passphrase on your OneKey device',
+  idle: '',
+};
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+type ModalMode = 'setup' | 'health-check' | 'verify-address';
+type ModalPhase = 'scan' | 'connecting' | 'sdk-prompt' | 'done';
+
+const BLE_OPERATION_TIMEOUT_MS = 30_000;
+
+type Props = {
+  visible: boolean;
+  close: () => void;
+  mode: ModalMode;
+  signer?: Signer;
+  isMultisig?: boolean;
+  addSignerFlow?: boolean;
+  accountNumber?: number;
+  onSignerAdded?: (signer: Signer) => void;
+  // verify-address mode props
+  vaultKey?: VaultSigner;
+  vaultId?: string;
+  receiveAddressIndex?: number;
+  receivingAddress?: string;
+};
+
+// ─── Component ──────────────────────────────────────────────────────────────
+
+function OneKeyBleModal({
+  visible,
+  close,
+  mode,
+  signer,
+  isMultisig = true,
+  addSignerFlow = false,
+  accountNumber = 0,
+  onSignerAdded,
+  vaultKey,
+  vaultId,
+  receiveAddressIndex,
+  receivingAddress,
+}: Props) {
+  const { colorMode } = useColorMode();
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
+
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
+  const networkType =
+    bitcoinNetworkType === NetworkType.TESTNET ? NetworkType.TESTNET : NetworkType.MAINNET;
+
+  const [phase, setPhase] = useState<ModalPhase>('scan');
+  const [devices, setDevices] = useState<SearchDevice[]>([]);
+  const [scanning, setScanning] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [sdkPrompt, setSdkPrompt] = useState<OneKeyUIEvent>('idle');
+
+  // Listen to SDK UI events
+  useEffect(() => {
+    const handler = (event: OneKeyUIEvent) => {
+      if (event === 'idle') {
+        setSdkPrompt('idle');
+        if (phase === 'sdk-prompt') setPhase('connecting');
+      } else {
+        setSdkPrompt(event);
+        setPhase('sdk-prompt');
+      }
+    };
+    const subscription = onekeyUIEmitter.addListener(ONEKEY_UI_EVENT, handler);
+    return () => { subscription.remove(); };
+  }, [phase]);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (visible) {
+      setDevices([]);
+      setScanning(false);
+      setStatusMessage('');
+      setSdkPrompt('idle');
+
+      if (mode === 'health-check' || mode === 'verify-address') {
+        // Direct connect modes: skip scan
+        setPhase('connecting');
+        setTimeout(() => mode === 'verify-address' ? runVerifyAddress() : runHealthCheck(), 300);
+      } else {
+        // Setup: show scan UI
+        setPhase('scan');
+        setTimeout(() => scanDevices(), 300);
+      }
+    }
+  }, [visible]);
+
+  // ─── Scan ──────────────────────────────────────────────────────────────────
+
+  const scanDevices = async () => {
+    if (scanning) return;
+    try {
+      setScanning(true);
+      setDevices([]);
+      const bleReady = await ensureOneKeyBLEReady();
+      if (!bleReady.ready) {
+        showToast(
+          bleReady.reason === 'MISSING_PERMISSION'
+            ? 'Please grant Bluetooth permissions'
+            : 'Please turn on Bluetooth and try again',
+          <ToastErrorIcon />
+        );
+        return;
+      }
+      const found = await searchOneKeyDevices();
+      setDevices(found || []);
+    } catch (error) {
+      captureError(error);
+      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  // ─── Setup: tap device → connect → import keys ─────────────────────────────
+
+  const handleSetupTap = async (device: SearchDevice) => {
+    if (!device?.connectId) return;
+    try {
+      setPhase('connecting');
+      setStatusMessage('Connecting to device...');
+
+      const deviceInfo = await getOneKeyDeviceInfo(device.connectId);
+
+      // Clear any SDK prompt after device info is fetched
+      setPhase('connecting');
+      setStatusMessage('Importing keys...');
+      const signerData = await fetchOneKeySignerData({
+        connectId: device.connectId,
+        deviceId: deviceInfo.deviceId,
+        networkType,
+        accountNumber,
+      });
+
+      // Clear any SDK prompt after keys imported
+      setPhase('connecting');
+      setStatusMessage('Finalizing...');
+
+      const { signer: newSigner } = setupUSBSigner(SignerType.ONEKEY, signerData, isMultisig);
+
+      // Title: "OneKey Pro" / "OneKey Classic", Subtitle: BLE name (e.g. "Pro 04DD")
+      newSigner.signerName = getDeviceTypeName(device);
+      const bleName = device?.name;
+      if (bleName && bleName !== 'Unknown') {
+        newSigner.signerDescription = bleName;
+      }
+      newSigner.extraData = { ...newSigner.extraData, bleConnectId: deviceInfo.connectId };
+
+      dispatch(addSigningDevice([newSigner]));
+      setPhase('done');
+      showToast('OneKey added successfully', <TickIcon />);
+      onSignerAdded?.(newSigner);
+      close();
+    } catch (error) {
+      captureError(error);
+      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+      setPhase('scan'); // Back to scan so user can retry
+    }
+  };
+
+  // ─── Health Check: direct connect via stored connectId ─────────────────────
+
+  const runHealthCheck = async () => {
+    if (!signer) return;
+    try {
+      setPhase('connecting');
+
+      const bleReady = await ensureOneKeyBLEReady();
+      if (!bleReady.ready) {
+        showToast('Please turn on Bluetooth and try again', <ToastErrorIcon />);
+        close();
+        return;
+      }
+
+      const storedConnectId = signer?.extraData?.bleConnectId;
+      if (!storedConnectId) {
+        showToast('No stored connection info. Please re-add this device.', <ToastErrorIcon />);
+        close();
+        return;
+      }
+
+      // BLE needs a brief scan to discover peripherals before connecting
+      setStatusMessage('Connecting to device...');
+      await searchOneKeyDevices();
+
+      setStatusMessage('Verifying device...');
+      const deviceInfo = await Promise.race([
+        getOneKeyDeviceInfo(storedConnectId),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Operation timed out. Device not found.')), BLE_OPERATION_TIMEOUT_MS)
+        ),
+      ]);
+
+      // Clear any SDK prompt after verification
+      setPhase('connecting');
+      setStatusMessage('Checking result...');
+
+      if (signer.masterFingerprint === deviceInfo.masterFingerprint) {
+        dispatch(
+          healthCheckStatusUpdate([
+            { signerId: signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_SUCCESSFULL },
+          ])
+        );
+        setPhase('done');
+        showToast('OneKey verification successful', <TickIcon />);
+        close();
+      } else {
+        showToast('Fingerprint mismatch. Wrong device connected.', <ToastErrorIcon />);
+        close();
+      }
+    } catch (error) {
+      captureError(error);
+      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+      close();
+    }
+  };
+
+  // ─── Verify Address: direct connect → show address on device ─────────────
+
+  const runVerifyAddress = async () => {
+    if (!signer || !vaultKey || !receivingAddress) return;
+    try {
+      setPhase('connecting');
+
+      const bleReady = await ensureOneKeyBLEReady();
+      if (!bleReady.ready) {
+        showToast('Please turn on Bluetooth and try again', <ToastErrorIcon />);
+        close();
+        return;
+      }
+
+      const storedConnectId = signer?.extraData?.bleConnectId;
+      if (!storedConnectId) {
+        showToast('No stored connection info. Please re-add this device.', <ToastErrorIcon />);
+        close();
+        return;
+      }
+
+      setStatusMessage('Connecting to device...');
+      await searchOneKeyDevices();
+
+      const withTimeout = <T,>(promise: Promise<T>, ms = BLE_OPERATION_TIMEOUT_MS): Promise<T> =>
+        Promise.race([
+          promise,
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Operation timed out. Device not found.')), ms)
+          ),
+        ]);
+
+      setStatusMessage('Reading device info...');
+      const deviceInfo = await withTimeout(getOneKeyDeviceInfo(storedConnectId));
+
+      setPhase('connecting');
+      setStatusMessage('Verifying address on device...');
+      const addressPath = `${vaultKey.derivationPath}/0/${receiveAddressIndex}`;
+      const deviceAddress = await withTimeout(verifyAddressOnOneKey({
+        connectId: storedConnectId,
+        deviceId: deviceInfo.deviceId,
+        path: addressPath,
+        networkType,
+      }));
+
+      setPhase('connecting');
+
+      if (deviceAddress === receivingAddress) {
+        dispatch(updateKeyDetails(vaultKey, 'registered', { registered: true, vaultId }));
+        dispatch(
+          healthCheckStatusUpdate([
+            { signerId: signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_VERIFICATION },
+          ])
+        );
+        showToast('Address verified successfully on OneKey', <TickIcon />);
+      } else {
+        showToast('Address mismatch! The address on device does not match.', <ToastErrorIcon />);
+      }
+      close();
+    } catch (error) {
+      captureError(error);
+      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+      close();
+    }
+  };
+
+  const handleDeviceTap = handleSetupTap;
+
+  // ─── Render helpers ────────────────────────────────────────────────────────
+
+  const renderDevice = ({ item: device }: { item: SearchDevice }) => {
+    const img = getDeviceImage(device?.deviceType);
+    return (
+      <TouchableOpacity
+        style={[styles.deviceItem, { borderColor: colorMode === 'light' ? '#E0E0E0' : '#444' }]}
+        onPress={() => handleDeviceTap(device)}
+        activeOpacity={0.7}
+      >
+        <Box style={styles.deviceRow}>
+          {img ? (
+            <Image source={img} style={styles.deviceImage} resizeMode="contain" />
+          ) : (
+            <Box style={styles.fallbackIcon}>
+              <Text style={styles.fallbackText}>OK</Text>
+            </Box>
+          )}
+          <Box style={{ flex: 1 }}>
+            <Text style={styles.deviceName} color={`${colorMode}.primaryText`}>
+              {getDeviceDisplayName(device)}
+            </Text>
+          </Box>
+          <Text color={`${colorMode}.secondaryText`} style={styles.arrow}>›</Text>
+        </Box>
+      </TouchableOpacity>
+    );
+  };
+
+  const ModalContent = () => {
+    // SDK prompt phase — show device interaction prompt
+    if (phase === 'sdk-prompt' && sdkPrompt !== 'idle') {
+      return (
+        <Box style={styles.centerContent}>
+          <ActivityIndicator size="large" />
+          <Text color={`${colorMode}.primaryText`} style={styles.promptText}>
+            {UI_PROMPTS[sdkPrompt]}
+          </Text>
+        </Box>
+      );
+    }
+
+    // Connecting phase
+    if (phase === 'connecting') {
+      return (
+        <Box style={styles.centerContent}>
+          <ActivityIndicator size="large" />
+          <Text color={`${colorMode}.secondaryText`} style={styles.statusText}>
+            {statusMessage || 'Connecting...'}
+          </Text>
+        </Box>
+      );
+    }
+
+    // Scan phase — show device list or loading
+    if (scanning && devices.length === 0) {
+      return (
+        <Box style={styles.centerContent}>
+          <ActivityIndicator size="large" />
+          <Text color={`${colorMode}.secondaryText`} style={styles.statusText}>
+            Looking for devices...
+          </Text>
+        </Box>
+      );
+    }
+
+    if (!scanning && devices.length === 0) {
+      return (
+        <Box style={styles.centerContent}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.statusText}>
+            No devices found. Make sure your OneKey is unlocked and nearby.
+          </Text>
+          <TouchableOpacity onPress={scanDevices}>
+            <Text color={`${colorMode}.pantoneGreen`} style={styles.rescanText}>
+              Rescan
+            </Text>
+          </TouchableOpacity>
+        </Box>
+      );
+    }
+
+    // Devices found
+    return (
+      <Box>
+        <Box style={styles.listHeader}>
+          <Text color={`${colorMode}.secondaryText`} style={styles.listHeaderText}>
+            Select your device
+          </Text>
+          <TouchableOpacity onPress={scanDevices}>
+            <Text color={`${colorMode}.pantoneGreen`} style={styles.rescanText}>
+              Rescan
+            </Text>
+          </TouchableOpacity>
+        </Box>
+        <FlatList
+          data={devices}
+          renderItem={renderDevice}
+          keyExtractor={(d) => `${d?.uuid || ''}-${d?.connectId || ''}`}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          style={styles.list}
+        />
+      </Box>
+    );
+  };
+
+  if (!visible) return null;
+
+  const title =
+    mode === 'setup' ? 'Setting up OneKey'
+    : mode === 'verify-address' ? 'Verify Address'
+    : 'Verify OneKey';
+  const subTitle =
+    mode === 'setup' ? 'Connect OneKey hardware wallet via Bluetooth'
+    : mode === 'verify-address' ? 'Confirm the address matches on your OneKey device'
+    : 'Verify your OneKey device is accessible';
+
+  return (
+    <KeeperModal
+      visible={visible}
+      close={close}
+      title={title}
+      subTitle={subTitle}
+      showCloseIcon
+      modalBackground={`${colorMode}.modalWhiteBackground`}
+      textColor={`${colorMode}.textGreen`}
+      subTitleColor={`${colorMode}.modalSubtitleBlack`}
+      Content={ModalContent}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  centerContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    gap: 16,
+  },
+  promptText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  statusText: {
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  rescanText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  listHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  listHeaderText: {
+    fontSize: 13,
+  },
+  list: {
+    maxHeight: 300,
+  },
+  listContent: {
+    gap: 8,
+  },
+  deviceItem: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  deviceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deviceImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  fallbackIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#44D62C',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  fallbackText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#000',
+  },
+  deviceName: {
+    fontSize: 15,
+    fontWeight: '500',
+  },
+  arrow: {
+    fontSize: 22,
+    fontWeight: '300',
+    marginLeft: 8,
+  },
+});
+
+export default OneKeyBleModal;
