@@ -8,7 +8,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useAppSelector } from 'src/store/hooks';
-import { NetworkType, SignerType } from 'src/services/wallets/enums';
+import { MultisigScriptType, NetworkType, SignerType } from 'src/services/wallets/enums';
 import { UI_REQUEST } from '@onekeyfe/hd-core';
 import {
   ensureOneKeyBLEReady,
@@ -26,14 +26,16 @@ import {
   getDeviceTypeName,
 } from 'src/services/onekeyBle/deviceConstants';
 import { setupUSBSigner } from 'src/hardware/signerSetup';
-import { addSigningDevice, updateKeyDetails } from 'src/store/sagaActions/vaults';
+import { addSigningDevice } from 'src/store/sagaActions/vaults';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
-import type { VaultSigner } from 'src/services/wallets/interfaces/vault';
+import type { Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { captureError } from 'src/services/sentry';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import type { Signer } from 'src/services/wallets/interfaces/vault';
 import type { SearchDevice } from '@onekeyfe/hd-core';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 
 // ─── SDK UI event descriptions ──────────────────────────────────────────────
 
@@ -49,8 +51,6 @@ const UI_PROMPTS: Record<string, string> = {
 type ModalMode = 'setup' | 'health-check' | 'verify-address';
 type ModalPhase = 'scan' | 'connecting' | 'sdk-prompt' | 'done';
 
-const BLE_OPERATION_TIMEOUT_MS = 30_000;
-
 type Props = {
   visible: boolean;
   close: () => void;
@@ -62,6 +62,7 @@ type Props = {
   onSignerAdded?: (signer: Signer) => void;
   // verify-address mode props
   vaultKey?: VaultSigner;
+  vault?: Vault;
   vaultId?: string;
   receiveAddressIndex?: number;
   receivingAddress?: string;
@@ -79,6 +80,7 @@ function OneKeyBleModal({
   accountNumber = 0,
   onSignerAdded,
   vaultKey,
+  vault,
   vaultId,
   receiveAddressIndex,
   receivingAddress,
@@ -233,12 +235,7 @@ function OneKeyBleModal({
       await searchOneKeyDevices();
 
       setStatusMessage('Verifying device...');
-      const deviceInfo = await Promise.race([
-        getOneKeyDeviceInfo(storedConnectId),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Operation timed out. Device not found.')), BLE_OPERATION_TIMEOUT_MS)
-        ),
-      ]);
+      const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
 
       // Clear any SDK prompt after verification
       setPhase('connecting');
@@ -267,7 +264,11 @@ function OneKeyBleModal({
   // ─── Verify Address: direct connect → show address on device ─────────────
 
   const runVerifyAddress = async () => {
-    if (!signer || !vaultKey || !receivingAddress) return;
+    if (!signer || !vaultKey || !receivingAddress || receiveAddressIndex === undefined) {
+      showToast('Missing address verification details. Please try again.', <ToastErrorIcon />);
+      close();
+      return;
+    }
     try {
       setPhase('connecting');
 
@@ -288,26 +289,38 @@ function OneKeyBleModal({
       setStatusMessage('Connecting to device...');
       await searchOneKeyDevices();
 
-      const withTimeout = <T,>(promise: Promise<T>, ms = BLE_OPERATION_TIMEOUT_MS): Promise<T> =>
-        Promise.race([
-          promise,
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Operation timed out. Device not found.')), ms)
-          ),
-        ]);
-
       setStatusMessage('Reading device info...');
-      const deviceInfo = await withTimeout(getOneKeyDeviceInfo(storedConnectId));
+      const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
 
       setPhase('connecting');
       setStatusMessage('Verifying address on device...');
       const addressPath = `${vaultKey.derivationPath}/0/${receiveAddressIndex}`;
-      const deviceAddress = await withTimeout(verifyAddressOnOneKey({
+      let multisigConfig;
+      if (vault?.isMultiSig) {
+        const multisigScriptType =
+          vault.scheme.multisigScriptType || MultisigScriptType.DEFAULT_MULTISIG;
+        if (multisigScriptType !== MultisigScriptType.DEFAULT_MULTISIG) {
+          throw new Error('OneKey address verification supports standard multisig vaults only.');
+        }
+        const multisigAddress = WalletUtilities.createMultiSig(vault, receiveAddressIndex, false);
+        const sortedXpubs = [...vault.specs.xpubs].sort((a, b) => {
+          const pubA = multisigAddress.signerPubkeyMap.get(a)?.toString('hex') || '';
+          const pubB = multisigAddress.signerPubkeyMap.get(b)?.toString('hex') || '';
+          return pubA.localeCompare(pubB);
+        });
+        multisigConfig = {
+          m: vault.scheme.m,
+          xpubs: sortedXpubs,
+          addressIndex: receiveAddressIndex,
+        };
+      }
+      const deviceAddress = await verifyAddressOnOneKey({
         connectId: storedConnectId,
         deviceId: deviceInfo.deviceId,
         path: addressPath,
         networkType,
-      }));
+        multisigConfig,
+      });
 
       setPhase('connecting');
 

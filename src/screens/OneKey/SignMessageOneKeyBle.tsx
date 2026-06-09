@@ -30,8 +30,6 @@ const UI_PROMPTS: Record<string, string> = {
   [UI_REQUEST.REQUEST_PASSPHRASE]: 'Please enter passphrase on your OneKey device',
 };
 
-const BLE_TIMEOUT_MS = 30_000;
-
 type Params = {
   message: string;
   address: string;
@@ -73,14 +71,6 @@ function SignMessageOneKeyBle() {
     return () => clearTimeout(timer);
   }, []);
 
-  const withTimeout = <T,>(promise: Promise<T>): Promise<T> =>
-    Promise.race([
-      promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Operation timed out. Device not found.')), BLE_TIMEOUT_MS)
-      ),
-    ]);
-
   const runSignMessage = async () => {
     try {
       const bleReady = await ensureOneKeyBLEReady();
@@ -103,17 +93,17 @@ function SignMessageOneKeyBle() {
 
       setStatusMessage('Reading device info...');
       setSdkPrompt('');
-      const deviceInfo = await withTimeout(getOneKeyDeviceInfo(storedConnectId));
+      const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
 
       setStatusMessage('Signing message...');
       setSdkPrompt('');
-      const result = await withTimeout(signMessageWithOneKey({
+      const result = await signMessageWithOneKey({
         connectId: storedConnectId,
         deviceId: deviceInfo.deviceId,
         path: derivationPath,
         message,
         networkType,
-      }));
+      });
 
       setSdkPrompt('');
       showToast('Message signed successfully', <TickIcon />);

@@ -36,8 +36,6 @@ const UI_PROMPTS: Record<string, string> = {
   [UI_REQUEST.REQUEST_PASSPHRASE]: 'Please enter passphrase on your OneKey device',
 };
 
-const BLE_TIMEOUT_MS = 30_000;
-
 type SignWithOneKeyBleParams = {
   vaultKey: VaultSigner;
   isRemoteKey?: boolean;
@@ -94,14 +92,6 @@ function SignWithOneKeyBle() {
     return () => clearTimeout(timer);
   }, []);
 
-  const withTimeout = <T,>(promise: Promise<T>): Promise<T> =>
-    Promise.race([
-      promise,
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Operation timed out. Device not found.')), BLE_TIMEOUT_MS)
-      ),
-    ]);
-
   const runAutoSign = async () => {
     if (!serializedPSBTEnvelop?.serializedPSBT) {
       showToast('No PSBT found to sign', <ToastErrorIcon />);
@@ -129,16 +119,16 @@ function SignWithOneKeyBle() {
 
       setSdkPrompt('');
       setStatusMessage('Reading device info...');
-      const deviceInfo = await withTimeout(getOneKeyDeviceInfo(storedConnectId));
+      const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
 
       setSdkPrompt('');
       setStatusMessage('Signing transaction on device...');
-      const signedSerializedPSBT = await withTimeout(signPsbtWithOneKey({
+      const signedSerializedPSBT = await signPsbtWithOneKey({
         connectId: storedConnectId,
         deviceId: deviceInfo.deviceId,
         networkType,
         serializedPSBT: serializedPSBTEnvelop.serializedPSBT,
-      }));
+      });
 
       setSdkPrompt('');
       validatePSBT(serializedPSBTEnvelop.serializedPSBT, signedSerializedPSBT, signer, errorText);

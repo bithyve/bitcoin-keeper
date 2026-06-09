@@ -48,7 +48,7 @@ import OneKeyBleModal from 'src/components/OneKeyBleModal';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import AmountDetailsInput from '../Send/AmountDetailsInput';
-import { getAccountFromSigner } from 'src/utils/utilities';
+import { getAccountFromSigner, getKeyUID } from 'src/utils/utilities';
 import WalletHeader from 'src/components/WalletHeader';
 
 const AddressVerifiableSigners = [
@@ -88,7 +88,7 @@ function ReceiveScreen({ route }: { route }) {
   const { common, home, wallet: walletTranslation, vault: vaultTranslations } = translations;
 
   const navigation = useNavigation();
-  const { vaultSigners } = useSigners(wallet.id);
+  const { vaultSigners } = useSigners(wallet?.id ?? '');
   const [addVerifiableSigners, setAddVerifiableSigners] = useState([]);
   const [signersNeedRegistration, setSignersNeedRegistration] = useState([]);
 
@@ -285,13 +285,14 @@ function ReceiveScreen({ route }: { route }) {
               })
             );
           } else if (signer.type === SignerType.ONEKEY) {
-            const vKey = vaultSigners?.find(
-              (vs) => vs.signer?.masterFingerprint === signer.masterFingerprint
-            )?.vaultSigner;
+            const vKey = (wallet as Vault).signers?.find(
+              (vaultSigner) => getKeyUID(vaultSigner) === getKeyUID(signer)
+            );
             setOnekeyVerifyState({
               visible: true,
               signer,
               vaultKey: vKey,
+              vault: wallet,
               vaultId: wallet.id,
               receiveAddressIndex: currentAddressIdx - 1,
               receivingAddress,
@@ -604,6 +605,7 @@ function ReceiveScreen({ route }: { route }) {
       mode="verify-address"
       signer={onekeyVerifyState.signer}
       vaultKey={onekeyVerifyState.vaultKey}
+      vault={onekeyVerifyState.vault}
       vaultId={onekeyVerifyState.vaultId}
       receiveAddressIndex={onekeyVerifyState.receiveAddressIndex}
       receivingAddress={onekeyVerifyState.receivingAddress}

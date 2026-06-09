@@ -2,15 +2,21 @@ import HardwareBLESDK from '@onekeyfe/hd-ble-sdk';
 import {
   type CoreApi,
   type Features,
+  type HDNodeType,
+  type MultisigRedeemScriptType,
   type SearchDevice,
   UI_EVENT,
   UI_REQUEST,
   UI_RESPONSE,
 } from '@onekeyfe/hd-core';
+import type { InputScriptType } from '@onekeyfe/hd-transport';
+import BIP32Factory from 'bip32';
 import { BleManager } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { DeviceEventEmitter } from 'react-native';
 import { NetworkType } from 'src/services/wallets/enums';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 
 // ─── UI Event Emitter ────────────────────────────────────────────────────────
 // Components can listen to these events to show appropriate UI prompts.
@@ -46,6 +52,13 @@ export type OneKeyDeviceInfo = {
   serialNo: string; // Hardware serial number (e.g. "PRA471B")
 };
 
+type OneKeyMultisigAddressConfig = {
+  m: number;
+  xpubs: string[];
+  addressIndex: number;
+  isInternal?: boolean;
+};
+
 // ─── Singleton state ──────────────────────────────────────────────────────────
 
 let sdkInstance: CoreApi | null = null;
@@ -54,6 +67,8 @@ let bleManager: BleManager | null = null;
 let uiListenerBound = false;
 
 const SCAN_TIMEOUT_MS = 15_000;
+const bip32 = BIP32Factory(ecc);
+const HD_HARDENED = 0x80000000;
 
 // ─── SDK core ─────────────────────────────────────────────────────────────────
 
@@ -261,6 +276,58 @@ const extractXpub = (payload: any): string => {
   return payload.xpub;
 };
 
+const getHDPathArray = (path: string): number[] =>
+  path
+    .split('/')
+    .filter((part) => part && part !== 'm')
+    .map((part) => {
+      const hardened = part.slice(part.length - 1) === "'";
+      const index = Number(part.replace("'", ''));
+      if (isNaN(index) || index < 0) throw new Error(`Invalid derivation path: ${path}`);
+      return hardened ? (index | HD_HARDENED) >>> 0 : index;
+    });
+
+const toHex = (value: Buffer | Uint8Array): string => Buffer.from(value).toString('hex');
+
+const buildMultisigRedeemScript = ({
+  m,
+  xpubs,
+  addressIndex,
+  networkType,
+  isInternal = false,
+}: OneKeyMultisigAddressConfig & { networkType: NetworkType }): MultisigRedeemScriptType => {
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const toHDNode = (xpub: string): HDNodeType => {
+    const node = bip32.fromBase58(xpub, network);
+    return {
+      depth: node.depth,
+      fingerprint: node.parentFingerprint,
+      child_num: node.index,
+      chain_code: toHex(node.chainCode),
+      public_key: toHex(node.publicKey),
+    };
+  };
+
+  return {
+    pubkeys: xpubs.map((xpub) => ({
+      node: toHDNode(xpub),
+      address_n: [isInternal ? 1 : 0, addressIndex],
+    })),
+    signatures: xpubs.map(() => ''),
+    m,
+  };
+};
+
+const getMultisigAddressScriptType = (path: string): InputScriptType => {
+  const segments = getHDPathArray(path);
+  const bip48ScriptType = (segments[3] ?? 0) & ~HD_HARDENED;
+
+  if (bip48ScriptType === 2) return 'SPENDWITNESS';
+  if (bip48ScriptType === 1) return 'SPENDP2SHWITNESS';
+
+  return 'SPENDMULTISIG';
+};
+
 // ─── Signer data (xpub fetch) ─────────────────────────────────────────────────
 
 export const fetchOneKeySignerData = async ({
@@ -365,24 +432,57 @@ export const verifyAddressOnOneKey = async ({
   deviceId,
   path,
   networkType,
+  multisigConfig,
 }: {
   connectId: string;
   deviceId: string;
   path: string;
   networkType: NetworkType;
+  multisigConfig?: OneKeyMultisigAddressConfig;
 }): Promise<string> => {
   const sdk = await getOneKeySdk();
   const coin = getCoinNameByNetwork(networkType);
+  const multisig = multisigConfig
+    ? buildMultisigRedeemScript({ ...multisigConfig, networkType })
+    : undefined;
 
   const result = (await sdk.btcGetAddress(connectId, deviceId, {
-    path,
+    path: multisig ? getHDPathArray(path) : path,
     coin,
     showOnOneKey: true,
+    multisig,
+    scriptType: multisig ? getMultisigAddressScriptType(path) : undefined,
     useEmptyPassphrase: true,
   })) as SDKResult<{ address: string }>;
 
   if (!result?.success) throw new Error(getErrorMessage(result));
   if (!result?.payload?.address) throw new Error('OneKey returned empty address');
+
+  return result.payload.address;
+};
+
+export const verifyEvmAddressOnOneKey = async ({
+  connectId,
+  deviceId,
+  path,
+  chainId = 1,
+}: {
+  connectId: string;
+  deviceId: string;
+  path: string;
+  chainId?: number;
+}): Promise<string> => {
+  const sdk = await getOneKeySdk();
+
+  const result = (await sdk.evmGetAddress(connectId, deviceId, {
+    path,
+    chainId,
+    showOnOneKey: true,
+    useEmptyPassphrase: true,
+  })) as SDKResult<{ address: string }>;
+
+  if (!result?.success) throw new Error(getErrorMessage(result));
+  if (!result?.payload?.address) throw new Error('OneKey returned empty EVM address');
 
   return result.payload.address;
 };
