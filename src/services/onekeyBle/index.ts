@@ -461,32 +461,6 @@ export const verifyAddressOnOneKey = async ({
   return result.payload.address;
 };
 
-export const verifyEvmAddressOnOneKey = async ({
-  connectId,
-  deviceId,
-  path,
-  chainId = 1,
-}: {
-  connectId: string;
-  deviceId: string;
-  path: string;
-  chainId?: number;
-}): Promise<string> => {
-  const sdk = await getOneKeySdk();
-
-  const result = (await sdk.evmGetAddress(connectId, deviceId, {
-    path,
-    chainId,
-    showOnOneKey: true,
-    useEmptyPassphrase: true,
-  })) as SDKResult<{ address: string }>;
-
-  if (!result?.success) throw new Error(getErrorMessage(result));
-  if (!result?.payload?.address) throw new Error('OneKey returned empty EVM address');
-
-  return result.payload.address;
-};
-
 // ─── Message signing ──────────────────────────────────────────────────────────
 
 export const signMessageWithOneKey = async ({
