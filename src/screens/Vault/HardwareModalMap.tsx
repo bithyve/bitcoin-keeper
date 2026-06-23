@@ -2470,13 +2470,26 @@ function HardwareModalMap({
       <OneKeyBleModal
         visible={onekeyBleModalVisible}
         close={() => setOnekeyBleModalVisible(false)}
-        mode={isHealthcheck ? 'health-check' : 'setup'}
+        mode={
+          isHealthcheck
+            ? 'health-check'
+            : mode === InteracationMode.RECOVERY
+            ? 'recovery'
+            : 'setup'
+        }
         signer={signer}
         isMultisig={isMultisig}
         addSignerFlow={addSignerFlow}
         accountNumber={accountNumber}
         onSignerAdded={(addedSigner) => {
           setOnekeyBleModalVisible(false);
+          if (mode === InteracationMode.RECOVERY) {
+            dispatch(setSigningDevices(addedSigner));
+            navigation.dispatch(
+              CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+            );
+            return;
+          }
           const navigationState = addSignerFlow
             ? { name: 'Home', params: { selectedOption: 'Keys', addedSigner } }
             : { name: 'AddSigningDevice', merge: true, params: { addedSigner } };

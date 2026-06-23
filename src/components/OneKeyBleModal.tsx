@@ -49,7 +49,7 @@ const UI_PROMPTS: Record<string, string> = {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type ModalMode = 'setup' | 'identify' | 'health-check' | 'verify-address';
+type ModalMode = 'setup' | 'identify' | 'recovery' | 'health-check' | 'verify-address';
 type ModalPhase = 'scan' | 'connecting' | 'sdk-prompt' | 'done';
 
 type Props = {
@@ -133,7 +133,7 @@ function OneKeyBleModal({
         setPhase('connecting');
         setTimeout(() => mode === 'verify-address' ? runVerifyAddress() : runHealthCheck(), 300);
       } else {
-        // Setup and identify: show scan UI so the user can choose among nearby devices.
+        // Setup, identify, and recovery show scan UI so the user can choose among nearby devices.
         setPhase('scan');
         setTimeout(() => scanDevices(), 300);
       }
@@ -205,9 +205,14 @@ function OneKeyBleModal({
       }
       newSigner.extraData = { ...newSigner.extraData, bleConnectId: deviceInfo.connectId };
 
-      dispatch(addSigningDevice([newSigner]));
+      if (mode === 'setup') {
+        dispatch(addSigningDevice([newSigner]));
+      }
       setPhase('done');
-      showToast('OneKey added successfully', <TickIcon />);
+      showToast(
+        mode === 'recovery' ? 'OneKey connected successfully' : 'OneKey added successfully',
+        <TickIcon />
+      );
       onSignerAdded?.(newSigner);
       close();
     } catch (error) {
@@ -509,11 +514,13 @@ function OneKeyBleModal({
   const title =
     mode === 'setup' ? 'Setting up OneKey'
     : mode === 'identify' ? 'Identify OneKey'
+    : mode === 'recovery' ? 'Recover with OneKey'
     : mode === 'verify-address' ? 'Verify Address'
     : 'Verify OneKey';
   const subTitle =
     mode === 'setup' ? 'Connect OneKey hardware wallet via Bluetooth'
     : mode === 'identify' ? 'Select your OneKey and confirm it matches this key'
+    : mode === 'recovery' ? 'Select your OneKey to continue wallet recovery'
     : mode === 'verify-address' ? 'Confirm the address matches on your OneKey device'
     : 'Verify your OneKey device is accessible';
 
