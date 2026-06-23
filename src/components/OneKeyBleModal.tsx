@@ -18,6 +18,7 @@ import {
   ONEKEY_UI_EVENT,
   searchOneKeyDevices,
   verifyAddressOnOneKey,
+  type OneKeyDeviceInfo,
   type OneKeyUIEvent,
 } from 'src/services/onekeyBle';
 import {
@@ -48,7 +49,7 @@ const UI_PROMPTS: Record<string, string> = {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type ModalMode = 'setup' | 'health-check' | 'verify-address';
+type ModalMode = 'setup' | 'identify' | 'health-check' | 'verify-address';
 type ModalPhase = 'scan' | 'connecting' | 'sdk-prompt' | 'done';
 
 type Props = {
@@ -60,6 +61,7 @@ type Props = {
   addSignerFlow?: boolean;
   accountNumber?: number;
   onSignerAdded?: (signer: Signer) => void;
+  onDeviceIdentified?: (result: { device: SearchDevice; deviceInfo: OneKeyDeviceInfo }) => void;
   // verify-address mode props
   vaultKey?: VaultSigner;
   vault?: Vault;
@@ -76,9 +78,9 @@ function OneKeyBleModal({
   mode,
   signer,
   isMultisig = true,
-  addSignerFlow = false,
   accountNumber = 0,
   onSignerAdded,
+  onDeviceIdentified,
   vaultKey,
   vault,
   vaultId,
@@ -99,6 +101,7 @@ function OneKeyBleModal({
   const [devices, setDevices] = useState<SearchDevice[]>([]);
   const [scanning, setScanning] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [sdkPrompt, setSdkPrompt] = useState<OneKeyUIEvent>('idle');
 
   // Listen to SDK UI events
@@ -122,6 +125,7 @@ function OneKeyBleModal({
       setDevices([]);
       setScanning(false);
       setStatusMessage('');
+      setErrorMessage('');
       setSdkPrompt('idle');
 
       if (mode === 'health-check' || mode === 'verify-address') {
@@ -129,7 +133,7 @@ function OneKeyBleModal({
         setPhase('connecting');
         setTimeout(() => mode === 'verify-address' ? runVerifyAddress() : runHealthCheck(), 300);
       } else {
-        // Setup: show scan UI
+        // Setup and identify: show scan UI so the user can choose among nearby devices.
         setPhase('scan');
         setTimeout(() => scanDevices(), 300);
       }
@@ -142,22 +146,25 @@ function OneKeyBleModal({
     if (scanning) return;
     try {
       setScanning(true);
+      setErrorMessage('');
       setDevices([]);
       const bleReady = await ensureOneKeyBLEReady();
       if (!bleReady.ready) {
-        showToast(
+        const message =
           bleReady.reason === 'MISSING_PERMISSION'
             ? 'Please grant Bluetooth permissions'
-            : 'Please turn on Bluetooth and try again',
-          <ToastErrorIcon />
-        );
+            : 'Please turn on Bluetooth and try again';
+        setErrorMessage(message);
+        showToast(message, <ToastErrorIcon />);
         return;
       }
       const found = await searchOneKeyDevices();
       setDevices(found || []);
     } catch (error) {
       captureError(error);
-      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+      const message = error?.message || common.somethingWrong;
+      setErrorMessage(message);
+      showToast(message, <ToastErrorIcon />);
     } finally {
       setScanning(false);
     }
@@ -168,6 +175,7 @@ function OneKeyBleModal({
   const handleSetupTap = async (device: SearchDevice) => {
     if (!device?.connectId) return;
     try {
+      setErrorMessage('');
       setPhase('connecting');
       setStatusMessage('Connecting to device...');
 
@@ -204,8 +212,44 @@ function OneKeyBleModal({
       close();
     } catch (error) {
       captureError(error);
-      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+      const message = error?.message || common.somethingWrong;
+      setErrorMessage(message);
+      showToast(message, <ToastErrorIcon />);
       setPhase('scan'); // Back to scan so user can retry
+    }
+  };
+
+  // ─── Identify: tap device → connect → match fingerprint ───────────────────
+
+  const handleIdentifyTap = async (device: SearchDevice) => {
+    if (!device?.connectId || !signer) return;
+    try {
+      setErrorMessage('');
+      setPhase('connecting');
+      setStatusMessage('Connecting to device...');
+
+      const deviceInfo = await getOneKeyDeviceInfo(device.connectId);
+      const expectedFingerprint = signer.masterFingerprint?.toUpperCase();
+      const actualFingerprint = deviceInfo.masterFingerprint?.toUpperCase();
+
+      if (expectedFingerprint !== actualFingerprint) {
+        const message = 'Fingerprint mismatch. Please select the correct OneKey device.';
+        setErrorMessage(message);
+        showToast(message, <ToastErrorIcon />);
+        setPhase('scan');
+        return;
+      }
+
+      setPhase('done');
+      showToast('OneKey verified successfully', <TickIcon />);
+      onDeviceIdentified?.({ device, deviceInfo });
+      close();
+    } catch (error) {
+      captureError(error);
+      const message = error?.message || common.somethingWrong;
+      setErrorMessage(message);
+      showToast(message, <ToastErrorIcon />);
+      setPhase('scan');
     }
   };
 
@@ -343,7 +387,7 @@ function OneKeyBleModal({
     }
   };
 
-  const handleDeviceTap = handleSetupTap;
+  const handleDeviceTap = mode === 'identify' ? handleIdentifyTap : handleSetupTap;
 
   // ─── Render helpers ────────────────────────────────────────────────────────
 
@@ -375,6 +419,13 @@ function OneKeyBleModal({
   };
 
   const ModalContent = () => {
+    const ErrorMessage = () =>
+      errorMessage ? (
+        <Box style={styles.errorBanner}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </Box>
+      ) : null;
+
     // SDK prompt phase — show device interaction prompt
     if (phase === 'sdk-prompt' && sdkPrompt !== 'idle') {
       return (
@@ -414,6 +465,7 @@ function OneKeyBleModal({
     if (!scanning && devices.length === 0) {
       return (
         <Box style={styles.centerContent}>
+          <ErrorMessage />
           <Text color={`${colorMode}.secondaryText`} style={styles.statusText}>
             No devices found. Make sure your OneKey is unlocked and nearby.
           </Text>
@@ -439,6 +491,7 @@ function OneKeyBleModal({
             </Text>
           </TouchableOpacity>
         </Box>
+        <ErrorMessage />
         <FlatList
           data={devices}
           renderItem={renderDevice}
@@ -455,10 +508,12 @@ function OneKeyBleModal({
 
   const title =
     mode === 'setup' ? 'Setting up OneKey'
+    : mode === 'identify' ? 'Identify OneKey'
     : mode === 'verify-address' ? 'Verify Address'
     : 'Verify OneKey';
   const subTitle =
     mode === 'setup' ? 'Connect OneKey hardware wallet via Bluetooth'
+    : mode === 'identify' ? 'Select your OneKey and confirm it matches this key'
     : mode === 'verify-address' ? 'Confirm the address matches on your OneKey device'
     : 'Verify your OneKey device is accessible';
 
@@ -513,6 +568,19 @@ const styles = StyleSheet.create({
   },
   listContent: {
     gap: 8,
+  },
+  errorBanner: {
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
+    backgroundColor: '#FCEAEA',
+  },
+  errorText: {
+    color: '#B42318',
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: 'center',
   },
   deviceItem: {
     borderWidth: 1,

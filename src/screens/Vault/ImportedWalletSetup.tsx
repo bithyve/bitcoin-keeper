@@ -18,6 +18,7 @@ import { useDispatch } from 'react-redux';
 import { resetSignersUpdateState } from 'src/store/reducers/bhr';
 import useSignerMap from 'src/hooks/useSignerMap';
 import { SignerType } from 'src/services/wallets/enums';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 export const ImportedWalletSetup = ({ navigation, route }) => {
   const { vaultConfig } = route?.params;
@@ -54,11 +55,13 @@ export const ImportedWalletSetup = ({ navigation, route }) => {
           parentNavigation: navigation,
           signer: selectedSigner,
           isImportFlow: true,
-          onTypeSelection: (type) => {
+          onTypeSelection: (type, signerUpdates: Partial<Signer> = {}) => {
             const updatedSigners = signers.map((signer) => {
               if (signer.id === selectedSigner.id) {
+                Object.assign(signer, signerUpdates);
                 signer.type = type;
-                signer.signerName = getSignerNameFromType(type, signer.isMock);
+                signer.signerName =
+                  signerUpdates.signerName || getSignerNameFromType(type, signer.isMock);
               }
               return signer;
             });
