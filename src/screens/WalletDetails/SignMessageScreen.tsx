@@ -14,6 +14,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import WalletOperations from 'src/services/wallets/operations';
+import WalletUtilities from 'src/services/wallets/operations/utils';
 import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -21,7 +22,7 @@ import useVault from 'src/hooks/useVault';
 import useSigners from 'src/hooks/useSigners';
 import { EntityKind, KeyGenerationMode, SignerType } from 'src/services/wallets/enums';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import BLEIcon from 'src/assets/images/usb_white.svg';
 import CircleIconWrapper from 'src/components/CircleIconWrapper';
@@ -34,6 +35,14 @@ import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 const MEDIUM_MODES = {
   EXPORT: 'EXPORT',
   IMPORT: 'IMPORT',
+};
+
+const getVaultExternalAddressIndex = (vault, targetAddress: string) => {
+  const externalAddresses = vault?.specs?.addresses?.external || {};
+  for (const key in externalAddresses) {
+    if (externalAddresses[key] === targetAddress) return Number(key);
+  }
+  return null;
 };
 
 export const SignMessageScreen = ({ route, navigation }) => {
@@ -130,21 +139,41 @@ export const SignMessageScreen = ({ route, navigation }) => {
 
     // OneKey BLE direct signing
     if (medium === 'BLE') {
-      const onekeyVaultKey = activeVault?.signers?.find((s) => {
+      const messageAddress = address || activeVault?.specs?.addresses?.external?.[0];
+      if (!messageAddress) {
+        showToast('Please enter the address', <ToastErrorIcon />);
+        return;
+      }
+
+      const validAddress = WalletUtilities.isValidAddress(messageAddress, bitcoinNetwork);
+      if (!validAddress) {
+        showToast('Please enter a valid address', <ToastErrorIcon />);
+        return;
+      }
+
+      const addressIndex = getVaultExternalAddressIndex(activeVault, messageAddress);
+      if (addressIndex == null) {
+        showToast('Please enter a valid address from the select wallet', <ToastErrorIcon />);
+        return;
+      }
+
+      const oneKeyVaultKey = activeVault?.signers?.find((s) => {
         const signerInfo = vaultSigners?.find(
           (vs) => vs.masterFingerprint === s.masterFingerprint
         );
         return signerInfo?.type === SignerType.ONEKEY;
       });
       const oneKeySigner = vaultSigners?.find(
-        (vs) => vs.type === SignerType.ONEKEY
+        (vs) =>
+          vs.type === SignerType.ONEKEY &&
+          vs.masterFingerprint === oneKeyVaultKey?.masterFingerprint
       );
-      if (onekeyVaultKey && oneKeySigner) {
+      if (oneKeyVaultKey && oneKeySigner) {
         navigation.dispatch(
           CommonActions.navigate('SignMessageOneKeyBle', {
             message: message.trim(),
-            address,
-            derivationPath: `${onekeyVaultKey.derivationPath}/0/0`,
+            address: messageAddress,
+            derivationPath: `${oneKeyVaultKey.derivationPath}/0/${addressIndex}`,
             signer: oneKeySigner,
             onSignatureReceived: (sig: string, addr: string) => {
               setSignature(sig);
@@ -152,6 +181,8 @@ export const SignMessageScreen = ({ route, navigation }) => {
             },
           })
         );
+      } else {
+        showToast('OneKey signer not found. Please try again.', <ToastErrorIcon />);
       }
       return;
     }
@@ -465,7 +496,7 @@ const mediumSelectionContent = (onSigningMediumSelection, showBleOption = false)
             key={option.name}
             name={option.title}
             icon={option.icon}
-            onSelect={onSigningMediumSelection}
+            onSelect={() => onSigningMediumSelection(option.name)}
           />
         ))}
     </Box>

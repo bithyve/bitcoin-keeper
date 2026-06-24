@@ -11,6 +11,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { MultisigScriptType, NetworkType, SignerType } from 'src/services/wallets/enums';
 import { UI_REQUEST } from '@onekeyfe/hd-core';
 import {
+  assertOneKeyFingerprint,
   ensureOneKeyBLEReady,
   fetchOneKeySignerData,
   getOneKeyDeviceInfo,
@@ -43,7 +44,6 @@ import WalletUtilities from 'src/services/wallets/operations/utils';
 const UI_PROMPTS: Record<string, string> = {
   [UI_REQUEST.REQUEST_PIN]: 'Please enter PIN on your OneKey device',
   [UI_REQUEST.REQUEST_BUTTON]: 'Please confirm on your OneKey device',
-  [UI_REQUEST.REQUEST_PASSPHRASE]: 'Please enter passphrase on your OneKey device',
   idle: '',
 };
 
@@ -234,10 +234,10 @@ function OneKeyBleModal({
       setStatusMessage('Connecting to device...');
 
       const deviceInfo = await getOneKeyDeviceInfo(device.connectId);
-      const expectedFingerprint = signer.masterFingerprint?.toUpperCase();
-      const actualFingerprint = deviceInfo.masterFingerprint?.toUpperCase();
 
-      if (expectedFingerprint !== actualFingerprint) {
+      try {
+        assertOneKeyFingerprint(deviceInfo, signer);
+      } catch (_) {
         const message = 'Fingerprint mismatch. Please select the correct OneKey device.';
         setErrorMessage(message);
         showToast(message, <ToastErrorIcon />);
@@ -285,24 +285,20 @@ function OneKeyBleModal({
 
       setStatusMessage('Verifying device...');
       const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
+      assertOneKeyFingerprint(deviceInfo, signer);
 
       // Clear any SDK prompt after verification
       setPhase('connecting');
       setStatusMessage('Checking result...');
 
-      if (signer.masterFingerprint === deviceInfo.masterFingerprint) {
-        dispatch(
-          healthCheckStatusUpdate([
-            { signerId: signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_SUCCESSFULL },
-          ])
-        );
-        setPhase('done');
-        showToast('OneKey verification successful', <TickIcon />);
-        close();
-      } else {
-        showToast('Fingerprint mismatch. Wrong device connected.', <ToastErrorIcon />);
-        close();
-      }
+      dispatch(
+        healthCheckStatusUpdate([
+          { signerId: signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_SUCCESSFULL },
+        ])
+      );
+      setPhase('done');
+      showToast('OneKey verification successful', <TickIcon />);
+      close();
     } catch (error) {
       captureError(error);
       showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
@@ -340,6 +336,7 @@ function OneKeyBleModal({
 
       setStatusMessage('Reading device info...');
       const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
+      assertOneKeyFingerprint(deviceInfo, signer);
 
       setPhase('connecting');
       setStatusMessage('Verifying address on device...');

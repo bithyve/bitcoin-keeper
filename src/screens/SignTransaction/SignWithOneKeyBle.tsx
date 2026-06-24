@@ -15,6 +15,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import {
+  assertOneKeyFingerprint,
   ensureOneKeyBLEReady,
   getOneKeyDeviceInfo,
   searchOneKeyDevices,
@@ -33,7 +34,6 @@ import { NetworkType } from 'src/services/wallets/enums';
 const UI_PROMPTS: Record<string, string> = {
   [UI_REQUEST.REQUEST_PIN]: 'Please enter PIN on your OneKey device',
   [UI_REQUEST.REQUEST_BUTTON]: 'Please confirm on your OneKey device',
-  [UI_REQUEST.REQUEST_PASSPHRASE]: 'Please enter passphrase on your OneKey device',
 };
 
 type SignWithOneKeyBleParams = {
@@ -50,7 +50,7 @@ function SignWithOneKeyBle() {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common, error: errorText, signer: signerText } = translations;
+  const { common, error: errorText } = translations;
 
   const {
     vaultKey,
@@ -95,6 +95,13 @@ function SignWithOneKeyBle() {
   const runAutoSign = async () => {
     if (!serializedPSBTEnvelop?.serializedPSBT) {
       showToast('No PSBT found to sign', <ToastErrorIcon />);
+      navigation.dispatch(CommonActions.goBack());
+      return;
+    }
+
+    if (!signer) {
+      showToast('Signer not found. Please try again.', <ToastErrorIcon />);
+      navigation.dispatch(CommonActions.goBack());
       return;
     }
 
@@ -103,6 +110,7 @@ function SignWithOneKeyBle() {
       const bleReady = await ensureOneKeyBLEReady();
       if (!bleReady.ready) {
         showToast('Please turn on Bluetooth and try again', <ToastErrorIcon />);
+        navigation.dispatch(CommonActions.goBack());
         return;
       }
 
@@ -110,6 +118,7 @@ function SignWithOneKeyBle() {
       const storedConnectId = signer?.extraData?.bleConnectId;
       if (!storedConnectId) {
         showToast('No stored connection info. Please re-add this device.', <ToastErrorIcon />);
+        navigation.dispatch(CommonActions.goBack());
         return;
       }
 
@@ -120,6 +129,7 @@ function SignWithOneKeyBle() {
       setSdkPrompt('');
       setStatusMessage('Reading device info...');
       const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
+      assertOneKeyFingerprint(deviceInfo, signer);
 
       setSdkPrompt('');
       setStatusMessage('Signing transaction on device...');
@@ -150,6 +160,7 @@ function SignWithOneKeyBle() {
     } catch (error) {
       captureError(error);
       showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
+      navigation.dispatch(CommonActions.goBack());
     }
   };
 

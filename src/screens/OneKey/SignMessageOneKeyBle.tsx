@@ -11,6 +11,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { NetworkType } from 'src/services/wallets/enums';
 import {
+  assertOneKeyFingerprint,
   ensureOneKeyBLEReady,
   getOneKeyDeviceInfo,
   searchOneKeyDevices,
@@ -27,7 +28,6 @@ import type { Signer } from 'src/services/wallets/interfaces/vault';
 const UI_PROMPTS: Record<string, string> = {
   [UI_REQUEST.REQUEST_PIN]: 'Please enter PIN on your OneKey device',
   [UI_REQUEST.REQUEST_BUTTON]: 'Please confirm on your OneKey device',
-  [UI_REQUEST.REQUEST_PASSPHRASE]: 'Please enter passphrase on your OneKey device',
 };
 
 type Params = {
@@ -73,6 +73,12 @@ function SignMessageOneKeyBle() {
 
   const runSignMessage = async () => {
     try {
+      if (!signer || !derivationPath) {
+        showToast('Signer not found. Please try again.', <ToastErrorIcon />);
+        navigation.dispatch(CommonActions.goBack());
+        return;
+      }
+
       const bleReady = await ensureOneKeyBLEReady();
       if (!bleReady.ready) {
         showToast('Please turn on Bluetooth and try again', <ToastErrorIcon />);
@@ -94,6 +100,7 @@ function SignMessageOneKeyBle() {
       setStatusMessage('Reading device info...');
       setSdkPrompt('');
       const deviceInfo = await getOneKeyDeviceInfo(storedConnectId);
+      assertOneKeyFingerprint(deviceInfo, signer);
 
       setStatusMessage('Signing message...');
       setSdkPrompt('');
@@ -106,6 +113,12 @@ function SignMessageOneKeyBle() {
       });
 
       setSdkPrompt('');
+      if (address && result.address !== address) {
+        showToast('Address mismatch! The signed address does not match.', <ToastErrorIcon />);
+        navigation.dispatch(CommonActions.goBack());
+        return;
+      }
+
       showToast('Message signed successfully', <TickIcon />);
       onSignatureReceived?.(result.signature, result.address);
       navigation.dispatch(CommonActions.goBack());

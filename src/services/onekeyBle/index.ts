@@ -2,14 +2,16 @@ import HardwareBLESDK from '@onekeyfe/hd-ble-sdk';
 import {
   type CoreApi,
   type Features,
-  type HDNodeType,
-  type MultisigRedeemScriptType,
   type SearchDevice,
   UI_EVENT,
   UI_REQUEST,
   UI_RESPONSE,
 } from '@onekeyfe/hd-core';
-import type { InputScriptType } from '@onekeyfe/hd-transport';
+import type {
+  HDNodeType,
+  InputScriptType,
+  MultisigRedeemScriptType,
+} from '@onekeyfe/hd-transport';
 import BIP32Factory from 'bip32';
 import { BleManager } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform } from 'react-native';
@@ -25,7 +27,7 @@ export const onekeyUIEmitter = DeviceEventEmitter;
 export const ONEKEY_UI_EVENT = 'onekey-ui-event';
 
 // Use SDK's own constants as event values
-export type OneKeyUIEvent = typeof UI_REQUEST.REQUEST_PIN | typeof UI_REQUEST.REQUEST_BUTTON | typeof UI_REQUEST.REQUEST_PASSPHRASE | 'idle';
+export type OneKeyUIEvent = typeof UI_REQUEST.REQUEST_PIN | typeof UI_REQUEST.REQUEST_BUTTON | 'idle';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,12 +94,13 @@ const handleUIEvent = (message: any) => {
   }
 
   if (message?.type === UI_REQUEST.REQUEST_PASSPHRASE) {
-    onekeyUIEmitter.emit(ONEKEY_UI_EVENT, UI_REQUEST.REQUEST_PASSPHRASE);
+    // Keeper does not support OneKey hidden-wallet passphrases. Keep all
+    // operations on the main wallet even if a call accidentally asks.
     sdkInstance.uiResponse({
       type: UI_RESPONSE.RECEIVE_PASSPHRASE,
       payload: {
         value: '',
-        passphraseOnDevice: true,
+        passphraseOnDevice: false,
         save: false,
       },
     });
@@ -154,17 +157,13 @@ export const getOneKeySdk = async (): Promise<CoreApi> => {
 const ensureAndroidBLEPermissions = async (): Promise<boolean> => {
   if (Platform.OS !== 'android') return true;
 
-  const permissions: string[] = [];
-  if (Number(Platform.Version) >= 31) {
-    permissions.push(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
-    );
-  }
-  permissions.push(
-    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
-  );
+  const permissions: Parameters<typeof PermissionsAndroid.requestMultiple>[0] =
+    Number(Platform.Version) >= 31
+      ? [
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        ]
+      : [PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION];
 
   const result = await PermissionsAndroid.requestMultiple(permissions);
   return Object.values(result).every((v) => v === PermissionsAndroid.RESULTS.GRANTED);
@@ -269,6 +268,24 @@ const toMasterFingerprint = (rootFingerprint?: number): string => {
   }
   const fp = rootFingerprint >>> 0; // Force unsigned 32-bit
   return fp.toString(16).padStart(8, '0').toUpperCase();
+};
+
+export const normalizeOneKeyFingerprint = (fingerprint?: string | null): string =>
+  (fingerprint || '').toUpperCase();
+
+export const assertOneKeyFingerprint = (
+  deviceInfo: Pick<OneKeyDeviceInfo, 'masterFingerprint'>,
+  signer?: { masterFingerprint?: string }
+) => {
+  const expectedFingerprint = normalizeOneKeyFingerprint(signer?.masterFingerprint);
+  const actualFingerprint = normalizeOneKeyFingerprint(deviceInfo?.masterFingerprint);
+
+  if (!expectedFingerprint || !actualFingerprint) {
+    throw new Error('Missing OneKey fingerprint. Please re-add this device.');
+  }
+  if (expectedFingerprint !== actualFingerprint) {
+    throw new Error('Fingerprint mismatch. Wrong OneKey device connected.');
+  }
 };
 
 const extractXpub = (payload: any): string => {
