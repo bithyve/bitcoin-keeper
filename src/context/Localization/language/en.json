@@ -358,6 +358,8 @@
     "donateDustTitle": "Donate Dust?",
     "donateDustBody": "This helps clear dust / Do Not Spend coins for better privacy. Keeper will use only Do Not Spend coins for this transaction. Fees will be paid from those coins only.",
     "donateDustWarning": "No spendable coins will be used.",
+    "donateDustSummary": "This will donate all {count} Do Not Spend coins, totaling {amount} sats before fees.",
+    "donateDustManualNotice": "Includes coins you manually marked Do Not Spend.",
     "donateDustDetail": "Any amount left after fees will be donated to support Keeper.",
     "tooSmallToDonate": "These coins are too small to donate on their own. Keeper will keep them marked Do Not Spend.",
     "dustDonated": "Dust donated",

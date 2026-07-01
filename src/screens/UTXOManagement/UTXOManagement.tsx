@@ -38,6 +38,10 @@ import {
   sendPhaseOneReset,
   setSendMaxFee,
 } from 'src/store/reducers/send_and_receive';
+import {
+  formatDonateDustSummary,
+  getDonateDustSummaryMeta,
+} from 'src/screens/UTXOManagement/donationDisclosure';
 
 const KEEPER_DONATION_ADDRESS_MAINNET = 'bc1qyqequr0824nwf7snzvq5gqsr6xscn62e3ttm06';
 const KEEPER_DONATION_ADDRESS_TESTNET = '2N1TSArdd2pt9RoqE3LXY55ixpRE9e5aot8';
@@ -166,6 +170,21 @@ function UTXOManagement({ route }: ScreenProps) {
 
   const doNotSpendUTXOs: UTXO[] = (utxos ?? []).filter(
     (u) => u.spendability === 'doNotSpend'
+  );
+
+  const { coinCount, totalSatsBeforeFees, hasManualDoNotSpendCoins } = useMemo(
+    () => getDonateDustSummaryMeta(doNotSpendUTXOs),
+    [doNotSpendUTXOs]
+  );
+
+  const donateDustSummary = useMemo(
+    () =>
+      formatDonateDustSummary(
+        walletTranslation.donateDustSummary,
+        coinCount,
+        totalSatsBeforeFees
+      ),
+    [walletTranslation.donateDustSummary, coinCount, totalSatsBeforeFees]
   );
 
   const executeDonation = () => {
@@ -302,6 +321,10 @@ function UTXOManagement({ route }: ScreenProps) {
         Content={() => (
           <Box>
             <Text color="orange.500">{walletTranslation.donateDustWarning}</Text>
+            <Text>{donateDustSummary}</Text>
+            {hasManualDoNotSpendCoins ? (
+              <Text color="orange.500">{walletTranslation.donateDustManualNotice}</Text>
+            ) : null}
             <Text>{walletTranslation.donateDustDetail}</Text>
           </Box>
         )}
