@@ -154,6 +154,13 @@ function WalletSettings({ route }) {
         );
       },
     },
+    {
+      title: walletTranslation.dustReport,
+      description: walletTranslation.dustReportDesc,
+      icon: null,
+      isDiamond: false,
+      onPress: () => navigation.navigate('DustReport', { walletId: wallet.id }),
+    },
   ].filter(Boolean);
 
   return (

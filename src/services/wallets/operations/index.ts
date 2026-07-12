@@ -342,6 +342,7 @@ export default class WalletOperations {
       }
     }
 
+    const walletOutputs: Array<{ address: string; valueSats: number }> = [];
     for (const output of outputs) {
       if (!output?.scriptPubKey?.addresses) continue; // OP_RETURN w/ no value(tx0)
 
@@ -352,6 +353,7 @@ export default class WalletOperations {
           internalAddresses[outputAddress] !== undefined
         ) {
           amount += output.value;
+          walletOutputs.push({ address: outputAddress, valueSats: Math.round(output.value * 1e8) });
         }
         recipientAddresses.push(outputAddress);
       }
@@ -370,6 +372,7 @@ export default class WalletOperations {
       recipientAddresses,
       senderAddresses,
       blockTime: tx.blocktime,
+      walletOutputs,
     };
     return transaction;
   };
@@ -999,6 +1002,17 @@ export default class WalletOperations {
     return averageTxFeeByNetwork;
   };
 
+  /**
+   * Returns all wallet UTXOs that are eligible for automatic coin selection —
+   * i.e. every UTXO whose spendability is not 'doNotSpend'.
+   * Used as the shared fallback pool in calculateSendMaxFee,
+   * prepareTransactionPrerequisites, and prepareCustomTransactionPrerequisites.
+   */
+  private static getSpendableUTXOs = (wallet: Wallet | Vault): UTXO[] =>
+    [...(wallet.specs.confirmedUTXOs ?? []), ...(wallet.specs.unconfirmedUTXOs ?? [])].filter(
+      (u) => u.spendability !== 'doNotSpend'
+    );
+
   static calculateSendMaxFee = (
     wallet: Wallet | Vault,
     recipients: {
@@ -1013,7 +1027,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = WalletOperations.getSpendableUTXOs(wallet);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1098,7 +1112,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = WalletOperations.getSpendableUTXOs(wallet);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);
@@ -1267,7 +1281,7 @@ export default class WalletOperations {
     if (selectedUTXOs && selectedUTXOs.length) {
       inputUTXOs = selectedUTXOs;
     } else {
-      inputUTXOs = [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
+      inputUTXOs = WalletOperations.getSpendableUTXOs(wallet);
     }
 
     inputUTXOs = updateInputsForFeeCalculation(wallet, inputUTXOs, miniscriptSelectedSatisfier);

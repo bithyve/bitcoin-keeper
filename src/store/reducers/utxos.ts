@@ -5,9 +5,11 @@ import { persistReducer } from 'redux-persist';
 const initialState: {
   syncingUTXOs: boolean;
   apiError: any;
+  pendingDustToast: string | null;
 } = {
   syncingUTXOs: false,
   apiError: null,
+  pendingDustToast: null,
 };
 
 const utxoSlice = createSlice({
@@ -23,15 +25,21 @@ const utxoSlice = createSlice({
     resetState: (state) => {
       state = initialState;
     },
+    setPendingDustToast: (state, action: { payload: string }) => {
+      state.pendingDustToast = action.payload;
+    },
+    clearDustToast: (state) => {
+      state.pendingDustToast = null;
+    },
   },
 });
 
-export const { setSyncingUTXOs, setSyncingUTXOError, resetState } = utxoSlice.actions;
+export const { setSyncingUTXOs, setSyncingUTXOError, resetState, setPendingDustToast, clearDustToast } = utxoSlice.actions;
 
 const utxoPersistConfig = {
   key: 'utxos',
   storage: reduxStorage,
-  blacklist: ['syncingUTXOs', 'apiError'],
+  blacklist: ['syncingUTXOs', 'apiError', 'pendingDustToast'],
 };
 
 export default persistReducer(utxoPersistConfig, utxoSlice.reducer);

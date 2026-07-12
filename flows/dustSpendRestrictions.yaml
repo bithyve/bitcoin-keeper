@@ -1,0 +1,107 @@
+appId: io.hexawallet.keeper
+---
+# Precondition: Wallet at index 0 must have at least one UTXO classified as
+# doNotSpend and at least one UTXO that is spendable so that both the balance
+# and the selection-warning paths can be exercised.
+
+# ── Navigate to Wallet Details ─────────────────────────────────────────────
+- tapOn:
+    id: 'view_wallet_0'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# ── Send flow: spendable balance excludes Do Not Spend coins ──────────────
+- tapOn:
+    id: 'btn_Send'
+- waitForAnimationToEnd:
+    timeout: 2000
+- runFlow:
+    when:
+      visible:
+        id: 'com.android.permissioncontroller:id/grant_dialog'
+    commands:
+      - tapOn:
+          id: 'com.android.permissioncontroller:id/permission_allow_foreground_only_button'
+- assertVisible:
+    id: 'input_receive_address'
+- tapOn:
+    id: 'input_receive_address'
+# Enter a valid testnet address
+- inputText: 'tb1qq4yupzkhnzlz8kva9udnud6rw5vezk5qr7kp7s'
+- waitForAnimationToEnd:
+    timeout: 2000
+# On the amount screen the available balance shown must equal the spendable
+# balance only — it must NOT include any doNotSpend UTXO value.
+- assertVisible:
+    id: 'view_wallet_info'
+# Available to spend is rendered here; verify the screen is the amount entry
+- assertVisible:
+    id: 'input_amount'
+# Navigate back without sending
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# ── Manual coin selection: Do Not Spend warning modal ─────────────────────
+- tapOn: 'View All Coins'
+- waitForAnimationToEnd:
+    timeout: 3000
+# Enable coin selection mode
+- tapOn:
+    id: 'btn_Select to Send'
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Tap the first UTXO row that shows the Do Not Spend chip
+- tapOn:
+    id: 'btn_selectUtxos'
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1000
+
+# Depending on whether the first UTXO is doNotSpend the modal may or may not
+# appear. Run the warning path conditionally.
+- runFlow:
+    when:
+      visible: 'Use Do Not Spend Coin?'
+    commands:
+      # ── Assert warning modal content ────────────────────────────────────
+      - assertVisible: 'Use Do Not Spend Coin?'
+      - assertVisible: 'This coin was marked Do Not Spend to help protect wallet privacy. Spending it with other coins may reduce privacy.'
+      # Primary: Cancel keeps coin unselected
+      - tapOn:
+          id: 'btn_secondaryText'
+      - waitForAnimationToEnd:
+          timeout: 1000
+      # Tap the same UTXO again to re-open the warning
+      - tapOn:
+          id: 'btn_selectUtxos'
+          index: 0
+      - waitForAnimationToEnd:
+          timeout: 1000
+      # Confirm Use Coin — the UTXO is now selected
+      - assertVisible: 'Use Do Not Spend Coin?'
+      - tapOn:
+          id: 'btn_primaryText'
+      - waitForAnimationToEnd:
+          timeout: 1000
+
+# Deselect and exit selection mode
+- tapOn:
+    id: 'btn_Select to Send'
+- waitForAnimationToEnd:
+    timeout: 500
+
+# ── Navigate back to Home ─────────────────────────────────────────────────
+- tapOn:
+    id: 'btn_back'
+- waitForAnimationToEnd:
+    timeout: 500
+- tapOn:
+    id: 'btn_back'

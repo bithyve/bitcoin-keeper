@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@gluestack-ui/themed-native-base';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import WalletLine from 'src/assets/images/walletCardLines.svg';
@@ -26,6 +26,7 @@ type WalletCardProps = {
   allowHideBalance?: boolean;
   isShowAmount?: boolean;
   setIsShowAmount?: () => void;
+  showDot?: boolean;
 };
 
 const WalletCard: React.FC<WalletCardProps> = ({
@@ -41,6 +42,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
   allowHideBalance = true,
   isShowAmount,
   setIsShowAmount,
+  showDot = false,
 }) => {
   const defaultHexagonBackgroundColor = Colors.headerWhite;
   const { getWalletIcon } = useWalletAsset();
@@ -63,6 +65,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
       </Box>
 
       <WalletLine style={styles.walletLine} width={wp(180)} height={hp(200)} />
+      {showDot && <View style={styles.dustDot} />}
       <Box style={styles.pillsContainer}>
         {tags?.map(({ tag, color }, index) => (
           <CardPill key={tag} heading={tag} backgroundColor={color} />
@@ -150,6 +153,16 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     flexWrap: 'wrap',
     width: '80%',
+  },
+  dustDot: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(217, 44, 44, 1)',
+    zIndex: 10,
   },
   secondCard: {
     maxWidth: wp(80),

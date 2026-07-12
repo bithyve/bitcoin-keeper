@@ -45,6 +45,63 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Fab from 'src/components/Fab';
 import AddIcon from 'src/assets/images/add_white.svg';
+import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
+import { clearDustToast } from 'src/store/reducers/utxos';
+
+function WalletCardItem({
+  item,
+  getWalletCardGradient,
+  getWalletTags,
+  isShowAmount,
+  setIsShowAmount,
+  navigation,
+}: {
+  item: Wallet | Vault | USDTWallet;
+  getWalletCardGradient: (w: any) => string[];
+  getWalletTags: (w: any) => any;
+  isShowAmount: boolean;
+  setIsShowAmount: () => void;
+  navigation: any;
+}) {
+  const { hasDoNotSpendUTXOs } = useUTXOSpendability(
+    item.entityKind === EntityKind.USDT_WALLET ? null : (item as Wallet | Vault)
+  );
+
+  const handleWalletPress = () => {
+    if (item.entityKind === EntityKind.VAULT) {
+      navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
+    } else if (item.entityKind === EntityKind.USDT_WALLET) {
+      navigation.navigate('usdtDetails', { usdtWalletId: item.id });
+    } else {
+      navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
+    }
+  };
+
+  return (
+    <TouchableOpacity onPress={handleWalletPress} testID={`wallet_item_${item.id}`}>
+      <WalletCard
+        backgroundColor={getWalletCardGradient(item)}
+        hexagonBackgroundColor={
+          item.entityKind === EntityKind.USDT_WALLET ? Colors.aqualightMarine : Colors.CyanGreen
+        }
+        iconWidth={42}
+        iconHeight={38}
+        title={item.presentationData.name}
+        tags={getWalletTags(item)}
+        totalBalance={
+          item.entityKind === EntityKind.USDT_WALLET
+            ? getAvailableBalanceUSDTWallet(item as USDTWallet)
+            : item.specs.balances.confirmed + item.specs.balances.unconfirmed
+        }
+        description={item.presentationData.description}
+        wallet={item}
+        isShowAmount={isShowAmount}
+        setIsShowAmount={setIsShowAmount}
+        showDot={hasDoNotSpendUTXOs}
+      />
+    </TouchableOpacity>
+  );
+}
 
 const HomeWallet = () => {
   const { colorMode } = useColorMode();
@@ -90,6 +147,15 @@ const HomeWallet = () => {
     name: 'dashed_CTA_background',
   });
   const { showToast } = useToastMessage();
+
+  const pendingDustToast = useAppSelector((state: any) => state.utxos.pendingDustToast);
+
+  useEffect(() => {
+    if (pendingDustToast) {
+      showToast('Potential dust payment found');
+      dispatch(clearDustToast());
+    }
+  }, [pendingDustToast]);
 
   const handleCollaborativeWalletCreation = () => {
     setShowAddWalletModal(false);
@@ -200,43 +266,16 @@ const HomeWallet = () => {
     },
   ];
 
-  const renderWalletCard = ({ item }: { item: Wallet | Vault | USDTWallet }) => {
-    const handleWalletPress = (item, navigation) => {
-      if (item.entityKind === EntityKind.VAULT) {
-        navigation.navigate('VaultDetails', { vaultId: item.id, autoRefresh: true });
-      } else if (item.entityKind === EntityKind.USDT_WALLET) {
-        navigation.navigate('usdtDetails', { usdtWalletId: item.id });
-      } else {
-        navigation.navigate('WalletDetails', { walletId: item.id, autoRefresh: true });
-      }
-    };
-    return (
-      <TouchableOpacity
-        onPress={() => handleWalletPress(item, navigation)}
-        testID={`wallet_item_${item.id}`}
-      >
-        <WalletCard
-          backgroundColor={getWalletCardGradient(item)}
-          hexagonBackgroundColor={
-            item.entityKind === EntityKind.USDT_WALLET ? Colors.aqualightMarine : Colors.CyanGreen
-          }
-          iconWidth={42}
-          iconHeight={38}
-          title={item.presentationData.name}
-          tags={getWalletTags(item)}
-          totalBalance={
-            item.entityKind === EntityKind.USDT_WALLET
-              ? getAvailableBalanceUSDTWallet(item as USDTWallet)
-              : item.specs.balances.confirmed + item.specs.balances.unconfirmed
-          }
-          description={item.presentationData.description}
-          wallet={item}
-          isShowAmount={isShowAmount}
-          setIsShowAmount={setIsShowAmount}
-        />
-      </TouchableOpacity>
-    );
-  };
+  const renderWalletCard = ({ item }: { item: Wallet | Vault | USDTWallet }) => (
+    <WalletCardItem
+      item={item}
+      getWalletCardGradient={getWalletCardGradient}
+      getWalletTags={getWalletTags}
+      isShowAmount={isShowAmount}
+      setIsShowAmount={setIsShowAmount}
+      navigation={navigation}
+    />
+  );
 
   return (
     <Box style={styles.walletContainer}>

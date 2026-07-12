@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, useColorMode } from '@gluestack-ui/themed-native-base';
 import React, { useContext, useMemo, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -15,6 +15,9 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyInfo from 'src/screens/Home/components/CurrencyInfo';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LabelItem from 'src/screens/UTXOManagement/components/LabelItem';
+import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
+import Colors from 'src/theme/Colors';
+import KeeperModal from 'src/components/KeeperModal';
 
 export function UTXOLabel(props: {
   labels: Array<{ name: string; isSystem: boolean }>;
@@ -111,6 +114,8 @@ function UTXOElement({
   colorMode,
   labels,
   currentWallet,
+  isDoNotSpend,
+  onDoNotSpendTap,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection;
@@ -125,6 +130,11 @@ function UTXOElement({
         style={styles.utxoCardContainer}
         onPress={() => {
           if (allowSelection) {
+            // Intercept: warn before adding an unselected Do Not Spend coin
+            if (isDoNotSpend && !selectedUTXOMap[utxoId]) {
+              onDoNotSpendTap(item);
+              return;
+            }
             const mapToUpdate = selectedUTXOMap;
             if (selectedUTXOMap[utxoId]) {
               delete mapToUpdate[utxoId];
@@ -193,7 +203,7 @@ function UTXOElement({
                 </Box>
               </Box>
             ) : null}
-            {labels.length === 0 ? (
+            {labels.length === 0 && !isDoNotSpend ? (
               <Box style={styles.utxoLabelView} backgroundColor={`${colorMode}.gray`}>
                 <Text color={`${colorMode}.placeHolderTextColor`} style={styles.addLabelsText}>
                   + {walletTranslation.AddLabels}
@@ -201,7 +211,14 @@ function UTXOElement({
               </Box>
             ) : (
               <Box marginTop={hp(8)}>
-                <UTXOLabel labels={labels} isSelecting={allowSelection} />
+                {isDoNotSpend && (
+                  <View style={[styles.doNotSpendChip]}>
+                    <Text style={styles.labelText} color={Colors.headerWhite}>
+                      Do Not Spend
+                    </Text>
+                  </View>
+                )}
+                {labels.length > 0 && <UTXOLabel labels={labels} isSelecting={allowSelection} />}
               </Box>
             )}
           </Box>
@@ -248,15 +265,30 @@ function UTXOList({
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   const { labels } = useLabelsNew({ utxos: utxoState });
+  const { getSpendability } = useUTXOSpendability(currentWallet ?? null);
   const dispatch = useDispatch();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
   const pullDownRefresh = () => dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
+  const [pendingDoNotSpendUTXO, setPendingDoNotSpendUTXO] = useState<UTXO | null>(null);
+
+  const confirmUseDoNotSpendCoin = () => {
+    if (!pendingDoNotSpendUTXO) return;
+    const utxoId = `${pendingDoNotSpendUTXO.txId}${pendingDoNotSpendUTXO.vout}`;
+    const mapToUpdate = { ...selectedUTXOMap, [utxoId]: true };
+    setSelectedUTXOMap(mapToUpdate);
+    let utxoSum = 0;
+    utxoState.forEach((utxo) => {
+      const id = `${utxo.txId}${utxo.vout}`;
+      if (mapToUpdate[id]) utxoSum += utxo.value;
+    });
+    setSelectionTotal(utxoSum);
+    setPendingDoNotSpendUTXO(null);
+  };
+
   const sortedUTXOs = useMemo(
     () =>
       [...utxoState].sort((a, b) => {
-        console.log(a);
-        console.log(b);
         if (!a.height && !b.height) return 0;
         if (!a.height) return -1;
         if (!b.height) return 1;
@@ -266,36 +298,51 @@ function UTXOList({
   );
 
   return (
-    <FlatList
-      data={sortedUTXOs}
-      refreshing={!!syncing}
-      onRefresh={pullDownRefresh}
-      renderItem={({ item }) => (
-        <UTXOElement
-          labels={labels ? labels[`${item.txId}:${item.vout}`] || [] : []}
-          item={item}
-          enableSelection={enableSelection}
-          selectedUTXOMap={selectedUTXOMap}
-          setSelectedUTXOMap={setSelectedUTXOMap}
-          utxoState={utxoState}
-          setSelectionTotal={setSelectionTotal}
-          navigation={navigation}
-          colorMode={colorMode}
-          currentWallet={currentWallet}
-        />
-      )}
-      keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}
-      showsVerticalScrollIndicator={false}
-      ListEmptyComponent={
-        <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
-          <EmptyStateView
-            IllustartionImage={emptyIcon}
-            title={walletTranslation.noUTXOYet}
-            subTitle={walletTranslation.noUTXOYetSubTitle}
+    <>
+      <FlatList
+        data={sortedUTXOs}
+        refreshing={!!syncing}
+        onRefresh={pullDownRefresh}
+        renderItem={({ item }) => (
+          <UTXOElement
+            labels={labels ? labels[`${item.txId}:${item.vout}`] || [] : []}
+            item={item}
+            enableSelection={enableSelection}
+            selectedUTXOMap={selectedUTXOMap}
+            setSelectedUTXOMap={setSelectedUTXOMap}
+            utxoState={utxoState}
+            setSelectionTotal={setSelectionTotal}
+            navigation={navigation}
+            colorMode={colorMode}
+            currentWallet={currentWallet}
+            isDoNotSpend={getSpendability(item.txId, item.vout) === 'doNotSpend'}
+            onDoNotSpendTap={(utxo: UTXO) => setPendingDoNotSpendUTXO(utxo)}
           />
-        </Box>
-      }
-    />
+        )}
+        keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
+            <EmptyStateView
+              IllustartionImage={emptyIcon}
+              title={walletTranslation.noUTXOYet}
+              subTitle={walletTranslation.noUTXOYetSubTitle}
+            />
+          </Box>
+        }
+      />
+      <KeeperModal
+        visible={pendingDoNotSpendUTXO !== null}
+        close={() => setPendingDoNotSpendUTXO(null)}
+        title={walletTranslation.useDoNotSpendCoin}
+        subTitle={walletTranslation.doNotSpendModalBody}
+        buttonText={walletTranslation.useCoin}
+        buttonCallback={confirmUseDoNotSpendCoin}
+        secondaryButtonText={translations.common.cancel}
+        secondaryCallback={() => setPendingDoNotSpendUTXO(null)}
+        Content={() => null}
+      />
+    </>
   );
 }
 
@@ -403,5 +450,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: hp(10),
     marginLeft: hp(5),
+  },
+  doNotSpendChip: {
+    paddingHorizontal: wp(10),
+    paddingVertical: wp(3),
+    borderRadius: 20,
+    backgroundColor: Colors.CrimsonRed,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    marginLeft: 3,
+    marginTop: hp(5),
   },
 });

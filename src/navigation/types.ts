@@ -69,6 +69,7 @@ export type AppStackParams = {
         vaultId?: string;
       };
   WalletSettings: undefined;
+  DustReport: { walletId: string };
   DiscountCodes: undefined;
   BackupWallet: undefined;
   SigningDeviceDetails: undefined;
