@@ -131,6 +131,8 @@ import { backupBsmsOnCloud } from '../sagaActions/bhr';
 import { bulkUpdateLabelsWorker } from './utxos';
 import { updateDelayedPolicyUpdate } from '../reducers/storage';
 import { accountNoFromDerivationPath } from 'src/utils/service-utilities/utils';
+import { classifyDustByAddress } from 'src/services/wallets/operations/dustClassification';
+import { setPendingDustToast } from '../reducers/utxos';
 
 export interface NewVaultDetails {
   name?: string;
@@ -607,7 +609,7 @@ function* refreshWalletsWorker({
 }: {
   payload: {
     wallets: (Wallet | Vault)[];
-    options: { hardRefresh?: boolean; addNotifications?: boolean };
+    options: { hardRefresh?: boolean; addNotifications?: boolean; dustScan?: boolean };
   };
 }) {
   let { wallets, options } = payload;
@@ -635,6 +637,36 @@ function* refreshWalletsWorker({
     yield put(setSyncing({ wallets, isSyncing: true }));
 
     const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
+
+    // Build pre-sync spendability snapshot per wallet
+    const preSyncSnapshots = new Map<
+      string,
+      Map<string, { spendability?: string; isManualOverride?: boolean; dustReason?: string }>
+    >();
+    for (const wallet of wallets) {
+      const snapshot = new Map<
+        string,
+        { spendability?: string; isManualOverride?: boolean; dustReason?: string }
+      >();
+      const specs = (wallet as any).specs;
+      if (specs) {
+        const allUTXOs = [...(specs.confirmedUTXOs || []), ...(specs.unconfirmedUTXOs || [])];
+        for (const utxo of allUTXOs) {
+          if (
+            utxo.spendability !== undefined ||
+            utxo.isManualOverride !== undefined ||
+            utxo.dustReason !== undefined
+          ) {
+            snapshot.set(`${utxo.txId}:${utxo.vout}`, {
+              spendability: utxo.spendability,
+              isManualOverride: utxo.isManualOverride,
+              dustReason: utxo.dustReason,
+            });
+          }
+        }
+      }
+      preSyncSnapshots.set(wallet.id, snapshot);
+    }
 
     const { synchedWallets }: { synchedWallets: SyncedWallet[] } = yield call(
       WalletOperations.syncWalletsViaElectrumClient,
@@ -693,19 +725,155 @@ function* refreshWalletsWorker({
         }
       }
 
+      if (synchedWallet.entityKind === EntityKind.VAULT && synchedWallet.type === VaultType.CANARY) {
+        yield put(uaiChecks([uaiType.CANARAY_WALLET]));
+      }
+
+      // Restore spendability from snapshot; classify new UTXOs; toast on new dust
+      const walletSnapshot = preSyncSnapshots.get(synchedWallet.id) || new Map();
+      const newDustUTXOs: any[] = [];
+
+      // Build {address: index} maps from wallet's cached address objects
+      const rawExternal: Record<string, string> =
+        (synchedWallet as any).specs.addresses?.external || {};
+      const rawInternal: Record<string, string> =
+        (synchedWallet as any).specs.addresses?.internal || {};
+      const externalAddresses: Record<string, number> = {};
+      for (const [idx, addr] of Object.entries(rawExternal)) {
+        externalAddresses[addr] = parseInt(idx, 10);
+      }
+      const internalAddresses: Record<string, number> = {};
+      for (const [idx, addr] of Object.entries(rawInternal)) {
+        internalAddresses[addr] = parseInt(idx, 10);
+      }
+
+      // Dust scan backfill — populate walletOutputs for any transaction missing it.
+      // Only runs during an explicit dust scan; skipped on normal/hard refresh.
+      if (options.dustScan) {
+        const txsMissingOutputs = ((synchedWallet as any).specs.transactions || []).filter(
+          (tx: any) => tx.walletOutputs.length === 0
+        );
+
+        if (txsMissingOutputs.length > 0) {
+          const txidsToFetch = txsMissingOutputs.map((tx: any) => tx.txid);
+          try {
+            const rawTxs: Record<string, any> = yield call(
+              [ElectrumClient, ElectrumClient.getTransactionsById],
+              txidsToFetch
+            );
+            for (const tx of txsMissingOutputs) {
+              const rawTx = rawTxs[tx.txid];
+              if (!rawTx) continue;
+              const walletOuts: Array<{ address: string; valueSats: number }> = [];
+              for (const vout of rawTx.vout || []) {
+                const addr = vout?.scriptPubKey?.addresses?.[0];
+                if (!addr) continue;
+                if (
+                  externalAddresses[addr] !== undefined ||
+                  internalAddresses[addr] !== undefined
+                ) {
+                  walletOuts.push({
+                    address: addr,
+                    valueSats: Math.round(vout.value * 1e8),
+                  });
+                }
+              }
+              tx.walletOutputs = walletOuts;
+            }
+          } catch (backfillErr) {
+            // Non-fatal: classification will skip txs without walletOutputs
+            console.warn('walletOutputs backfill failed:', backfillErr);
+          }
+        }
+      }
+      // Build manual-override address set; call address-taint classifier
+      const manualOverrideAddresses = new Set<string>();
+      const allSynchedUTXOs = [
+        ...((synchedWallet as any).specs.confirmedUTXOs || []),
+        ...((synchedWallet as any).specs.unconfirmedUTXOs || []),
+      ];
+      for (const utxo of allSynchedUTXOs) {
+        const key = `${utxo.txId}:${utxo.vout}`;
+        const snap = walletSnapshot.get(key);
+        if (snap?.isManualOverride) {
+          manualOverrideAddresses.add(utxo.address);
+        }
+      }
+
+      const { taintedAddresses, initialTaintAddresses, dustSpendTxids } =
+        classifyDustByAddress(
+          synchedWallet as any,
+          externalAddresses,
+          internalAddresses,
+          manualOverrideAddresses,
+          options.dustScan ? 'full' : 'current'
+        );
+
+      // Mark UTXOs — only restore snapshot for soft/hard refresh or when user made a manual override;
+      // always re-run classification otherwise so reclassification is not blocked.
+      for (const utxo of allSynchedUTXOs) {
+        const key = `${utxo.txId}:${utxo.vout}`;
+        const existing = walletSnapshot.get(key);
+        if (existing?.isManualOverride) {
+          // User explicitly changed this UTXO — honour their choice
+          utxo.spendability = existing.spendability;
+          utxo.isManualOverride = true;
+          utxo.dustReason = existing.dustReason;
+        } else if (taintedAddresses.has(utxo.address)) {
+          const wasAlreadyDust = existing?.spendability === 'doNotSpend';
+          utxo.spendability = 'doNotSpend';
+          utxo.isManualOverride = false;
+          if (!initialTaintAddresses.has(utxo.address)) {
+            utxo.dustReason = 'descendant';
+          } else if ((utxo.value as number) < 5000) {
+            utxo.dustReason = 'initial';
+          } else {
+            utxo.dustReason = 'adjacent';
+          }
+          if (!wasAlreadyDust) {
+            newDustUTXOs.push(utxo);
+          }
+        } else {
+          // In 'current' mode (soft/hard refresh), preserve any existing doNotSpend
+          // classification that was set by a prior dust scan. Only a full dust scan has
+          // authority to clear those markings, because only it has the full BFS picture.
+          if (!options.dustScan && existing?.spendability === 'doNotSpend') {
+            utxo.spendability = existing.spendability;
+            utxo.isManualOverride = false;
+            utxo.dustReason = existing.dustReason;
+          } else {
+            utxo.spendability = 'spendable';
+            utxo.isManualOverride = false;
+            utxo.dustReason = undefined;
+          }
+        }
+      }
+
+      // Label transactions that spent from a tainted address
+      for (const tx of (synchedWallet as any).specs.transactions || []) {
+        if (dustSpendTxids.has(tx.txid)) {
+          if (!Array.isArray(tx.tags)) tx.tags = [];
+          if (!tx.tags.includes('potential-dust-spend')) {
+            tx.tags.push('potential-dust-spend');
+          }
+        }
+      }
+
+      // Write updated specs (with spendability) back to Realm
       if (synchedWallet.entityKind === EntityKind.VAULT) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
           specs: synchedWallet.specs,
         });
-        if (synchedWallet.type === VaultType.CANARY) {
-          yield put(uaiChecks([uaiType.CANARAY_WALLET]));
-        }
       } else {
         yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
           specs: synchedWallet.specs,
         });
       }
-    }
+
+      if (options.addNotifications && newDustUTXOs.length > 0) {
+        yield put(setPendingDustToast(synchedWallet.id));
+      }
+    } // end for (synchedWalletWithUTXOs)
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(

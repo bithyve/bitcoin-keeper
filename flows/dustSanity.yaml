@@ -1,0 +1,31 @@
+appId: io.hexawallet.keeper
+---
+# Sanity flow that exercises the full dust protection feature suite in order.
+# Requires: wallet at index 0 has at least one dust UTXO (< 5,000 sats on a
+# reused or out-of-order address) that has been classified as doNotSpend by a
+# prior refresh. Run refreshwallet.yaml first if needed.
+#
+# Flows exercised (in dependency order):
+#   1. dustUTXOClassification  — detection, UI indicators, manual overrides
+#   2. dustDescendantClassification — BFS taint propagation + tx labels
+#   3. dustSpendRestrictions   — balance filter + selection warning modal
+#   4. dustDonation            — Donate Dust CTA + confirmation sheet
+#   5. dustAnalysisReport      — Wallet Settings entry → full report flow
+
+- runFlow: dustUTXOClassification.yaml
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- runFlow: dustDescendantClassification.yaml
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- runFlow: dustSpendRestrictions.yaml
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- runFlow: dustDonation.yaml
+- waitForAnimationToEnd:
+    timeout: 2000
+
+- runFlow: dustAnalysisReport.yaml

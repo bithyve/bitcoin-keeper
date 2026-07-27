@@ -1,4 +1,4 @@
-import { UTXO } from 'src/services/wallets/interfaces';
+import { UTXO, UTXOSpendability } from 'src/services/wallets/interfaces';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 
@@ -6,6 +6,7 @@ import { Wallet } from 'src/services/wallets/interfaces/wallet';
 export const ADD_LABELS = 'ADD_LABELS';
 export const BULK_UPDATE_LABELS = 'BULK_UPDATE_LABELS';
 export const IMPORT_LABELS = 'IMPORT_LABELS';
+export const MARK_UTXO_SPENDABILITY = 'MARK_UTXO_SPENDABILITY';
 
 export const addLabels = (payload: {
   txId: string;
@@ -43,5 +44,15 @@ export const importLabels = (payload: {
   ];
 }) => ({
   type: IMPORT_LABELS,
+  payload,
+});
+
+export const markUTXOSpendability = (payload: {
+  wallet: Wallet | Vault;
+  txId: string;
+  vout: number;
+  spendability: UTXOSpendability;
+}) => ({
+  type: MARK_UTXO_SPENDABILITY,
   payload,
 });

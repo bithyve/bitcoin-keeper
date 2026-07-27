@@ -9,12 +9,16 @@ import {
 import { Vault } from './vault';
 import { Wallet } from './wallet';
 
+export type UTXOSpendability = 'spendable' | 'doNotSpend';
+
 export interface InputUTXOs {
   txId: string;
   vout: number;
   value: number;
   address: string;
   height: number;
+  spendability?: UTXOSpendability;
+  isManualOverride?: boolean;
 }
 
 export interface OutputUTXOs {
@@ -119,6 +123,7 @@ export interface Transaction {
   senderAddresses?: string[];
   blockTime?: number;
   tags?: string[];
+  walletOutputs: Array<{ address: string; valueSats: number }>;
 }
 
 export interface Balances {
@@ -131,6 +136,9 @@ export interface UTXO {
   value: number;
   address: string;
   height: number;
+  spendability?: UTXOSpendability;
+  isManualOverride?: boolean;
+  dustReason?: 'initial' | 'descendant' | 'adjacent';
 }
 
 export interface UTXOInfo {

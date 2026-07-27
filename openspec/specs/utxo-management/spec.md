@@ -79,12 +79,29 @@ with an appropriate action affordance.
 Tapping the address or transaction ID MUST open the corresponding entry on a
 Bitcoin block explorer in an in-app browser.
 
+In addition, the detail screen MUST display the UTXO's current spendability state
+and provide a manual override action:
+
+- When the UTXO is **Spendable**: the screen MUST show a **Mark Do Not Spend** button.
+- When the UTXO is **Do Not Spend**, the screen MUST show the reason, explanation,
+  and a **Mark Spendable** button. The reason and explanation MUST vary by `dustReason`:
+
+  | `dustReason` | Reason line | Explanation |
+  |---|---|---|
+  | `'initial'` (triggering dust UTXO itself) | **Potential dust payment** | **Keeper marked this coin Do Not Spend to help protect wallet privacy.** |
+  | `'adjacent'` (same tainted address, above dust threshold) | **Linked to potential dust spend** | **Keeper marked this coin Do Not Spend to help protect wallet privacy.** |
+  | `'descendant'` (linked to a dust spend via BFS propagation) | **Linked to potential dust spend** | **Keeper marked this coin Do Not Spend to help protect wallet privacy.** |
+  | `undefined` (manually overridden) | **Marked manually** | _(none)_ |
+
+The Do Not Spend state MUST NOT be removable via the labels editor — only via the
+explicit Mark Spendable CTA.
+
 #### Scenario: Open UTXO detail from list
 
 - GIVEN the Manage Coins list is displayed and selection mode is inactive
 - WHEN the user taps a UTXO row
-- THEN the UTXO detail screen opens showing value, address, transaction ID, and
-  transaction note
+- THEN the UTXO detail screen opens showing value, address, transaction ID,
+  transaction note, and spendability state
 
 #### Scenario: Navigate to block explorer from UTXO detail
 
@@ -92,6 +109,56 @@ Bitcoin block explorer in an in-app browser.
 - WHEN the user taps the link icon next to the transaction ID or address
 - THEN the relevant mempool.space page opens in an in-app browser, pointing to
   the testnet4 path when the app is configured for testnet
+
+#### Scenario: Detail screen shows Mark Do Not Spend for a Spendable UTXO
+
+- GIVEN the UTXO detail screen is open for a UTXO with spendability Spendable
+- WHEN the screen renders
+- THEN a Mark Do Not Spend button is visible
+
+#### Scenario: Detail screen shows Potential dust payment reason for initial-taint Do Not Spend
+
+- GIVEN the UTXO detail screen is open for a UTXO with `spendability: 'doNotSpend'` and `dustReason: 'initial'`
+- WHEN the screen renders
+- THEN the reason line shows Potential dust payment, the explanation Keeper marked this coin Do Not Spend to help protect wallet privacy is shown, and the Mark Spendable button is visible
+
+#### Scenario: Detail screen shows Linked reason for descendant Do Not Spend
+
+- GIVEN the UTXO detail screen is open for a UTXO with `spendability: 'doNotSpend'` and `dustReason: 'descendant'`
+- WHEN the screen renders
+- THEN the reason line shows Linked to potential dust spend, the explanation Keeper marked this coin Do Not Spend to help protect wallet privacy is shown, and the Mark Spendable button is visible
+
+#### Scenario: Detail screen shows Marked manually for user-overridden Do Not Spend
+
+- GIVEN the UTXO detail screen is open for a UTXO with `spendability: 'doNotSpend'` and `isManualOverride: true` and no `dustReason`
+- WHEN the screen renders
+- THEN the reason line shows Marked manually
+
+---
+
+### Requirement: Do Not Spend Label in Manage Coins List
+
+The Manage Coins screen MUST display a **Do Not Spend** label chip using
+warning-style visual treatment on every UTXO row whose spendability state is
+Do Not Spend.
+
+The Do Not Spend label MUST be shown alongside any existing system labels (Change,
+Self) and user-defined labels. Do Not Spend UTXOs MUST remain visible in the list
+and MUST NOT be hidden or filtered out.
+
+#### Scenario: Do Not Spend chip appears on affected UTXO rows
+
+- GIVEN the Manage Coins screen is open and the wallet contains at least one Do Not
+  Spend UTXO
+- WHEN the list renders
+- THEN each Do Not Spend UTXO row shows a Do Not Spend chip in warning-style
+  treatment alongside any other labels
+
+#### Scenario: Spendable UTXOs show no Do Not Spend chip
+
+- GIVEN the Manage Coins screen is open
+- WHEN the list renders a UTXO with spendability Spendable
+- THEN no Do Not Spend chip is shown on that row
 
 ---
 
@@ -197,11 +264,22 @@ the user can manually select one or more individual UTXOs to use as inputs for
 an outgoing transaction. While selection mode is active, the running count of
 selected UTXOs and their combined sato-value MUST be displayed.
 
+All wallet-owned UTXOs remain visible in the list during selection, including Do Not Spend UTXOs.
+
 The user MUST be able to confirm the selection and proceed directly to the Send
 flow, where only the selected UTXOs are available as inputs. Unselected UTXOs
 MUST NOT be included in the transaction.
 
 When no UTXOs are selected the Send button MUST be disabled.
+
+When the user taps a UTXO row that has `spendability === 'doNotSpend'` and that UTXO is **not yet selected**, the app MUST show a warning modal before adding the coin to the selection:
+
+- **Title:** Use Do Not Spend Coin?
+- **Body:** This coin was marked Do Not Spend to help protect wallet privacy. Spending it with other coins may reduce privacy.
+- **Use Coin** — adds the UTXO to the selection.
+- **Cancel** — dismisses the modal without adding the UTXO.
+
+When the user taps an already-selected Do Not Spend UTXO, the UTXO MUST be deselected immediately with no warning.
 
 #### Scenario: Select UTXOs and proceed to Send
 
@@ -222,6 +300,30 @@ When no UTXOs are selected the Send button MUST be disabled.
 - WHEN the user taps Cancel
 - THEN selection mode ends, all checkboxes are cleared, and the Manage Coins
   screen returns to its default browse state
+
+#### Scenario: Do Not Spend warning modal appears before selection
+
+- GIVEN manual coin selection is active and a UTXO row is marked Do Not Spend and not yet selected
+- WHEN the user taps that UTXO row
+- THEN the warning modal MUST appear with title "Use Do Not Spend Coin?" and the privacy warning body text
+
+#### Scenario: Tapping Use Coin adds the UTXO to selection
+
+- GIVEN the Do Not Spend warning modal is shown
+- WHEN the user taps **Use Coin**
+- THEN the UTXO MUST be added to the selection and the modal MUST close
+
+#### Scenario: Tapping Cancel dismisses without selecting
+
+- GIVEN the Do Not Spend warning modal is shown
+- WHEN the user taps **Cancel**
+- THEN the UTXO MUST NOT be added to the selection and the modal MUST close
+
+#### Scenario: Deselecting an already-selected Do Not Spend UTXO requires no warning
+
+- GIVEN a Do Not Spend UTXO is already part of the manual selection
+- WHEN the user taps that UTXO row
+- THEN the UTXO MUST be deselected immediately with no modal
 
 ---
 
@@ -320,3 +422,21 @@ nothing. If the file cannot be parsed the app MUST display an error.
   domain.
 - **USDT or non-Bitcoin outputs**: Coin control applies only to Bitcoin (on-chain
   sats) UTXOs; USDT balance management is covered by the `usdt` domain.
+
+---
+
+### Requirement: Donate Dust CTA in Manage Coins Footer
+
+The Manage Coins footer MUST display a **Donate Dust** action item alongside the existing **Select to Send** action when the wallet contains at least one Do Not Spend UTXO. When no Do Not Spend UTXOs exist, the **Donate Dust** action MUST NOT be rendered.
+
+#### Scenario: Footer shows Donate Dust when Do Not Spend coins exist
+
+- GIVEN the user is on Manage Coins
+- AND the wallet has at least one UTXO with `spendability === 'doNotSpend'`
+- THEN the footer MUST display the **Donate Dust** action alongside **Select to Send**
+
+#### Scenario: Footer does not show Donate Dust when no Do Not Spend coins exist
+
+- GIVEN the user is on Manage Coins
+- AND no UTXO has `spendability === 'doNotSpend'`
+- THEN the footer MUST NOT render the **Donate Dust** action

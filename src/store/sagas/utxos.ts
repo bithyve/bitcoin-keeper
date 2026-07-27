@@ -1,16 +1,17 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call, delay, fork, put } from 'redux-saga/effects';
-import { BIP329Label, UTXO } from 'src/services/wallets/interfaces';
-import { LabelRefType } from 'src/services/wallets/enums';
+import { call, delay, fork, put, takeLatest } from 'redux-saga/effects';
+import { BIP329Label, UTXO, UTXOSpendability } from 'src/services/wallets/interfaces';
+import { EntityKind, LabelRefType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-import { ADD_LABELS, BULK_UPDATE_LABELS, IMPORT_LABELS } from '../sagaActions/utxos';
+import { ADD_LABELS, BULK_UPDATE_LABELS, IMPORT_LABELS, MARK_UTXO_SPENDABILITY } from '../sagaActions/utxos';
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 import { checkBackupCondition, setServerBackupFailed } from './bhr';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -202,3 +203,50 @@ export function* importLabelsWorker({
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
 export const bulkUpdateLabelWatcher = createWatcher(bulkUpdateLabelsWorker, BULK_UPDATE_LABELS);
 export const importLabelsWatcher = createWatcher(importLabelsWorker, IMPORT_LABELS);
+
+export function* markUTXOSpendabilityWorker({
+  payload,
+}: {
+  payload: {
+    wallet: any;
+    txId: string;
+    vout: number;
+    spendability: UTXOSpendability;
+  };
+}) {
+  try {
+    const { wallet, txId, vout, spendability } = payload;
+
+    const schema =
+      wallet.entityKind === EntityKind.VAULT ? RealmSchema.Vault : RealmSchema.Wallet;
+
+    const storedWallet: any = yield call(dbManager.getObjectById, schema, wallet.id);
+    if (!storedWallet) return;
+
+    // Deep plain-JS copy so Realm embedded lists are proper arrays
+    const walletJSON = getJSONFromRealmObject(storedWallet);
+    const specs = walletJSON.specs;
+    const allUTXOArrays: Array<'confirmedUTXOs' | 'unconfirmedUTXOs'> = [
+      'confirmedUTXOs',
+      'unconfirmedUTXOs',
+    ];
+
+    for (const arrayKey of allUTXOArrays) {
+      const utxoArray: any[] = specs[arrayKey] || [];
+      const idx = utxoArray.findIndex((u: any) => u.txId === txId && u.vout === vout);
+      if (idx !== -1) {
+        utxoArray[idx] = { ...utxoArray[idx], spendability, isManualOverride: true };
+        break;
+      }
+    }
+
+    yield call(dbManager.updateObjectById, schema, wallet.id, { specs });
+  } catch (e) {
+    console.log('markUTXOSpendabilityWorker error:', e);
+  }
+}
+
+export const markUTXOSpendabilityWatcher = createWatcher(
+  markUTXOSpendabilityWorker,
+  MARK_UTXO_SPENDABILITY
+);

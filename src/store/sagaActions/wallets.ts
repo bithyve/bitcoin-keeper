@@ -59,7 +59,7 @@ export const updateSignerPolicy = (
 
 export const refreshWallets = (
   wallets: (Wallet | Vault)[],
-  options: { hardRefresh?: boolean }
+  options: { hardRefresh?: boolean, dustScan?: boolean }
 ) => ({
   type: REFRESH_WALLETS,
   payload: {

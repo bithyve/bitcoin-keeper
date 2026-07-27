@@ -24,6 +24,7 @@ import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import WalletDetailHeader from './components/WalletDetailHeader';
 import DetailCards from './components/DetailCards';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
+import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
@@ -63,6 +64,7 @@ function WalletDetails({ route }: ScreenProps) {
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
 
   const { getWalletCardGradient, getWalletTags } = useWalletAsset();
+  const { hasDoNotSpendUTXOs } = useUTXOSpendability(wallet ?? null);
 
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
@@ -134,6 +136,7 @@ function WalletDetails({ route }: ScreenProps) {
           <DetailCards
             disabled={false}
             wallet={wallet}
+            hasDoNotSpendUTXOs={hasDoNotSpendUTXOs}
             sendCallback={() =>
               navigation.dispatch(CommonActions.navigate('Send', { sender: wallet }))
             }

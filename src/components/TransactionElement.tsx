@@ -113,6 +113,13 @@ function TransactionElement({
             <Text color={viewAll_color} style={styles.transactionDate} numberOfLines={1}>
               {formattedDate}
             </Text>
+            {(transaction as Transaction).tags?.includes('potential-dust-spend') && (
+              <Box style={styles.dustLabelChip}>
+                <Text style={styles.dustLabelText} color="rgba(217, 44, 44, 1)">
+                  Potential dust spend
+                </Text>
+              </Box>
+            )}
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
@@ -189,6 +196,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     marginBottom: 5,
     paddingVertical: 12,
+  },
+  dustLabelChip: {
+    backgroundColor: 'rgba(217, 44, 44, 0.1)',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    marginTop: 2,
+    alignSelf: 'flex-start',
+    marginHorizontal: 3,
+  },
+  dustLabelText: {
+    fontSize: 10,
+    lineHeight: 14,
   },
 });
 export default TransactionElement;

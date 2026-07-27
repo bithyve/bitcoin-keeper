@@ -43,6 +43,7 @@ import AllTransactions from 'src/screens/Vault/AllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
+import DustReportScreen from 'src/screens/DustReport/DustReportScreen';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
@@ -262,6 +263,7 @@ function AppStack() {
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
         <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
+        <Stack.Screen name="DustReport" component={DustReportScreen} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
         <Stack.Screen name="WalletBackHistory" component={WalletBackHistoryScreen} />
         <Stack.Screen name="AppBackupSettings" component={AppBackupSettings} />

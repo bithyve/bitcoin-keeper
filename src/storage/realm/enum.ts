@@ -10,6 +10,7 @@ export enum RealmSchema {
   Label = 'Label',
   Tags = 'Tags',
   Transaction = 'Transaction',
+  WalletOutput = 'WalletOutput',
   WalletSpecs = 'WalletSpecs',
   Vault = 'Vault',
   VaultSpecs = 'VaultSpecs',

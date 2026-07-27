@@ -33,6 +33,9 @@ archived wallet, the user must unarchive it first.
 Unconfirmed bitcoin transactions are included in wallet balance and shown as
 pending/unconfirmed in transaction history.
 
+The automatic coin selection pool MUST exclude UTXOs with `spendability === 'doNotSpend'`
+when no UTXOs have been manually pre-selected. Manually pre-selected UTXOs are used as-is regardless of spendability.
+
 #### Scenario: Fee estimation succeeds
 
 - GIVEN the user has a wallet with a confirmed or unconfirmed spendable balance
@@ -57,6 +60,24 @@ pending/unconfirmed in transaction history.
 - GIVEN the user has an archived wallet
 - WHEN the user attempts to initiate a send from that wallet
 - THEN the app prevents the send and explains the wallet must be unarchived before use
+
+#### Scenario: Do Not Spend UTXOs excluded from automatic coin selection
+
+- GIVEN a wallet contains UTXOs where some have spendability Do Not Spend and no UTXOs have been manually pre-selected
+- WHEN the send phase one calculation runs
+- THEN only UTXOs with spendability Spendable are considered for the transaction inputs
+
+---
+
+### Requirement: Available Balance
+
+The available balance shown to the user in the send flow MUST reflect only UTXOs that are spendable (i.e., `spendability !== 'doNotSpend'`). The balance MUST be computed from the filtered UTXO arrays at display time, not from the pre-computed `specs.balances` aggregate.
+
+#### Scenario: Spendable balance displayed in send flow
+
+- GIVEN a wallet contains both spendable UTXOs and Do Not Spend UTXOs
+- WHEN the user opens the send amount entry screen
+- THEN the balance displayed MUST equal the sum of values for spendable UTXOs only
 
 ---
 
@@ -441,3 +462,27 @@ paths and require the user to select one before proceeding with PSBT creation.
 - This spec does not cover fee insight alerts; those are owned by the `notifications` domain.
 - This spec does not cover Replace-By-Fee (RBF) bumping of already-broadcast transactions.
 - This spec does not cover Lightning Network payments.
+
+---
+
+### Requirement: Send Confirmation — Locked Donation Mode
+
+When the `SendConfirmation` screen is opened with `isDonation: true` in its route params, the screen MUST display in a locked mode where:
+
+- The transaction priority selector MUST be hidden — the user cannot change the fee tier.
+- The fee priority MUST be fixed to `TxPriority.LOW` for signing.
+- All recipient and amount fields are read-only (as in the standard confirmation flow).
+
+This mode is used exclusively by the Donate Dust flow. When `isDonation` is absent or `false`, the screen MUST behave identically to its current behavior.
+
+#### Scenario: Fee priority selector hidden in donation mode
+
+- GIVEN `SendConfirmation` was opened with `isDonation: true`
+- THEN the fee priority selector MUST NOT be visible
+- AND the transaction MUST be prepared using the `low` fee rate
+
+#### Scenario: Standard confirmation behavior unchanged without isDonation flag
+
+- GIVEN `SendConfirmation` was opened without `isDonation` flag (or with `isDonation: false`)
+- THEN the screen MUST display the fee priority selector as normal
+- AND the user MUST be able to change the fee tier

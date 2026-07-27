@@ -15,6 +15,7 @@ function LabelItem({
   onLayout,
   onUnmount,
   editable = true,
+  backgroundColor: backgroundColorOverride,
 }: {
   item: { name: string; isSystem: boolean };
   index: number;
@@ -22,6 +23,7 @@ function LabelItem({
   onEditClick?: Function;
   editingIndex?: number;
   editable?: boolean;
+  backgroundColor?: string;
   onLayout?: (event, index) => void;
   onUnmount?: (index) => void;
 }) {
@@ -52,7 +54,7 @@ function LabelItem({
           onLayout(event, index);
         }
       }}
-      backgroundColor={getLabelColor(item.name)}
+      backgroundColor={backgroundColorOverride ?? getLabelColor(item.name)}
     >
       <TouchableOpacity
         style={styles.labelEditContainer}

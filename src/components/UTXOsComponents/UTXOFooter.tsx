@@ -4,12 +4,20 @@ import SendWhite from 'src/assets/images/send-white.svg';
 import { DerivationPurpose, EntityKind } from 'src/services/wallets/enums';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
+import { UTXO } from 'src/services/wallets/interfaces';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import idx from 'idx';
 import KeeperFooter from '../KeeperFooter';
 import { useColorMode } from '@gluestack-ui/themed-native-base';
 
-function UTXOFooter({ setEnableSelection, enableSelection, wallet, utxos }) {
+function UTXOFooter({
+  setEnableSelection,
+  enableSelection,
+  wallet,
+  utxos,
+  doNotSpendUTXOs = [] as UTXO[],
+  onDonateDust = () => {},
+}) {
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation } = translations;
   const { colorMode } = useColorMode();
@@ -31,6 +39,16 @@ function UTXOFooter({ setEnableSelection, enableSelection, wallet, utxos }) {
       onPress: () => setEnableSelection(!enableSelection),
       disabled: !utxos.length,
     },
+    ...(doNotSpendUTXOs.length > 0
+      ? [
+          {
+            text: walletTranslation.donateDust,
+            Icon: colorMode === 'light' ? SendGreen : SendWhite,
+            onPress: onDonateDust,
+            disabled: false,
+          },
+        ]
+      : []),
   ];
 
   return <KeeperFooter items={footerItems} />;
