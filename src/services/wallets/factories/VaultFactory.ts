@@ -37,6 +37,27 @@ const STANDARD_VAULT_SCHEME = [
   { m: 3, n: 5 },
 ];
 
+const normalizeDerivationPath = (derivationPath?: string) =>
+  derivationPath?.replace(/(\d+)[hH]/g, "$1'");
+
+const isValidDerivationPath = (derivationPath?: string): derivationPath is string => {
+  if (!derivationPath || !derivationPath.startsWith('m/')) return false;
+
+  return derivationPath
+    .slice(2)
+    .split('/')
+    .every((component) => {
+      const index = component.replace(/[']$/, '');
+      const numericIndex = Number(index);
+      return (
+        /^\d+'?$/.test(component) &&
+        Number.isSafeInteger(numericIndex) &&
+        numericIndex >= 0 &&
+        numericIndex <= 0x7fffffff
+      );
+    });
+};
+
 export const generateVaultId = (signers: VaultSigner[], scheme: VaultScheme) => {
   const xpubs = signers.map((signer) => signer.xpub).sort();
   const xpubMap = {};
@@ -78,8 +99,12 @@ export const generateVault = async ({
   signers: VaultSigner[];
   networkType: NetworkType;
 }): Promise<Vault> => {
-  const id = generateVaultId(signers, scheme);
-  const xpubs = signers.map((signer) => signer.xpub);
+  const normalizedSigners: VaultSigner[] = signers.map((signer) => ({
+    ...signer,
+    derivationPath: normalizeDerivationPath(signer.derivationPath) ?? '',
+  }));
+  const id = generateVaultId(normalizedSigners, scheme);
+  const xpubs = normalizedSigners.map((signer) => signer.xpub);
 
   if (scheme.multisigScriptType === MultisigScriptType.MINISCRIPT_MULTISIG) {
     if (!scheme.miniscriptScheme) throw new Error('Input missing: miniscriptScheme');
@@ -91,8 +116,8 @@ export const generateVault = async ({
   const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
 
   // Validation and guardrails for derivation paths:
-  signers.forEach((signer) => {
-    if (!signer.derivationPath || !/^m(\/\d+'?)+$/.test(signer.derivationPath)) {
+  normalizedSigners.forEach((signer) => {
+    if (!isValidDerivationPath(signer.derivationPath)) {
       throw new Error(`Invalid derivation path format for signer: ${signer.derivationPath}`);
     }
 
@@ -106,9 +131,9 @@ export const generateVault = async ({
       : `m/84'/1'/${accountNumber}'`;
 
     if (expectedDerivationPath !== signer.derivationPath) {
-      console.warn(
-        `Non-standard derivation path for signer. Expected: ${expectedDerivationPath}, but got: ${signer.derivationPath}`
-      );
+      const message = `Invalid derivation path for signer. Expected: ${expectedDerivationPath}, but got: ${signer.derivationPath}`;
+      if (isMultiSig) console.warn(`Non-standard derivation path for signer. ${message}`);
+      else throw new Error(message);
     }
   });
 
@@ -141,7 +166,7 @@ export const generateVault = async ({
     networkType,
     isMultiSig,
     scheme,
-    signers,
+    signers: normalizedSigners,
     presentationData,
     specs,
     archived: false,
