@@ -1078,4 +1078,14 @@ describe('Descriptor Parsing and Generation', () => {
     );
     expect(generateOutputDescriptors(vault)).toBe(descriptor);
   });
+
+  test('should create a multi-sig vault with mixed derivation paths (e.g. m/48 and m/84)', async () => {
+    const descriptor =
+      'wsh(sortedmulti(2,[4192760B/48h/1h/0h/2h]tpubDFCfoi7h1QdAuVVCCBQ8hMdeqcxztV53EB9Qd6cRZ5Tdh94jCPknyhU1mcpCWPzLz2mAVHFdnK1uLKserS1h2sVSJrZvQyghGugQrUpnSrW/<0;1>/*,[AE6E3031/84h/1h/0h]tpubDEbEY1b4Rkaieyi2xUstuVy9ur1be16edv8DrpXqGke2ABqjxoUvxJDLqcdUQmEHyBvgutLwBJ9ciiUijg7cC1A1jKEcxN43xk2W9pMGaCJ/<0;1>/*,[C7D9EAF5/48h/1h/0h/2h]tpubDEFf521xjx9TGwajRXBca5bBRNmr9iqa4xLAAytgZ6weCNKKgErF8qgXFGifgYJGF9zLHvPHK6hZHWxeJd4kMkmqcbBMQmCSfnJmUgeNqJ8/<0;1>/*))';
+
+    const vault = await generateVaultFromDescriptor(descriptor);
+    expect(vault.signers.length).toEqual(3);
+    expect(vault.isMultiSig).toEqual(true);
+    expect(vault.signers[1].derivationPath).toEqual("m/84'/1'/0'");
+  });
 });

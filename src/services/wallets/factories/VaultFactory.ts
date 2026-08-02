@@ -90,8 +90,12 @@ export const generateVault = async ({
   const isMultiSig = scheme.n !== 1 || type === VaultType.MINISCRIPT; // single key Vault is BIP-84 P2WPKH single-sig and not 1-of-1 BIP-48 P2WSH multi-sig
   const scriptType = isMultiSig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH;
 
-  // Safety check, must use correct derivations:
-  signers.map((signer) => {
+  // Validation and guardrails for derivation paths:
+  signers.forEach((signer) => {
+    if (!signer.derivationPath || !/^m(\/\d+'?)+$/.test(signer.derivationPath)) {
+      throw new Error(`Invalid derivation path format for signer: ${signer.derivationPath}`);
+    }
+
     const accountNumber = getAccountFromSigner(signer);
     const expectedDerivationPath = isMultiSig
       ? networkType === NetworkType.MAINNET
@@ -102,8 +106,8 @@ export const generateVault = async ({
       : `m/84'/1'/${accountNumber}'`;
 
     if (expectedDerivationPath !== signer.derivationPath) {
-      throw new Error(
-        `Invalid derivation path for signer. Expected: ${expectedDerivationPath}, but got: ${signer.derivationPath}`
+      console.warn(
+        `Non-standard derivation path for signer. Expected: ${expectedDerivationPath}, but got: ${signer.derivationPath}`
       );
     }
   });
