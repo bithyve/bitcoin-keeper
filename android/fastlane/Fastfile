@@ -49,13 +49,24 @@ platform :android do
 
   desc "Push a new live build to Slack and internal track on Play Store"
   lane :live do
-    file_name = "../../.env"
+    require 'tempfile'
+
+    file_name = File.expand_path("../../.env.production", __dir__)
     file_url = "https://raw.githubusercontent.com/bithyve/bitcoin-keeper-envs/live/app.live.env"
-    auth_header = "Authorization: token #{ENV["GITHUB_ACCESS_TOKEN"]}"
-    sh(
-      "curl -H '#{auth_header}' -o '#{file_name}' -s '#{file_url}'",
-      step_name: "curl -H '***' -o '#{file_name}' -s '#{file_url}'"
-    )
+    token = ENV["GITHUB_ACCESS_TOKEN"]
+    UI.user_error!("GITHUB_ACCESS_TOKEN is required for the live configuration download.") if token.to_s.empty?
+
+    Tempfile.create(["keeper-live-env-", ".tmp"], File.dirname(file_name)) do |download|
+      downloaded = system(
+        "curl", "--fail", "--silent", "--location",
+        "--header", "Authorization: token #{token}",
+        "--output", download.path, file_url,
+        out: File::NULL, err: File::NULL
+      )
+      UI.user_error!("Could not download a nonempty live configuration.") unless downloaded && File.size?(download.path)
+      File.rename(download.path, file_name)
+    end
+    ENV["ENVFILE"] = file_name
     store_password = ENV["STORE_PASSWORD"]
     key_password = ENV["KEY_PASSWORD"]
     key_alias = ENV["KEY_ALIAS"]
