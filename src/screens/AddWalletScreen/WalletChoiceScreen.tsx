@@ -60,7 +60,7 @@ export default function WalletChoiceScreen({ route }: { route?: WalletChoiceRout
       ? 'Hot Wallet'
       : stage === 'cold'
       ? 'Cold Wallet'
-      : 'Seedless Wallet';
+      : 'Assisted Multisig';
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -73,7 +73,7 @@ export default function WalletChoiceScreen({ route }: { route?: WalletChoiceRout
             onAdvancedWallet={() => navigation.navigate('AddNewWallet')}
             onImportWallet={() => navigation.navigate('VaultConfigurationCreation')}
             showSeedless
-            previewNotice="TESTNET PREVIEW · Seedless setup is simulated; no Seedless Wallet is created."
+            previewNotice="TESTNET PREVIEW · Assisted Multisig setup is simulated; no wallet is created."
           />
         )}
         {stage === 'simple' && (
@@ -119,7 +119,7 @@ export default function WalletChoiceScreen({ route }: { route?: WalletChoiceRout
         {stage === 'seedless' && (
           <View testID="wallet-choice-seedless-unavailable" style={styles.section}>
             <Text color={`${colorMode}.primaryText`} style={styles.body}>
-              The Seedless Wallet walkthrough runs in the separate Keeper Preview app.
+              The Assisted Multisig walkthrough runs in the separate Keeper Preview app.
             </Text>
             <Text color={`${colorMode}.secondaryText`} style={styles.body}>
               No Mobile Key, Server Key, hardware connection, or wallet is created from this screen.
