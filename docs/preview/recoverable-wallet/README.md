@@ -2,7 +2,7 @@
 
 **Approved user-facing chooser name (11 October 2026): Assisted Multisig.** Place it between **Single-Key Wallet** and **Custom Wallet**. The former public-facing name is retired. Keep internal `seedless` route IDs, prop names, storage identifiers and testIDs unchanged until a separately reviewed migration; this is a copy/name decision only, not a cryptographic or security guarantee.
 
-Status (9 October 2026): **isolated client preview and direct three-choice empty Wallets entry implemented; the current Android preview APK built and launched; iOS package configured but not built**. This is a simulated walkthrough, not a released or security-reviewed wallet. "Assisted Multisig" is the proposed user-facing choice; "Recoverable Wallet" remains the internal working term.
+Status (9 October 2026): **isolated client preview and direct three-choice empty Wallets entry implemented; the current Android preview APK built and launched; iOS package configured but not built**. This is a simulated walkthrough, not a released or security-reviewed wallet. "Assisted Multisig" is the **approved** user-facing choice; "Recoverable Wallet" remains an internal working term.
 
 ## First client checkpoint
 
@@ -82,7 +82,7 @@ Each checkpoint may be smaller than the grouping above to keep visible feedback 
 - Stay rebased on the current Keeper app branch; keep product-facing changes isolated behind a guarded preview feature path. Nothing is merged into shipping app without reviewed CI/native regression and owner approval.
 - Server code is **frozen for this feature pending Adam's contribution and a new owner instruction**. The absence of Adam's PR does not block preview UI, local hardware functionality, cloud transport tests, threat modeling or design.
 - Keep existing R5–R10 commitments intact. This work is recorded in a separate **Now — Parallel Recoverable Wallet** tracker entry, *not* a new numbered work bucket. Release integration will be scheduled later on evidence of readiness.
-- Prepare, but do not publish, direct factual Bitkey comparison, blog, feature page, demo video, Ask Keeper help, X/Telegram campaign. Emphasize third-party hardware freedom and Miniscript inheritance. Bitkey already publishes source; do not claim otherwise. Keeper owner controls external communications.
+- **Directly target people considering Bitkey, by naming Bitkey explicitly** in the comparison blog, search landing page, video and X/Telegram campaign. Do not merely imply a competitor. Proposed blog: “Bitkey vs Bitcoin Keeper: What Changes When You Can Choose Your Own Hardware?” and a “Looking for a Bitkey alternative?” page. Show factual side-by-side differences: third-party hardware choice, Miniscript inheritance, recovery, Server Key trust assumptions, and descriptor-based exit. Challenge products and trade-offs, never attack people or make unsupported claims; Bitkey itself publishes open-source software and supports exit/recovery. Do not brand Keeper as “Open Bitkey” or imply affiliation with Block. **Prepare but do not publish** until functionality and claims are independently tested and owner-approved. Keeper owner controls external communications.
 - Self-hosted packaging/custom-server settings remain **Later**. No performance/security superiority claims without data.
 
 ## Immediate next action
