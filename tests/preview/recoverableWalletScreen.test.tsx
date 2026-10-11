@@ -223,7 +223,7 @@ describe('Recoverable Wallet preview on a small screen', () => {
     fireEvent.press(screen.getByTestId('primary-Finish Preview'));
     expect(screen.getByTestId('preview-complete')).toHaveTextContent('No wallet was created');
     fireEvent.press(screen.getByTestId('preview-done'));
-    expect(screen.getByTestId('preview-wallets-empty')).toHaveTextContent('Seedless Wallet');
+    expect(screen.getByTestId('preview-wallets-empty')).toHaveTextContent('Assisted Multisig');
     fireEvent.press(screen.getByTestId('wallet-choice-seedless'));
     expect(screen.getByTestId('preview-mobile-key-status')).toHaveTextContent(
       'Adding… · SIMULATED'
@@ -278,7 +278,7 @@ describe('Recoverable Wallet preview on a small screen', () => {
     const screen = render(<RecoverableWalletPreviewApp />);
     const chooser = screen.getByTestId('wallet-creation-chooser');
     expect(chooser).toHaveTextContent('Single-Key Wallet');
-    expect(chooser).toHaveTextContent('Seedless Wallet');
+    expect(chooser).toHaveTextContent('Assisted Multisig');
     expect(chooser).toHaveTextContent('Custom Wallet');
     expect(chooser).toHaveTextContent('Use your phone or a signing device.');
     expect(chooser).toHaveTextContent(
@@ -290,7 +290,7 @@ describe('Recoverable Wallet preview on a small screen', () => {
     expect(chooser).not.toHaveTextContent('FEATURED');
     expect(chooser).not.toHaveTextContent('SINGLE KEY');
     expect(chooser).not.toHaveTextContent('CUSTOM MULTISIG');
-    const seedlessTitle = screen.getByText('Seedless Wallet');
+    const seedlessTitle = screen.getByText('Assisted Multisig');
     expect(seedlessTitle.props.allowFontScaling).toBe(true);
     expect(seedlessTitle.props.numberOfLines).toBeUndefined();
     expect(StyleSheet.flatten(seedlessTitle.props.style).lineHeight).toBeGreaterThan(25);
@@ -318,7 +318,7 @@ describe('Recoverable Wallet preview on a small screen', () => {
     expect(screen.getByTestId('preview-wallets-empty')).toHaveTextContent('No wallets yet');
   });
 
-  test('the shared chooser hides Seedless Wallet unless the caller explicitly enables it', () => {
+  test('the shared chooser hides Assisted Multisig unless the caller explicitly enables it', () => {
     const onSeedlessWallet = jest.fn();
     const screen = render(
       <NativeBaseProvider theme={customTheme}>
