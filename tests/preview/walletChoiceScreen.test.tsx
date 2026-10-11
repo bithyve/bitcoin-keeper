@@ -105,7 +105,7 @@ describe('guarded Wallets chooser route', () => {
 
   test('offers guarded choices without opening an unverified Seedless or Simple flow', () => {
     const screen = render(<WalletChoiceScreen />);
-    expect(screen.getByTestId('wallet-creation-chooser')).toHaveTextContent('Seedless Wallet');
+    expect(screen.getByTestId('wallet-creation-chooser')).toHaveTextContent('Assisted Multisig');
     fireEvent.press(screen.getByTestId('wallet-choice-simple'));
     fireEvent.press(screen.getByTestId('wallet-choice-hot'));
     expect(screen.getByTestId('wallet-choice-hot-unavailable')).toHaveTextContent(
