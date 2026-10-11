@@ -146,7 +146,7 @@ export default function WalletCreationChooser({
       {showSeedless && onSeedlessWallet && (
         <>
           <WalletChoiceCard
-            title="Seedless Wallet"
+            title="Assisted Multisig"
             icon="✦"
             description="Phone, compatible hardware and Server Key. 2 of 3 keys to spend."
             highlighted
