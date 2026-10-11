@@ -324,7 +324,7 @@ function PreviewContent() {
           : 'TESTNET PREVIEW · Simulated choices. No wallet, key, address, or backup is created.'
       }
       seedlessResumeHint={
-        hasDraft ? 'Your Seedless Wallet walkthrough will resume where you left off.' : undefined
+        hasDraft ? 'Your Assisted Multisig walkthrough will resume where you left off.' : undefined
       }
     />
   );
@@ -353,7 +353,7 @@ function PreviewContent() {
             ? 'Cloud Backup'
             : surface === 'contact'
             ? 'Recovery Contact'
-            : 'Seedless Wallet'
+            : 'Assisted Multisig'
         }
         onBack={surface === 'wallets' ? undefined : back}
         palette={palette}
