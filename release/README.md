@@ -13,13 +13,37 @@ The owner will perform real-phone and other manual live checks after release. Do
 5. Build from a reviewed production configuration and existing signing identities. Check extracted IPA, APK and AAB metadata against the manifest, verify signing fingerprints and record checksums. A source preflight does not verify the resulting binaries.
 6. Run all feasible automated, simulator/emulator and disposable checks before public submission; record the owner's post-release manual checks separately.
 
-Both existing Fastlane `live` lanes run preflight before building and consume `.env.production` without downloading over `.env`. They no longer increment production build numbers. Android notifications require explicit `KEEPER_NOTIFY_SLACK=1`.
+Both Fastlane `build_only` and `live` lanes run the same preflight, production build and artifact verification logic and consume `.env.production` without downloading over `.env`. They do not increment production build numbers. `build_only` never uploads and never notifies Slack, including on failures and when `KEEPER_NOTIFY_SLACK=1` is set. Android `live` notifications still require explicit `KEEPER_NOTIFY_SLACK=1`.
 
 These existing lanes still upload to **TestFlight** and **Play internal testing** respectively. Neither constitutes the requested public release. Public submission must record App Store review/submission state, Play production state and GitHub APK publication separately.
 
+## Build-only production preparation
+
+The following commands are for a future **owner-approved production build**. `build_only` still obtains signing assets and creates signed production artifacts using the existing identities. Approval must name the intended commit, platform and production environment before these commands run. Simulator/emulator validation in the Codex Local handoff is separate and does not authorize signing, building production artifacts, upload or distribution.
+
+Refresh authenticated store evidence, review `.env.production` and provide the existing signing credentials first. Start each platform in its own clean, isolated checkout at the approved commit so one platform's signing/provisioning changes cannot affect the other platform's clean-source preflight. In each checkout, set `KEEPER_RELEASE_COMMIT` to that full verified commit and run `npm run release:preflight` before its command:
+
+```sh
+# In the approved iOS checkout (requires the approved Mac/signing setup):
+export KEEPER_RELEASE_COMMIT="$(git rev-parse HEAD)"
+npm run release:preflight
+(cd ios && ENVFILE=.env.production bundle exec fastlane build_only --env production)
+```
+
+```sh
+# In the approved Android checkout (requires the established release keystore):
+export KEEPER_RELEASE_COMMIT="$(git rev-parse HEAD)"
+npm run release:preflight
+(cd android && ENVFILE=.env.production bundle exec fastlane build_only --env production)
+```
+
+Record the generated IPA or AAB/APK paths, verifier output and checksums. The lanes require fresh artifact paths from their current build actions; a prior lane-context path cannot satisfy a missing output. Review signing/provisioning changes without committing credentials. Separate IPA/AAB signing verification and all distribution channels still need their own checks and approval. Do not use `live` for build-only preparation because it uploads.
+
+`ruby scripts/test_fastlane_build_only.rb` executes the real lane bodies and success/error hooks with fake actions in disposable fixtures. It checks preflight/config/artifact failures, rejection of old artifact paths, and absence of upload/Slack calls for `build_only`, while retaining `live` upload behavior. It needs Ruby 3.3 with the bundled Minitest gem; it never invokes Fastlane, native build tools, signing, stores or Slack. Run it through `npm run test:release` with the source and packaged-artifact regression suites.
+
 ## Packaged artifact checks
 
-Run `python3 scripts/verify-release-artifact.py /absolute/path/to/build.ipa` (or `.apk` / `.aab`). The production lanes run this before uploading. Android builds both artifacts and verifies them before its first upload. The iOS lane requires the current build's IPA path and never falls back to an older file in the builds directory.
+Run `python3 scripts/verify-release-artifact.py /absolute/path/to/build.ipa` (or `.apk` / `.aab`). Both production lanes run this; `live` does so before uploading. Android builds both artifacts and verifies them before its first upload. Both platforms clear prior artifact paths before their build actions and require the current build's output; the iOS lane never falls back to an older file in the builds directory.
 
 The verifier checks the production application ID, marketing version, native counter, and bundled Ask Keeper / Dust route and data markers, then emits artifact and bundle SHA-256 hashes. Marker presence supplements device testing; it does not prove behavior or source provenance. Compiler-generated component names are unsuitable markers because release optimization removes them.
 
