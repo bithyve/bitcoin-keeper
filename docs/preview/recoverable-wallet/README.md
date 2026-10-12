@@ -2,7 +2,18 @@
 
 **Approved user-facing chooser name (11 October 2026): Assisted Multisig.** Place it between **Single-Key Wallet** and **Custom Wallet**. The former public-facing name is retired. Keep internal `seedless` route IDs, prop names, storage identifiers and testIDs unchanged until a separately reviewed migration; this is a copy/name decision only, not a cryptographic or security guarantee.
 
-Status (9 October 2026): **isolated client preview and direct three-choice empty Wallets entry implemented; the current Android preview APK built and launched; iOS package configured but not built**. This is a simulated walkthrough, not a released or security-reviewed wallet. "Assisted Multisig" is the **approved** user-facing choice; "Recoverable Wallet" remains an internal working term.
+Status (12 October 2026): **isolated client preview and direct three-choice empty Wallets entry implemented; the current Android preview APK built and launched; iOS package configured but not built**. This is a simulated walkthrough, not a released or security-reviewed wallet. "Assisted Multisig" is the **approved** user-facing choice; "Recoverable Wallet" remains an internal working term.
+
+## First offline 2-of-3 testnet-script checkpoint (12 October 2026)
+
+The first **functional bitcoin script** work has begun in this same branch without changing any server or production app code:
+
+- `src/services/wallets/recoverable/testnetScriptVector.ts` derives a real native-segwit `wsh(sortedmulti(2,...))` BIP67 reference script, testnet reference address, and checksummed portable public descriptor from **three already-supplied account-level public keys**. It reuses the existing strict public-policy validation (network, independent fingerprints/xpubs, BIP48 origins), rejects inheritance until its separate Miniscript verification is ready, rejects unbounded derivation indices and clearly types every result `fundable: false`.
+- `tests/services/recoverable/testnetScriptVector.test.ts` adds a cross-check against an independent existing Keeper descriptor/address fixture; rejects mainnet, invalid indices, duplicate keys and inheritance substitution; and exercises **all three pairs** (Mobile+Hardware, Mobile+Server, Hardware+Server) against BitcoinJS PSBT signatures with **synthetic non-broadcastable UTXOs**. One signature is insufficient; two signatures should finalize.
+- **Validation status:** the module and regression tests are committed in draft PR #7041. CI is required before asserting a pass. Native Mobile Key persistence, physical signer proof, authentic enrolled Server Key, encrypted backups and readback, wallet activation, real testnet UTXO discovery, fee/change review, broadcast, and fresh-phone restoration are **not yet implemented or verified** in this path.
+- **Safety invariant:** These computed addresses are *test vectors*, never offered as deposit/receive addresses. No actual funds should be sent; a public server xpub or a draft policy is not proof of a usable signer. The baseline 2-of-3 script is not a substitute for the optional delayed inheritance script.
+
+Next functional work independent of Adam: runtime-test native Mobile Key create/load/restart and consistency; test hardware provenance/public import and actual connection; integrate **verified** real key material into a testnet-only wallet-activation gate with secure backup, device-policy approval and complete 2-of-3 signing; then run a real testnet send/receive test with a disposable wallet. The Server Key protocol and any feature-specific SigningServer/Relay edits remain on hold for Adam and explicit owner approval.
 
 ## First client checkpoint
 
