@@ -60,15 +60,14 @@ for (const kind of ['wallets', 'vaults']) test(`${kind}: compare manual choices 
   assert.equal(await image.compareImages(local, remote), 'different');
 });
 
-test('upgrade inspection detects a missing manual choice and repair includes it in encrypted readback', async () => {
+test('upgrade inspection detects a missing manual choice and blocks unconsented replacement', async () => {
   const f = harness(); f.local.Wallet.push(withCoins());
   assert.equal(await f.run(true), 'verified');
   f.local.Wallet[0].specs.confirmedUTXOs[0] = coin();
   assert.equal(await f.run(), 'different');
-  assert.equal(await f.run(true), 'verified');
+  assert.equal(await f.run(true), 'conflict');
   const restored = JSON.parse(encryption.decrypt(encryption.generateEncryptionKey(f.app.primarySeed), f.remote.wallets['manual-choice']));
-  assert.equal(restored.specs.confirmedUTXOs[0].spendability, 'doNotSpend');
-  assert.equal(restored.specs.confirmedUTXOs[0].isManualOverride, true);
+  assert.equal(restored.specs.confirmedUTXOs[0].isManualOverride, false);
 });
 
 for (const kind of ['Wallet', 'Vault']) test(`${kind}: manual choice persists before incremental backup and invalidates prior verification`, async () => {

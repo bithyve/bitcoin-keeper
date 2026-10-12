@@ -1,18 +1,12 @@
 import RestClient from '../rest/RestClient';
+import type { BackupWriteIntent } from './intent';
 
 // One queue per account covers repair, incremental writes, labels and deletion.
 const queues = new Map<string, Promise<unknown>>();
 const revisions = new Map<string, number>();
 const queuedMutationRevisions = new Map<string, number>();
-const revisionedOperations = new Set([
-  'updateAppImage',
-  'migrateXfps',
-  'deleteAppImageEntity',
-  'deleteVaults',
-  'updateVaultImage',
-  'modifyLabels',
-  'deleteBackup',
-]);
+const verifiedRemoteRevisions = new Map<string, { revision: string; session: number; epoch: number }>();
+const baselineEpochs = new Map<string, number>();
 let activeAccount: string | undefined;
 let accountSession = 0;
 let mayUploadForAccount: (appId: string, explicitChoice: boolean) => boolean = () => false;
@@ -31,6 +25,7 @@ export const canAccessBackupAccount = (appId: string, explicitChoice = false) =>
 // The Redux store observes every selected-account transition, including resets.
 export function observeBackupAccount(appId?: string) {
   if (appId !== activeAccount) {
+    for (const id of verifiedRemoteRevisions.keys()) clearVerifiedRemoteRevision(id);
     activeAccount = appId;
     accountSession += 1;
   }
@@ -38,7 +33,32 @@ export function observeBackupAccount(appId?: string) {
 export const currentBackupAccountSession = () => accountSession;
 export const backupRevision = (id: string) => revisions.get(id) || 0;
 export const backupQueuedRevision = (id: string) => queuedMutationRevisions.get(id) || 0;
-export const markBackupMutation = (id: string) => revisions.set(id, backupRevision(id) + 1);
+export function clearVerifiedRemoteRevision(appId: string) {
+  verifiedRemoteRevisions.delete(appId);
+  baselineEpochs.set(appId, (baselineEpochs.get(appId) || 0) + 1);
+}
+export function recordVerifiedRemoteRevision(appId: string, revision: string, session: number) {
+  if (
+    !/^[a-f0-9]{64}$/.test(revision) ||
+    session !== accountSession ||
+    appId !== activeAccount
+  ) return;
+  clearVerifiedRemoteRevision(appId);
+  verifiedRemoteRevisions.set(appId, {
+    revision, session, epoch: baselineEpochs.get(appId) || 0,
+  });
+}
+export function captureBackupWriteIntent(appId: string): BackupWriteIntent | undefined {
+  const verified = verifiedRemoteRevisions.get(appId);
+  if (!verified || appId !== activeAccount || verified.session !== accountSession) return undefined;
+  return {
+    appId, accountSession: verified.session,
+    baseRevision: verified.revision, baselineEpoch: verified.epoch,
+  };
+}
+export const markBackupMutation = (id: string) => {
+  revisions.set(id, backupRevision(id) + 1);
+};
 export const BACKUP_STALL_MS = 30_000;
 export const BACKUP_DEADLINE_MS = 10 * 60_000;
 
@@ -123,69 +143,25 @@ export async function boundedBackupPost(
   }
 }
 
-export function backupPost(path: string, body: any, explicitChoice = false, expectedSession?: number) {
+export function backupPost(
+  _path: string, body: any, explicitChoice = false, expectedSession?: number
+): Promise<{ data: any; json?: any }> {
   const appId = body.appId || body.appID;
   if (!appId) return Promise.reject(new Error('Missing backup account'));
+  // Every attempted incremental write invalidates an outstanding inspection
+  // and leaves a visible pending state, including pre-send session/guard
+  // failures from direct hooks and upgrade workers.
+  markBackupMutation(appId);
+  clearVerifiedRemoteRevision(appId);
+  onBackupReconciliationRequired(appId);
   const requestSession = expectedSession ?? currentBackupAccountSession();
   if (requestSession !== currentBackupAccountSession())
     return Promise.reject(new Error('Backup account session changed'));
   if (!canAccessBackupAccount(appId, explicitChoice))
     return Promise.reject(new Error('Backup account is not active or opted in'));
-  markBackupMutation(appId);
-  const result = withBackupSession(appId, async () => {
-    // A queued write may outlive an entire A -> B -> A round trip.
-    const assertCurrent = () => {
-      if (requestSession !== currentBackupAccountSession())
-        throw new Error('Backup account session changed');
-      if (!canAccessBackupAccount(appId, explicitChoice))
-        throw new Error('Backup account is not active or opted in');
-    };
-    assertCurrent();
-    const deadline = Date.now() + BACKUP_DEADLINE_MS;
-    // Read inside this account's queue, immediately before the mutation. Every
-    // request carries a server revision, including deletes and label updates.
-    // A distinct route makes an old relay return 404 instead of silently
-    // accepting the write without enforcing expectedRevision.
-    const routeSeparator = path.lastIndexOf('/') + 1;
-    const operation = path.slice(routeSeparator);
-    const basePath = path.slice(0, routeSeparator);
-    try {
-      if (!revisionedOperations.has(operation)) throw new BackupRequestError('protocol');
-      const snapshot = await boundedBackupPost(
-        `${basePath}getBackupSnapshot`,
-        { appId },
-        deadline
-      );
-      const expectedRevision = snapshot.data?.revision ?? (snapshot as any).json?.revision;
-      if (
-        typeof expectedRevision !== 'string' ||
-        !/^[a-f0-9]{64}$/.test(expectedRevision)
-      )
-        throw new BackupRequestError('protocol');
-      assertCurrent();
-      const response = await boundedBackupPost(
-        `${basePath}revisionedBackupMutation`,
-        { ...body, appId, operation, expectedRevision },
-        deadline
-      );
-      const responseData = response.data || (response as any).json;
-      if (responseData?.preconditionApplied !== true || responseData?.updated !== true)
-        throw new BackupRequestError('protocol');
-      try {
-        assertCurrent();
-      } catch (error) {
-        // A result from an earlier A session cannot confirm the currently
-        // selected A account after an A -> B -> A round trip.
-        onBackupReconciliationRequired(appId);
-        throw error;
-      }
-      return response;
-    } catch (error) {
-      if (error instanceof BackupRequestError)
-        onBackupReconciliationRequired(appId);
-      throw error;
-    }
-  });
-  queuedMutationRevisions.set(appId, backupRevision(appId));
-  return result;
+  // The encrypted payload may have been prepared before a newer local change
+  // or an explicit repair. No revision captured here can prove that payload's
+  // freshness. Keep local data and require a new read-only check or explicit
+  // repair until the source intent is versioned end to end.
+  return Promise.reject(new BackupRequestError('protocol'));
 }

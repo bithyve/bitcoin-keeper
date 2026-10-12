@@ -2,18 +2,14 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadModule } = require('./helpers.cjs');
 
-const revision = (generation) => generation.toString(16).padStart(64, '0');
-
-function fixture(post) {
+function fixture() {
   const calls = [];
   const reconciliations = [];
   const transport = loadModule('src/services/backup/transport.ts', {
-    '../rest/RestClient': {
-      post: async (path, body) => {
-        calls.push({ path, body });
-        return post(path, body);
-      },
-    },
+    '../rest/RestClient': { post: async (...args) => {
+      calls.push(args);
+      assert.fail('An incremental mutation must not reach Relay without intent fencing');
+    } },
   });
   transport.setBackupUploadGuard((appId) => appId === 'A');
   transport.setBackupReconciliationHandler((appId) => reconciliations.push(appId));
@@ -21,136 +17,77 @@ function fixture(post) {
   return { transport, calls, reconciliations };
 }
 
-test('all active incremental operations use the revisioned route and a fresh queued snapshot', async () => {
-  let generation = 1;
-  const f = fixture(async (path, body) => {
-    if (path === 'fixture/getBackupSnapshot') return { data: { revision: revision(generation) } };
-    assert.equal(path, 'fixture/revisionedBackupMutation');
-    assert.equal(body.appId, 'A');
-    assert.equal(body.expectedRevision, revision(generation));
-    generation += 1;
-    return { data: { updated: true, preconditionApplied: true } };
-  });
+test('all seven incremental operations fail closed and mark pending before any network request', async () => {
+  const f = fixture();
   const operations = [
     'updateAppImage', 'migrateXfps', 'deleteAppImageEntity', 'deleteVaults',
     'updateVaultImage', 'modifyLabels', 'deleteBackup',
   ];
   for (const operation of operations) {
-    // updateVaultImage still has a legacy appID-only caller. The new route
-    // needs a canonical top-level appId in addition to the old payload.
     const body = operation === 'updateVaultImage' ? { appID: 'A' } : { appId: 'A' };
-    const response = await f.transport.backupPost(`fixture/${operation}`, body);
-    assert.equal(response.data.preconditionApplied, true);
+    await assert.rejects(
+      f.transport.backupPost(`fixture/${operation}`, body, operation === 'deleteBackup'),
+      (error) => error.category === 'protocol'
+    );
   }
-  assert.deepEqual(
-    f.calls.map(({ path }) => path),
-    operations.flatMap(() => ['fixture/getBackupSnapshot', 'fixture/revisionedBackupMutation'])
-  );
-  assert.deepEqual(f.calls.filter(({ path }) => path.endsWith('revisionedBackupMutation'))
-    .map(({ body }) => body.operation), operations);
-  assert.deepEqual(f.reconciliations, []);
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.reconciliations, operations.map(() => 'A'));
+  assert.equal(f.transport.backupRevision('A'), operations.length);
 });
 
-test('409 reports a conflict and never retries stale encrypted payload', async () => {
-  const f = fixture(async (path) => {
-    if (path.endsWith('getBackupSnapshot')) return { data: { revision: revision(1) } };
-    throw { response: { status: 409, data: { error: 'BACKUP_CHANGED' } } };
-  });
-  await assert.rejects(
-    f.transport.backupPost('fixture/updateAppImage', { appId: 'A', walletsObject: { w: 'old' } }),
-    (error) => error.category === 'conflict' && !error.message.includes('old')
-  );
-  assert.deepEqual(f.calls.map(({ path }) => path), [
-    'fixture/getBackupSnapshot', 'fixture/revisionedBackupMutation',
-  ]);
+test('a prepared payload cannot adopt a revision established by later repair', async () => {
+  const f = fixture();
+  const oldCiphertext = { appId: 'A', walletsObject: { wallet: 'old-ciphertext' } };
+  let release;
+  const heldRepair = f.transport.withBackupSession('A', () => new Promise((resolve) => { release = resolve; }));
+  const pending = f.transport.backupPost('fixture/updateAppImage', oldCiphertext);
+  await assert.rejects(pending, (error) => error.category === 'protocol');
+  release();
+  await heldRepair;
+  assert.deepEqual(f.calls, []);
   assert.deepEqual(f.reconciliations, ['A']);
 });
 
-test('a mixed or old relay rejects the new route without an old-route fallback', async () => {
-  const f = fixture(async (path) => {
-    if (path.endsWith('getBackupSnapshot')) return { data: { revision: revision(1) } };
-    assert.equal(path, 'fixture/revisionedBackupMutation');
-    throw { response: { status: 404 } };
-  });
-  await assert.rejects(
-    f.transport.backupPost('fixture/deleteBackup', { appId: 'A' }, true),
-    (error) => error.category === 'http-4xx'
-  );
-  assert.equal(f.calls.some(({ path }) => path === 'fixture/deleteBackup'), false);
-  assert.deepEqual(f.reconciliations, ['A']);
-});
-
-test('missing revision or acknowledgement fails closed and requests reconciliation', async () => {
-  const missingRevision = fixture(async () => ({ data: {} }));
-  await assert.rejects(
-    missingRevision.transport.backupPost('fixture/updateAppImage', { appId: 'A' }),
-    (error) => error.category === 'protocol'
-  );
-  assert.deepEqual(missingRevision.calls.map(({ path }) => path), ['fixture/getBackupSnapshot']);
-  assert.deepEqual(missingRevision.reconciliations, ['A']);
-
-  const missingAck = fixture(async (path) => path.endsWith('getBackupSnapshot')
-    ? { data: { revision: revision(1) } }
-    : { data: { updated: true } });
-  await assert.rejects(
-    missingAck.transport.backupPost('fixture/updateAppImage', { appId: 'A' }),
-    (error) => error.category === 'protocol'
-  );
-  assert.deepEqual(missingAck.reconciliations, ['A']);
-
-  const rejected = fixture(async (path) => path.endsWith('getBackupSnapshot')
-    ? { data: { revision: revision(1) } }
-    : { data: { updated: false, preconditionApplied: true } });
-  await assert.rejects(
-    rejected.transport.backupPost('fixture/updateAppImage', { appId: 'A' }),
-    (error) => error.category === 'protocol'
-  );
-  assert.deepEqual(rejected.reconciliations, ['A']);
-});
-
-test('A to B to A during the revision read never sends an old-session mutation', async () => {
-  let releaseSnapshot, enteredSnapshot;
-  const waiting = new Promise((resolve) => { releaseSnapshot = resolve; });
-  const entered = new Promise((resolve) => { enteredSnapshot = resolve; });
-  const f = fixture(async (path) => {
-    assert.equal(path, 'fixture/getBackupSnapshot');
-    enteredSnapshot();
-    await waiting;
-    return { data: { revision: revision(1) } };
-  });
-  const pending = f.transport.backupPost('fixture/updateAppImage', { appId: 'A' });
-  await entered;
+test('verified baseline is session bound and invalidated by any attempted mutation', async () => {
+  const f = fixture();
+  const session = f.transport.currentBackupAccountSession();
+  f.transport.recordVerifiedRemoteRevision('A', 'a'.repeat(64), session);
+  const first = f.transport.captureBackupWriteIntent('A');
+  assert.equal(first.baseRevision, 'a'.repeat(64));
+  assert.equal(first.accountSession, session);
+  await assert.rejects(f.transport.backupPost('fixture/updateAppImage', { appId: 'A' }),
+    (error) => error.category === 'protocol');
+  assert.equal(f.transport.captureBackupWriteIntent('A'), undefined);
+  f.transport.recordVerifiedRemoteRevision('A', 'b'.repeat(64), session);
+  const next = f.transport.captureBackupWriteIntent('A');
+  assert.ok(next.baselineEpoch > first.baselineEpoch);
   f.transport.observeBackupAccount('B');
   f.transport.observeBackupAccount('A');
-  releaseSnapshot();
-  await assert.rejects(pending, /Backup account session changed/);
-  assert.deepEqual(f.calls.map(({ path }) => path), ['fixture/getBackupSnapshot']);
+  assert.equal(f.transport.captureBackupWriteIntent('A'), undefined);
+  assert.deepEqual(f.calls, []);
 });
 
-test('A to B to A during an acknowledged write still requires readback', async () => {
-  let releaseMutation, enteredMutation;
-  const waiting = new Promise((resolve) => { releaseMutation = resolve; });
-  const entered = new Promise((resolve) => { enteredMutation = resolve; });
-  const f = fixture(async (path) => {
-    if (path.endsWith('getBackupSnapshot')) return { json: { revision: revision(1) } };
-    enteredMutation();
-    await waiting;
-    return { json: { updated: true, preconditionApplied: true } };
-  });
-  const pending = f.transport.backupPost('fixture/updateAppImage', { appId: 'A' });
-  await entered;
+test('stale sessions and denied accounts also request reconciliation', async () => {
+  const f = fixture();
+  const firstSession = f.transport.currentBackupAccountSession();
   f.transport.observeBackupAccount('B');
   f.transport.observeBackupAccount('A');
-  releaseMutation();
-  await assert.rejects(pending, /Backup account session changed/);
-  assert.deepEqual(f.calls.map(({ path }) => path), [
-    'fixture/getBackupSnapshot', 'fixture/revisionedBackupMutation',
-  ]);
-  assert.deepEqual(f.reconciliations, ['A']);
+  await assert.rejects(
+    f.transport.backupPost('fixture/migrateXfps', { appId: 'A' }, false, firstSession),
+    /Backup account session changed/
+  );
+  await assert.rejects(
+    f.transport.backupPost('fixture/updateAppImage', { appId: 'B' }),
+    /Backup account is not active or opted in/
+  );
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.reconciliations, ['A', 'B']);
+  assert.equal(f.transport.backupRevision('A'), 1);
+  assert.equal(f.transport.backupRevision('B'), 1);
 });
 
-test('unused legacy full writer is not sent through either route', async () => {
-  const f = fixture(async () => assert.fail('Legacy writer must not use the network'));
+test('the old full writer remains disabled', async () => {
+  const f = fixture();
   await assert.rejects(
     f.transport.backupPost('fixture/backupAllSignersAndVaults', { appId: 'A' }),
     (error) => error.category === 'protocol'

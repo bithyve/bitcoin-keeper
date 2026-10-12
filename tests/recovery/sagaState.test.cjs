@@ -56,7 +56,7 @@ test('queued repair keeps actions disabled after the read-only wrapper finishes'
     if (path.endsWith('getBackupSnapshot') && firstRead) {
       firstRead = false; readStarted.release(); await read.promise;
     }
-    if (path.endsWith('repairAppBackup')) { uploadStarted.release(); await upload.promise; }
+    if (path.endsWith('revisionedBackupMutation')) { uploadStarted.release(); await upload.promise; }
   }});
   f.local.Wallet.push(wallet());
   const runner = inspectionRunner(f);
@@ -77,7 +77,7 @@ test('cancelling a coalesced wrapper does not clear another running repair', asy
   const upload = gate(), uploadStarted = gate();
   t.after(() => upload.release());
   const f = harness({post:async ({path}) => {
-    if (path.endsWith('repairAppBackup')) { uploadStarted.release(); await upload.promise; }
+    if (path.endsWith('revisionedBackupMutation')) { uploadStarted.release(); await upload.promise; }
   }});
   f.local.Wallet.push(wallet());
   const runner = inspectionRunner(f), first = runner.start(true);
@@ -90,7 +90,7 @@ test('cancelling a coalesced wrapper does not clear another running repair', asy
   await first.task;
   assert.equal(await second.task, true);
   assert.equal(second.state.backupRepairRunningByAppId.disposable, false);
-  assert.equal(f.calls.filter(path => path === 'repairAppBackup').length, 1);
+  assert.equal(f.calls.filter(path => path === 'revisionedBackupMutation').length, 1);
 });
 
 test('cancellation retains progress until its non-cancellable inspection actually settles', async (t) => {

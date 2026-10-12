@@ -191,7 +191,7 @@ test('queued A transport cannot execute after opted-in B becomes active', async 
   active = 'B';
   release();
   await busy;
-  await assert.rejects(pending, /not active or opted in/);
+  await assert.rejects(pending, (error) => error.category === 'protocol');
   assert.deepEqual(calls, [], 'the queued request must never reach the network');
 });
 
@@ -222,7 +222,7 @@ test('queued A ciphertext cannot replace a newer server wallet after A to B to A
   transport.observeBackupAccount?.(active);
   release();
   await busy;
-  await assert.rejects(pending, /session changed/);
+  await assert.rejects(pending, (error) => error.category === 'protocol');
   assert.equal(remote.wallets.shared, 'newer-A-ciphertext');
   assert.equal(calls.length, 0, 'stale ciphertext must never reach Relay');
 });
@@ -381,7 +381,7 @@ test('explicit backup can repair an off account only while that account stays ac
   f.local.Wallet.push(wallet('explicit', enums.NetworkType.MAINNET));
   f.transport.setBackupUploadGuard((id, explicitChoice) => id === f.app.id && explicitChoice);
   assert.equal(await f.repair.inspectBackup(f.app.id, true, () => {}, true), 'verified');
-  assert.deepEqual(f.calls, ['getBackupSnapshot', 'repairAppBackup', 'getBackupSnapshot']);
+  assert.deepEqual(f.calls, ['getBackupSnapshot', 'revisionedBackupMutation', 'getBackupSnapshot']);
 });
 
 test('unconfirmed server deletion retains account consent and reports failure', async () => {

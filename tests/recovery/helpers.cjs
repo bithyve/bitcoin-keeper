@@ -30,9 +30,12 @@ function harness(options = {}) {
     if (options.adapter) return options.adapter(path.replace('fixture/', ''), payload, config);
     if (path.endsWith('getBackupSnapshot')) {
       if (options.readError) throw Error('offline');
-      return { data: options.response || { appImage: remote, allVaultImages: vaults, labels, revision: revision() } };
+      return { data: options.response || {
+        appImage: remote, allVaultImages: vaults, labels, revision: revision(),
+        revisionedMutations: true,
+      } };
     }
-    if (path.endsWith('revisionedBackupMutation')) {
+    if (path.endsWith('revisionedBackupMutation') && payload.operation !== 'repairAppBackup') {
       if (payload.expectedRevision !== revisionBeforeHook)
         throw { response: { status: 409 } };
       return { data: { updated: true, preconditionApplied: true } };
@@ -45,7 +48,10 @@ function harness(options = {}) {
     remote.vaults = vaults.map(v => v.vaultId); remote.labels = labels.map(v => v.id);
     if (options.corruptWrite) remote.wallets = {};
     if (options.lostResponse) throw Error('response lost after commit');
-    return { data: { updated: true } };
+    return { data: {
+      updated: true,
+      ...(path.endsWith('revisionedBackupMutation') ? { preconditionApplied: true } : {}),
+    } };
   } };
   const clock = options.now ? { Date: { now: options.now } } : {};
   const transport = loadModule('src/services/backup/transport.ts', { '../rest/RestClient': rest }, clock);

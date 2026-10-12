@@ -15,7 +15,9 @@ import {
   backupRevision,
   boundedBackupPost,
   canAccessBackupAccount,
+  clearVerifiedRemoteRevision,
   currentBackupAccountSession,
+  recordVerifiedRemoteRevision,
   withBackupSession,
 } from './transport';
 import {
@@ -60,6 +62,21 @@ const inFlight = new Map<
   }
 >();
 const clone = (value: any) => JSON.parse(JSON.stringify(value));
+
+// Replacing the whole Relay image is safe without separate replacement consent
+// only when it adds records to the remote image. A remote-only record or a
+// changed recovery payload could contain the user's sole recoverable copy.
+function replacementWouldDiscardRecovery(local: BackupImage, remote: BackupImage) {
+  for (const kind of Object.keys(remote) as (keyof BackupImage)[]) {
+    for (const [id, stored] of Object.entries(remote[kind])) {
+      const current = local[kind][id];
+      if (!current ||
+        canonical(recoveryContent(kind, current)) !== canonical(recoveryContent(kind, stored)))
+        return true;
+    }
+  }
+  return false;
+}
 
 export async function captureBackupImage(checkpoint = () => {}): Promise<BackupImage> {
   const image: BackupImage = { wallets: {}, signers: {}, vaults: {}, nodes: {}, labels: {} };
@@ -184,6 +201,7 @@ export function inspectBackup(
     if (running.phase) onPhase(running.phase);
     return running.promise;
   }
+  clearVerifiedRemoteRevision(appId);
   const listeners = new Set([onPhase]);
   const notify = (phase: RepairPhase) => {
     const active = inFlight.get(operationKey);
@@ -222,6 +240,9 @@ export function inspectBackup(
       assertCurrent();
       let expectedRevision: string;
       let needsVaultRepair = false;
+      let needsLabelRepair = false;
+      let unavailableVaultIds: string[] = [];
+      let unavailableLabelIds: string[] = [];
       const read = async (readback = false) => {
         stage = readback ? 'repair-readback' : 'snapshot-request';
         const response = await boundedBackupPost(
@@ -233,6 +254,8 @@ export function inspectBackup(
         assertCurrent();
         if (!/^[a-f0-9]{64}$/.test(response.data?.revision))
           throw new Error('Backup snapshot revision unavailable');
+        if (response.data?.revisionedMutations !== true)
+          throw new Error('Revisioned backup protocol unavailable');
         expectedRevision = response.data.revision;
         const unavailable = response.data.unavailableVaultIds ?? [];
         if (!Array.isArray(unavailable) || new Set(unavailable).size !== unavailable.length)
@@ -251,16 +274,40 @@ export function inspectBackup(
             ))
         )
           throw new Error('Invalid unavailable backup references');
+        unavailableVaultIds = unavailable;
+        const unavailableLabels = response.data.unavailableLabelIds ?? [];
+        const labelReferences = response.data.appImage?.labels;
+        if (
+          !Array.isArray(unavailableLabels) ||
+          new Set(unavailableLabels).size !== unavailableLabels.length ||
+          (unavailableLabels.length &&
+            (!Array.isArray(labelReferences) ||
+              new Set(labelReferences).size !== labelReferences.length ||
+              unavailableLabels.some(
+                (id) =>
+                  typeof id !== 'string' ||
+                  !id ||
+                  !labelReferences.includes(id) ||
+                  response.data.labels?.some((record) => record.id === id)
+              )))
+        )
+          throw new Error('Invalid unavailable backup labels');
+        unavailableLabelIds = unavailableLabels;
         // A legacy shared-wallet image may have been overwritten by another
         // participant. The relay withholds that participant's ciphertext. Only
         // this explicit backup check may compare the remaining records; clean
         // restore still rejects the incomplete reference list.
-        const availableResponse = unavailable.length
+        const availableResponse = unavailable.length || unavailableLabels.length
           ? {
               ...response.data,
               appImage: {
                 ...response.data.appImage,
-                vaults: references.filter((id) => !unavailable.includes(id)),
+                vaults: unavailable.length
+                  ? references.filter((id) => !unavailable.includes(id))
+                  : response.data.appImage.vaults,
+                labels: unavailableLabels.length
+                  ? labelReferences.filter((id) => !unavailableLabels.includes(id))
+                  : response.data.appImage.labels,
               },
             }
           : response.data;
@@ -275,13 +322,16 @@ export function inspectBackup(
               typeof record.isArchived === 'boolean' &&
               record.isArchived !== !!decoded.vaults[record.vaultId]?.archived
           );
+        needsLabelRepair = unavailableLabels.length > 0;
         return decoded;
       };
       const remote = await read();
       stage = 'comparison';
       const contentComparison = await compareImages(local, remote, assertCurrent);
       const comparison =
-        contentComparison === 'matched' && needsVaultRepair ? 'different' : contentComparison;
+        contentComparison === 'matched' && (needsVaultRepair || needsLabelRepair)
+          ? 'different'
+          : contentComparison;
       assertCurrent();
       if (comparison === 'conflict') {
         notify('conflict');
@@ -292,6 +342,18 @@ export function inspectBackup(
         return 'different';
       }
       if (comparison === 'different') {
+        if (
+          replacementWouldDiscardRecovery(local, remote) ||
+          unavailableVaultIds.some((id) => !local.vaults[id]) ||
+          unavailableLabelIds.some(
+            (id) => !Object.keys(local.labels).some(
+              (localId) => hash256(hash256(key + localId)) === id
+            )
+          )
+        ) {
+          notify('conflict');
+          return 'conflict';
+        }
         stage = 'repair-preparation';
         notify('preparing');
         const payload = await encodeImage(app, local, assertCurrent);
@@ -305,25 +367,36 @@ export function inspectBackup(
         assertCurrent();
         notify('uploading');
         stage = 'repair-upload';
+        let revisionedRepairAcknowledged = false;
         try {
           const response = await boundedBackupPost(
-            `${config.RELAY}repairAppBackup`,
-            // This explicit action replaces the server snapshot with the
-            // current local state, including intentional deletions. The relay
-            // still checks the revision atomically before accepting it.
-            { ...payload, expectedRevision, replaceCurrentState: true },
+            `${config.RELAY}revisionedBackupMutation`,
+            // This explicit action replaces the server snapshot only after
+            // proving it preserves the remote recovery content. The relay
+            // checks the revision and activates the incremental-write fence
+            // atomically before accepting it. Old relays return 404 here.
+            {
+              ...payload,
+              operation: 'repairAppBackup',
+              expectedRevision,
+              replaceCurrentState: true,
+            },
             deadline
           );
-          if (response.data?.updated !== true) throw new Error('Backup rejected');
+          revisionedRepairAcknowledged =
+            response.data?.updated === true && response.data?.preconditionApplied === true;
         } catch {
-          // A lost response is not proof the upload failed. Always read back.
+          // A lost response is not proof the upload failed. Read back, but do
+          // not mark this repair verified without an acknowledged v2 write.
         }
         notify('verifying');
         stage = 'repair-readback';
         const verifiedRemote = await read(true);
         stage = 'repair-readback';
         if (
+          !revisionedRepairAcknowledged ||
           needsVaultRepair ||
+          needsLabelRepair ||
           (await compareImages(local, verifiedRemote, assertCurrent)) !== 'matched'
         )
           throw new Error('Backup not verified');
@@ -335,6 +408,7 @@ export function inspectBackup(
       )
         throw new Error('Local backup changed');
       assertCurrent();
+      recordVerifiedRemoteRevision(appId, expectedRevision, expectedSession);
       notify('verified');
       return 'verified';
     } catch (error) {

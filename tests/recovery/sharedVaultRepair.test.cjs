@@ -7,11 +7,13 @@ function fixture({ unavailable = ['shared'], leaveUnavailable = false } = {}) {
   const state = {
     appImage: { appId:'disposable', wallets:{}, signers:{}, nodes:[], vaults:['shared'], labels:[] },
     allVaultImages:[], labels:[], unavailableVaultIds:unavailable, revision:'a'.repeat(64),
+    revisionedMutations:true,
   };
   let uploads=0;
   const f=harness({ adapter:async (endpoint,payload) => {
     if(endpoint==='getBackupSnapshot') return {data:clone(state)};
-    assert.equal(endpoint,'repairAppBackup');
+    assert.equal(endpoint,'revisionedBackupMutation');
+    assert.equal(payload.operation,'repairAppBackup');
     assert.equal(payload.expectedRevision,state.revision);
     assert.equal(payload.replaceCurrentState,true);
     uploads++;
@@ -21,7 +23,7 @@ function fixture({ unavailable = ['shared'], leaveUnavailable = false } = {}) {
     state.labels=payload.labels;
     if (!leaveUnavailable) state.unavailableVaultIds=[];
     state.revision='b'.repeat(64);
-    return {data:{updated:true}};
+    return {data:{updated:true,preconditionApplied:true}};
   }});
   f.local.Vault.push({...wallet('shared'),signers:[],scheme:{m:1,n:1},archived:false});
   const key=encryption.generateEncryptionKey(f.app.primarySeed);
@@ -41,13 +43,13 @@ test('explicit local resubmission replaces missing account copy and verifies cle
   assert.deepEqual(state.unavailableVaultIds,[]);
   const recovered=await prepareRecoveryImage(key,f.app.id,state.appImage,state.allVaultImages,state.labels);
   assert.deepEqual(clone(recovered.vaults.shared),f.local.Vault[0]);
-  assert.deepEqual(f.calls,['getBackupSnapshot','repairAppBackup','getBackupSnapshot']);
+  assert.deepEqual(f.calls,['getBackupSnapshot','revisionedBackupMutation','getBackupSnapshot']);
 });
-test('missing server-only vault cannot look matched; explicit current-state replacement removes it',async()=>{
+test('missing server-only vault blocks current-state replacement',async()=>{
   const {f,state,uploads}=fixture(); f.local.Vault.length=0;
   assert.equal(await f.run(),'different'); assert.equal(uploads(),0);
-  assert.equal(await f.run(true),'verified');
-  assert.deepEqual(state.appImage.vaults,[]); assert.equal(uploads(),1);
+  assert.equal(await f.run(true),'conflict');
+  assert.deepEqual(state.appImage.vaults,['shared']); assert.equal(uploads(),0);
 });
 for(const problem of ['identity','ahead address counter']) test(`available ${problem} conflict still blocks missing-copy repair`,async()=>{
   const {f,state,key,uploads}=fixture();
@@ -72,6 +74,57 @@ test('archive metadata mismatch is read-only until explicit backup and must matc
   assert.equal(await f.run(),'different'); assert.equal(uploads(),0);
   assert.equal(await f.run(true),'verified'); assert.equal(uploads(),1);
   assert.equal(state.allVaultImages[0].isArchived,true);
+});
+
+function orphanLabelFixture(hasLocalLabel = true, malformedMarker = false) {
+  const label = { id: 'fixture-label', name: 'Recovery label' };
+  const app = { id: 'disposable', primarySeed: 'ab'.repeat(32) };
+  const key = encryption.generateEncryptionKey(app.primarySeed);
+  const opaqueId = encryption.hash256(encryption.hash256(key + label.id));
+  const state = {
+    appImage: { appId: app.id, wallets: {}, signers: {}, nodes: [], vaults: [], labels: [opaqueId] },
+    allVaultImages: [], labels: [], revision: 'a'.repeat(64), revisionedMutations: true,
+    unavailableLabelIds: [malformedMarker ? 'not-referenced' : opaqueId],
+  };
+  let uploads = 0;
+  const f = harness({ adapter: async (endpoint, payload) => {
+    if (endpoint === 'getBackupSnapshot') return { data: clone(state) };
+    assert.equal(endpoint, 'revisionedBackupMutation');
+    assert.equal(payload.operation, 'repairAppBackup');
+    uploads++;
+    state.labels = payload.labels;
+    state.appImage.labels = payload.labels.map((record) => record.id);
+    state.unavailableLabelIds = [];
+    state.revision = 'b'.repeat(64);
+    return { data: { updated: true, preconditionApplied: true } };
+  } });
+  if (hasLocalLabel) f.local.Tags.push(label);
+  return { f, state, uploads: () => uploads, key, opaqueId };
+}
+
+test('orphan label cannot be removed when local recovery copy is absent', async () => {
+  const { f, state, uploads, opaqueId } = orphanLabelFixture(false);
+  assert.equal(await f.run(), 'different');
+  assert.equal(await f.run(true), 'conflict');
+  assert.equal(uploads(), 0);
+  assert.deepEqual(state.appImage.labels, [opaqueId]);
+});
+
+test('matching local label can safely fill orphan ciphertext during explicit repair', async () => {
+  const { f, state, uploads, key } = orphanLabelFixture();
+  await assert.rejects(prepareRecoveryImage(key, f.app.id, state.appImage, [], state.labels));
+  assert.equal(await f.run(), 'different');
+  assert.equal(await f.run(true), 'verified');
+  assert.equal(uploads(), 1);
+  assert.deepEqual(state.unavailableLabelIds, []);
+  assert.deepEqual(clone((await prepareRecoveryImage(key, f.app.id, state.appImage, [], state.labels)).labels['fixture-label']),
+    f.local.Tags[0]);
+});
+
+test('malformed orphan label marker never authorizes replacement', async () => {
+  const { f, uploads } = orphanLabelFixture(true, true);
+  assert.equal(await f.run(true), 'unverified');
+  assert.equal(uploads(), 0);
 });
 
 for(const archived of [true,false]) test(`existing-wallet update carries signer maps and archive state: archived=${archived}`,async()=>{

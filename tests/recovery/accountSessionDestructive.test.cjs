@@ -144,7 +144,7 @@ test('queued explicit whole-backup delete cannot clear newer A data after A to B
   release();
   await busy;
 
-  await assert.rejects(deleting, /session changed/);
+  await assert.rejects(deleting, (error) => error.category === 'protocol');
   assert.deepEqual(requests, []);
   assert.equal(remote.wallets.shared, 'newer-A-ciphertext');
 });

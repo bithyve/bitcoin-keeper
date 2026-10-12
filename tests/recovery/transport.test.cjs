@@ -52,5 +52,5 @@ test('repeated repair actions share one upload and readback', async () => {
   const f = harness(); f.local.Wallet.push(wallet());
   const results = await Promise.all([f.run(true),f.run(true),f.run(true)]);
   assert.deepEqual(results,['verified','verified','verified']);
-  assert.deepEqual(f.calls,['getBackupSnapshot','repairAppBackup','getBackupSnapshot']);
+  assert.deepEqual(f.calls,['getBackupSnapshot','revisionedBackupMutation','getBackupSnapshot']);
 });

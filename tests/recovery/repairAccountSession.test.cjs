@@ -64,6 +64,6 @@ test('in-flight repair cannot upload after an A to B to A account switch', async
 
   assert.equal(await staleRepair, 'unverified');
   assert.equal(await freshRepair, 'verified', 'new session must inspect independently');
-  assert.equal(f.calls.filter((path) => path === 'repairAppBackup').length, 1);
+  assert.equal(f.calls.filter((path) => path === 'revisionedBackupMutation').length, 1);
   assert.equal(f.calls.filter((path) => path === 'getBackupSnapshot').length, 3);
 });

@@ -15,6 +15,17 @@ test('matching upgrade only reads and does not reupload', async () => {
   assert.equal(await f.run(), 'verified'); assert.deepEqual(f.calls, ['getBackupSnapshot']);
 });
 
+test('a matched snapshot from an old relay is not marked verified', async () => {
+  const options = {};
+  const f = harness(options);
+  options.response = {
+    appImage: f.remote, allVaultImages: [], labels: [], revision: 'a'.repeat(64),
+  };
+  assert.equal(await f.run(), 'unverified');
+  assert.deepEqual(f.calls, ['getBackupSnapshot']);
+  assert.equal(f.phases.includes('verified'), false);
+});
+
 for (const failure of ['readError','reject','corruptWrite']) test(`${failure} never claims success`, async () => {
   const f = harness({ [failure]: true }); f.local.Wallet.push(wallet());
   assert.equal(await f.run(true), 'unverified'); assert.ok(!f.phases.includes('verified'));
@@ -65,7 +76,7 @@ for (const os of ['ios', 'android']) test(`${os} RestClient preserves the read-o
       if (requests.length === 1) throw { code: 'ERR_NETWORK' };
       return { data: {
         appImage: { appId: 'disposable', wallets: {}, signers: {}, nodes: [], vaults: [], labels: [] },
-        allVaultImages: [], labels: [], revision: 'a'.repeat(64),
+        allVaultImages: [], labels: [], revision: 'a'.repeat(64), revisionedMutations: true,
       } };
     } },
     'react-native-device-info': { getVersion: () => 'fixture', getBuildNumber: () => 'fixture' },
@@ -143,6 +154,7 @@ for (const [name, change] of [
   const f = harness(options);
   const response = {
     revision: 'a'.repeat(64),
+    revisionedMutations: true,
     appImage: { appId: f.app.id, wallets: {}, signers: {}, nodes: [], vaults: [], labels: [] },
     allVaultImages: [], labels: [],
   };
@@ -158,6 +170,7 @@ test('invalid decrypted JSON reports decryption failure without retry or upload'
   const f = harness(options);
   options.response = {
     revision: 'a'.repeat(64),
+    revisionedMutations: true,
     appImage: {
       appId: f.app.id,
       wallets: { wallet: encryption.encrypt(encryption.generateEncryptionKey(f.app.primarySeed), '{') },
@@ -222,7 +235,7 @@ for (const [name, keyedWallets] of [
     )),
     signers: {}, nodes: [], vaults: [], labels: [],
   };
-  options.response = { revision: 'a'.repeat(64), appImage, allVaultImages: [], labels: [] };
+  options.response = { revision: 'a'.repeat(64), revisionedMutations: true, appImage, allVaultImages: [], labels: [] };
   assert.equal(await f.run(), 'unverified');
   assert.deepEqual(f.calls, ['getBackupSnapshot']);
   assert.deepEqual(f.diagnostics, [['Assisted Server Backup check failed at stage:', 'snapshot-validation', 'non-transport']]);
@@ -241,7 +254,7 @@ test('numeric decrypted wallet ID is invalid for inspection and recovery', async
     wallets: { wallet: encryption.encrypt(key, JSON.stringify({ ...wallet(), id: 42 })) },
     signers: {}, nodes: [], vaults: [], labels: [],
   };
-  options.response = { revision: 'a'.repeat(64), appImage, allVaultImages: [], labels: [] };
+  options.response = { revision: 'a'.repeat(64), revisionedMutations: true, appImage, allVaultImages: [], labels: [] };
   assert.equal(await f.run(), 'unverified');
   assert.deepEqual(f.calls, ['getBackupSnapshot']);
   assert.deepEqual(f.diagnostics, [['Assisted Server Backup check failed at stage:', 'snapshot-validation', 'non-transport']]);
@@ -269,27 +282,21 @@ test('repair does not retry a failed snapshot request', async () => {
   assert.deepEqual(f.calls, ['getBackupSnapshot']);
 });
 
-test('read-only check retries once after a concurrent incremental backup changes its revision', async () => {
+test('incremental attempt during read-only check fails closed and invalidates completion', async () => {
   let f, changed = false, write;
-  f = harness({ post: async ({ path, payload, remote }) => {
+  f = harness({ post: async ({ path }) => {
     if (path.endsWith('getBackupSnapshot') && !changed) {
       changed = true;
-      write = f.transport.backupPost('fixture/updateAppImage', { appId: f.app.id });
-    }
-    if (path.endsWith('revisionedBackupMutation') && payload.operation === 'updateAppImage') {
-      remote.wallets.wallet = encryption.encrypt(
-        encryption.generateEncryptionKey(f.app.primarySeed), JSON.stringify(wallet())
-      );
+      write = f.transport.backupPost('fixture/updateAppImage', { appId: f.app.id })
+        .catch((error) => error);
     }
   } });
   f.local.Wallet.push(wallet());
-  assert.equal(await f.run(), 'verified');
-  await write;
-  assert.deepEqual(f.calls, [
-    'getBackupSnapshot', 'getBackupSnapshot', 'revisionedBackupMutation', 'getBackupSnapshot',
-  ]);
-  assert.deepEqual(f.phases, ['checking', 'checking', 'verified']);
-  assert.deepEqual(f.diagnostics, []);
+  assert.equal(await f.run(), 'unverified');
+  assert.equal((await write).category, 'protocol');
+  assert.deepEqual(f.calls, ['getBackupSnapshot']);
+  assert.deepEqual(f.phases, ['checking', 'unverified']);
+  assert.deepEqual(f.diagnostics, [['Assisted Server Backup check failed at stage:', 'snapshot-validation', 'non-transport']]);
 });
 
 test('early revision change without a queued write stays unverified', async () => {
@@ -303,46 +310,85 @@ test('early revision change without a queued write stays unverified', async () =
   assert.deepEqual(f.phases, ['checking', 'unverified']);
 });
 
-test('continuous queued writes limit a read-only check to one retry', async () => {
+test('multiple incremental attempts during inspection remain local and invalidate the check', async () => {
   let f;
   const writes = [];
-  let reads = 0;
   f = harness({ post: async ({ path }) => {
-    if (path.endsWith('getBackupSnapshot') && [1, 3].includes(++reads))
-      writes.push(f.transport.backupPost('fixture/updateAppImage', { appId: f.app.id }));
+    if (path.endsWith('getBackupSnapshot'))
+      for (let index = 0; index < 2; index++)
+        writes.push(f.transport.backupPost('fixture/updateAppImage', { appId: f.app.id })
+          .catch((error) => error));
   } });
   f.local.Wallet.push(wallet());
   assert.equal(await f.run(), 'unverified');
-  await Promise.all(writes);
-  assert.equal(f.calls.filter((path) => path === 'getBackupSnapshot').length, 4);
-  assert.deepEqual(f.phases, ['checking', 'checking', 'unverified']);
+  assert.deepEqual((await Promise.all(writes)).map((error) => error.category), ['protocol','protocol']);
+  assert.deepEqual(f.calls, ['getBackupSnapshot']);
+  assert.deepEqual(f.phases, ['checking', 'unverified']);
 });
 
-test('lost upload acknowledgement is resolved by readback without duplicate upload', async () => {
+test('lost v2 repair acknowledgement remains unverified after readback', async () => {
   const f = harness({ lostResponse: true }); f.local.Wallet.push(wallet());
-  assert.equal(await f.run(true), 'verified'); assert.deepEqual(f.calls, ['getBackupSnapshot','repairAppBackup','getBackupSnapshot']);
+  assert.equal(await f.run(true), 'unverified');
+  assert.ok(f.remote.wallets.wallet, 'the server may have committed before the response was lost');
+  assert.deepEqual(f.calls, ['getBackupSnapshot','revisionedBackupMutation','getBackupSnapshot']);
 });
 
-test('server-only wallet needs user action, then repair removes it and verifies readback', async () => {
+test('an old relay returns 404 for v2 repair and cannot acknowledge it', async () => {
   const f = harness({ post: async ({ path, payload }) => {
-    if (path.endsWith('repairAppBackup')) assert.equal(payload.replaceCurrentState, true);
+    if (path.endsWith('revisionedBackupMutation') && payload.operation === 'repairAppBackup')
+      throw { response: { status: 404 } };
+  } });
+  f.local.Wallet.push(wallet());
+  assert.equal(await f.run(true), 'unverified');
+  assert.equal(f.remote.wallets.wallet, undefined);
+  assert.deepEqual(f.calls, ['getBackupSnapshot','revisionedBackupMutation','getBackupSnapshot']);
+});
+
+test('server-only wallet cannot be removed by automatic repair or Back Up Now', async () => {
+  const f = harness({ post: async ({ path, payload }) => {
+    if (path.endsWith('revisionedBackupMutation')) assert.equal(payload.replaceCurrentState, true);
   } }); f.remote.wallets.other = encryption.encrypt(encryption.generateEncryptionKey(f.app.primarySeed), JSON.stringify(wallet('other')));
   assert.equal(await f.run(), 'different'); assert.deepEqual(f.calls, ['getBackupSnapshot']); assert.ok(f.remote.wallets.other);
-  assert.equal(await f.run(true), 'verified'); assert.deepEqual(f.calls.slice(1), ['getBackupSnapshot','repairAppBackup','getBackupSnapshot']);
-  assert.equal(f.remote.wallets.other, undefined);
+  assert.equal(await f.run(true), 'conflict'); assert.deepEqual(f.calls.slice(1), ['getBackupSnapshot']);
+  assert.ok(f.remote.wallets.other);
 });
 
-test('current-state repair keeps hidden keys and archived wallets while dropping deleted records', async () => {
+test('same-ID differing recovery content blocks automatic repair and Back Up Now', async () => {
+  const f = harness();
+  f.local.Wallet.push(wallet());
+  const stored = wallet();
+  stored.presentationData.name = 'Remote recovery name';
+  f.remote.wallets.wallet = encryption.encrypt(
+    encryption.generateEncryptionKey(f.app.primarySeed), JSON.stringify(stored)
+  );
+  assert.equal(await f.run(), 'different');
+  assert.equal(await f.run(true), 'conflict');
+  assert.deepEqual(f.calls, ['getBackupSnapshot', 'getBackupSnapshot']);
+  assert.ok(f.remote.wallets.wallet);
+});
+
+test('remote-only signer also blocks automatic repair', async () => {
+  const f = harness();
+  const signer = { id: 'remote-signer', masterFingerprint: 'AABBCCDD', signerXpubs: {} };
+  f.remote.signers[signer.id] = encryption.encrypt(
+    encryption.generateEncryptionKey(f.app.primarySeed), JSON.stringify(signer)
+  );
+  assert.equal(await f.run(true), 'conflict');
+  assert.deepEqual(f.calls, ['getBackupSnapshot']);
+  assert.ok(f.remote.signers[signer.id]);
+});
+
+test('current-state repair cannot drop server-only records even when local additions exist', async () => {
   const f = harness();
   const key = encryption.generateEncryptionKey(f.app.primarySeed);
   f.local.Signer.push({ id:'hidden-key', masterFingerprint:'hidden', signerXpubs:{}, hidden:true });
   f.local.Vault.push({ ...wallet('archived'), archived:true, signers:[], scheme:{m:1,n:1} });
   f.remote.wallets.deleted = encryption.encrypt(key, JSON.stringify(wallet('deleted')));
   assert.equal(await f.run(), 'different');
-  assert.equal(await f.run(true), 'verified');
-  assert.equal(f.remote.wallets.deleted, undefined);
-  assert.equal(JSON.parse(encryption.decrypt(key, f.remote.signers['hidden-key'])).hidden, true);
-  assert.deepEqual(f.remote.vaults, ['archived']);
+  assert.equal(await f.run(true), 'conflict');
+  assert.ok(f.remote.wallets.deleted);
+  assert.equal(f.remote.signers['hidden-key'], undefined);
+  assert.deepEqual(f.remote.vaults, []);
 });
 
 test('same IDs with different recovery keys are a conflict', async () => {
@@ -382,9 +428,9 @@ test('malformed or partial server response is unavailable, never an empty snapsh
 
 test('mutation arriving during upload invalidates completion and remains queued until readback', async () => {
   let f;
-  f = harness({ post: async ({ path }) => { if (path.endsWith('repairAppBackup')) f.transport.markBackupMutation(f.app.id); } });
+  f = harness({ post: async ({ path }) => { if (path.endsWith('revisionedBackupMutation')) f.transport.markBackupMutation(f.app.id); } });
   f.local.Wallet.push(wallet()); assert.equal(await f.run(true), 'unverified'); assert.ok(!f.phases.includes('verified'));
-  assert.deepEqual(f.calls, ['getBackupSnapshot', 'repairAppBackup', 'getBackupSnapshot']);
+  assert.deepEqual(f.calls, ['getBackupSnapshot', 'revisionedBackupMutation', 'getBackupSnapshot']);
 });
 
 test('account switch during check cannot upload one account with another account data', async () => {
@@ -414,7 +460,7 @@ test('oversized record fails without uploading or truncating', async () => {
 
 test('server change after read rejects stale upload and preserves remote data', async () => {
   const f = harness({ post: async ({ path, remote }) => {
-    if (path.endsWith('repairAppBackup')) remote.wallets.other = 'new-device-encrypted-data';
+    if (path.endsWith('revisionedBackupMutation')) remote.wallets.other = 'new-device-encrypted-data';
   } });
   f.local.Wallet.push(wallet());
   assert.equal(await f.run(true), 'unverified');
@@ -432,7 +478,7 @@ test('relay without revision support fails closed without legacy replacement', a
 test('archived vault is uploaded with archived server metadata', async () => {
   let archived;
   const f = harness({ post: async ({ path,payload }) => {
-    if (path.endsWith('repairAppBackup')) archived=payload.vaultObject.vault.isArchived;
+    if (path.endsWith('revisionedBackupMutation')) archived=payload.vaultObject.vault.isArchived;
   } });
   f.local.Vault.push({ ...wallet('vault'), archived:true,signers:[],scheme:{m:1,n:1} });
   assert.equal(await f.run(true), 'verified');

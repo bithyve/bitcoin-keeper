@@ -208,6 +208,10 @@ setBackupReconciliationHandler((appId) => {
   // a new comparison with the server snapshot before any repair is offered.
   store.dispatch(invalidateBackupRepair(appId));
   store.dispatch(setPendingAllBackup({ appId, pending: true }));
+  // The caller may still need to commit its local Realm change after this
+  // rejection. Starting an inspection here could match the old local image
+  // and clear pending before that commit. Keep pending until the caller has
+  // settled and a later inspection captures the resulting local state.
 });
 
 sagaMiddleware.run(rootSaga);
