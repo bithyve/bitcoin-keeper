@@ -54,11 +54,20 @@ def upload_build_to_testflight!
   upload_to_testflight(options)
 end
 
+def verify_envfile_selector!(production_env, selector = "/tmp/envfile")
+  return unless File.exist?(selector)
+
+  if File.read(selector).strip != production_env
+    UI.user_error!("/tmp/envfile would override the reviewed .env.production")
+  end
+end
+
 def build_verified_production_ipa!
   sh("node", File.expand_path("../../scripts/release-version.cjs", __dir__), "release-check")
   production_env = File.expand_path("../../.env.production", __dir__)
   UI.user_error!("Missing reviewed .env.production") unless File.file?(production_env)
   sh("node", File.expand_path("../../scripts/verify-channel-config.cjs", __dir__), production_env)
+  verify_envfile_selector!(production_env)
   ENV['ENVFILE'] = production_env
 
   get_certificates( # Create or get certificate, and install it

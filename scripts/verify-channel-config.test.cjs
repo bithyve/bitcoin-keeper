@@ -7,7 +7,16 @@ const { spawnSync } = require('node:child_process');
 
 const verifier = path.join(__dirname, 'verify-channel-config.cjs');
 const prebuild = path.join(__dirname, '..', 'appcenter-pre-build.sh');
-const channel = 'CHANNEL_URL=https://channel.bitcoinkeeper.app/\nENVIRONMENT=PRODUCTION\n';
+const channel = [
+  'CHANNEL_URL=https://channel.bitcoinkeeper.app/',
+  'ENVIRONMENT=PRODUCTION',
+  'RELAY=https://relay.example.invalid/',
+  'SIGNING_SERVER_TESTNET=https://test-sign.example.invalid/',
+  'SIGNING_SERVER_MAINNET=https://sign.example.invalid/',
+  `HEXA_ID_TESTNET=${'a'.repeat(64)}`,
+  `HEXA_ID_MAINNET=${'b'.repeat(64)}`,
+  '',
+].join('\n');
 
 function withTempDirectory(run) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'keeper-usdt-env-'));
@@ -24,6 +33,76 @@ test('release env accepts reviewed channel without retired credentials', () =>
     fs.writeFileSync(envFile, channel);
     const result = spawnSync(process.execPath, [verifier, envFile], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
+  }));
+
+test('release env rejects missing or duplicate service configuration', () =>
+  withTempDirectory((directory) => {
+    const envFile = path.join(directory, '.env.production');
+    for (const name of ['RELAY', 'SIGNING_SERVER_MAINNET', 'HEXA_ID_MAINNET']) {
+      fs.writeFileSync(envFile, channel.split('\n').filter(line => !line.startsWith(`${name}=`)).join('\n'));
+      const missing = spawnSync(process.execPath, [verifier, envFile], { encoding: 'utf8' });
+      assert.notEqual(missing.status, 0);
+      assert.match(missing.stderr, new RegExp(`Production ${name} must be set exactly once`));
+    }
+    fs.writeFileSync(envFile, `${channel}RELAY=https://another.example.invalid/\n`);
+    const duplicate = spawnSync(process.execPath, [verifier, envFile], { encoding: 'utf8' });
+    assert.notEqual(duplicate.status, 0);
+    assert.match(duplicate.stderr, /Production RELAY must be set exactly once/);
+  }));
+
+test('release env rejects equivalent development mainnet defaults', () =>
+  withTempDirectory((directory) => {
+    const envFile = path.join(directory, '.env.production');
+    for (const config of [
+      channel.replace('SIGNING_SERVER_MAINNET=https://sign.example.invalid/',
+        'SIGNING_SERVER_MAINNET=https://DEV-SIGN.BITHYVE.COM/path/'),
+      channel.replace('SIGNING_SERVER_MAINNET=https://sign.example.invalid/',
+        'SIGNING_SERVER_MAINNET=https://dev-sign.bithyve.com../'),
+      channel.replace('RELAY=https://relay.example.invalid/',
+        'RELAY=https://bithyve-dev-relay.el.r.appspot.com/'),
+      channel.replace(`HEXA_ID_MAINNET=${'b'.repeat(64)}`,
+        'HEXA_ID_MAINNET=B01623F1065BA45D68B516EFE2873F59BFC9B9B2D8B194F94F989D87D711830A'),
+    ]) {
+      fs.writeFileSync(envFile, config);
+      const result = spawnSync(process.execPath, [verifier, envFile], { encoding: 'utf8' });
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /must not use development defaults/);
+    }
+  }));
+
+test('release env requires usable service URL prefixes', () =>
+  withTempDirectory((directory) => {
+    const envFile = path.join(directory, '.env.production');
+    for (const value of [
+      'https://relay.example.invalid',
+      'https://relay.example.invalid//',
+      'https:relay.example.invalid/',
+      'https:/relay.example.invalid/',
+      'https:\\relay.example.invalid/',
+      'https://relay.example.invalid/\'',
+      '"https://relay.example.invalid/\'',
+      'https://relay.example.invalid/path?mode=release/',
+      'https://name:password@relay.example.invalid/',
+    ]) {
+      fs.writeFileSync(envFile, channel.replace('RELAY=https://relay.example.invalid/', `RELAY=${value}`));
+      const result = spawnSync(process.execPath, [verifier, envFile], { encoding: 'utf8' });
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /Production RELAY must be (?:an HTTPS URL|set exactly once)/);
+    }
+  }));
+
+test('release env rejects malformed quotes in channel and stage', () =>
+  withTempDirectory((directory) => {
+    const envFile = path.join(directory, '.env.production');
+    for (const config of [
+      channel.replace('CHANNEL_URL=https://channel.bitcoinkeeper.app/',
+        'CHANNEL_URL="https://channel.bitcoinkeeper.app/\''),
+      channel.replace('ENVIRONMENT=PRODUCTION', 'ENVIRONMENT="PRODUCTION\''),
+    ]) {
+      fs.writeFileSync(envFile, config);
+      const result = spawnSync(process.execPath, [verifier, envFile], { encoding: 'utf8' });
+      assert.notEqual(result.status, 0);
+    }
   }));
 
 test('direct Android production release requires and selects the reviewed file', () =>

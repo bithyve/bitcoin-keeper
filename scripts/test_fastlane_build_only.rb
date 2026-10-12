@@ -48,6 +48,12 @@ class FakeFastlane
     file = File.expand_path("../#{target_platform}/fastlane/Fastfile", __dir__)
     # Keep __dir__ resolution and real File.file? checks within the disposable fixture.
     instance_eval(File.read(file), File.join(root, target_platform.to_s, 'fastlane', 'Fastfile'))
+    if target_platform == :ios
+      real_selector_check = method(:verify_envfile_selector!)
+      define_singleton_method(:verify_envfile_selector!) do |production_env, selector = File.join(@root, 'absent-selector')|
+        real_selector_check.call(production_env, selector)
+      end
+    end
   end
 
   def default_platform(_platform); end
@@ -155,6 +161,17 @@ class FastlaneBuildOnlyTest < Minitest::Test
 
   def distribution_events(fastlane)
     fastlane.events.select { |event| FakeFastlane::DISTRIBUTION_ACTIONS.include?(event.first) }
+  end
+
+  def test_ios_selector_rejects_an_unreviewed_environment
+    fastlane = FakeFastlane.new(:ios, @root)
+    selector = File.join(@root, 'envfile-selector')
+    File.write(selector, File.join(@root, 'other.env'))
+    assert_match(/override the reviewed/, assert_raises(RuntimeError) {
+      fastlane.verify_envfile_selector!(File.join(@root, '.env.production'), selector)
+    }.message)
+    File.write(selector, File.join(@root, '.env.production'))
+    fastlane.verify_envfile_selector!(File.join(@root, '.env.production'), selector)
   end
 
   %i[ios android].each do |platform|
