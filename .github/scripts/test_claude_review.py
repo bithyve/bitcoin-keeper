@@ -281,6 +281,22 @@ class ReviewFlowTests(unittest.TestCase):
                                status="renamed", previous_filename="src/keeper.py")]
         self.assertEqual(self.subject.review(), "complete")
 
+    def test_executable_and_configuration_files_under_docs_receive_paid_review(self):
+        for filename in ("docs/install.sh", "docs/reviewer.py", "docs/actions.yml",
+                         "docs/settings.json", "docs/package.toml"):
+            with self.subTest(filename=filename):
+                api = FakeAPI()
+                api.files = [changed_file(filename)]
+                self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345").review(), "complete")
+                self.assertEqual(len(api.paid_calls()), 1)
+                self.assertEqual(api.states()[0]["status"], "complete")
+
+    def test_executable_under_docs_renamed_to_markdown_still_receives_review(self):
+        self.api.files = [dict(changed_file("docs/install.md"), status="renamed",
+                               previous_filename="docs/install.sh")]
+        self.assertEqual(self.subject.review(), "complete")
+        self.assertEqual(len(self.api.paid_calls()), 1)
+
     def test_stale_requested_head_never_collects_or_pays(self):
         self.assertIn("stale", self.subject.review("comment-124", NEXT_HEAD))
         self.assertEqual(len(self.api.calls), 1)
@@ -603,11 +619,13 @@ class CollectionAndBudgetTests(unittest.TestCase):
         self.assertEqual(self.api.states(), [])
         self.assertEqual(self.api.paid_calls(), [])
 
-    def test_large_context_is_explicitly_limited(self):
-        self.api.source = b"x" * 30_000
-        prompt = json.loads(self.subject.collect(self.api.pr))
-        self.assertEqual(len(prompt["files"][0]["head_source"]), 20_000)
-        self.assertTrue(prompt["files"][0]["context_truncated"])
+    def test_full_changed_source_through_100kb_is_included_and_larger_source_is_explicit(self):
+        for size in (30_000, 100_000):
+            with self.subTest(size=size):
+                self.api.source = b"x" * size
+                prompt = json.loads(self.subject.collect(self.api.pr))
+                self.assertEqual(prompt["files"][0]["head_source"], "x" * size)
+                self.assertNotIn("context_truncated", prompt["files"][0])
         self.api.source = b"x" * 100_001
         prompt = json.loads(self.subject.collect(self.api.pr))
         self.assertNotIn("head_source", prompt["files"][0])

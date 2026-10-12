@@ -37,15 +37,18 @@ and error bodies/source/model output never enter workflow command logs.
 
 - Automatic events: opened, reopened, ready_for_review, synchronize and edited.
   Every run rechecks the live open/non-draft/same-repo/sprint PR. Docs-only
-  changes consume no paid attempt, so later code can receive its first review.
+  Markdown/MDX changes consume no paid attempt, so later code can receive its
+  first review. Executable/configuration files under `docs/` remain reviewable.
 - One automatic **paid attempt** per PR, including failed/uncertain/stale attempts.
   Concurrency serializes the PR with cancellation disabled. GitHub may coalesce
   queued events; each surviving run reads the latest PR snapshot.
   Eligible jobs alone enter the lock. Surviving runs recover the newest authorized
   current-head command from durable comments, so event coalescing cannot drop it.
 - Maintainers request a review with `/claude-review FULL_HEAD_SHA`. The command
-  must match the live head and current write/maintain/admin permissions. Reusing
-  the same comment/run or a completed head/base pair performs no paid request.
+  must match the live head and current write/maintain/admin permissions.
+  Association OWNER/MEMBER/COLLABORATOR is an early job filter only; API permission
+  checks are authoritative, including recovered comments.
+  Reusing the same comment/run or a completed head/base pair performs no paid request.
   A new command explicitly authorizes retrying a failed/uncertain attempt.
 - Immediately before payment, a separate marker-only bot comment reserves the
   attempt. It is HMAC-signed and scoped to repository/PR; bot identity alone is
@@ -63,8 +66,8 @@ payment and publication. Changed-head/base results are explicitly stale.
 Missing/binary/truncated patches, >200 files, incomplete commit comparisons, and
 oversized inputs fail with an advisory incomplete diagnostic before payment.
 Empty rename patches also require human review because mode changes are absent
-from GitHub's patch JSON. Context is limited to 20,000 characters per
-changed file; unchanged neighboring files are not inspected.
+from GitHub's patch JSON. Complete source for changed files up to 100KB is
+included within the total input cap; unchanged neighboring files are not inspected.
 
 ## $3 request envelope
 

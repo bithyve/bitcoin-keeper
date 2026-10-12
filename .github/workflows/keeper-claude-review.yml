@@ -23,6 +23,7 @@ jobs:
        github.event.pull_request.head.repo.full_name == github.repository) ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request != null &&
+       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
        startsWith(github.event.comment.body, '/claude-review '))
     concurrency:
       group: keeper-claude-review-${{ github.event.pull_request.number || github.event.issue.number }}

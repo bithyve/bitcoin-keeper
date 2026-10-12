@@ -98,7 +98,7 @@ def valid_sha(value):
 
 def docs_only(files):
     def documentation(path):
-        return path.startswith("docs/") or path.lower().endswith((".md", ".mdx"))
+        return path.lower().endswith((".md", ".mdx"))
     return bool(files) and all(documentation(f["filename"]) and
                                documentation(f.get("previous_filename", f["filename"]))
                                for f in files)
@@ -292,8 +292,7 @@ class Reviewer:
                 if blob["size"] <= 100_000:
                     try:
                         content = base64.b64decode(blob["content"]).decode("utf-8")
-                        item["head_source"] = content[:20_000]
-                        item["context_truncated"] = len(content) > 20_000
+                        item["head_source"] = content
                     except UnicodeError:
                         item["context_unavailable"] = "binary source"
                 else:
@@ -371,7 +370,7 @@ class Reviewer:
                       f"Model: `{MODEL}`; one paid request; conservative reservation: ${reserved}.\n"
                       f"Usage: {usage['input_tokens']} input / {usage['output_tokens']} output tokens.\n"
                       f"Run: https://github.com/{self.repo}/actions/runs/{self.run}\n\n"
-                      "Coverage: full immutable diff; changed-file context limited to 20,000 characters/file. "
+                      "Coverage: full immutable diff; full changed-file source when at most 100KB/file. "
                       "Unchanged neighboring files were not inspected.\n\n"
                       + "<pre>" + escaped + "</pre>" +
                       "\n\nLater changes require `/claude-review <current full head SHA>` from a maintainer.")
