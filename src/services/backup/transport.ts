@@ -4,11 +4,26 @@ import RestClient from '../rest/RestClient';
 const queues = new Map<string, Promise<unknown>>();
 const revisions = new Map<string, number>();
 const queuedMutationRevisions = new Map<string, number>();
+const revisionedOperations = new Set([
+  'updateAppImage',
+  'migrateXfps',
+  'deleteAppImageEntity',
+  'deleteVaults',
+  'updateVaultImage',
+  'modifyLabels',
+  'deleteBackup',
+]);
 let activeAccount: string | undefined;
 let accountSession = 0;
 let mayUploadForAccount: (appId: string, explicitChoice: boolean) => boolean = () => false;
+let onBackupReconciliationRequired: (appId: string) => void = () => undefined;
 export const setBackupUploadGuard = (guard: (appId: string, explicitChoice: boolean) => boolean) => {
   mayUploadForAccount = guard;
+};
+// A failed or ambiguous write requires a fresh backup check. The encrypted
+// payload must never be retried without re-reading local state.
+export const setBackupReconciliationHandler = (handler: (appId: string) => void) => {
+  onBackupReconciliationRequired = handler;
 };
 export const canAccessBackupAccount = (appId: string, explicitChoice = false) =>
   mayUploadForAccount(appId, explicitChoice);
@@ -27,7 +42,8 @@ export const markBackupMutation = (id: string) => revisions.set(id, backupRevisi
 export const BACKUP_STALL_MS = 30_000;
 export const BACKUP_DEADLINE_MS = 10 * 60_000;
 
-export type BackupRequestFailure = 'http-4xx' | 'http-5xx' | 'timeout' | 'network' | 'other';
+export type BackupRequestFailure =
+  'conflict' | 'protocol' | 'http-4xx' | 'http-5xx' | 'timeout' | 'network' | 'other';
 
 export class BackupRequestError extends Error {
   constructor(public readonly category: BackupRequestFailure) {
@@ -41,6 +57,7 @@ function requestFailureCategory(error: unknown, aborted: boolean): BackupRequest
   const failure = error as { response?: { status?: unknown }; status?: unknown; code?: unknown; name?: unknown; message?: unknown };
   const status = failure.response?.status ?? failure.status;
   if (typeof status === 'number') {
+    if (status === 409) return 'conflict';
     if (status >= 400 && status < 500) return 'http-4xx';
     if (status >= 500 && status < 600) return 'http-5xx';
     return 'other';
@@ -115,13 +132,49 @@ export function backupPost(path: string, body: any, explicitChoice = false, expe
   if (!canAccessBackupAccount(appId, explicitChoice))
     return Promise.reject(new Error('Backup account is not active or opted in'));
   markBackupMutation(appId);
-  const result = withBackupSession(appId, () => {
+  const result = withBackupSession(appId, async () => {
     // A queued write may outlive an entire A -> B -> A round trip.
-    if (requestSession !== currentBackupAccountSession())
-      throw new Error('Backup account session changed');
-    if (!canAccessBackupAccount(appId, explicitChoice))
-      throw new Error('Backup account is not active or opted in');
-    return boundedBackupPost(path, body);
+    const assertCurrent = () => {
+      if (requestSession !== currentBackupAccountSession())
+        throw new Error('Backup account session changed');
+      if (!canAccessBackupAccount(appId, explicitChoice))
+        throw new Error('Backup account is not active or opted in');
+    };
+    assertCurrent();
+    const deadline = Date.now() + BACKUP_DEADLINE_MS;
+    // Read inside this account's queue, immediately before the mutation. Every
+    // request carries a server revision, including deletes and label updates.
+    // A distinct route makes an old relay return 404 instead of silently
+    // accepting the write without enforcing expectedRevision.
+    const routeSeparator = path.lastIndexOf('/') + 1;
+    const operation = path.slice(routeSeparator);
+    const basePath = path.slice(0, routeSeparator);
+    try {
+      if (!revisionedOperations.has(operation)) throw new BackupRequestError('protocol');
+      const snapshot = await boundedBackupPost(
+        `${basePath}getBackupSnapshot`,
+        { appId },
+        deadline
+      );
+      const expectedRevision = snapshot.data?.revision;
+      if (
+        typeof expectedRevision !== 'string' ||
+        !/^[a-f0-9]{64}$/.test(expectedRevision)
+      )
+        throw new BackupRequestError('protocol');
+      assertCurrent();
+      const response = await boundedBackupPost(
+        `${basePath}revisionedBackupMutation`,
+        { ...body, appId, operation, expectedRevision },
+        deadline
+      );
+      if (response.data?.preconditionApplied !== true) throw new BackupRequestError('protocol');
+      return response;
+    } catch (error) {
+      if (error instanceof BackupRequestError)
+        onBackupReconciliationRequired(appId);
+      throw error;
+    }
   });
   queuedMutationRevisions.set(appId, backupRevision(appId));
   return result;

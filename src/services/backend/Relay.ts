@@ -315,8 +315,8 @@ export default class Relay {
         updated,
       };
     } catch (err) {
-      console.log('err', err);
-      if (err.code) throw new Error(err.code);
+      captureError(err);
+      throw new Error('Failed to update backup labels. Check the backup before trying again.');
     }
   };
 

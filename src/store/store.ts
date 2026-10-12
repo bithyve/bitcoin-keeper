@@ -30,9 +30,14 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import {
   currentBackupAccountSession,
   observeBackupAccount,
+  setBackupReconciliationHandler,
   setBackupUploadGuard,
 } from 'src/services/backup/transport';
-import { isAutomaticCloudBackupEnabled } from './reducers/bhr';
+import {
+  invalidateBackupRepair,
+  isAutomaticCloudBackupEnabled,
+  setPendingAllBackup,
+} from './reducers/bhr';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 const appReducer = combineReducers({
@@ -196,6 +201,13 @@ setBackupUploadGuard((appId, explicitChoice) => {
   } catch {
     return false;
   }
+});
+
+setBackupReconciliationHandler((appId) => {
+  // A stale or unacknowledged encrypted write cannot be resent safely. Require
+  // a new comparison with the server snapshot before any repair is offered.
+  store.dispatch(invalidateBackupRepair(appId));
+  store.dispatch(setPendingAllBackup({ appId, pending: true }));
 });
 
 sagaMiddleware.run(rootSaga);
