@@ -8,9 +8,25 @@ export const REALM_FILE = 'keeper.realm';
 export class RealmDatabase {
   private realm: Realm;
 
+  private openGeneration = 0;
+
+  private pendingOpenGeneration: number | null = null;
+
+  private staleOpenedRealms = new Set<Realm>();
+
   public static file = REALM_FILE;
 
   public static schemaVersion = 109;
+
+  private releaseStaleOpenResults = () => {
+    // A later open of the same path may receive the same native Realm handle.
+    // Wait for the latest open to settle before closing an older result.
+    if (this.pendingOpenGeneration !== null) return;
+    for (const opened of this.staleOpenedRealms) {
+      if (opened !== this.realm && !opened.isClosed) opened.close();
+    }
+    this.staleOpenedRealms.clear();
+  };
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -21,30 +37,44 @@ export class RealmDatabase {
     key: ArrayBuffer | ArrayBufferView | Int8Array,
     path: string
   ): Promise<{ success: boolean; error?: string }> => {
+    const generation = ++this.openGeneration;
+    this.pendingOpenGeneration = generation;
+    const requestedPath = path || RealmDatabase.file;
+    const realmConfig: Realm.Configuration = {
+      path: requestedPath,
+      schema,
+      schemaVersion: RealmDatabase.schemaVersion,
+      encryptionKey: key,
+      onMigration: (oldRealm, newRealm) => {
+        runRealmMigrations({ oldRealm, newRealm });
+      },
+    };
+    let opened: Realm;
     try {
-      // if the realm instance is already initialized, close it to prevent
-      // Realm from getting stuck in a weird state (e.g. realm reference object
-      // exists but the realm is closed)
-      if (this.realm) {
-        this.realm.close();
-      }
-      if (path) RealmDatabase.file = path;
-      const realmConfig: Realm.Configuration = {
-        path: RealmDatabase.file,
-        schema,
-        schemaVersion: RealmDatabase.schemaVersion,
-        encryptionKey: key,
-        onMigration: (oldRealm, newRealm) => {
-          runRealmMigrations({ oldRealm, newRealm });
-        },
-      };
-      this.realm = await Realm.open(realmConfig);
-      return { success: true };
+      opened = await Realm.open(realmConfig);
     } catch (err) {
+      if (generation !== this.openGeneration)
+        return { success: false, error: 'Account changed during database initialization' };
+      this.pendingOpenGeneration = null;
+      this.releaseStaleOpenResults();
       console.log('🚀 ~ RealmDatabase ~ err:', err);
       captureError(err);
       return { success: false, error: err.toString() };
     }
+
+    if (generation !== this.openGeneration) {
+      this.staleOpenedRealms.add(opened);
+      this.releaseStaleOpenResults();
+      return { success: false, error: 'Account changed during database initialization' };
+    }
+
+    const previous = this.realm;
+    this.realm = opened;
+    RealmDatabase.file = requestedPath;
+    this.pendingOpenGeneration = null;
+    if (previous && previous !== opened && !previous.isClosed) previous.close();
+    this.releaseStaleOpenResults();
+    return { success: true };
   };
 
   /**
@@ -59,11 +89,14 @@ export class RealmDatabase {
    * deletes instance of the database
    */
   public deleteDatabase = (key: ArrayBuffer | ArrayBufferView | Int8Array): boolean => {
+    this.openGeneration += 1;
+    this.pendingOpenGeneration = null;
     const existingSchemaVersion = this.realm
       ? this.realm.schemaVersion
       : RealmDatabase.schemaVersion;
-    if (this.realm) this.realm.close();
+    if (this.realm && !this.realm.isClosed) this.realm.close();
     this.realm = null;
+    this.releaseStaleOpenResults();
 
     const realmConfig: Realm.Configuration = {
       path: RealmDatabase.file,
@@ -87,7 +120,11 @@ export class RealmDatabase {
    * close the database when done with a realm instance to avoid memory leaks.
    */
   public closeDatabase = () => {
-    if (this.realm) this.realm.close();
+    this.openGeneration += 1;
+    this.pendingOpenGeneration = null;
+    if (this.realm && !this.realm.isClosed) this.realm.close();
+    this.realm = null;
+    this.releaseStaleOpenResults();
   };
 
   /**
