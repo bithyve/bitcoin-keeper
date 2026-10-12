@@ -123,6 +123,7 @@ function fixture(options = {}) {
   const scope = {
     ...effects,
     markBackupMutation: () => {},
+    currentBackupAccountSession: () => 0,
     store: { getState: () => state },
     isAutomaticCloudBackupEnabled: (backup, id) => !!backup.automaticCloudBackupByAppId?.[id],
     ...encryption,

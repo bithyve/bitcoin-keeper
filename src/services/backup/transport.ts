@@ -4,12 +4,23 @@ import RestClient from '../rest/RestClient';
 const queues = new Map<string, Promise<unknown>>();
 const revisions = new Map<string, number>();
 const queuedMutationRevisions = new Map<string, number>();
+let activeAccount: string | undefined;
+let accountSession = 0;
 let mayUploadForAccount: (appId: string, explicitChoice: boolean) => boolean = () => false;
 export const setBackupUploadGuard = (guard: (appId: string, explicitChoice: boolean) => boolean) => {
   mayUploadForAccount = guard;
 };
 export const canAccessBackupAccount = (appId: string, explicitChoice = false) =>
   mayUploadForAccount(appId, explicitChoice);
+// An A -> B -> A switch must invalidate work captured during the first A session.
+// The Redux store observes every selected-account transition, including resets.
+export function observeBackupAccount(appId?: string) {
+  if (appId !== activeAccount) {
+    activeAccount = appId;
+    accountSession += 1;
+  }
+}
+export const currentBackupAccountSession = () => accountSession;
 export const backupRevision = (id: string) => revisions.get(id) || 0;
 export const backupQueuedRevision = (id: string) => queuedMutationRevisions.get(id) || 0;
 export const markBackupMutation = (id: string) => revisions.set(id, backupRevision(id) + 1);
@@ -95,14 +106,19 @@ export async function boundedBackupPost(
   }
 }
 
-export function backupPost(path: string, body: any, explicitChoice = false) {
+export function backupPost(path: string, body: any, explicitChoice = false, expectedSession?: number) {
   const appId = body.appId || body.appID;
   if (!appId) return Promise.reject(new Error('Missing backup account'));
+  const requestSession = expectedSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession())
+    return Promise.reject(new Error('Backup account session changed'));
   if (!canAccessBackupAccount(appId, explicitChoice))
     return Promise.reject(new Error('Backup account is not active or opted in'));
   markBackupMutation(appId);
   const result = withBackupSession(appId, () => {
-    // The queued write may execute after an account switch or consent change.
+    // A queued write may outlive an entire A -> B -> A round trip.
+    if (requestSession !== currentBackupAccountSession())
+      throw new Error('Backup account session changed');
     if (!canAccessBackupAccount(appId, explicitChoice))
       throw new Error('Backup account is not active or opted in');
     return boundedBackupPost(path, body);

@@ -27,7 +27,11 @@ import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { setBackupUploadGuard } from 'src/services/backup/transport';
+import {
+  currentBackupAccountSession,
+  observeBackupAccount,
+  setBackupUploadGuard,
+} from 'src/services/backup/transport';
 import { isAutomaticCloudBackupEnabled } from './reducers/bhr';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
@@ -146,7 +150,9 @@ const bindActionOrigin = (api) => (next) => (action) => {
     accountOwnedActions.has(action.type) &&
     !('originAppId' in action)
   )
-    return next({ ...action, originAppId });
+    action = { ...action, originAppId };
+  if (action?.type === 'UPDATE_APP_IMAGE')
+    action = { ...action, originBackupAccountSession: currentBackupAccountSession() };
   return next(action);
 };
 const middlewars = [bindActionOrigin, sagaMiddleware];
@@ -163,6 +169,9 @@ export const store = configureStore({
       serializableCheck: false,
     }).concat(middlewars),
 });
+
+observeBackupAccount(store.getState().storage.appId);
+store.subscribe(() => observeBackupAccount(store.getState().storage.appId));
 
 setBackupUploadGuard((appId, explicitChoice) => {
   const state = store.getState();

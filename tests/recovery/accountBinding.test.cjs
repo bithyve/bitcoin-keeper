@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { fixture, wallet, signer, enums, loadModule, functions } = require('./sagaHarness.cjs');
-const { harness } = require('./helpers.cjs');
+const { harness, loadModule: loadTransportModule } = require('./helpers.cjs');
 const vm = require('node:vm');
 const ts = require('typescript');
 
@@ -81,10 +81,12 @@ test('verified A backup completion after selected B switch cannot enable A or re
 });
 
 test('dispatch gate drops stale enable and success actions while preserving account-specific resets', () => {
+  let session = 1;
   const scope = {
     Set,
     RealmSchema: { KeeperApp: 'KeeperApp' },
     dbManager: { getObjectByIndex: () => ({ id: realmAppId }) },
+    currentBackupAccountSession: () => session,
   };
   let selectedAppId = 'B';
   let realmAppId = 'A';
@@ -118,6 +120,14 @@ test('dispatch gate drops stale enable and success actions while preserving acco
   middleware({ type: 'bhr/setAutomaticCloudBackup', payload: { appId: 'A', enabled: false } });
   middleware({ type: 'bhr/setBackupAllSuccess', payload: { appId: 'A', status: false } });
   assert.equal(seen.length, 4, 'A disable and success reset remain account-specific after switch');
+  selectedAppId = 'A';
+  realmAppId = 'A';
+  middleware({ type: 'UPDATE_APP_IMAGE', payload: {} });
+  assert.equal(seen.at(-1).originAppId, 'A');
+  assert.equal(seen.at(-1).originBackupAccountSession, 1);
+  session += 2;
+  middleware({ type: 'UPDATE_APP_IMAGE', payload: {}, originAppId: 'A' });
+  assert.equal(seen.at(-1).originBackupAccountSession, 3);
 });
 
 test('A to opted-in B during connectivity wait blocks upload and preserves B local wallet', async () => {
@@ -175,6 +185,65 @@ test('queued A transport cannot execute after opted-in B becomes active', async 
   await busy;
   await assert.rejects(pending, /not active or opted in/);
   assert.deepEqual(calls, [], 'the queued request must never reach the network');
+});
+
+test('queued A ciphertext cannot replace a newer server wallet after A to B to A', async () => {
+  const remote = { wallets: { shared: 'initial-A-ciphertext' } };
+  const calls = [];
+  const transport = loadTransportModule('src/services/backup/transport.ts', {
+    '../rest/RestClient': { post: async (_path, body) => {
+      calls.push(body);
+      Object.assign(remote.wallets, body.walletsObject);
+      return { data: { updated: true } };
+    } },
+  });
+  let active = 'A';
+  transport.setBackupUploadGuard((id) => id === active);
+  transport.observeBackupAccount?.(active);
+  let release;
+  const busy = transport.withBackupSession('A', () => new Promise((resolve) => { release = resolve; }));
+  for (let i = 0; i < 20 && !release; i++) await new Promise(setImmediate);
+  assert.ok(release);
+  const pending = transport.backupPost('fixture/updateAppImage', {
+    appId: 'A', walletsObject: { shared: 'stale-A-ciphertext' },
+  });
+  active = 'B';
+  transport.observeBackupAccount?.(active);
+  remote.wallets.shared = 'newer-A-ciphertext';
+  active = 'A';
+  transport.observeBackupAccount?.(active);
+  release();
+  await busy;
+  await assert.rejects(pending, /session changed/);
+  assert.equal(remote.wallets.shared, 'newer-A-ciphertext');
+  assert.equal(calls.length, 0, 'stale ciphertext must never reach Relay');
+});
+
+test('incremental worker rejects an A payload prepared before A to B to A', async () => {
+  const f = fixture();
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+  let resumeConnectivity;
+  f.scope.NetInfo.fetch = () => new Promise((resolve) => { resumeConnectivity = resolve; });
+  const updating = f.run('updateAppImageWorker', {
+    originAppId,
+    originBackupAccountSession: session,
+    payload: { wallets: [wallet('shared', enums.NetworkType.MAINNET)] },
+  });
+  for (let i = 0; i < 20 && !resumeConnectivity; i++) await new Promise(setImmediate);
+  assert.ok(resumeConnectivity);
+  f.app.id = 'B';
+  f.state.storage.appId = 'B';
+  session += 1;
+  f.app.id = originAppId;
+  f.state.storage.appId = originAppId;
+  session += 1;
+  f.remote.wallets.shared = 'newer-A-ciphertext';
+  resumeConnectivity({ isConnected: true });
+  assert.equal((await updating).updated, false);
+  assert.equal(f.remote.wallets.shared, 'newer-A-ciphertext');
+  assert.equal(f.calls.length, 0);
 });
 
 test('per-account consent starts off, survives switches, and legacy consent needs attribution', () => {

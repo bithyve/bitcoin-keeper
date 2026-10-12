@@ -118,14 +118,14 @@ export default class Relay {
     nodes?: string[];
     // Required to clear nodes: older clients send [] for unrelated updates.
     replaceNodes?: boolean;
-  }): Promise<{
+  }, accountSession?: number): Promise<{
     status: string;
     updated: boolean;
     err?: string;
     message?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}updateAppImage`, appImage);
+      const res = await backupPost(`${RELAY}updateAppImage`, appImage, false, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {

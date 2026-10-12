@@ -2,7 +2,7 @@ import { buffers, END, eventChannel } from 'redux-saga';
 import { inspectBackup, RepairPhase } from 'src/services/backup/repair';
 import { prepareRecoveryImage } from 'src/services/backup/restore';
 import { BackupImage, pauseBackup } from 'src/services/backup/image';
-import { markBackupMutation } from 'src/services/backup/transport';
+import { currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put, select, takeMaybe, takeEvery } from 'redux-saga/effects';
@@ -110,8 +110,10 @@ function currentBackupAppId(): string | undefined {
 export function* updateAppImageWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   originAppId?: string;
+  originBackupAccountSession?: number;
   payload: {
     wallets?: Wallet[] | USDTWallet[];
     signers?: Signer[];
@@ -119,11 +121,14 @@ export function* updateAppImageWorker({
   };
 }) {
   const appId = originAppId || currentBackupAppId();
-  if (!appId || currentBackupAppId() !== appId)
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  const accountIsCurrent = () =>
+    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
+  if (!appId || !accountIsCurrent())
     return { updated: false, error: 'Backup account changed' };
   try {
     const backupResponse = yield call(checkBackupCondition, appId);
-    if (currentBackupAppId() !== appId)
+    if (!accountIsCurrent())
       return { updated: false, error: 'Backup account changed' };
     if (backupResponse) return { updated: true, error: '' };
 
@@ -163,7 +168,7 @@ export function* updateAppImageWorker({
       }
     }
 
-    if (currentBackupAppId() !== appId)
+    if (!accountIsCurrent())
       return { updated: false, error: 'Backup account changed' };
 
     const response = yield call(Relay.updateAppImage, {
@@ -176,7 +181,7 @@ export function* updateAppImageWorker({
       version,
       nodes: nodesList,
       replaceNodes: !!updateNodes,
-    });
+    }, requestSession);
     if (!response?.updated) yield call(setServerBackupFailed, appId);
     return response;
   } catch (err) {
