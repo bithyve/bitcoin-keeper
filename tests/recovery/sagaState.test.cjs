@@ -12,7 +12,8 @@ const bhr = loadModule('src/store/reducers/bhr.ts', {
   'src/storage': { reduxStorage:{} },
   'redux-persist': { persistReducer: (_config,reducer) => reducer },
 });
-function inspectionRunner(f) {
+function inspectionRunner(f, afterVerified) {
+  f.transport.observeBackupAccount(f.app.id);
   const filename = 'src/store/sagas/bhr.ts';
   const source = ts.createSourceFile(filename,fs.readFileSync(path.join(__dirname,'../..',filename),'utf8'),ts.ScriptTarget.Latest,true);
   const code = source.statements.filter(n =>
@@ -20,22 +21,30 @@ function inspectionRunner(f) {
     (ts.isVariableStatement(n) && n.declarationList.declarations.some(d => d.name?.text === 'backupInspectionOwners'))
   ).map(n => n.getText(source)).join('\n');
   const operations = [];
-  const scope = { ...saga, ...effects, ...bhr, inspectBackup:(...args) => {
-    const operation = f.repair.inspectBackup(...args);
+  let state = bhr.default(undefined,{type:'init'}); const actions = [];
+  const getState = () => ({ bhr:state, storage:{appId:f.app.id} });
+  const dispatch = action => { actions.push(action); state=bhr.default(state,action); };
+  const scope = { ...saga, ...effects, ...bhr, inspectBackup:(appId, repair, onPhase, ...rest) => {
+    const operation = f.repair.inspectBackup(appId, repair, (phase) => {
+      onPhase(phase);
+      if (phase === 'verified') afterVerified?.({ f, dispatch });
+    }, ...rest);
     operations.push(operation);
     return operation;
   },
     RealmSchema:{KeeperApp:'KeeperApp',UAI:'UAI'},
     dbManager:{ getObjectByIndex:()=>f.app, getObjectByField:()=>[] },
     currentBackupAppId:()=>f.app.id,
-    currentBackupAccountSession:()=>0,
+    currentBackupAccountSession:()=>f.transport.currentBackupAccountSession(),
+    captureBackupWriteIntent:(id)=>f.transport.captureBackupWriteIntent(id),
+    backupRevision:(id)=>f.transport.backupRevision(id),
+    store:{ getState, dispatch },
     uaiType:{SERVER_BACKUP_FAILURE:'failure'}, uaiActionedWorker:()=>{}, addToUaiStackWorker:()=>{},
   };
   vm.runInNewContext(ts.transpileModule(code,{ compilerOptions:{ target:ts.ScriptTarget.ES2020 }}).outputText,scope);
-  let state = bhr.default(undefined,{type:'init'}); const actions = [];
   return {
     start(repair) {
-      const sagaTask = saga.runSaga({getState:()=>({bhr:state,storage:{appId:f.app.id}}),dispatch:action=>{ actions.push(action); state=bhr.default(state,action); }},scope.runBackupInspection,repair);
+      const sagaTask = saga.runSaga({getState,dispatch},scope.runBackupInspection,repair);
       return {task:sagaTask.toPromise(),sagaTask,settled:()=>Promise.all(operations),get state(){ return state; },actions};
     },
   };
@@ -116,8 +125,11 @@ test('only verified readback sets durable per-account completion and clears pend
   assert.equal(run.state.backupRepairStateByAppId.disposable,'verified');
   assert.equal(run.state.backupRepairRunningByAppId.disposable,false);
   assert.equal(run.state.pendingAllBackupByAppId.disposable,false);
-  const phases=run.actions.filter(a=>a.type==='bhr/setBackupRepairState').map(a=>a.payload.phase);
+  const phases=run.actions.filter(a=>
+    a.type==='bhr/setBackupRepairState' || a.type==='bhr/commitBackupInspection'
+  ).map(a=>a.payload.phase);
   assert.deepEqual(phases,['checking','preparing','uploading','verifying','verified']);
+  assert.equal(run.actions.filter(a=>a.type==='bhr/commitBackupInspection').length,1);
 });
 
 test('offline/unverified remains pending and retryable, never spins indefinitely', async () => {
@@ -141,4 +153,20 @@ test('a later mutation invalidates verified status without affecting a second ac
   state=bhr.default(state,bhr.invalidateBackupRepair('one'));
   assert.equal(state.backupRepairCompletedByAppId.one,false); assert.equal(state.backupRepairStateByAppId.one,'unverified');
   assert.equal(state.backupRepairCompletedByAppId.two,true);
+});
+
+test('a local write after verified event cannot clear pending while the saga drains', async () => {
+  const f = harness();
+  const run = inspectionRunner(f, ({ f, dispatch }) => {
+    f.transport.markBackupMutation(f.app.id);
+    f.transport.clearVerifiedRemoteRevision(f.app.id);
+    dispatch(bhr.invalidateBackupRepair(f.app.id));
+    dispatch(bhr.setPendingAllBackup({ appId: f.app.id, pending: true }));
+  }).start(false);
+  assert.equal(await run.task, false);
+  assert.equal(run.state.pendingAllBackupByAppId.disposable, true);
+  assert.equal(run.state.backupRepairCompletedByAppId.disposable, false);
+  assert.equal(run.state.backupRepairStateByAppId.disposable, 'unverified');
+  assert.equal(run.actions.some(a=>a.type==='bhr/commitBackupInspection' &&
+    a.payload.phase==='verified'), false);
 });

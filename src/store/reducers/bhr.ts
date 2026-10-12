@@ -279,6 +279,17 @@ const bhrSlice = createSlice({
       (state.backupRepairStateByAppId ??= {})[appId] = phase;
       (state.backupRepairCompletedByAppId ??= {})[appId] = phase === 'verified';
     },
+    commitBackupInspection: (
+      state,
+      action: PayloadAction<{ appId: string; phase: RepairPhase; pending: boolean }>
+    ) => {
+      const { appId, phase, pending } = action.payload;
+      if (!appId) return;
+      (state.backupRepairStateByAppId ??= {})[appId] = phase;
+      (state.backupRepairCompletedByAppId ??= {})[appId] = phase === 'verified';
+      (state.pendingAllBackupByAppId ??= {})[appId] = pending;
+      state.pendingAllBackup = false;
+    },
     setBackupRepairRunning: (state, action: PayloadAction<{ appId: string; running: boolean }>) => {
       (state.backupRepairRunningByAppId ??= {})[action.payload.appId] = action.payload.running;
     },
@@ -374,6 +385,7 @@ export const {
 
   setPendingAllBackup,
   setBackupRepairState,
+  commitBackupInspection,
   setBackupRepairRunning,
   invalidateBackupRepair,
 

@@ -2,7 +2,12 @@ import { buffers, END, eventChannel } from 'redux-saga';
 import { inspectBackup, RepairPhase } from 'src/services/backup/repair';
 import { prepareRecoveryImage } from 'src/services/backup/restore';
 import { BackupImage, pauseBackup } from 'src/services/backup/image';
-import { currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
+import {
+  backupRevision,
+  captureBackupWriteIntent,
+  currentBackupAccountSession,
+  markBackupMutation,
+} from 'src/services/backup/transport';
 import type { BackupWriteIntent } from 'src/services/backup/intent';
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
@@ -54,6 +59,7 @@ import {
   setBackupAllLoading,
   setBackupAllSuccess,
   setBackupRepairState,
+  commitBackupInspection,
   setBackupRepairRunning,
   invalidateBackupRepair,
   setBackupLoading,
@@ -1209,8 +1215,18 @@ function* runBackupInspection(
     return false;
   backupInspectionOwners.set(id, (backupInspectionOwners.get(id) ?? 0) + 1);
   let finalPhase: RepairPhase = 'unverified';
+  let verifiedEvidence: { revision: number; intent: BackupWriteIntent } | undefined;
   let inspection: Promise<RepairPhase> | undefined;
   let updates: ReturnType<typeof eventChannel<RepairPhase>> | undefined;
+  const evidenceStillCurrent = () => {
+    const currentIntent = captureBackupWriteIntent(id);
+    return !!verifiedEvidence && !!currentIntent &&
+      backupRevision(id) === verifiedEvidence.revision &&
+      currentIntent.appId === verifiedEvidence.intent.appId &&
+      currentIntent.accountSession === verifiedEvidence.intent.accountSession &&
+      currentIntent.baseRevision === verifiedEvidence.intent.baseRevision &&
+      currentIntent.baselineEpoch === verifiedEvidence.intent.baselineEpoch;
+  };
   try {
     yield put(setBackupRepairRunning({ appId: id, running: true }));
     updates = eventChannel<RepairPhase>((emit) => {
@@ -1222,7 +1238,13 @@ function* runBackupInspection(
         explicitlyChosen: boolean,
         session: number
       ) => Promise<RepairPhase>;
-      inspection = inspectWithSession(id, repair, (phase) => emit(phase), explicitChoice, requestSession);
+      inspection = inspectWithSession(id, repair, (phase) => {
+        if (phase === 'verified') {
+          const intent = captureBackupWriteIntent(id);
+          verifiedEvidence = intent ? { revision: backupRevision(id), intent } : undefined;
+        }
+        emit(phase);
+      }, explicitChoice, requestSession);
       inspection.then(
         () => emit(END),
         () => emit(END)
@@ -1234,13 +1256,25 @@ function* runBackupInspection(
       if (phase === END) break;
       if (requestSession !== currentBackupAccountSession()) return false;
       finalPhase = phase;
-      yield put(setBackupRepairState({ appId: id, phase }));
+      // Verification is tentative until the final, synchronous Redux commit.
+      // A Realm write can invalidate it while this channel is draining.
+      if (phase !== 'verified') yield put(setBackupRepairState({ appId: id, phase }));
     }
-    const current: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const ownerIsActive = yield select((state: RootState) => state.storage.appId === id);
-    if (current?.id === id && ownerIsActive && requestSession === currentBackupAccountSession()) {
-      yield put(setPendingAllBackup({ appId: id, pending: finalPhase !== 'verified' }));
-      if (finalPhase === 'verified') {
+    // No yield may separate the current-state check from this one Redux action:
+    // it commits the visible phase and pending flag together.
+    const outcome: { active: boolean; verified: boolean } = yield call(() => {
+      if (currentBackupAppId() !== id || requestSession !== currentBackupAccountSession())
+        return { active: false, verified: false };
+      const verified = finalPhase === 'verified' && evidenceStillCurrent();
+      store.dispatch(commitBackupInspection({
+        appId: id,
+        phase: finalPhase === 'verified' && !verified ? 'unverified' : finalPhase,
+        pending: !verified,
+      }));
+      return { active: true, verified };
+    });
+    if (outcome.active) {
+      if (outcome.verified) {
         const notifications = dbManager.getObjectByField(
           RealmSchema.UAI,
           uaiType.SERVER_BACKUP_FAILURE,
@@ -1249,7 +1283,7 @@ function* runBackupInspection(
         for (const uai of notifications) {
           const stillActive = yield select((state: RootState) => state.storage.appId === id);
           if (!stillActive || currentBackupAppId() !== id ||
-              requestSession !== currentBackupAccountSession()) break;
+              requestSession !== currentBackupAccountSession() || !evidenceStillCurrent()) break;
           yield call(uaiActionedWorker, { payload: { uaiId: uai.id, action: true } });
         }
       } else if (
@@ -1270,7 +1304,8 @@ function* runBackupInspection(
         });
       }
     }
-    return requestSession === currentBackupAccountSession() && finalPhase === 'verified';
+    return outcome.verified && requestSession === currentBackupAccountSession() &&
+      evidenceStillCurrent();
   } finally {
     updates?.close();
     // Cancellation closes this listener, but does not stop its shared operation.
