@@ -1,8 +1,8 @@
 name: Keeper independent Claude review
 
-# Disabled by default until an Anthropic API key, spending limit, and
-# KEEPER_CLAUDE_REVIEW_ENABLED repository variable are configured.
 # Reviews a PR once when first opened or promoted from draft, not every push.
+# Same-repository PRs only; fork PRs cannot receive API credentials.
+# It is off until this workflow is merged into sprint.
 on:
   pull_request:
     branches: [sprint]
@@ -21,7 +21,6 @@ jobs:
   independent-review:
     name: Independent Claude code review
     if: >-
-      vars.KEEPER_CLAUDE_REVIEW_ENABLED == 'true' &&
       !github.event.pull_request.draft &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
@@ -60,5 +59,5 @@ jobs:
             --model claude-sonnet-5-5
             --max-turns 6
             --max-budget-usd 3
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"
             --disallowedTools "Edit,Write,NotebookEdit,MultiEdit"
