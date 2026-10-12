@@ -5,10 +5,10 @@
   "baselines": {
     "android": {
       "applicationId": "io.hexawallet.bitcoinkeeper",
-      "verifiedAt": "2026-10-06T14:11:41Z",
-      "highestUploadedBuild": 625,
-      "highestMarketingVersion": "2.6.2",
-      "productionRelease": "625 (2.6.2)"
+      "verifiedAt": "2026-10-12T14:27:41Z",
+      "highestUploadedBuild": 626,
+      "highestMarketingVersion": "2.6.3",
+      "productionRelease": "626 (2.6.3)"
     },
     "ios": {
       "applicationId": "io.hexawallet.keeper",
