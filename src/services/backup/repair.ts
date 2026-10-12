@@ -15,6 +15,7 @@ import {
   backupRevision,
   boundedBackupPost,
   canAccessBackupAccount,
+  currentBackupAccountSession,
   withBackupSession,
 } from './transport';
 import {
@@ -162,19 +163,30 @@ export function inspectBackup(
   appId: string,
   repair: boolean,
   onPhase: (phase: RepairPhase) => void,
-  explicitChoice = false
+  explicitChoice = false,
+  expectedSession = currentBackupAccountSession()
 ): Promise<RepairPhase> {
-  const running = inFlight.get(appId);
+  // A prior A session may still be queued or in flight after A -> B -> A.
+  // Do not join that inspection or let it write on behalf of the new session.
+  const operationKey = `${appId}:${expectedSession}`;
+  const sessionIsCurrent = () => currentBackupAccountSession() === expectedSession;
+  if (!sessionIsCurrent()) {
+    onPhase('unverified');
+    return Promise.resolve('unverified');
+  }
+  const running = inFlight.get(operationKey);
   if (running) {
     if (repair && !running.repair)
-      return running.promise.then(() => inspectBackup(appId, true, onPhase, explicitChoice));
+      return running.promise.then(() =>
+        inspectBackup(appId, true, onPhase, explicitChoice, expectedSession)
+      );
     running.listeners.add(onPhase);
     if (running.phase) onPhase(running.phase);
     return running.promise;
   }
   const listeners = new Set([onPhase]);
   const notify = (phase: RepairPhase) => {
-    const active = inFlight.get(appId);
+    const active = inFlight.get(operationKey);
     if (active) active.phase = phase;
     listeners.forEach((listener) => listener(phase));
   };
@@ -187,6 +199,7 @@ export function inspectBackup(
     const revision = backupRevision(appId);
     const assertCurrent = () => {
       if (
+        !sessionIsCurrent() ||
         Date.now() >= deadline ||
         (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any)?.id !== appId ||
         !canAccessBackupAccount(appId, explicitChoice)
@@ -332,7 +345,9 @@ export function inspectBackup(
       // deadline. Never retry a repair, invalid response, or account switch.
       let accountIsCurrent = false;
       try {
-        accountIsCurrent = (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any)?.id === appId;
+        accountIsCurrent =
+          sessionIsCurrent() &&
+          (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any)?.id === appId;
       } catch {
         // Realm may already be closed during an account switch.
       }
@@ -365,13 +380,20 @@ export function inspectBackup(
       return 'unverified';
     }
   };
-  const runOnce = (allowRetry: boolean) => withBackupSession(appId, () => inspectOnce(allowRetry));
+  const runOnce = (allowRetry: boolean) =>
+    withBackupSession(appId, () => {
+      if (!sessionIsCurrent()) {
+        notify('unverified');
+        return Promise.resolve('unverified' as RepairPhase);
+      }
+      return inspectOnce(allowRetry);
+    });
   const result: Promise<RepairPhase> = runOnce(true).then(async (phase) =>
     phase === 'retry' ? ((await runOnce(false)) as RepairPhase) : phase
   );
-  inFlight.set(appId, { repair, promise: result, listeners });
+  inFlight.set(operationKey, { repair, promise: result, listeners });
   const clean = () => {
-    if (inFlight.get(appId)?.promise === result) inFlight.delete(appId);
+    if (inFlight.get(operationKey)?.promise === result) inFlight.delete(operationKey);
   };
   result.then(clean, clean);
   return result;
