@@ -3,15 +3,18 @@
 const activeBatches = new Map();
 const walletTails = new Map();
 
-export const acquireWalletRefresh = (appId, networkType, wallets, options = {}) => {
+export const acquireWalletRefresh = (appId, networkType, wallets, options = {}, accountSession = null) => {
   const walletKeys = [...new Set(wallets.map((wallet) =>
     JSON.stringify([appId, networkType, wallet.entityKind, wallet.id])
   ))].sort();
+  // A -> B -> A starts a new account session. Do not join its refresh to an
+  // older A batch, but keep the wallet tail so writes remain in order.
   const batchKey = JSON.stringify([
     walletKeys,
     !!options.hardRefresh,
     !!options.addNotifications,
     !!options.dustScan,
+    accountSession,
   ]);
   const existing = activeBatches.get(batchKey);
   if (existing) return { owner: false, done: existing.done };

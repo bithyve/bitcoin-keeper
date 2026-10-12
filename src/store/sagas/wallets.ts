@@ -806,7 +806,13 @@ function* refreshWalletsWorker({
       return true;
     }
 
-    lease = acquireWalletRefresh(refreshScope.appId, refreshScope.networkType, wallets, options);
+    lease = acquireWalletRefresh(
+      refreshScope.appId,
+      refreshScope.networkType,
+      wallets,
+      options,
+      requestSession
+    );
     if (!lease.owner) {
       succeeded = yield call(() => lease.done);
       return succeeded;

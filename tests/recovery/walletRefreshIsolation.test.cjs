@@ -131,3 +131,35 @@ test('refresh paused at Electrum cannot overwrite newer A specs after A to B to 
   assert.deepEqual(f.writes, []);
   assert.equal(f.collections.Wallet[0].specs.balances.confirmed, 777);
 });
+
+test('new A login refresh runs after stale A lease from A to B to A', async () => {
+  const f = refreshFixture('Wallet', false);
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+
+  const staleRefresh = f.refresh(originAppId);
+  await f.waitForSync();
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
+  f.collections.Wallet[0].specs.balances.confirmed = 777;
+
+  let newSessionSyncs = 0;
+  f.scope.WalletOperations.syncWalletsViaElectrumClient = (wallets) => {
+    newSessionSyncs++;
+    const synced = f.scope.getJSONFromRealmObject(wallets[0]);
+    synced.specs.balances.unconfirmed = 2000;
+    synced.specs.hasNewUpdates = true;
+    return { synchedWallets: [{ synchedWallet: synced, newUTXOs: [] }] };
+  };
+  const newSessionRefresh = f.refresh(originAppId);
+  await new Promise(setImmediate);
+  assert.equal(newSessionSyncs, 0, 'the new session must wait for the prior wallet write lease');
+  f.complete();
+
+  assert.equal(await staleRefresh, false);
+  assert.equal(await newSessionRefresh, true);
+  assert.equal(newSessionSyncs, 1, 'the new A session must perform its own Electrum sync');
+  assert.equal(f.collections.Wallet[0].specs.balances.confirmed, 777);
+  assert.equal(f.collections.Wallet[0].specs.balances.unconfirmed, 2000);
+});
