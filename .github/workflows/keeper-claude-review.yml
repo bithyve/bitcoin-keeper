@@ -1,0 +1,64 @@
+name: Keeper independent Claude review
+
+# Disabled by default until an Anthropic API key, spending limit, and
+# KEEPER_CLAUDE_REVIEW_ENABLED repository variable are configured.
+# Reviews a PR once when first opened or promoted from draft, not every push.
+on:
+  pull_request:
+    branches: [sprint]
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: keeper-claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  independent-review:
+    name: Independent Claude code review
+    if: >-
+      vars.KEEPER_CLAUDE_REVIEW_ENABLED == 'true' &&
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout PR code (read-only)
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Independent review with Claude Sonnet 5.5
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            HEAD SHA: ${{ github.event.pull_request.head.sha }}
+
+            Perform an independent, read-only review of the PR diff and relevant
+            nearby code. This PR may have been written by OpenAI Codex.
+            Follow repository AGENTS.md and concentrate on correctness,
+            security, regressions, and meaningful missing tests. For Keeper,
+            prioritize seed and key material, PSBT signing and output/change
+            validation, policy and multisig correctness, backups, recovery,
+            inheritance, authentication, and device transport boundaries.
+
+            Report only high-confidence, actionable findings, with affected
+            lines, impact, and a concrete fix suggestion. Avoid stylistic nits
+            and generic advice. If no issues are found, say so concisely.
+            Post findings on this PR, not in a separate issue.
+
+            This is a review only. Do not edit files, push, approve a PR,
+            merge, sign, upload builds, or create a release.
+          claude_args: |
+            --model claude-sonnet-5-5
+            --max-turns 6
+            --max-budget-usd 3
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+            --disallowedTools "Edit,Write,NotebookEdit,MultiEdit"
