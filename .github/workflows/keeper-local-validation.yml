@@ -129,12 +129,39 @@ jobs:
                 if (malformed) {
                   description = 'Specify Required local checks: IOS, ANDROID, HARDWARE';
                 } else {
+                  // Only the release owner can defer unrun physical checks. Keep
+                  // every original handoff intact, and bind the newest owner
+                  // decision to this PR and this exact head commit.
+                  const releaseOwnerLogin = 'antuz123';
+                  let ownerDecision = '';
+                  let ownerDecisionIndex = -1;
+                  for (let index = comments.length - 1; index >= 0; index--) {
+                    const comment = comments[index];
+                    if (comment.user?.login !== releaseOwnerLogin) continue;
+                    const content = section(comment.body, 'Codex local scope decision');
+                    if (content && field(content, 'PR') === '#' + pull_number &&
+                        field(content, 'Head commit') === sha &&
+                        await mayAttest(comment.user.login)) {
+                      ownerDecision = content;
+                      ownerDecisionIndex = index;
+                      break;
+                    }
+                  }
+                  const hardwareDeferral = Boolean(ownerDecision &&
+                    field(ownerDecision, 'State') === 'OWNER_DEFERRED_PHYSICAL' &&
+                    field(ownerDecision, 'Deferred local checks').trim().toUpperCase() === 'HARDWARE' &&
+                    field(ownerDecision, 'Reason') &&
+                    field(ownerDecision, 'Post-release follow-up'));
+
                   let report = '';
-                  for (const comment of [...comments].reverse()) {
+                  let reportIndex = -1;
+                  for (let index = comments.length - 1; index >= 0; index--) {
+                    const comment = comments[index];
                     const content = section(comment.body, 'Codex local validation');
                     if (content && field(content, 'Tested commit') === sha &&
                         await mayAttest(comment.user?.login)) {
                       report = content;
+                      reportIndex = index;
                       break;
                     }
                   }
@@ -148,14 +175,25 @@ jobs:
                       ANDROID: 'Android build/emulator',
                       HARDWARE: 'Real devices/signers'
                     };
+                    const hardwareResult = field(report, reportFields.HARDWARE);
+                    const hardwareDeferred = required.has('HARDWARE') && hardwareDeferral &&
+                      reportIndex > ownerDecisionIndex &&
+                      /^(not run|deferred)\b/i.test(hardwareResult);
                     const notPassed = [...required].filter(x =>
-                      !/^pass\b/i.test(field(report, reportFields[x]))
+                      !/^pass\b/i.test(field(report, reportFields[x])) &&
+                      !(x === 'HARDWARE' && hardwareDeferred)
                     );
-                    if (notPassed.length) {
+                    if (hardwareDeferred && !required.has('IOS') && !required.has('ANDROID')) {
+                      description = 'IOS or ANDROID required before HARDWARE deferral';
+                    } else if (notPassed.length) {
                       description = 'Missing local PASS: ' + notPassed.join(', ');
                     } else {
                       state = 'success';
-                      description = 'Validated at current SHA: ' + [...required].join(', ');
+                      const passed = [...required].filter(x =>
+                        /^pass\b/i.test(field(report, reportFields[x]))
+                      );
+                      description = 'Validated at current SHA: ' + passed.join(', ') +
+                        (hardwareDeferred ? '; owner-deferred HARDWARE' : '');
                     }
                   }
                 }
