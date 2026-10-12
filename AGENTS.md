@@ -20,12 +20,14 @@ Repository: `KeeperCommunity/bitcoin-keeper`. Use `sprint` as the PR base unless
    Goal and acceptance criteria: <concise description>
    Changes made: <concise description>
    Cloud checks: <commands and exact pass/fail/not-run outcomes>
+   Required local checks: IOS, ANDROID
    Local checks requested: <targeted iOS/Android simulator, native build, and/or physical-device scenarios>
    Risks / known gaps: <known limitations or 'none known'>
    ```
 
-4. Return the PR URL/number and state `NEEDS_LOCAL` to the user so ChatGPT can generate the exact local handoff prompt. Continue unrelated cloud tasks while waiting for a Mac.
-5. If a task needs only code review, explicitly state why local testing is not required rather than silently skipping it.
+4. For app/code changes, `Required local checks` must list one or more of `IOS`, `ANDROID`, `HARDWARE` (comma-separated). Use both iOS and Android for cross-platform changes; add hardware for signer/device interactions. If no Mac tests are necessary, explain why, but the GitHub gate exempts only documentation and `.github/` changes. The handoff must name the actual PR head commit SHA after the final cloud push.
+5. Return the PR URL/number and state `NEEDS_LOCAL` to the user so ChatGPT can generate the exact local handoff prompt. Continue unrelated cloud tasks while waiting for a Mac.
+6. If a task needs only code review, explicitly state why local testing is not required rather than silently skipping it.
 
 ## Codex Local (Mac): validate the PR
 
@@ -57,3 +59,9 @@ When given **"Validate Keeper PR #<number>"**, first read the newest **Codex loc
 - Release operations require **explicit user approval** for the intended build, environment, and distribution channel.
 - ChatGPT is the coordinator: when the user shares a PR or asks for a handoff/status, inspect the latest PR details and comments; then provide the next exact copy-and-paste prompt for Cloud or Local Codex. ChatGPT should not claim to know Codex's private session state or that the Mac is currently available.
 - If the Mac is offline, the state remains `NEEDS_LOCAL`; cloud work does not have to stop.
+
+## GitHub merge gate
+
+The `.github/workflows/keeper-local-validation.yml` workflow posts commit status `keeper/local-validation` for the current PR head SHA. For code changes, it remains failing until a repository collaborator posts a `Codex local validation` comment with `State: LOCAL_PASSED`, the **exact current commit SHA**, and `pass` for every platform named by `Required local checks`. New commits invalidate previous local sign-off. Documentation and `.github/`-only PRs are exempt from Mac tests.
+
+This workflow **reports** a status; to **enforce** it, repository administrators must require the `keeper/local-validation` commit status for merges to `sprint` in GitHub Rulesets or branch protection. Require the existing `Tests` CI check as well. This is a review/test gate, not a guarantee that tests were actually executed; agents must report actual results truthfully. Release signing, TestFlight, Play Store, and production deployment remain separate and require explicit user approval.
