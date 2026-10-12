@@ -1,6 +1,6 @@
 name: Keeper local validation gate
 
-# Use only trusted base-branch workflow code. Never check out or execute PR code here.
+# Trusted base-branch workflow only: never check out or execute PR code here.
 on:
   pull_request_target:
     branches: [sprint]
@@ -13,6 +13,10 @@ permissions:
   issues: read
   pull-requests: read
   statuses: write
+
+concurrency:
+  group: keeper-local-validation-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: false
 
 jobs:
   keeper-local-validation:
@@ -28,7 +32,6 @@ jobs:
             const repo = context.repo.repo;
             const pull_number = context.payload.pull_request?.number ?? context.issue.number;
             const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number });
-
             if (pr.base.ref !== 'sprint') {
               core.info('Only PRs targeting sprint use this validation gate.');
               return;
@@ -36,27 +39,56 @@ jobs:
 
             const sha = pr.head.sha;
             const contextName = 'keeper/local-validation';
-            const target_url = pr.html_url;
             const files = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number, per_page: 100
             });
-
-            // Documentation and GitHub metadata changes do not require Mac simulators.
-            // Other changes (including application code and dependencies) do.
             const docsOnly = files.length > 0 && files.every(({ filename }) =>
               /(^|\/)[^/]+\.mdx?$/i.test(filename) || filename.startsWith('.github/')
             );
-            const getField = (body, name) => {
-              if (!body) return '';
+
+            const section = (body, heading) => {
+              const lines = (body || '').split(/\r?\n/);
+              const start = lines.findIndex(line =>
+                line.trim().toLowerCase() === '## ' + heading.toLowerCase()
+              );
+              if (start < 0) return '';
+              const end = lines.findIndex((line, index) =>
+                index > start && /^##\s+\S/.test(line)
+              );
+              return lines.slice(start + 1, end < 0 ? undefined : end).join('\n');
+            };
+            const field = (body, name) => {
               const prefix = name.toLowerCase() + ':';
-              const line = body.split(/\r?\n/).find(line => line.trim().toLowerCase().startsWith(prefix));
+              const line = (body || '').split(/\r?\n/).find(line =>
+                line.trim().toLowerCase().startsWith(prefix)
+              );
               return line ? line.trim().slice(prefix.length).trim() : '';
             };
-            const hasSection = (body, heading) =>
-              new RegExp('^##\\s+' + heading + '\\s*$', 'mi').test(body || '');
-            let state = 'failure';
-            let description = 'Local validation is required but not yet confirmed';
 
+            // A PR author or commenter needs WRITE/MAINTAIN/ADMIN permissions
+            // for this repository; being a member of the organization alone
+            // is not sufficient.
+            const permissionCache = new Map();
+            const mayAttest = async login => {
+              if (!login) return false;
+              if (permissionCache.has(login)) return permissionCache.get(login);
+              let allowed = false;
+              try {
+                const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner, repo, username: login
+                });
+                allowed = ['write', 'admin'].includes(data.permission) ||
+                  ['write', 'maintain', 'admin'].includes(data.role_name);
+              } catch (err) {
+                core.warning('Could not verify repository permissions for ' + login +
+                  ': ' + err.message);
+              }
+              permissionCache.set(login, allowed);
+              return allowed;
+            };
+
+            let state = 'failure';
+            let description = 'Awaiting local Mac validation';
             if (docsOnly) {
               state = 'success';
               description = 'Documentation/GitHub metadata only; local testing exempt';
@@ -64,51 +96,66 @@ jobs:
               const comments = await github.paginate(github.rest.issues.listComments, {
                 owner, repo, issue_number: pull_number, per_page: 100
               });
-              const handoffBodies = [pr.body || '', ...comments.map(c => c.body || '')];
-              const handoff = handoffBodies.reverse().find(body =>
-                hasSection(body, 'Codex local handoff')
-              );
+              const sources = [
+                { body: pr.body, login: pr.user.login },
+                ...comments.map(c => ({ body: c.body, login: c.user?.login }))
+              ];
+              const trustedHandoffs = [];
+              for (const source of sources) {
+                const text = section(source.body, 'Codex local handoff');
+                if (text && field(text, 'Head commit') === sha &&
+                    await mayAttest(source.login)) {
+                  trustedHandoffs.push(text);
+                }
+              }
 
-              if (!handoff) {
-                description = 'Cloud Codex must post Codex local handoff';
-              } else if (getField(handoff, 'Head commit') !== sha) {
-                description = 'Cloud handoff must reference the current PR head SHA';
-              } else if (getField(handoff, 'State') !== 'NEEDS_LOCAL') {
-                description = 'Cloud handoff must have State: NEEDS_LOCAL';
+              if (!trustedHandoffs.length) {
+                description = 'Trusted Cloud handoff for current SHA required';
+              } else if (trustedHandoffs.some(h => field(h, 'State') !== 'NEEDS_LOCAL')) {
+                description = 'Cloud handoff State must be NEEDS_LOCAL';
               } else {
-                const raw = getField(handoff, 'Required local checks');
-                const required = raw.toUpperCase().split(/[,\s]+/).filter(Boolean);
-                const allowed = ['IOS', 'ANDROID', 'HARDWARE'];
-
-                if (!required.length || required.some(v => !allowed.includes(v))) {
+                const required = new Set();
+                let malformed = false;
+                for (const handoff of trustedHandoffs) {
+                  const raw = field(handoff, 'Required local checks');
+                  const items = raw.toUpperCase().split(/[,\s]+/).filter(Boolean);
+                  if (!items.length || items.some(x =>
+                    !['IOS', 'ANDROID', 'HARDWARE'].includes(x))) {
+                    malformed = true;
+                  } else {
+                    items.forEach(x => required.add(x));
+                  }
+                }
+                if (malformed) {
                   description = 'Specify Required local checks: IOS, ANDROID, HARDWARE';
                 } else {
-                  const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
-                  const report = [...comments].reverse().find(c =>
-                    trusted.has(c.author_association) &&
-                    hasSection(c.body, 'Codex local validation') &&
-                    getField(c.body, 'Tested commit') === sha
-                  );
-
+                  let report = '';
+                  for (const comment of [...comments].reverse()) {
+                    const content = section(comment.body, 'Codex local validation');
+                    if (content && field(content, 'Tested commit') === sha &&
+                        await mayAttest(comment.user?.login)) {
+                      report = content;
+                      break;
+                    }
+                  }
                   if (!report) {
-                    description = 'Awaiting trusted local Codex validation of this commit';
-                  } else if (getField(report.body, 'State') !== 'LOCAL_PASSED') {
+                    description = 'Awaiting trusted Mac validation of current SHA';
+                  } else if (field(report, 'State') !== 'LOCAL_PASSED') {
                     description = 'Latest local validation is not LOCAL_PASSED';
                   } else {
-                    const fieldByPlatform = {
+                    const reportFields = {
                       IOS: 'iOS build/simulator',
                       ANDROID: 'Android build/emulator',
                       HARDWARE: 'Real devices/signers'
                     };
-                    const notPassed = required.filter(platform =>
-                      !/^pass\b/i.test(getField(report.body, fieldByPlatform[platform]))
+                    const notPassed = [...required].filter(x =>
+                      !/^pass\b/i.test(field(report, reportFields[x]))
                     );
-
                     if (notPassed.length) {
-                      description = 'Local validation missing PASS: ' + notPassed.join(', ');
+                      description = 'Missing local PASS: ' + notPassed.join(', ');
                     } else {
                       state = 'success';
-                      description = 'Validated at current SHA: ' + required.join(', ');
+                      description = 'Validated at current SHA: ' + [...required].join(', ');
                     }
                   }
                 }
@@ -119,9 +166,7 @@ jobs:
               owner, repo, sha, state,
               context: contextName,
               description: description.slice(0, 140),
-              target_url
+              target_url: pr.html_url
             });
-            core.info(contextName + ' at ' + sha + ': ' + state + ' — ' + description);
-            if (state !== 'success') {
-              core.setFailed(description);
-            }
+            core.info(contextName + ': ' + state + ' on ' + sha + ' — ' + description);
+            if (state !== 'success') core.setFailed(description);
