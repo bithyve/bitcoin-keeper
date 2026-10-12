@@ -1858,19 +1858,42 @@ function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession, 
       }
       assertWalletAccount(sourceAppId, requestSession);
       yield put(relayVaultUpdateSuccess());
+      return true;
     } else {
       const errorMsg = response.error?.message
         ? response.error.message.toString()
         : response.error.toString();
       yield put(relayVaultUpdateFail(errorMsg));
+      return false;
     }
   } catch (err) {
     if (currentWalletAccountId() === sourceAppId && store.getState().storage.appId === sourceAppId)
       yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
+    return false;
   }
 }
 
-export const deleteVaultyWatcher = createWatcher(deleteVaultWorker, DELETE_VAULT);
+function* deleteVaultRequestWorker(
+  action: Parameters<typeof deleteVaultWorker>[0] & { onComplete?: (deleted: boolean) => void }
+) {
+  let deleted = false;
+  try {
+    deleted = (yield call(deleteVaultWorker, action)) === true;
+  } catch (error) {
+    captureError(error);
+  } finally {
+    if (action.onComplete) {
+      try {
+        action.onComplete(deleted);
+      } catch (error) {
+        captureError(error);
+      }
+    }
+  }
+  return deleted;
+}
+
+export const deleteVaultyWatcher = createWatcher(deleteVaultRequestWorker, DELETE_VAULT);
 
 function* reinstateVaultWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();

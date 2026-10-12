@@ -73,6 +73,70 @@ test('vault delete reports failure if Realm reports success but retains the obje
   assert.deepEqual(f.collections.Vault.map((row) => row.id), ['keep']);
 });
 
+test('vault delete callback is scoped to its request and fires once after local removal', async () => {
+  const f = fixture();
+  f.collections.Vault.push({ id: 'remove' });
+  f.scope.deleteVaultImageWorker = function* () { return { updated: true }; };
+  const completed = [];
+
+  const result = await f.run('deleteVaultRequestWorker', {
+    originAppId: f.app.id,
+    payload: { vaultId: 'remove' },
+    onComplete: (deleted) => completed.push(deleted),
+  });
+
+  assert.equal(result, true);
+  assert.deepEqual(completed, [true]);
+  assert.deepEqual(f.collections.Vault, []);
+});
+
+test('vault delete callback reports failure once when Relay rejects deletion', async () => {
+  const f = fixture();
+  f.collections.Vault.push({ id: 'keep' });
+  f.scope.deleteVaultImageWorker = function* () { return { updated: false, error: 'rejected' }; };
+  const completed = [];
+
+  const result = await f.run('deleteVaultRequestWorker', {
+    originAppId: f.app.id,
+    payload: { vaultId: 'keep' },
+    onComplete: (deleted) => completed.push(deleted),
+  });
+
+  assert.equal(result, false);
+  assert.deepEqual(completed, [false]);
+  assert.deepEqual(f.collections.Vault.map((row) => row.id), ['keep']);
+});
+
+test('overlapping vault saga requests report their own outcomes despite unrelated vault state', async () => {
+  const f = fixture();
+  f.collections.Vault.push({ id: 'first' }, { id: 'second' });
+  const pending = new Map();
+  f.scope.deleteVaultImageWorker = ({ payload }) =>
+    new Promise((resolve) => pending.set(payload.vaultIds[0], resolve));
+  const completed = [];
+  const first = f.run('deleteVaultRequestWorker', {
+    originAppId: f.app.id, payload: { vaultId: 'first' },
+    onComplete: (deleted) => completed.push(['first', deleted]),
+  });
+  const second = f.run('deleteVaultRequestWorker', {
+    originAppId: f.app.id, payload: { vaultId: 'second' },
+    onComplete: (deleted) => completed.push(['second', deleted]),
+  });
+  for (let attempt = 0; attempt < 20 && pending.size < 2; attempt++)
+    await new Promise(setImmediate);
+  assert.equal(pending.size, 2);
+
+  f.actions.push({ type: 'relayVaultUpdateSuccess', source: 'unrelated' });
+  assert.deepEqual(completed, []);
+  pending.get('second')({ updated: true });
+  assert.equal(await second, true);
+  assert.deepEqual(completed, [['second', true]]);
+  pending.get('first')({ updated: false, error: 'rejected' });
+  assert.equal(await first, false);
+  assert.deepEqual(completed, [['second', true], ['first', false]]);
+  assert.deepEqual(f.collections.Vault.map((row) => row.id), ['first']);
+});
+
 test('signer delete completion is false if Realm reports success but retains the signer', async () => {
   const f = fixture();
   f.collections.Signer.push({ id: 'keep' });
@@ -107,23 +171,26 @@ const deleteHandlerCode = ts.transpileModule(
 ).outputText;
 
 function screenFixture(entityKind, usdtResult = false) {
-  const state = { active: 'A', session: 1, present: true, actions: [], toasts: [] };
+  const state = {
+    active: 'A', session: 1, present: true, presentById: new Map(), actions: [], toasts: [],
+  };
   const scope = {
     React: { createElement: (component) => component },
     TickIcon: 'tick', ToastErrorIcon: 'error',
     EntityKind: { WALLET: 'WALLET', VAULT: 'VAULT', USDT_WALLET: 'USDT_WALLET' },
     RealmSchema: { KeeperApp: 'KeeperApp', Wallet: 'Wallet', Vault: 'Vault', USDTWallet: 'USDTWallet' },
     selectedWallet: { id: 'keep', entityKind },
-    pendingVaultDeleteRef: { current: null },
     dbManager: {
       getObjectByIndex: () => ({ id: state.active }),
-      getObjectById: () => state.present ? { id: 'keep' } : undefined,
+      getObjectById: (_schema, id) =>
+        (state.presentById.has(id) ? state.presentById.get(id) : state.present)
+          ? { id }
+          : undefined,
     },
     activeRealmAppId: () => state.active,
     currentBackupAccountSession: () => state.session,
     deleteAppImageEntity: (request) => ({ type: 'DELETE_BTC', ...request }),
-    deleteVault: (id) => ({ type: 'DELETE_VAULT', id }),
-    resetRealyVaultState: () => ({ type: 'RESET_VAULT' }),
+    deleteVault: (id, onComplete) => ({ type: 'DELETE_VAULT', id, onComplete }),
     deleteUSDTWallet: async () => usdtResult,
     dispatch: (action) => state.actions.push(action),
     showToast: (message, icon) => state.toasts.push({ message, icon }),
@@ -175,10 +242,40 @@ test('ManageWallets does not report USDT deletion success while Realm retains it
   assert.equal(f.state.toasts[0].message, 'Failed to delete USDT wallet');
 });
 
-test('ManageWallets leaves the vault delete result pending until the saga finishes', async () => {
+test('ManageWallets waits for the matching vault delete before reporting success', async () => {
   const f = screenFixture('VAULT');
   await f.deleteSelectedEntity();
   assert.deepEqual(f.state.toasts, []);
-  assert.equal(f.scope.pendingVaultDeleteRef.current.id, 'keep');
-  assert.deepEqual(f.state.actions.map((action) => action.type), ['RESET_VAULT', 'DELETE_VAULT']);
+  assert.deepEqual(f.state.actions.map((action) => action.type), ['DELETE_VAULT']);
+  f.state.present = false;
+  f.state.actions[0].onComplete(true);
+  assert.equal(f.state.toasts[0].message, 'Vault deleted');
+});
+
+test('overlapping vault deletes and unrelated vault results cannot consume another request', async () => {
+  const f = screenFixture('VAULT');
+  f.scope.selectedWallet = { id: 'first', entityKind: 'VAULT' };
+  await f.deleteSelectedEntity();
+  f.scope.selectedWallet = { id: 'second', entityKind: 'VAULT' };
+  await f.deleteSelectedEntity();
+  assert.deepEqual(f.state.actions.map((action) => action.id), ['first', 'second']);
+
+  // Another vault action may publish its own global Redux success while both
+  // delete requests are in flight; only each request's callback can show a toast.
+  f.state.actions.push({ type: 'UNRELATED_VAULT_SUCCESS' });
+  assert.deepEqual(f.state.toasts, []);
+  f.state.presentById.set('second', false);
+  f.state.actions[1].onComplete(true);
+  assert.deepEqual(f.state.toasts.map((toast) => toast.message), ['Vault deleted']);
+  f.state.actions[0].onComplete(false);
+  assert.deepEqual(f.state.toasts.map((toast) => toast.message),
+    ['Vault deleted', 'Failed to delete vault']);
+});
+
+test('a vault delete from an earlier account session shows no toast', async () => {
+  const f = screenFixture('VAULT');
+  await f.deleteSelectedEntity();
+  f.state.session += 2;
+  f.state.actions[0].onComplete(false);
+  assert.deepEqual(f.state.toasts, []);
 });

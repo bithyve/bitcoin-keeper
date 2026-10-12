@@ -313,6 +313,7 @@ function fixture(options = {}) {
       'currentWalletAccountId', 'assertWalletAccount',
       'addNewWalletsWorker', 'addSigningDeviceWorker', 'mergeSimilarKeysWorker',
       'deleteSigningDeviceWorker', 'deleteVaultWorker',
+      'deleteVaultRequestWorker',
       'generateNewExternalAddressWorker', 'updateSignerPolicyWorker',
       'updateVaultSignerXprivWorker', 'updateSignerDetailsWorker',
       'updateKeyDetailsWorker', 'autoWalletsSyncWorker',

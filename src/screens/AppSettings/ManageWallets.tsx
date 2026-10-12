@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Box, Pressable, useColorMode, HStack } from '@gluestack-ui/themed-native-base';
@@ -42,8 +42,6 @@ import HideAllIcon from 'src/assets/images/hide_wallet.svg';
 import usePlan from 'src/hooks/usePlan';
 import { deleteAppImageEntity } from 'src/store/sagaActions/bhr';
 import { MANAGEWALLETS } from 'src/navigation/contants';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { useAppSelector } from 'src/store/hooks';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MiniscriptPathSelector, {
   MiniscriptPathSelectorRef,
@@ -169,30 +167,12 @@ function ManageWallets() {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [confirmPasscodeVisible, setConfirmPasscodeVisible] = useState(false);
 
-  const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
-
   const { isOnL2Above } = usePlan();
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
   const [selectedWallet, setSelectedWallet] = useState(null);
   const { showToast } = useToastMessage();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
-  const pendingVaultDeleteRef = useRef<{ id: string; appId?: string; session: number } | null>(null);
-
-  useEffect(() => {
-    const pending = pendingVaultDeleteRef.current;
-    if (!pending || (!relayVaultUpdate && !relayVaultError)) return;
-    pendingVaultDeleteRef.current = null;
-    if (
-      currentBackupAccountSession() === pending.session &&
-      activeRealmAppId() === pending.appId
-    ) {
-      const deleted = !dbManager.getObjectById(RealmSchema.Vault, pending.id);
-      if (relayVaultUpdate && deleted) showToast(errorText.vaultDeleted, <TickIcon />);
-      else showToast(errorText.failedToDeleteVault, <ToastErrorIcon />);
-    }
-    dispatch(resetRealyVaultState());
-  }, [relayVaultUpdate, relayVaultError]);
 
   const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
   const isUSDTWallet = selectedWallet?.entityKind === EntityKind.USDT_WALLET;
@@ -217,13 +197,18 @@ function ManageWallets() {
 
   const deleteSelectedEntity = async () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
-      pendingVaultDeleteRef.current = {
-        id: selectedWallet.id,
-        appId: activeRealmAppId(),
-        session: currentBackupAccountSession(),
-      };
-      dispatch(resetRealyVaultState());
-      dispatch(deleteVault(selectedWallet.id));
+      const vaultId = selectedWallet.id;
+      const appId = activeRealmAppId();
+      const session = currentBackupAccountSession();
+      dispatch(deleteVault(vaultId, (deleted) => {
+        if (
+          currentBackupAccountSession() !== session ||
+          activeRealmAppId() !== appId
+        ) return;
+        if (deleted && !dbManager.getObjectById(RealmSchema.Vault, vaultId))
+          showToast(errorText.vaultDeleted, <TickIcon />);
+        else showToast(errorText.failedToDeleteVault, <ToastErrorIcon />);
+      }));
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
       const walletId = selectedWallet.id;
