@@ -1,7 +1,6 @@
 import { Box, useColorMode, View } from '@gluestack-ui/themed-native-base';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useCallback, useContext, useState, useEffect } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import WalletCard from './WalletCard';
 import Colors from 'src/theme/Colors';
 import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
@@ -38,6 +37,8 @@ import Fab from 'src/components/Fab';
 import AddIcon from 'src/assets/images/add_white.svg';
 import { useUTXOSpendability } from 'src/hooks/useUTXOSpendability';
 import { clearDustToast } from 'src/store/reducers/utxos';
+import { useCollaborativeWalletHandoff } from 'src/hooks/useCollaborativeWalletHandoff';
+import WalletCard from './WalletCard';
 
 function WalletCardItem({
   item,
@@ -108,11 +109,22 @@ const HomeWallet = () => {
   });
   const { usdtWallets } = useUSDTWallets();
   const { collaborativeSession } = useAppSelector((state) => state.vault);
+  const { appId } = useAppSelector((state) => state.storage);
+  const { bitcoinNetworkType } = useAppSelector((state) => state.settings);
 
   const dispatch = useDispatch();
-  const [showAddWalletModal, setShowAddWalletModal] = useState(false);
-  const [collabSessionExistsModalVisible, setCollabSessionExistsModalVisible] = useState(false);
-  const [navigateAfterSessionReset, setNavigateAfterSessionReset] = useState(false);
+  const resetSession = useCallback(() => dispatch(resetCollaborativeSession()), [dispatch]);
+  const navigateToCollaborativeWallet = useCallback(
+    () => navigation.navigate('SetupCollaborativeWallet'),
+    [navigation]
+  );
+  const collaborativeHandoff = useCollaborativeWalletHandoff({
+    appId,
+    network: bitcoinNetworkType,
+    session: collaborativeSession,
+    resetSession,
+    navigate: navigateToCollaborativeWallet,
+  });
   const { refreshing: pullRefresh, autoRefresh } = useWalletRefresh();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing =
@@ -139,27 +151,6 @@ const HomeWallet = () => {
     }
   }, [pendingDustToast]);
 
-  useEffect(() => {
-    if (navigateAfterSessionReset && Object.keys(collaborativeSession.signers).length === 0) {
-      setNavigateAfterSessionReset(false);
-      navigation.navigate('SetupCollaborativeWallet');
-    }
-  }, [navigateAfterSessionReset, collaborativeSession.signers, navigation]);
-
-  const resetAndStartCollaborativeWallet = () => {
-    dispatch(resetCollaborativeSession());
-    setNavigateAfterSessionReset(true);
-  };
-
-  const handleCollaborativeWalletCreation = () => {
-    setShowAddWalletModal(false);
-    if (Object.keys(collaborativeSession.signers).length > 0) {
-      setCollabSessionExistsModalVisible(true);
-    } else {
-      resetAndStartCollaborativeWallet();
-    }
-  };
-
   const pullDownRefresh = () => {
     autoRefresh();
   };
@@ -170,7 +161,7 @@ const HomeWallet = () => {
       subtitle: walletText.createWalletDesc,
       icon: <NewWalletIcon />,
       onPress: () => {
-        setShowAddWalletModal(false);
+        collaborativeHandoff.closeAdd();
         navigation.navigate('AddNewWallet');
       },
       id: 'newWallet',
@@ -180,7 +171,7 @@ const HomeWallet = () => {
       subtitle: walletText.restoreExistingWallet,
       icon: <ImportWalletIcon />,
       onPress: () => {
-        setShowAddWalletModal(false);
+        collaborativeHandoff.closeAdd();
         navigation.navigate('VaultConfigurationCreation');
       },
       id: 'importWallet',
@@ -189,7 +180,7 @@ const HomeWallet = () => {
       title: common.collaborativeWallet,
       subtitle: walletText.walletWithFamily,
       icon: <CollaborativeWalletIcon />,
-      onPress: handleCollaborativeWalletCreation,
+      onPress: collaborativeHandoff.selectCollaborative,
       id: 'collaborativeWallet',
     },
   ];
@@ -209,7 +200,7 @@ const HomeWallet = () => {
       <ActivityIndicatorView visible={syncing} showLoader />
       <Fab
         icon={<AddIcon height={hp(22)} width={wp(22)} />}
-        onPress={() => setShowAddWalletModal(true)}
+        onPress={collaborativeHandoff.openAdd}
       />
       <FlatList
         data={allWallets}
@@ -220,10 +211,11 @@ const HomeWallet = () => {
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
       />
       <KeeperModal
-        visible={showAddWalletModal}
+        visible={collaborativeHandoff.addVisible}
         title={walletText.addNewWallet}
         subTitle={walletText.createOrImportWallet}
-        close={() => setShowAddWalletModal(false)}
+        close={collaborativeHandoff.closeAdd}
+        onModalHide={collaborativeHandoff.waitForAddHide ? collaborativeHandoff.onAddHide : undefined}
         textColor={`${colorMode}.textGreen`}
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         showCloseIcon
@@ -236,20 +228,17 @@ const HomeWallet = () => {
         )}
       />
       <KeeperModal
-        visible={collabSessionExistsModalVisible}
-        close={() => setCollabSessionExistsModalVisible(false)}
+        visible={collaborativeHandoff.sessionVisible}
+        close={collaborativeHandoff.closeSession}
+        onModalHide={
+          collaborativeHandoff.waitForSessionHide ? collaborativeHandoff.onSessionHide : undefined
+        }
         title={walletText.collaborativeSessionExists}
         subTitle={walletText.collaborativeSessionExistsDesc}
         buttonText={common.continueSession}
         secondaryButtonText={common.startNew}
-        secondaryCallback={() => {
-          setCollabSessionExistsModalVisible(false);
-          resetAndStartCollaborativeWallet();
-        }}
-        buttonCallback={() => {
-          setCollabSessionExistsModalVisible(false);
-          navigation.navigate('SetupCollaborativeWallet');
-        }}
+        secondaryCallback={() => collaborativeHandoff.finishSession('new')}
+        buttonCallback={() => collaborativeHandoff.finishSession('continue')}
       />
     </Box>
   );
