@@ -662,8 +662,17 @@ function* recoverApp(
   appImage,
   allVaultImages,
   labels,
-  previousVersion
+  previousVersion,
+  originBackupAccountSession?: number
 ) {
+  // Recovery selects appID after the first Realm write. Keep the session from
+  // the initiating action across decryption and all earlier async work.
+  const originSession = originBackupAccountSession ?? currentBackupAccountSession();
+  const assertOrigin = () => {
+    if (currentBackupAccountSession() !== originSession)
+      throw new Error('Backup account changed');
+  };
+  assertOrigin();
   const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
   const recovered: BackupImage = yield call(
     prepareRecoveryImage,
@@ -700,16 +709,26 @@ function* recoverApp(
     networkType: bitcoinNetworkType,
   };
 
-  yield call(writeRecoveredObject, RealmSchema.KeeperApp, app);
+  yield call(writeRecoveredObject, RealmSchema.KeeperApp, app, assertOrigin);
+  assertOrigin();
   yield put(setAppId(appID));
+  const recoveryAccountSession = currentBackupAccountSession();
+  const assertRecoveryAccount = () => {
+    if (currentBackupAccountSession() !== recoveryAccountSession || currentBackupAppId() !== appID)
+      throw new Error('Backup account changed');
+  };
+  assertRecoveryAccount();
+  function* writeRecord(schema: RealmSchema, record: any) {
+    yield call(writeRecoveredObject, schema, record, assertRecoveryAccount);
+  }
 
   // Wallet recreation
   if (appImage.wallets) {
     for (const decryptedWallet of Object.values(recovered.wallets) as Wallet[]) {
       try {
         if (decryptedWallet.entityKind === EntityKind.USDT_WALLET)
-          yield call(writeRecoveredObject, RealmSchema.USDTWallet, decryptedWallet);
-        else yield call(writeRecoveredObject, RealmSchema.Wallet, decryptedWallet);
+          yield call(writeRecord, RealmSchema.USDTWallet, decryptedWallet);
+        else yield call(writeRecord, RealmSchema.Wallet, decryptedWallet);
       } catch (err) {
         throw new Error('Recovery data unavailable');
       }
@@ -729,7 +748,7 @@ function* recoverApp(
             ? NetworkType.TESTNET
             : NetworkType.MAINNET;
         }
-        yield call(writeRecoveredObject, RealmSchema.Signer, decrytpedSigner);
+        yield call(writeRecord, RealmSchema.Signer, decrytpedSigner);
       } catch (err) {
         throw new Error('Recovery data unavailable');
       }
@@ -791,11 +810,11 @@ function* recoverApp(
                 hidden: false,
                 signerXpubs,
               };
-              yield call(writeRecoveredObject, RealmSchema.Signer, signerObject);
+              yield call(writeRecord, RealmSchema.Signer, signerObject);
             }
           }
         }
-        yield call(writeRecoveredObject, RealmSchema.Vault, vault);
+        yield call(writeRecord, RealmSchema.Vault, vault);
       } catch (err) {
         throw new Error('Recovery data unavailable');
       }
@@ -805,7 +824,7 @@ function* recoverApp(
   // Labels Restore
   if (labels) {
     for (const label of Object.values(recovered.labels)) {
-      yield call(writeRecoveredObject, RealmSchema.Tags, label);
+      yield call(writeRecord, RealmSchema.Tags, label);
     }
   }
 
@@ -817,11 +836,13 @@ function* recoverApp(
     );
     for (const node of existingNodes) {
       if (node && node.id) {
+        assertRecoveryAccount();
         const deleted = yield call(
           dbManager.deleteObjectById,
           RealmSchema.NodeConnect,
           node.id.toString()
         );
+        assertRecoveryAccount();
         if (deleted !== true) throw new Error('Recovery data unavailable');
       }
     }
@@ -832,7 +853,7 @@ function* recoverApp(
             ? NetworkType.TESTNET
             : NetworkType.MAINNET;
         }
-        yield call(writeRecoveredObject, RealmSchema.NodeConnect, decryptedNode);
+        yield call(writeRecord, RealmSchema.NodeConnect, decryptedNode);
       } catch (err) {
         throw new Error('Recovery data unavailable');
       }
@@ -842,6 +863,7 @@ function* recoverApp(
   // Connect to a node
   const savedNodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
   if (savedNodes.length > 0 && !savedNodes.find((node) => node.isConnected)) {
+    assertRecoveryAccount();
     const firstNode = savedNodes[0];
     firstNode.isConnected = true;
 
@@ -851,11 +873,12 @@ function* recoverApp(
       firstNode.id.toString(),
       firstNode
     );
+    assertRecoveryAccount();
     if (connected !== true) throw new Error('Recovery data unavailable');
   }
 
   // seed confirm for recovery
-  yield call(writeRecoveredObject, RealmSchema.BackupHistory, {
+  yield call(writeRecord, RealmSchema.BackupHistory, {
     title: BackupAction.SEED_BACKUP_CONFIRMED,
     date: moment().unix(),
     confirmed: true,
@@ -866,27 +889,32 @@ function* recoverApp(
   // enable Assisted Server Backup. This transient flag triggers a new upload
   // when the health-check screen mounts; persistent key status is set by the
   // completed recovery worker instead.
+  assertRecoveryAccount();
   yield put(setSeedConfirmed(false));
+  assertRecoveryAccount();
   yield put(setBackupType(BackupType.SEED));
+  assertRecoveryAccount();
   yield put(uaiActioned({ uaiType: uaiType.RECOVERY_PHRASE_HEALTH_CHECK, action: true }));
 
   // create/add restored object for version
-  yield call(writeRecoveredObject, RealmSchema.VersionHistory, {
+  yield call(writeRecord, RealmSchema.VersionHistory, {
     version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
     date: new Date().toString(),
     title: 'Recovered Wallet',
   });
-
+  return recoveryAccountSession;
 }
 
-function* writeRecoveredObject(schema: RealmSchema, record: any) {
+function* writeRecoveredObject(schema: RealmSchema, record: any, assertActive?: () => void) {
   // Realm's adapter returns false/undefined on a rejected write instead of
   // throwing. Never count that record as recovered or report partial success.
+  assertActive?.();
   const written = yield call(dbManager.createObject, schema, record);
   if (written !== true) throw new Error('Recovery data unavailable');
   // Realm writes complete synchronously. Break the saga's synchronous effect
   // chain between records so a large restore cannot exhaust the JS stack.
   yield call(pauseBackup);
+  assertActive?.();
 }
 
 function* healthCheckSatutsUpdateWorker({
