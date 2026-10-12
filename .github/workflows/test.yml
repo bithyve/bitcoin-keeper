@@ -70,6 +70,11 @@ jobs:
       - name: Verify checked-out release version consistency
         run: npm run version:check
 
+      - name: Set up Ruby for build-only release lane regressions
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.8'
+
       - name: Run release and packaged-artifact tests
         run: npm run test:release
 
