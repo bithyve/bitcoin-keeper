@@ -1,0 +1,127 @@
+name: Keeper local validation gate
+
+# Use only trusted base-branch workflow code. Never check out or execute PR code here.
+on:
+  pull_request_target:
+    branches: [sprint]
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+  issue_comment:
+    types: [created, edited, deleted]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  keeper-local-validation:
+    name: Keeper local validation gate
+    if: github.event_name == 'pull_request_target' || github.event.issue.pull_request != null
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify local validation for exact PR commit
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request?.number ?? context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number });
+
+            if (pr.base.ref !== 'sprint') {
+              core.info('Only PRs targeting sprint use this validation gate.');
+              return;
+            }
+
+            const sha = pr.head.sha;
+            const contextName = 'keeper/local-validation';
+            const target_url = pr.html_url;
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner, repo, pull_number, per_page: 100
+            });
+
+            // Documentation and GitHub metadata changes do not require Mac simulators.
+            // Other changes (including application code and dependencies) do.
+            const docsOnly = files.length > 0 && files.every(({ filename }) =>
+              /(^|\/)[^/]+\.mdx?$/i.test(filename) || filename.startsWith('.github/')
+            );
+            const getField = (body, name) => {
+              if (!body) return '';
+              const prefix = name.toLowerCase() + ':';
+              const line = body.split(/\r?\n/).find(line => line.trim().toLowerCase().startsWith(prefix));
+              return line ? line.trim().slice(prefix.length).trim() : '';
+            };
+            const hasSection = (body, heading) =>
+              new RegExp('^##\\s+' + heading + '\\s*$', 'mi').test(body || '');
+            let state = 'failure';
+            let description = 'Local validation is required but not yet confirmed';
+
+            if (docsOnly) {
+              state = 'success';
+              description = 'Documentation/GitHub metadata only; local testing exempt';
+            } else {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number: pull_number, per_page: 100
+              });
+              const handoffBodies = [pr.body || '', ...comments.map(c => c.body || '')];
+              const handoff = handoffBodies.reverse().find(body =>
+                hasSection(body, 'Codex local handoff')
+              );
+
+              if (!handoff) {
+                description = 'Cloud Codex must post Codex local handoff';
+              } else if (getField(handoff, 'Head commit') !== sha) {
+                description = 'Cloud handoff must reference the current PR head SHA';
+              } else if (getField(handoff, 'State') !== 'NEEDS_LOCAL') {
+                description = 'Cloud handoff must have State: NEEDS_LOCAL';
+              } else {
+                const raw = getField(handoff, 'Required local checks');
+                const required = raw.toUpperCase().split(/[,\s]+/).filter(Boolean);
+                const allowed = ['IOS', 'ANDROID', 'HARDWARE'];
+
+                if (!required.length || required.some(v => !allowed.includes(v))) {
+                  description = 'Specify Required local checks: IOS, ANDROID, HARDWARE';
+                } else {
+                  const trusted = new Set(['OWNER', 'MEMBER', 'COLLABORATOR']);
+                  const report = [...comments].reverse().find(c =>
+                    trusted.has(c.author_association) &&
+                    hasSection(c.body, 'Codex local validation') &&
+                    getField(c.body, 'Tested commit') === sha
+                  );
+
+                  if (!report) {
+                    description = 'Awaiting trusted local Codex validation of this commit';
+                  } else if (getField(report.body, 'State') !== 'LOCAL_PASSED') {
+                    description = 'Latest local validation is not LOCAL_PASSED';
+                  } else {
+                    const fieldByPlatform = {
+                      IOS: 'iOS build/simulator',
+                      ANDROID: 'Android build/emulator',
+                      HARDWARE: 'Real devices/signers'
+                    };
+                    const notPassed = required.filter(platform =>
+                      !/^pass\b/i.test(getField(report.body, fieldByPlatform[platform]))
+                    );
+
+                    if (notPassed.length) {
+                      description = 'Local validation missing PASS: ' + notPassed.join(', ');
+                    } else {
+                      state = 'success';
+                      description = 'Validated at current SHA: ' + required.join(', ');
+                    }
+                  }
+                }
+              }
+            }
+
+            await github.rest.repos.createCommitStatus({
+              owner, repo, sha, state,
+              context: contextName,
+              description: description.slice(0, 140),
+              target_url
+            });
+            core.info(contextName + ' at ' + sha + ': ' + state + ' — ' + description);
+            if (state !== 'success') {
+              core.setFailed(description);
+            }
