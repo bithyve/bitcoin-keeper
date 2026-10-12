@@ -53,6 +53,28 @@ When given **"Validate Keeper PR #<number>"**, first read the newest **Codex loc
 
 6. Report the result and PR link to ChatGPT/the user.
 
+### Owner-directed post-release test scope
+
+Keep `HARDWARE` in the Cloud handoff when signer or real-device interaction matters. If physical phones, cameras, NFC/USB, or hardware signers are unavailable before release, the release owner may defer only those physical checks to a post-release follow-up. Record the decision in a **new** PR comment so the original handoff and validation evidence remain intact:
+
+```text
+## Codex local scope decision
+State: OWNER_DEFERRED_PHYSICAL
+PR: #<number>
+Head commit: <full current PR head SHA>
+Deferred local checks: HARDWARE
+Reason: <why physical checks will occur after release>
+Post-release follow-up: <who will test which devices and report the results>
+```
+
+For this repository, the gate accepts that decision only from the release-owner GitHub account `antuz123`, with current write access, for the exact PR and head SHA. A newer owner scope decision for the same PR and SHA supersedes an older one. A new commit needs a new scope decision and local report. The decision cannot defer `IOS` or `ANDROID`, and it cannot turn a failed physical test into a pass.
+
+Run all feasible automated, simulator/emulator and disposable checks before public submission. The owner may place inaccessible, noncritical scenarios in post-release testing on the actual installed release, consistent with the release checklist. Record each one explicitly as `NOT RUN / POST-RELEASE` in `Open issues / next action`, with its reason and follow-up. This does not waive a failed check or remove `IOS` or `ANDROID` from the gate; only the exact-SHA decision above can subtract `HARDWARE` from automatic gate requirements.
+
+After every required iOS or Android check actually passes, Codex Local may report `LOCAL_PASSED` for the **tested subset** in a new comment after the scope decision and put `NOT RUN` or `DEFERRED` at the start of `Real devices/signers`. The resulting gate status says which checks passed and that hardware was owner-deferred. `LOCAL_PASSED` must never imply that deferred scenarios ran. Track the owner's post-release results on the PR or release record.
+
+A known critical defect is not eligible for post-release deferral. In particular, suspected loss or misbinding of keys, recovery material, funds or backups, incorrect recipient/amount/policy signing, and a failed required iOS or Android check must be resolved and retested before release. Keep other release evidence and decisions separate, including independent review, fresh store histories and counters, production configuration, signed artifact identity and version correctness, and explicit approval to sign or publish.
+
 ## Release safety and coordination
 
 - `LOCAL_PASSED` means only the reported checks passed on the reported commit. It is **not** approval to merge, sign, distribute, upload to TestFlight/Play Store, or publish a release.
@@ -62,6 +84,6 @@ When given **"Validate Keeper PR #<number>"**, first read the newest **Codex loc
 
 ## GitHub merge gate
 
-The `.github/workflows/keeper-local-validation.yml` workflow posts commit status `keeper/local-validation` for the current PR head SHA. For code changes, it remains failing until a repository collaborator posts a `Codex local validation` comment with `State: LOCAL_PASSED`, the **exact current commit SHA**, and `pass` for every platform named by `Required local checks`. New commits invalidate previous local sign-off. Documentation and `.github/`-only PRs are exempt from Mac tests.
+The `.github/workflows/keeper-local-validation.yml` workflow posts commit status `keeper/local-validation` for the current PR head SHA. For code changes, it remains failing until a repository collaborator posts a `Codex local validation` comment with `State: LOCAL_PASSED`, the **exact current commit SHA**, and `pass` for every platform named by `Required local checks`, except `HARDWARE` when the exact-SHA owner decision above defers unrun physical checks. New commits invalidate previous local sign-off and deferral. Documentation and `.github/`-only PRs are exempt from Mac tests.
 
 This workflow **reports** a status; to **enforce** it, repository administrators must require the `keeper/local-validation` commit status for merges to `sprint` in GitHub Rulesets or branch protection. Require the existing `Tests` CI check as well. This is a review/test gate, not a guarantee that tests were actually executed; agents must report actual results truthfully. Release signing, TestFlight, Play Store, and production deployment remain separate and require explicit user approval.
