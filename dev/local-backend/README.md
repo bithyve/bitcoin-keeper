@@ -105,6 +105,8 @@ xcrun simctl list devices available
 
 Use the root Gemfile explicitly; the `ios` directory has a different Gemfile. CocoaPods may refresh checkout-path-dependent Hermes podspec checksums on initial installation; review any lockfile diff and do not treat dependency version changes as routine setup.
 
+For exact-source validation, use `pod install --deployment` and report a checksum mismatch as blocked instead of changing the lock incidentally. Before building, check for the shared `/tmp/envfile` selector: react-native-config gives it precedence over `ENVFILE`. Preserve any existing selector, coordinate with other builds, and proceed only when the effective file is this checkout's `.env.local`. Do not print configuration contents or delete another build's selector.
+
 Start `yarn start` in a separate terminal. You can inspect the workspace in Xcode (`ios/hexa_keeper.xcworkspace`, scheme `hexa_keeper_dev`). Use the command below for local builds so `ENVFILE` reaches every native build phase; simply clicking Run with the default scheme settings does not select `.env.local`:
 
 ```sh
