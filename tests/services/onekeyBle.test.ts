@@ -6,6 +6,8 @@ import { UI_EVENT, UI_REQUEST, UI_RESPONSE } from '@onekeyfe/hd-core';
 import { NetworkType } from 'src/services/wallets/enums';
 import {
   assertOneKeyFingerprint,
+  disconnectOneKey,
+  verifyOneKeySigner,
   ensureOneKeyBLEReady,
   fetchOneKeySignerData,
   getOneKeyDeviceInfo,
@@ -28,6 +30,7 @@ jest.mock('@onekeyfe/hd-ble-sdk', () => ({
   openWalletSession: jest.fn(),
   uiResponse: jest.fn(),
   cancel: jest.fn(),
+  dispose: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('@onekeyfe/hd-core', () => ({
   UI_EVENT: 'UI_EVENT',
@@ -38,7 +41,7 @@ jest.mock('@onekeyfe/hd-core', () => ({
   UI_RESPONSE: { RECEIVE_PIN: 'pin', RECEIVE_PASSPHRASE: 'passphrase' },
 }));
 jest.mock('react-native-ble-plx', () => ({ BleManager: jest.fn() }));
-jest.mock('src/services/wallets/operations/utils', () => ({ getNetworkByType: jest.fn() }));
+jest.mock('src/services/wallets/operations/utils', () => ({ getNetworkByType: jest.fn(), getXpubFromExtendedKey: (key) => key }));
 jest.mock('src/services/wallets/operations/taproot-utils/noble_ecc', () => ({}));
 jest.mock('bip32', () => ({ __esModule: true, default: () => ({}) }));
 
@@ -609,4 +612,62 @@ test('cancelling a pending PSBT signature rejects and ignores the later result',
   finishSigning({ success: true, payload: { psbt: '70736274ff' } });
   await jest.advanceTimersByTimeAsync(1);
   expect(sdk.cancel).toHaveBeenCalledWith('test-device');
+});
+
+
+describe('OneKey health check key verification', () => {
+  const device = { connectId: 'pro2', deviceId: 'pro2-id', masterFingerprint: '1234ABCD' } as any;
+  const signer = {
+    masterFingerprint: '1234ABCD', networkType: NetworkType.TESTNET,
+    signerXpubs: {
+      P2WPKH: [{ xpub: 'single-key', derivationPath: "m/84'/1'/2'" }],
+      P2WSH: [{ xpub: 'multi-key', derivationPath: "m/48'/1'/2'/2'" }],
+      P2TR: [{ xpub: 'taproot-key', derivationPath: "m/86'/1'/2'" }],
+    },
+  };
+  test('checks every stored account path, including testnet and taproot', async () => {
+    for (const xpub of ['single-key', 'multi-key', 'taproot-key']) {
+      sdk.btcGetPublicKey.mockResolvedValueOnce({ success: true, payload: { xpub } });
+    }
+    await expect(verifyOneKeySigner(device, signer)).resolves.toBeUndefined();
+    expect(sdk.btcGetPublicKey.mock.calls.map((args) => args[2].path)).toEqual([
+      "m/84'/1'/2'", "m/48'/1'/2'/2'", "m/86'/1'/2'",
+    ]);
+    expect(sdk.btcGetPublicKey.mock.calls.every((args) => args[2].useEmptyPassphrase === true)).toBe(true);
+  });
+  test('rejects a different xpub even when the fingerprint and another key match', async () => {
+    sdk.btcGetPublicKey.mockResolvedValueOnce({ success: true, payload: { xpub: 'single-key' } });
+    sdk.btcGetPublicKey.mockResolvedValueOnce({ success: true, payload: { xpub: 'wrong-key' } });
+    await expect(verifyOneKeySigner(device, signer)).rejects.toThrow('public key mismatch');
+    expect(sdk.btcGetPublicKey).toHaveBeenCalledTimes(2);
+  });
+  test('missing stored keys fail closed without requesting device keys', async () => {
+    await expect(verifyOneKeySigner(device, { ...signer, signerXpubs: {} })).rejects.toThrow('Missing stored');
+    expect(sdk.btcGetPublicKey).not.toHaveBeenCalled();
+  });
+  test('cancellation stops remaining key requests', async () => {
+    const controller = new AbortController();
+    sdk.btcGetPublicKey.mockImplementationOnce(() => {
+      controller.abort();
+      return Promise.resolve({ success: true, payload: { xpub: 'single-key' } });
+    });
+    await expect(verifyOneKeySigner(device, signer, controller.signal)).rejects.toThrow('cancelled');
+    expect(sdk.btcGetPublicKey).toHaveBeenCalledTimes(1);
+  });
+});
+
+
+test('disconnect tears down SDK links once and blocks reinitialization until teardown completes', async () => {
+  await getOneKeySdk();
+  let finish: () => void;
+  sdk.dispose.mockReturnValueOnce(new Promise<void>((resolve) => { finish = resolve; }));
+  const first = disconnectOneKey();
+  const second = disconnectOneKey();
+  const reconnect = getOneKeySdk();
+  expect(sdk.dispose).toHaveBeenCalledTimes(1);
+  expect(sdk.init).not.toHaveBeenCalled();
+  finish();
+  await Promise.all([first, second, reconnect]);
+  expect(sdk.init).toHaveBeenCalledTimes(1);
+  expect(sdk.on).toHaveBeenCalledWith(UI_EVENT, expect.any(Function));
 });

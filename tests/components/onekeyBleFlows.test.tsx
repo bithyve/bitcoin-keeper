@@ -5,6 +5,7 @@ import SignWithOneKeyBle from 'src/screens/SignTransaction/SignWithOneKeyBle';
 import SignMessageOneKeyBle from 'src/screens/OneKey/SignMessageOneKeyBle';
 import OneKeyBleModal from 'src/components/OneKeyBleModal';
 import * as oneKey from 'src/services/onekeyBle';
+import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 
 const mockDispatch = jest.fn();
 const mockNavigate = jest.fn();
@@ -60,6 +61,8 @@ jest.mock('@onekeyfe/hd-core', () => ({
 }));
 jest.mock('src/services/onekeyBle', () => ({
   assertOneKeyFingerprint: jest.fn(),
+  disconnectOneKey: jest.fn().mockResolvedValue(undefined),
+  verifyOneKeySigner: jest.fn(),
   ensureOneKeyBLEReady: jest.fn(),
   searchOneKeyDevices: jest.fn(),
   getOneKeyDeviceInfo: jest.fn(),
@@ -82,6 +85,7 @@ jest.mock('src/store/reducers/send_and_receive', () => ({ updatePSBTEnvelops: je
 jest.mock('src/store/sagaActions/bhr', () => ({ healthCheckStatusUpdate: jest.fn() }));
 jest.mock('src/store/sagaActions/vaults', () => ({ addSigningDevice: jest.fn() }));
 jest.mock('src/services/onekeyBle/deviceConstants', () => ({
+  ...jest.requireActual('src/services/onekeyBle/deviceConstants'),
   getDeviceImage: () => null,
   getDeviceDisplayName: (device) => device.name,
   getDeviceTypeName: () => 'OneKey',
@@ -131,9 +135,13 @@ beforeEach(() => {
   (oneKey.searchOneKeyDevices as jest.Mock).mockResolvedValue([]);
   (oneKey.getOneKeyDeviceInfo as jest.Mock).mockResolvedValue({
     deviceId: 'test-id',
+    serialNo: 'PRO2-SERIAL',
+    bleName: 'Pro 2 DDE0',
     connectId: 'test-device',
     masterFingerprint: '1234ABCD',
   });
+  (oneKey.verifyOneKeySigner as jest.Mock).mockResolvedValue(undefined);
+  (healthCheckStatusUpdate as jest.Mock).mockImplementation((updates, onComplete) => ({ type: 'health', updates, onComplete }));
   (oneKey.signPsbtWithOneKey as jest.Mock).mockResolvedValue('signed-psbt');
   (oneKey.signMessageWithOneKey as jest.Mock).mockResolvedValue({
     address: 'fixture-address',
@@ -348,4 +356,124 @@ describe('OneKey flow cancellation', () => {
     expect(close).toHaveBeenCalledTimes(1);
     await act(async () => view.unmount());
   });
+});
+
+
+describe('OneKey health check device selection', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    (oneKey.searchOneKeyDevices as jest.Mock).mockResolvedValue([
+      { connectId: 'old-pro', name: 'Pro 2A14' },
+      { connectId: 'test-device', name: 'Pro 2 DDE0' },
+    ]);
+  });
+  afterEach(() => { jest.clearAllTimers(); jest.useRealTimers(); });
+
+  const openHealthCheck = async (close = jest.fn(), signer = { ...mockSigner, id: 'key-id', extraData: {} }) => {
+    let view: ReactTestRenderer;
+    await act(async () => { view = create(<OneKeyBleModal visible close={close} mode="health-check" signer={signer as any} />); });
+    await act(async () => jest.advanceTimersByTimeAsync(300));
+    return view;
+  };
+
+  test('waits for explicit selection and persists only after public-key verification', async () => {
+    const close = jest.fn();
+    const view = await openHealthCheck(close);
+    expect(oneKey.getOneKeyDeviceInfo).not.toHaveBeenCalled();
+    await act(async () => view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress());
+    expect(oneKey.getOneKeyDeviceInfo).toHaveBeenCalledWith('test-device', expect.anything());
+    expect(oneKey.verifyOneKeySigner).toHaveBeenCalledTimes(1);
+    expect(oneKey.disconnectOneKey).toHaveBeenCalledTimes(1);
+    expect(healthCheckStatusUpdate).toHaveBeenCalledWith([
+      expect.objectContaining({ keyId: 'key-id', oneKeyDevice: expect.objectContaining({ serialNo: 'PRO2-SERIAL', bleConnectId: 'test-device' }) }),
+    ], expect.any(Function));
+    expect(close).not.toHaveBeenCalled();
+    await act(async () => (healthCheckStatusUpdate as jest.Mock).mock.calls[0][1]());
+    expect(close).toHaveBeenCalledTimes(1);
+    await act(async () => view.unmount());
+  });
+
+  test('automatically verifies the saved device without scanning or switching devices', async () => {
+    const view = await openHealthCheck(jest.fn(), { ...mockSigner, id: 'key-id', extraData: { bleConnectId: 'test-device', oneKeyDevices: [{ serialNo: 'PRO2-SERIAL', bleConnectId: 'test-device', name: 'Pro 2' }] } } as any);
+    expect(oneKey.searchOneKeyDevices).not.toHaveBeenCalled();
+    expect(oneKey.getOneKeyDeviceInfo).toHaveBeenCalledWith('test-device', expect.anything());
+    expect(oneKey.verifyOneKeySigner).toHaveBeenCalledTimes(1);
+    expect(oneKey.disconnectOneKey).toHaveBeenCalledTimes(1);
+    await act(async () => view.unmount());
+  });
+
+  test('a key mismatch does not save the device or report a successful check', async () => {
+    (oneKey.verifyOneKeySigner as jest.Mock).mockRejectedValueOnce(new Error('public key mismatch'));
+    const view = await openHealthCheck();
+    await act(async () => view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress());
+    expect(healthCheckStatusUpdate).not.toHaveBeenCalled();
+    expect(JSON.stringify(view.toJSON())).toContain('public key mismatch');
+    expect(oneKey.disconnectOneKey).toHaveBeenCalledTimes(1);
+    await act(async () => view.unmount());
+  });
+
+  test('closing during verification ignores its late result', async () => {
+    let finish;
+    (oneKey.verifyOneKeySigner as jest.Mock).mockReturnValueOnce(new Promise((resolve) => { finish = resolve; }));
+    const view = await openHealthCheck();
+    await act(async () => { view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress(); });
+    await act(async () => view.root.findByType('KeeperModal' as any).props.close());
+    expect(oneKey.disconnectOneKey).toHaveBeenCalledTimes(1);
+    await act(async () => finish());
+    expect(healthCheckStatusUpdate).not.toHaveBeenCalled();
+    await act(async () => view.unmount());
+  });
+});
+
+describe('OneKey health check failure boundaries', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => { jest.clearAllTimers(); jest.useRealTimers(); });
+
+  test('a known address reporting another serial is rejected before key verification', async () => {
+    (oneKey.searchOneKeyDevices as jest.Mock).mockResolvedValue([{ connectId: 'test-device', name: 'Pro 2' }]);
+    let view: ReactTestRenderer;
+    await act(async () => { view = create(<OneKeyBleModal visible close={jest.fn()} mode="health-check" signer={{ ...mockSigner, extraData: { oneKeyDevices: [{ serialNo: 'EXPECTED-SERIAL', bleConnectId: 'test-device', name: 'Pro 2' }] } } as any} />); });
+    await act(async () => jest.advanceTimersByTimeAsync(300));
+    await act(async () => view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress());
+    expect(oneKey.verifyOneKeySigner).not.toHaveBeenCalled();
+    expect(healthCheckStatusUpdate).not.toHaveBeenCalled();
+    expect(JSON.stringify(view.toJSON())).toContain('serial number mismatch');
+    await act(async () => view.unmount());
+  });
+
+  test('rapid taps start only one health check, and a save failure remains retryable', async () => {
+    (oneKey.searchOneKeyDevices as jest.Mock).mockResolvedValue([{ connectId: 'test-device', name: 'Pro 2' }]);
+    const close = jest.fn();
+    let view: ReactTestRenderer;
+    await act(async () => { view = create(<OneKeyBleModal visible close={close} mode="health-check" signer={{ ...mockSigner, id: 'key-id', extraData: {} } as any} />); });
+    await act(async () => jest.advanceTimersByTimeAsync(300));
+    const tap = view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress;
+    await act(async () => { tap(); tap(); });
+    expect(oneKey.getOneKeyDeviceInfo).toHaveBeenCalledTimes(1);
+    await act(async () => (healthCheckStatusUpdate as jest.Mock).mock.calls[0][1]('Could not save'));
+    expect(close).not.toHaveBeenCalled();
+    expect(JSON.stringify(view.toJSON())).toContain('Could not save');
+    await act(async () => view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress());
+    expect(oneKey.getOneKeyDeviceInfo).toHaveBeenCalledTimes(2);
+    await act(async () => view.unmount());
+  });
+});
+
+
+test('import progress stays visible while Pro 2 asks for device confirmation', async () => {
+  jest.useFakeTimers();
+  (oneKey.searchOneKeyDevices as jest.Mock).mockResolvedValue([{ connectId: 'test-device', name: 'Pro 2' }]);
+  let finish;
+  (oneKey.fetchOneKeySignerData as jest.Mock).mockReturnValueOnce(new Promise((resolve) => { finish = resolve; }));
+  let view: ReactTestRenderer;
+  await act(async () => { view = create(<OneKeyBleModal visible close={jest.fn()} mode="setup" />); });
+  await act(async () => jest.advanceTimersByTimeAsync(300));
+  await act(async () => { view.root.findByProps({ testID: 'onekey-device-test-device' }).props.onPress(); });
+  await act(async () => mockUIHandler('button'));
+  expect(JSON.stringify(view.toJSON())).toContain('Importing keys...');
+  expect(JSON.stringify(view.toJSON())).toContain('Please confirm on your OneKey device');
+  await act(async () => view.unmount());
+  await act(async () => finish({}));
+  jest.clearAllTimers();
+  jest.useRealTimers();
 });

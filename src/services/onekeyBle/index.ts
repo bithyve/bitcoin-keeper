@@ -16,6 +16,7 @@ import { DeviceEventEmitter } from 'react-native';
 import { NetworkType } from 'src/services/wallets/enums';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
+import type { Signer } from 'src/services/wallets/interfaces/vault';
 
 // ─── UI Event Emitter ────────────────────────────────────────────────────────
 // Components can listen to these events to show appropriate UI prompts.
@@ -67,6 +68,7 @@ type OneKeyMultisigAddressConfig = {
 
 let sdkInstance: CoreApi | null = null;
 let sdkInitPromise: Promise<CoreApi> | null = null;
+let sdkDisconnectPromise: Promise<void> | null = null;
 let bleManager: BleManager | null = null;
 let uiListenerBound = false;
 let pendingScan: Promise<SDKResult<SearchDevice[]>> | null = null;
@@ -214,6 +216,7 @@ const getErrorMessage = (result: any): string => {
 };
 
 export const getOneKeySdk = async (): Promise<CoreApi> => {
+  if (sdkDisconnectPromise) await sdkDisconnectPromise;
   if (sdkInstance) return sdkInstance;
   if (sdkInitPromise) return sdkInitPromise;
 
@@ -232,6 +235,30 @@ export const getOneKeySdk = async (): Promise<CoreApi> => {
     // Only clear on failure so successful init is cached
     sdkInitPromise = null;
     throw e;
+  }
+};
+
+// dispose() is the public BLE SDK teardown: it closes native links and clears
+// cached sessions. Do not let the next operation reuse a session being closed.
+export const disconnectOneKey = async (): Promise<void> => {
+  if (sdkDisconnectPromise) return sdkDisconnectPromise;
+  if (!sdkInstance && !sdkInitPromise) return;
+  sdkDisconnectPromise = (async () => {
+    try {
+      const sdk = sdkInstance || await sdkInitPromise;
+      await sdk?.dispose();
+    } finally {
+      sdkInstance = null;
+      sdkInitPromise = null;
+      uiListenerBound = false;
+      pendingScan = null;
+      uiState = { phase: 'closed' };
+    }
+  })();
+  try {
+    await sdkDisconnectPromise;
+  } finally {
+    sdkDisconnectPromise = null;
   }
 };
 
@@ -512,6 +539,41 @@ export const assertOneKeyFingerprint = (
   }
   if (expectedFingerprint !== actualFingerprint) {
     throw new Error('Fingerprint mismatch. Wrong OneKey device connected.');
+  }
+};
+
+export const verifyOneKeySigner = async (
+  device: OneKeyDeviceInfo,
+  signer: Pick<Signer, 'masterFingerprint' | 'signerXpubs' | 'networkType'>,
+  signal?: AbortSignal
+): Promise<void> => {
+  checkCancellation(signal);
+  assertOneKeyFingerprint(device, signer);
+  const keys = Object.values(signer.signerXpubs || {}).flat();
+  if (!keys.length || keys.some((key) => !key.xpub || !key.derivationPath)) {
+    throw new Error('Missing stored OneKey public keys. Please re-import this key.');
+  }
+  const sdk = await getOneKeySdk();
+  const network = WalletUtilities.getNetworkByType(signer.networkType);
+  for (const key of keys) {
+    const result = await callWithCancellation(
+      sdk,
+      () =>
+        sdk.btcGetPublicKey(device.connectId, device.deviceId, {
+          path: key.derivationPath,
+          showOnOneKey: false,
+          useEmptyPassphrase: true,
+        }),
+      signal,
+      device.connectId
+    );
+    checkCancellation(signal);
+    if (!result?.success) throw new Error(getErrorMessage(result));
+    const actual = WalletUtilities.getXpubFromExtendedKey(extractXpub(result.payload), network);
+    const expected = WalletUtilities.getXpubFromExtendedKey(key.xpub, network);
+    if (actual !== expected) {
+      throw new Error('OneKey public key mismatch. Please select the device holding this wallet.');
+    }
   }
 };
 

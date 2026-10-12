@@ -133,6 +133,7 @@ import { updateDelayedPolicyUpdate } from '../reducers/storage';
 import { accountNoFromDerivationPath } from 'src/utils/service-utilities/utils';
 import { classifyDustByAddress } from 'src/services/wallets/operations/dustClassification';
 import { setPendingDustToast } from '../reducers/utxos';
+import { getOneKeyDeviceBindings, mergeOneKeyDeviceBindings } from 'src/services/onekeyBle/deviceConstants';
 
 export interface NewVaultDetails {
   name?: string;
@@ -427,6 +428,11 @@ export function* addSigningDeviceWorker({
       const singleSigMatch = keysMatch(XpubTypes.P2WPKH, newSigner, existingSigner);
       const multiSigMatch = keysMatch(XpubTypes.P2WSH, newSigner, existingSigner);
       const taprootMatch = keysMatch(XpubTypes.P2TR, newSigner, existingSigner);
+      const isOneKeyMerge = existingSigner.type === SignerType.ONEKEY && newSigner.type === SignerType.ONEKEY;
+      if (isOneKeyMerge && Object.values(XpubTypes).some((type) => keysDifferent(type, newSigner, existingSigner))) {
+        yield put(relaySignersUpdateFail('OneKey public keys do not match the existing key. The device was not added.'));
+        continue;
+      }
       const signerMergeCondition = // if the new signer has one of the keys missing or has the same xpubs as the existing signer, then update the type and xpubs
         (missingMsKey && newMsKey) ||
         (missingSsKey && newSsKey) ||
@@ -436,6 +442,15 @@ export function* addSigningDeviceWorker({
         taprootMatch;
 
         if (signerMergeCondition) {
+          const devices = isOneKeyMerge
+            ? mergeOneKeyDeviceBindings(existingSigner, getOneKeyDeviceBindings(newSigner))
+            : [];
+          const preferred = getOneKeyDeviceBindings(existingSigner).find(
+            (device) => device.bleConnectId === existingSigner.extraData?.bleConnectId
+          );
+          const preferredAddress = preferred?.serialNo
+            ? devices.find((device) => device.serialNo === preferred.serialNo)?.bleConnectId
+            : existingSigner.extraData?.bleConnectId;
           const { type, signerName } = [SignerType.UNKOWN_SIGNER, SignerType.OTHER_SD].includes(
             existingSigner.type
           )
@@ -446,12 +461,17 @@ export function* addSigningDeviceWorker({
             type,
             signerXpubs: _.merge(existingSigner.signerXpubs, newSigner.signerXpubs),
             signerName,
-            ...(existingSigner.type === SignerType.ONEKEY &&
-            newSigner.type === SignerType.ONEKEY &&
-            newSigner.extraData?.bleConnectId
+            ...(isOneKeyMerge && devices.length
               ? {
-                  signerName: newSigner.signerName,
-                  signerDescription: newSigner.signerDescription,
+                  signerName: devices.length > 1 ? existingSigner.signerName : newSigner.signerName,
+                  signerDescription: devices.length > 1
+                    ? devices.map((device) => device.name).join(' · ')
+                    : newSigner.signerDescription,
+                  extraData: {
+                    ...existingSigner.extraData,
+                    oneKeyDevices: devices,
+                    bleConnectId: preferredAddress || newSigner.extraData?.bleConnectId,
+                  },
                 }
               : {}),
           });

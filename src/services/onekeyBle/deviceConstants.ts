@@ -1,5 +1,7 @@
 import { ImageSourcePropType } from 'react-native';
 import type { SearchDevice } from '@onekeyfe/hd-core';
+import type { OneKeyDeviceBinding, Signer } from 'src/services/wallets/interfaces/vault';
+import type { OneKeyDeviceInfo } from './index';
 
 // ─── Device images ───────────────────────────────────────────────────────────
 
@@ -38,3 +40,47 @@ export const getDeviceDisplayName = (device: SearchDevice): string => {
 
 export const getDeviceTypeName = (device: SearchDevice): string =>
   DEVICE_TYPE_NAMES[device?.deviceType] || 'OneKey';
+
+export const getOneKeyDeviceBindings = (
+  signer: Pick<Signer, 'extraData' | 'signerName' | 'signerDescription'>
+): OneKeyDeviceBinding[] => {
+  const devices = (signer.extraData?.oneKeyDevices || []).map((device) => ({ ...device }));
+  const legacyId = signer.extraData?.bleConnectId;
+  if (legacyId && !devices.some((device) => device.bleConnectId === legacyId)) {
+    devices.push({
+      bleConnectId: legacyId,
+      name: signer.signerDescription || signer.signerName || 'OneKey',
+    });
+  }
+  return devices;
+};
+
+export const mergeOneKeyDeviceBindings = (
+  signer: Pick<Signer, 'extraData' | 'signerName' | 'signerDescription'>,
+  incoming: OneKeyDeviceBinding[]
+): OneKeyDeviceBinding[] => {
+  const devices = getOneKeyDeviceBindings(signer);
+  for (const device of incoming) {
+    // A serial identifies hardware. An address can only upgrade an unverified legacy binding.
+    const index = devices.findIndex((existing) =>
+      device.serialNo && existing.serialNo
+        ? existing.serialNo === device.serialNo
+        : existing.bleConnectId === device.bleConnectId
+    );
+    if (index < 0) devices.push({ ...device });
+    else devices[index] = { ...devices[index], ...device };
+  }
+  return devices;
+};
+
+export const toOneKeyDeviceBinding = (device: OneKeyDeviceInfo): OneKeyDeviceBinding => {
+  if (!device.serialNo?.trim())
+    throw new Error('Missing OneKey serial number. Please reconnect your device.');
+  return {
+    serialNo: device.serialNo.trim(),
+    bleConnectId: device.connectId,
+    name: device.bleName || device.deviceLabel,
+    deviceType: device.deviceType,
+  };
+};
+

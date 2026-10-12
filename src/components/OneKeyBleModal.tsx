@@ -13,6 +13,7 @@ import { MultisigScriptType, NetworkType, SignerType } from 'src/services/wallet
 import { UI_REQUEST } from '@onekeyfe/hd-core';
 import {
   assertOneKeyFingerprint,
+  disconnectOneKey,
   ensureOneKeyBLEReady,
   fetchOneKeySignerData,
   getOneKeyDeviceInfo,
@@ -20,6 +21,7 @@ import {
   ONEKEY_UI_EVENT,
   searchOneKeyDevices,
   verifyAddressOnOneKey,
+  verifyOneKeySigner,
   type OneKeyDeviceInfo,
   type OneKeyUIEvent,
 } from 'src/services/onekeyBle';
@@ -27,6 +29,8 @@ import {
   getDeviceImage,
   getDeviceDisplayName,
   getDeviceTypeName,
+  getOneKeyDeviceBindings,
+  toOneKeyDeviceBinding,
 } from 'src/services/onekeyBle/deviceConstants';
 import { setupUSBSigner } from 'src/hardware/signerSetup';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -95,9 +99,19 @@ function OneKeyBleModal({
   const { common } = translations;
   const isFocused = useIsFocused();
   const operation = useRef<AbortController | null>(null);
+  const healthCheckOperation = useRef<AbortSignal | null>(null);
+
+  const connectionOwner = useRef<AbortSignal | null>(null);
+  const releaseConnection = async (signal?: AbortSignal) => {
+    if (!signal || connectionOwner.current !== signal) return;
+    connectionOwner.current = null;
+    await disconnectOneKey();
+  };
 
   const closeModal = () => {
+    const signal = operation.current?.signal;
     operation.current?.abort();
+    void releaseConnection(signal).catch(captureError);
     close();
   };
 
@@ -140,7 +154,7 @@ function OneKeyBleModal({
       setErrorMessage('');
       setSdkPrompt('idle');
 
-      const directConnect = mode === 'health-check' || mode === 'verify-address';
+      const directConnect = mode === 'verify-address' || (mode === 'health-check' && !!signer?.extraData?.bleConnectId);
       if (directConnect) {
         // Direct connect modes: skip scan
         setPhase('connecting');
@@ -150,12 +164,17 @@ function OneKeyBleModal({
       }
       const timer = setTimeout(() => {
         if (mode === 'verify-address') runVerifyAddress();
-        else if (mode === 'health-check') runHealthCheck();
-        else scanDevices();
+        else if (mode === 'health-check' && signer?.extraData?.bleConnectId) {
+          const device = getOneKeyDeviceBindings(signer).find(
+            (binding) => binding.bleConnectId === signer.extraData.bleConnectId
+          );
+          runHealthCheck({ connectId: signer.extraData.bleConnectId, name: device?.name || 'OneKey' } as SearchDevice);
+        } else scanDevices();
       }, 300);
       return () => {
         clearTimeout(timer);
         controller.abort();
+        void releaseConnection(controller.signal).catch(captureError);
         if (operation.current === controller) operation.current = null;
       };
     }
@@ -186,6 +205,7 @@ function OneKeyBleModal({
       if (signal.aborted) return;
       setDevices(found || []);
     } catch (error) {
+      await releaseConnection(signal).catch(captureError);
       if (signal.aborted) return;
       captureError(error);
       const message = error?.message || common.somethingWrong;
@@ -206,6 +226,7 @@ function OneKeyBleModal({
       setPhase('connecting');
       setStatusMessage('Connecting to device...');
 
+      connectionOwner.current = signal;
       const deviceInfo = await getOneKeyDeviceInfo(device.connectId, signal);
       if (signal.aborted) return;
 
@@ -232,7 +253,14 @@ function OneKeyBleModal({
       newSigner.signerName = deviceInfo.deviceLabel || deviceTypeName;
       newSigner.signerDescription =
         bleName && bleName !== 'Unknown' ? `${deviceTypeName} · ${bleName}` : deviceTypeName;
-      newSigner.extraData = { ...newSigner.extraData, bleConnectId: deviceInfo.connectId };
+      newSigner.extraData = {
+        ...newSigner.extraData,
+        bleConnectId: deviceInfo.connectId,
+        oneKeyDevices: [toOneKeyDeviceBinding(deviceInfo)],
+      };
+
+      await releaseConnection(signal);
+      if (signal.aborted) return;
 
       if (mode === 'setup') {
         dispatch(addSigningDevice([newSigner]));
@@ -245,6 +273,7 @@ function OneKeyBleModal({
       onSignerAdded?.(newSigner);
       closeModal();
     } catch (error) {
+      await releaseConnection(signal).catch(captureError);
       if (signal.aborted) return;
       captureError(error);
       const message = error?.message || common.somethingWrong;
@@ -264,12 +293,15 @@ function OneKeyBleModal({
       setPhase('connecting');
       setStatusMessage('Connecting to device...');
 
+      connectionOwner.current = signal;
       const deviceInfo = await getOneKeyDeviceInfo(device.connectId, signal);
       if (signal.aborted) return;
 
       try {
         assertOneKeyFingerprint(deviceInfo, signer);
       } catch (_) {
+        await releaseConnection(signal);
+        if (signal.aborted) return;
         const message = 'Fingerprint mismatch. Please select the correct OneKey device.';
         setErrorMessage(message);
         showToast(message, <ToastErrorIcon />);
@@ -277,11 +309,14 @@ function OneKeyBleModal({
         return;
       }
 
+      await releaseConnection(signal);
+      if (signal.aborted) return;
       setPhase('done');
       showToast('OneKey verified successfully', <TickIcon />);
       onDeviceIdentified?.({ device, deviceInfo });
       closeModal();
     } catch (error) {
+      await releaseConnection(signal).catch(captureError);
       if (signal.aborted) return;
       captureError(error);
       const message = error?.message || common.somethingWrong;
@@ -291,56 +326,71 @@ function OneKeyBleModal({
     }
   };
 
-  // ─── Health Check: direct connect via stored connectId ─────────────────────
+  // ─── Health Check: select hardware, verify its keys, then save its serial ──
 
-  const runHealthCheck = async () => {
+  const runHealthCheck = async (device: SearchDevice) => {
     const signal = operation.current?.signal;
-    if (!signer || !signal || signal.aborted) return;
+    if (!device.connectId || !signer || !signal || signal.aborted || (healthCheckOperation.current && !healthCheckOperation.current.aborted)) return;
+    healthCheckOperation.current = signal;
     try {
+      setErrorMessage('');
       setPhase('connecting');
-
-      const bleReady = await ensureOneKeyBLEReady(signal);
-      if (signal.aborted) return;
-      if (!bleReady.ready) {
-        showToast('Please turn on Bluetooth and try again', <ToastErrorIcon />);
-        closeModal();
-        return;
-      }
-
-      const storedConnectId = signer?.extraData?.bleConnectId;
-      if (!storedConnectId) {
-        showToast('No stored connection info. Please re-add this device.', <ToastErrorIcon />);
-        closeModal();
-        return;
-      }
-
-      // BLE needs a brief scan to discover peripherals before connecting
       setStatusMessage('Connecting to device...');
-      await searchOneKeyDevices(signal);
+      const ready = await ensureOneKeyBLEReady(signal);
+      if (!ready.ready) throw new Error('Please enable Bluetooth and grant Bluetooth permissions.');
       if (signal.aborted) return;
-
-      setStatusMessage('Verifying device...');
-      const deviceInfo = await getOneKeyDeviceInfo(storedConnectId, signal);
+      connectionOwner.current = signal;
+      const deviceInfo = await getOneKeyDeviceInfo(device.connectId, signal);
       if (signal.aborted) return;
-      assertOneKeyFingerprint(deviceInfo, signer);
-
-      // Clear any SDK prompt after verification
+      const binding = toOneKeyDeviceBinding(deviceInfo);
+      const knownDevice = getOneKeyDeviceBindings(signer).find(
+        (known) => known.bleConnectId === device.connectId
+      );
+      if (knownDevice?.serialNo && knownDevice.serialNo !== binding.serialNo) {
+        throw new Error('OneKey serial number mismatch. Please select the correct device.');
+      }
       setPhase('connecting');
-      setStatusMessage('Checking result...');
+      setStatusMessage('Verifying wallet keys...');
+      await verifyOneKeySigner(deviceInfo, signer, signal);
+      await releaseConnection(signal);
+      if (signal.aborted) return;
+      setPhase('connecting');
+      setStatusMessage('Saving device verification...');
 
       dispatch(
-        healthCheckStatusUpdate([
-          { signerId: signer.masterFingerprint, status: hcStatusType.HEALTH_CHECK_SUCCESSFULL },
-        ])
+        healthCheckStatusUpdate(
+          [{
+            signerId: signer.masterFingerprint,
+            keyId: signer.id,
+            status: hcStatusType.HEALTH_CHECK_SUCCESSFULL,
+            oneKeyDevice: binding,
+          }],
+          (error) => {
+            if (healthCheckOperation.current === signal) healthCheckOperation.current = null;
+            if (signal.aborted) return;
+            if (error) {
+              setErrorMessage(error);
+              showToast(error, <ToastErrorIcon />);
+              setPhase('scan');
+              return;
+            }
+            setPhase('done');
+            showToast(`${binding.name} verified successfully`, <TickIcon />);
+            closeModal();
+          }
+        )
       );
-      setPhase('done');
-      showToast('OneKey verification successful', <TickIcon />);
-      closeModal();
     } catch (error) {
+      await releaseConnection(signal).catch(captureError);
+      if (healthCheckOperation.current === signal) healthCheckOperation.current = null;
       if (signal.aborted) return;
       captureError(error);
-      showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
-      closeModal();
+      const message = error?.message || common.somethingWrong;
+      setErrorMessage(message);
+      showToast(message, <ToastErrorIcon />);
+      setPhase('scan');
+    } finally {
+      if (signal.aborted) if (healthCheckOperation.current === signal) healthCheckOperation.current = null;
     }
   };
 
@@ -377,8 +427,13 @@ function OneKeyBleModal({
       if (signal.aborted) return;
 
       setStatusMessage('Reading device info...');
+      connectionOwner.current = signal;
       const deviceInfo = await getOneKeyDeviceInfo(storedConnectId, signal);
       if (signal.aborted) return;
+      const expected = getOneKeyDeviceBindings(signer).find((device) => device.bleConnectId === storedConnectId);
+      if (expected?.serialNo && expected.serialNo !== deviceInfo.serialNo?.trim()) {
+        throw new Error('OneKey serial number mismatch. Please select the correct device.');
+      }
       assertOneKeyFingerprint(deviceInfo, signer);
 
       setPhase('connecting');
@@ -415,6 +470,8 @@ function OneKeyBleModal({
 
       setPhase('connecting');
 
+      await releaseConnection(signal);
+      if (signal.aborted) return;
       if (deviceAddress === receivingAddress) {
         dispatch(updateKeyDetails(vaultKey, 'registered', { registered: true, vaultId }));
         dispatch(
@@ -428,6 +485,7 @@ function OneKeyBleModal({
       }
       closeModal();
     } catch (error) {
+      await releaseConnection(signal).catch(captureError);
       if (signal.aborted) return;
       captureError(error);
       showToast(error?.message || common.somethingWrong, <ToastErrorIcon />);
@@ -435,16 +493,21 @@ function OneKeyBleModal({
     }
   };
 
-  const handleDeviceTap = mode === 'identify' ? handleIdentifyTap : handleSetupTap;
+  const handleDeviceTap = mode === 'health-check' ? runHealthCheck
+    : mode === 'identify' ? handleIdentifyTap : handleSetupTap;
 
   // ─── Render helpers ────────────────────────────────────────────────────────
 
   const renderDevice = ({ item: device }: { item: SearchDevice }) => {
     const img = getDeviceImage(device?.deviceType);
+    const binding = signer && getOneKeyDeviceBindings(signer).find(
+      (known) => known.bleConnectId === device.connectId
+    );
     return (
       <TouchableOpacity
         style={[styles.deviceItem, { borderColor: colorMode === 'light' ? '#E0E0E0' : '#444' }]}
         onPress={() => handleDeviceTap(device)}
+        testID={`onekey-device-${device.connectId}`}
         activeOpacity={0.7}
       >
         <Box style={styles.deviceRow}>
@@ -453,6 +516,9 @@ function OneKeyBleModal({
             <Text style={styles.deviceName} color={`${colorMode}.primaryText`}>
               {getDeviceDisplayName(device)}
             </Text>
+            {mode === 'health-check' && binding?.serialNo && (
+              <Text color={`${colorMode}.secondaryText`}>Serial: {binding.serialNo}</Text>
+            )}
           </Box>
           <Text color={`${colorMode}.secondaryText`} style={styles.arrow}>›</Text>
         </Box>
@@ -476,6 +542,7 @@ function OneKeyBleModal({
           <Text color={`${colorMode}.primaryText`} style={styles.promptText}>
             {UI_PROMPTS[sdkPrompt]}
           </Text>
+          {!!statusMessage && <Text color={`${colorMode}.secondaryText`}>{statusMessage}</Text>}
         </Box>
       );
     }
@@ -559,7 +626,7 @@ function OneKeyBleModal({
     : mode === 'identify' ? 'Select your OneKey and confirm it matches this key'
     : mode === 'recovery' ? 'Select your OneKey to continue wallet recovery'
     : mode === 'verify-address' ? 'Confirm the address matches on your OneKey device'
-    : 'Verify your OneKey device is accessible';
+    : 'Verify the device saved for this key.';
 
   return (
     <KeeperModal

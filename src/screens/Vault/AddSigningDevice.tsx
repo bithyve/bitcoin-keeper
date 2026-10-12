@@ -47,6 +47,7 @@ import KeyAddedModal from 'src/components/KeyAddedModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { getKeyUID } from 'src/utils/utilities';
+import { getOneKeyDeviceBindings } from 'src/services/onekeyBle/deviceConstants';
 import KeyUnAvailableIllustrationLight from 'src/assets/images/key-unavailable-illustration-light.svg';
 import KeyUnAvailableIllustrationDark from 'src/assets/images/key-unavailable-illustration-dark.svg';
 import KeyWarningIllustration from 'src/assets/images/reserve-key-illustration-light.svg';
@@ -710,6 +711,18 @@ function Signers({
     return null;
   };
 
+  const getSelectionDescription = (signer: Signer) => {
+    if (signer.type !== SignerType.ONEKEY) return getSignerDescription(signer);
+    const devices = getOneKeyDeviceBindings(signer);
+    if (!devices.length) return getSignerDescription(signer);
+    const deviceDetails = devices.map((device) =>
+      `${device.name}\nSerial: ${device.serialNo || 'Not recorded'}`
+    ).join('\n\n');
+    return devices.length > 1
+      ? `${deviceDetails}\n\nThese devices share the same key. Counts as 1 wallet key.`
+      : deviceDetails;
+  };
+
   const renderSigners = useCallback(
     (signerFilters = []) => {
       const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
@@ -742,7 +755,9 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock, false)
                 : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
             }
-            description={getSignerDescription(signer)}
+            description={getSelectionDescription(signer)}
+            numberOfLines={signer.type === SignerType.ONEKEY ? 0 : 1}
+            customStyle={signer.type === SignerType.ONEKEY ? { height: 'auto', minHeight: wp(135) } : undefined}
             icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
@@ -832,7 +847,9 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock)
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
-            description={getSignerDescription(signer)}
+            description={getSelectionDescription(signer)}
+            numberOfLines={signer.type === SignerType.ONEKEY ? 0 : 1}
+            customStyle={signer.type === SignerType.ONEKEY ? { height: 'auto', minHeight: wp(135) } : undefined}
             icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
@@ -895,7 +912,9 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock)
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
-            description={getSignerDescription(signer)}
+            description={getSelectionDescription(signer)}
+            numberOfLines={signer.type === SignerType.ONEKEY ? 0 : 1}
+            customStyle={signer.type === SignerType.ONEKEY ? { height: 'auto', minHeight: wp(135) } : undefined}
             icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
@@ -973,7 +992,9 @@ function Signers({
                 ? getSignerNameFromType(signer.type, signer.isMock)
                 : `${getSignerNameFromType(signer.type, signer.isMock)} +`
             }
-            description={getSignerDescription(signer)}
+            description={getSelectionDescription(signer)}
+            numberOfLines={signer.type === SignerType.ONEKEY ? 0 : 1}
+            customStyle={signer.type === SignerType.ONEKEY ? { height: 'auto', minHeight: wp(135) } : undefined}
             icon={SDIcons({ type: signer.type }).Icon}
             image={signer?.extraData?.thumbnailPath}
             isSelected={!!selectedSigners.get(getKeyUID(signer))}
