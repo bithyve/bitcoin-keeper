@@ -387,11 +387,14 @@ export function* deleteAppImageEntityWorker({
           return { updated: false, error: 'Backup account changed' };
         }
         const deleted = yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+        const stillPresent = deleted === true
+          ? yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId)
+          : true;
         if (!accountIsCurrent()) {
           if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
           return { updated: false, error: 'Backup account changed' };
         }
-        if (deleted !== true) {
+        if (deleted !== true || stillPresent) {
           if (remoteDeleteSucceeded) {
             yield put(setPendingAllBackup({ appId, pending: true }));
             yield call(setServerBackupFailed, appId);
@@ -412,11 +415,14 @@ export function* deleteAppImageEntityWorker({
           'id',
           signerId
         );
+        const stillPresent = deleted === true
+          ? yield call(dbManager.getObjectByPrimaryId, RealmSchema.Signer, 'id', signerId)
+          : true;
         if (!accountIsCurrent()) {
           if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
           return { updated: false, error: 'Backup account changed' };
         }
-        if (deleted !== true) {
+        if (deleted !== true || stillPresent) {
           if (remoteDeleteSucceeded) {
             yield put(setPendingAllBackup({ appId, pending: true }));
             yield call(setServerBackupFailed, appId);
@@ -1199,9 +1205,31 @@ export const healthCheckSignerWatcher = createWatcher(
 );
 
 export const deleteAppImageEntityWatcher = createWatcher(
-  deleteAppImageEntityWorker,
+  deleteAppImageEntityRequestWorker,
   DELETE_APP_IMAGE_ENTITY
 );
+
+function* deleteAppImageEntityRequestWorker(
+  action: Parameters<typeof deleteAppImageEntityWorker>[0] & {
+    onComplete?: (deleted: boolean) => void;
+  }
+) {
+  let deleted = false;
+  try {
+    const result = yield call(deleteAppImageEntityWorker, action);
+    deleted = result?.updated === true;
+  } catch (error) {
+    captureError(error);
+  }
+  if (action.onComplete) {
+    try {
+      action.onComplete(deleted);
+    } catch (error) {
+      captureError(error);
+    }
+  }
+  return deleted;
+}
 
 const backupInspectionOwners = new Map<string, number>();
 

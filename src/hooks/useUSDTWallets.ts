@@ -226,7 +226,8 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         markIncompleteDeletion();
         return false;
       }
-      const deleted = dbManager.deleteObjectById(RealmSchema.USDTWallet, walletId) === true;
+      const deleted = dbManager.deleteObjectById(RealmSchema.USDTWallet, walletId) === true &&
+        !dbManager.getObjectById(RealmSchema.USDTWallet, walletId);
       if (!deleted) markIncompleteDeletion();
       return deleted;
     } catch (err) {

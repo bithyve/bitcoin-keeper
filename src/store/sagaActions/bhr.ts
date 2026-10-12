@@ -28,15 +28,18 @@ export const updateAppImage = ({ wallets, signers, updateNodes }, originAppId?: 
 export const deleteAppImageEntity = ({
   walletIds,
   signerIds,
+  onComplete,
 }: {
   walletIds?: string[];
   signerIds?: string[];
+  onComplete?: (deleted: boolean) => void;
 }) => ({
   type: DELETE_APP_IMAGE_ENTITY,
   payload: {
     walletIds,
     signerIds,
   },
+  onComplete,
 });
 
 export const updateVaultImage = (payload: {

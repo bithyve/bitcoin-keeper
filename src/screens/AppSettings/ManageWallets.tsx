@@ -51,11 +51,16 @@ import MiniscriptPathSelector, {
 import WalletHeader from 'src/components/WalletHeader';
 import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import USDTGreenLogo from 'src/assets/images/usdt-gree-logo.svg';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
 
 enum PasswordMode {
   DEFAULT = 'DEFAULT',
   SHOWALL = 'SHOWALL',
 }
+
+const activeRealmAppId = (): string | undefined =>
+  (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as { id: string } | undefined)?.id;
+
 function ListItem({
   title,
   subtitle,
@@ -172,17 +177,21 @@ function ManageWallets() {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const { showToast } = useToastMessage();
   const miniscriptPathSelectorRef = useRef<MiniscriptPathSelectorRef>(null);
+  const pendingVaultDeleteRef = useRef<{ id: string; appId?: string; session: number } | null>(null);
 
   useEffect(() => {
-    if (selectedWallet?.id) {
-      if (relayVaultUpdate) {
-        showToast(errorText.vaultDeleted, <TickIcon />);
-      }
-      if (relayVaultError) {
-        showToast(errorText.failedToDeleteVault, <ToastErrorIcon />);
-      }
-      dispatch(resetRealyVaultState());
+    const pending = pendingVaultDeleteRef.current;
+    if (!pending || (!relayVaultUpdate && !relayVaultError)) return;
+    pendingVaultDeleteRef.current = null;
+    if (
+      currentBackupAccountSession() === pending.session &&
+      activeRealmAppId() === pending.appId
+    ) {
+      const deleted = !dbManager.getObjectById(RealmSchema.Vault, pending.id);
+      if (relayVaultUpdate && deleted) showToast(errorText.vaultDeleted, <TickIcon />);
+      else showToast(errorText.failedToDeleteVault, <ToastErrorIcon />);
     }
+    dispatch(resetRealyVaultState());
   }, [relayVaultUpdate, relayVaultError]);
 
   const isWallet = selectedWallet?.entityKind === EntityKind.WALLET;
@@ -208,15 +217,42 @@ function ManageWallets() {
 
   const deleteSelectedEntity = async () => {
     if (selectedWallet && selectedWallet.entityKind === EntityKind.VAULT) {
+      pendingVaultDeleteRef.current = {
+        id: selectedWallet.id,
+        appId: activeRealmAppId(),
+        session: currentBackupAccountSession(),
+      };
+      dispatch(resetRealyVaultState());
       dispatch(deleteVault(selectedWallet.id));
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.WALLET) {
-      dispatch(deleteAppImageEntity({ walletIds: [selectedWallet.id] }));
-      showToast(errorText.waletDeleted, <TickIcon />);
+      const walletId = selectedWallet.id;
+      const appId = activeRealmAppId();
+      const session = currentBackupAccountSession();
+      dispatch(deleteAppImageEntity({
+        walletIds: [walletId],
+        onComplete: (deleted) => {
+          if (
+            currentBackupAccountSession() !== session ||
+            activeRealmAppId() !== appId
+          ) return;
+          if (deleted && !dbManager.getObjectById(RealmSchema.Wallet, walletId))
+            showToast(errorText.waletDeleted, <TickIcon />);
+          else showToast('Failed to delete wallet', <ToastErrorIcon />);
+        },
+      }));
     }
     if (selectedWallet && selectedWallet.entityKind === EntityKind.USDT_WALLET) {
-      const success = await deleteUSDTWallet(selectedWallet.id);
-      if (success) showToast(errorText.waletDeleted, <TickIcon />);
+      const walletId = selectedWallet.id;
+      const appId = activeRealmAppId();
+      const session = currentBackupAccountSession();
+      const success = await deleteUSDTWallet(walletId);
+      if (
+        currentBackupAccountSession() !== session ||
+        activeRealmAppId() !== appId
+      ) return;
+      if (success && !dbManager.getObjectById(RealmSchema.USDTWallet, walletId))
+        showToast(errorText.waletDeleted, <TickIcon />);
       else showToast('Failed to delete USDT wallet', <ToastErrorIcon />);
     }
   };

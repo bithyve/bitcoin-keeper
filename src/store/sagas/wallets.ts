@@ -1849,7 +1849,10 @@ function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession, 
     if (response.updated) {
       assertWalletAccount(sourceAppId, requestSession);
       const deleted = yield call(dbManager.deleteObjectById, RealmSchema.Vault, vaultId);
-      if (deleted !== true) {
+      const stillPresent = deleted === true
+        ? yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId)
+        : true;
+      if (deleted !== true || stillPresent) {
         if (backupEnabled) yield call(setServerBackupFailed, sourceAppId);
         throw new Error('Local vault deletion failed');
       }

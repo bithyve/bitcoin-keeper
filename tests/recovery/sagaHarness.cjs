@@ -153,6 +153,8 @@ function fixture(options = {}) {
       getObjectByIndex: (schema, _index, all) =>
         schema === 'KeeperApp' ? app : all ? collections[schema] : collections[schema]?.[0],
       getObjectById: (schema, id) => collections[schema]?.find((row) => row.id === id),
+      getObjectByPrimaryId: (schema, key, value) =>
+        collections[schema]?.find((row) => String(row[key]) === String(value)),
       getCollection: (schema) => collections[schema] || [],
       getObjectByField: (schema) => collections[schema] || [],
       createObject: (schema, value) => {
@@ -294,6 +296,7 @@ function fixture(options = {}) {
       'currentBackupAppId',
       'flagUncertainBackupOutcome',
       'deleteAppImageEntityWorker',
+      'deleteAppImageEntityRequestWorker',
       'deleteVaultImageWorker',
       'deleteBackupWorker',
       'backupAllSignersAndVaultsWorker',

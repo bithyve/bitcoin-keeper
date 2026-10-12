@@ -28,7 +28,8 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
   switchDuringRemoteRoundTrip = false,
   switchDuringGeneration = false, switchDuringGenerationRoundTrip = false,
   switchDuringUpdate = false,
-  switchDuringUpdateRoundTrip = false, switchDuringAccountSyncRoundTrip = false } = {}) {
+  switchDuringUpdateRoundTrip = false, switchDuringAccountSyncRoundTrip = false,
+  pretendLocalDelete = false } = {}) {
   const state = { active: 'A', session: 1, remote: [], local: [], errors: [], dispatched: [], invalidated: [] };
   const scope = {
     appId: 'A',
@@ -37,7 +38,10 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
     RealmSchema: { KeeperApp: 'KeeperApp', USDTWallet: 'USDTWallet' },
     dbManager: {
       getObjectByIndex: (schema) => schema === 'KeeperApp' ? { id: state.active } : [],
-      getObjectById: () => ({ id: 'wallet', name: 'old' }),
+      getObjectById: (_schema, walletId) =>
+        state.local.some((operation) => operation.walletId === walletId) && !pretendLocalDelete
+          ? undefined
+          : { id: 'wallet', name: 'old' },
       createObject: async (_schema, wallet) => {
         state.local.push({ appId: state.active, wallet });
         return true;
@@ -120,6 +124,15 @@ test('unconsented USDT wallet deletes locally without a relay write', async () =
   assert.equal(await f.deleteWallet('wallet'), true);
   assert.deepEqual(f.state.remote, []);
   assert.equal(f.state.local[0].appId, 'A');
+});
+
+test('USDT delete does not report success when Realm reports true but retains the wallet', async () => {
+  const f = fixture({ pretendLocalDelete: true });
+  assert.equal(await f.deleteWallet('wallet'), false);
+  assert.equal(f.state.remote.length, 1);
+  assert.equal(f.state.local.length, 1);
+  assert.deepEqual(f.state.invalidated, ['A']);
+  assert.ok(f.state.dispatched.some((action) => action.type === 'SET_PENDING_ALL_BACKUP'));
 });
 
 test('remote response after account switch cannot delete B local wallet', async () => {
