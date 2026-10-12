@@ -300,6 +300,9 @@ export function* updateVaultImageWorker({
 
   try {
     const response = yield call(Relay.updateVaultImage, {
+      // The v2 Relay route requires appId even when the legacy appID alias is
+      // retained for older request builders. Both must identify this account.
+      appId: id,
       appID: id,
       vaultId: vault.id,
       signersData,

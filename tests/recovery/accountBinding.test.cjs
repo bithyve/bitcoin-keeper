@@ -12,6 +12,24 @@ function switchToOptedInB(f) {
   f.state.bhr.automaticCloudBackupByAppId.B = true;
 }
 
+test('vault creation names the same account for the revisioned Relay contract', async () => {
+  const f = fixture();
+  let sent;
+  f.scope.Relay.updateVaultImage = async (body) => {
+    sent = body;
+    return { updated: true };
+  };
+  const result = await f.run('updateVaultImageWorker', {
+    originAppId: f.app.id,
+    originBackupAccountSession: 0,
+    payload: { vault: { id: 'disposable-vault', signers: [], archived: false } },
+  });
+  assert.equal(result.updated, true);
+  assert.equal(sent.appId, f.app.id);
+  assert.equal(sent.appID, f.app.id);
+  assert.equal(sent.vaultId, 'disposable-vault');
+});
+
 test('A wallet and vault actions queued before B login never use B key or destination', async () => {
   const f = fixture();
   const originAppId = f.app.id;
