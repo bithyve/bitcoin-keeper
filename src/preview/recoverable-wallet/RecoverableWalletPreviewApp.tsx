@@ -17,6 +17,10 @@ import WalletCreationChooser, { WalletChoiceCard } from 'src/components/WalletCr
 import { customTheme } from 'src/navigation/themes';
 import Colors from 'src/theme/Colors';
 import {
+  checkPreviewMobileKeyReadback,
+  type PreviewMobileKeyReadbackEvidence,
+} from 'src/services/wallets/recoverable/previewMobileKeyReadback';
+import {
   ContactDecisionState,
   ContactEnrollmentState,
   decideContactRequest,
@@ -57,6 +61,7 @@ type PreviewSurface =
   | 'advanced'
   | 'import'
   | 'seedless'
+  | 'mobile-key-diagnostic'
   | 'recovery'
   | 'cloud'
   | 'contact';
@@ -208,6 +213,12 @@ function PreviewContent() {
     initialSimulatedSetupState
   );
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [deviceKeyDiagnostic, setDeviceKeyDiagnostic] = useState<
+    | { status: 'idle' | 'checking' }
+    | { status: 'matched'; evidence: PreviewMobileKeyReadbackEvidence }
+    | { status: 'failed'; code: string }
+  >({ status: 'idle' });
+  const deviceKeyCheckNumber = useRef(0);
   const [contactEnrollment, setContactEnrollment] =
     useState<ContactEnrollmentState>(initialContactEnrollment);
   const [contactSample, setContactSample] = useState<'overview' | 'invitation' | 'request'>(
@@ -242,6 +253,29 @@ function PreviewContent() {
     setRequestDecision(null);
     setSurface('recovery');
   };
+  const checkNativeMobileKey = async () => {
+    if (deviceKeyDiagnostic.status === 'checking') return;
+    const checkNumber = ++deviceKeyCheckNumber.current;
+    setDeviceKeyDiagnostic({ status: 'checking' });
+    try {
+      // This opt-in action MAY create a REAL, device-only TESTNET preview key.
+      // No wallet, backup, server registration, or signing path is created.
+      const evidence = await checkPreviewMobileKeyReadback();
+      if (checkNumber === deviceKeyCheckNumber.current) {
+        setDeviceKeyDiagnostic({ status: 'matched', evidence });
+      }
+    } catch (error) {
+      if (checkNumber === deviceKeyCheckNumber.current) {
+        // Never display native error detail or secret material in the UI.
+        const code = error && typeof error === 'object' && 'code' in error &&
+          typeof error.code === 'string' && /^[A-Z_]{3,40}$/.test(error.code)
+          ? error.code
+          : 'READBACK_FAILED';
+        setDeviceKeyDiagnostic({ status: 'failed', code });
+      }
+    }
+  };
+
   const startSampleInvitation = () => {
     setInvitationDecision('pending');
     setContactSample('invitation');
@@ -264,7 +298,7 @@ function PreviewContent() {
   const back = () => {
     if (surface === 'cloud' || surface === 'contact') setSurface('recovery');
     else if (surface === 'recovery') setSurface('seedless');
-    else if (surface === 'chooser') setSurface('wallets');
+    else if (surface === 'chooser' || surface === 'mobile-key-diagnostic') setSurface('wallets');
     else if (surface === 'simple') setSurface(choiceOrigin);
     else if (surface === 'hot' || surface === 'cold') setSurface('simple');
     else if (surface === 'advanced' || surface === 'import') setSurface(choiceOrigin);
@@ -321,7 +355,7 @@ function PreviewContent() {
       previewNotice={
         fromWallets
           ? undefined
-          : 'TESTNET PREVIEW · Simulated choices. No wallet, key, address, or backup is created.'
+          : 'TESTNET PREVIEW · Simulated choices. No wallet, address, or backup is created.'
       }
       seedlessResumeHint={
         hasDraft ? 'Your Assisted Multisig walkthrough will resume where you left off.' : undefined
@@ -349,6 +383,8 @@ function PreviewContent() {
             ? 'Import Wallet'
             : surface === 'recovery'
             ? 'Recovery Options'
+            : surface === 'mobile-key-diagnostic'
+            ? 'Local Mobile Key'
             : surface === 'cloud'
             ? 'Cloud Backup'
             : surface === 'contact'
@@ -368,10 +404,12 @@ function PreviewContent() {
         {surface !== 'chooser' && (
           <Banner palette={palette} testID="preview-simulation-banner">
             {surface === 'wallets'
-              ? 'TESTNET DEMO · No wallet or key.'
+              ? 'TESTNET DEMO · No spendable wallet or backup.'
               : surface === 'seedless'
-              ? 'TESTNET DEMO · No wallet or key.'
-              : 'TESTNET PREVIEW · Simulated walkthrough. No wallet, key, address, cloud backup, or server registration is created.'}
+              ? 'TESTNET DEMO · No spendable wallet or backup.'
+              : surface === 'mobile-key-diagnostic'
+              ? 'TESTNET KEY CHECK · A device-only key may be generated without a backup. Never send bitcoin to this preview.'
+              : 'TESTNET PREVIEW · Simulated walkthrough. No wallet, address, cloud backup, or server registration is created.'}
           </Banner>
         )}
 
@@ -381,6 +419,79 @@ function PreviewContent() {
               No wallets yet
             </PreviewText>
             {walletChooser(true)}
+            <LinkAction
+              label="Test Mobile Key"
+              onPress={() => setSurface('mobile-key-diagnostic')}
+              palette={palette}
+              testID="preview-device-mobile-key-entry"
+            />
+          </View>
+        )}
+
+        {surface === 'mobile-key-diagnostic' && (
+          <View testID="preview-mobile-key-diagnostic" style={styles.section}>
+            <PreviewText color={palette.text} style={styles.pageTitle}>
+              Check local Mobile Key
+            </PreviewText>
+            <PreviewText color={palette.muted}>
+              This checks real native Preview key storage, not the simulated wallet setup. It may
+              create a device-only testnet Mobile Key. Nothing is backed up or recoverable yet.
+            </PreviewText>
+            <Panel palette={palette}>
+              <PreviewText color={palette.text} style={styles.cardTitle}>
+                Native readback
+              </PreviewText>
+              {deviceKeyDiagnostic.status === 'idle' && (
+                <PreviewText color={palette.muted} testID="preview-mobile-key-idle">
+                  Not tested. No key-storage result is available.
+                </PreviewText>
+              )}
+              {deviceKeyDiagnostic.status === 'checking' && (
+                <View style={styles.progressRow} testID="preview-mobile-key-checking">
+                  <ActivityIndicator color={palette.accent} />
+                  <PreviewText color={palette.muted}>Checking two native reads…</PreviewText>
+                </View>
+              )}
+              {deviceKeyDiagnostic.status === 'matched' && (
+                <View style={styles.section} testID="preview-mobile-key-matched">
+                  <PreviewText color={palette.text}>
+                    Two native reads matched on this device.
+                  </PreviewText>
+                  <PreviewText color={palette.muted}>
+                    Public fingerprint: {deviceKeyDiagnostic.evidence.masterFingerprint}
+                  </PreviewText>
+                  <PreviewText color={palette.muted}>
+                    Public identity tag: {deviceKeyDiagnostic.evidence.publicIdentityTag}
+                  </PreviewText>
+                  <PreviewText color={palette.muted}>
+                    Close the Preview app, reopen it and check again. Compare these public values
+                    manually. This first check does not prove key continuity across a restart.
+                  </PreviewText>
+                </View>
+              )}
+              {deviceKeyDiagnostic.status === 'failed' && (
+                <PreviewText color={Colors.redAlert} testID="preview-mobile-key-failed">
+                  Native storage or readback failed ({deviceKeyDiagnostic.code}). Do not use the
+                  key. Nothing has been repaired or replaced.
+                </PreviewText>
+              )}
+            </Panel>
+            <Banner palette={palette} testID="preview-mobile-key-no-backup">
+              NOT BACKED UP · No wallet, signing, cloud recovery or Server Key is active. Do not
+              fund this key. Removing the app can make the key inaccessible.
+            </Banner>
+            <PrimaryAction
+              label={deviceKeyDiagnostic.status === 'matched' ? 'Check Again' : 'Check Key'}
+              onPress={() => { void checkNativeMobileKey(); }}
+              disabled={deviceKeyDiagnostic.status === 'checking'}
+              palette={palette}
+            />
+            <LinkAction
+              label="Wallets"
+              onPress={() => setSurface('wallets')}
+              palette={palette}
+              testID="preview-mobile-key-back"
+            />
           </View>
         )}
 
