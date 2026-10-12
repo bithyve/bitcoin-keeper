@@ -26,7 +26,11 @@ export interface PreviewMobileKeyReadbackEvidence {
   recoveryVerified: false;
 }
 
-function isExpectedPreviewSigner(signer: RecoverableMobileSigner): boolean {
+function isExpectedPreviewSigner(
+  signer: RecoverableMobileSigner
+): signer is RecoverableMobileSigner & {
+  origin: Extract<RecoverableMobileSigner['origin'], { kind: 'device-generated' }>;
+} {
   return (
     signer?.role === 'mobile' &&
     signer?.origin?.kind === 'device-generated' &&
