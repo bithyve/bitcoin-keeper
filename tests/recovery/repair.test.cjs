@@ -271,12 +271,12 @@ test('repair does not retry a failed snapshot request', async () => {
 
 test('read-only check retries once after a concurrent incremental backup changes its revision', async () => {
   let f, changed = false, write;
-  f = harness({ post: async ({ path, remote }) => {
+  f = harness({ post: async ({ path, payload, remote }) => {
     if (path.endsWith('getBackupSnapshot') && !changed) {
       changed = true;
       write = f.transport.backupPost('fixture/updateAppImage', { appId: f.app.id });
     }
-    if (path.endsWith('updateAppImage')) {
+    if (path.endsWith('revisionedBackupMutation') && payload.operation === 'updateAppImage') {
       remote.wallets.wallet = encryption.encrypt(
         encryption.generateEncryptionKey(f.app.primarySeed), JSON.stringify(wallet())
       );
@@ -285,7 +285,9 @@ test('read-only check retries once after a concurrent incremental backup changes
   f.local.Wallet.push(wallet());
   assert.equal(await f.run(), 'verified');
   await write;
-  assert.deepEqual(f.calls, ['getBackupSnapshot', 'updateAppImage', 'getBackupSnapshot']);
+  assert.deepEqual(f.calls, [
+    'getBackupSnapshot', 'getBackupSnapshot', 'revisionedBackupMutation', 'getBackupSnapshot',
+  ]);
   assert.deepEqual(f.phases, ['checking', 'checking', 'verified']);
   assert.deepEqual(f.diagnostics, []);
 });
@@ -304,14 +306,15 @@ test('early revision change without a queued write stays unverified', async () =
 test('continuous queued writes limit a read-only check to one retry', async () => {
   let f;
   const writes = [];
+  let reads = 0;
   f = harness({ post: async ({ path }) => {
-    if (path.endsWith('getBackupSnapshot'))
+    if (path.endsWith('getBackupSnapshot') && [1, 3].includes(++reads))
       writes.push(f.transport.backupPost('fixture/updateAppImage', { appId: f.app.id }));
   } });
   f.local.Wallet.push(wallet());
   assert.equal(await f.run(), 'unverified');
   await Promise.all(writes);
-  assert.equal(f.calls.filter((path) => path === 'getBackupSnapshot').length, 2);
+  assert.equal(f.calls.filter((path) => path === 'getBackupSnapshot').length, 4);
   assert.deepEqual(f.phases, ['checking', 'checking', 'unverified']);
 });
 

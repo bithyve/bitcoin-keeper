@@ -156,7 +156,7 @@ export function backupPost(path: string, body: any, explicitChoice = false, expe
         { appId },
         deadline
       );
-      const expectedRevision = snapshot.data?.revision;
+      const expectedRevision = snapshot.data?.revision ?? (snapshot as any).json?.revision;
       if (
         typeof expectedRevision !== 'string' ||
         !/^[a-f0-9]{64}$/.test(expectedRevision)
@@ -168,7 +168,17 @@ export function backupPost(path: string, body: any, explicitChoice = false, expe
         { ...body, appId, operation, expectedRevision },
         deadline
       );
-      if (response.data?.preconditionApplied !== true) throw new BackupRequestError('protocol');
+      const responseData = response.data || (response as any).json;
+      if (responseData?.preconditionApplied !== true || responseData?.updated !== true)
+        throw new BackupRequestError('protocol');
+      try {
+        assertCurrent();
+      } catch (error) {
+        // A result from an earlier A session cannot confirm the currently
+        // selected A account after an A -> B -> A round trip.
+        onBackupReconciliationRequired(appId);
+        throw error;
+      }
       return response;
     } catch (error) {
       if (error instanceof BackupRequestError)

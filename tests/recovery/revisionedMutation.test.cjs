@@ -97,6 +97,15 @@ test('missing revision or acknowledgement fails closed and requests reconciliati
     (error) => error.category === 'protocol'
   );
   assert.deepEqual(missingAck.reconciliations, ['A']);
+
+  const rejected = fixture(async (path) => path.endsWith('getBackupSnapshot')
+    ? { data: { revision: revision(1) } }
+    : { data: { updated: false, preconditionApplied: true } });
+  await assert.rejects(
+    rejected.transport.backupPost('fixture/updateAppImage', { appId: 'A' }),
+    (error) => error.category === 'protocol'
+  );
+  assert.deepEqual(rejected.reconciliations, ['A']);
 });
 
 test('A to B to A during the revision read never sends an old-session mutation', async () => {
@@ -116,6 +125,28 @@ test('A to B to A during the revision read never sends an old-session mutation',
   releaseSnapshot();
   await assert.rejects(pending, /Backup account session changed/);
   assert.deepEqual(f.calls.map(({ path }) => path), ['fixture/getBackupSnapshot']);
+});
+
+test('A to B to A during an acknowledged write still requires readback', async () => {
+  let releaseMutation, enteredMutation;
+  const waiting = new Promise((resolve) => { releaseMutation = resolve; });
+  const entered = new Promise((resolve) => { enteredMutation = resolve; });
+  const f = fixture(async (path) => {
+    if (path.endsWith('getBackupSnapshot')) return { json: { revision: revision(1) } };
+    enteredMutation();
+    await waiting;
+    return { json: { updated: true, preconditionApplied: true } };
+  });
+  const pending = f.transport.backupPost('fixture/updateAppImage', { appId: 'A' });
+  await entered;
+  f.transport.observeBackupAccount('B');
+  f.transport.observeBackupAccount('A');
+  releaseMutation();
+  await assert.rejects(pending, /Backup account session changed/);
+  assert.deepEqual(f.calls.map(({ path }) => path), [
+    'fixture/getBackupSnapshot', 'fixture/revisionedBackupMutation',
+  ]);
+  assert.deepEqual(f.reconciliations, ['A']);
 });
 
 test('unused legacy full writer is not sent through either route', async () => {

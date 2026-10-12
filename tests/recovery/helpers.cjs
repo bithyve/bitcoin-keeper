@@ -24,12 +24,18 @@ function harness(options = {}) {
   const calls = [], phases = [], diagnostics = [];
   const db = { getObjectByIndex: (schema) => schema === 'KeeperApp' ? app : local[schema] };
   const rest = { post: async (path, payload, _headers, config) => {
+    const revisionBeforeHook = revision();
     calls.push(path.replace('fixture/', ''));
     if (options.post) await options.post({ path, payload, config, remote, app, local });
     if (options.adapter) return options.adapter(path.replace('fixture/', ''), payload, config);
     if (path.endsWith('getBackupSnapshot')) {
       if (options.readError) throw Error('offline');
       return { data: options.response || { appImage: remote, allVaultImages: vaults, labels, revision: revision() } };
+    }
+    if (path.endsWith('revisionedBackupMutation')) {
+      if (payload.expectedRevision !== revisionBeforeHook)
+        throw { response: { status: 409 } };
+      return { data: { updated: true, preconditionApplied: true } };
     }
     if (path.endsWith('updateAppImage')) return { data: { updated: true } };
     if (payload.expectedRevision !== revision()) throw Error('Backup changed');

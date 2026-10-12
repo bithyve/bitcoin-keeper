@@ -47,11 +47,13 @@ for (const repair of [false, true]) {
             appImage: f.remote, allVaultImages: vaults, labels, revision: revision(),
           } };
         }
-        if (path === 'migrateXfps') {
+        if (path === 'revisionedBackupMutation') {
+          assert.equal(payload.operation, 'migrateXfps');
           assert.equal(payload.appId, f.app.id);
+          assert.equal(payload.expectedRevision, revision());
           assert.deepEqual(JSON.parse(JSON.stringify(payload.signerChanges)), signerChanges);
           events.push('migration-acknowledged');
-          return { data: { updated: true } };
+          return { data: { updated: true, preconditionApplied: true } };
         }
         assert.equal(path, 'repairAppBackup');
         assert.equal(payload.expectedRevision, revision());
@@ -80,7 +82,7 @@ for (const repair of [false, true]) {
     const migration = relay(f.transport).migrateXfp(f.app.id, signerChanges);
     const completed = Promise.allSettled([checking, migration]);
     const requestedRevision = f.transport.backupRevision(f.app.id);
-    const migrationStartedDuringCheck = f.calls.includes('migrateXfps');
+    const migrationStartedDuringCheck = f.calls.includes('revisionedBackupMutation');
     release();
     const [checked, migrated] = await completed;
     assert.equal(requestedRevision, previousRevision + 1);
@@ -95,11 +97,13 @@ for (const repair of [false, true]) {
     if (!repair && checked.value === 'verified') {
       // A read-only retry may verify a new snapshot after queued writes drain.
       // The invalidated first attempt must never publish verified completion.
-      assert.deepEqual(f.calls, ['getBackupSnapshot', 'migrateXfps', 'getBackupSnapshot']);
-      assert.equal(reads, 2);
+      assert.deepEqual(f.calls, [
+        'getBackupSnapshot', 'getBackupSnapshot', 'revisionedBackupMutation', 'getBackupSnapshot',
+      ]);
+      assert.equal(reads, 3);
       assert.equal(f.phases.filter((phase) => phase === 'verified').length, 1);
-      const freshRequest = events.indexOf('snapshot-request:2');
-      const freshResponse = events.indexOf('snapshot-response:2');
+      const freshRequest = events.indexOf('snapshot-request:3');
+      const freshResponse = events.indexOf('snapshot-response:3');
       const verified = events.indexOf('phase:verified');
       assert.ok(acknowledged >= 0 && freshRequest > acknowledged);
       assert.ok(freshResponse > freshRequest && verified > freshResponse);
@@ -107,33 +111,41 @@ for (const repair of [false, true]) {
       assert.equal(checked.value, 'unverified');
       assert.equal(f.phases.includes('verified'), false);
       assert.deepEqual(f.calls, repair
-        ? ['getBackupSnapshot', 'repairAppBackup', 'getBackupSnapshot', 'migrateXfps']
-        : ['getBackupSnapshot', 'migrateXfps']);
+        ? [
+            'getBackupSnapshot', 'repairAppBackup', 'getBackupSnapshot',
+            'getBackupSnapshot', 'revisionedBackupMutation',
+          ]
+        : ['getBackupSnapshot', 'getBackupSnapshot', 'revisionedBackupMutation']);
     }
   });
 }
 
-test('migration rejection and transport failure preserve responses, invalidate checks, and release the queue', async () => {
-  let fail = false;
+test('migration conflict and transport failure fail closed, invalidate checks, and release the queue', async () => {
+  let mode = 'conflict';
   const errors = [];
-  const rest = { post: async (_path, _body, _headers, config) => {
+  const rest = { post: async (path, body, _headers, config) => {
     assert.ok(config.signal);
-    if (fail) throw Error('fixture request body must stay redacted');
-    return { json: { updated: false, err: 'fixture-rejection' } };
+    if (path.endsWith('getBackupSnapshot')) return { json: { revision: 'a'.repeat(64) } };
+    assert.equal(path, 'fixture/revisionedBackupMutation');
+    assert.equal(body.operation, 'migrateXfps');
+    if (mode === 'conflict') throw { response: { status: 409, data: { err: 'fixture-rejection' } } };
+    if (mode === 'network') throw Error('fixture request body must stay redacted');
+    return { json: { updated: true, preconditionApplied: true } };
   } };
   const transport = loadModule('src/services/backup/transport.ts', { '../rest/RestClient': rest });
   transport.setBackupUploadGuard((appId) => appId === 'fixture-account');
   const service = relay(transport, rest, errors);
-  assert.deepEqual(JSON.parse(JSON.stringify(await service.migrateXfp('fixture-account', signerChanges))),
-    { updated: false, err: 'fixture-rejection' });
-  assert.equal(transport.backupRevision('fixture-account'), 1);
-  fail = true;
   await assert.rejects(service.migrateXfp('fixture-account', signerChanges),
     /^Error: Failed to do migrate the xfp$/);
-  assert.equal(errors.length, 1);
-  assert.equal(errors[0].message, 'Backup request could not be completed');
+  assert.equal(errors[0].category, 'conflict');
+  assert.equal(transport.backupRevision('fixture-account'), 1);
+  mode = 'network';
+  await assert.rejects(service.migrateXfp('fixture-account', signerChanges),
+    /^Error: Failed to do migrate the xfp$/);
+  assert.equal(errors.length, 2);
+  assert.equal(errors[1].message, 'Backup request could not be completed');
   assert.equal(transport.backupRevision('fixture-account'), 2);
-  fail = false;
-  assert.equal((await service.migrateXfp('fixture-account', signerChanges)).updated, false);
+  mode = 'success';
+  assert.equal((await service.migrateXfp('fixture-account', signerChanges)).updated, true);
   assert.equal(transport.backupRevision('fixture-account'), 3);
 });
