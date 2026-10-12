@@ -121,3 +121,49 @@ test('faucet reports pending when the funded txid persists but visible balance s
   assert.ok(f.actions.some((action) =>
     action.type === 'setTestCoinsPending' && action.payload === 'propagation'));
 });
+
+test('Receive Test Sats dispatch keeps its original account when queued across a switch', () => {
+  const scope = { Set };
+  vm.runInNewContext(ts.transpileModule(functions('src/store/store.ts', [
+    'accountOwnedActions', 'accountOwnedUtxoUiActions', 'bindActionOrigin',
+  ]), { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, scope);
+  let selected = 'A';
+  let queued;
+  const dispatch = scope.bindActionOrigin({ getState: () => ({ storage: { appId: selected } }) })(
+    (action) => { queued = action; return action; }
+  );
+  dispatch({ type: 'TEST_SATS_RECIEVE', payload: { wallet: { id: 'same-wallet' } } });
+  selected = 'B';
+  dispatch(queued);
+  assert.equal(queued.originAppId, 'A');
+});
+
+test('a queued A faucet action cannot fund B wallet even when its ID and network match', async () => {
+  const { f, stored, writes, getCounts } = faucetFixture(() => 1000);
+  const originAppId = f.app.id;
+  f.app.id = 'B';
+  f.state.storage.appId = 'B';
+  await f.run('testcoinsWorker', { originAppId, payload: { wallet: stored } });
+  assert.deepEqual(getCounts(), { relayRequests: 0, historyPolls: 0, refreshes: 0 });
+  assert.deepEqual(writes, []);
+  assert.deepEqual(f.actions, []);
+  assert.equal(stored.specs.balances.unconfirmed, 0);
+});
+
+test('A faucet response arriving after B login cannot poll, persist or report receipt on B', async () => {
+  const { f, stored, writes, getCounts } = faucetFixture(() => 1000);
+  const originAppId = f.app.id;
+  let finishRequest;
+  f.scope.Relay.getTestcoins = () => new Promise((resolve) => { finishRequest = resolve; });
+  const receive = f.run('testcoinsWorker', { originAppId, payload: { wallet: stored } });
+  assert.ok(finishRequest);
+  f.app.id = 'B';
+  f.state.storage.appId = 'B';
+  const actionCount = f.actions.length;
+  finishRequest({ txid, funded: true });
+  await receive;
+  assert.equal(getCounts().historyPolls, 0);
+  assert.deepEqual(writes, []);
+  assert.equal(f.actions.length, actionCount);
+  assert.equal(stored.specs.balances.unconfirmed, 0);
+});

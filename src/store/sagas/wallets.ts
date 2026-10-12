@@ -240,10 +240,11 @@ export function* addNewWalletsWorker({
   payload: NewWalletInfo[];
   originAppId?: string;
 }) {
+  let sourceAppId = originAppId;
   try {
     const wallets: Wallet[] = [];
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const sourceAppId = originAppId || app?.id;
+    sourceAppId = originAppId || app?.id;
     assertWalletAccount(sourceAppId);
 
     for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
@@ -254,6 +255,7 @@ export function* addNewWalletsWorker({
         app,
         importDetails
       );
+      assertWalletAccount(sourceAppId);
       wallets.push(wallet);
     }
 
@@ -277,7 +279,8 @@ export function* addNewWalletsWorker({
     }
   } catch (err) {
     console.log(err);
-    yield put(relayWalletUpdateFail(err.message ? err.message : err.toString()));
+    if (currentWalletAccountId() === sourceAppId && store.getState().storage.appId === sourceAppId)
+      yield put(relayWalletUpdateFail(err.message ? err.message : err.toString()));
     return false;
   }
 }
@@ -710,6 +713,10 @@ function* refreshWalletsWorker({
   let { wallets, options, requestId } = payload;
   let succeeded = false;
   let lease;
+  const isSourceAccountCurrent = () =>
+    !!sourceAppId &&
+    currentWalletAccountId() === sourceAppId &&
+    store.getState().storage.appId === sourceAppId;
 
   // Filter out pre-mix, post-mix, and bad bank wallets as they are no longer displayed or used.
   wallets = (wallets || []).filter((wallet) => {
@@ -1092,7 +1099,7 @@ function* refreshWalletsWorker({
     succeeded = true;
     return true;
   } catch (err) {
-    if (err?.message === WALLET_SYNC_SCOPE_CHANGED) return false;
+    if (!isSourceAccountCurrent() || err?.message === WALLET_SYNC_SCOPE_CHANGED) return false;
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
       yield put(
         setElectrumNotConnectedErr(
@@ -1110,10 +1117,11 @@ function* refreshWalletsWorker({
     return false;
   } finally {
     if (lease?.owner) {
-      yield put(setSyncing({ wallets, isSyncing: false }));
+      if (isSourceAccountCurrent()) yield put(setSyncing({ wallets, isSyncing: false }));
       lease.complete(succeeded);
     }
-    if (requestId) yield put(finishRefreshRequest({ requestId, succeeded }));
+    if (requestId && isSourceAccountCurrent())
+      yield put(finishRefreshRequest({ requestId, succeeded }));
   }
 }
 
@@ -1339,7 +1347,7 @@ export const updateSignerPolicyWatcher = createWatcher(
   UPDATE_SIGNER_POLICY
 );
 
-export function* testcoinsWorker({ payload }) {
+export function* testcoinsWorker({ payload, originAppId }) {
   let { wallet } = payload;
   const faucetScope = yield select((state: RootState) => ({
     appId: state.storage.appId,
@@ -1350,6 +1358,7 @@ export function* testcoinsWorker({ payload }) {
     try {
       const keeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp;
       return (
+        (!originAppId || originAppId === faucetScope.appId) &&
         state.storage.appId === faucetScope.appId &&
         state.settings.bitcoinNetworkType === faucetScope.networkType &&
         faucetScope.networkType === wallet.networkType &&
