@@ -88,6 +88,9 @@ test('vault delete callback is scoped to its request and fires once after local 
   assert.equal(result, true);
   assert.deepEqual(completed, [true]);
   assert.deepEqual(f.collections.Vault, []);
+  assert.ok(!f.actions.some((action) =>
+    ['setRelayVaultUpdateLoading', 'relayVaultUpdateSuccess', 'relayVaultUpdateFail']
+      .includes(action.type)));
 });
 
 test('vault delete callback reports failure once when Relay rejects deletion', async () => {
@@ -105,6 +108,22 @@ test('vault delete callback reports failure once when Relay rejects deletion', a
   assert.equal(result, false);
   assert.deepEqual(completed, [false]);
   assert.deepEqual(f.collections.Vault.map((row) => row.id), ['keep']);
+  assert.ok(!f.actions.some((action) =>
+    ['setRelayVaultUpdateLoading', 'relayVaultUpdateSuccess', 'relayVaultUpdateFail']
+      .includes(action.type)));
+});
+
+test('legacy vault delete without a callback retains its global result state', async () => {
+  const f = fixture();
+  f.collections.Vault.push({ id: 'remove' });
+  f.scope.deleteVaultImageWorker = function* () { return { updated: true }; };
+
+  assert.equal(await f.run('deleteVaultRequestWorker', {
+    originAppId: f.app.id,
+    payload: { vaultId: 'remove' },
+  }), true);
+  assert.ok(f.actions.some((action) => action.type === 'setRelayVaultUpdateLoading'));
+  assert.ok(f.actions.some((action) => action.type === 'relayVaultUpdateSuccess'));
 });
 
 test('overlapping vault saga requests report their own outcomes despite unrelated vault state', async () => {

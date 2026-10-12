@@ -1830,13 +1830,20 @@ function* updateKeyDetailsWorker({ payload, originAppId, originBackupAccountSess
 
 export const updateKeyDetails = createWatcher(updateKeyDetailsWorker, UPDATE_KEY_DETAILS);
 
-function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
+function* deleteVaultWorker({
+  payload,
+  originAppId,
+  originBackupAccountSession,
+  originBackupWriteIntent,
+  onComplete,
+}) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const { vaultId } = payload;
+  const reportsThroughCallback = typeof onComplete === 'function';
   try {
     assertWalletAccount(sourceAppId, requestSession);
-    yield put(setRelayVaultUpdateLoading(true));
+    if (!reportsThroughCallback) yield put(setRelayVaultUpdateLoading(true));
     const backupEnabled = yield select((state: RootState) =>
       isAutomaticCloudBackupEnabled(state.bhr, sourceAppId)
     );
@@ -1857,17 +1864,18 @@ function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession, 
         throw new Error('Local vault deletion failed');
       }
       assertWalletAccount(sourceAppId, requestSession);
-      yield put(relayVaultUpdateSuccess());
+      if (!reportsThroughCallback) yield put(relayVaultUpdateSuccess());
       return true;
     } else {
       const errorMsg = response.error?.message
         ? response.error.message.toString()
         : response.error.toString();
-      yield put(relayVaultUpdateFail(errorMsg));
+      if (!reportsThroughCallback) yield put(relayVaultUpdateFail(errorMsg));
       return false;
     }
   } catch (err) {
-    if (currentWalletAccountId() === sourceAppId && store.getState().storage.appId === sourceAppId)
+    if (!reportsThroughCallback && currentWalletAccountId() === sourceAppId &&
+      store.getState().storage.appId === sourceAppId)
       yield put(relayVaultUpdateFail('Something went wrong while deleting the vault!'));
     return false;
   }
