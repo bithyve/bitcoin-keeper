@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [sprint]
     types: [opened, reopened, ready_for_review]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.mdx'
+      - 'docs/**'
 
 permissions:
   contents: read
