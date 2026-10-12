@@ -37,7 +37,16 @@ export function recoveryContent(kind: keyof BackupImage, record: any) {
   // archive state and user metadata in the comparison.
   const result = { ...record };
   delete result.receivingAddress;
-  delete result.accountStatus;
+  if (record.entityKind === 'USDT_WALLET') {
+    // The retired GasFree provider cannot recreate these addresses. Keep them
+    // in recovery comparison while ignoring refreshable nonce/fee status.
+    if (record.accountStatus) {
+      result.accountStatus = {
+        address: record.accountStatus.address,
+        gasFreeAddress: record.accountStatus.gasFreeAddress,
+      };
+    }
+  } else delete result.accountStatus;
   const specs = { ...record.specs };
   // Manual coin-control choices cannot be reconstructed from the chain. Compare
   // them by outpoint, independent of confirmation state or UTXO/cache ordering.

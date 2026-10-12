@@ -113,3 +113,53 @@ test('a receive counter mutation at the final verification boundary cannot repor
     image.compareImages = original;
   }
 });
+
+test('saved USDT receive addresses invalidate recovery trust while refresh status does not', () => {
+  const stored = realmRecord({
+    ...wallet('usdt'), entityKind: 'USDT_WALLET',
+    accountStatus: {
+      address: 'disposable-wallet-address', gasFreeAddress: 'disposable-gasfree-address',
+      nextNonce: 0, isActive: false, fees: { transferFee: 1, activateFee: 2 },
+    },
+  });
+  const f = fixture({ USDTWallet: [stored] });
+  let invalidations = 0;
+  f.manager.setRecoveryMutationObserver(() => invalidations++);
+
+  assert.equal(f.manager.updateObjectById(f.RealmSchema.USDTWallet, stored.id, {
+    accountStatus: { ...stored.accountStatus, nextNonce: 1, fees: { transferFee: 3, activateFee: 2 } },
+  }), true);
+  assert.equal(invalidations, 0);
+  assert.equal(f.manager.updateObjectById(f.RealmSchema.USDTWallet, stored.id, {
+    accountStatus: { ...stored.accountStatus, gasFreeAddress: 'different-saved-address' },
+  }), true);
+  assert.equal(invalidations, 1);
+  assert.equal(f.manager.updateObjectById(f.RealmSchema.USDTWallet, stored.id, {
+    accountStatus: { ...stored.accountStatus, address: 'different-wallet-address' },
+  }), true);
+  assert.equal(invalidations, 2);
+});
+
+for (const accountStatus of [
+  undefined,
+  { address: 'disposable-wallet-address', gasFreeAddress: 'different-saved-address' },
+]) test(`USDT remote account status ${accountStatus ? 'different' : 'missing'} is never verified`, async () => {
+  const f = harness();
+  const localWallet = {
+    ...wallet('usdt'), entityKind: 'USDT_WALLET',
+    accountStatus: {
+      address: 'disposable-wallet-address', gasFreeAddress: 'disposable-gasfree-address',
+      nextNonce: 0,
+    },
+  };
+  f.local.USDTWallet.push(localWallet);
+  f.remote.wallets[localWallet.id] = encryption.encrypt(
+    encryption.generateEncryptionKey(f.app.primarySeed),
+    JSON.stringify({ ...localWallet, accountStatus })
+  );
+
+  assert.equal(await f.run(false), 'different');
+  assert.equal(await f.run(true), 'conflict');
+  assert.deepEqual(f.calls, ['getBackupSnapshot', 'getBackupSnapshot']);
+  assert.equal(f.phases.includes('verified'), false);
+});
