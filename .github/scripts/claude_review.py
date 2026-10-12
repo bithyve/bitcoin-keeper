@@ -3,6 +3,7 @@
 import base64
 import hashlib
 import hmac
+import importlib.util
 import json
 import os
 import re
@@ -11,6 +12,16 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from decimal import Decimal
+from pathlib import Path
+
+# Isolated Python deliberately excludes cwd/sys.path. Load only this adjacent
+# trusted, immutable checkout file, never a PR-provided import path.
+_LEDGER_SPEC = importlib.util.spec_from_file_location(
+    "claude_review_ledger", Path(__file__).with_name("claude_review_ledger.py"))
+_LEDGER_MODULE = importlib.util.module_from_spec(_LEDGER_SPEC)
+_LEDGER_SPEC.loader.exec_module(_LEDGER_MODULE)
+Ledger = _LEDGER_MODULE.Ledger
+LedgerError = _LEDGER_MODULE.LedgerError
 
 MODEL = "claude-sonnet-5-5"
 MAX_BYTES = 400_000
@@ -75,8 +86,13 @@ class API:
         else:
             raise ReviewError("Unexpected API origin")
         if query:
-            if origin != "github" or any(type(v) is not int or v <= 0 for v in query.values()):
-                raise ReviewError("Invalid pagination")
+            if origin != "github" or any(
+                    not ((k in {"per_page", "page"} and type(v) is int and v > 0) or
+                         (k == "recursive" and type(v) is int and v == 1) or
+                         (k == "includes_parents" and v is True) or
+                         (k == "ref" and isinstance(v, str) and SHA.fullmatch(v)))
+                    for k, v in query.items()):
+                raise ReviewError("Invalid GitHub query")
             url += "?" + urllib.parse.urlencode(query)
         headers["Content-Type"] = "application/json"
         data = None if body is None else json.dumps(body).encode("utf-8")
@@ -219,12 +235,13 @@ def authorize(api, repo, event_name, event, run):
 
 
 class Reviewer:
-    def __init__(self, api, repo, number, run):
+    def __init__(self, api, repo, number, run, ledger=None):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
             raise ReviewError("Invalid repository")
         if type(number) is not int or number <= 0 or not re.fullmatch(r"[1-9][0-9]*", run):
             raise ReviewError("Invalid PR/run ID")
         self.api, self.repo, self.number, self.run = api, repo, number, run
+        self.ledger = ledger
         self.root = f"/repos/{repo}"
         self.pull = f"{self.root}/pulls/{number}"
         self.comments = f"{self.root}/issues/{number}/comments"
@@ -234,8 +251,9 @@ class Reviewer:
         return self.api.request("github", self.pull)
 
     def get_states(self):
-        return [state for c in self.list_comments()
-                if (state := parse_marker(c, self.api.state_key, self.scope))]
+        if self.ledger is None:
+            raise ReviewError("Protected payment ledger required; no paid request")
+        return self.ledger.states(self.number)
 
     def list_comments(self):
         result = []
@@ -433,8 +451,9 @@ class Reviewer:
             return "already attempted/reviewed; no paid call"
         state = {"request": request, "head": head, "base": base,
                  "status": "started", "run": self.run}
-        claim = self.post(marker_body(state, self.api.state_key, self.scope))
-        claim_id = claim["id"]
+        # Atomic, permanent $3 reservation in the separate protected repository.
+        # PR comments are display/request data only and cannot reset this claim.
+        claim_id = self.ledger.reserve(self.number, state)
         paid_body = dict(input_body, max_tokens=MAX_OUTPUT, service_tier="standard_only",
                          inference_geo="global", thinking={"type": "between_tools"},
                          output_config={"effort": "medium"})
@@ -470,14 +489,14 @@ class Reviewer:
                       + "<pre>" + escaped + "</pre>" +
                       "\n\nLater changes require `/claude-review <current full head SHA>` from a maintainer.")
             # Persist completion only AFTER successfully publishing the review.
-            self.api.request("github", f"{self.root}/issues/comments/{claim_id}",
-                             {"body": marker_body(state, self.api.state_key, self.scope)}, method="PATCH")
+            # Publication/state failures preserve the full reservation forever.
+            self.ledger.complete(self.number, claim_id, state["status"])
             if state["status"] != "complete":
                 raise ReviewError("Review incomplete/stale; explicit maintainer retry required")
             return "complete"
         except Exception:
             # Preserve claim on uncertain outcome; never automatically repay.
-            raise ReviewError("Paid attempt did not complete; see run/PR and request an explicit retry") from None
+            raise ReviewError("Paid attempt did not complete; reservation retained; any retry remains subject to permanent limits") from None
 
 
 def main():
@@ -514,13 +533,16 @@ def main():
         number = event["pull_request"]["number"]
     else:
         raise ReviewError("Untrusted workflow event")
-    print(Reviewer(api, repo, number, os.environ["GITHUB_RUN_ID"]).review(request, expected))
+    ledger_api = API(os.environ["KEEPER_CLAUDE_LEDGER_TOKEN"], "")
+    ledger = Ledger(ledger_api, repo, os.environ["KEEPER_CLAUDE_LEDGER_EPOCH"],
+                    api.state_key, int(os.environ["KEEPER_CLAUDE_LEDGER_APP_ID"]))
+    print(Reviewer(api, repo, number, os.environ["GITHUB_RUN_ID"], ledger).review(request, expected))
 
 
 if __name__ == "__main__":
     try:
         main()
-    except ReviewError as error:
+    except (ReviewError, LedgerError) as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)
     except Exception:

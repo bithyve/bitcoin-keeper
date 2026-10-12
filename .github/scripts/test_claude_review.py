@@ -70,14 +70,54 @@ def command_comment(comment_id, head=HEAD, login="maintainer"):
             "user": {"id": 42, "login": login, "type": "User"}}
 
 
+class FakeLedger:
+    """Durable payment state independent of deletable PR presentation comments."""
+
+    def __init__(self):
+        self.records = []
+        self.production_verified = True
+        self.error = None
+        self.next_id = 1
+
+    def states(self, pr):
+        if self.error:
+            raise reviewer.ReviewError(self.error)
+        return copy.deepcopy([record for record in self.records if record["pr"] == pr])
+
+    def reserve(self, pr, state):
+        records = self.states(pr)
+        if not self.production_verified:
+            raise reviewer.ReviewError("Signed production security verification required")
+        if reviewer.already_attempted(records, state["request"], state["head"], state["base"]):
+            raise reviewer.ReviewError("Already reserved; no paid request")
+        if len(records) >= 3:
+            raise reviewer.ReviewError("Permanent PR review budget exhausted ($9 / 3 attempts)")
+        if sum(record["head"] == state["head"] for record in records) >= 2:
+            raise reviewer.ReviewError("Permanent head review budget exhausted ($6 / 2 attempts)")
+        claim_id = f"{self.next_id:032x}"
+        self.next_id += 1
+        self.records.append(dict(copy.deepcopy(state), id=claim_id, pr=pr, reservation="3.00"))
+        return claim_id
+
+    def complete(self, pr, claim_id, status):
+        if self.error:
+            raise reviewer.ReviewError(self.error)
+        record = next(record for record in self.records
+                      if record["pr"] == pr and record["id"] == claim_id)
+        if record["status"] != "started":
+            raise AssertionError("Terminal reservation cannot be rewritten")
+        record["status"] = status
+
+
 class FakeAPI:
-    """A stateful GitHub/Anthropic double, including comments and claim updates."""
+    """GitHub/Anthropic double; the separate ledger remains authoritative."""
 
     anthropic_key = FAKE_KEY
     state_key = STATE_KEY
 
     def __init__(self):
         self.pr = pull_request()
+        self.ledger = FakeLedger()
         self.comments = []
         self.calls = []
         self.files = [changed_file()]
@@ -180,15 +220,15 @@ class FakeAPI:
         return [call for call in self.calls if call[:2] == ("anthropic", "/v1/messages/count_tokens")]
 
     def states(self):
-        scope = f"{REPO}#7049:"
-        return [state for comment in self.comments
-                if (state := reviewer.parse_marker(comment, self.state_key, scope))]
+        fields = {"request", "head", "base", "status", "run"}
+        return [{key: value for key, value in record.items() if key in fields}
+                for record in self.ledger.states(7049)]
 
 
 class ReviewFlowTests(unittest.TestCase):
     def setUp(self):
         self.api = FakeAPI()
-        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345")
+        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345", ledger=self.api.ledger)
 
     def test_complete_review_uses_immutable_diff_and_one_tool_free_paid_call(self):
         self.assertEqual(self.subject.review(), "complete")
@@ -218,7 +258,7 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertFalse(any("/contents/" in path for path in paths))
         self.assertEqual(self.api.states(), [{"request": "auto", "head": HEAD, "base": BASE,
                                              "status": "complete", "run": "12345"}])
-        review_comment = self.api.comments[1]["body"]
+        review_comment = self.api.comments[0]["body"]
         self.assertIn(f"Head: `{HEAD}`", review_comment)
         self.assertIn(f"Base tip: `{BASE}`", review_comment)
         self.assertIn("advisory, no merge approval", review_comment)
@@ -252,7 +292,7 @@ class ReviewFlowTests(unittest.TestCase):
 
     def test_uncertain_paid_attempt_cannot_replay_but_new_manual_request_can_retry(self):
         self.api.paid_error = reviewer.ReviewError("Offline timeout with uncertain payment")
-        with self.assertRaisesRegex(reviewer.ReviewError, "explicit retry"):
+        with self.assertRaisesRegex(reviewer.ReviewError, "reservation retained"):
             self.subject.review()
         self.assertEqual(self.api.states()[0]["status"], "started")
         self.api.paid_error = None
@@ -279,6 +319,66 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertIn("no paid call", self.subject.review())
         self.assertEqual(len(self.api.paid_calls()), 1)
 
+    def test_manual_retry_budget_is_per_head_even_when_base_changes(self):
+        self.api.paid_response = dict(completed_response(), stop_reason="max_tokens")
+        for comment_id in (123, 124):
+            with self.assertRaises(reviewer.ReviewError):
+                self.subject.review(f"comment-{comment_id}", HEAD)
+        self.api.pr["base"]["sha"] = NEXT_BASE
+        for comment_id in (125, 126):
+            with self.assertRaisesRegex(reviewer.ReviewError, "head review budget exhausted"):
+                self.subject.review(f"comment-{comment_id}", HEAD)
+        self.assertEqual(len(self.api.paid_calls()), 2)
+        self.assertEqual([record["reservation"] for record in self.api.ledger.records],
+                         ["3.00", "3.00"])
+
+    def test_new_heads_do_not_reset_per_pr_spending_budget(self):
+        for comment_id, head in ((123, HEAD), (124, NEXT_HEAD), (125, "1" * 40)):
+            self.api.pr["head"]["sha"] = head
+            self.assertEqual(self.subject.review(f"comment-{comment_id}", head), "complete")
+        self.api.pr["head"]["sha"] = "2" * 40
+        with self.assertRaisesRegex(reviewer.ReviewError, "PR review budget exhausted"):
+            self.subject.review("comment-126", "2" * 40)
+        self.assertEqual(len(self.api.paid_calls()), 3)
+        self.assertEqual(len(self.api.ledger.records), 3)
+        self.assertTrue(all(record["reservation"] == "3.00" for record in self.api.ledger.records))
+
+    def test_timeout_and_publication_failure_permanently_retain_full_reservations(self):
+        self.api.paid_error = reviewer.ReviewError("Uncertain Anthropic timeout")
+        with self.assertRaises(reviewer.ReviewError):
+            self.subject.review("comment-123", HEAD)
+        self.api.paid_error = None
+        self.api.fail_review_publication = True
+        with self.assertRaises(reviewer.ReviewError):
+            self.subject.review("comment-124", HEAD)
+        self.api.fail_review_publication = False
+        with self.assertRaisesRegex(reviewer.ReviewError, "head review budget exhausted"):
+            self.subject.review("comment-125", HEAD)
+        self.assertEqual(len(self.api.paid_calls()), 2)
+        self.assertEqual([record["status"] for record in self.api.ledger.records],
+                         ["started", "started"])
+        self.assertEqual([record["reservation"] for record in self.api.ledger.records],
+                         ["3.00", "3.00"])
+
+    def test_absent_payment_ledger_refuses_before_collection_or_payment(self):
+        subject = reviewer.Reviewer(self.api, REPO, 7049, "12345")
+        with self.assertRaisesRegex(reviewer.ReviewError, "Protected payment ledger"):
+            subject.review()
+        self.assertEqual(self.api.paid_calls(), [])
+        self.assertEqual(self.api.count_calls(), [])
+        self.assertFalse(any("/compare/" in call[1] for call in self.api.calls))
+
+    def test_missing_or_unverified_ledger_refuses_payment(self):
+        for failure in ("missing signed payment ledger", None):
+            with self.subTest(failure=failure):
+                api = FakeAPI()
+                api.ledger.error = failure
+                api.ledger.production_verified = False
+                with self.assertRaises(reviewer.ReviewError):
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
+                self.assertEqual(api.paid_calls(), [])
+                self.assertEqual(api.ledger.records, [])
+
     def test_docs_skip_does_not_claim_or_block_later_code_sync(self):
         self.api.files = [changed_file("docs/guide.md")]
         self.assertIn("documentation only", self.subject.review())
@@ -301,7 +401,7 @@ class ReviewFlowTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 api = FakeAPI()
                 api.files = [changed_file(filename)]
-                self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345").review(), "complete")
+                self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review(), "complete")
                 self.assertEqual(len(api.paid_calls()), 1)
                 self.assertEqual(api.states()[0]["status"], "complete")
 
@@ -318,7 +418,7 @@ class ReviewFlowTests(unittest.TestCase):
             with self.subTest(filename=filename):
                 api = FakeAPI()
                 api.files = [changed_file(filename)]
-                result = reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                result = reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 if filename == "docs/user-guide.md":
                     self.assertIn("documentation only", result)
                     self.assertEqual(api.count_calls(), [])
@@ -338,7 +438,7 @@ class ReviewFlowTests(unittest.TestCase):
             with self.subTest(side=side):
                 api = FakeAPI()
                 api.on_count = lambda api=api, side=side, sha=sha: api.pr[side].update(sha=sha)
-                result = reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                result = reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertIn("changed during preparation", result)
                 self.assertEqual(api.paid_calls(), [])
                 self.assertEqual(api.comments, [])
@@ -348,22 +448,19 @@ class ReviewFlowTests(unittest.TestCase):
         with self.assertRaises(reviewer.ReviewError):
             self.subject.review()
         self.assertEqual(self.api.states()[0]["status"], "stale")
-        self.assertIn("State: **STALE**", self.api.comments[1]["body"])
-        self.assertIn(f"Head: `{HEAD}`", self.api.comments[1]["body"])
+        self.assertIn("State: **STALE**", self.api.comments[0]["body"])
+        self.assertIn(f"Head: `{HEAD}`", self.api.comments[0]["body"])
         self.assertIn("no paid call", self.subject.review())
         self.assertEqual(len(self.api.paid_calls()), 1)
 
     def test_another_attempt_claim_during_preparation_prevents_second_paid_call(self):
         state = {"request": "auto", "head": HEAD, "base": BASE,
                  "status": "started", "run": "54321"}
-        self.api.on_count = lambda: self.api.comments.append({
-            "id": 999,
-            "body": reviewer.marker_body(state, STATE_KEY, self.subject.scope),
-            "user": copy.deepcopy(BOT),
-        })
+        self.api.on_count = lambda: self.api.ledger.reserve(7049, state)
         self.assertIn("no paid call", self.subject.review())
         self.assertEqual(self.api.paid_calls(), [])
-        self.assertEqual(len(self.api.comments), 1)
+        self.assertEqual(self.api.comments, [])
+        self.assertEqual(self.api.states()[0]["run"], "54321")
 
     def test_closed_draft_fork_wrong_base_and_deleted_repository_are_ineligible(self):
         mutations = [
@@ -378,7 +475,7 @@ class ReviewFlowTests(unittest.TestCase):
             with self.subTest(mutation=mutate):
                 api = FakeAPI()
                 mutate(api.pr)
-                self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345").review(), "ineligible")
+                self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review(), "ineligible")
                 self.assertEqual(len(api.calls), 1)
 
     def test_revoked_eligibility_before_paid_call(self):
@@ -407,7 +504,7 @@ class ReviewFlowTests(unittest.TestCase):
                 api = FakeAPI()
                 api.paid_response = response
                 with self.assertRaises(reviewer.ReviewError):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertEqual(api.states()[0]["status"], "incomplete")
                 self.assertEqual(len(api.paid_calls()), 1)
 
@@ -426,7 +523,7 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertIn(hostile, paid["messages"][0]["content"])
         self.assertEqual(len(self.api.states()), 1)
         self.assertEqual(self.api.states()[0]["head"], HEAD)
-        review_comment = self.api.comments[1]
+        review_comment = self.api.comments[0]
         self.assertNotIn(reviewer.MARKER, review_comment["body"])
         self.assertNotIn("@everyone", review_comment["body"])
         self.assertNotIn("<script>", review_comment["body"])
@@ -438,8 +535,8 @@ class ReviewFlowTests(unittest.TestCase):
         with self.assertRaises(reviewer.ReviewError):
             self.subject.review()
         self.assertEqual(self.api.states()[0]["status"], "incomplete")
-        self.assertIn("Review output truncated; result is INCOMPLETE", self.api.comments[1]["body"])
-        self.assertIn("State: **INCOMPLETE**", self.api.comments[1]["body"])
+        self.assertIn("Review output truncated; result is INCOMPLETE", self.api.comments[0]["body"])
+        self.assertIn("State: **INCOMPLETE**", self.api.comments[0]["body"])
         self.assertEqual(len(self.api.paid_calls()), 1)
 
     def test_missing_or_short_stable_signing_secret_fails_before_collect_or_paid_call(self):
@@ -448,25 +545,23 @@ class ReviewFlowTests(unittest.TestCase):
                 api = FakeAPI()
                 api.state_key = key
                 with self.assertRaisesRegex(reviewer.ReviewError, "signing secret"):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertEqual(len(api.calls), 1)
                 self.assertEqual(api.paid_calls(), [])
 
-    def test_comments_paginate_before_deduplicating(self):
+    def test_deleted_review_comments_cannot_reset_automatic_payment_state(self):
         self.subject.review()
-        signed = self.api.comments[0]
-        self.api.comments = [{"id": n, "body": "ordinary comment", "user": {}}
-                             for n in range(100)] + [signed]
+        self.api.comments.clear()
         self.assertIn("no paid call", self.subject.review())
-        comment_gets = [c for c in self.api.calls if c[1] == self.subject.comments and c[2] is None]
-        self.assertEqual(comment_gets[-1][4]["page"], 2)
+        self.assertEqual(self.api.comments, [])
         self.assertEqual(len(self.api.paid_calls()), 1)
+        self.assertEqual(len(self.api.ledger.records), 1)
 
 
 class DurableCommandRecoveryTests(unittest.TestCase):
     def setUp(self):
         self.api = FakeAPI()
-        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345")
+        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345", ledger=self.api.ledger)
         self.subject.review()
         self.api.pr["head"]["sha"] = NEXT_HEAD
 
@@ -566,7 +661,7 @@ class DurableCommandRecoveryTests(unittest.TestCase):
                 api = FakeAPI()
                 api.comments = copy.deepcopy(comments)
                 api.permissions["attacker"] = {"permission": "read", "role_name": "read"}
-                result = reviewer.Reviewer(api, REPO, 7049, "12345").review("reconcile")
+                result = reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review("reconcile")
                 self.assertEqual(result, "no authorized current-head review request")
                 self.assertEqual(api.count_calls(), [])
                 self.assertEqual(api.paid_calls(), [])
@@ -577,7 +672,7 @@ class DurableCommandRecoveryTests(unittest.TestCase):
 class CollectionAndBudgetTests(unittest.TestCase):
     def setUp(self):
         self.api = FakeAPI()
-        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345")
+        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345", ledger=self.api.ledger)
 
     def test_inconsistent_compare_fails_before_any_anthropic_request(self):
         overrides = [
@@ -593,7 +688,7 @@ class CollectionAndBudgetTests(unittest.TestCase):
                 api = FakeAPI()
                 api.compare_overrides = override
                 with self.assertRaises(reviewer.ReviewError):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertFalse(any(call[0] == "anthropic" for call in api.calls))
                 self.assertEqual(api.states(), [])
                 self.assertEqual(len(api.comments), 1)
@@ -635,7 +730,7 @@ class CollectionAndBudgetTests(unittest.TestCase):
                 api = FakeAPI()
                 api.files = [file]
                 with self.assertRaises(reviewer.ReviewError):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertEqual(api.paid_calls(), [])
 
     def test_invalid_blob_identity_or_encoding_fails_before_payment(self):
@@ -709,7 +804,7 @@ class CollectionAndBudgetTests(unittest.TestCase):
                 api = FakeAPI()
                 api.commit_overrides, api.tree_overrides = commit, tree
                 with self.assertRaises(reviewer.ReviewError):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertEqual(api.count_calls(), [])
                 self.assertEqual(api.paid_calls(), [])
                 self.assertEqual(api.states(), [])
@@ -722,7 +817,7 @@ class CollectionAndBudgetTests(unittest.TestCase):
                 api = FakeAPI()
                 api.blob_overrides = overrides
                 with self.assertRaises(reviewer.ReviewError):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertEqual(api.count_calls(), [])
                 self.assertEqual(api.paid_calls(), [])
                 self.assertEqual(api.states(), [])
@@ -747,7 +842,7 @@ class CollectionAndBudgetTests(unittest.TestCase):
                 api = FakeAPI()
                 api.count_response = {"input_tokens": tokens}
                 with self.assertRaises(reviewer.ReviewError):
-                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
                 self.assertEqual(api.paid_calls(), [])
                 self.assertEqual(api.comments, [])
 
@@ -797,11 +892,22 @@ class MarkerSecurityTests(unittest.TestCase):
 
     def test_anthropic_key_rotation_preserves_authenticated_attempt_deduplication(self):
         api = FakeAPI()
+        claim_id = api.ledger.reserve(7049, dict(self.state, status="started"))
+        api.ledger.complete(7049, claim_id, "complete")
         api.comments = [copy.deepcopy(self.comment)]
         api.anthropic_key = "rotated-offline-key"
-        self.assertIn("no paid call", reviewer.Reviewer(api, REPO, 7049, "12345").review())
-        self.assertIn("no paid call", reviewer.Reviewer(api, REPO, 7049, "12345").review("comment-124", HEAD))
+        self.assertIn("no paid call", reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review())
+        self.assertIn("no paid call", reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review("comment-124", HEAD))
         self.assertEqual(api.paid_calls(), [])
+
+    def test_even_valid_historical_bot_comments_cannot_supply_payment_state(self):
+        api = FakeAPI()
+        api.comments = [copy.deepcopy(self.comment)]
+        self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review(),
+                         "complete")
+        self.assertEqual(len(api.paid_calls()), 1)
+        self.assertEqual(api.states()[0]["request"], "auto")
+        self.assertEqual(len(api.ledger.records), 1)
 
     def test_invalid_forged_bot_marker_cannot_suppress_automatic_review(self):
         api = FakeAPI()
@@ -809,7 +915,7 @@ class MarkerSecurityTests(unittest.TestCase):
         forged["id"] = 999
         forged["body"] = reviewer.marker_body(self.state, FAKE_KEY, self.scope)
         api.comments = [forged]
-        self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345").review(), "complete")
+        self.assertEqual(reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review(), "complete")
         self.assertEqual(len(api.paid_calls()), 1)
         self.assertEqual(api.states()[0]["request"], "auto")
 
@@ -922,9 +1028,13 @@ class EventBoundaryTests(unittest.TestCase):
                 "GITHUB_TOKEN": "offline-github-token",
                 "ANTHROPIC_API_KEY": FAKE_KEY,
                 "KEEPER_CLAUDE_STATE_KEY": STATE_KEY,
+                "KEEPER_CLAUDE_LEDGER_TOKEN": "offline-state-app-token",
+                "KEEPER_CLAUDE_LEDGER_EPOCH": "1" * 32,
+                "KEEPER_CLAUDE_LEDGER_APP_ID": "314",
             }
             with patch.dict(reviewer.os.environ, environment, clear=True), \
                     patch.object(reviewer, "API", return_value=api), \
+                    patch.object(reviewer, "Ledger", return_value=api.ledger), \
                     patch.object(reviewer.sys, "argv", ["claude_review.py"]), \
                     patch("sys.stdout", new=io.StringIO()):
                 reviewer.main()
@@ -990,7 +1100,7 @@ class EventBoundaryTests(unittest.TestCase):
         api.comments.extend([command_comment(123), command_comment(124)])
         api.paid_error = reviewer.ReviewError("Offline uncertain paid result")
         with self.assertRaises(reviewer.ReviewError):
-            reviewer.Reviewer(api, REPO, 7049, "12345").review("reconcile")
+            reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review("reconcile")
         self.assertEqual(api.states()[0]["request"], "comment-124")
         api.paid_error = None
         malformed = command_comment(125)

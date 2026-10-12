@@ -17,13 +17,14 @@ jobs:
   authorize-review:
     name: Authorize review without credentials
     if: >-
-      (github.event_name == 'pull_request_target' &&
+      vars.KEEPER_CLAUDE_REVIEW_ENABLED == 'true' &&
+      ((github.event_name == 'pull_request_target' &&
        !github.event.pull_request.draft &&
        github.event.pull_request.head.repo.full_name == github.repository) ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request != null &&
        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
-       startsWith(github.event.comment.body, '/claude-review '))
+       startsWith(github.event.comment.body, '/claude-review ')))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -57,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Configure this environment to allow ONLY the sprint branch, no tags.
-    # Store KEEPER_CLAUDE_API_KEY here; never use a repository-level key.
+    # Keep all three keys here; never use repository/organization fallbacks.
     environment: keeper-claude-review
     steps:
       - name: Checkout trusted reviewer only
@@ -74,6 +75,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Mint narrowly scoped protected payment-state token
+        id: ledger-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.KEEPER_CLAUDE_LEDGER_APP_ID }}
+          private-key: ${{ secrets.KEEPER_CLAUDE_LEDGER_APP_PRIVATE_KEY }}
+          owner: KeeperCommunity
+          repositories: keeper-review-ledger
+          permission-contents: write
+          # Private repository branch-rules metadata requires this read scope.
+          permission-administration: read
+
       - name: Review immutable PR data with tool-free Claude Sonnet 5.5
         # No PR strings enter shell code. Only trusted Python reads the event.
         run: python3 -I .github/scripts/claude_review.py
@@ -81,3 +94,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           ANTHROPIC_API_KEY: ${{ secrets.KEEPER_CLAUDE_API_KEY }}
           KEEPER_CLAUDE_STATE_KEY: ${{ secrets.KEEPER_CLAUDE_STATE_KEY }}
+          KEEPER_CLAUDE_LEDGER_TOKEN: ${{ steps.ledger-token.outputs.token }}
+          KEEPER_CLAUDE_LEDGER_EPOCH: ${{ vars.KEEPER_CLAUDE_LEDGER_EPOCH }}
+          KEEPER_CLAUDE_LEDGER_APP_ID: ${{ vars.KEEPER_CLAUDE_LEDGER_APP_ID }}
