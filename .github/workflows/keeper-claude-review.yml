@@ -1,67 +1,57 @@
 name: Keeper independent Claude review
 
-# Reviews a PR once when first opened or promoted from draft, not every push.
-# Same-repository PRs only; fork PRs cannot receive API credentials.
-# It is off until this workflow is merged into sprint.
+# Privileged workflow comes from sprint, never the PR's merge ref.
+# synchronize catches documentation-only PRs that subsequently add code.
 on:
-  pull_request:
+  pull_request_target:
     branches: [sprint]
-    types: [opened, reopened, ready_for_review]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.mdx'
-      - 'docs/**'
+    types: [opened, reopened, ready_for_review, synchronize, edited]
+  issue_comment:
+    types: [created]
 
 permissions:
+  actions: read
   contents: read
   pull-requests: write
-
-concurrency:
-  group: keeper-claude-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
 
 jobs:
   independent-review:
     name: Independent Claude code review
     if: >-
-      !github.event.pull_request.draft &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      (github.event_name == 'pull_request_target' &&
+       !github.event.pull_request.draft &&
+       github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null &&
+       startsWith(github.event.comment.body, '/claude-review '))
+    concurrency:
+      group: keeper-claude-review-${{ github.event.pull_request.number || github.event.issue.number }}
+      # Only eligible jobs enter the lock; preserve any in-flight paid request.
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Configure this environment to allow ONLY the sprint branch, no tags.
+    # Store KEEPER_CLAUDE_API_KEY here; never use a repository-level key.
+    environment: keeper-claude-review
     steps:
-      - name: Checkout PR code (read-only)
-        uses: actions/checkout@v7
+      - name: Checkout trusted reviewer only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          # issue_comment uses the default branch's immutable event SHA.
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: true
 
-      - name: Independent review with Claude Sonnet 5.5
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: |
-            REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
-            HEAD SHA: ${{ github.event.pull_request.head.sha }}
+      - name: Verify protected credential environment before secret use
+        run: python3 -I .github/scripts/claude_review.py --check-environment
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-            Perform an independent, read-only review of the PR diff and relevant
-            nearby code. This PR may have been written by OpenAI Codex.
-            Follow repository AGENTS.md and concentrate on correctness,
-            security, regressions, and meaningful missing tests. For Keeper,
-            prioritize seed and key material, PSBT signing and output/change
-            validation, policy and multisig correctness, backups, recovery,
-            inheritance, authentication, and device transport boundaries.
-
-            Report only high-confidence, actionable findings, with affected
-            lines, impact, and a concrete fix suggestion. Avoid stylistic nits
-            and generic advice. If no issues are found, say so concisely.
-            Post findings on this PR, not in a separate issue.
-
-            This is a review only. Do not edit files, push, approve a PR,
-            merge, sign, upload builds, or create a release.
-          claude_args: |
-            --model claude-sonnet-5-5
-            --max-turns 6
-            --max-budget-usd 3
-            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),mcp__github_inline_comment__create_inline_comment"
-            --disallowedTools "Edit,Write,NotebookEdit,MultiEdit"
+      - name: Review immutable PR data with tool-free Claude Sonnet 5.5
+        # No PR strings enter shell code. Only trusted Python reads the event.
+        run: python3 -I .github/scripts/claude_review.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.KEEPER_CLAUDE_API_KEY }}
+          KEEPER_CLAUDE_STATE_KEY: ${{ secrets.KEEPER_CLAUDE_STATE_KEY }}
