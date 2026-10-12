@@ -145,7 +145,12 @@ export const credentialStorageWatcher = createWatcher(credentialsStorageWorker, 
 
 function* credentialsAuthWorker({ payload }) {
   let key;
+  // An older authentication can finish after the selected account cycles
+  // A -> B -> A. Preserve its original session before the first async effect.
+  const originSession = currentBackupAccountSession();
+  let loginSession = originSession;
   const appId = yield select((state: RootState) => state.storage.appId);
+  if (originSession !== currentBackupAccountSession()) return;
   yield put(credsAuthenticatedError(''));
   try {
     yield put(setRecepitVerificationError(false));
@@ -168,6 +173,7 @@ function* credentialsAuthWorker({ payload }) {
       encryptedKey = res.encryptedKey;
     }
     key = yield call(decrypt, hash, encryptedKey);
+    if (originSession !== currentBackupAccountSession()) return;
     yield put(setKey(key));
     yield put(setPinHash(hash));
 
@@ -179,11 +185,13 @@ function* credentialsAuthWorker({ payload }) {
       );
       const currentAccount = allAccounts.find((account) => account.hash === hash);
       const uint8array = yield call(stringToArrayBuffer, key);
+      if (originSession !== currentBackupAccountSession()) return;
       const { success, error } = yield call(
         dbManager.initializeRealm,
         uint8array,
         currentAccount?.realmId
       );
+      if (originSession !== currentBackupAccountSession()) return;
 
       if (!success) {
         throw Error(`Failed to load the database: ${error}`);
@@ -194,6 +202,7 @@ function* credentialsAuthWorker({ payload }) {
 
       // setting correct app id from realm at login
       const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      if (originSession !== currentBackupAccountSession()) return;
       if (keeperApp?.id) {
         const onlyKnownAccount =
           allAccounts.length <= 1 &&
@@ -205,11 +214,15 @@ function* credentialsAuthWorker({ payload }) {
           })
         );
       }
+      if (originSession !== currentBackupAccountSession()) return;
       if (keeperApp?.id) yield put(setAppId(keeperApp.id));
       const loginAccountSession = currentBackupAccountSession();
+      loginSession = loginAccountSession;
+      if (store.getState().storage.appId !== keeperApp?.id) return;
 
       // Store temporary account details
       if (!allAccounts.length) {
+        if (currentBackupAccountSession() !== loginAccountSession) return;
         yield put(setTempDetails({ hash, realmId: REALM_FILE, accountIdentifier: '' }));
       }
 
@@ -296,8 +309,12 @@ function* credentialsAuthWorker({ payload }) {
         }
         yield put(credsAuthenticated(true));
       } else yield put(credsAuthenticated(true)); // TODO: Should remove and throw an error if not needed in any scenario
-    } else yield put(credsAuthenticated(true));
+    } else {
+      if (originSession !== currentBackupAccountSession()) return;
+      yield put(credsAuthenticated(true));
+    }
   } catch (err) {
+    if (loginSession !== currentBackupAccountSession()) return;
     yield put(credsAuthenticatedError(err));
     yield put(credsAuthenticated(false));
   }
