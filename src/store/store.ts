@@ -30,6 +30,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import {
   captureBackupWriteIntent,
   currentBackupAccountSession,
+  clearVerifiedRemoteRevision,
+  markBackupMutation,
   observeBackupAccount,
   setBackupReconciliationHandler,
   setBackupUploadGuard,
@@ -231,6 +233,22 @@ setBackupReconciliationHandler((appId) => {
   // rejection. Starting an inspection here could match the old local image
   // and clear pending before that commit. Keep pending until the caller has
   // settled and a later inspection captures the resulting local state.
+});
+
+dbManager.setRecoveryMutationObserver(() => {
+  let appId: string | undefined;
+  try {
+    appId = (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id;
+  } catch {
+    return;
+  }
+  if (!appId) return;
+  // Realm can change while an inspection is between its final local capture
+  // and completion. Invalidate the revision before any recovery write commits.
+  markBackupMutation(appId);
+  clearVerifiedRemoteRevision(appId);
+  store.dispatch(invalidateBackupRepair(appId));
+  store.dispatch(setPendingAllBackup({ appId, pending: true }));
 });
 
 sagaMiddleware.run(rootSaga);

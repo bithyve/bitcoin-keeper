@@ -1,5 +1,17 @@
+import { changesBackedUpRecovery, isBackedUpSchema } from 'src/services/backup/localMutation';
 import { RealmSchema } from './enum';
 import realm from './realm';
+
+let recoveryMutationObserver: () => void = () => undefined;
+const setRecoveryMutationObserver = (observer: () => void) => {
+  recoveryMutationObserver = observer;
+};
+const notifyRecoveryCreateOrDelete = (schema: RealmSchema, hasObject: boolean) => {
+  if (hasObject && isBackedUpSchema(schema)) recoveryMutationObserver();
+};
+const notifyRecoveryUpdate = (schema: RealmSchema, object: any, updateProps: any) => {
+  if (changesBackedUpRecovery(schema, object, updateProps)) recoveryMutationObserver();
+};
 
 /**
  * intializes realm
@@ -27,6 +39,7 @@ const deleteRealm = (key: ArrayBuffer | ArrayBufferView | Int8Array) => realm.de
  */
 const createObject = (schema: RealmSchema, object: any, updateMode = Realm.UpdateMode.All) => {
   try {
+    notifyRecoveryCreateOrDelete(schema, !!object);
     const hasCreated = realm.create(schema, object, updateMode);
     return hasCreated;
   } catch (err) {
@@ -45,6 +58,7 @@ const createObjectBulk = (
   updateMode = Realm.UpdateMode.All
 ) => {
   try {
+    notifyRecoveryCreateOrDelete(schema, !!objects?.length);
     const hasCreated = realm.createBulk(schema, objects, updateMode);
     return hasCreated;
   } catch (err) {
@@ -105,6 +119,7 @@ const getObjectByPrimaryId = (schema: RealmSchema, name: string, primaryId: stri
 const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => {
   try {
     const object = getObjectById(schema, id);
+    notifyRecoveryUpdate(schema, object, updateProps);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
         object[key] = value;
@@ -131,6 +146,7 @@ const updateObjectByPrimaryId = (
 ) => {
   try {
     const object = getObjectByPrimaryId(schema, name, primaryId);
+    notifyRecoveryUpdate(schema, object, updateProps);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
         object[key] = value;
@@ -177,6 +193,7 @@ const getCollection = (schema: RealmSchema) => {
 const deleteObjectById = (schema: RealmSchema, id: string) => {
   try {
     const object = getObjectById(schema, id);
+    notifyRecoveryCreateOrDelete(schema, !!object);
     realm.delete(object);
     return true;
   } catch (err) {
@@ -192,6 +209,7 @@ const deleteObjectById = (schema: RealmSchema, id: string) => {
 const deleteObjectByPrimaryKey = (schema: RealmSchema, key: string, value: any) => {
   try {
     const object = getObjectByPrimaryId(schema, key, value);
+    notifyRecoveryCreateOrDelete(schema, !!object);
     realm.delete(object);
     return true;
   } catch (err) {
@@ -215,6 +233,7 @@ const updateObjectByQuery = (
     const objects = realm.get(schema);
     const object = objects.find(queryFn);
     if (object) {
+      notifyRecoveryUpdate(schema, object, updateProps);
       for (const [key, value] of Object.entries(updateProps)) {
         realm.write(() => {
           object[key] = value;
@@ -268,4 +287,5 @@ export default {
   getObjectByField,
   updateObjectByQuery,
   getObjectByQuery,
+  setRecoveryMutationObserver,
 };
