@@ -27,6 +27,17 @@ uses `pull_request_target` for automatic requests and the default-branch
 must remain `sprint`. Both check out an immutable trusted base/default SHA only.
 Never change checkout to the PR head or synthetic merge ref.
 
+These boundaries work together: the environment restricts ordinary PR/branch
+jobs, while base/default-branch workflow provenance and trusted checkout protect
+`pull_request_target`/`issue_comment` (whose event ref is already `sprint`). The
+environment cannot make an unsafe PR checkout safe. Changing trusted workflow
+code still requires normal review and merge approval.
+
+A credential-free authorization job (read-only GitHub token, no environment)
+checks the live PR and reconciles current maintainer permissions before allowing
+the protected job to start. The protected runner repeats those checks after its
+PR lock is acquired. Only a fixed boolean enters the workflow output.
+
 Only pinned `actions/checkout` code and Python's standard library execute.
 No Anthropic agent action, package installation, PR scripts, repository model
 configuration, shell tools, MCP servers or model-generated commands execute.
@@ -39,6 +50,8 @@ and error bodies/source/model output never enter workflow command logs.
   Every run rechecks the live open/non-draft/same-repo/sprint PR. Docs-only
   Markdown/MDX changes consume no paid attempt, so later code can receive its
   first review. Executable/configuration files under `docs/` remain reviewable.
+  Agent policy files (`AGENTS.md`, `CLAUDE.md`, `SKILL.md`) and `.github/` files
+  are always reviewable, including Markdown; ordinary prose remains exempt.
 - One automatic **paid attempt** per PR, including failed/uncertain/stale attempts.
   Concurrency serializes the PR with cancellation disabled. GitHub may coalesce
   queued events; each surviving run reads the latest PR snapshot.
@@ -63,7 +76,7 @@ and error bodies/source/model output never enter workflow command logs.
 Diffs use captured base/head SHAs, and report the actual merge-base diff origin.
 Changed-file source comes from immutable blob SHAs. The PR is rechecked before
 payment and publication. Changed-head/base results are explicitly stale.
-Missing/binary/truncated patches, >200 files, incomplete commit comparisons, and
+Missing/binary/truncated patches, >200 files, >250 commits, incomplete comparisons, and
 oversized inputs fail with an advisory incomplete diagnostic before payment.
 Empty rename patches also require human review because mode changes are absent
 from GitHub's patch JSON. Complete source for changed files up to 100KB is
@@ -107,6 +120,8 @@ the runner, not the unmerged production triggers or environment deployment.
 Remove the temporary branch afterward. Do not rerun the old unsafe agent action.
 
 Keep Copilot and required `Tests` / `keeper/local-validation` checks enabled.
-Do not merge or disable Copilot until protected-secret setup and live production
-verification are complete and the user approves the switch. Previous agent-action
+Do not merge until protected-secret setup and candidate verification are complete
+and the user approves. After that approved merge, verify the real trusted triggers
+and protected credential access while Copilot remains enabled; disable Copilot
+only after the user approves that switch. Previous agent-action
 reviews do not establish the corrected security boundary.

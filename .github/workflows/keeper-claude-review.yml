@@ -10,13 +10,12 @@ on:
     types: [created]
 
 permissions:
-  actions: read
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
-  independent-review:
-    name: Independent Claude code review
+  authorize-review:
+    name: Authorize review without credentials
     if: >-
       (github.event_name == 'pull_request_target' &&
        !github.event.pull_request.draft &&
@@ -25,6 +24,32 @@ jobs:
        github.event.issue.pull_request != null &&
        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
        startsWith(github.event.comment.body, '/claude-review '))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      authorized: ${{ steps.authorize.outputs.authorized }}
+    steps:
+      - name: Checkout trusted authorization code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: true
+      - name: Reconcile current maintainer permissions before environment access
+        id: authorize
+        run: python3 -I .github/scripts/claude_review.py --authorize
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  independent-review:
+    name: Independent Claude code review
+    needs: authorize-review
+    if: needs.authorize-review.outputs.authorized == 'true'
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
     concurrency:
       group: keeper-claude-review-${{ github.event.pull_request.number || github.event.issue.number }}
       # Only eligible jobs enter the lock; preserve any in-flight paid request.

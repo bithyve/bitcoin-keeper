@@ -15,6 +15,7 @@ from decimal import Decimal
 MODEL = "claude-sonnet-5-5"
 MAX_BYTES = 400_000
 MAX_OUTPUT = 8192
+MAX_COMMITS = 250
 BUDGET = Decimal("3")
 # Conservative ceilings, above Sonnet 5.5's documented $2/$10 per MTok.
 INPUT_RATE = Decimal("5") / 1_000_000
@@ -98,7 +99,9 @@ def valid_sha(value):
 
 def docs_only(files):
     def documentation(path):
-        return path.lower().endswith((".md", ".mdx"))
+        return (not path.startswith(".github/") and
+                path.rsplit("/", 1)[-1].upper() not in {"AGENTS.MD", "CLAUDE.MD", "SKILL.MD"} and
+                path.lower().endswith((".md", ".mdx")))
     return bool(files) and all(documentation(f["filename"]) and
                                documentation(f.get("previous_filename", f["filename"]))
                                for f in files)
@@ -192,6 +195,21 @@ def check_environment(api, repo, ref):
         raise ReviewError("Reviewer environment must allow only the sprint branch, no tags")
 
 
+def authorize(api, repo, event_name, event, run):
+    # This phase has no environment, Anthropic key, state key, or write token.
+    if event_name == "pull_request_target":
+        number = event["pull_request"]["number"]
+    elif event_name == "issue_comment" and event.get("action") == "created" and event["issue"].get("pull_request"):
+        number = event["issue"]["number"]
+    else:
+        return False
+    reviewer = Reviewer(api, repo, number, run)
+    pr = reviewer.get_pr()
+    if not eligible(pr, repo):
+        return False
+    return event_name == "pull_request_target" or reviewer.latest_command(valid_sha(pr["head"]["sha"])) is not None
+
+
 class Reviewer:
     def __init__(self, api, repo, number, run):
         if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
@@ -263,6 +281,8 @@ class Reviewer:
             raise ReviewError("Diff exceeds 200-file review limit")
         compare = self.api.request("github", f"{self.root}/compare/{base}...{head}")
         files = compare["files"]
+        if compare["total_commits"] > MAX_COMMITS:
+            raise ReviewError("Comparison exceeds 250-commit lightweight review limit; human review needed")
         if (compare["base_commit"]["sha"] != base or
                 not any(c["sha"] == head for c in compare["commits"]) or
                 compare["total_commits"] != len(compare["commits"]) or
@@ -390,6 +410,14 @@ def main():
         check_environment(API(os.environ["GITHUB_TOKEN"], ""), os.environ["GITHUB_REPOSITORY"],
                           os.environ["GITHUB_REF"])
         print("Protected sprint-only reviewer environment verified")
+        return
+    if sys.argv[1:] == ["--authorize"]:
+        with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as handle:
+            event = json.load(handle)
+        allowed = authorize(API(os.environ["GITHUB_TOKEN"], ""), os.environ["GITHUB_REPOSITORY"],
+                            os.environ["GITHUB_EVENT_NAME"], event, os.environ["GITHUB_RUN_ID"])
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write("authorized=" + ("true" if allowed else "false") + "\n")
         return
     if sys.argv[1:]:
         raise ReviewError("Unexpected reviewer arguments")

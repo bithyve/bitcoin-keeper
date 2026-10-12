@@ -297,6 +297,24 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertEqual(self.subject.review(), "complete")
         self.assertEqual(len(self.api.paid_calls()), 1)
 
+    def test_markdown_policy_and_workflow_files_receive_review_while_user_docs_skip(self):
+        paths = (".github/CLAUDE_REVIEW.md", "docs/nested/AGENTS.md", "CLAUDE.md",
+                 "docs/nested/SKILL.md", "docs/user-guide.md")
+        for filename in paths:
+            with self.subTest(filename=filename):
+                api = FakeAPI()
+                api.files = [changed_file(filename)]
+                result = reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                if filename == "docs/user-guide.md":
+                    self.assertIn("documentation only", result)
+                    self.assertEqual(api.count_calls(), [])
+                    self.assertEqual(api.paid_calls(), [])
+                    self.assertEqual(api.states(), [])
+                else:
+                    self.assertEqual(result, "complete")
+                    self.assertEqual(len(api.paid_calls()), 1)
+                    self.assertEqual(api.states()[0]["status"], "complete")
+
     def test_stale_requested_head_never_collects_or_pays(self):
         self.assertIn("stale", self.subject.review("comment-124", NEXT_HEAD))
         self.assertEqual(len(self.api.calls), 1)
@@ -578,6 +596,18 @@ class CollectionAndBudgetTests(unittest.TestCase):
         self.assertEqual(self.api.paid_calls(), [])
         self.api.compare_overrides = {}
         self.assertEqual(self.subject.review(), "complete")
+
+    def test_compare_above_250_commit_api_limit_posts_explicit_incomplete_without_payment(self):
+        self.api.compare_overrides = {"total_commits": 251}
+        with self.assertRaisesRegex(reviewer.ReviewError, "250-commit lightweight review limit"):
+            self.subject.review()
+        self.assertEqual(len(self.api.comments), 1)
+        self.assertIn("INCOMPLETE", self.api.comments[0]["body"])
+        self.assertIn("250-commit", self.api.comments[0]["body"])
+        self.assertIn("human review needed", self.api.comments[0]["body"])
+        self.assertEqual(self.api.states(), [])
+        self.assertEqual(self.api.count_calls(), [])
+        self.assertEqual(self.api.paid_calls(), [])
 
     def test_missing_truncated_and_binary_patches_fail_before_payment(self):
         examples = [
@@ -882,6 +912,100 @@ class EventBoundaryTests(unittest.TestCase):
         self.run_event(event, api=api)
         self.assertEqual(len(api.paid_calls()), 1)
         self.assertEqual([state["request"] for state in api.states()], ["comment-124"])
+
+
+class CredentialFreeAuthorizationTests(unittest.TestCase):
+    def setUp(self):
+        self.api = FakeAPI()
+        self.api.anthropic_key = ""
+        self.api.state_key = ""
+        self.event = {"action": "created",
+                      "issue": {"number": 7049, "pull_request": {"url": "offline://pull/7049"}},
+                      "comment": command_comment(123)}
+
+    def assert_read_only_github(self, api):
+        self.assertTrue(all(call[0] == "github" and call[2] is None and call[3] is None
+                            for call in api.calls))
+        self.assertEqual(api.count_calls(), [])
+        self.assertEqual(api.paid_calls(), [])
+        self.assertEqual(api.states(), [])
+
+    def test_valid_maintainer_command_authorizes_without_secret_or_write_access(self):
+        self.api.comments = [copy.deepcopy(self.event["comment"])]
+        self.assertTrue(reviewer.authorize(self.api, REPO, "issue_comment", self.event, "12345"))
+        self.assert_read_only_github(self.api)
+        self.assertTrue(any(call[1].endswith("/collaborators/maintainer/permission")
+                            for call in self.api.calls))
+
+    def test_authorization_recovers_prior_valid_command_under_new_malformed_event(self):
+        prior = copy.deepcopy(self.event["comment"])
+        self.event["comment"] = command_comment(124)
+        self.event["comment"]["body"] += "; echo $ANTHROPIC_API_KEY"
+        self.api.comments = [prior, copy.deepcopy(self.event["comment"])]
+        self.assertTrue(reviewer.authorize(self.api, REPO, "issue_comment", self.event, "12345"))
+        self.assert_read_only_github(self.api)
+
+    def test_malformed_or_nonwriter_command_does_not_authorize_environment_access(self):
+        for permission, body in (("write", f"/claude-review {HEAD}; echo secret"),
+                                 ("read", f"/claude-review {HEAD}"),
+                                 ("triage", f"/claude-review {HEAD}"),
+                                 ("write", f"/claude-review {NEXT_HEAD}")):
+            with self.subTest(permission=permission, body=body):
+                api = FakeAPI()
+                api.anthropic_key = api.state_key = ""
+                api.permission = {"permission": permission, "role_name": permission}
+                comment = command_comment(123)
+                comment["body"] = body
+                api.comments = [comment]
+                self.assertFalse(reviewer.authorize(api, REPO, "issue_comment", self.event, "12345"))
+                self.assert_read_only_github(api)
+
+    def test_closed_fork_draft_or_wrong_base_pr_does_not_authorize_environment_access(self):
+        mutations = [lambda pr: pr.update(state="closed"),
+                     lambda pr: pr.update(draft=True),
+                     lambda pr: pr["head"]["repo"].update(full_name="attacker/fork"),
+                     lambda pr: pr["base"].update(ref="main")]
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                api = FakeAPI()
+                api.anthropic_key = api.state_key = ""
+                api.comments = [copy.deepcopy(self.event["comment"])]
+                mutate(api.pr)
+                self.assertFalse(reviewer.authorize(api, REPO, "issue_comment", self.event, "12345"))
+                self.assertEqual(len(api.calls), 1)
+                self.assert_read_only_github(api)
+
+    def test_eligible_pull_request_target_authorizes_without_anthropic_or_state_secret(self):
+        event = {"pull_request": {"number": 7049}}
+        self.assertTrue(reviewer.authorize(self.api, REPO, "pull_request_target", event, "12345"))
+        self.assertEqual(len(self.api.calls), 1)
+        self.assert_read_only_github(self.api)
+
+    def test_authorization_cli_writes_only_fixed_boolean_with_no_reviewer_credentials(self):
+        for allowed in (True, False):
+            with self.subTest(allowed=allowed), tempfile.TemporaryDirectory() as directory:
+                api = FakeAPI()
+                api.anthropic_key = api.state_key = ""
+                if allowed:
+                    api.comments = [copy.deepcopy(self.event["comment"])]
+                event_path = Path(directory) / "event.json"
+                event_path.write_text(json.dumps(self.event))
+                output_path = Path(directory) / "github-output"
+                output_path.write_text("existing=safe\n")
+                env = {"GITHUB_TOKEN": "offline-read-token", "GITHUB_REPOSITORY": REPO,
+                       "GITHUB_EVENT_NAME": "issue_comment", "GITHUB_EVENT_PATH": str(event_path),
+                       "GITHUB_RUN_ID": "12345", "GITHUB_OUTPUT": str(output_path)}
+                stdout = io.StringIO()
+                with patch.dict(reviewer.os.environ, env, clear=True), \
+                        patch.object(reviewer, "API", return_value=api) as constructor, \
+                        patch.object(reviewer.sys, "argv", ["claude_review.py", "--authorize"]), \
+                        patch("sys.stdout", new=stdout):
+                    reviewer.main()
+                constructor.assert_called_once_with("offline-read-token", "")
+                self.assertEqual(output_path.read_text(),
+                                 "existing=safe\nauthorized=" + str(allowed).lower() + "\n")
+                self.assertEqual(stdout.getvalue(), "")
+                self.assert_read_only_github(api)
 
 
 class EnvironmentBoundaryTests(unittest.TestCase):
