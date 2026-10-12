@@ -16,6 +16,8 @@ MODEL = "claude-sonnet-5-5"
 MAX_BYTES = 400_000
 MAX_OUTPUT = 8192
 MAX_COMMITS = 250
+MAX_SOURCE_BYTES = 100_000
+MAX_GITHUB_BYTES = 8_000_000
 BUDGET = Decimal("3")
 # Conservative ceilings, above Sonnet 5.5's documented $2/$10 per MTok.
 INPUT_RATE = Decimal("5") / 1_000_000
@@ -51,6 +53,7 @@ class API:
         self.github_token = github_token
         self.anthropic_key = anthropic_key
         self.state_key = state_key
+        self.github_bytes = 0
         self.opener = urllib.request.build_opener(NoRedirect())
 
     def request(self, origin, path, body=None, method=None, query=None):
@@ -78,11 +81,16 @@ class API:
         headers["Content-Type"] = "application/json"
         data = None if body is None else json.dumps(body).encode("utf-8")
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
+        limit = MAX_GITHUB_BYTES - self.github_bytes if origin == "github" else 8_000_000
+        if limit <= 0:
+            raise ReviewError("Cumulative GitHub response limit exhausted")
         try:
             with self.opener.open(req, timeout=180) as response:
-                raw = response.read(8_000_001)
-                if len(raw) > 8_000_000:
-                    raise ReviewError("API response exceeds safe size limit")
+                raw = response.read(limit + 1)
+                if origin == "github":
+                    self.github_bytes += len(raw)
+                if len(raw) > limit:
+                    raise ReviewError("API response exceeds safe cumulative size limit")
                 return json.loads(raw)
         except urllib.error.HTTPError as exc:
             # Error bodies can echo input; don't expose them or retry paid calls.
@@ -292,6 +300,7 @@ class Reviewer:
             return None
         data = {"head": head, "base_tip": base,
                 "diff_base": valid_sha(compare["merge_base_commit"]["sha"]), "files": []}
+        sources = []
         for file in files:
             patch = file.get("patch", "")
             if not patch:
@@ -306,21 +315,86 @@ class Reviewer:
                 item["previous_filename"] = file["previous_filename"]
             if file["status"] != "removed":
                 blob_sha = valid_sha(file["sha"])
-                blob = self.api.request("github", f"{self.root}/git/blobs/{blob_sha}")
-                if blob.get("sha") != blob_sha or blob.get("encoding") != "base64":
-                    raise ReviewError("Unexpected source blob")
-                if blob["size"] <= 100_000:
-                    try:
-                        content = base64.b64decode(blob["content"]).decode("utf-8")
-                        item["head_source"] = content
-                    except UnicodeError:
-                        item["context_unavailable"] = "binary source"
-                else:
-                    item["context_unavailable"] = "source exceeds 100KB"
+                # Reserve explicit coverage metadata before measuring all
+                # patches. Optional source must never displace complete changes.
+                item["context_unavailable"] = "source omitted to preserve complete diff input budget"
+                sources.append((item, blob_sha))
             data["files"].append(item)
         prompt = json.dumps(data, ensure_ascii=True)
-        if len(SYSTEM.encode()) + len(prompt.encode()) > MAX_BYTES:
+        input_size = len(SYSTEM.encode()) + len(prompt.encode())
+        if input_size > MAX_BYTES:
             raise ReviewError("Full diff exceeds safe review input size")
+        if not sources:
+            return prompt
+
+        # Obtain sizes from the immutable commit tree BEFORE downloading any
+        # source. Compare metadata does not reliably provide blob sizes.
+        commit = self.api.request("github", f"{self.root}/git/commits/{head}")
+        if not isinstance(commit, dict) or commit.get("sha") != head or not isinstance(commit.get("tree"), dict):
+            raise ReviewError("Unexpected immutable head commit metadata")
+        tree_sha = valid_sha(commit["tree"].get("sha"))
+        tree = self.api.request("github", f"{self.root}/git/trees/{tree_sha}", query={"recursive": 1})
+        if (not isinstance(tree, dict) or tree.get("sha") != tree_sha or
+                tree.get("truncated") is not False or not isinstance(tree.get("tree"), list)):
+            raise ReviewError("Missing/truncated immutable source tree; human review needed")
+        needed = {item["filename"] for item, _ in sources}
+        entries = {}
+        for entry in tree["tree"]:
+            if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+                raise ReviewError("Malformed immutable source tree metadata")
+            if entry["path"] in needed:
+                if entry["path"] in entries:
+                    raise ReviewError("Duplicate immutable source tree path")
+                entries[entry["path"]] = entry
+
+        # Validate all changed source metadata before making the first blob GET.
+        metadata = []
+        for item, blob_sha in sources:
+            entry = entries.get(item["filename"])
+            if (entry is None or entry.get("type") != "blob" or
+                    entry.get("mode") not in {"100644", "100755", "120000"} or
+                    entry.get("sha") != blob_sha or
+                    type(entry.get("size")) is not int or entry["size"] < 0):
+                raise ReviewError("Missing/malformed source metadata or unsupported submodule; human review needed")
+            metadata.append((item, blob_sha, entry["size"]))
+        for item, blob_sha, size in metadata:
+            before = len(json.dumps(item, ensure_ascii=True).encode())
+            if size > MAX_SOURCE_BYTES:
+                item["context_unavailable"] = "source exceeds 100KB"
+            elif size > MAX_BYTES - input_size:
+                # UTF-8 source cannot become smaller when encoded as ASCII JSON.
+                # Leave the already-budgeted coverage notice without fetching it.
+                continue
+            else:
+                blob = self.api.request("github", f"{self.root}/git/blobs/{blob_sha}")
+                if (not isinstance(blob, dict) or blob.get("sha") != blob_sha or
+                        blob.get("encoding") != "base64" or
+                        type(blob.get("size")) is not int or blob["size"] != size or
+                        not isinstance(blob.get("content"), str)):
+                    raise ReviewError("Unexpected immutable source blob")
+                try:
+                    decoded = base64.b64decode(blob["content"].replace("\n", ""), validate=True)
+                except ValueError:
+                    raise ReviewError("Malformed source blob encoding") from None
+                if len(decoded) != size:
+                    raise ReviewError("Source blob size does not match immutable tree")
+                try:
+                    content = decoded.decode("utf-8")
+                except UnicodeError:
+                    item["context_unavailable"] = "binary source"
+                else:
+                    candidate = dict(item)
+                    del candidate["context_unavailable"]
+                    candidate["head_source"] = content
+                    after = len(json.dumps(candidate, ensure_ascii=True).encode())
+                    if input_size + after - before > MAX_BYTES:
+                        continue
+                    item.clear()
+                    item.update(candidate)
+            input_size += len(json.dumps(item, ensure_ascii=True).encode()) - before
+        prompt = json.dumps(data, ensure_ascii=True)
+        if len(SYSTEM.encode()) + len(prompt.encode()) > MAX_BYTES:
+            raise ReviewError("Review source context exceeds safe input size")
         return prompt
 
     def review(self, request="auto", expected_head=None):
@@ -390,7 +464,8 @@ class Reviewer:
                       f"Model: `{MODEL}`; one paid request; conservative reservation: ${reserved}.\n"
                       f"Usage: {usage['input_tokens']} input / {usage['output_tokens']} output tokens.\n"
                       f"Run: https://github.com/{self.repo}/actions/runs/{self.run}\n\n"
-                      "Coverage: full immutable diff; full changed-file source when at most 100KB/file. "
+                      "Coverage: full immutable diff; changed-file source up to 100KB/file when the total input budget permits. "
+                      "Source omissions are reported per file. "
                       "Unchanged neighboring files were not inspected.\n\n"
                       + "<pre>" + escaped + "</pre>" +
                       "\n\nLater changes require `/claude-review <current full head SHA>` from a maintainer.")

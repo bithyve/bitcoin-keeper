@@ -28,6 +28,7 @@ BASE = "b" * 40
 NEXT_HEAD = "c" * 40
 NEXT_BASE = "d" * 40
 BLOB = "e" * 40
+TREE = "f" * 40
 BOT = {"id": reviewer.BOT_ID, "login": "github-actions[bot]", "type": "Bot"}
 FAKE_KEY = "offline-anthropic-api-test-key"
 STATE_KEY = "offline-stable-review-marker-signing-key-for-tests"
@@ -83,6 +84,8 @@ class FakeAPI:
         self.source = b"new\n"
         self.compare_overrides = {}
         self.blob_overrides = {}
+        self.commit_overrides = {}
+        self.tree_overrides = {}
         self.count_response = {"input_tokens": 1000}
         self.paid_response = completed_response()
         self.paid_error = None
@@ -131,6 +134,17 @@ class FakeAPI:
                 "files": copy.deepcopy(self.files),
             }
             result.update(copy.deepcopy(self.compare_overrides))
+            return result
+        if path.startswith(root + "/git/commits/"):
+            result = {"sha": self.pr["head"]["sha"], "tree": {"sha": TREE}}
+            result.update(copy.deepcopy(self.commit_overrides))
+            return result
+        if path == root + f"/git/trees/{TREE}":
+            result = {"sha": TREE, "truncated": False,
+                      "tree": [{"path": file["filename"], "type": "blob", "sha": file["sha"],
+                                "mode": "100644", "size": len(self.source)} for file in self.files
+                               if file["status"] != "removed"]}
+            result.update(copy.deepcopy(self.tree_overrides))
             return result
         if path == root + f"/git/blobs/{BLOB}":
             result = {
@@ -657,9 +671,61 @@ class CollectionAndBudgetTests(unittest.TestCase):
                 self.assertEqual(prompt["files"][0]["head_source"], "x" * size)
                 self.assertNotIn("context_truncated", prompt["files"][0])
         self.api.source = b"x" * 100_001
+        calls_before = len(self.api.calls)
         prompt = json.loads(self.subject.collect(self.api.pr))
         self.assertNotIn("head_source", prompt["files"][0])
         self.assertIn("100KB", prompt["files"][0]["context_unavailable"])
+        self.assertFalse(any("/git/blobs/" in call[1]
+                             for call in self.api.calls[calls_before:]))
+
+    def test_optional_context_overflow_skips_blob_transfer_and_keeps_complete_diff_reviewable(self):
+        full_patch = "@@ -1 +1 @@\n-old\n+" + "x" * 360_000
+        self.api.files[0]["patch"] = full_patch
+        self.api.source = b"x" * 50_000
+        self.assertEqual(self.subject.review(), "complete")
+        prompt_text = self.api.paid_calls()[0][2]["messages"][0]["content"]
+        data = json.loads(prompt_text)
+        self.assertEqual(data["files"][0]["patch"], full_patch)
+        self.assertNotIn("head_source", data["files"][0])
+        self.assertIn("budget", data["files"][0]["context_unavailable"])
+        self.assertLessEqual(len(prompt_text.encode()) + len(reviewer.SYSTEM.encode()), reviewer.MAX_BYTES)
+        self.assertFalse(any("/git/blobs/" in call[1] for call in self.api.calls))
+        self.assertEqual(len(self.api.paid_calls()), 1)
+
+    def test_source_metadata_is_bound_to_immutable_head_and_untruncated_tree(self):
+        bad_metadata = [
+            ({"sha": NEXT_HEAD}, {}),
+            ({"tree": {"sha": "not-a-sha"}}, {}),
+            ({}, {"sha": BASE}),
+            ({}, {"truncated": True}),
+            ({}, {"tree": []}),
+            ({}, {"tree": [{"path": "src/keeper.py", "type": "blob", "sha": HEAD,
+                             "mode": "100644", "size": 4}]}),
+            ({}, {"tree": [{"path": "src/keeper.py", "type": "commit", "sha": BLOB,
+                             "mode": "160000", "size": 4}]}),
+        ]
+        for commit, tree in bad_metadata:
+            with self.subTest(commit=commit, tree=tree):
+                api = FakeAPI()
+                api.commit_overrides, api.tree_overrides = commit, tree
+                with self.assertRaises(reviewer.ReviewError):
+                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                self.assertEqual(api.count_calls(), [])
+                self.assertEqual(api.paid_calls(), [])
+                self.assertEqual(api.states(), [])
+                self.assertFalse(any("/git/blobs/" in call[1] for call in api.calls))
+
+    def test_blob_size_cannot_exceed_verified_tree_metadata_before_source_decode(self):
+        for overrides in ({"size": 100_001},
+                          {"content": base64.b64encode(b"unexpected larger content").decode()}):
+            with self.subTest(overrides=overrides):
+                api = FakeAPI()
+                api.blob_overrides = overrides
+                with self.assertRaises(reviewer.ReviewError):
+                    reviewer.Reviewer(api, REPO, 7049, "12345").review()
+                self.assertEqual(api.count_calls(), [])
+                self.assertEqual(api.paid_calls(), [])
+                self.assertEqual(api.states(), [])
 
     def test_file_and_utf8_byte_limits_prevent_any_paid_call(self):
         self.api.pr["changed_files"] = 201
@@ -672,6 +738,8 @@ class CollectionAndBudgetTests(unittest.TestCase):
             self.subject.review()
         self.assertEqual(self.api.count_calls(), [])
         self.assertEqual(self.api.paid_calls(), [])
+        self.assertFalse(any("/git/commits/" in call[1] or "/git/trees/" in call[1] or
+                             "/git/blobs/" in call[1] for call in self.api.calls))
 
     def test_invalid_or_expensive_token_estimate_prevents_paid_call_and_claim(self):
         for tokens in (True, -1, 0, "1000", 1_000_000):
@@ -809,10 +877,31 @@ class HTTPBoundaryTests(unittest.TestCase):
         response = unittest.mock.MagicMock()
         response.__enter__.return_value.read.return_value = b"x" * 8_000_001
         with patch.object(api.opener, "open", return_value=response) as request:
-            with self.assertRaisesRegex(reviewer.ReviewError, "safe size limit"):
+            with self.assertRaisesRegex(reviewer.ReviewError, "safe .*size limit"):
                 api.request("anthropic", "/v1/messages", {"model": reviewer.MODEL})
             response.__enter__.return_value.read.assert_called_once_with(8_000_001)
             self.assertEqual(request.call_count, 1)
+
+    def test_github_response_bytes_are_bounded_across_multiple_successful_requests(self):
+        api = reviewer.API("offline-github-token", "offline-anthropic-key")
+        raw = json.dumps({"padding": "x" * 3_000_000}).encode()
+        response = unittest.mock.MagicMock()
+        response.__enter__.return_value.read.return_value = raw
+        with patch.object(api.opener, "open", return_value=response) as request:
+            api.request("github", f"/repos/{REPO}/pulls/7049")
+            api.request("github", f"/repos/{REPO}/issues/7049/comments")
+            with self.assertRaises(reviewer.ReviewError) as caught:
+                api.request("github", f"/repos/{REPO}/pulls/7049")
+            self.assertIn("limit", str(caught.exception).lower())
+            self.assertNotIn("offline-github-token", str(caught.exception))
+            self.assertNotIn("offline-anthropic-key", str(caught.exception))
+            self.assertNotIn("padding", str(caught.exception))
+            self.assertEqual(request.call_count, 3)
+            read_calls = response.__enter__.return_value.read.call_args_list
+            self.assertLess(read_calls[-1].args[0], len(raw))
+            with self.assertRaises(reviewer.ReviewError):
+                api.request("github", f"/repos/{REPO}/pulls/7049")
+            self.assertEqual(request.call_count, 3)
 
 
 class EventBoundaryTests(unittest.TestCase):

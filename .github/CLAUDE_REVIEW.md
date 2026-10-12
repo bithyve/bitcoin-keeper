@@ -80,7 +80,12 @@ Missing/binary/truncated patches, >200 files, >250 commits, incomplete compariso
 oversized inputs fail with an advisory incomplete diagnostic before payment.
 Empty rename patches also require human review because mode changes are absent
 from GitHub's patch JSON. Complete source for changed files up to 100KB is
-included within the total input cap; unchanged neighboring files are not inspected.
+included when the total input budget permits; unchanged neighboring files are
+not inspected. Collection validates the full patch budget before requesting
+source, then uses immutable head-commit/tree size metadata to skip oversized or
+unaffordable source without downloading its blob. Optional context that would
+overflow the input envelope is explicitly marked unavailable. Cumulative GitHub
+response transfer is capped at 8MB, including comparisons, trees and comments.
 
 ## $3 request envelope
 
