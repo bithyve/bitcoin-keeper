@@ -40,6 +40,7 @@ import { createWatcher } from '../utilities';
 import { setAppVersion } from '../reducers/storage';
 import { isAutomaticCloudBackupEnabled, setPendingAllBackup } from '../reducers/bhr';
 import { RootState, store } from '../store';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -48,73 +49,88 @@ export const APP_KEY_UPGRADE_VERSION = '1.1.12';
 export const HEALTH_CHECK_TIMELINE_MIGRATION_VERSION = '1.2.6';
 export const SIGNER_POLICY_MIGRATION_VERSION = '2.1.0';
 
-const upgradeAccountIsActive = (appId?: string) =>
-  !!appId && store.getState().storage.appId === appId &&
+const upgradeAccountIsActive = (appId?: string, accountSession?: number) =>
+  !!appId &&
+  (accountSession === undefined || accountSession === currentBackupAccountSession()) &&
+  store.getState().storage.appId === appId &&
   (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id === appId;
 
 export function* applyUpgradeSequence({
   previousVersion,
   newVersion,
   isRecovery = false,
+  originBackupAccountSession,
 }: {
   previousVersion: string;
   newVersion: string;
   isRecovery?: boolean;
+  originBackupAccountSession?: number;
 }) {
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession()) return;
   console.log(`applying upgrade sequence - from: ${previousVersion} to ${newVersion}`);
   const { id: originAppId }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (!originAppId) return;
+  if (!upgradeAccountIsActive(originAppId, requestSession)) return;
 
   if (
     semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
     semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
   ) {
-    yield put(migrateLabelsToBip329(originAppId));
+    yield put({ ...migrateLabelsToBip329(originAppId), originBackupAccountSession: requestSession });
   }
 
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
-    yield call(migrateStructureforSignersInAppImage, originAppId);
-    yield call(migrateStructureforVaultInAppImage, originAppId);
+    yield call(migrateStructureforSignersInAppImage, originAppId, requestSession);
+    yield call(migrateStructureforVaultInAppImage, originAppId, requestSession);
   }
   if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION))
-    yield call(updateAppKeysToEnableSigning, originAppId);
+    yield call(updateAppKeysToEnableSigning, originAppId, requestSession);
 
   if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     yield call(healthCheckTimelineMigration);
   }
 
   if (semver.lt(previousVersion, SIGNER_POLICY_MIGRATION_VERSION)) {
-    yield call(migrateServerKeyPolicy);
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
+    yield call(migrateServerKeyPolicy, originAppId, requestSession);
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (app?.id === originAppId) yield put(setPendingAllBackup({ appId: originAppId, pending: true }));
+    if (app?.id === originAppId && upgradeAccountIsActive(originAppId, requestSession))
+      yield put(setPendingAllBackup({ appId: originAppId, pending: true }));
   }
 
-  if (!upgradeAccountIsActive(originAppId)) return;
+  if (!upgradeAccountIsActive(originAppId, requestSession)) return;
   yield put(setAppVersion(newVersion));
-  yield put(updateVersionHistory(previousVersion, newVersion, isRecovery, originAppId));
+  yield put({
+    ...updateVersionHistory(previousVersion, newVersion, isRecovery, originAppId),
+    originBackupAccountSession: requestSession,
+  });
 }
 
 export function* updateVersionHistoryWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   payload: { previousVersion: string; newVersion: string; isRecovery?: boolean };
   originAppId?: string;
+  originBackupAccountSession?: number;
 }) {
   const { previousVersion, newVersion, isRecovery = false } = payload;
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   try {
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (!originAppId || app?.id !== originAppId) return;
+    if (app?.id !== originAppId || !upgradeAccountIsActive(originAppId, requestSession)) return;
     const enabled = yield select((state: RootState) =>
       state.storage.appId === originAppId && isAutomaticCloudBackupEnabled(state.bhr, originAppId)
     );
-    if (enabled) {
+    if (enabled && upgradeAccountIsActive(originAppId, requestSession)) {
       yield call(Relay.updateAppImage, {
         appId: originAppId,
         version: newVersion,
-      });
+      }, requestSession);
     }
-    if (!upgradeAccountIsActive(originAppId)) return;
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     // recoverApp already records the single "Recovered Wallet" entry.
     if (!isRecovery) {
       yield call(dbManager.createObject, RealmSchema.VersionHistory, {
@@ -137,9 +153,16 @@ export const updateVersionHistoryWatcher = createWatcher(
   UPDATE_VERSION_HISTORY
 );
 
-function* migrateLablesWorker({ originAppId }: { originAppId?: string }) {
+function* migrateLablesWorker({
+  originAppId,
+  originBackupAccountSession,
+}: {
+  originAppId?: string;
+  originBackupAccountSession?: number;
+}) {
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   try {
-    if (!upgradeAccountIsActive(originAppId)) return;
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const UTXOLabels: UTXOInfo[] = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
     const tags = [];
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
@@ -165,7 +188,7 @@ function* migrateLablesWorker({ originAppId }: { originAppId?: string }) {
     });
 
     if (tags.length) {
-      if (!upgradeAccountIsActive(originAppId)) return;
+      if (!upgradeAccountIsActive(originAppId, requestSession)) return;
       yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
 
       const { id, primarySeed }: KeeperApp = yield call(
@@ -178,11 +201,12 @@ function* migrateLablesWorker({ originAppId }: { originAppId?: string }) {
         id: hash256(hash256(encryptionKey + tag.id)),
         content: encrypt(encryptionKey, JSON.stringify(tag)),
       }));
-      if (!upgradeAccountIsActive(originAppId)) return;
+      if (!upgradeAccountIsActive(originAppId, requestSession)) return;
       const enabled = yield select((state: RootState) =>
         state.storage.appId === originAppId && isAutomaticCloudBackupEnabled(state.bhr, originAppId)
       );
-      if (enabled) yield call(Relay.modifyLabels, id, tagsToBackup, []);
+      if (enabled && upgradeAccountIsActive(originAppId, requestSession))
+        yield call(Relay.modifyLabels, id, tagsToBackup, [], requestSession);
     }
   } catch (error) {
     console.log({ error });
@@ -191,12 +215,16 @@ function* migrateLablesWorker({ originAppId }: { originAppId?: string }) {
 
 export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
 
-function* migrateStructureforSignersInAppImage(originAppId: string) {
+function* migrateStructureforSignersInAppImage(originAppId: string, requestSession: number) {
   try {
-    if (!upgradeAccountIsActive(originAppId)) return;
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
     const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
-    const response = yield call(updateAppImageWorker, { payload: { wallets, signers }, originAppId });
+    const response = yield call(updateAppImageWorker, {
+      payload: { wallets, signers },
+      originAppId,
+      originBackupAccountSession: requestSession,
+    });
     if (response.updated) {
       console.log('Updated the Signers in app image');
     } else {
@@ -205,15 +233,16 @@ function* migrateStructureforSignersInAppImage(originAppId: string) {
   } catch (err) {}
 }
 
-function* migrateStructureforVaultInAppImage(originAppId: string) {
+function* migrateStructureforVaultInAppImage(originAppId: string, requestSession: number) {
   try {
-    if (!upgradeAccountIsActive(originAppId)) return;
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
     const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
     yield call(updateVaultImageWorker, {
       payload: { isUpdate: true, vault: activeVault },
       originAppId,
+      originBackupAccountSession: requestSession,
     });
   } catch (err) {
     console.log('Something went wrong in updating the vault image', err);
@@ -221,9 +250,9 @@ function* migrateStructureforVaultInAppImage(originAppId: string) {
 }
 
 // This function updates app keys/mobile keys to enable signing by generating and associating extended keys.
-function* updateAppKeysToEnableSigning(originAppId: string) {
+function* updateAppKeysToEnableSigning(originAppId: string, requestSession: number) {
   try {
-    if (!upgradeAccountIsActive(originAppId)) return;
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
     const signers = yield call(dbManager.getCollection, RealmSchema.Signer);
     const keeperSigners = signers.filter(
@@ -234,10 +263,14 @@ function* updateAppKeysToEnableSigning(originAppId: string) {
     );
     const { appKeyWalletMap, myAppKeySigners } = mapAppKeysToWallets(wallets, keeperSigners);
     const extendedKeyMap = generateExtendedKeysForSigners(myAppKeySigners, appKeyWalletMap);
-    if (!upgradeAccountIsActive(originAppId)) return;
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     updateVaultSigners(extendedKeyMap, signers);
     updateSignerDetails(myAppKeySigners, extendedKeyMap);
-    const response = yield call(updateAppImageWorker, { payload: { signers }, originAppId });
+    const response = yield call(updateAppImageWorker, {
+      payload: { signers },
+      originAppId,
+      originBackupAccountSession: requestSession,
+    });
     if (response.updated) {
       console.log('Updated the Signers in app image');
     } else {
@@ -362,11 +395,12 @@ function* healthCheckTimelineMigration() {
   }
 }
 
-function* migrateServerKeyPolicy() {
+function* migrateServerKeyPolicy(originAppId: string, requestSession: number) {
   // migrates old server key policy to new time-based spending limit policy
   try {
     const { bitcoinNetwork } = yield select((state: RootState) => state.settings);
     const signers: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
+    if (!upgradeAccountIsActive(originAppId, requestSession)) return;
 
     for (const signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER && signer.signerPolicy) {
@@ -381,6 +415,7 @@ function* migrateServerKeyPolicy() {
         );
 
         const { newPolicy } = yield call(SigningServer.migrateSignerPolicy, id, oldPolicy);
+        if (!upgradeAccountIsActive(originAppId, requestSession)) return;
         if (!newPolicy) {
           throw new Error('Migration failed: policy not updated on the server');
         }

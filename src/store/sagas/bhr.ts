@@ -107,6 +107,14 @@ function currentBackupAppId(): string | undefined {
   }
 }
 
+// An in-flight request can complete after the selected account cycles A -> B -> A.
+// Its outcome cannot be attributed to the new session, so require readback.
+function* flagUncertainBackupOutcome(appId: string) {
+  markBackupMutation(appId);
+  yield put(invalidateBackupRepair(appId));
+  yield put(setPendingAllBackup({ appId, pending: true }));
+}
+
 export function* updateAppImageWorker({
   payload,
   originAppId,
@@ -182,11 +190,19 @@ export function* updateAppImageWorker({
       nodes: nodesList,
       replaceNodes: !!updateNodes,
     }, requestSession);
+    if (!accountIsCurrent()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return { updated: false, error: 'Backup account changed' };
+    }
     if (!response?.updated) yield call(setServerBackupFailed, appId);
     return response;
   } catch (err) {
     console.log({ err });
     console.error('App image update failed', err);
+    if (!accountIsCurrent()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return { updated: false, error: 'Backup account changed' };
+    }
     yield call(setServerBackupFailed, appId);
     return { updated: true, error: '' };
   }
@@ -195,8 +211,10 @@ export function* updateAppImageWorker({
 export function* updateVaultImageWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   originAppId?: string;
+  originBackupAccountSession?: number;
   payload: {
     vault: Vault;
     archiveVaultId?: string;
@@ -204,10 +222,13 @@ export function* updateVaultImageWorker({
   };
 }) {
   const appId = originAppId || currentBackupAppId();
-  if (!appId || currentBackupAppId() !== appId)
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  const accountIsCurrent = () =>
+    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
+  if (!appId || !accountIsCurrent())
     return { updated: false, error: 'Backup account changed' };
   const backupResponse = yield call(checkBackupCondition, appId);
-  if (currentBackupAppId() !== appId)
+  if (!accountIsCurrent())
     return { updated: false, error: 'Backup account changed' };
   if (backupResponse) return { updated: true, error: '' };
 
@@ -234,19 +255,31 @@ export function* updateVaultImageWorker({
       xfpHash: hash256(signer.masterFingerprint),
     });
   }
-  if (currentBackupAppId() !== appId)
+  if (!accountIsCurrent())
     return { updated: false, error: 'Backup account changed' };
 
   if (isUpdate) {
-    const response = yield call(Relay.updateVaultImage, {
-      isUpdate,
-      signersData,
-      appId: id,
-      vaultId: vault.id,
-      vault: vaultEncrypted,
-      isArchived: !!vault.archived,
-    });
-    return response;
+    try {
+      const response = yield call(Relay.updateVaultImage, {
+        isUpdate,
+        signersData,
+        appId: id,
+        vaultId: vault.id,
+        vault: vaultEncrypted,
+        isArchived: !!vault.archived,
+      }, requestSession);
+      if (!accountIsCurrent()) {
+        yield call(flagUncertainBackupOutcome, appId);
+        return { updated: false, error: 'Backup account changed' };
+      }
+      return response;
+    } catch (err) {
+      if (!accountIsCurrent()) {
+        yield call(flagUncertainBackupOutcome, appId);
+        return { updated: false, error: 'Backup account changed' };
+      }
+      throw err;
+    }
   }
 
   // TODO to be removed
@@ -261,10 +294,18 @@ export function* updateVaultImageWorker({
       isArchived: !!vault.archived,
       subscription: subscriptionStrings,
       ...(archiveVaultId && { archiveVaultId }),
-    });
+    }, requestSession);
+    if (!accountIsCurrent()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return { updated: false, error: 'Backup account changed' };
+    }
     return response;
   } catch (err) {
     captureError(err);
+    if (!accountIsCurrent()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return { updated: false, error: 'Backup account changed' };
+    }
     yield call(setServerBackupFailed, appId);
     return { updated: true, error: '' };
   }
@@ -274,16 +315,22 @@ export function* updateVaultImageWorker({
 export function* deleteAppImageEntityWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   originAppId?: string;
+  originBackupAccountSession?: number;
   payload: {
     signerIds?: string[];
     walletIds?: string[];
   };
 }) {
   const appId = originAppId || currentBackupAppId();
-  if (!appId || currentBackupAppId() !== appId)
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  const accountIsCurrent = () =>
+    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
+  if (!appId || !accountIsCurrent())
     return { updated: false, error: 'Backup account changed' };
+  let remoteDeleteAttempted = false;
   try {
     const { signerIds, walletIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -291,19 +338,22 @@ export function* deleteAppImageEntityWorker({
     let response;
 
     const backupResponse = yield call(checkBackupCondition, appId);
-    if (currentBackupAppId() !== appId)
+    if (!accountIsCurrent())
       return { updated: false, error: 'Backup account changed' };
     if (backupResponse) response = { updated: true, error: '' };
     else {
+      remoteDeleteAttempted = true;
       response = yield call(Relay.deleteAppImageEntity, {
         appId: id,
         signers: signerIds,
         walletIds,
-      });
+      }, requestSession);
     }
 
-    if (currentBackupAppId() !== appId)
+    if (!accountIsCurrent()) {
+      if (remoteDeleteAttempted) yield call(flagUncertainBackupOutcome, appId);
       return { updated: false, error: 'Backup account changed' };
+    }
     if (response?.updated !== true) {
       yield put(setPendingAllBackup({ appId, pending: true }));
       yield call(setServerBackupFailed, appId);
@@ -313,9 +363,15 @@ export function* deleteAppImageEntityWorker({
 
     if (walletIds?.length > 0) {
       for (const walletId of walletIds) {
-        if (currentBackupAppId() !== appId)
+        if (!accountIsCurrent()) {
+          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
           return { updated: false, error: 'Backup account changed' };
+        }
         const deleted = yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
+        if (!accountIsCurrent()) {
+          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
+          return { updated: false, error: 'Backup account changed' };
+        }
         if (deleted !== true) {
           if (remoteDeleteSucceeded) {
             yield put(setPendingAllBackup({ appId, pending: true }));
@@ -327,14 +383,20 @@ export function* deleteAppImageEntityWorker({
     }
     if (signerIds?.length > 0) {
       for (const signerId of signerIds) {
-        if (currentBackupAppId() !== appId)
+        if (!accountIsCurrent()) {
+          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
           return { updated: false, error: 'Backup account changed' };
+        }
         const deleted = yield call(
           dbManager.deleteObjectByPrimaryKey,
           RealmSchema.Signer,
           'id',
           signerId
         );
+        if (!accountIsCurrent()) {
+          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
+          return { updated: false, error: 'Backup account changed' };
+        }
         if (deleted !== true) {
           if (remoteDeleteSucceeded) {
             yield put(setPendingAllBackup({ appId, pending: true }));
@@ -347,6 +409,8 @@ export function* deleteAppImageEntityWorker({
     return response;
   } catch (err) {
     captureError(err);
+    if (remoteDeleteAttempted && !accountIsCurrent())
+      yield call(flagUncertainBackupOutcome, appId);
     return { updated: false, error: err };
   }
 }
@@ -354,30 +418,43 @@ export function* deleteAppImageEntityWorker({
 export function* deleteVaultImageWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   originAppId?: string;
+  originBackupAccountSession?: number;
   payload: {
     vaultIds: string[];
   };
 }) {
   const appId = originAppId || currentBackupAppId();
-  if (!appId || currentBackupAppId() !== appId)
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  const accountIsCurrent = () =>
+    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
+  if (!appId || !accountIsCurrent())
     return { updated: false, error: 'Backup account changed' };
+  let remoteDeleteAttempted = false;
   try {
     const backupResponse = yield call(checkBackupCondition, appId);
-    if (currentBackupAppId() !== appId)
+    if (!accountIsCurrent())
       return { updated: false, error: 'Backup account changed' };
     if (backupResponse) return { updated: true, error: '' };
     const { vaultIds } = payload;
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     if (id !== appId) return { updated: false, error: 'Backup account changed' };
+    remoteDeleteAttempted = true;
     const response = yield call(Relay.deleteVaultImage, {
       appId: id,
       vaults: vaultIds,
-    });
+    }, requestSession);
+    if (!accountIsCurrent()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return { updated: false, error: 'Backup account changed' };
+    }
     return response;
   } catch (err) {
     captureError(err);
+    if (remoteDeleteAttempted && !accountIsCurrent())
+      yield call(flagUncertainBackupOutcome, appId);
     return { updated: false, error: err };
   }
 }
@@ -430,6 +507,7 @@ function* seedBackedUpWorker() {
 }
 
 function* getAppImageWorker({ payload }) {
+  const requestSession = currentBackupAccountSession();
   const { primaryMnemonic, isForgot } = payload;
   try {
     yield put(setAppImageError(''));
@@ -448,6 +526,8 @@ function* getAppImageWorker({ payload }) {
 
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const response = yield call(Relay.getAppImage, appID);
+    if (requestSession !== currentBackupAccountSession())
+      throw new Error('Backup account changed');
     if (!response?.appImage) throw new Error('Recovery data unavailable');
     const { appImage } = response;
     const labels = response.labels === undefined ? [] : response.labels;
@@ -470,7 +550,7 @@ function* getAppImageWorker({ payload }) {
       icon: 'assets/ic_diamond_hands.svg',
       receipt: '',
     };
-    yield call(
+    const recoverySession: number = yield call(
       recoverApp,
       primaryMnemonic,
       primarySeed,
@@ -480,8 +560,11 @@ function* getAppImageWorker({ payload }) {
       appImage,
       allVaultImages,
       labels,
-      previousVersion
+      previousVersion,
+      requestSession
     );
+    if (recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+      throw new Error('Backup account changed');
 
     if ((!appImage.wallets || !Object.entries(appImage.wallets).length) && !allVaultImages.length) {
       // recreate first wallet
@@ -499,12 +582,22 @@ function* getAppImageWorker({ payload }) {
           instanceNum: 0,
         },
       };
-      const created = yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+      const created = yield call(addNewWalletsWorker, {
+        payload: [defaultWallet],
+        originAppId: appID,
+        originBackupAccountSession: recoverySession,
+      });
       if (created !== true) throw new Error('Recovery data unavailable');
     }
 
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
-    yield call(addSigningDeviceWorker, { payload: { signers: [recoveryKeySigner] } });
+    yield call(addSigningDeviceWorker, {
+      payload: { signers: [recoveryKeySigner] },
+      originAppId: appID,
+      originBackupAccountSession: recoverySession,
+    });
+    if (recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+      throw new Error('Backup account changed');
     const recoveredSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     const recoveredKey = recoveredSigners.find(
       (signer) => getKeyUID(signer) === getKeyUID(recoveryKeySigner)
@@ -531,8 +624,15 @@ function* getAppImageWorker({ payload }) {
     const newVersion = DeviceInfo.getVersion();
     if (previousVersion && semver.lt(previousVersion, newVersion)) {
       console.log(`applying restore upgarde sequence - from: ${previousVersion} to ${newVersion}`);
-      yield call(applyUpgradeSequence, { previousVersion, newVersion, isRecovery: true });
+      yield call(applyUpgradeSequence, {
+        previousVersion,
+        newVersion,
+        isRecovery: true,
+        originBackupAccountSession: recoverySession,
+      });
     }
+    if (recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+      throw new Error('Backup account changed');
     yield put(addAccount(appID));
     yield put(autoSyncWallets(true, true, false, appID));
     yield put(
@@ -1056,9 +1156,17 @@ export const deleteAppImageEntityWatcher = createWatcher(
 
 const backupInspectionOwners = new Map<string, number>();
 
-function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitChoice = false) {
+function* runBackupInspection(
+  repair: boolean,
+  expectedAppId?: string,
+  explicitChoice = false,
+  expectedSession?: number
+) {
+  const requestSession = expectedSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession()) return false;
   const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (expectedAppId && id !== expectedAppId) return false;
+  if ((expectedAppId && id !== expectedAppId) || requestSession !== currentBackupAccountSession())
+    return false;
   backupInspectionOwners.set(id, (backupInspectionOwners.get(id) ?? 0) + 1);
   let finalPhase: RepairPhase = 'unverified';
   let inspection: Promise<RepairPhase> | undefined;
@@ -1066,7 +1174,15 @@ function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitC
   try {
     yield put(setBackupRepairRunning({ appId: id, running: true }));
     updates = eventChannel<RepairPhase>((emit) => {
-      inspection = inspectBackup(id, repair, (phase) => emit(phase), explicitChoice);
+      // The repair service accepts the origin session as its fifth argument.
+      const inspectWithSession = inspectBackup as (
+        appId: string,
+        shouldRepair: boolean,
+        onPhase: (phase: RepairPhase) => void,
+        explicitlyChosen: boolean,
+        session: number
+      ) => Promise<RepairPhase>;
+      inspection = inspectWithSession(id, repair, (phase) => emit(phase), explicitChoice, requestSession);
       inspection.then(
         () => emit(END),
         () => emit(END)
@@ -1076,12 +1192,13 @@ function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitC
     while (true) {
       const phase = yield takeMaybe(updates);
       if (phase === END) break;
+      if (requestSession !== currentBackupAccountSession()) return false;
       finalPhase = phase;
       yield put(setBackupRepairState({ appId: id, phase }));
     }
     const current: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const ownerIsActive = yield select((state: RootState) => state.storage.appId === id);
-    if (current?.id === id && ownerIsActive) {
+    if (current?.id === id && ownerIsActive && requestSession === currentBackupAccountSession()) {
       yield put(setPendingAllBackup({ appId: id, pending: finalPhase !== 'verified' }));
       if (finalPhase === 'verified') {
         const notifications = dbManager.getObjectByField(
@@ -1091,7 +1208,8 @@ function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitC
         ) as unknown as Array<{ id: string }>;
         for (const uai of notifications) {
           const stillActive = yield select((state: RootState) => state.storage.appId === id);
-          if (!stillActive || currentBackupAppId() !== id) break;
+          if (!stillActive || currentBackupAppId() !== id ||
+              requestSession !== currentBackupAccountSession()) break;
           yield call(uaiActionedWorker, { payload: { uaiId: uai.id, action: true } });
         }
       } else if (
@@ -1099,7 +1217,8 @@ function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitC
           ?.length
       ) {
         const stillActive = yield select((state: RootState) => state.storage.appId === id);
-        if (!stillActive || currentBackupAppId() !== id) return false;
+        if (!stillActive || currentBackupAppId() !== id ||
+            requestSession !== currentBackupAccountSession()) return false;
         yield call(addToUaiStackWorker, {
           payload: {
             uaiType: uaiType.SERVER_BACKUP_FAILURE,
@@ -1111,7 +1230,7 @@ function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitC
         });
       }
     }
-    return finalPhase === 'verified';
+    return requestSession === currentBackupAccountSession() && finalPhase === 'verified';
   } finally {
     updates?.close();
     // Cancellation closes this listener, but does not stop its shared operation.
@@ -1124,21 +1243,31 @@ function* runBackupInspection(repair: boolean, expectedAppId?: string, explicitC
   }
 }
 
-function* backupFreshnessWorker({ type, appId }) {
+function* backupFreshnessWorker({ type, appId, originBackupAccountSession }) {
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession()) return;
   const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (!appId || id !== appId) return;
+  if (!appId || id !== appId || requestSession !== currentBackupAccountSession()) return;
   const enabled = yield select((state: RootState) =>
     state.storage.appId === appId && isAutomaticCloudBackupEnabled(state.bhr, appId)
   );
-  if (!enabled) return;
-  yield call(runBackupInspection, type === REPAIR_BACKUP, appId);
+  if (!enabled || requestSession !== currentBackupAccountSession()) return;
+  yield call(runBackupInspection, type === REPAIR_BACKUP, appId, false, requestSession);
 }
 
 export function* backupFreshnessWatcher() {
   yield takeEvery([CHECK_BACKUP_FRESHNESS, REPAIR_BACKUP], backupFreshnessWorker);
 }
 
-function* backupAllSignersAndVaultsWorker({ appId }: { appId: string }) {
+function* backupAllSignersAndVaultsWorker({
+  appId,
+  originBackupAccountSession,
+}: {
+  appId: string;
+  originBackupAccountSession?: number;
+}) {
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession()) return false;
   const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (!appId || appId !== id) return false;
   const selected = yield select((state: RootState) => state.storage.appId === appId);
@@ -1147,10 +1276,11 @@ function* backupAllSignersAndVaultsWorker({ appId }: { appId: string }) {
   yield put(setBackupAllFailure({ appId, status: false }));
   yield put(setBackupAllLoading({ appId, status: true }));
   try {
-    const verified = yield call(runBackupInspection, true, appId, true);
+    const verified = yield call(runBackupInspection, true, appId, true, requestSession);
     const current: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const stillSelected = yield select((state: RootState) => state.storage.appId === appId);
-    if (current?.id !== appId || !stillSelected) return false;
+    if (current?.id !== appId || !stillSelected || requestSession !== currentBackupAccountSession())
+      return false;
     if (verified) yield put(setAutomaticCloudBackup({ appId, enabled: true }));
     yield put(
       verified
@@ -1168,25 +1298,46 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
   BACKUP_ALL_SIGNERS_AND_VAULTS
 );
 
-function* deleteBackupWorker({ appId }: { appId: string }) {
+function* deleteBackupWorker({
+  appId,
+  originBackupAccountSession,
+}: {
+  appId: string;
+  originBackupAccountSession?: number;
+}) {
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession()) return false;
   const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (!appId || appId !== id) return false;
   yield put(setBackupAllLoading({ appId, status: true }));
+  let remoteDeleteAttempted = false;
   try {
     const current: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (current?.id !== appId) return false;
+    if (current?.id !== appId || requestSession !== currentBackupAccountSession()) return false;
+    remoteDeleteAttempted = true;
     const response = yield call(Relay.deleteBackup, {
       appId,
-    });
+    }, requestSession);
+    if (requestSession !== currentBackupAccountSession()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return false;
+    }
     if (response?.updated !== true && response?.data?.updated !== true)
       throw new Error('Backup deletion not confirmed');
     const afterDelete: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (afterDelete?.id !== appId) return false;
+    if (afterDelete?.id !== appId || requestSession !== currentBackupAccountSession()) {
+      yield call(flagUncertainBackupOutcome, appId);
+      return false;
+    }
     yield put(setAutomaticCloudBackup({ appId, enabled: false }));
     yield put(setDeleteBackupSuccess({ appId, status: true }));
     yield put(setPendingAllBackup({ appId, pending: false }));
     return true;
   } catch (error) {
+    if (requestSession !== currentBackupAccountSession()) {
+      if (remoteDeleteAttempted) yield call(flagUncertainBackupOutcome, appId);
+      return false;
+    }
     yield put(setDeleteBackupFailure({ appId, status: true }));
     console.log('🚀 ~ deleteBackupWorker ~ error:', error);
     return false;
@@ -1258,15 +1409,21 @@ export function* setServerBackupFailed(expectedAppId?: string) {
   yield put(setPendingAllBackup({ appId, pending: true }));
 }
 
-function* validateServerBackupWorker({ callback, originAppId }) {
-  const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (!originAppId || originAppId !== id) {
+function* validateServerBackupWorker({ callback, originAppId, originBackupAccountSession }) {
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  if (requestSession !== currentBackupAccountSession()) {
     callback({ status: false, error: true, message: 'Backup account changed.' });
     return;
   }
-  const matched = yield call(runBackupInspection, false, originAppId);
+  const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  if (!originAppId || originAppId !== id || requestSession !== currentBackupAccountSession()) {
+    callback({ status: false, error: true, message: 'Backup account changed.' });
+    return;
+  }
+  const matched = yield call(runBackupInspection, false, originAppId, false, requestSession);
   const stillActive = yield select((state: RootState) => state.storage.appId === originAppId);
-  if (!stillActive || currentBackupAppId() !== originAppId) {
+  if (!stillActive || currentBackupAppId() !== originAppId ||
+      requestSession !== currentBackupAccountSession()) {
     callback({ status: false, error: true, message: 'Backup account changed.' });
     return;
   }

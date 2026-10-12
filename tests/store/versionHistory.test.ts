@@ -17,6 +17,7 @@ jest.mock('src/storage/realm/dbManager', () => ({
   createObject: jest.fn(),
 }));
 jest.mock('src/services/backend/Relay', () => ({ updateAppImage: jest.fn() }));
+jest.mock('src/services/backup/transport', () => ({ currentBackupAccountSession: () => 1 }));
 jest.mock('src/store/store', () => ({ store: { getState: jest.fn() } }));
 jest.mock('src/store/reducers/bhr', () => ({
   isAutomaticCloudBackupEnabled: (backup, appId) => backup.automaticCloudBackupByAppId?.[appId] === true,
@@ -56,7 +57,7 @@ function writeHistory(action) {
   expect(choice.type).toBe('SELECT');
   expect(choice.payload.selector(store.getState())).toBe(true);
   expect(worker.next(true).value).toEqual(
-    call(Relay.updateAppImage, { appId, version: newVersion })
+    call(Relay.updateAppImage, { appId, version: newVersion }, 1)
   );
   const write = worker.next({} as any).value as any;
   expect(write.payload.fn).toBe(dbManager.createObject);
@@ -71,7 +72,7 @@ function recoverWithoutDuplicateHistory(action) {
   expect(worker.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
   expect((worker.next({ id: appId } as any).value as any).type).toBe('SELECT');
   expect(worker.next(true).value).toEqual(
-    call(Relay.updateAppImage, { appId, version: newVersion })
+    call(Relay.updateAppImage, { appId, version: newVersion }, 1)
   );
   expect(worker.next({} as any).done).toBe(true);
 }
@@ -84,7 +85,10 @@ describe('Version History retains recovery provenance through required upgrades'
     expect(upgrade.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
     expect(upgrade.next({ id: 'test-app' } as any).value).toEqual(put(setAppVersion(newVersion)));
     const history = upgrade.next().value as any;
-    expect(history).toEqual(put(updateVersionHistory(previousVersion, newVersion, isRecovery, 'test-app')));
+    expect(history).toEqual(put({
+      ...updateVersionHistory(previousVersion, newVersion, isRecovery, 'test-app'),
+      originBackupAccountSession: 1,
+    }));
     if (isRecovery) {
       recoverWithoutDuplicateHistory(history.payload.action);
     } else {
@@ -147,6 +151,9 @@ function recoveryFixture(backupVersion: string) {
     select,
     semver,
     console,
+    currentBackupAccountSession: () => 1,
+    currentBackupAppId: () => require('crypto').createHash('sha256')
+      .update(Buffer.from('fixture')).digest('hex'),
     RealmSchema,
     applyUpgradeSequence,
     DeviceInfo: { getVersion: () => newVersion, getBuildNumber: () => '624' },
@@ -262,6 +269,7 @@ function recoveryFixture(backupVersion: string) {
         if (fn === applyUpgradeSequence) recoveryUpgrades.push(args[0]);
         response = fn(...args);
         if (response?.next) response = drive(response);
+        if (fn === scope.recoverApp && response === undefined) response = 1;
       }
       if (effect.type === 'PUT') {
         const action = effect.payload.action;
@@ -292,7 +300,8 @@ test.each(['2.5.15', '2.5.16'])(
     ]);
     expect(recoveryUpgrades).toEqual(
       backupVersion === '2.5.15'
-        ? [{ previousVersion: backupVersion, newVersion, isRecovery: true }]
+        ? [{ previousVersion: backupVersion, newVersion, isRecovery: true,
+          originBackupAccountSession: 1 }]
         : []
     );
   }

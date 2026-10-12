@@ -28,6 +28,7 @@ function inspectionRunner(f) {
     RealmSchema:{KeeperApp:'KeeperApp',UAI:'UAI'},
     dbManager:{ getObjectByIndex:()=>f.app, getObjectByField:()=>[] },
     currentBackupAppId:()=>f.app.id,
+    currentBackupAccountSession:()=>0,
     uaiType:{SERVER_BACKUP_FAILURE:'failure'}, uaiActionedWorker:()=>{}, addToUaiStackWorker:()=>{},
   };
   vm.runInNewContext(ts.transpileModule(code,{ compilerOptions:{ target:ts.ScriptTarget.ES2020 }}).outputText,scope);

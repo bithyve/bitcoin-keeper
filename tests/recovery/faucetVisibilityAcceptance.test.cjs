@@ -123,7 +123,7 @@ test('faucet reports pending when the funded txid persists but visible balance s
 });
 
 test('Receive Test Sats dispatch keeps its original account when queued across a switch', () => {
-  const scope = { Set };
+  const scope = { Set, currentBackupAccountSession: () => 0 };
   vm.runInNewContext(ts.transpileModule(functions('src/store/store.ts', [
     'accountOwnedActions', 'accountOwnedUtxoUiActions', 'bindActionOrigin',
   ]), { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, scope);

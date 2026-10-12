@@ -292,6 +292,7 @@ function fixture(options = {}) {
     ]) + '\n' +
     functions('src/store/sagas/bhr.ts', [
       'currentBackupAppId',
+      'flagUncertainBackupOutcome',
       'deleteAppImageEntityWorker',
       'deleteVaultImageWorker',
       'deleteBackupWorker',

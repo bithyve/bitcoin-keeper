@@ -47,6 +47,8 @@ function hookFixture(options = {}) {
     canonical: image.canonical,
     recoveryContent: image.recoveryContent,
     appId: f.app.id,
+    renderAccountSession: 1,
+    currentBackupAccountSession: () => 1,
     isOriginCurrent: () => f.app.id === f.state.storage.appId,
     markBackupMutation: (id) => mutations.push(id),
     invalidateBackupRepair: (payload) => ({ type: 'invalidateBackupRepair', payload }),

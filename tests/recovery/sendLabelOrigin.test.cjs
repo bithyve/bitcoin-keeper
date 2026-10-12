@@ -38,6 +38,7 @@ const scope = {
   Set,
   dbManager: { getObjectByIndex: () => ({ id: 'B' }) },
   RealmSchema: { KeeperApp: 'KeeperApp' },
+  currentBackupAccountSession: () => 0,
   originAppId: 'A',
   vault: { id: 'A-vault' },
   generateAbbreviatedOutputDescriptors: () => 'descriptor',

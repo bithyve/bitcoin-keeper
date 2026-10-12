@@ -115,3 +115,19 @@ for (const [kind, archived] of [['Wallet', false], ['Vault', false], ['Vault', t
     assert.deepEqual(f.writes, []);
   });
 }
+
+test('refresh paused at Electrum cannot overwrite newer A specs after A to B to A', async () => {
+  const f = refreshFixture('Wallet', false);
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+  const refreshing = f.refresh(originAppId);
+  await f.waitForSync();
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
+  f.collections.Wallet[0].specs.balances.confirmed = 777;
+  f.complete();
+  assert.equal(await refreshing, false);
+  assert.deepEqual(f.writes, []);
+  assert.equal(f.collections.Wallet[0].specs.balances.confirmed, 777);
+});

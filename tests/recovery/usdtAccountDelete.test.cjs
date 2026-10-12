@@ -12,12 +12,12 @@ const source = ts.createSourceFile(
 const declarations = new Map();
 function find(node) {
   if (ts.isVariableDeclaration(node) &&
-    ['isOriginCurrent', 'createWallet', 'deleteWallet', 'updateWallet'].includes(node.name.getText(source)))
+    ['isOriginCurrent', 'createWallet', 'deleteWallet', 'updateWallet', 'syncAccountStatus'].includes(node.name.getText(source)))
     declarations.set(node.name.getText(source), node);
   ts.forEachChild(node, find);
 }
 find(source);
-for (const name of ['isOriginCurrent', 'createWallet', 'deleteWallet', 'updateWallet'])
+for (const name of ['isOriginCurrent', 'createWallet', 'deleteWallet', 'updateWallet', 'syncAccountStatus'])
   assert.ok(declarations.has(name), `production USDT ${name} callback must exist`);
 const code = ts.transpileModule(
   [...declarations.values()].map((declaration) => `const ${declaration.getText(source)};`).join('\n'), {
@@ -25,10 +25,14 @@ const code = ts.transpileModule(
 }).outputText;
 
 function fixture({ consent = true, creationPaused = true, switchDuringRemote = false,
-  switchDuringGeneration = false, switchDuringUpdate = false } = {}) {
-  const state = { active: 'A', remote: [], local: [], errors: [], dispatched: [], invalidated: [] };
+  switchDuringRemoteRoundTrip = false,
+  switchDuringGeneration = false, switchDuringGenerationRoundTrip = false,
+  switchDuringUpdate = false,
+  switchDuringUpdateRoundTrip = false, switchDuringAccountSyncRoundTrip = false } = {}) {
+  const state = { active: 'A', session: 1, remote: [], local: [], errors: [], dispatched: [], invalidated: [] };
   const scope = {
     appId: 'A',
+    renderAccountSession: 1,
     useCallback: (callback) => callback,
     RealmSchema: { KeeperApp: 'KeeperApp', USDTWallet: 'USDTWallet' },
     dbManager: {
@@ -41,6 +45,12 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
       updateObjectById: async (_schema, _id, update) => {
         state.local.push({ appId: state.active, update });
         if (switchDuringUpdate) state.active = 'B';
+        if (switchDuringUpdateRoundTrip) {
+          state.active = 'B';
+          state.session += 1;
+          state.active = 'A';
+          state.session += 1;
+        }
         return true;
       },
       deleteObjectById: (_schema, walletId) => {
@@ -58,7 +68,22 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
     USDTWalletSupportedNetwork: 'mainnet',
     generateUSDTWallet: async () => {
       if (switchDuringGeneration) state.active = 'B';
+      if (switchDuringGenerationRoundTrip) {
+        state.active = 'B';
+        state.session += 1;
+        state.active = 'A';
+        state.session += 1;
+      }
       return { id: 'wallet', name: 'new' };
+    },
+    updateUSDTWalletAccountStatus: async () => {
+      if (switchDuringAccountSyncRoundTrip) {
+        state.active = 'B';
+        state.session += 1;
+        state.active = 'A';
+        state.session += 1;
+      }
+      return { nextNonce: 1 };
     },
     canonical: JSON.stringify,
     recoveryContent: (_kind, wallet) => wallet,
@@ -66,16 +91,24 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
     invalidateBackupRepair: (appId) => ({ type: 'INVALIDATE_BACKUP_REPAIR', appId }),
     setPendingAllBackup: (payload) => ({ type: 'SET_PENDING_ALL_BACKUP', payload }),
     markBackupMutation: (appId) => state.invalidated.push(appId),
+    currentBackupAccountSession: () => state.session,
     dispatch: (action) => state.dispatched.push(action),
-    Relay: { deleteAppImageEntity: async (body) => {
-      state.remote.push(body);
-      if (switchDuringRemote) state.active = 'B';
+    Relay: { deleteAppImageEntity: async (body, accountSession) => {
+      state.remote.push({ ...body, accountSession });
+      if (switchDuringRemote || switchDuringRemoteRoundTrip) {
+        state.active = 'B';
+        state.session += 1;
+      }
+      if (switchDuringRemoteRoundTrip) {
+        state.active = 'A';
+        state.session += 1;
+      }
       return { updated: true };
     } },
     setError: (error) => state.errors.push(error),
     captureError: () => {},
   };
-  vm.runInNewContext(`${code}\nglobalThis.callbacks = { createWallet, deleteWallet, updateWallet };`, scope);
+  vm.runInNewContext(`${code}\nglobalThis.callbacks = { createWallet, deleteWallet, updateWallet, syncAccountStatus };`, scope);
   return { state, ...scope.callbacks };
 }
 
@@ -91,6 +124,20 @@ test('remote response after account switch cannot delete B local wallet', async 
   assert.equal(await f.deleteWallet('wallet'), false);
   assert.equal(f.state.remote.length, 1);
   assert.equal(f.state.remote[0].appId, 'A');
+  assert.equal(f.state.remote[0].accountSession, 1);
+  assert.deepEqual(f.state.local, []);
+  assert.deepEqual(f.state.invalidated, ['A']);
+  assert.equal(f.state.dispatched.find((action) => action.type === 'SET_PENDING_ALL_BACKUP').payload.appId, 'A');
+});
+
+test('remote response after A to B to A cannot delete the new A session wallet', async () => {
+  const f = fixture({ switchDuringRemoteRoundTrip: true });
+  assert.equal(await f.deleteWallet('wallet'), false);
+  assert.equal(f.state.active, 'A');
+  assert.equal(f.state.session, 3);
+  assert.equal(f.state.remote.length, 1);
+  assert.equal(f.state.remote[0].appId, 'A');
+  assert.equal(f.state.remote[0].accountSession, 1);
   assert.deepEqual(f.state.local, []);
   assert.deepEqual(f.state.invalidated, ['A']);
   assert.equal(f.state.dispatched.find((action) => action.type === 'SET_PENDING_ALL_BACKUP').payload.appId, 'A');
@@ -99,6 +146,17 @@ test('remote response after account switch cannot delete B local wallet', async 
 test('a stale A callback invoked while B is active makes no write', async () => {
   const f = fixture();
   f.state.active = 'B';
+  assert.equal(await f.deleteWallet('wallet'), false);
+  assert.deepEqual(f.state.remote, []);
+  assert.deepEqual(f.state.local, []);
+});
+
+test('a delete callback rendered in the first A session cannot delete after A to B to A', async () => {
+  const f = fixture();
+  f.state.active = 'B';
+  f.state.session += 1;
+  f.state.active = 'A';
+  f.state.session += 1;
   assert.equal(await f.deleteWallet('wallet'), false);
   assert.deepEqual(f.state.remote, []);
   assert.deepEqual(f.state.local, []);
@@ -115,6 +173,27 @@ test('paused USDT setup returns before generation, persistence or backup', async
 
 test('when setup resumes, wallet generation after account switch cannot persist to B', async () => {
   const f = fixture({ creationPaused: false, switchDuringGeneration: true });
+  const result = await f.createWallet({ type: 'default', name: 'new', description: '' });
+  assert.equal(result.error, 'Account changed');
+  assert.deepEqual(f.state.local, []);
+  assert.deepEqual(f.state.dispatched, []);
+});
+
+test('when setup resumes, wallet generation after A to B to A cannot persist to the later A', async () => {
+  const f = fixture({ creationPaused: false, switchDuringGenerationRoundTrip: true });
+  const result = await f.createWallet({ type: 'default', name: 'new', description: '' });
+  assert.equal(result.error, 'Account changed');
+  assert.equal(f.state.session, 3);
+  assert.deepEqual(f.state.local, []);
+  assert.deepEqual(f.state.dispatched, []);
+});
+
+test('when setup resumes, a stale create callback cannot act after A to B to A', async () => {
+  const f = fixture({ creationPaused: false });
+  f.state.active = 'B';
+  f.state.session += 1;
+  f.state.active = 'A';
+  f.state.session += 1;
   const result = await f.createWallet({ type: 'default', name: 'new', description: '' });
   assert.equal(result.error, 'Account changed');
   assert.deepEqual(f.state.local, []);
@@ -141,6 +220,32 @@ test('a stale wallet update invoked while B is active makes no write', async () 
   const f = fixture();
   f.state.active = 'B';
   assert.equal(await f.updateWallet({ id: 'wallet', name: 'new' }), false);
+  assert.deepEqual(f.state.local, []);
+  assert.deepEqual(f.state.dispatched, []);
+});
+
+test('a callback rendered in the first A session cannot update after A to B to A', async () => {
+  const f = fixture();
+  f.state.active = 'B';
+  f.state.session += 1;
+  f.state.active = 'A';
+  f.state.session += 1;
+  assert.equal(await f.updateWallet({ id: 'wallet', name: 'stale' }), false);
+  assert.deepEqual(f.state.local, []);
+  assert.deepEqual(f.state.dispatched, []);
+});
+
+test('A to B to A during wallet persistence cannot report success or dispatch backup', async () => {
+  const f = fixture({ switchDuringUpdateRoundTrip: true });
+  assert.equal(await f.updateWallet({ id: 'wallet', name: 'new' }), false);
+  assert.equal(f.state.local[0].appId, 'A');
+  assert.equal(f.state.dispatched.some((action) => action.type === 'UPDATE_APP_IMAGE'), false);
+  assert.deepEqual(f.state.invalidated, ['A']);
+});
+
+test('a delayed account sync from the first A session cannot update the second A session', async () => {
+  const f = fixture({ switchDuringAccountSyncRoundTrip: true });
+  await assert.rejects(f.syncAccountStatus({ id: 'wallet', name: 'old' }), /Failed to sync account status/);
   assert.deepEqual(f.state.local, []);
   assert.deepEqual(f.state.dispatched, []);
 });

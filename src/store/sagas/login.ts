@@ -53,6 +53,7 @@ import { setLoginMethod } from '../reducers/settings';
 import { setSubscription } from 'src/store/sagaActions/settings';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
 import { resetSyncing } from '../reducers/wallets';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { connectToNode } from '../sagaActions/network';
@@ -205,6 +206,7 @@ function* credentialsAuthWorker({ payload }) {
         );
       }
       if (keeperApp?.id) yield put(setAppId(keeperApp.id));
+      const loginAccountSession = currentBackupAccountSession();
 
       // Store temporary account details
       if (!allAccounts.length) {
@@ -216,8 +218,14 @@ function* credentialsAuthWorker({ payload }) {
       const lastElement = versionCollection[versionCollection.length - 1];
       const lastVersionCode = lastElement.version.split(/[()]/);
       const currentVersionCode = DeviceInfo.getBuildNumber();
+      if (currentBackupAccountSession() !== loginAccountSession ||
+          store.getState().storage.appId !== keeperApp?.id) return;
       if (semver.lt(previousVersion, newVersion)) {
-        yield call(applyUpgradeSequence, { previousVersion, newVersion });
+        yield call(applyUpgradeSequence, {
+          previousVersion,
+          newVersion,
+          originBackupAccountSession: loginAccountSession,
+        });
       } else if (currentVersionCode !== lastVersionCode[1]) {
         yield call(dbManager.createObject, RealmSchema.VersionHistory, {
           version: `${newVersion}(${currentVersionCode})`,
@@ -225,6 +233,8 @@ function* credentialsAuthWorker({ payload }) {
           title: `Upgraded from ${lastVersionCode[1]} to ${currentVersionCode}`,
         });
       }
+      if (currentBackupAccountSession() !== loginAccountSession ||
+          store.getState().storage.appId !== keeperApp?.id) return;
       if (appId) {
         try {
           const { id }: KeeperApp = yield call(

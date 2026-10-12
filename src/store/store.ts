@@ -112,6 +112,11 @@ const accountOwnedActions = new Set([
   'DISCARD_BROADCASTED_TNX',
   'GENERATE_NEW_ADDRESS',
   'UPDATE_SIGNER_POLICY',
+  'CHECK_BACKUP_FRESHNESS',
+  'REPAIR_BACKUP',
+  'VALIDATE_SERVER_BACKUP',
+  'UPDATE_VERSION_HISTORY',
+  'MIGRATE_LABELS_329',
 ]);
 const accountOwnedUtxoUiActions = new Set([
   'utxos/setSyncingUTXOs',
@@ -151,7 +156,13 @@ const bindActionOrigin = (api) => (next) => (action) => {
     !('originAppId' in action)
   )
     action = { ...action, originAppId };
-  if (action?.type === 'UPDATE_APP_IMAGE')
+  if (
+    action &&
+    (accountOwnedActions.has(action.type) ||
+      action.type === 'DELETE_BACKUP' ||
+      action.type === 'BACKUP_ALL_SIGNERS_AND_VAULTS') &&
+    !('originBackupAccountSession' in action)
+  )
     action = { ...action, originBackupAccountSession: currentBackupAccountSession() };
   return next(action);
 };

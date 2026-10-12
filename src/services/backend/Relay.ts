@@ -136,13 +136,14 @@ export default class Relay {
 
   public static migrateXfp = async (
     appId: string,
-    signerChanges: SignerChange[]
+    signerChanges: SignerChange[],
+    accountSession?: number
   ): Promise<{
     updated: boolean;
     err?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}migrateXfps`, { appId, signerChanges });
+      const res = await backupPost(`${RELAY}migrateXfps`, { appId, signerChanges }, false, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {
@@ -152,7 +153,8 @@ export default class Relay {
   };
 
   public static deleteAppImageEntity = async (
-    entityList
+    entityList,
+    accountSession?: number
   ): Promise<{
     status: string;
     updated: boolean;
@@ -160,7 +162,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}deleteAppImageEntity`, entityList);
+      const res = await backupPost(`${RELAY}deleteAppImageEntity`, entityList, false, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {
@@ -170,7 +172,8 @@ export default class Relay {
   };
 
   public static deleteVaultImage = async (
-    entityList
+    entityList,
+    accountSession?: number
   ): Promise<{
     status: string;
     updated: boolean;
@@ -178,7 +181,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}deleteVaults`, entityList);
+      const res = await backupPost(`${RELAY}deleteVaults`, entityList, false, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {
@@ -188,7 +191,8 @@ export default class Relay {
   };
 
   public static updateVaultImage = async (
-    vaultData
+    vaultData,
+    accountSession?: number
   ): Promise<{
     status?: number;
     data?: {
@@ -198,7 +202,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}updateVaultImage`, vaultData);
+      const res = await backupPost(`${RELAY}updateVaultImage`, vaultData, false, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {
@@ -295,7 +299,8 @@ export default class Relay {
   public static modifyLabels = async (
     appId: string,
     addLabels: any[],
-    deleteLabels: any[]
+    deleteLabels: any[],
+    accountSession?: number
   ): Promise<{
     updated: boolean;
   }> => {
@@ -304,7 +309,7 @@ export default class Relay {
         appId,
         addLabels,
         deleteLabels,
-      })) as AxiosResponse;
+      }, false, accountSession)) as AxiosResponse;
       const { updated } = res.data || res.json;
       return {
         updated,
@@ -452,7 +457,8 @@ export default class Relay {
   };
 
   public static backupAllSignersAndVaults = async (
-    allData
+    allData,
+    accountSession?: number
   ): Promise<{
     updated?: boolean;
     status?: number;
@@ -463,7 +469,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}backupAllSignersAndVaults`, allData);
+      const res = await backupPost(`${RELAY}backupAllSignersAndVaults`, allData, false, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {
@@ -498,7 +504,8 @@ export default class Relay {
   };
 
   public static deleteBackup = async (
-    body
+    body,
+    accountSession?: number
   ): Promise<{
     status?: number;
     data?: {
@@ -508,7 +515,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const res = await backupPost(`${RELAY}deleteBackup`, body, true);
+      const res = await backupPost(`${RELAY}deleteBackup`, body, true, accountSession);
       const data = res.data || res.json;
       return data;
     } catch (err) {

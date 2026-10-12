@@ -49,6 +49,7 @@ function fixture({ consent = true, switchDuringCheck = false, switchDuringWallet
   };
   const scope = {
     call, delay, put, dbManager, console,
+    currentBackupAccountSession: () => 0,
     store: { getState: () => ({ storage: { appId: state.reduxActive }, settings: { bitcoinNetworkType: state.networkType } }) },
     RealmSchema: { KeeperApp: 'KeeperApp', Tags: 'Tags', Wallet: 'Wallet', Vault: 'Vault' },
     LabelRefType: { TXN: 'TXN', ADDR: 'ADDR', OUTPUT: 'OUTPUT' },

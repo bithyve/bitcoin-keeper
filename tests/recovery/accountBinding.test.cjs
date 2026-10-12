@@ -128,6 +128,14 @@ test('dispatch gate drops stale enable and success actions while preserving acco
   session += 2;
   middleware({ type: 'UPDATE_APP_IMAGE', payload: {}, originAppId: 'A' });
   assert.equal(seen.at(-1).originBackupAccountSession, 3);
+  middleware({ type: 'UPDATE_APP_IMAGE', payload: {}, originAppId: 'A',
+    originBackupAccountSession: 1 });
+  assert.equal(seen.at(-1).originBackupAccountSession, 1,
+    'redispatch must retain the original session instead of adopting the new A session');
+  middleware({ type: 'DELETE_BACKUP', appId: 'A' });
+  assert.equal(seen.at(-1).originBackupAccountSession, 3);
+  middleware({ type: 'UPDATE_VERSION_HISTORY', originAppId: 'A' });
+  assert.equal(seen.at(-1).originBackupAccountSession, 3);
 });
 
 test('A to opted-in B during connectivity wait blocks upload and preserves B local wallet', async () => {
@@ -244,6 +252,103 @@ test('incremental worker rejects an A payload prepared before A to B to A', asyn
   assert.equal((await updating).updated, false);
   assert.equal(f.remote.wallets.shared, 'newer-A-ciphertext');
   assert.equal(f.calls.length, 0);
+});
+
+test('wallet creation paused before backup cannot upload a stale A wallet after A to B to A', async () => {
+  const f = fixture();
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+  let finishCreation;
+  f.scope.addNewWallet = () => new Promise((resolve) => { finishCreation = resolve; });
+  const creating = f.run('addNewWalletsWorker', {
+    originAppId,
+    originBackupAccountSession: session,
+    payload: [{ walletType: enums.WalletType.DEFAULT, walletDetails: {} }],
+  });
+  for (let i = 0; i < 20 && !finishCreation; i++) await new Promise(setImmediate);
+  assert.ok(finishCreation);
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
+  f.remote.wallets.shared = 'newer-A-ciphertext';
+  finishCreation(wallet('shared', enums.NetworkType.MAINNET));
+  assert.equal(await creating, false);
+  assert.equal(f.remote.wallets.shared, 'newer-A-ciphertext');
+  assert.equal(f.calls.length, 0);
+  assert.equal(f.collections.Wallet.length, 0);
+});
+
+test('vault update paused at connectivity cannot upload stale A vault after A to B to A', async () => {
+  const f = fixture();
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+  let finishConnectivity;
+  f.scope.NetInfo.fetch = () => new Promise((resolve) => { finishConnectivity = resolve; });
+  const updating = f.run('updateVaultImageWorker', {
+    originAppId,
+    originBackupAccountSession: session,
+    payload: { vault: { id: 'shared', signers: [], archived: false } },
+  });
+  for (let i = 0; i < 20 && !finishConnectivity; i++) await new Promise(setImmediate);
+  assert.ok(finishConnectivity);
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
+  finishConnectivity({ isConnected: true });
+  assert.equal((await updating).updated, false);
+  assert.equal(f.calls.length, 0);
+});
+
+test('queued session rejection cannot report a successful incremental backup', async () => {
+  const f = fixture();
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+  let rejectQueued;
+  f.scope.Relay.updateAppImage = () => new Promise((_resolve, reject) => { rejectQueued = reject; });
+  const updating = f.run('updateAppImageWorker', {
+    originAppId,
+    originBackupAccountSession: session,
+    payload: { wallets: [wallet('shared', enums.NetworkType.MAINNET)] },
+  });
+  for (let i = 0; i < 20 && !rejectQueued; i++) await new Promise(setImmediate);
+  assert.ok(rejectQueued);
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
+  rejectQueued(new Error('Backup account session changed'));
+  assert.equal((await updating).updated, false);
+});
+
+test('vault signer xpriv refresh cannot write an old key after A to B to A', async () => {
+  const f = fixture();
+  const originAppId = f.app.id;
+  let session = 1;
+  f.scope.currentBackupAccountSession = () => session;
+  const key = signer('AABBCCDD', enums.NetworkType.MAINNET, enums.SignerType.SEED_WORDS);
+  key.id = 'AABBCCDD0M';
+  key.signerXpubs[enums.XpubTypes.P2WPKH][0].xpriv = 'old-secret';
+  key.signerXpubs[enums.XpubTypes.P2WSH] = [{ xpub: 'vault-xpub', xpriv: 'old-secret' }];
+  let finishVaultRead;
+  const originalRead = f.scope.dbManager.getObjectByIndex;
+  f.scope.dbManager.getObjectByIndex = (schema, ...args) => schema === 'Vault'
+    ? new Promise((resolve) => { finishVaultRead = resolve; })
+    : originalRead(schema, ...args);
+  f.scope.WalletUtilities.getSignerPurposeFromPath = () => enums.DerivationPurpose.BIP84;
+  let writes = 0;
+  f.scope.dbManager.updateObjectByPrimaryId = () => { writes++; return true; };
+  const updating = f.run('updateVaultSignerXprivWorker', {
+    signers: [key], originAppId, originBackupAccountSession: session,
+  });
+  for (let i = 0; i < 20 && !finishVaultRead; i++) await new Promise(setImmediate);
+  assert.ok(finishVaultRead);
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
+  finishVaultRead([{ networkType: enums.NetworkType.MAINNET,
+    signers: [{ ...key.signerXpubs[enums.XpubTypes.P2WSH][0],
+    id: key.id, masterFingerprint: key.masterFingerprint, derivationPath: "m/84'/0'/0'" }],
+  }]);
+  await assert.rejects(updating, /Account changed/);
+  assert.equal(writes, 0);
 });
 
 test('per-account consent starts off, survives switches, and legacy consent needs attribution', () => {

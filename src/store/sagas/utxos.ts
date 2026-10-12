@@ -4,6 +4,7 @@ import { call, delay, put } from 'redux-saga/effects';
 import { BIP329Label, UTXOSpendability } from 'src/services/wallets/interfaces';
 import { EntityKind, LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -45,9 +46,11 @@ function persistTagsForOrigin(
   originAppId: string,
   added: BIP329Label[],
   deleted: string[] = [],
-  scope?: LabelSyncScope
+  scope?: LabelSyncScope,
+  accountSession?: number
 ) {
   if (!currentOriginApp(originAppId)) return false;
+  if (accountSession !== undefined && accountSession !== currentBackupAccountSession()) return false;
   if (
     scope &&
     (scope.appId !== originAppId || store.getState().settings.bitcoinNetworkType !== scope.networkType)
@@ -60,8 +63,15 @@ function persistTagsForOrigin(
   return true;
 }
 
-function persistSpendabilityForOrigin(originAppId: string, schema: RealmSchema, id: string, specs: any) {
+function persistSpendabilityForOrigin(
+  originAppId: string,
+  schema: RealmSchema,
+  id: string,
+  specs: any,
+  accountSession?: number
+) {
   if (!currentOriginApp(originAppId)) return false;
+  if (accountSession !== undefined && accountSession !== currentBackupAccountSession()) return false;
   return dbManager.updateObjectById(schema, id, { specs }) === true;
 }
 
@@ -72,6 +82,7 @@ function originUiAction<T extends { type: string }>(action: T, originAppId: stri
 export function* addLabelsWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   payload: {
     txId: string;
@@ -81,9 +92,12 @@ export function* addLabelsWorker({
     type;
   };
   originAppId?: string;
+  originBackupAccountSession?: number;
 }) {
   try {
     if (!originAppId) return;
+    const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+    if (requestSession !== currentBackupAccountSession()) return;
     const app = currentOriginApp(originAppId);
     if (!app) return;
     const primarySeed = app.primarySeed;
@@ -103,16 +117,16 @@ export function* addLabelsWorker({
       };
       tags.push(tag);
     });
-    if (!(yield call(persistTagsForOrigin, originAppId, tags))) return;
+    if (!(yield call(persistTagsForOrigin, originAppId, tags, [], undefined, requestSession))) return;
     try {
       const backupResponse = yield call(checkBackupCondition, originAppId);
-      if (!backupResponse && currentOriginApp(originAppId)) {
+      if (!backupResponse && currentOriginApp(originAppId) && requestSession === currentBackupAccountSession()) {
         const encryptionKey = generateEncryptionKey(primarySeed);
         const tagsToBackup = tags.map((tag) => ({
           id: hash256(hash256(encryptionKey + tag.id)),
           content: encrypt(encryptionKey, JSON.stringify(tag)),
         }));
-        yield call(Relay.modifyLabels, originAppId, tagsToBackup, []);
+        yield call(Relay.modifyLabels, originAppId, tagsToBackup, [], requestSession);
       } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ addLabelsWorker error:', error);
@@ -129,6 +143,7 @@ export function* addLabelsWorker({
 export function* bulkUpdateLabelsWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   payload: {
     labelChanges: {
@@ -142,9 +157,12 @@ export function* bulkUpdateLabelsWorker({
     scope?: LabelSyncScope;
   };
   originAppId?: string;
+  originBackupAccountSession?: number;
 }) {
   try {
     if (!originAppId) return;
+    const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+    if (requestSession !== currentBackupAccountSession()) return;
     const app = currentOriginApp(originAppId);
     if (!app) return;
     const primarySeed = app.primarySeed;
@@ -176,12 +194,13 @@ export function* bulkUpdateLabelsWorker({
     if (labelChanges.deleted) {
       deletedTagIds = labelChanges.deleted.map((label) => `${ref}${label.name}`);
     }
-    if (!(yield call(persistTagsForOrigin, originAppId, addedTags, deletedTagIds, scope))) return;
+    if (!(yield call(persistTagsForOrigin, originAppId, addedTags, deletedTagIds, scope, requestSession))) return;
     try {
       const backupResponse = yield call(checkBackupCondition, originAppId);
       if (
         !backupResponse &&
         currentOriginApp(originAppId) &&
+        requestSession === currentBackupAccountSession() &&
         (!scope ||
           (scope.appId === originAppId &&
             store.getState().settings.bitcoinNetworkType === scope.networkType))
@@ -196,7 +215,8 @@ export function* bulkUpdateLabelsWorker({
           Relay.modifyLabels,
           originAppId,
           tagsToBackup.length ? tagsToBackup : [],
-          tagsToDelete.length ? tagsToDelete : []
+          tagsToDelete.length ? tagsToDelete : [],
+          requestSession
         );
       } else yield delay(100);
     } catch (error) {
@@ -213,6 +233,7 @@ export function* bulkUpdateLabelsWorker({
 export function* importLabelsWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   payload: {
     labels: [
@@ -225,9 +246,12 @@ export function* importLabelsWorker({
     ];
   };
   originAppId?: string;
+  originBackupAccountSession?: number;
 }) {
   try {
     if (!originAppId) return;
+    const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+    if (requestSession !== currentBackupAccountSession()) return;
     const app = currentOriginApp(originAppId);
     if (!app) return;
     const primarySeed = app.primarySeed;
@@ -247,17 +271,17 @@ export function* importLabelsWorker({
       }));
     }
 
-    if (!(yield call(persistTagsForOrigin, originAppId, addedTags))) return;
+    if (!(yield call(persistTagsForOrigin, originAppId, addedTags, [], undefined, requestSession))) return;
 
     try {
       const backupResponse = yield call(checkBackupCondition, originAppId);
-      if (!backupResponse && currentOriginApp(originAppId)) {
+      if (!backupResponse && currentOriginApp(originAppId) && requestSession === currentBackupAccountSession()) {
         const encryptionKey = generateEncryptionKey(primarySeed);
         const tagsToBackup = addedTags.map((tag) => ({
           id: hash256(hash256(encryptionKey + tag.id)),
           content: encrypt(encryptionKey, JSON.stringify(tag)),
         }));
-        yield call(Relay.modifyLabels, originAppId, tagsToBackup.length ? tagsToBackup : [], []);
+        yield call(Relay.modifyLabels, originAppId, tagsToBackup.length ? tagsToBackup : [], [], requestSession);
       } else yield delay(100);
     } catch (error) {
       yield call(setServerBackupFailed, originAppId);
@@ -277,6 +301,7 @@ export const importLabelsWatcher = createWatcher(importLabelsWorker, IMPORT_LABE
 export function* markUTXOSpendabilityWorker({
   payload,
   originAppId,
+  originBackupAccountSession,
 }: {
   payload: {
     wallet: any;
@@ -285,9 +310,12 @@ export function* markUTXOSpendabilityWorker({
     spendability: UTXOSpendability;
   };
   originAppId?: string;
+  originBackupAccountSession?: number;
 }) {
   try {
     if (!originAppId) return;
+    const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+    if (requestSession !== currentBackupAccountSession()) return;
     if (!currentOriginApp(originAppId)) return;
     const { wallet, txId, vout, spendability } = payload;
 
@@ -317,7 +345,7 @@ export function* markUTXOSpendabilityWorker({
     }
 
     if (!changed) return;
-    const persisted = yield call(persistSpendabilityForOrigin, originAppId, schema, wallet.id, specs);
+    const persisted = yield call(persistSpendabilityForOrigin, originAppId, schema, wallet.id, specs, requestSession);
     if (persisted !== true) return;
     // Persist the user's choice first, then invalidate/refresh Assisted Server
     // Backup through its normal opt-in/offline-aware incremental path.
@@ -327,10 +355,12 @@ export function* markUTXOSpendabilityWorker({
           ? yield call(updateVaultImageWorker, {
               payload: { vault: walletJSON as Vault, isUpdate: true },
               originAppId,
+              originBackupAccountSession: requestSession,
             })
           : yield call(updateAppImageWorker, {
               payload: { wallets: [walletJSON as Wallet] },
               originAppId,
+              originBackupAccountSession: requestSession,
             });
       if (!response?.updated) yield call(setServerBackupFailed, originAppId);
     } catch {
