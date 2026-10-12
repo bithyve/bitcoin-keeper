@@ -105,10 +105,11 @@ function hide(modal: ReturnType<typeof addModal>) {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  // The repository-wide Dimensions mock does not return a removable subscription.
+  // The global mock lacks a subscription. This native-boundary fake models only
+  // remove(), the API that useWindowDimensions calls during component teardown.
   jest.spyOn(Dimensions, 'addEventListener').mockReturnValue({
     remove: jest.fn(),
-  } as ReturnType<typeof Dimensions.addEventListener>);
+  } as unknown as ReturnType<typeof Dimensions.addEventListener>);
   mockNavigate.mockClear();
   mockDispatch.mockClear();
   mockState = {
