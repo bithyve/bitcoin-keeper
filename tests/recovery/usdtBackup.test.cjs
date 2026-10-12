@@ -13,6 +13,8 @@ const copy = (value) => JSON.parse(JSON.stringify(value));
 // drive its dispatched action through the production saga and real AES codec.
 function hookFixture(options = {}) {
   const f = fixture(options);
+  // The hook and saga share one disposable account session.
+  f.scope.currentBackupAccountSession = () => 1;
   const source = ts.createSourceFile('useUSDTWallets.ts', fs.readFileSync(
     path.join(__dirname, '../../src/hooks/useUSDTWallets.ts'), 'utf8'),
   ts.ScriptTarget.Latest, true);
@@ -25,6 +27,12 @@ function hookFixture(options = {}) {
   visit(source);
   assert.ok(callback, 'Production updateWallet callback exists');
   const pending = [], order = [], errors = [], mutations = [];
+  const writeIntent = Object.freeze({
+    appId: f.app.id,
+    accountSession: 1,
+    baseRevision: 'a'.repeat(64),
+    baselineEpoch: 1,
+  });
   const dbManager = {
     getObjectById: (_schema, id) => {
       const stored = f.collections.USDTWallet.find((wallet) => wallet.id === id);
@@ -49,6 +57,7 @@ function hookFixture(options = {}) {
     appId: f.app.id,
     renderAccountSession: 1,
     currentBackupAccountSession: () => 1,
+    captureBackupWriteIntent: (appId) => appId === f.app.id ? writeIntent : undefined,
     isOriginCurrent: () => f.app.id === f.state.storage.appId,
     markBackupMutation: (id) => mutations.push(id),
     invalidateBackupRepair: (payload) => ({ type: 'invalidateBackupRepair', payload }),
@@ -57,6 +66,8 @@ function hookFixture(options = {}) {
     dispatch(action) {
       if (action.type === 'UPDATE_APP_IMAGE') {
         order.push('backup');
+        assert.deepEqual(copy(action.originBackupWriteIntent), copy(writeIntent),
+          'Backup action must retain the intent captured before persistence');
         assert.deepEqual(copy(f.collections.USDTWallet[0]), copy(action.payload.wallets[0]),
           'Backup must contain the successfully persisted wallet');
         pending.push(f.run('updateAppImageWorker', action));

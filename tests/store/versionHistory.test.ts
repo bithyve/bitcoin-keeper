@@ -40,6 +40,9 @@ jest.mock('react-native-device-info', () => ({ getBuildNumber: () => '624' }));
 
 const previousVersion = '2.5.15';
 const newVersion = '2.5.16';
+const writeIntent = {
+  appId: 'test-app', accountSession: 1, baseRevision: 'a'.repeat(64), baselineEpoch: 1,
+};
 
 function setActiveAccount(appId: string, enabled = true) {
   (dbManager.getObjectByIndex as jest.Mock).mockReturnValue({ id: appId });
@@ -57,7 +60,7 @@ function writeHistory(action) {
   expect(choice.type).toBe('SELECT');
   expect(choice.payload.selector(store.getState())).toBe(true);
   expect(worker.next(true).value).toEqual(
-    call(Relay.updateAppImage, { appId, version: newVersion }, 1)
+    call(Relay.updateAppImage, { appId, version: newVersion }, action.originBackupWriteIntent)
   );
   const write = worker.next({} as any).value as any;
   expect(write.payload.fn).toBe(dbManager.createObject);
@@ -72,7 +75,7 @@ function recoverWithoutDuplicateHistory(action) {
   expect(worker.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
   expect((worker.next({ id: appId } as any).value as any).type).toBe('SELECT');
   expect(worker.next(true).value).toEqual(
-    call(Relay.updateAppImage, { appId, version: newVersion }, 1)
+    call(Relay.updateAppImage, { appId, version: newVersion }, action.originBackupWriteIntent)
   );
   expect(worker.next({} as any).done).toBe(true);
 }
@@ -81,13 +84,15 @@ describe('Version History retains recovery provenance through required upgrades'
   beforeEach(() => setActiveAccount('test-app'));
 
   test.each([true, false])('upgrade handles recovery=%s without duplicate history', (isRecovery) => {
-    const upgrade = applyUpgradeSequence({ previousVersion, newVersion, isRecovery });
+    const upgrade = applyUpgradeSequence({ previousVersion, newVersion, isRecovery,
+      originBackupWriteIntent: writeIntent });
     expect(upgrade.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
     expect(upgrade.next({ id: 'test-app' } as any).value).toEqual(put(setAppVersion(newVersion)));
     const history = upgrade.next().value as any;
     expect(history).toEqual(put({
       ...updateVersionHistory(previousVersion, newVersion, isRecovery, 'test-app'),
       originBackupAccountSession: 1,
+      originBackupWriteIntent: writeIntent,
     }));
     if (isRecovery) {
       recoverWithoutDuplicateHistory(history.payload.action);

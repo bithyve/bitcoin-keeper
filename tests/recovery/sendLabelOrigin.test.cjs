@@ -39,6 +39,7 @@ const scope = {
   dbManager: { getObjectByIndex: () => ({ id: 'B' }) },
   RealmSchema: { KeeperApp: 'KeeperApp' },
   currentBackupAccountSession: () => 0,
+  captureBackupWriteIntent: () => undefined,
   originAppId: 'A',
   vault: { id: 'A-vault' },
   generateAbbreviatedOutputDescriptors: () => 'descriptor',

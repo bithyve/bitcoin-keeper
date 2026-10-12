@@ -53,7 +53,7 @@ import { setLoginMethod } from '../reducers/settings';
 import { setSubscription } from 'src/store/sagaActions/settings';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
-import { currentBackupAccountSession } from 'src/services/backup/transport';
+import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
 import { resetSyncing } from '../reducers/wallets';
 import { autoSyncWallets } from '../sagaActions/wallets';
 import { connectToNode } from '../sagaActions/network';
@@ -217,6 +217,11 @@ function* credentialsAuthWorker({ payload }) {
       if (originSession !== currentBackupAccountSession()) return;
       if (keeperApp?.id) yield put(setAppId(keeperApp.id));
       const loginAccountSession = currentBackupAccountSession();
+      // Account selection establishes a new session. Preserve only a verified
+      // base for that session before the remaining login/upgrade awaits.
+      const loginBackupWriteIntent = keeperApp?.id
+        ? captureBackupWriteIntent(keeperApp.id)
+        : undefined;
       loginSession = loginAccountSession;
       if (store.getState().storage.appId !== keeperApp?.id) return;
 
@@ -238,6 +243,7 @@ function* credentialsAuthWorker({ payload }) {
           previousVersion,
           newVersion,
           originBackupAccountSession: loginAccountSession,
+          originBackupWriteIntent: loginBackupWriteIntent,
         });
       } else if (currentVersionCode !== lastVersionCode[1]) {
         yield call(dbManager.createObject, RealmSchema.VersionHistory, {

@@ -67,6 +67,7 @@ import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import MultiSendSvg from 'src/assets/images/@.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import Relay from 'src/services/backend/Relay';
+import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
 
 export interface SendConfirmationRouteParams {
   sender: Wallet | Vault;
@@ -314,12 +315,16 @@ function SendConfirmation({ route }) {
           }
         }
 
+        const originBackupAccountSession = currentBackupAccountSession();
+        const originBackupWriteIntent = originAppId
+          ? captureBackupWriteIntent(originAppId)
+          : undefined;
         WalletUtilities.fetchCurrentBlockHeight()
           .then(({ currentBlockHeight }) => {
             setTimeout(() => {
               dispatch(sendPhaseTwoReset());
-              dispatch(
-                sendPhaseTwo({
+              dispatch({
+                ...sendPhaseTwo({
                   wallet: sender,
                   currentBlockHeight,
                   txnPriority: transactionPriority,
@@ -330,8 +335,10 @@ function SendConfirmation({ route }) {
                     ),
                   },
                   note,
-                }, originAppId)
-              );
+                }, originAppId),
+                originBackupAccountSession,
+                originBackupWriteIntent,
+              });
             }, 200);
           })
           .catch(() => showToast(errorText.failedToFetchCurrentBlock, <ToastErrorIcon />));

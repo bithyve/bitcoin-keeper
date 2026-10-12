@@ -32,6 +32,7 @@ import { NetworkType } from 'src/services/wallets/enums';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import WalletHeader from 'src/components/WalletHeader';
+import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
 
 const PrivateElectrum = ({ host, port, useSSL, setHost, setPort, setUseSSL, connectionError }) => {
   return (
@@ -98,6 +99,8 @@ const NodeSelection = () => {
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     const originAppId = Node.currentAccountId();
     if (!originAppId) return;
+    const originBackupAccountSession = currentBackupAccountSession();
+    const originBackupWriteIntent = captureBackupWriteIntent(originAppId);
     setSaveLoading(true);
 
     // Sanitize host
@@ -120,7 +123,11 @@ const NodeSelection = () => {
     if (saved) {
       const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
-      dispatch(updateAppImage({ wallets: null, signers: null, updateNodes: true }, originAppId));
+      dispatch({
+        ...updateAppImage({ wallets: null, signers: null, updateNodes: true }, originAppId),
+        originBackupAccountSession,
+        originBackupWriteIntent,
+      });
       const newNode = updatedNodeList.find(
         (node) => node.host === nodeToSave.host && node.port === nodeToSave.port
       );

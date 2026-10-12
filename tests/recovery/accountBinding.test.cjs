@@ -63,6 +63,31 @@ test('selected B blocks stale A writes even before Realm finishes switching', as
   assert.equal(f.collections.Wallet[0].specs.totalExternalAddresses, 4);
 });
 
+test('new receive address invalidates a verified backup after local persistence', async () => {
+  const f = fixture();
+  const originAppId = f.app.id;
+  const saved = wallet('receive-wallet', enums.NetworkType.MAINNET);
+  saved.specs.totalExternalAddresses = 1;
+  f.collections.Wallet.push(saved);
+  const mutations = [];
+  const invalidatedRevisions = [];
+  f.scope.markBackupMutation = (appId) => mutations.push(appId);
+  f.scope.clearVerifiedRemoteRevision = (appId) => invalidatedRevisions.push(appId);
+
+  const updated = await f.run('generateNewExternalAddressWorker', {
+    originAppId,
+    payload: { wallet: saved },
+  });
+
+  assert.equal(updated, true);
+  assert.equal(f.collections.Wallet[0].specs.totalExternalAddresses, 2);
+  assert.deepEqual(mutations, [originAppId]);
+  assert.deepEqual(invalidatedRevisions, [originAppId]);
+  assert.ok(f.actions.some((action) => action.type === 'invalidateBackupRepair' &&
+    action.payload === originAppId));
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[originAppId], true);
+});
+
 test('verified A backup completion after selected B switch cannot enable A or report success', async () => {
   const f = fixture();
   const originAppId = f.app.id;
@@ -87,6 +112,9 @@ test('dispatch gate drops stale enable and success actions while preserving acco
     RealmSchema: { KeeperApp: 'KeeperApp' },
     dbManager: { getObjectByIndex: () => ({ id: realmAppId }) },
     currentBackupAccountSession: () => session,
+    captureBackupWriteIntent: (appId) => appId === selectedAppId ? {
+      appId, accountSession: session, baseRevision: 'a'.repeat(64), baselineEpoch: 1,
+    } : undefined,
   };
   let selectedAppId = 'B';
   let realmAppId = 'A';
@@ -125,13 +153,19 @@ test('dispatch gate drops stale enable and success actions while preserving acco
   middleware({ type: 'UPDATE_APP_IMAGE', payload: {} });
   assert.equal(seen.at(-1).originAppId, 'A');
   assert.equal(seen.at(-1).originBackupAccountSession, 1);
+  assert.equal(seen.at(-1).originBackupWriteIntent.accountSession, 1);
+  const firstIntent = seen.at(-1).originBackupWriteIntent;
   session += 2;
   middleware({ type: 'UPDATE_APP_IMAGE', payload: {}, originAppId: 'A' });
   assert.equal(seen.at(-1).originBackupAccountSession, 3);
+  assert.equal(seen.at(-1).originBackupWriteIntent.accountSession, 3);
   middleware({ type: 'UPDATE_APP_IMAGE', payload: {}, originAppId: 'A',
-    originBackupAccountSession: 1 });
+    originBackupAccountSession: 1,
+    originBackupWriteIntent: firstIntent });
   assert.equal(seen.at(-1).originBackupAccountSession, 1,
     'redispatch must retain the original session instead of adopting the new A session');
+  assert.strictEqual(seen.at(-1).originBackupWriteIntent, firstIntent,
+    'redispatch must retain its immutable source intent');
   middleware({ type: 'DELETE_BACKUP', appId: 'A' });
   assert.equal(seen.at(-1).originBackupAccountSession, 3);
   middleware({ type: 'UPDATE_VERSION_HISTORY', originAppId: 'A' });

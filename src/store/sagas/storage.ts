@@ -43,8 +43,13 @@ import {
 } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
 import LoginMethod from 'src/models/enums/LoginMethod';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
+import type { BackupWriteIntent } from 'src/services/backup/intent';
 
-export function* setupKeeperAppWorker({ payload }) {
+export function* setupKeeperAppWorker({ payload, originBackupWriteIntent }: {
+  payload: { appName: string; fcmToken: string };
+  originBackupWriteIntent?: BackupWriteIntent;
+}) {
   let isCurrentSetupScope = () => true;
   try {
     const { bitcoinNetworkType, selectedAppId } = yield select((state: RootState) => ({
@@ -165,6 +170,8 @@ export function* setupKeeperAppWorker({ payload }) {
       const hasDefaultWallet = existingWallets.some(isDefaultWallet);
       const walletCreated = hasDefaultWallet || (yield call(addNewWalletsWorker, {
         originAppId: appID,
+        originBackupAccountSession: currentBackupAccountSession(),
+        originBackupWriteIntent,
         payload: [defaultWallet],
       }));
       assertCurrentSetupScope();
@@ -174,6 +181,8 @@ export function* setupKeeperAppWorker({ payload }) {
         throw new Error('Failed to create default wallet');
       yield call(addSigningDeviceWorker, {
         originAppId: appID,
+        originBackupAccountSession: currentBackupAccountSession(),
+        originBackupWriteIntent,
         payload: { signers: [recoveryKeySigner] },
       });
       assertCurrentSetupScope();

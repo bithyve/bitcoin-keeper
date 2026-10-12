@@ -116,6 +116,36 @@ for (const [kind, archived] of [['Wallet', false], ['Vault', false], ['Vault', t
   });
 }
 
+test('refresh marks recoverable address counters pending after Realm persistence', async () => {
+  const f = refreshFixture('Wallet');
+  const originAppId = f.app.id;
+  f.collections.Wallet[0].specs.nextFreeAddressIndex = 1;
+  f.collections.Wallet[0].specs.nextFreeChangeAddressIndex = 0;
+  f.collections.Wallet[0].specs.totalExternalAddresses = 2;
+  const mutations = [];
+  const invalidatedRevisions = [];
+  f.scope.markBackupMutation = (appId) => mutations.push(appId);
+  f.scope.clearVerifiedRemoteRevision = (appId) => invalidatedRevisions.push(appId);
+  f.scope.invalidateBackupRepair = (appId) => ({ type: 'invalidateBackupRepair', payload: appId });
+  f.scope.setPendingAllBackup = (payload) => ({ type: 'setPendingAllBackup', payload });
+  f.scope.WalletOperations.syncWalletsViaElectrumClient = (wallets) => {
+    const synced = f.scope.getJSONFromRealmObject(wallets[0]);
+    synced.specs.nextFreeAddressIndex = 2;
+    synced.specs.nextFreeChangeAddressIndex = 1;
+    synced.specs.totalExternalAddresses = 3;
+    synced.specs.hasNewUpdates = true;
+    return { synchedWallets: [{ synchedWallet: synced, newUTXOs: [] }] };
+  };
+
+  assert.equal(await f.refresh(), true);
+  assert.equal(f.collections.Wallet[0].specs.totalExternalAddresses, 3);
+  assert.deepEqual(mutations, [originAppId]);
+  assert.deepEqual(invalidatedRevisions, [originAppId]);
+  assert.ok(f.actions.some((action) => action.type === 'invalidateBackupRepair' &&
+    action.payload === originAppId));
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[originAppId], true);
+});
+
 test('refresh paused at Electrum cannot overwrite newer A specs after A to B to A', async () => {
   const f = refreshFixture('Wallet', false);
   const originAppId = f.app.id;

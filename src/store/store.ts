@@ -28,6 +28,7 @@ import reduxPersistMigrations from './migrations';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import {
+  captureBackupWriteIntent,
   currentBackupAccountSession,
   observeBackupAccount,
   setBackupReconciliationHandler,
@@ -122,6 +123,8 @@ const accountOwnedActions = new Set([
   'VALIDATE_SERVER_BACKUP',
   'UPDATE_VERSION_HISTORY',
   'MIGRATE_LABELS_329',
+  'CHANGE_BITCOIN_NETWORK',
+  'SETUP_KEEPER_APP',
 ]);
 const accountOwnedUtxoUiActions = new Set([
   'utxos/setSyncingUTXOs',
@@ -169,6 +172,22 @@ const bindActionOrigin = (api) => (next) => (action) => {
     !('originBackupAccountSession' in action)
   )
     action = { ...action, originBackupAccountSession: currentBackupAccountSession() };
+  // Stamp the verified remote base at dispatch, before any saga can wait or
+  // mutate Realm. A caller that captured an earlier intent must never be
+  // silently rebased to the account's current remote state here.
+  if (
+    action &&
+    (accountOwnedActions.has(action.type) ||
+      action.type === 'DELETE_BACKUP' ||
+      action.type === 'BACKUP_ALL_SIGNERS_AND_VAULTS') &&
+    !('originBackupWriteIntent' in action)
+  ) {
+    const appId = action.originAppId || action.appId || originAppId;
+    action = {
+      ...action,
+      originBackupWriteIntent: appId ? captureBackupWriteIntent(appId) : undefined,
+    };
+  }
   return next(action);
 };
 const middlewars = [bindActionOrigin, sagaMiddleware];

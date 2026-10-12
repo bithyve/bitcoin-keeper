@@ -24,7 +24,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import Relay from 'src/services/backend/Relay';
 import { canonical, recoveryContent } from 'src/services/backup/image';
-import { currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
+import { captureBackupWriteIntent, currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
 import {
   invalidateBackupRepair,
   isAutomaticCloudBackupEnabled,
@@ -117,6 +117,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       importDetails?: USDTWalletImportDetails;
     }): Promise<{ newWallet?: USDTWallet; error?: string }> => {
       const originSession = currentBackupAccountSession();
+      const originBackupWriteIntent = captureBackupWriteIntent(appId);
       const isCurrentCreate = () =>
         isOriginCurrent() &&
         renderAccountSession === originSession &&
@@ -169,7 +170,11 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         if (!isCurrentCreate()) throw new Error('Account changed');
 
         //  Create usdt wallet backup
-        dispatch(updateAppImage({ wallets: [newWallet], signers: null, updateNodes: false }, appId));
+        dispatch({
+          ...updateAppImage({ wallets: [newWallet], signers: null, updateNodes: false }, appId),
+          originBackupAccountSession: originSession,
+          originBackupWriteIntent,
+        });
 
         return { newWallet };
       } catch (err) {
@@ -192,6 +197,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
   const deleteWallet = useCallback(async (walletId: string): Promise<boolean> => {
     const originAppId = appId;
     const originSession = currentBackupAccountSession();
+    const originBackupWriteIntent = captureBackupWriteIntent(originAppId);
     const isCurrentDelete = () =>
       isOriginCurrent() &&
       renderAccountSession === originSession &&
@@ -212,7 +218,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
           appId: originAppId,
           signers: null,
           walletIds: [walletId],
-        }, originSession);
+        }, originBackupWriteIntent);
         if (!response.updated) throw new Error('Failed to delete wallet');
         remoteDeleted = true;
       }
@@ -238,6 +244,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
     async (wallet: USDTWallet): Promise<boolean> => {
       const originAppId = appId;
       const operationSession = currentBackupAccountSession();
+      const originBackupWriteIntent = captureBackupWriteIntent(originAppId);
       const isCurrentUpdate = () =>
         isOriginCurrent() &&
         renderAccountSession === operationSession &&
@@ -264,9 +271,11 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         // Metadata and visibility must survive recovery. Balance/account refreshes
         // are rebuildable caches and must not cause an upload on every sync.
         if (recoveryChanged)
-          dispatch(
-            updateAppImage({ wallets: [wallet], signers: null, updateNodes: false }, originAppId)
-          );
+          dispatch({
+            ...updateAppImage({ wallets: [wallet], signers: null, updateNodes: false }, originAppId),
+            originBackupAccountSession: operationSession,
+            originBackupWriteIntent,
+          });
 
         return true;
       } catch (err) {

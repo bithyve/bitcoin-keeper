@@ -5,6 +5,7 @@ import { BIP329Label, UTXOSpendability } from 'src/services/wallets/interfaces';
 import { EntityKind, LabelRefType, NetworkType } from 'src/services/wallets/enums';
 import Relay from 'src/services/backend/Relay';
 import { currentBackupAccountSession } from 'src/services/backup/transport';
+import type { BackupWriteIntent } from 'src/services/backup/intent';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -83,6 +84,7 @@ export function* addLabelsWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: {
     txId: string;
@@ -93,6 +95,7 @@ export function* addLabelsWorker({
   };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     if (!originAppId) return;
@@ -126,7 +129,7 @@ export function* addLabelsWorker({
           id: hash256(hash256(encryptionKey + tag.id)),
           content: encrypt(encryptionKey, JSON.stringify(tag)),
         }));
-        yield call(Relay.modifyLabels, originAppId, tagsToBackup, [], requestSession);
+        yield call(Relay.modifyLabels, originAppId, tagsToBackup, [], originBackupWriteIntent);
       } else yield delay(100);
     } catch (error) {
       console.log('🚀 ~ addLabelsWorker error:', error);
@@ -144,6 +147,7 @@ export function* bulkUpdateLabelsWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: {
     labelChanges: {
@@ -158,6 +162,7 @@ export function* bulkUpdateLabelsWorker({
   };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     if (!originAppId) return;
@@ -216,7 +221,7 @@ export function* bulkUpdateLabelsWorker({
           originAppId,
           tagsToBackup.length ? tagsToBackup : [],
           tagsToDelete.length ? tagsToDelete : [],
-          requestSession
+          originBackupWriteIntent
         );
       } else yield delay(100);
     } catch (error) {
@@ -234,6 +239,7 @@ export function* importLabelsWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: {
     labels: [
@@ -247,6 +253,7 @@ export function* importLabelsWorker({
   };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     if (!originAppId) return;
@@ -281,7 +288,7 @@ export function* importLabelsWorker({
           id: hash256(hash256(encryptionKey + tag.id)),
           content: encrypt(encryptionKey, JSON.stringify(tag)),
         }));
-        yield call(Relay.modifyLabels, originAppId, tagsToBackup.length ? tagsToBackup : [], [], requestSession);
+        yield call(Relay.modifyLabels, originAppId, tagsToBackup.length ? tagsToBackup : [], [], originBackupWriteIntent);
       } else yield delay(100);
     } catch (error) {
       yield call(setServerBackupFailed, originAppId);
@@ -302,6 +309,7 @@ export function* markUTXOSpendabilityWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: {
     wallet: any;
@@ -311,6 +319,7 @@ export function* markUTXOSpendabilityWorker({
   };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     if (!originAppId) return;
@@ -356,11 +365,13 @@ export function* markUTXOSpendabilityWorker({
               payload: { vault: walletJSON as Vault, isUpdate: true },
               originAppId,
               originBackupAccountSession: requestSession,
+              originBackupWriteIntent,
             })
           : yield call(updateAppImageWorker, {
               payload: { wallets: [walletJSON as Wallet] },
               originAppId,
               originBackupAccountSession: requestSession,
+              originBackupWriteIntent,
             });
       if (!response?.updated) yield call(setServerBackupFailed, originAppId);
     } catch {

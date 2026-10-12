@@ -42,7 +42,12 @@ import { Alert } from 'react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/services/backend/Relay';
-import { currentBackupAccountSession } from 'src/services/backup/transport';
+import {
+  clearVerifiedRemoteRevision,
+  currentBackupAccountSession,
+  markBackupMutation,
+} from 'src/services/backup/transport';
+import type { BackupWriteIntent } from 'src/services/backup/intent';
 import SigningServer from 'src/services/backend/SigningServer';
 import WalletOperations from 'src/services/wallets/operations';
 import WalletUtilities from 'src/services/wallets/operations/utils';
@@ -137,6 +142,8 @@ import {
   hideDeletingKeyModal,
   showKeyDeletedSuccessModal,
   isAutomaticCloudBackupEnabled,
+  invalidateBackupRepair,
+  setPendingAllBackup,
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 import { connectToNodeWorker } from './network';
@@ -239,10 +246,12 @@ export function* addNewWalletsWorker({
   payload: newWalletInfo,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: NewWalletInfo[];
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   let sourceAppId = originAppId;
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
@@ -270,6 +279,7 @@ export function* addNewWalletsWorker({
         payload: { wallets },
         originAppId: sourceAppId,
         originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
       });
       if (response.updated) {
         assertWalletAccount(sourceAppId, requestSession);
@@ -308,9 +318,11 @@ export function* addNewVaultWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     newVaultInfo?: NewVaultInfo;
     isMigrated?: boolean;
@@ -354,6 +366,7 @@ export function* addNewVaultWorker({
       payload: { vault },
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (newVaultResponse.updated) {
       assertWalletAccount(sourceAppId, requestSession);
@@ -372,6 +385,7 @@ export function* addNewVaultWorker({
         const archivedVaultresponse = yield call(updateVaultImageWorker, {
           originAppId: sourceAppId,
           originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
           payload: {
             vault: {
               ...oldVault,
@@ -418,11 +432,13 @@ export function* addSigningDeviceWorker({
   callback,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: { signers: Signer[] };
   callback?: () => void;
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   if (!signers.length) return;
   const sourceAppId = originAppId || currentWalletAccountId();
@@ -434,6 +450,7 @@ export function* addSigningDeviceWorker({
       payload: { signer },
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
   }
   try {
@@ -560,6 +577,7 @@ export function* addSigningDeviceWorker({
         payload: { signers: signersToUpdate },
         originAppId: sourceAppId,
         originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
       });
       if (response.updated) {
         assertWalletAccount(sourceAppId, requestSession);
@@ -603,10 +621,12 @@ function* deleteSigningDeviceWorker({
   payload: { signers },
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: { signers: Signer[] };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
@@ -621,6 +641,7 @@ function* deleteSigningDeviceWorker({
       const response = yield call(deleteAppImageEntityWorker, {
         originAppId: sourceAppId,
         originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
         payload: { signerIds: signersToDeleteIds },
       });
       if (!response?.updated) {
@@ -655,10 +676,12 @@ function* archiveSigningDeviceWorker({
   payload: { signers },
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: { signers: Signer[] };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     const sourceAppId = originAppId || currentWalletAccountId();
@@ -673,6 +696,7 @@ function* archiveSigningDeviceWorker({
         yield call(updateSignerDetailsWorker, {
           originAppId: sourceAppId,
           originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
           payload: {
             signer: signers[i],
             key: 'archived',
@@ -697,10 +721,12 @@ function* migrateVaultWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: { newVaultInfo: NewVaultInfo; oldVaultId: string };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     const sourceAppId = originAppId || currentWalletAccountId();
@@ -710,6 +736,7 @@ function* migrateVaultWorker({
     const migrated = yield call(addNewVaultWorker, {
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
       payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
     const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
@@ -739,9 +766,11 @@ function* refreshWalletsWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     wallets: (Wallet | Vault)[];
     options: { hardRefresh?: boolean; addNotifications?: boolean; dustScan?: boolean };
@@ -843,6 +872,11 @@ function* refreshWalletsWorker({
       currentWallets.push(getJSONFromRealmObject(currentWallet) as unknown as Wallet | Vault);
     }
     wallets = currentWallets;
+    const recoverableCountersBeforeSync = new Map(wallets.map((wallet) => [wallet.id, {
+      nextFreeAddressIndex: wallet.specs.nextFreeAddressIndex,
+      nextFreeChangeAddressIndex: wallet.specs.nextFreeChangeAddressIndex,
+      totalExternalAddresses: wallet.specs.totalExternalAddresses,
+    }]));
 
     let connectionMatchesScope = false;
     try {
@@ -955,6 +989,7 @@ function* refreshWalletsWorker({
           yield call(bulkUpdateLabelsWorker, {
             originAppId: sourceAppId,
             originBackupAccountSession: requestSession,
+            originBackupWriteIntent,
             payload: {
               labelChanges,
               UTXO: utxo,
@@ -1142,6 +1177,23 @@ function* refreshWalletsWorker({
         );
       });
       if (!persisted) throw new Error('Failed to persist refreshed wallet');
+      const priorCounters = recoverableCountersBeforeSync.get(synchedWallet.id);
+      const counterChanged = priorCounters && (
+        priorCounters.nextFreeAddressIndex !== synchedWallet.specs.nextFreeAddressIndex ||
+        priorCounters.nextFreeChangeAddressIndex !== synchedWallet.specs.nextFreeChangeAddressIndex ||
+        priorCounters.totalExternalAddresses !== synchedWallet.specs.totalExternalAddresses
+      );
+      if (counterChanged) {
+        const backupEnabled = yield select((state: RootState) =>
+          isAutomaticCloudBackupEnabled(state.bhr, sourceAppId)
+        );
+        if (backupEnabled) {
+          markBackupMutation(sourceAppId);
+          clearVerifiedRemoteRevision(sourceAppId);
+          yield put(invalidateBackupRepair(sourceAppId));
+          yield put(setPendingAllBackup({ appId: sourceAppId, pending: true }));
+        }
+      }
 
       if (options.addNotifications && newDustUTXOs.length > 0) {
         yield put(setPendingDustToast(synchedWallet.id));
@@ -1182,9 +1234,11 @@ export function* autoWalletsSyncWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     syncAll?: boolean;
     hardRefresh?: boolean;
@@ -1256,6 +1310,7 @@ export function* autoWalletsSyncWorker({
       activeSucceeded = yield call(refreshWalletsWorker, {
         originAppId: sourceAppId,
         originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
         payload: {
           wallets: active.map((wallet) => getJSONFromRealmObject(wallet) as unknown as Wallet | Vault),
           options: { hardRefresh, addNotifications },
@@ -1281,6 +1336,7 @@ export function* autoWalletsSyncWorker({
       archivedSucceeded = yield call(refreshWalletsWorker, {
         originAppId: sourceAppId,
         originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
         payload: {
           wallets: archived.map(
             (wallet) => getJSONFromRealmObject(wallet) as unknown as Wallet | Vault
@@ -1312,6 +1368,7 @@ export function* autoWalletsSyncWorker({
         yield put({
           ...checkBackupFreshness(sourceAppId),
           originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
         });
       }
     }
@@ -1412,7 +1469,7 @@ export const updateSignerPolicyWatcher = createWatcher(
   UPDATE_SIGNER_POLICY
 );
 
-export function* testcoinsWorker({ payload, originAppId, originBackupAccountSession }) {
+export function* testcoinsWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   let { wallet } = payload;
   const faucetScope = yield select((state: RootState) => ({
@@ -1519,6 +1576,7 @@ export function* testcoinsWorker({ payload, originAppId, originBackupAccountSess
         const refreshed = yield call(refreshWalletsWorker, {
           originAppId: faucetScope.appId,
           originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
           payload: { wallets: [wallet], options: { hardRefresh: true } },
         });
         if (refreshed) {
@@ -1545,7 +1603,7 @@ export function* testcoinsWorker({ payload, originAppId, originBackupAccountSess
 
 export const testcoinsWatcher = createWatcher(testcoinsWorker, TEST_SATS_RECIEVE);
 
-function* updateWalletDetailsWorker({ payload, originAppId, originBackupAccountSession }) {
+function* updateWalletDetailsWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const {
@@ -1572,6 +1630,7 @@ function* updateWalletDetailsWorker({ payload, originAppId, originBackupAccountS
       payload: { wallets: [wallet] },
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (response.updated) {
       assertWalletAccount(sourceAppId, requestSession);
@@ -1595,7 +1654,7 @@ export const updateWalletDetailWatcher = createWatcher(
   UPDATE_WALLET_DETAILS
 );
 
-function* updateVaultDetailsWorker({ payload, originAppId, originBackupAccountSession }) {
+function* updateVaultDetailsWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const {
@@ -1623,6 +1682,7 @@ function* updateVaultDetailsWorker({ payload, originAppId, originBackupAccountSe
       payload: { vault },
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (response.updated) {
       assertWalletAccount(sourceAppId, requestSession);
@@ -1647,7 +1707,7 @@ export const updateVaultDetailsWatcher = createWatcher(
   UPDATE_VAULT_DETAILS
 );
 
-export function* updateSignerDetailsWorker({ payload, originAppId, originBackupAccountSession }) {
+export function* updateSignerDetailsWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const {
@@ -1667,6 +1727,7 @@ export function* updateSignerDetailsWorker({ payload, originAppId, originBackupA
       payload: { signers: [signer] },
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (response.updated) {
       assertWalletAccount(sourceAppId, requestSession);
@@ -1694,7 +1755,7 @@ export function* updateSignerDetailsWorker({ payload, originAppId, originBackupA
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
 
-function* updateKeyDetailsWorker({ payload, originAppId, originBackupAccountSession }) {
+function* updateKeyDetailsWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   assertWalletAccount(sourceAppId, requestSession);
@@ -1747,6 +1808,7 @@ function* updateKeyDetailsWorker({ payload, originAppId, originBackupAccountSess
             payload: { vault, isUpdate: true },
             originAppId: sourceAppId,
             originBackupAccountSession: requestSession,
+            originBackupWriteIntent,
           });
           if (!response?.updated) yield call(setServerBackupFailed, sourceAppId);
         }
@@ -1768,7 +1830,7 @@ function* updateKeyDetailsWorker({ payload, originAppId, originBackupAccountSess
 
 export const updateKeyDetails = createWatcher(updateKeyDetailsWorker, UPDATE_KEY_DETAILS);
 
-function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession }) {
+function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const { vaultId } = payload;
@@ -1782,6 +1844,7 @@ function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession }
       payload: { vaultIds: [vaultId] },
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (response.updated) {
       assertWalletAccount(sourceAppId, requestSession);
@@ -1806,7 +1869,7 @@ function* deleteVaultWorker({ payload, originAppId, originBackupAccountSession }
 
 export const deleteVaultyWatcher = createWatcher(deleteVaultWorker, DELETE_VAULT);
 
-function* reinstateVaultWorker({ payload, originAppId, originBackupAccountSession }) {
+function* reinstateVaultWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const { vaultId } = payload;
@@ -1826,6 +1889,7 @@ function* reinstateVaultWorker({ payload, originAppId, originBackupAccountSessio
     const response = yield call(updateVaultImageWorker, {
       originAppId: sourceAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
       payload: {
         vault: {
           ...vault,
@@ -1845,6 +1909,7 @@ function* reinstateVaultWorker({ payload, originAppId, originBackupAccountSessio
         yield call(updateSignerDetailsWorker, {
           originAppId: sourceAppId,
           originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
           payload: {
             signer: signerMap[getKeyUID(vault.signers[i])],
             key: 'archived',
@@ -1866,7 +1931,7 @@ function* reinstateVaultWorker({ payload, originAppId, originBackupAccountSessio
 
 export const reinstateVaultWatcher = createWatcher(reinstateVaultWorker, REINSTATE_VAULT);
 
-function* refillMobileKeyWorker({ payload, originAppId, originBackupAccountSession }) {
+function* refillMobileKeyWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   const { vaultKey } = payload;
@@ -1891,6 +1956,7 @@ function* refillMobileKeyWorker({ payload, originAppId, originBackupAccountSessi
         yield call(updateKeyDetailsWorker, {
           originAppId: sourceAppId,
           originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
           payload: { signer: signer.signerXpubs[XpubTypes.P2WSH][0], key: 'xpriv', value: xpriv },
         });
       }
@@ -1905,9 +1971,11 @@ export const refillMobileKeyWatcher = createWatcher(refillMobileKeyWorker, REFIL
 function* refreshCanaryWalletsWorker({
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 } = {}) {
   try {
     const sourceAppId = originAppId || currentWalletAccountId();
@@ -1919,6 +1987,7 @@ function* refreshCanaryWalletsWorker({
       yield call(refreshWalletsWorker, {
         originAppId: sourceAppId,
         originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
         payload: {
           wallets: canaryWallets,
           options: {
@@ -1941,10 +2010,12 @@ function* mergeSimilarKeysWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: { signer: Signer };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   try {
     const sourceAppId = originAppId || currentWalletAccountId();
@@ -2008,7 +2079,7 @@ function* mergeSimilarKeysWorker({
             newSignerId: signer.masterFingerprint,
             newSignerDetails: encrytedSigner,
           },
-        ], requestSession);
+        ], originBackupWriteIntent);
         if (updated) {
           console.log(
             `Signer ${s.masterFingerprint} has been merged with ${signer.masterFingerprint}`
@@ -2047,7 +2118,7 @@ function* generateNewExternalAddressWorker({
   const { wallet } = payload;
   const specs = { ...wallet.specs, totalExternalAddresses: wallet.specs.totalExternalAddresses + 1 };
 
-  return yield call(() => {
+  const updated = yield call(() => {
     assertWalletAccount(sourceAppId, requestSession);
     return dbManager.updateObjectById(
       wallet.entityKind === EntityKind.VAULT ? RealmSchema.Vault : RealmSchema.Wallet,
@@ -2055,6 +2126,20 @@ function* generateNewExternalAddressWorker({
       { specs }
     );
   });
+  if (updated === true) {
+    const backupEnabled = yield select((state: RootState) =>
+      isAutomaticCloudBackupEnabled(state.bhr, sourceAppId)
+    );
+    if (backupEnabled) {
+      // This index is part of the recoverable wallet image, even though it
+      // does not issue an incremental relay request.
+      markBackupMutation(sourceAppId);
+      clearVerifiedRemoteRevision(sourceAppId);
+      yield put(invalidateBackupRepair(sourceAppId));
+      yield put(setPendingAllBackup({ appId: sourceAppId, pending: true }));
+    }
+  }
+  return updated;
 }
 
 export const generateNewExternalAddressWatcher = createWatcher(

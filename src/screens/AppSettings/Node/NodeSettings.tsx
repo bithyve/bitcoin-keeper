@@ -26,6 +26,7 @@ import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import WalletHeader from 'src/components/WalletHeader';
 import Text from 'src/components/KeeperText';
+import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -69,6 +70,8 @@ function NodeSettings() {
 
   const onDelete = async (selectedItem: NodeDetail, originAppId = nodeListAppId) => {
     if (!originAppId || !Node.isAccountActive(originAppId)) return;
+    const originBackupAccountSession = currentBackupAccountSession();
+    const originBackupWriteIntent = captureBackupWriteIntent(originAppId);
     const isConnected = Node.nodeConnectionStatus(selectedItem);
     if (isConnected) await Node.disconnect(selectedItem);
 
@@ -78,7 +81,11 @@ function NodeSettings() {
     if (status) {
       const updatedNodes = Node.getAllNodes();
       setNodeList(updatedNodes);
-      dispatch(updateAppImage({ wallets: null, signers: null, updateNodes: true }, originAppId));
+      dispatch({
+        ...updateAppImage({ wallets: null, signers: null, updateNodes: true }, originAppId),
+        originBackupAccountSession,
+        originBackupWriteIntent,
+      });
     }
   };
 

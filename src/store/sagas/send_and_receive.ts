@@ -1,5 +1,6 @@
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/services/wallets/interfaces';
 import { EntityKind, LabelRefType, TxPriority } from 'src/services/wallets/enums';
+import type { BackupWriteIntent } from 'src/services/backup/intent';
 import { call, fork, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -129,7 +130,8 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
 
 export const sendPhaseOneWatcher = createWatcher(sendPhaseOneWorker, SEND_PHASE_ONE);
 
-function* sendPhaseTwoWorker({ payload, originAppId }: SendPhaseTwoAction & { originAppId?: string }) {
+function* sendPhaseTwoWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }:
+  SendPhaseTwoAction & { originAppId?: string; originBackupAccountSession?: number; originBackupWriteIntent?: BackupWriteIntent }) {
   if (!ELECTRUM_CLIENT.isClientConnected) {
     ElectrumClient.resetCurrentPeerIndex();
     yield call(connectToNodeWorker);
@@ -171,6 +173,8 @@ function* sendPhaseTwoWorker({ payload, originAppId }: SendPhaseTwoAction & { or
         if (note) {
           yield call(addLabelsWorker, {
             originAppId,
+            originBackupAccountSession,
+            originBackupWriteIntent,
             payload: {
               txId: txid,
               wallet,
@@ -206,7 +210,7 @@ function* sendPhaseTwoWorker({ payload, originAppId }: SendPhaseTwoAction & { or
     }
 
     if (finalOutputs) {
-      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid, originAppId);
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid, originAppId, originBackupAccountSession, originBackupWriteIntent);
     }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
@@ -224,7 +228,8 @@ function* sendPhaseTwoWorker({ payload, originAppId }: SendPhaseTwoAction & { or
 
 export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
-function* sendPhaseThreeWorker({ payload, originAppId }: SendPhaseThreeAction & { originAppId?: string }) {
+function* sendPhaseThreeWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }:
+  SendPhaseThreeAction & { originAppId?: string; originBackupAccountSession?: number; originBackupWriteIntent?: BackupWriteIntent }) {
   if (!ELECTRUM_CLIENT.isClientConnected) {
     ElectrumClient.resetCurrentPeerIndex();
     yield call(connectToNodeWorker);
@@ -278,6 +283,8 @@ function* sendPhaseThreeWorker({ payload, originAppId }: SendPhaseThreeAction & 
     if (note) {
       yield call(addLabelsWorker, {
         originAppId,
+        originBackupAccountSession,
+        originBackupWriteIntent,
         payload: {
           txId: txid,
           wallet,
@@ -288,7 +295,7 @@ function* sendPhaseThreeWorker({ payload, originAppId }: SendPhaseThreeAction & 
     }
 
     if (finalOutputs) {
-      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid, originAppId);
+      yield call(handleChangeOutputLabels, finalOutputs, inputs, wallet, txid, originAppId, originBackupAccountSession, originBackupWriteIntent);
     }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message)) {
@@ -306,7 +313,15 @@ function* sendPhaseThreeWorker({ payload, originAppId }: SendPhaseThreeAction & 
 
 export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
-function* handleChangeOutputLabels(finalOutputs, inputs, wallet, txid, originAppId?: string) {
+function* handleChangeOutputLabels(
+  finalOutputs,
+  inputs,
+  wallet,
+  txid,
+  originAppId?: string,
+  originBackupAccountSession?: number,
+  originBackupWriteIntent?: BackupWriteIntent
+) {
   const changeOutputIndex = finalOutputs.findIndex((output) =>
     Object.values(wallet.specs.addresses.internal).includes(output.address)
   );
@@ -343,6 +358,8 @@ function* handleChangeOutputLabels(finalOutputs, inputs, wallet, txid, originApp
 
     yield fork(bulkUpdateLabelsWorker, {
       originAppId,
+      originBackupAccountSession,
+      originBackupWriteIntent,
       payload: {
         labelChanges,
         UTXO: { txId: txid, vout: changeOutputIndex },
@@ -466,7 +483,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
 
 export const calculateCustomFeeWatcher = createWatcher(calculateCustomFee, CALCULATE_CUSTOM_FEE);
 
-function* discardBroadcastedTnxWorker({ payload, originAppId }) {
+function* discardBroadcastedTnxWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const { cachedTxid, vault } = payload;
   const snapshots = yield select((state) => state.cachedTxn.snapshots);
   if (snapshots[cachedTxid]) {
@@ -479,10 +496,12 @@ function* discardBroadcastedTnxWorker({ payload, originAppId }) {
     });
     const potentialTxId = snapshots[cachedTxid].potentialTxId;
     const note = snapshots[cachedTxid].routeParams.note;
-    yield call(handleChangeOutputLabels, finalOutputs, inputs, vault, potentialTxId, originAppId);
+    yield call(handleChangeOutputLabels, finalOutputs, inputs, vault, potentialTxId, originAppId, originBackupAccountSession, originBackupWriteIntent);
     if (note.length) {
       yield call(addLabelsWorker, {
         originAppId,
+        originBackupAccountSession,
+        originBackupWriteIntent,
         payload: {
           txId: potentialTxId,
           wallet: vault,

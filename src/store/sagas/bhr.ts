@@ -3,6 +3,7 @@ import { inspectBackup, RepairPhase } from 'src/services/backup/repair';
 import { prepareRecoveryImage } from 'src/services/backup/restore';
 import { BackupImage, pauseBackup } from 'src/services/backup/image';
 import { currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
+import type { BackupWriteIntent } from 'src/services/backup/intent';
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put, select, takeMaybe, takeEvery } from 'redux-saga/effects';
@@ -119,9 +120,11 @@ export function* updateAppImageWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     wallets?: Wallet[] | USDTWallet[];
     signers?: Signer[];
@@ -189,7 +192,7 @@ export function* updateAppImageWorker({
       version,
       nodes: nodesList,
       replaceNodes: !!updateNodes,
-    }, requestSession);
+    }, originBackupWriteIntent);
     if (!accountIsCurrent()) {
       yield call(flagUncertainBackupOutcome, appId);
       return { updated: false, error: 'Backup account changed' };
@@ -204,7 +207,9 @@ export function* updateAppImageWorker({
       return { updated: false, error: 'Backup account changed' };
     }
     yield call(setServerBackupFailed, appId);
-    return { updated: true, error: '' };
+    // Local wallet/key changes may continue offline; the relay write is still
+    // unverified and the account-scoped pending flag remains set.
+    return { updated: true, backupConfirmed: false, backupPending: true, error: '' };
   }
 }
 
@@ -212,9 +217,11 @@ export function* updateVaultImageWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     vault: Vault;
     archiveVaultId?: string;
@@ -267,7 +274,7 @@ export function* updateVaultImageWorker({
         vaultId: vault.id,
         vault: vaultEncrypted,
         isArchived: !!vault.archived,
-      }, requestSession);
+      }, originBackupWriteIntent);
       if (!accountIsCurrent()) {
         yield call(flagUncertainBackupOutcome, appId);
         return { updated: false, error: 'Backup account changed' };
@@ -294,7 +301,7 @@ export function* updateVaultImageWorker({
       isArchived: !!vault.archived,
       subscription: subscriptionStrings,
       ...(archiveVaultId && { archiveVaultId }),
-    }, requestSession);
+    }, originBackupWriteIntent);
     if (!accountIsCurrent()) {
       yield call(flagUncertainBackupOutcome, appId);
       return { updated: false, error: 'Backup account changed' };
@@ -307,7 +314,8 @@ export function* updateVaultImageWorker({
       return { updated: false, error: 'Backup account changed' };
     }
     yield call(setServerBackupFailed, appId);
-    return { updated: true, error: '' };
+    // Keep local vault editing available while making the failed backup visible.
+    return { updated: true, backupConfirmed: false, backupPending: true, error: '' };
   }
 }
 
@@ -316,9 +324,11 @@ export function* deleteAppImageEntityWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     signerIds?: string[];
     walletIds?: string[];
@@ -347,7 +357,7 @@ export function* deleteAppImageEntityWorker({
         appId: id,
         signers: signerIds,
         walletIds,
-      }, requestSession);
+      }, originBackupWriteIntent);
     }
 
     if (!accountIsCurrent()) {
@@ -419,9 +429,11 @@ export function* deleteVaultImageWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
   payload: {
     vaultIds: string[];
   };
@@ -445,7 +457,7 @@ export function* deleteVaultImageWorker({
     const response = yield call(Relay.deleteVaultImage, {
       appId: id,
       vaults: vaultIds,
-    }, requestSession);
+    }, originBackupWriteIntent);
     if (!accountIsCurrent()) {
       yield call(flagUncertainBackupOutcome, appId);
       return { updated: false, error: 'Backup account changed' };
@@ -1329,9 +1341,11 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
 function* deleteBackupWorker({
   appId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   appId: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   if (requestSession !== currentBackupAccountSession()) return false;
@@ -1345,7 +1359,7 @@ function* deleteBackupWorker({
     remoteDeleteAttempted = true;
     const response = yield call(Relay.deleteBackup, {
       appId,
-    }, requestSession);
+    }, originBackupWriteIntent);
     if (requestSession !== currentBackupAccountSession()) {
       yield call(flagUncertainBackupOutcome, appId);
       return false;

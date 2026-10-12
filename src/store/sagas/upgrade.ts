@@ -41,6 +41,7 @@ import { setAppVersion } from '../reducers/storage';
 import { isAutomaticCloudBackupEnabled, setPendingAllBackup } from '../reducers/bhr';
 import { RootState, store } from '../store';
 import { currentBackupAccountSession } from 'src/services/backup/transport';
+import type { BackupWriteIntent } from 'src/services/backup/intent';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -60,11 +61,13 @@ export function* applyUpgradeSequence({
   newVersion,
   isRecovery = false,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   previousVersion: string;
   newVersion: string;
   isRecovery?: boolean;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   if (requestSession !== currentBackupAccountSession()) return;
@@ -76,15 +79,15 @@ export function* applyUpgradeSequence({
     semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
     semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
   ) {
-    yield put({ ...migrateLabelsToBip329(originAppId), originBackupAccountSession: requestSession });
+    yield put({ ...migrateLabelsToBip329(originAppId), originBackupAccountSession: requestSession, originBackupWriteIntent });
   }
 
   if (semver.lt(previousVersion, KEY_MANAGEMENT_VERSION)) {
-    yield call(migrateStructureforSignersInAppImage, originAppId, requestSession);
-    yield call(migrateStructureforVaultInAppImage, originAppId, requestSession);
+    yield call(migrateStructureforSignersInAppImage, originAppId, requestSession, originBackupWriteIntent);
+    yield call(migrateStructureforVaultInAppImage, originAppId, requestSession, originBackupWriteIntent);
   }
   if (semver.lt(previousVersion, APP_KEY_UPGRADE_VERSION))
-    yield call(updateAppKeysToEnableSigning, originAppId, requestSession);
+    yield call(updateAppKeysToEnableSigning, originAppId, requestSession, originBackupWriteIntent);
 
   if (semver.lt(previousVersion, HEALTH_CHECK_TIMELINE_MIGRATION_VERSION)) {
     if (!upgradeAccountIsActive(originAppId, requestSession)) return;
@@ -104,6 +107,7 @@ export function* applyUpgradeSequence({
   yield put({
     ...updateVersionHistory(previousVersion, newVersion, isRecovery, originAppId),
     originBackupAccountSession: requestSession,
+    originBackupWriteIntent,
   });
 }
 
@@ -111,10 +115,12 @@ export function* updateVersionHistoryWorker({
   payload,
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   payload: { previousVersion: string; newVersion: string; isRecovery?: boolean };
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   const { previousVersion, newVersion, isRecovery = false } = payload;
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
@@ -128,7 +134,7 @@ export function* updateVersionHistoryWorker({
       yield call(Relay.updateAppImage, {
         appId: originAppId,
         version: newVersion,
-      }, requestSession);
+      }, originBackupWriteIntent);
     }
     if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     // recoverApp already records the single "Recovered Wallet" entry.
@@ -156,9 +162,11 @@ export const updateVersionHistoryWatcher = createWatcher(
 function* migrateLablesWorker({
   originAppId,
   originBackupAccountSession,
+  originBackupWriteIntent,
 }: {
   originAppId?: string;
   originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
 }) {
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   try {
@@ -206,7 +214,7 @@ function* migrateLablesWorker({
         state.storage.appId === originAppId && isAutomaticCloudBackupEnabled(state.bhr, originAppId)
       );
       if (enabled && upgradeAccountIsActive(originAppId, requestSession))
-        yield call(Relay.modifyLabels, id, tagsToBackup, [], requestSession);
+        yield call(Relay.modifyLabels, id, tagsToBackup, [], originBackupWriteIntent);
     }
   } catch (error) {
     console.log({ error });
@@ -215,7 +223,11 @@ function* migrateLablesWorker({
 
 export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
 
-function* migrateStructureforSignersInAppImage(originAppId: string, requestSession: number) {
+function* migrateStructureforSignersInAppImage(
+  originAppId: string,
+  requestSession: number,
+  originBackupWriteIntent?: BackupWriteIntent
+) {
   try {
     if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
@@ -224,6 +236,7 @@ function* migrateStructureforSignersInAppImage(originAppId: string, requestSessi
       payload: { wallets, signers },
       originAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (response.updated) {
       console.log('Updated the Signers in app image');
@@ -233,7 +246,11 @@ function* migrateStructureforSignersInAppImage(originAppId: string, requestSessi
   } catch (err) {}
 }
 
-function* migrateStructureforVaultInAppImage(originAppId: string, requestSession: number) {
+function* migrateStructureforVaultInAppImage(
+  originAppId: string,
+  requestSession: number,
+  originBackupWriteIntent?: BackupWriteIntent
+) {
   try {
     if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
@@ -243,6 +260,7 @@ function* migrateStructureforVaultInAppImage(originAppId: string, requestSession
       payload: { isUpdate: true, vault: activeVault },
       originAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
   } catch (err) {
     console.log('Something went wrong in updating the vault image', err);
@@ -250,7 +268,11 @@ function* migrateStructureforVaultInAppImage(originAppId: string, requestSession
 }
 
 // This function updates app keys/mobile keys to enable signing by generating and associating extended keys.
-function* updateAppKeysToEnableSigning(originAppId: string, requestSession: number) {
+function* updateAppKeysToEnableSigning(
+  originAppId: string,
+  requestSession: number,
+  originBackupWriteIntent?: BackupWriteIntent
+) {
   try {
     if (!upgradeAccountIsActive(originAppId, requestSession)) return;
     const wallets = yield call(dbManager.getCollection, RealmSchema.Wallet);
@@ -270,6 +292,7 @@ function* updateAppKeysToEnableSigning(originAppId: string, requestSession: numb
       payload: { signers },
       originAppId,
       originBackupAccountSession: requestSession,
+      originBackupWriteIntent,
     });
     if (response.updated) {
       console.log('Updated the Signers in app image');
