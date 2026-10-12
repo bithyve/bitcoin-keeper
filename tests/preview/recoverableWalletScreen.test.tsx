@@ -5,6 +5,11 @@ import { act, fireEvent, render } from '@testing-library/react-native';
 import WalletCreationChooser from '../../src/components/WalletCreationChooser';
 import { customTheme } from '../../src/navigation/themes';
 import RecoverableWalletPreviewApp from '../../src/preview/recoverable-wallet/RecoverableWalletPreviewApp';
+import { checkPreviewMobileKeyReadback } from 'src/services/wallets/recoverable/previewMobileKeyReadback';
+
+jest.mock('src/services/wallets/recoverable/previewMobileKeyReadback', () => ({
+  checkPreviewMobileKeyReadback: jest.fn(),
+}));
 
 jest.mock('src/components/ScreenWrapper', () => {
   const React = require('react');
@@ -45,6 +50,7 @@ function enterRecoveryOptions(screen) {
 
 describe('Recoverable Wallet preview on a small screen', () => {
   beforeEach(() => {
+    (checkPreviewMobileKeyReadback as jest.Mock).mockReset();
     jest.useFakeTimers();
     jest
       .spyOn(Dimensions, 'get')
@@ -55,6 +61,49 @@ describe('Recoverable Wallet preview on a small screen', () => {
   afterEach(() => {
     jest.useRealTimers();
     jest.restoreAllMocks();
+  });
+
+  test('native key diagnostic is opt-in and never makes the simulated setup functional', async () => {
+    const screen = render(<RecoverableWalletPreviewApp />);
+    expect(checkPreviewMobileKeyReadback).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByTestId('wallet-choice-seedless'));
+    finishSimulatedAutomaticSetup();
+    expect(checkPreviewMobileKeyReadback).not.toHaveBeenCalled();
+    expect(screen.getByTestId('preview-mobile-key-status')).toHaveTextContent('SIMULATED');
+    fireEvent.press(screen.getByTestId('preview-cancel'));
+    fireEvent.press(screen.getByTestId('preview-device-mobile-key-entry'));
+    expect(checkPreviewMobileKeyReadback).not.toHaveBeenCalled();
+    (checkPreviewMobileKeyReadback as jest.Mock).mockResolvedValueOnce({
+      kind: 'preview-mobile-key-two-read-match',
+      network: 'testnet',
+      masterFingerprint: '12345678',
+      publicIdentityTag: '1234567890ABCDEF',
+      matchedReads: 2,
+      backupVerified: false,
+      walletReady: false,
+      recoveryVerified: false,
+    });
+    await act(async () => fireEvent.press(screen.getByTestId('primary-Check Key')));
+    expect(checkPreviewMobileKeyReadback).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('preview-mobile-key-matched')).toHaveTextContent(
+      'Two native reads matched on this device.'
+    );
+    expect(screen.getByTestId('preview-mobile-key-no-backup')).toHaveTextContent('NOT BACKED UP');
+    expect(screen.getByTestId('preview-mobile-key-no-backup')).toHaveTextContent(
+      'No wallet, signing, cloud recovery or Server Key is active'
+    );
+  });
+
+  test('native diagnostic failure shows only a safe error code', async () => {
+    const screen = render(<RecoverableWalletPreviewApp />);
+    fireEvent.press(screen.getByTestId('preview-device-mobile-key-entry'));
+    (checkPreviewMobileKeyReadback as jest.Mock).mockRejectedValueOnce(
+      Object.assign(new Error('private diagnostic detail'), { code: 'unsafe secret detail' })
+    );
+    await act(async () => fireEvent.press(screen.getByTestId('primary-Check Key')));
+    expect(screen.getByTestId('preview-mobile-key-failed')).toHaveTextContent('READBACK_FAILED');
+    expect(screen.queryByText(/private diagnostic detail/)).toBeNull();
+    expect(screen.queryByTestId('preview-mobile-key-matched')).toBeNull();
   });
 
   test('starts automatic status progress on selection, pauses on cancel, and waits for hardware', () => {

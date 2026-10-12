@@ -1,5 +1,6 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
+import bs58check from 'bs58check';
 import { Buffer } from 'buffer';
 import { NetworkType, SignerType } from 'src/services/wallets/enums';
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
@@ -51,6 +52,75 @@ function fixture(): RecoverablePolicyDraftInput {
   };
 }
 
+function signingKeys(internal = false, index = 0) {
+  return [1, 2, 3].map((byte) =>
+    bip32
+      .fromSeed(Buffer.alloc(32, byte), bitcoin.networks.testnet)
+      .derivePath(PATH)
+      .derive(internal ? 1 : 0)
+      .derive(index)
+  );
+}
+
+function syntheticPsbt(internal = false, index = 0) {
+  const keys = signingKeys(internal, index);
+  const vector = deriveRecoverableTestnetScriptVector(fixture(), internal, index);
+  const destination = bitcoin.payments.p2wpkh({
+    pubkey: Buffer.from(keys[0].publicKey),
+    network: bitcoin.networks.testnet,
+  }).address!;
+  const psbt = new bitcoin.Psbt({ network: bitcoin.networks.testnet })
+    .addInput({
+      hash: '11'.repeat(32),
+      index: 0,
+      witnessUtxo: { script: vector.scriptPubKey, value: 100_000 },
+      witnessScript: vector.witnessScript,
+    })
+    .addOutput({ address: destination, value: 99_000 });
+  return { keys, vector, psbt };
+}
+
+/**
+ * Independently verify ordered CHECKMULTISIG ECDSA witnesses against the final
+ * transaction hash and spent amount. BitcoinJS finalization alone does not
+ * validate signatures and is never sufficient signing proof.
+ */
+function verifySyntheticWitness(
+  tx: bitcoin.Transaction,
+  witnessScript: Buffer,
+  spentValue = 100_000
+): boolean {
+  try {
+    const chunks = bitcoin.script.decompile(witnessScript)!;
+    if (
+      chunks?.length !== 6 ||
+      chunks[0] !== bitcoin.opcodes.OP_2 ||
+      chunks[4] !== bitcoin.opcodes.OP_3 ||
+      chunks[5] !== bitcoin.opcodes.OP_CHECKMULTISIG
+    )
+      return false;
+    const pubkeys = chunks.slice(1, 4) as Buffer[];
+    if (!pubkeys.every(Buffer.isBuffer)) return false;
+    const witness = tx.ins[0].witness;
+    if (witness.length !== 4 || witness[0].length !== 0 || !witness[3].equals(witnessScript))
+      return false;
+    let keyIndex = 0;
+    for (const encoded of witness.slice(1, 3)) {
+      const { signature, hashType } = bitcoin.script.signature.decode(encoded);
+      if (hashType !== bitcoin.Transaction.SIGHASH_ALL) return false;
+      const digest = tx.hashForWitnessV0(0, witnessScript, spentValue, hashType);
+      while (keyIndex < pubkeys.length && !ecc.verify(digest, pubkeys[keyIndex], signature)) {
+        keyIndex += 1;
+      }
+      if (keyIndex === pubkeys.length) return false;
+      keyIndex += 1;
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 describe('Assisted Multisig offline testnet script and signing vectors', () => {
   test('matches Keeper existing multisig testnet descriptor and receive-address oracle', () => {
     // This known public-only descriptor/address is already exercised by
@@ -75,7 +145,9 @@ describe('Assisted Multisig offline testnet script and signing vectors', () => {
     );
     expect(result.kind).toBe('unfundable-testnet-2-of-3-vector');
     expect(result.fundable).toBe(false);
-    expect(result.scriptPubKey).toEqual(bitcoin.address.toOutputScript(result.referenceAddress, bitcoin.networks.testnet));
+    expect(result.scriptPubKey).toEqual(
+      bitcoin.address.toOutputScript(result.referenceAddress, bitcoin.networks.testnet)
+    );
   });
 
   test('separates receive/change branches and never produces a mainnet address', () => {
@@ -91,17 +163,14 @@ describe('Assisted Multisig offline testnet script and signing vectors', () => {
     expect(a.fundable).toBe(false);
   });
 
-  test.each([
-    [-1],
-    [1.25],
-    [1001],
-    [Number.NaN],
-    [Number.POSITIVE_INFINITY],
-  ])('fails closed for unsupported derivation index %s', (index) => {
-    expect(() => deriveRecoverableTestnetScriptVector(fixture(), false, index)).toThrow(
-      RecoverablePolicyDraftError
-    );
-  });
+  test.each([[-1], [1.25], [1001], [Number.NaN], [Number.POSITIVE_INFINITY]])(
+    'fails closed for unsupported derivation index %s',
+    (index) => {
+      expect(() => deriveRecoverableTestnetScriptVector(fixture(), false, index)).toThrow(
+        RecoverablePolicyDraftError
+      );
+    }
+  );
 
   test('rejects a nonboolean branch selector and the mainnet network', () => {
     expect(() => deriveRecoverableTestnetScriptVector(fixture(), 'false' as never, 0)).toThrow(
@@ -119,6 +188,16 @@ describe('Assisted Multisig offline testnet script and signing vectors', () => {
     input.hardware.masterFingerprint = input.mobile.masterFingerprint;
     expect(() => deriveRecoverableTestnetScriptVector(input, false, 0)).toThrow(
       RecoverablePolicyDraftError
+    );
+  });
+
+  test('rejects relabelled duplicate account keys before script derivation', () => {
+    const input = fixture();
+    const encoded = Buffer.from(bs58check.decode(input.mobile.xpub));
+    encoded[5] ^= 1;
+    input.hardware.xpub = bs58check.encode(encoded);
+    expect(() => deriveRecoverableTestnetScriptVector(input, false, 0)).toThrow(
+      /independent key material/
     );
   });
 
@@ -150,37 +229,108 @@ describe('Assisted Multisig offline testnet script and signing vectors', () => {
   ])('a real BitcoinJS PSBT can be finalized by %s without the third signer', (_, pair) => {
     // Test-only deterministic private keys and a synthetic UTXO: this proves
     // script/signature satisfaction, NOT network broadcast or server enrollment.
-    const keys = [1, 2, 3].map((byte) =>
-      bip32.fromSeed(Buffer.alloc(32, byte), bitcoin.networks.testnet)
-        .derivePath(PATH).derive(0).derive(0)
-    );
-    const vector = deriveRecoverableTestnetScriptVector(fixture(), false, 0);
-    const makePsbt = () => {
-      const destination = bitcoin.payments.p2wpkh({
-        pubkey: Buffer.from(keys[0].publicKey),
-        network: bitcoin.networks.testnet,
-      }).address!;
-      return new bitcoin.Psbt({ network: bitcoin.networks.testnet })
-        .addInput({
-          hash: '11'.repeat(32),
-          index: 0,
-          witnessUtxo: { script: vector.scriptPubKey, value: 100_000 },
-          witnessScript: vector.witnessScript,
-        })
-        .addOutput({ address: destination, value: 99_000 });
-    };
+    for (const [internal, index] of [
+      [false, 0],
+      [true, 0],
+      [false, 1000],
+    ] as const) {
+      const { keys, vector, psbt: insufficient } = syntheticPsbt(internal, index);
+      insufficient.signInput(0, keys[pair[0]]);
+      expect(() => insufficient.finalizeAllInputs()).toThrow();
 
-    const insufficient = makePsbt();
-    insufficient.signInput(0, keys[pair[0]]);
-    expect(() => insufficient.finalizeAllInputs()).toThrow();
+      const { psbt: complete } = syntheticPsbt(internal, index);
+      complete.signInput(0, keys[pair[0]]);
+      complete.signInput(0, keys[pair[1]]);
+      expect(
+        complete.validateSignaturesOfAllInputs((pubkey, hash, signature) =>
+          ecc.verify(hash, pubkey, signature)
+        )
+      ).toBe(true);
+      complete.finalizeAllInputs();
+      const tx = complete.extractTransaction();
+      expect(tx.ins[0].witness).toHaveLength(4);
+      expect(tx.ins[0].witness[0]).toHaveLength(0);
+      expect(tx.ins[0].witness[3]).toEqual(vector.witnessScript);
+      expect(verifySyntheticWitness(tx, vector.witnessScript)).toBe(true);
+    }
+  });
 
-    const complete = makePsbt();
-    complete.signInput(0, keys[pair[0]]);
-    complete.signInput(0, keys[pair[1]]);
-    complete.finalizeAllInputs();
-    const witness = complete.extractTransaction().ins[0].witness;
-    expect(witness).toHaveLength(4); // empty CHECKMULTISIG item + two sigs + witnessScript
-    expect(witness[0]).toHaveLength(0);
-    expect(witness[3]).toEqual(vector.witnessScript);
+  test('BIP67 sorts actual child public keys and P2WSH commits to the whole witness script', () => {
+    for (const [internal, index] of [
+      [false, 0],
+      [true, 0],
+      [false, 1000],
+    ] as const) {
+      const { keys, vector } = syntheticPsbt(internal, index);
+      const expectedKeys = keys.map((key) => Buffer.from(key.publicKey)).sort(Buffer.compare);
+      expect(bitcoin.script.decompile(vector.witnessScript)).toEqual([
+        bitcoin.opcodes.OP_2,
+        ...expectedKeys,
+        bitcoin.opcodes.OP_3,
+        bitcoin.opcodes.OP_CHECKMULTISIG,
+      ]);
+      expect(vector.scriptPubKey).toEqual(
+        Buffer.concat([
+          Buffer.from([bitcoin.opcodes.OP_0, 32]),
+          bitcoin.crypto.sha256(vector.witnessScript),
+        ])
+      );
+    }
+  });
+
+  test('rejects unrelated keys and keys from a different receive/change derivation', () => {
+    const { psbt } = syntheticPsbt();
+    const outsider = bip32
+      .fromSeed(Buffer.alloc(32, 9), bitcoin.networks.testnet)
+      .derivePath(PATH)
+      .derive(0)
+      .derive(0);
+    for (const wrongKey of [outsider, signingKeys(true)[0], signingKeys(false, 1)[0]]) {
+      expect(() => psbt.signInput(0, wrongKey)).toThrow();
+    }
+    expect(() => psbt.finalizeAllInputs()).toThrow();
+  });
+
+  test('detects tampered signatures even when the PSBT can be finalized', () => {
+    const { keys, vector, psbt } = syntheticPsbt();
+    psbt.signInput(0, keys[0]);
+    psbt.signInput(0, keys[1]);
+    const partial = psbt.data.inputs[0].partialSig![0];
+    const decoded = bitcoin.script.signature.decode(partial.signature);
+    decoded.signature[0] ^= 1;
+    partial.signature = bitcoin.script.signature.encode(decoded.signature, decoded.hashType);
+    expect(
+      psbt.validateSignaturesOfAllInputs((pubkey, hash, signature) =>
+        ecc.verify(hash, pubkey, signature)
+      )
+    ).toBe(false);
+    psbt.finalizeAllInputs();
+    expect(verifySyntheticWitness(psbt.extractTransaction(), vector.witnessScript)).toBe(false);
+  });
+
+  test('binds valid signatures to the exact input, outputs, amount and witness order', () => {
+    const { keys, vector, psbt } = syntheticPsbt();
+    psbt.signInput(0, keys[0]);
+    psbt.signInput(0, keys[1]);
+    psbt.finalizeAllInputs();
+    const tx = psbt.extractTransaction();
+    expect(verifySyntheticWitness(tx, vector.witnessScript)).toBe(true);
+    expect(verifySyntheticWitness(tx, vector.witnessScript, 100_001)).toBe(false);
+
+    const changedOutput = tx.clone();
+    changedOutput.outs[0].value -= 1;
+    expect(verifySyntheticWitness(changedOutput, vector.witnessScript)).toBe(false);
+    const changedInput = tx.clone();
+    changedInput.ins[0].index += 1;
+    expect(verifySyntheticWitness(changedInput, vector.witnessScript)).toBe(false);
+    const swapped = bitcoin.Transaction.fromBuffer(tx.toBuffer());
+    [swapped.ins[0].witness[1], swapped.ins[0].witness[2]] = [
+      swapped.ins[0].witness[2],
+      swapped.ins[0].witness[1],
+    ];
+    expect(verifySyntheticWitness(swapped, vector.witnessScript)).toBe(false);
+    const repeated = bitcoin.Transaction.fromBuffer(tx.toBuffer());
+    repeated.ins[0].witness[2] = Buffer.from(repeated.ins[0].witness[1]);
+    expect(verifySyntheticWitness(repeated, vector.witnessScript)).toBe(false);
   });
 });

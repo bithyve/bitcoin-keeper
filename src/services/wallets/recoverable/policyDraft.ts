@@ -1,5 +1,6 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
+import { Buffer } from 'buffer';
 import { MultisigScriptType, NetworkType, SignerType } from '../enums';
 import type { MiniscriptElements, VaultScheme } from '../interfaces/vault';
 import { generateMiniscript } from '../operations/miniscript/miniscript';
@@ -163,15 +164,45 @@ function nonEmptyPublicId(value: unknown, field: string): string {
   if (typeof value !== 'string' || !value.trim() || value.length > 256) {
     fail('INVALID_ORIGIN', `${field} must be a non-empty public reference`);
   }
+  if (/(?:[xtyzuv]prv|[YZUV]prv)[1-9A-HJ-NP-Za-km-z]{100,}/.test(value)) {
+    fail('PRIVATE_MATERIAL', `${field} must not contain private key material`);
+  }
   return value.trim();
 }
 
 function assertOnlyKeys(value: object, allowed: readonly string[], field: string): void {
-  for (const key of Object.keys(value)) {
-    if (['xpriv', 'mnemonic', 'seed', 'recoveryKey'].includes(key)) {
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    Array.isArray(value) ||
+    ![Object.prototype, null].includes(Object.getPrototypeOf(value)) ||
+    Object.getOwnPropertySymbols(value).length
+  ) {
+    fail('INVALID_POLICY_DATA', `${field} must be a public data object`);
+  }
+  for (const key of Object.getOwnPropertyNames(value)) {
+    const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (
+      [
+        'xpriv',
+        'xprv',
+        'tprv',
+        'mnemonic',
+        'seed',
+        'seedhex',
+        'recoverykey',
+        'privatekey',
+        'masterprivatekey',
+        'wif',
+      ].includes(normalizedKey)
+    ) {
       fail('PRIVATE_MATERIAL', `${field} must not contain private key material`);
     }
     if (!allowed.includes(key)) fail('UNEXPECTED_FIELD', `${field} contains an unexpected field`);
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
+    if (descriptor.get || descriptor.set) {
+      fail('INVALID_POLICY_DATA', `${field} must contain public data values only`);
+    }
   }
 }
 
@@ -179,12 +210,13 @@ function normalizePublicSigner<T extends RecoverablePublicSignerBase>(
   signer: T,
   role: T['role']
 ): T {
-  if (!signer || signer.role !== role) fail('INVALID_ROLE', `Expected ${role} signer`);
+  if (!signer) fail('INVALID_ROLE', `Expected ${role} signer`);
   assertOnlyKeys(
     signer,
     ['role', 'signerType', 'masterFingerprint', 'xpub', 'derivationPath', 'origin'],
     role
   );
+  if (signer.role !== role) fail('INVALID_ROLE', `Expected ${role} signer`);
   const fingerprint =
     typeof signer.masterFingerprint === 'string' ? signer.masterFingerprint.toUpperCase() : '';
   if (!/^[0-9A-F]{8}$/.test(fingerprint || '')) {
@@ -221,9 +253,16 @@ function validateMobile(signer: RecoverableMobileSigner): RecoverableMobileSigne
     normalized.signerType !== SignerType.MOBILE_KEY ||
     normalized.derivationPath !== MOBILE_KEY_SIGNER_PATH ||
     !normalized.origin ||
-    typeof normalized.origin !== 'object' ||
-    normalized.origin.version !== 1
+    typeof normalized.origin !== 'object'
   ) {
+    fail('INVALID_MOBILE_ORIGIN', 'Mobile Key requires a supported version 1 public origin');
+  }
+  assertOnlyKeys(
+    normalized.origin,
+    ['kind', 'version', 'sourceId', 'ordinal', 'bip85Index', 'bip85Path'],
+    'Mobile origin'
+  );
+  if (normalized.origin.version !== 1) {
     fail('INVALID_MOBILE_ORIGIN', 'Mobile Key requires a supported version 1 public origin');
   }
 
@@ -335,6 +374,8 @@ function validateInheritance(choice: RecoverableInheritanceChoice): RecoverableI
   }
   if (
     signer.origin?.kind !== 'externally-held-inheritance-key' ||
+    !Object.values(SignerType).includes(signer.signerType) ||
+    signer.signerType === SignerType.UNKOWN_SIGNER ||
     signer.signerType === SignerType.POLICY_SERVER ||
     signer.signerType === SignerType.MOBILE_KEY
   ) {
@@ -396,12 +437,24 @@ function validateInheritance(choice: RecoverableInheritanceChoice): RecoverableI
 function assertDistinctSigners(signers: RecoverablePublicSignerBase[]) {
   const fingerprints = new Set<string>();
   const xpubs = new Set<string>();
+  const accountPubkeys = new Set<string>();
   for (const signer of signers) {
-    if (fingerprints.has(signer.masterFingerprint) || xpubs.has(signer.xpub)) {
+    // Fingerprints and BIP32 origin bytes are caller-supplied metadata. Changing
+    // them (or the chain code) must not make the same account signing key count
+    // as an independently held policy role. Full ancestry still needs device proof.
+    const accountPubkey = Buffer.from(
+      bip32.fromBase58(signer.xpub, bitcoin.networks.testnet).publicKey
+    ).toString('hex');
+    if (
+      fingerprints.has(signer.masterFingerprint) ||
+      xpubs.has(signer.xpub) ||
+      accountPubkeys.has(accountPubkey)
+    ) {
       fail('DUPLICATE_KEY', 'Each policy role must have independent key material');
     }
     fingerprints.add(signer.masterFingerprint);
     xpubs.add(signer.xpub);
+    accountPubkeys.add(accountPubkey);
   }
 }
 
@@ -478,7 +531,10 @@ export function buildRecoverablePolicyReview(
   const mobile = validateMobile(input.mobile);
   const hardware = validateRecoverableHardwareSigner(input.hardware);
   const server = validateServer(input.server);
-  const inheritance = input.inheritance ? validateInheritance(input.inheritance) : null;
+  const inheritance =
+    input.inheritance === undefined || input.inheritance === null
+      ? null
+      : validateInheritance(input.inheritance);
   assertDistinctSigners([mobile, hardware, server, ...(inheritance ? [inheritance.signer] : [])]);
 
   // These NFC cards can sign, but cannot verify the complete delayed policy on-device.

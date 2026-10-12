@@ -279,4 +279,102 @@ describe('testnet public hardware import', () => {
       'INVALID_HARDWARE_EXPORT'
     );
   });
+
+  test('bounds object string data as well as JSON string input', () => {
+    const payload = coldcard().payload as Record<string, unknown>;
+    payload.note = 'a'.repeat(128 * 1024);
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload })),
+      'INVALID_HARDWARE_EXPORT'
+    );
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload: JSON.stringify(payload) })),
+      'INVALID_HARDWARE_EXPORT'
+    );
+  });
+
+  test.each(['unusedXpub', 'note'])('rejects extended private values in %s', (field) => {
+    const payload = coldcard().payload as Record<string, unknown>;
+    payload[field] = root.derivePath(path).toBase58();
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload })),
+      'PRIVATE_MATERIAL'
+    );
+  });
+
+  test('rejects inherited hardware fields, hidden private data and accessor payloads', () => {
+    expectCode(
+      () =>
+        importRecoverableHardwarePublicData(
+          coldcard({
+            payload: Object.create(coldcard().payload as object),
+          })
+        ),
+      'INVALID_HARDWARE_EXPORT'
+    );
+
+    const hidden = coldcard().payload as Record<string, unknown>;
+    Object.defineProperty(hidden, 'private_key', { value: 'secret' });
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload: hidden })),
+      'PRIVATE_MATERIAL'
+    );
+
+    const getter = jest.fn(() => 'public note');
+    const accessor = coldcard().payload as Record<string, unknown>;
+    Object.defineProperty(accessor, 'note', { enumerable: true, get: getter });
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload: accessor })),
+      'INVALID_HARDWARE_EXPORT'
+    );
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test('accepts plain null-prototype public exports', () => {
+    const payload = Object.assign(Object.create(null), coldcard().payload);
+    expect(importRecoverableHardwarePublicData(coldcard({ payload })).signer.xpub).toBe(tpub);
+  });
+
+  test('rejects cycles and excessive nesting in object exports', () => {
+    const cyclic = coldcard().payload as Record<string, unknown>;
+    cyclic.cycle = cyclic;
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload: cyclic })),
+      'INVALID_HARDWARE_EXPORT'
+    );
+
+    const nested = coldcard().payload as Record<string, unknown>;
+    let cursor = nested;
+    for (let depth = 0; depth < 17; depth += 1) {
+      const child: Record<string, unknown> = {};
+      cursor.child = child;
+      cursor = child;
+    }
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload: nested })),
+      'INVALID_HARDWARE_EXPORT'
+    );
+  });
+
+  test('rejects conflicting nested network claims and non-JSON object values', () => {
+    expectCode(
+      () =>
+        importRecoverableHardwarePublicData(
+          coldcard({
+            payload: {
+              chain: 'XTN',
+              xfp: fingerprint,
+              bip48_2: { network: 'mainnet', deriv: path, xpub: tpub },
+            },
+          })
+        ),
+      'TESTNET_ONLY'
+    );
+    const payload = coldcard().payload as Record<string, unknown>;
+    payload.note = () => 'not JSON';
+    expectCode(
+      () => importRecoverableHardwarePublicData(coldcard({ payload })),
+      'INVALID_HARDWARE_EXPORT'
+    );
+  });
 });

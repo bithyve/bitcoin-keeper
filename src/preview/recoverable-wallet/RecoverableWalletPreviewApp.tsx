@@ -267,10 +267,14 @@ function PreviewContent() {
     } catch (error) {
       if (checkNumber === deviceKeyCheckNumber.current) {
         // Never display native error detail or secret material in the UI.
-        const code = error && typeof error === 'object' && 'code' in error &&
-          typeof error.code === 'string' && /^[A-Z_]{3,40}$/.test(error.code)
-          ? error.code
-          : 'READBACK_FAILED';
+        const code =
+          error &&
+          typeof error === 'object' &&
+          'code' in error &&
+          typeof error.code === 'string' &&
+          /^[A-Z_]{3,40}$/.test(error.code)
+            ? error.code
+            : 'READBACK_FAILED';
         setDeviceKeyDiagnostic({ status: 'failed', code });
       }
     }
@@ -435,7 +439,8 @@ function PreviewContent() {
             </PreviewText>
             <PreviewText color={palette.muted}>
               This checks real native Preview key storage, not the simulated wallet setup. It may
-              create a device-only testnet Mobile Key. Nothing is backed up or recoverable yet.
+              create a device-only testnet Mobile Key. The second read cannot create a replacement.
+              Nothing is backed up or recoverable yet.
             </PreviewText>
             <Panel palette={palette}>
               <PreviewText color={palette.text} style={styles.cardTitle}>
@@ -482,7 +487,9 @@ function PreviewContent() {
             </Banner>
             <PrimaryAction
               label={deviceKeyDiagnostic.status === 'matched' ? 'Check Again' : 'Check Key'}
-              onPress={() => { void checkNativeMobileKey(); }}
+              onPress={() => {
+                void checkNativeMobileKey();
+              }}
               disabled={deviceKeyDiagnostic.status === 'checking'}
               palette={palette}
             />

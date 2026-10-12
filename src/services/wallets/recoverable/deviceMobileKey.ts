@@ -15,6 +15,8 @@ const RECORD_VERSION = 1 as const;
 /** A narrow seam for native preview key creation; tests never touch a real key store. */
 export interface DeviceMobileKeyAdapters {
   getOrCreateSeedBase64(): Promise<string>;
+  /** Read-only: must never create a replacement if the native record is absent. */
+  readExistingSeedBase64?(): Promise<string>;
 }
 
 export class DeviceMobileKeyError extends Error {
@@ -46,7 +48,8 @@ export function deriveDeviceMobileKeyPublic(seed: Uint8Array): RecoverableMobile
 }
 
 function decodeNativeSeed(base64: string): Buffer {
-  if (typeof base64 !== 'string') {
+  // Bound allocation before decoding any untrusted bridge result.
+  if (typeof base64 !== 'string' || base64.length !== 44) {
     throw new DeviceMobileKeyError('INVALID_NATIVE_SEED', 'Native Mobile Key is invalid');
   }
   const seed = Buffer.from(base64, 'base64');
@@ -84,6 +87,20 @@ const inFlight = new Map<string, Promise<RecoverableMobileSigner>>();
 export function getOrCreatePreviewDeviceMobileKey(
   adapter?: DeviceMobileKeyAdapters
 ): Promise<RecoverableMobileSigner> {
+  return readPreviewDeviceMobileKey('getOrCreateSeedBase64', adapter);
+}
+
+/** Reload an existing key without granting permission to generate another one. */
+export function readExistingPreviewDeviceMobileKey(
+  adapter?: DeviceMobileKeyAdapters
+): Promise<RecoverableMobileSigner> {
+  return readPreviewDeviceMobileKey('readExistingSeedBase64', adapter);
+}
+
+function readPreviewDeviceMobileKey(
+  operation: 'getOrCreateSeedBase64' | 'readExistingSeedBase64',
+  adapter?: DeviceMobileKeyAdapters
+): Promise<RecoverableMobileSigner> {
   let bundleId: string;
   try {
     bundleId = DeviceInfo.getBundleId();
@@ -103,18 +120,25 @@ export function getOrCreatePreviewDeviceMobileKey(
     );
   }
 
-  const pending = inFlight.get(bundleId);
+  const requestId = `${bundleId}:${operation}`;
+  const pending = inFlight.get(requestId);
   if (pending) return pending;
 
   let chosen: DeviceMobileKeyAdapters;
   try {
     chosen = adapter ?? nativeAdapter();
+    if (typeof chosen[operation] !== 'function') {
+      throw new DeviceMobileKeyError(
+        'NATIVE_KEY_UNAVAILABLE',
+        'Native Mobile Key operation is unavailable'
+      );
+    }
   } catch (error) {
     return Promise.reject(error);
   }
   let nativeSeed: Promise<string>;
   try {
-    nativeSeed = chosen.getOrCreateSeedBase64();
+    nativeSeed = chosen[operation]!();
   } catch (error) {
     return Promise.reject(error);
   }
@@ -126,9 +150,9 @@ export function getOrCreatePreviewDeviceMobileKey(
       seed.fill(0);
     }
   });
-  inFlight.set(bundleId, task);
+  inFlight.set(requestId, task);
   const clear = () => {
-    if (inFlight.get(bundleId) === task) inFlight.delete(bundleId);
+    if (inFlight.get(requestId) === task) inFlight.delete(requestId);
   };
   void task.then(clear, clear);
   return task;

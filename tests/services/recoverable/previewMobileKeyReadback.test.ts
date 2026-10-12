@@ -4,6 +4,9 @@ import {
   DeviceMobileKeyError,
 } from 'src/services/wallets/recoverable/deviceMobileKey';
 import { checkPreviewMobileKeyReadback } from 'src/services/wallets/recoverable/previewMobileKeyReadback';
+import BIP32Factory from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
+import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 
 jest.mock('react-native-config', () => ({
   __esModule: true,
@@ -23,7 +26,7 @@ describe('testnet Preview local Mobile Key readback evidence', () => {
 
   test('requires two actual public signer reads and returns no secret or full xpub', async () => {
     const read = jest.fn(async () => mobile);
-    const evidence = await checkPreviewMobileKeyReadback(read);
+    const evidence = await checkPreviewMobileKeyReadback(read, read);
     expect(read).toHaveBeenCalledTimes(2);
     expect(evidence).toMatchObject({
       kind: 'preview-mobile-key-two-read-match',
@@ -42,14 +45,20 @@ describe('testnet Preview local Mobile Key readback evidence', () => {
   });
 
   test('same public identity produces same display tag on repeated verification', async () => {
-    const a = await checkPreviewMobileKeyReadback(async () => mobile);
-    const b = await checkPreviewMobileKeyReadback(async () => mobile);
+    const a = await checkPreviewMobileKeyReadback(
+      async () => mobile,
+      async () => mobile
+    );
+    const b = await checkPreviewMobileKeyReadback(
+      async () => mobile,
+      async () => mobile
+    );
     expect(a).toEqual(b);
   });
 
   test('rejects changed native Mobile Key even when same origin shape is returned', async () => {
     const read = jest.fn().mockResolvedValueOnce(mobile).mockResolvedValueOnce(other);
-    await expect(checkPreviewMobileKeyReadback(read)).rejects.toMatchObject({
+    await expect(checkPreviewMobileKeyReadback(read, read)).rejects.toMatchObject({
       code: 'MOBILE_KEY_CHANGED',
     });
   });
@@ -59,7 +68,7 @@ describe('testnet Preview local Mobile Key readback evidence', () => {
       .fn()
       .mockResolvedValueOnce(mobile)
       .mockResolvedValueOnce({ ...other, masterFingerprint: mobile.masterFingerprint });
-    await expect(checkPreviewMobileKeyReadback(read)).rejects.toMatchObject({
+    await expect(checkPreviewMobileKeyReadback(read, read)).rejects.toMatchObject({
       code: 'MOBILE_KEY_CHANGED',
     });
   });
@@ -75,7 +84,7 @@ describe('testnet Preview local Mobile Key readback evidence', () => {
         bip85Path: "m/83696968'/39'/0'/12'/1000000'",
       },
     })) as never;
-    await expect(checkPreviewMobileKeyReadback(read)).rejects.toMatchObject({
+    await expect(checkPreviewMobileKeyReadback(read, read)).rejects.toMatchObject({
       code: 'INVALID_PUBLIC_SIGNER',
     });
   });
@@ -84,9 +93,68 @@ describe('testnet Preview local Mobile Key readback evidence', () => {
     const read = jest.fn(async () => {
       throw new DeviceMobileKeyError('MOBILE_KEY_STORAGE_UNAVAILABLE', 'Store unavailable');
     });
-    await expect(checkPreviewMobileKeyReadback(read)).rejects.toMatchObject({
+    await expect(checkPreviewMobileKeyReadback(read, read)).rejects.toMatchObject({
       code: 'MOBILE_KEY_STORAGE_UNAVAILABLE',
     });
     expect(read).toHaveBeenCalledTimes(1);
+  });
+
+  test('uses a separate read-only reload after the first successful create/load', async () => {
+    const create = jest.fn(async () => mobile);
+    const reload = jest.fn(async () => mobile);
+    await checkPreviewMobileKeyReadback(create, reload);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  test('a missing reload record cannot be replaced by another creation call', async () => {
+    const create = jest.fn(async () => mobile);
+    const reload = jest.fn(async () => {
+      throw new DeviceMobileKeyError('MOBILE_KEY_STORAGE_UNAVAILABLE', 'Store unavailable');
+    });
+    await expect(checkPreviewMobileKeyReadback(create, reload)).rejects.toMatchObject({
+      code: 'MOBILE_KEY_STORAGE_UNAVAILABLE',
+    });
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  test('snapshots the first read before a native adapter mutates a shared signer object', async () => {
+    const shared = { ...mobile, origin: { ...mobile.origin } };
+    await expect(
+      checkPreviewMobileKeyReadback(
+        async () => shared,
+        async () => {
+          Object.assign(shared, other);
+          return shared;
+        }
+      )
+    ).rejects.toMatchObject({ code: 'MOBILE_KEY_CHANGED' });
+  });
+
+  test.each([
+    { xpub: 'tpub-invalid' },
+    { signerType: 'POLICY_SERVER' },
+    { seed: firstSeed.toString('base64') },
+    { origin: { ...mobile.origin, sourceId: 'another-device' } },
+  ])('rejects malformed or secret-bearing public metadata', async (overrides) => {
+    const read = jest.fn(async () => ({ ...mobile, ...overrides })) as never;
+    await expect(checkPreviewMobileKeyReadback(read, read)).rejects.toMatchObject({
+      code: 'INVALID_PUBLIC_SIGNER',
+    });
+  });
+
+  test('does not accept a valid testnet root xpub as an account-level key', async () => {
+    const xpub = BIP32Factory(ecc)
+      .fromSeed(firstSeed, bitcoin.networks.testnet)
+      .neutered()
+      .toBase58();
+    const read = jest.fn(async () => ({
+      ...mobile,
+      xpub,
+      origin: { kind: 'device-generated', version: 1, sourceId: `device-generated:${xpub}` },
+    })) as never;
+    await expect(checkPreviewMobileKeyReadback(read, read)).rejects.toMatchObject({
+      code: 'INVALID_PUBLIC_SIGNER',
+    });
   });
 });

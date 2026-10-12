@@ -1,0 +1,55 @@
+name: Recoverable Preview checks
+
+on:
+  pull_request:
+    branches: [sprint]
+    paths:
+      - '.github/workflows/recoverable-preview-checks.yml'
+      - 'src/preview/recoverable-wallet/**'
+      - 'src/services/wallets/recoverable/**'
+      - 'src/services/wallets/operations/recoverable/**'
+      - 'tests/preview/**'
+      - 'tests/services/recoverable/**'
+      - 'tests/native/preview-mobile-key/**'
+      - 'android/app/src/main/java/com/hexa_keeper/KeeperPreviewMobileKey*.kt'
+      - 'ios/recoverablePreviewMobileKey/**'
+      - 'package.json'
+      - 'yarn.lock'
+
+permissions:
+  contents: read
+
+jobs:
+  native-core:
+    name: Preview native core and bridge types
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Check actual Kotlin core and Android bridge types
+        run: bash tests/native/preview-mobile-key/run.sh --android-bridge-typecheck
+
+  offline-tests:
+    name: Preview offline regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Select Yarn
+        run: corepack prepare yarn@1.22.22 --activate
+      - name: Install without native setup or lockfile mutation
+        run: yarn install --pure-lockfile --ignore-scripts
+      # The existing live-Electrum suites remain in the repository Tests job.
+      # These offline checks never receive, broadcast or query real test sats.
+      - name: Run offline regressions
+        run: >-
+          yarn test --runInBand --coverage=false
+          --testPathIgnorePatterns /node_modules/
+          'tests/services/(client|wallet|vault)\.test\.ts$'

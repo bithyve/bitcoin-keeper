@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import <string.h>
 
 #if defined(KEEPER_RECOVERABLE_PREVIEW) && KEEPER_RECOVERABLE_PREVIEW
 
@@ -22,7 +21,14 @@ static NSDictionary *KeeperPreviewSeedQuery(void)
   };
 }
 
-static OSStatus KeeperPreviewReadSeed(NSData **seed)
+static void KeeperPreviewClearSeed(NSMutableData *seed)
+{
+  // Volatile writes keep clearing of owned native buffers from being optimized away.
+  volatile uint8_t *bytes = (volatile uint8_t *)seed.mutableBytes;
+  for (NSUInteger index = 0; index < seed.length; index++) bytes[index] = 0;
+}
+
+static OSStatus KeeperPreviewReadSeed(NSMutableData **seed)
 {
   CFTypeRef result = NULL;
   OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)KeeperPreviewSeedQuery(), &result);
@@ -34,11 +40,15 @@ static OSStatus KeeperPreviewReadSeed(NSData **seed)
     if (result != NULL) CFRelease(result);
     return errSecDecode;
   }
-  *seed = CFBridgingRelease(result);
+  NSData *value = CFBridgingRelease(result);
+  *seed = [value mutableCopy];
   return [(*seed) length] == 32 ? errSecSuccess : errSecDecode;
 }
 
 @interface KeeperPreviewMobileKey : NSObject <RCTBridgeModule>
+- (void)resolveSeedWithCreation:(BOOL)createIfMissing
+                      resolver:(RCTPromiseResolveBlock)resolve
+                      rejecter:(RCTPromiseRejectBlock)reject;
 @end
 
 @implementation KeeperPreviewMobileKey
@@ -53,6 +63,19 @@ RCT_EXPORT_MODULE(KeeperPreviewMobileKey);
 RCT_EXPORT_METHOD(getOrCreateSeedBase64:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+  [self resolveSeedWithCreation:YES resolver:resolve rejecter:reject];
+}
+
+RCT_EXPORT_METHOD(readExistingSeedBase64:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  [self resolveSeedWithCreation:NO resolver:resolve rejecter:reject];
+}
+
+- (void)resolveSeedWithCreation:(BOOL)createIfMissing
+                      resolver:(RCTPromiseResolveBlock)resolve
+                      rejecter:(RCTPromiseRejectBlock)reject
+{
   NSBundle *bundle = [NSBundle mainBundle];
   if (![[bundle bundleIdentifier] isEqualToString:KeeperPreviewBundleID] ||
       ![[bundle objectForInfoDictionaryKey:@"KeeperRecoverablePreview"] isEqual:@YES]) {
@@ -61,19 +84,23 @@ RCT_EXPORT_METHOD(getOrCreateSeedBase64:(RCTPromiseResolveBlock)resolve
   }
 
   @synchronized([KeeperPreviewMobileKey class]) {
-    NSData *stored = nil;
+    NSMutableData *stored = nil;
     OSStatus status = KeeperPreviewReadSeed(&stored);
     if (status == errSecSuccess) {
-      resolve([stored base64EncodedStringWithOptions:0]);
+      NSString *encoded = [stored base64EncodedStringWithOptions:0];
+      KeeperPreviewClearSeed(stored);
+      resolve(encoded);
       return;
     }
-    if (status != errSecItemNotFound) {
+    KeeperPreviewClearSeed(stored);
+    if (status != errSecItemNotFound || !createIfMissing) {
       reject(@"MOBILE_KEY_STORAGE_UNAVAILABLE", @"Mobile Key secure storage is unavailable", nil);
       return;
     }
 
     NSMutableData *created = [NSMutableData dataWithLength:32];
     if (SecRandomCopyBytes(kSecRandomDefault, created.length, created.mutableBytes) != errSecSuccess) {
+      KeeperPreviewClearSeed(created);
       reject(@"MOBILE_KEY_STORAGE_UNAVAILABLE", @"Mobile Key secure storage is unavailable", nil);
       return;
     }
@@ -88,22 +115,25 @@ RCT_EXPORT_METHOD(getOrCreateSeedBase64:(RCTPromiseResolveBlock)resolve
     };
     status = SecItemAdd((__bridge CFDictionaryRef)item, NULL);
     if (status != errSecSuccess && status != errSecDuplicateItem) {
-      memset(created.mutableBytes, 0, created.length);
+      KeeperPreviewClearSeed(created);
       reject(@"MOBILE_KEY_STORAGE_UNAVAILABLE", @"Mobile Key secure storage is unavailable", nil);
       return;
     }
 
-    NSData *readback = nil;
+    NSMutableData *readback = nil;
     OSStatus readStatus = KeeperPreviewReadSeed(&readback);
     if (readStatus != errSecSuccess ||
         (status == errSecSuccess && ![readback isEqualToData:created])) {
-      memset(created.mutableBytes, 0, created.length);
+      KeeperPreviewClearSeed(created);
+      KeeperPreviewClearSeed(readback);
       reject(@"MOBILE_KEY_STORAGE_UNAVAILABLE", @"Mobile Key secure storage is unavailable", nil);
       return;
     }
     // SecItemAdd is create-if-absent. On a duplicate, use the winner's seed.
-    resolve([readback base64EncodedStringWithOptions:0]);
-    memset(created.mutableBytes, 0, created.length);
+    NSString *encoded = [readback base64EncodedStringWithOptions:0];
+    KeeperPreviewClearSeed(readback);
+    KeeperPreviewClearSeed(created);
+    resolve(encoded);
   }
 }
 

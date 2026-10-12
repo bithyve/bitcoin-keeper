@@ -1,6 +1,7 @@
 import {
   deriveDeviceMobileKeyPublic,
   getOrCreatePreviewDeviceMobileKey,
+  readExistingPreviewDeviceMobileKey,
   type DeviceMobileKeyAdapters,
 } from 'src/services/wallets/recoverable/deviceMobileKey';
 import NativeConfig from 'react-native-config';
@@ -101,7 +102,7 @@ describe('preview device-generated Mobile Key', () => {
     }
   );
 
-  it.each(['not base64', Buffer.alloc(16).toString('base64'), ''])(
+  it.each(['not base64', Buffer.alloc(16).toString('base64'), '', 'A'.repeat(100_000)])(
     'rejects malformed native seed output',
     async (value) => {
       await expect(getOrCreatePreviewDeviceMobileKey(adapter(value))).rejects.toMatchObject({
@@ -143,5 +144,71 @@ describe('preview device-generated Mobile Key', () => {
     expect(native.getOrCreateSeedBase64).toHaveBeenCalledTimes(1);
     release(seed.toString('base64'));
     expect(await first).toEqual(await second);
+  });
+
+  it('reloads with the read-only native operation and never requests creation', async () => {
+    const native = {
+      ...adapter(),
+      readExistingSeedBase64: jest.fn(async () => seed.toString('base64')),
+    };
+    expect(await readExistingPreviewDeviceMobileKey(native)).toEqual(
+      deriveDeviceMobileKeyPublic(seed)
+    );
+    expect(native.readExistingSeedBase64).toHaveBeenCalledTimes(1);
+    expect(native.getOrCreateSeedBase64).not.toHaveBeenCalled();
+  });
+
+  it('fails closed if a read-only native operation is missing', async () => {
+    const native = adapter();
+    await expect(readExistingPreviewDeviceMobileKey(native)).rejects.toMatchObject({
+      code: 'NATIVE_KEY_UNAVAILABLE',
+    });
+    expect(native.getOrCreateSeedBase64).not.toHaveBeenCalled();
+  });
+
+  it('rejects a missing record without falling back to key creation', async () => {
+    const native = {
+      ...adapter(),
+      readExistingSeedBase64: jest.fn(async () => {
+        throw Object.assign(new Error('Store unavailable'), {
+          code: 'MOBILE_KEY_STORAGE_UNAVAILABLE',
+        });
+      }),
+    };
+    await expect(readExistingPreviewDeviceMobileKey(native)).rejects.toMatchObject({
+      code: 'MOBILE_KEY_STORAGE_UNAVAILABLE',
+    });
+    expect(native.getOrCreateSeedBase64).not.toHaveBeenCalled();
+  });
+
+  it('checks installed identity before read-only access', async () => {
+    (DeviceInfo.getBundleId as jest.Mock).mockReturnValue('io.hexawallet.bitcoinkeeper');
+    const native = {
+      ...adapter(),
+      readExistingSeedBase64: jest.fn(async () => seed.toString('base64')),
+    };
+    await expect(readExistingPreviewDeviceMobileKey(native)).rejects.toMatchObject({
+      code: 'PREVIEW_ONLY',
+    });
+    expect(native.readExistingSeedBase64).not.toHaveBeenCalled();
+  });
+
+  it('does not substitute an in-flight creation request for a read-only load', async () => {
+    let release: (value: string) => void = () => undefined;
+    const native = {
+      getOrCreateSeedBase64: jest.fn(() => new Promise<string>((resolve) => (release = resolve))),
+      readExistingSeedBase64: jest.fn(async () => {
+        throw Object.assign(new Error('Store unavailable'), {
+          code: 'MOBILE_KEY_STORAGE_UNAVAILABLE',
+        });
+      }),
+    };
+    const creation = getOrCreatePreviewDeviceMobileKey(native);
+    await expect(readExistingPreviewDeviceMobileKey(native)).rejects.toMatchObject({
+      code: 'MOBILE_KEY_STORAGE_UNAVAILABLE',
+    });
+    release(seed.toString('base64'));
+    await creation;
+    expect(native.readExistingSeedBase64).toHaveBeenCalledTimes(1);
   });
 });

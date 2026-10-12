@@ -1,5 +1,6 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
+import bs58check from 'bs58check';
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import { NetworkType, SignerType, MultisigScriptType } from 'src/services/wallets/enums';
 import {
@@ -150,6 +151,14 @@ describe('public Recoverable Wallet policy draft', () => {
     expect(scheme?.phases[1]).toEqual({ timelock: 85_012, signerCount: 4, required: 2 });
     expect(scheme?.miniscript).toBeTruthy();
     const { scriptWitnesses } = generateScriptWitnesses(scheme!.policy);
+    expect(scriptWitnesses.length).toBeGreaterThan(0);
+    for (const witness of scriptWitnesses) {
+      // Compiler satisfactions are candidate review data, not Bitcoin consensus
+      // execution or a hardware signing test. No heir-containing path is early.
+      const signatures = witness.asm.match(/sig\((?:K[123]|IK1)(?:<\d+;\d+>)?\)/g) || [];
+      expect(signatures).toHaveLength(2);
+      if (witness.asm.includes('IK1')) expect(witness.nLockTime).toBe(85_012);
+    }
     for (const originalSigner of ['K1', 'K2', 'K3']) {
       expect(
         scriptWitnesses.some(
@@ -228,6 +237,98 @@ describe('public Recoverable Wallet policy draft', () => {
     expectCode(() => buildRecoverablePolicyReview(sameXpub), 'DUPLICATE_KEY');
   });
 
+  test.each([false, 0, '', [], {}])(
+    'rejects malformed explicit inheritance choice %j instead of dropping it',
+    (inheritanceChoice) => {
+      expect(() =>
+        buildRecoverablePolicyReview({
+          ...input(),
+          inheritance: inheritanceChoice,
+        } as any)
+      ).toThrow(RecoverablePolicyDraftError);
+    }
+  );
+
+  test.each(['m', 'n', 'threshold', 'required'])(
+    'rejects an attempt to override fixed quorum using %s',
+    (field) => {
+      const draft = input();
+      (draft as any)[field] = 1;
+      expectCode(() => buildRecoverablePolicyReview(draft), 'UNEXPECTED_FIELD');
+    }
+  );
+
+  test.each([
+    'invented-signer',
+    SignerType.UNKOWN_SIGNER,
+    SignerType.POLICY_SERVER,
+    SignerType.MOBILE_KEY,
+  ])('rejects unsupported inheritance signer type %s', (signerType) => {
+    const choice = inheritance();
+    choice.signer.signerType = signerType as SignerType;
+    expectCode(
+      () => buildRecoverablePolicyReview({ ...input(), inheritance: choice }),
+      'INVALID_INHERITANCE_ORIGIN'
+    );
+  });
+
+  test.each([false, true])(
+    'rejects a relabelled account signing key even with changed chain code: %s',
+    (changeChainCode) => {
+      const draft = input();
+      const encoded = Buffer.from(bs58check.decode(draft.mobile.xpub));
+      // BIP32 parent fingerprint and chain code can be relabelled without
+      // changing the actual serialized account public key at bytes 45–77.
+      encoded[5] ^= 1;
+      if (changeChainCode) encoded[13] ^= 1;
+      draft.hardware.xpub = bs58check.encode(encoded);
+      expect(draft.hardware.xpub).not.toBe(draft.mobile.xpub);
+      expect(draft.hardware.masterFingerprint).not.toBe(draft.mobile.masterFingerprint);
+      expectCode(() => buildRecoverablePolicyReview(draft), 'DUPLICATE_KEY');
+    }
+  );
+
+  test('rejects a relabelled inheritance signer from an existing role', () => {
+    const draft = input();
+    const heir = inheritance();
+    const encoded = Buffer.from(bs58check.decode(draft.server.xpub));
+    encoded[5] ^= 1;
+    heir.signer.xpub = bs58check.encode(encoded);
+    expectCode(
+      () => buildRecoverablePolicyReview({ ...draft, inheritance: heir }),
+      'DUPLICATE_KEY'
+    );
+  });
+
+  test('rejects inherited policy fields and accessor data without evaluating it', () => {
+    const draft = input();
+    draft.hardware = Object.create(draft.hardware);
+    expectCode(() => buildRecoverablePolicyReview(draft), 'INVALID_POLICY_DATA');
+
+    const getter = jest.fn(() => input().mobile.xpub);
+    const withAccessor = input();
+    Object.defineProperty(withAccessor.mobile, 'xpub', { enumerable: true, get: getter });
+    expectCode(() => buildRecoverablePolicyReview(withAccessor), 'INVALID_POLICY_DATA');
+    expect(getter).not.toHaveBeenCalled();
+  });
+
+  test('rejects hidden or differently cased private metadata', () => {
+    const withHiddenSecret = input();
+    Object.defineProperty(withHiddenSecret.server, 'private_key', { value: 'secret' });
+    expectCode(() => buildRecoverablePolicyReview(withHiddenSecret), 'PRIVATE_MATERIAL');
+
+    const withCasedSecret = input();
+    (withCasedSecret.mobile.origin as any).XPRV = 'secret';
+    expectCode(() => buildRecoverablePolicyReview(withCasedSecret), 'PRIVATE_MATERIAL');
+
+    const withPrivateReference = input();
+    withPrivateReference.server.origin.sourceId = bip32
+      .fromSeed(Buffer.alloc(32, 8), bitcoin.networks.testnet)
+      .derivePath(signerPath)
+      .toBase58();
+    expectCode(() => buildRecoverablePolicyReview(withPrivateReference), 'PRIVATE_MATERIAL');
+  });
+
   test('blocks hardware and transport combinations that cannot verify this policy', () => {
     const tapsigner = input();
     tapsigner.hardware.signerType = SignerType.TAPSIGNER;
@@ -260,5 +361,29 @@ describe('public Recoverable Wallet policy draft', () => {
       () => buildRecoverablePolicyReview({ ...draft, inheritance: wrongType }),
       'INVALID_ACTIVATION'
     );
+  });
+
+  test.each([
+    ['block-height', 500_000_000],
+    ['median-time-past', 0x100000000],
+    ['median-time-past', 1_700_000_000],
+  ])('rejects inheritance %s locktime boundary %s', (kind, value) => {
+    const choice = inheritance();
+    choice.activation.kind = kind as 'block-height' | 'median-time-past';
+    choice.activation.value = value as number;
+    expectCode(
+      () => buildRecoverablePolicyReview({ ...input(), inheritance: choice }),
+      'INVALID_ACTIVATION'
+    );
+  });
+
+  test('compiles a future median-time-past candidate without enabling funding', () => {
+    const choice = inheritance();
+    choice.activation.kind = 'median-time-past';
+    choice.activation.value = 1_700_000_600;
+    const review = buildRecoverablePolicyReview({ ...input(), inheritance: choice });
+    expect(review.candidateMiniscript!.policy).toContain('after(1700000600)');
+    expect(review.baseVaultScheme).toBeNull();
+    expect(review.fundable).toBe(false);
   });
 });

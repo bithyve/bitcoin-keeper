@@ -51,7 +51,12 @@ function fail(code: string, message: string): never {
 }
 
 function asRecord(value: unknown): PublicRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+  if (
+    !value ||
+    typeof value !== 'object' ||
+    Array.isArray(value) ||
+    ![Object.prototype, null].includes(Object.getPrototypeOf(value))
+  ) {
     fail('INVALID_HARDWARE_EXPORT', 'Expected a public hardware export object');
   }
   return value as PublicRecord;
@@ -74,20 +79,55 @@ function assertPublicPayload(payload: PublicRecord): void {
   const seen = new Set<object>();
   const pending: { value: unknown; depth: number }[] = [{ value: payload, depth: 0 }];
   let nodes = 0;
+  let characters = 0;
   while (pending.length) {
     const { value, depth } = pending.pop()!;
     if (++nodes > MAX_EXPORT_NODES || depth > MAX_EXPORT_DEPTH) {
       fail('INVALID_HARDWARE_EXPORT', 'Hardware export is too large or deeply nested');
     }
+    if (
+      ['undefined', 'function', 'symbol', 'bigint'].includes(typeof value) ||
+      (typeof value === 'number' && !Number.isFinite(value))
+    ) {
+      fail('INVALID_HARDWARE_EXPORT', 'Hardware export must contain JSON data only');
+    }
+    if (typeof value === 'string') {
+      characters += value.length;
+      if (characters > MAX_JSON_LENGTH) {
+        fail('INVALID_HARDWARE_EXPORT', 'Hardware export contains too much string data');
+      }
+      // An unused xpub field or note must not conceal an extended private key.
+      // Field names alone cannot establish that an export is public-only.
+      if (/(?:[xtyzuv]prv|[YZUV]prv)[1-9A-HJ-NP-Za-km-z]{100,}/.test(value)) {
+        fail('PRIVATE_MATERIAL', 'Hardware export must contain public data only');
+      }
+    }
     if (!value || typeof value !== 'object') continue;
+    if (
+      (!Array.isArray(value) && ![Object.prototype, null].includes(Object.getPrototypeOf(value))) ||
+      Object.getOwnPropertySymbols(value).length
+    ) {
+      fail('INVALID_HARDWARE_EXPORT', 'Hardware export must contain JSON data only');
+    }
     if (seen.has(value)) fail('INVALID_HARDWARE_EXPORT', 'Hardware export must be acyclic');
     seen.add(value);
-    for (const [key, child] of Object.entries(value)) {
+    const fields = Object.getOwnPropertyNames(value).filter(
+      (key) => !Array.isArray(value) || key !== 'length'
+    );
+    for (const key of fields) {
+      characters += key.length;
+      if (characters > MAX_JSON_LENGTH) {
+        fail('INVALID_HARDWARE_EXPORT', 'Hardware export contains too much string data');
+      }
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
+      if (descriptor.get || descriptor.set) {
+        fail('INVALID_HARDWARE_EXPORT', 'Hardware export must contain public data values only');
+      }
       const field = key.toLowerCase().replace(/[^a-z0-9]/g, '');
       if (PRIVATE_FIELD_NAMES.has(field)) {
         fail('PRIVATE_MATERIAL', 'Hardware export must contain public data only');
       }
-      pending.push({ value: child, depth: depth + 1 });
+      pending.push({ value: descriptor.value, depth: depth + 1 });
     }
   }
 }
@@ -146,9 +186,17 @@ export function importRecoverableHardwarePublicData(
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     fail('INVALID_HARDWARE_EXPORT', 'Hardware import requires explicit device and source');
   }
-  for (const field of Object.keys(input)) {
+  asRecord(input);
+  if (Object.getOwnPropertySymbols(input).length) {
+    fail('INVALID_HARDWARE_EXPORT', 'Hardware import must contain public data fields only');
+  }
+  for (const field of Object.getOwnPropertyNames(input)) {
     if (!['device', 'transport', 'payload', 'sourceId'].includes(field)) {
       fail('UNEXPECTED_FIELD', 'Hardware import has an unexpected field');
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(input, field)!;
+    if (descriptor.get || descriptor.set) {
+      fail('INVALID_HARDWARE_EXPORT', 'Hardware import must contain public data values only');
     }
   }
   const payload = parsePayload(input.payload);
