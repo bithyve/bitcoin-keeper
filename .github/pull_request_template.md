@@ -10,7 +10,8 @@ Target branch:
 
 <!-- Record relevant checks and outcomes, including platform/device and evidence.
      Mark unavailable checks as not run or blocked. Distinguish simulator/emulator
-     evidence from physical devices. Human live testing is retrospective. -->
+     evidence from physical devices. Follow AGENTS.md for exact-commit Local
+     validation; owner live acceptance is recorded separately. -->
 
 | Check / scenario | Platform | Passed / failed / blocked / not run | Evidence or reason |
 | --- | --- | --- | --- |
@@ -38,7 +39,7 @@ Passing checks does not constitute approval.
 - Actual Copilot effort and reviewed commit: pending
 - Feedback and disposition: pending
 - Independent human approval: pending (Ben, Utkarsh, or Parsh; one is sufficient)
-- Product owner signoff: <!-- Link confirmed product decisions when applicable. -->
+- Product owner signoff: <!-- Link the owner's PR comment for product behavior, UX or copy changes; otherwise state not applicable. -->
 
 <!-- A quota response means review unavailable. Record it instead of claiming a completed review. Batch material fixes and stabilize checks before a new review. -->
 
