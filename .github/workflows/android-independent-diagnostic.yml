@@ -40,11 +40,21 @@ jobs:
           test -s Bitcoin_Keeper_DIAGNOSTIC.apk
           test -s Bitcoin_Keeper_DIAGNOSTIC.aab
           test -s ZIP_ENTRY_SHA256.json
+          test -s APK_CONTAINER.json
+          test -s SOURCE_INPUT_AUDIT.json
+          test -s APT_PACKAGE_SHA256SUMS
+          test -s DPKG_PACKAGES.tsv
           echo 'Diagnostic build only; no distributed binary comparison or reproducibility verdict.'
 
-      - name: Retain diagnostic ZIP entry hashes for repeat-build checks
+      - name: Retain diagnostic hashes and input evidence for repeat-build checks
         uses: actions/upload-artifact@v4
         with:
           name: android-diagnostic-entry-hashes-${{ github.sha }}
-          path: ${{ runner.temp }}/keeper-android-diagnostic/ZIP_ENTRY_SHA256.json
+          path: |
+            ${{ runner.temp }}/keeper-android-diagnostic/ZIP_ENTRY_SHA256.json
+            ${{ runner.temp }}/keeper-android-diagnostic/APK_CONTAINER.json
+            ${{ runner.temp }}/keeper-android-diagnostic/SOURCE_INPUT_AUDIT.json
+            ${{ runner.temp }}/keeper-android-diagnostic/APT_PACKAGE_SHA256SUMS
+            ${{ runner.temp }}/keeper-android-diagnostic/DPKG_PACKAGES.tsv
+            ${{ runner.temp }}/keeper-android-diagnostic/SHA256SUMS
           retention-days: 7

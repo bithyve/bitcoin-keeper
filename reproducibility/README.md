@@ -22,9 +22,12 @@ bash reproducibility/android-diagnostic.sh \
 
 The script records the toolchain image ID and writes the diagnostic APK, AAB,
 their `SHA256SUMS`, and a stable per-entry ZIP content hash manifest to the output
-directory. The CI workflow retains only the hash manifest for seven days so
+directory. The CI workflow retains hash and names-only input reports for seven days so
 that two builds of the same commit can be compared without publishing the
-diagnostic binaries. The manifest includes every non-directory ZIP entry,
+diagnostic binaries. `APK_CONTAINER.json` additionally records exact ZIP region
+and signing-block pair hashes; `SOURCE_INPUT_AUDIT.json` records static input
+gaps. Apt archive hashes and installed package versions account for resolved
+Ubuntu inputs. The entry manifest includes every non-directory ZIP entry,
 including signing files, and compares their uncompressed contents; it does not
 compare ZIP metadata or the APK signing block. It never writes a
 `COMPARISON_RESULTS.yaml` or reports a reproducibility verdict. Its CI workflow
@@ -91,9 +94,13 @@ requested packages and APT's signed metadata and package hash checks. This
 also fixes the repository state used to resolve transitive apt dependencies.
 The snapshot is a diagnostic input, not a claim about the publisher's build
 environment. Google SDK archives lack `package.xml`, so the image adds checked
-local package metadata for their exact paths and revisions. Ubuntu apt package
-hashes are not recorded in this repository; transitive native downloads also
-remain unpinned. The script is therefore an independent
+local package metadata for their exact paths and revisions. Apt archive hashes
+are captured before an offline `--no-download` install, followed by a complete
+installed-package version list. The archive manifest is retained in CI rather
+than committed as a reviewed baseline; inherited packages are covered by the
+base image digest. Realm Android OpenSSL downloads now have separate checksum
+checks as described below. Other native download paths still need a complete
+audit. The script is therefore an independent
 **diagnostic build path**, not a final WalletScrutiny recipe.
 
 The diagnostic Gradle command uses strict SHA-256 dependency verification from
@@ -202,9 +209,12 @@ support an exact payload verdict. Some fields appear credential-bearing and
 require owner security review before public build inputs are released; do not
 commit an unchecked production environment file.
 
-The source pins Gradle wrapper 8.14.3, Android Gradle Plugin 8.8.0, Android
+The source pins Gradle wrapper 8.14.3, directly declares Android Gradle Plugin
+8.8.0, and selects Android
 SDK/target 36, Build Tools 35.0.0, NDK 27.1.12297006, and React Native
-0.83.9. The locked Realm dependency requests CMake 3.22.1. The dependency
+0.83.9. The authenticated APK actually reports AGP **8.12.0**; React Native's
+Gradle plugin also requests 8.12.0. A declaration is not a resolved-version lock.
+The locked Realm dependency requests CMake 3.22.1. The dependency
 tree is recorded in `yarn.lock` and checked-in `patch-package` patches. The
 successful diagnostic used Node
 22.23.3, Yarn 1.22.22, and JDK 17.0.19; these are measured diagnostic inputs,
@@ -317,7 +327,8 @@ build-path dependency and fails this check.
 The diagnostic container pins its base image, Ubuntu apt snapshot and requested
 package versions, and command-line tools archive. The Docker build checks the
 snapshot source and six installed package versions. The input checker does not
-verify every apt dependency hash or transitive native input; Gradle checks
+authenticate every apt/native publisher artifact or lock every dependency
+version; Gradle checks
 resolved external artifacts against its separate metadata file.
 It does not run the build or compare a binary and is
 not a WalletScrutiny `build.sh`. Run its focused tests with:
@@ -328,11 +339,11 @@ python3 -m unittest reproducibility/test_verify_android_inputs.py
 
 ## Next checks
 
-1. Repeat the passing clean Linux diagnostic APK/AAB build from the same
-   commit and compare ZIP entry hashes and build manifests. Resolve any
-   changing inputs or path-sensitive output.
+1. Validate the new input/container reports and Realm checksum patch in a fresh
+   strict Linux APK/AAB build. Compare retained manifests, accounting for changed
+   source/patch fingerprints and SDK metadata randomness.
 2. Validate Gradle verification metadata in a fresh strict build, record the
-   resolved apt dependency hashes, lock version choices and native downloads,
+   reviewed apt dependency hashes, lock resolved version choices and audit native downloads,
    and confirm that the candidate release source consumes only the reviewed,
    noncredential Android environment fields. The seven proposed values can be
    checked against the public v2.6.3 APK without asking the owner to supply them.
@@ -343,3 +354,152 @@ python3 -m unittest reproducibility/test_verify_android_inputs.py
 4. Once that process works end to end, publish a WalletScrutiny-compatible
    `build.sh` and `COMPARISON_RESULTS.yaml`. Do not infer a match from the
    diagnostic build or from package signatures alone.
+
+## Independent continuation evidence (12 October 2026)
+
+The verdict remains **not established**. These checks authenticate and inspect
+the released binary and tighten diagnostic inputs. They do not supply the missing
+historical production configuration or perform a new release rebuild. No R4
+integration or Bitkey changes are included.
+
+### Release authentication and source association
+
+All four assets of [v2.6.3 / release 404858505](https://github.com/KeeperCommunity/bitcoin-keeper/releases/tag/v2.6.3)
+were downloaded again and matched GitHub's asset sizes and SHA-256 digests.
+The signed checksum and detached APK signature both verified with primary PGP
+fingerprint `389F4CADA0785AC0E28A0C181BEBDE261DC3CF62`, already published in the
+[April 2024 README](https://github.com/KeeperCommunity/bitcoin-keeper/blob/63a078069a9bcf1ccf696fb8f930fbc6b7c97ce9/Readme.md#pgp).
+The checksum extracted from the verified signed message equaled the plain
+checksum and the measured APK hash. The keyserver supplied the public key;
+independent out-of-band certification of the owner's identity was not obtained.
+
+SDK Build Tools 35.0.0 `apksigner verify --verbose --print-certs` also passed:
+one APK v2 signer, certificate SHA-256
+`bfa023d99facebafa4a9af22b9e49a13dbbfa3ee825be3da16cca9e3ea1b243a`.
+The APK has package `io.hexawallet.bitcoinkeeper`, version 2.6.3, code 626,
+and SHA-256 `a20d934ebd80ece779d3c171c7906bb4aff010337989ec1b826cab55c50eba46`.
+The seven-field presence audit passed again without supplying an environment
+file or disclosing any values.
+
+The source association remains weaker than artifact authentication: `v2.6.3`
+is a lightweight tag at unsigned commit
+`872cbc4b16ddcb0a8f3b5b1d7ebcde28e06ed096`; the release is mutable.
+The APK's `META-INF/version-control-info.textproto` reports
+`NO_SUPPORTED_VCS_FOUND`, with no source SHA. GitHub's attestation API returned
+404 for this digest; no attestation was retrieved. None of these observations
+establishes a binary-to-source build relationship.
+
+### Actual resolved inputs and configuration gaps
+
+The released APK's `app-metadata.properties` reports **AGP 8.12.0**. Its
+57-byte content hash, `411dcc6d947fcbe47599c3ee9a1d9214afc6865a1c14fc5b6942a14ae6b23f3d`,
+also matches the prior diagnostic APK and AAB manifests. This measures the
+emitted plugin version; the source's direct 8.8.0 declaration does not describe
+the full resolved classpath. Record or lock the resolved dependency graph.
+
+[`audit-android-source.py`](audit-android-source.py) passively reports static
+configuration names, selected file hashes, Yarn integrity coverage and literal
+Gradle dynamic selectors. It never reads `.env` files, resolves dependencies or
+approves production configuration:
+
+```sh
+python3 -B reproducibility/audit-android-source.py --repo /path/to/exact/source > source-audit.json
+```
+
+Both v2.6.3 and this branch consume 13 static configuration names. The seven-name
+allowlist omits `ENC_KEY_STORAGE_IDENTIFIER`, `SENTRY_DNS`, `GASFREE_API_KEY`,
+`GASFREE_API_SECRET`, `LETS_EXCHANGE_BASE_URL`, and `LETS_EXCHANGE_API_KEY`.
+Do not reconstruct or publish these values unchecked. The tagged source's
+audited build-file/patch fingerprint is
+`eb01ddfe4088a95d3cebf7fc48a7c450c7455596a140e832278858d528d01c8b`;
+its Yarn lock SHA-256 is
+`b257e6d81f2850ca1c12ce3ddb559d39cd3113a51c09a9eb71ca11c81bf5a245`.
+This fingerprint covers the auditor's listed files, not the entire source tree
+or historical configuration. The diagnostic branch's lockfile and Android version
+differ from v2.6.3, so it is not an exact-release comparison candidate.
+
+The tagged Yarn lock has 1,711 entries / 1,706 valid SHA-512 SRI fields; this
+branch has 1,695 / 1,690. Both lack SRI for `cktap-protocol-react-native`,
+`electrum-client`, `libportal-react-native`, `rn-nodeify`, and
+`satochip-react-native`. Their Git or GitHub archive resolutions use full commit
+SHAs; that does not independently authenticate archive/installed bytes. No
+Gradle lockfiles were found in the Android source. The fallback
+`org.webkit:android-jsc:+` declaration remains (Hermes is enabled here).
+Installed transitive modules require a separate audit; strict checksums do not
+lock version selection.
+
+The new apt stage passed in Docker with the managed proxy CA mounted only for
+the build step, preserving TLS and APT signature verification. It recorded
+23 downloaded `.deb` hashes (manifest SHA-256
+`73b702f96a2d9659b0e26426878b7e0e538468b1b079270ae6e3bd5dc1ee49dd`)
+and 169 installed package versions (manifest SHA-256
+`9956078854e22b7c1b123f9d6d30de37fc9a44c720c9da3d0a9c53d2fd96ff19`).
+CI now retains these manifests. They account for observed diagnostic inputs,
+not the publisher's historical environment.
+
+### Native downloads outside Gradle
+
+The locked `realm@12.15.0` npm archive passed Yarn's recorded SHA-512 SRI.
+Its four Android CMake helpers download OpenSSL 3.3.1 outside both Yarn and
+Gradle verification. [`realm+12.15.0.patch`](../patches/realm+12.15.0.patch) adds
+`EXPECTED_HASH SHA256` before extraction and rejects unreviewed Android versions
+or ABIs. Hashes were measured from two equal, TLS-verified downloads per archive:
+
+| Android ABI | OpenSSL archive SHA-256 |
+| --- | --- |
+| armeabi-v7a | `f7ca33cda546c05ad9c258add4f98b6f8f9764d0883d868d93579b1bc2a80ac4` |
+| arm64-v8a | `54e4581c4b123d7f04842a6cec3f153838e8a52c9b162b2a2233efd868247610` |
+| x86 | `f03642845c924a4f4c5e934494b10e3658dbaab5874339a0fe37b661e80adce8` |
+| x86_64 | `ff64787be7ee2e29fef1d8341ff543f6d8aaa291a8fc7c2e3849d82a8c2ae6fa` |
+
+These are an observed baseline, not publisher-signed or historical provenance.
+Locked `patch-package` 6.4.7 applied all four edits successfully. Real CMake
+3.22.1 download/extract checks passed for every ABI; a wrong hash failed before
+extraction, and unknown version/ABI checks failed. A non-Android fixture preserved
+prior behavior. An already extracted `include.cmake` remains a cache bypass;
+fresh CMake trees are required. Other native download paths remain to be audited.
+
+### Container comparison and limits of AAB evidence
+
+[`inspect-apk-container.py`](inspect-apk-container.py) hashes bounded ZIP32
+regions, headers/compressed entries and signing-block pairs, without printing
+contents or decoding ZIP names. It supplements the payload comparator:
+
+```sh
+python3 -B reproducibility/inspect-apk-container.py released.apk > released-container.json
+python3 -B reproducibility/inspect-apk-container.py released.apk rebuilt.apk > container-comparison.json
+```
+
+Two-file exit 0 requires byte-identical files. Exit 1 reports any difference,
+including differences confined to SDK metadata `0x504b4453`; exit 2 rejects
+malformed or unsupported input. Signature pairs, padding, unknown pairs, framing,
+ordering and ZIP differences remain explicit. It does not verify signatures or
+claim reproducibility.
+
+The released APK has 1,610 ZIP entries and a 20,480-byte signing block: v2 pair
+`0x7109871a` (1,537 value bytes), SDK pair `0x504b4453` (15,543), and padding
+`0x42726577` (3,332). A **copied-release test fixture**, with one SDK metadata
+byte flipped, retained Android v2 signature validity and all 1,610 payload entries.
+The container tool correctly returned exit 1 with that pair as the only changed
+region. This tests the inspection boundary, not a source rebuild or a release
+comparison. The original authenticated release remained unchanged.
+
+[Prior final-head run 37937333390](https://github.com/KeeperCommunity/bitcoin-keeper/actions/runs/37937333390)
+was independently rechecked as **passed**: 1,096 Gradle tasks at checkout
+`94eb5a53a055e13eaff773f2b8af1551e4026a32`, associated with prior PR head
+`5a6a1ead6b14a9054c34de28bd2885458d576389`. Its artifact ZIP matched GitHub's
+digest; its entry manifest matched
+[run 37925672723](https://github.com/KeeperCommunity/bitcoin-keeper/actions/runs/37925672723)
+byte for byte (`390ebdd7481de40ed7d0850a25e5de65ff69edd307507b4978b0a6416b128670`).
+The whole AAB retained SHA-256 `f08727ab342ef8a1b9740cbcdbaa3fc62ae2f0fb022cb06b40e2c78f970effc0`.
+These are prior placeholder/debug results, not validation of this continuation's
+new build-input changes. The prior general Jest failure remains an open gate.
+
+No AAB is published for v2.6.3. Fresh Play split retrieval was not performed;
+no Play identity is configured here. Earlier channel-parity results remain
+historical evidence. Compare a complete delivered split set with corresponding
+outputs from an exact rebuilt AAB, recording the device specification, bundletool
+version and signing inputs. A universal APK or an AAB entry manifest cannot
+substitute for that comparison. Historical release configuration, complete
+resolved inputs, an exact-source independent build and fresh complete Play split
+evidence remain blockers to a released-binary verdict and WalletScrutiny results.

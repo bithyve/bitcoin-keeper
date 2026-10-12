@@ -1,7 +1,7 @@
 # Diagnostic Linux toolchain for an independent Android build attempt.
 # This amd64 image digest is for eclipse-temurin:17.0.19_10-jdk-jammy.
 # Gradle artifacts are checked by the project's verification metadata;
-# transitive native downloads outside Gradle remain unpinned.
+# native downloads outside Gradle require their own checksum checks.
 FROM --platform=linux/amd64 eclipse-temurin:17.0.19_10-jdk-jammy@sha256:b76a309b3dfa907458b4ef428edfcfb37920a5ce0e9c6bc77798a54e039a8330 AS java-node-yarn
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -30,11 +30,16 @@ RUN set -euo pipefail \
          'unzip=6.0-26ubuntu3.2' \
          'xz-utils=5.2.5-2ubuntu1.1' \
        ) \
-    && apt-get -o APT::Get::Always-Include-Phased-Updates=true install -y --no-install-recommends "${packages[@]}" \
+    && mkdir -p /opt/keeper-toolchain \
+    && apt-get -o APT::Get::Always-Include-Phased-Updates=true install -y --download-only --no-install-recommends "${packages[@]}" \
+    && (cd /var/cache/apt/archives && LC_ALL=C sha256sum *.deb | LC_ALL=C sort -k2) > /opt/keeper-toolchain/APT_PACKAGE_SHA256SUMS \
+    && test -s /opt/keeper-toolchain/APT_PACKAGE_SHA256SUMS \
+    && apt-get -o APT::Get::Always-Include-Phased-Updates=true install -y --no-download --no-install-recommends "${packages[@]}" \
     && for spec in "${packages[@]}"; do \
          package="${spec%%=*}"; expected="${spec#*=}"; \
          test "$(dpkg-query -W -f='${Version}' "$package")" = "$expected"; \
        done \
+    && dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' | LC_ALL=C sort > /opt/keeper-toolchain/DPKG_PACKAGES.tsv \
     && rm -rf /var/lib/apt/lists/*
 
 ARG NODE_VERSION=22.23.3
