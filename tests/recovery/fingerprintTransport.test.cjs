@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadModule, harness, wallet } = require('./helpers.cjs');
+const { fixture: sagaFixture, signer: sagaSigner, enums } = require('./sagaHarness.cjs');
 
 const signerChanges = [{
   oldSignerId: 'fixture-old', newSignerId: 'fixture-new', newSignerDetails: 'fixture-ciphertext',
@@ -72,4 +73,43 @@ test('direct migration attempts never send ciphertext and keep redacted errors',
   assert.equal(errors[0].message, 'Backup request could not be completed');
   assert.equal(transport.backupRevision('fixture-account'), 2);
   assert.deepEqual(pending, ['fixture-account', 'fixture-account']);
+});
+
+test('fingerprint migration targets the actual KeyUID map entry after Realm changes the live signer', async () => {
+  const f = sagaFixture();
+  const oldSigner = sagaSigner('AABBCCDD', enums.NetworkType.MAINNET);
+  oldSigner.signerXpubs[enums.XpubTypes.P2WSH] = [{
+    xpub: 'shared-p2wsh-xpub', derivationPath: "m/48'/0'/0'/2'", xpriv: null,
+  }];
+  const replacement = {
+    ...oldSigner,
+    masterFingerprint: 'EEFF0011',
+    signerXpubs: structuredClone(oldSigner.signerXpubs),
+  };
+  const oldKey = f.scope.getKeyUID(oldSigner);
+  const newKey = f.scope.getKeyUID(replacement);
+  assert.notEqual(oldKey, oldSigner.masterFingerprint);
+  assert.notEqual(newKey, replacement.masterFingerprint);
+  f.collections.Signer.push(oldSigner);
+  f.remote.signers[oldKey] = 'old-ciphertext';
+  f.scope.dbManager.getObjectByQuery = () => [];
+  let submitted;
+  f.scope.Relay.migrateXfp = async (appId, changes) => {
+    submitted = { appId, changes };
+    for (const change of changes) {
+      delete f.remote.signers[change.oldSignerId];
+      f.remote.signers[change.newSignerId] = change.newSignerDetails;
+    }
+    return { updated: true };
+  };
+
+  assert.equal(await f.run('mergeSimilarKeysWorker', {
+    originAppId: f.app.id,
+    payload: { signer: replacement },
+  }), true);
+  assert.equal(oldSigner.masterFingerprint, replacement.masterFingerprint);
+  assert.equal(submitted.appId, f.app.id);
+  assert.equal(submitted.changes[0].oldSignerId, oldKey);
+  assert.equal(submitted.changes[0].newSignerId, newKey);
+  assert.deepEqual(Object.keys(f.remote.signers), [newKey]);
 });

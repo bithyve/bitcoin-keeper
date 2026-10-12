@@ -2075,8 +2075,10 @@ function* mergeSimilarKeysWorker({
         );
         const updated = yield call(Relay.migrateXfp, id, [
           {
-            oldSignerId: s.masterFingerprint,
-            newSignerId: signer.masterFingerprint,
+            // Relay signer maps use KeyUID, not the bare fingerprint. Keep the
+            // old key captured before Realm mutates the live signer object.
+            oldSignerId: signerKeyUID,
+            newSignerId: getKeyUID(signer),
             newSignerDetails: encrytedSigner,
           },
         ], originBackupWriteIntent);
