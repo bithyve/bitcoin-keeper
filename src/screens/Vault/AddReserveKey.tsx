@@ -212,7 +212,7 @@ function AddReserveKey({ route }) {
                 {vaultTranslations.inheritanceKeyActivation}
               </Text>
               <Text color={`${colorMode}.greenishGreyText`} fontSize={12}>
-                {vaultTranslations.availableAfterDelay}
+                {vaultTranslations.inheritanceActivationNote}
               </Text>
             </Box>
             <Box style={styles.dropDownContainer}>

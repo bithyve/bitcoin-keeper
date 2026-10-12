@@ -659,6 +659,7 @@
     "addEmergencyKey": "Add Emergency Key",
     "availableAfterDelay": "Key will be available after time-delay",
     "inheritanceKeyActivation": "Inheritance Key Activation",
+    "inheritanceActivationNote": "La activación se fija al crear esta versión de la billetera; cualquier bloqueo temporal de la billetera se suma al plazo seleccionado. Recibir o gastar fondos no reinicia el plazo. Para reiniciarlo hay que crear una nueva versión de la billetera y transferir los fondos.",
     "emergencyKeyActivation": "Emergency Key Activation",
     "changeKey": "Change Key",
     "selectActivationTime": "Select activation time",

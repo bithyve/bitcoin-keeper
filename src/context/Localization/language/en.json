@@ -671,6 +671,7 @@
     "addEmergencyKey": "Add Emergency Key",
     "availableAfterDelay": "Key will be available after time-delay",
     "inheritanceKeyActivation": "Inheritance Key Activation",
+    "inheritanceActivationNote": "Activation is fixed when this wallet version is created, with any Wallet Timelock added to the selected delay. Receiving or spending funds does not restart it. Resetting requires re-vaulting and transferring funds.",
     "emergencyKeyActivation": "Emergency Key Activation",
     "changeKey": "Change Key",
     "selectActivationTime": "Select activation time",

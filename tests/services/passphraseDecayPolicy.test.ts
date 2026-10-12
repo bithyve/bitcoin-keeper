@@ -3,8 +3,14 @@ import {
   generateSeedWordsKey,
   generateMiniscriptScheme,
   generateVault,
+  getAvailableMiniscriptPhase,
 } from 'src/services/wallets/factories/VaultFactory';
-import { MiniscriptTypes, MultisigScriptType, NetworkType, VaultType } from 'src/services/wallets/enums';
+import {
+  MiniscriptTypes,
+  MultisigScriptType,
+  NetworkType,
+  VaultType,
+} from 'src/services/wallets/enums';
 import {
   ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET,
   generateEnhancedVaultElements,
@@ -27,13 +33,7 @@ const externalSigner = (passphrase: string) => {
     masterFingerprint,
     xfp: masterFingerprint,
     derivationPath,
-    xpub: WalletUtilities.generateExtendedKey(
-      mnemonic,
-      false,
-      network,
-      derivationPath,
-      passphrase
-    ),
+    xpub: WalletUtilities.generateExtendedKey(mnemonic, false, network, derivationPath, passphrase),
   };
 };
 
@@ -79,7 +79,7 @@ describe('Disposable passphrase and absolute-lock policy fixture', () => {
     expect(Object.values(scheme.keyInfoMap).every((key) => key.endsWith('/*'))).toBe(true);
   });
 
-  it('derives two receive addresses from a Vault descriptor with the same absolute unlock', async () => {
+  it('keeps the seed-only fallback behind the same absolute unlock across receive addresses', async () => {
     const primary = externalSigner('TREZOR');
     const inheritance = externalSigner('');
     const absoluteUnlock = 1800000000 + ENHANCED_VAULT_TIMELOCKS_TIMESTAMP_MAINNET.MONTHS_6;
@@ -118,5 +118,23 @@ describe('Disposable passphrase and absolute-lock policy fixture', () => {
     expect(descriptor).toContain('/*');
     expect(descriptor).toContain('#');
     expect(first).not.toBe(second);
+
+    const beforeActivation = getAvailableMiniscriptPhase(vault, absoluteUnlock - 1);
+    expect(
+      Object.values(beforeActivation.signers).map((signer: any) => signer.masterFingerprint)
+    ).toEqual([primary.masterFingerprint]);
+
+    const afterActivation = getAvailableMiniscriptPhase(vault, absoluteUnlock + 1);
+    expect(
+      Object.values(afterActivation.signers).map((signer: any) => signer.masterFingerprint)
+    ).toEqual(expect.arrayContaining([primary.masterFingerprint, inheritance.masterFingerprint]));
+    const fallbackPhase = afterActivation.phases.find((phase) => phase.timelock === absoluteUnlock);
+    expect(fallbackPhase.paths).toEqual([
+      expect.objectContaining({
+        threshold: 1,
+        keys: [expect.objectContaining({ identifier: 'IK1' })],
+      }),
+    ]);
+    expect(generateOutputDescriptors(vault)).toBe(descriptor);
   });
 });
