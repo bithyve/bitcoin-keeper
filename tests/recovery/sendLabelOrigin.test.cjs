@@ -97,3 +97,32 @@ test('a file import callback from A keeps A after the active account switches to
   assert.equal(seen[0].type, 'IMPORT_LABELS');
   assert.equal(seen[0].originAppId, 'A');
 });
+
+test('an async label import from an old A session cannot rebase after A to B to A', async () => {
+  let session = 3;
+  let completeImport;
+  const seen = [];
+  const errors = [];
+  scope.currentBackupAccountSession = () => session;
+  scope.captureBackupWriteIntent = (appId) => ({
+    appId, accountSession: session, baseRevision: 'a'.repeat(64), baselineEpoch: 0,
+  });
+  scope.onError = (message) => errors.push(message);
+  scope.dispatch = scope.actions.bindActionOrigin({
+    getState: () => ({ storage: { appId: 'A' } }),
+  })((action) => { seen.push(action); return action; });
+  scope.importFile = (onFile) => new Promise((resolve) => {
+    completeImport = async () => {
+      await onFile(JSON.stringify({
+        type: 'tx', ref: 'txid', label: 'note', origin: 'descriptor',
+      }));
+      resolve();
+    };
+  });
+  const started = scope.actions.handleImportLabels();
+  session = 5;
+  await completeImport();
+  await started;
+  assert.deepEqual(seen, []);
+  assert.equal(errors.length, 1);
+});

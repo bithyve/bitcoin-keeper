@@ -144,7 +144,7 @@ export async function boundedBackupPost(
 }
 
 export function backupPost(
-  _path: string, body: any, explicitChoice = false, expectedSession?: number
+  _path: string, body: any, explicitChoice = false, intent?: BackupWriteIntent
 ): Promise<{ data: any; json?: any }> {
   const appId = body.appId || body.appID;
   if (!appId) return Promise.reject(new Error('Missing backup account'));
@@ -154,8 +154,7 @@ export function backupPost(
   markBackupMutation(appId);
   clearVerifiedRemoteRevision(appId);
   onBackupReconciliationRequired(appId);
-  const requestSession = expectedSession ?? currentBackupAccountSession();
-  if (requestSession !== currentBackupAccountSession())
+  if (intent && (intent.appId !== appId || intent.accountSession !== currentBackupAccountSession()))
     return Promise.reject(new Error('Backup account session changed'));
   if (!canAccessBackupAccount(appId, explicitChoice))
     return Promise.reject(new Error('Backup account is not active or opted in'));

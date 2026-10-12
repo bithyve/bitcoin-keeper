@@ -10,6 +10,7 @@ import { hp, wp } from 'src/constants/responsive';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 import { useAppSelector } from 'src/store/hooks';
 import Colors from 'src/theme/Colors';
+import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
 
 interface ImportExportLabelsProps {
   vault: any;
@@ -35,6 +36,8 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
   const [isSyncingLabels, setIsSyncingLabels] = useState(false);
 
   const handleImportLabels = async () => {
+    const originBackupAccountSession = currentBackupAccountSession();
+    const originBackupWriteIntent = captureBackupWriteIntent(originAppId);
     try {
       setIsSyncingLabels(true);
       await importFile(
@@ -103,7 +106,15 @@ const ImportExportLabels: React.FC<ImportExportLabelsProps> = ({
               origin: standardizeDescriptor(label.origin),
             }));
 
-            dispatch(importLabels({ labels: standardizedLabels }, originAppId));
+            if (originBackupAccountSession !== currentBackupAccountSession()) {
+              onError('Account changed; please import the wallet labels again');
+              return;
+            }
+            dispatch({
+              ...importLabels({ labels: standardizedLabels }, originAppId),
+              originBackupAccountSession,
+              originBackupWriteIntent,
+            });
 
             onSuccess(`Imported ${walletLabels.length} labels successfully`);
           } catch (parseError) {

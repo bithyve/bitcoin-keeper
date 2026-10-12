@@ -92,9 +92,12 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
     setPendingAllBackup: (payload) => ({ type: 'SET_PENDING_ALL_BACKUP', payload }),
     markBackupMutation: (appId) => state.invalidated.push(appId),
     currentBackupAccountSession: () => state.session,
+    captureBackupWriteIntent: (appId) => ({
+      appId, accountSession: state.session, baseRevision: 'a'.repeat(64), baselineEpoch: 0,
+    }),
     dispatch: (action) => state.dispatched.push(action),
-    Relay: { deleteAppImageEntity: async (body, accountSession) => {
-      state.remote.push({ ...body, accountSession });
+    Relay: { deleteAppImageEntity: async (body, intent) => {
+      state.remote.push({ ...body, accountSession: intent?.accountSession, intent });
       if (switchDuringRemote || switchDuringRemoteRoundTrip) {
         state.active = 'B';
         state.session += 1;

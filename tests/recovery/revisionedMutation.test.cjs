@@ -70,10 +70,12 @@ test('verified baseline is session bound and invalidated by any attempted mutati
 test('stale sessions and denied accounts also request reconciliation', async () => {
   const f = fixture();
   const firstSession = f.transport.currentBackupAccountSession();
+  const oldIntent = { appId: 'A', accountSession: firstSession,
+    baseRevision: 'a'.repeat(64), baselineEpoch: 0 };
   f.transport.observeBackupAccount('B');
   f.transport.observeBackupAccount('A');
   await assert.rejects(
-    f.transport.backupPost('fixture/migrateXfps', { appId: 'A' }, false, firstSession),
+    f.transport.backupPost('fixture/migrateXfps', { appId: 'A' }, false, oldIntent),
     /Backup account session changed/
   );
   await assert.rejects(

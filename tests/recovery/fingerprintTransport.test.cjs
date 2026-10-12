@@ -5,6 +5,9 @@ const { loadModule, harness, wallet } = require('./helpers.cjs');
 const signerChanges = [{
   oldSignerId: 'fixture-old', newSignerId: 'fixture-new', newSignerDetails: 'fixture-ciphertext',
 }];
+const intent = (appId, accountSession = 0) => ({
+  appId, accountSession, baseRevision: 'a'.repeat(64), baselineEpoch: 0,
+});
 
 function relay(transport, errors = []) {
   return loadModule('src/services/backend/Relay.ts', {
@@ -37,7 +40,8 @@ for (const repair of [false, true]) {
     await started;
     const previousRevision = f.transport.backupRevision(f.app.id);
     await assert.rejects(
-      relay(f.transport).migrateXfp(f.app.id, signerChanges),
+      relay(f.transport).migrateXfp(f.app.id, signerChanges,
+        intent(f.app.id, f.transport.currentBackupAccountSession())),
       /Failed to do migrate the xfp/
     );
     assert.equal(f.transport.backupRevision(f.app.id), previousRevision + 1);
@@ -60,7 +64,7 @@ test('direct migration attempts never send ciphertext and keep redacted errors',
   transport.setBackupReconciliationHandler((id) => pending.push(id));
   const service = relay(transport, errors);
   for (let index = 0; index < 2; index++) {
-    await assert.rejects(service.migrateXfp('fixture-account', signerChanges),
+    await assert.rejects(service.migrateXfp('fixture-account', signerChanges, intent('fixture-account')),
       /Failed to do migrate the xfp/);
   }
   assert.equal(errors.length, 2);

@@ -7,6 +7,8 @@ const ts = require('typescript');
 const semver = require('semver');
 const { runSaga } = require('redux-saga');
 const { call, put, select } = require('redux-saga/effects');
+const writeIntent = { appId: 'A', accountSession: 7,
+  baseRevision: 'a'.repeat(64), baselineEpoch: 0 };
 
 const file = 'src/store/sagas/upgrade.ts';
 const source = ts.createSourceFile(
@@ -99,7 +101,8 @@ test('upgrade sequence stamps its original session on nested migrations and disp
   f.scope.healthCheckTimelineMigration = function* () {};
   f.scope.migrateServerKeyPolicy = function* () {};
 
-  await f.run('applyUpgradeSequence', { previousVersion: '1.0.5', newVersion: '2.5.17' });
+  await f.run('applyUpgradeSequence', { previousVersion: '1.0.5', newVersion: '2.5.17',
+    originBackupWriteIntent: writeIntent });
 
   assert.equal(nested.length, 3);
   assert.ok(nested.every(([, appId, session]) => appId === 'A' && session === 7));
@@ -109,6 +112,8 @@ test('upgrade sequence stamps its original session on nested migrations and disp
   assert.equal(backupActions.length, 2);
   assert.ok(backupActions.every((action) => action.originAppId === 'A' &&
     action.originBackupAccountSession === 7));
+  assert.ok(backupActions.every((action) =>
+    action.originBackupWriteIntent?.baseRevision === writeIntent.baseRevision));
 });
 
 test('upgrade sequence paused on its first app read stops after A to B to A', async () => {
@@ -152,10 +157,12 @@ test('upgrade invoked after A to B to A rejects the caller original session befo
 test('version update passes session to Relay and blocks stale A to B to A action', async () => {
   const f = fixture(['updateVersionHistoryWorker']);
   const action = { originAppId: 'A', originBackupAccountSession: 7,
+    originBackupWriteIntent: writeIntent,
     payload: { previousVersion: '2.5.16', newVersion: '2.5.17', isRecovery: true } };
   await f.run('updateVersionHistoryWorker', action);
   assert.equal(f.state.relay.length, 1);
-  assert.equal(f.state.relay[0][2], 7);
+  assert.equal(f.state.relay[0][2].accountSession, 7);
+  assert.equal(f.state.relay[0][2].baseRevision, writeIntent.baseRevision);
 
   const entered = deferred();
   const resume = deferred();
@@ -176,10 +183,12 @@ test('version update passes session to Relay and blocks stale A to B to A action
 
 test('label migration passes session to Relay and blocks stale A to B to A action', async () => {
   const f = fixture(['migrateLablesWorker']);
-  const action = { originAppId: 'A', originBackupAccountSession: 7 };
+  const action = { originAppId: 'A', originBackupAccountSession: 7,
+    originBackupWriteIntent: writeIntent };
   await f.run('migrateLablesWorker', action);
   assert.equal(f.state.relay.length, 1);
-  assert.equal(f.state.relay[0][4], 7);
+  assert.equal(f.state.relay[0][4].accountSession, 7);
+  assert.equal(f.state.relay[0][4].baseRevision, writeIntent.baseRevision);
 
   const entered = deferred();
   const resume = deferred();
