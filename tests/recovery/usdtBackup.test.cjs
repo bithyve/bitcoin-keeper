@@ -105,8 +105,8 @@ const usdtWallet = (type = 'DEFAULT') => ({
   specs: { address: 'disposable-tron-address', privateKey: 'fixture-only-private-key',
     balance: 10, transactions: [], hasNewUpdates: false, lastSynched: 1 },
   accountStatus: {
-    address: 'disposable-tron-address',
-    gasFreeAddress: 'saved-fixture-receive-address',
+    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    gasFreeAddress: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
     isActive: true,
     frozen: 0,
     canTransfer: true,

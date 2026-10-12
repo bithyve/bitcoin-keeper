@@ -34,6 +34,10 @@ function recoveryFixture() {
     ...wallet('usdt', enums.NetworkType.MAINNET),
     entityKind: enums.EntityKind.USDT_WALLET,
     specs: { address: 'fixture', privateKey: 'fixture-only' },
+    accountStatus: {
+      address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+      gasFreeAddress: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
+    },
   };
   f.remote.wallets = { btc: seal(btc), usdt: seal(usdt) };
   f.remote.signers = { [f.scope.getKeyUID(mobile)]: seal(mobile) };
@@ -103,6 +107,25 @@ test('clean recovery recreates keys, BTC/USDT, archived vault, labels and custom
   assert.deepEqual(plain(f.collections.Vault), [f.expected.vault]);
   assert.deepEqual(plain(f.collections.Tags), [f.expected.label]);
   assert.deepEqual(plain(f.collections.NodeConnect), [{ ...f.expected.node, isConnected: true }]);
+});
+
+for (const [name, accountStatus] of [
+  ['missing status', undefined],
+  ['missing wallet address', { gasFreeAddress: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf' }],
+  ['empty GasFree address', { address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', gasFreeAddress: '' }],
+  ['malformed wallet address', { address: 'not-a-tron-address', gasFreeAddress: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf' }],
+  ['malformed GasFree checksum', { address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', gasFreeAddress: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBg' }],
+]) test(`clean recovery rejects USDT ${name} before any Realm write`, async () => {
+  const f = recoveryFixture();
+  const key = encryption.generateEncryptionKey(f.app.primarySeed);
+  f.remote.wallets.usdt = encryption.encrypt(key, JSON.stringify({
+    ...f.expected.usdt, accountStatus,
+  }));
+  await f.restore();
+  assert.equal(errors(f).length, 1);
+  assert.equal(completed(f), false);
+  assert.deepEqual(f.writes, []);
+  assert.equal(f.calls.length, 0);
 });
 
 for (const kind of ['wallet', 'usdt', 'signer', 'vault', 'label', 'node']) {
