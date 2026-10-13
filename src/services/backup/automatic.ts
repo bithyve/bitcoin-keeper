@@ -70,7 +70,7 @@ let sequence = 0;
 // The genuine Realm/transactional Relay matrix permits development loopback
 // validation. Hosted writes remain fenced until the separate fleet rollout,
 // old-writer drainage and operator evidence have been reviewed and approved.
-export const AUTOMATIC_BACKUP_SOURCE_READY = true;
+export const AUTOMATIC_BACKUP_SOURCE_READY = false;
 export const AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY = false;
 let commitVerification: (appId: string, deleted: boolean, consentEpoch: number) => boolean = () =>
   false;
