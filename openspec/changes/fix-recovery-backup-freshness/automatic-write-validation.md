@@ -9,17 +9,17 @@ Automatic-backup implementation and disposable proof are mandatory R4 work. Crit
 | Field | Current record |
 | --- | --- |
 | Audit starting app source | b160656218dc6065ad12af9db220c974255bfc23; historical |
-| Final tested code commit before documentation | a243b53b5682a276eb88851c3d34379c0908fedd; includes the frozen-Yarn CI setup and email/derivation utility fixes |
+| Final tested code commit before documentation | 3cc9368ca2f3b2149db5743a5f9d230aa516d6a0; includes persisted-proof expiration, current-proof status projection and seven new genuine cases |
 | Tested Relay fixture commit | b600416e5ba7325927d7d2871cff7776f4e593fe; runner requires clean tracked source |
 | Runtime and topology | Node 22.23.3, actual Realm 12.15.0, Linux host, disposable loopback keeperQA Mongo replica set on port 27058; no hosted credentials |
-| Combined genuine fixture command/result | `npm run test:automatic-backup-genuine`: PASS 253/253, 0 failures/skips, 195.046 seconds, clean frozen-Yarn run terminal recorded 2026-10-13 04:40 UTC; core 206 + producers 46 + restore 1 |
-| Recovery unit command/result | `npm run test:recovery`: 434/434 PASS, 0 failures/skips, 67.140 seconds at a243b53b5682a276eb88851c3d34379c0908fedd |
+| Combined genuine fixture command/result | `npm run test:automatic-backup-genuine`: PASS 260/260, 0 failures/skips, 208.779 seconds, clean frozen-Yarn run terminal recorded 2026-10-13 05:26 UTC; core 213 + producers 46 + restore 1 |
+| Recovery unit command/result | `npm run test:recovery`: 443/443 PASS, 0 failures/skips, 52.156 seconds at 3cc9368ca2f3b2149db5743a5f9d230aa516d6a0 |
 | Clean encrypted Recovery Key restore | PASS: actual recovery saga, real key derivation/AES, blank encrypted Realm and real HTTP reads; complete image, all signer fields and normalized nodes checked |
 | Source/hosted flags | AUTOMATIC_BACKUP_SOURCE_READY=true for DEVELOPMENT loopback only; AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY=false; hosted rollout remains false |
 | IOS / ANDROID exact-source result | NOT RUN / NOT RUN; NEEDS_LOCAL |
-| Review and current-head CI | Independent agent fixture architecture review completed with restore assertion gap corrected. Final external developer review/current-head combined GitHub CI remain open. Earlier backup Sonar failure stays disclosed. Source PR #7042 trigger corrected by workflow-only 74df55446d8645ebfac05405fce81fa43446acd9; runtime unchanged. Separate CodeQL check 115132119008 completed SUCCESS (No new alerts in code changed, zero annotations), Analyze 115131867787 SUCCESS; hosted Tests run 38347397038 at 74df FAILED: 34/35 Jest suites, 333/340 tests, seven unchanged live-network Electrum failures; recovery/version/release checks SKIPPED. A test-only deterministic Electrum fixture correction is in progress with no runtime/dependency change; no future pass or combined-head CI is inferred |
-| Current Jest | 42 suites / 432 tests PASS, 72.836 seconds at a243b53b5682a276eb88851c3d34379c0908fedd |
-| Type/lint boundary | Focused six core module lint/format PASS. Whole-project tsc FAIL with 945 inherited diagnostics versus 957 at baseline bb66cea459fbb00ec33c5c4ebd601d07c0d7c125; zero added normalized diagnostics, not a clean typecheck |
+| Review and current-head CI | Independent agent fixture review completed; external final-source review remains open. Prior head 2071 hosted Tests 38348159148 and CodeQL 115134694738 succeeded; current final-head combined CI awaits the post-documentation push. Source #7042 at 163cc own-head checks succeeded with runtime d280 unchanged; prior failures remain in [October evidence](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| Current Jest | 42 suites / 432 tests PASS, 37.9 seconds at 3cc9368ca2f3b2149db5743a5f9d230aa516d6a0 |
+| Type/lint boundary | Recorded focused six core module lint/format PASS. Prior 2071 hosted whole lint CLI FAIL: 5353 problems, 4467 errors, 886 warnings, tolerated by the green job. Whole-project tsc FAIL with 945 inherited diagnostics versus 957 at baseline bb66cea459fbb00ec33c5c4ebd601d07c0d7c125; zero added normalized diagnostics, not a clean typecheck |
 | Current release preflight | FAIL: 2026-10-13 04:11 UTC command found iOS store history older than 24 hours; refresh required before release |
 | Production running artifact/topology/authorization | NOT VERIFIED; no deployment, merge or publication authorized |
 
@@ -44,7 +44,7 @@ Use PASS, FAIL, BLOCKED or NOT RUN with provenance. The source SHA precedes this
 
 The genuine matrix uses actual production snapshot/commit/automatic/transport code, real AES, production schemas and encrypted native Realm, extracted production Redux middleware/store observers, and real HTTP into the pinned transactional Relay. Common negatives include stale generation, queued A→B→A, remote-only/key conflict, failed commit, copied/missing proof, unsupported/malformed protocol, timeout/lost ACK, incomplete/wrong-key readback and closed/reopened Realm. The additional after-send A→B→A and inter-member native-write schedules passed 8/8 at fixture commit 7b1ad70ba9e2aa1a2778b375f36e776bdd26a5ad, before source commit efa6f89ebf7140f738f03ce8a7218a2a1e7f9bc2 enabled development loopback testing. The combined final runner result is recorded separately.
 
-Most operation mutation callbacks in the core matrix are constructed directly over the production commit API. Separate producer files exercise actual wallet/vault, signer/registration, label, version-upgrade and existing-USDT functions. This does not attest full React Native store boot, MMKV, UI navigation or native app relaunch. USDT new-wallet creation/import remains paused; tested USDT records are existing retained records only.
+Most operation mutation callbacks in the core matrix are constructed directly over the production commit API. Separate producer files exercise actual wallet/vault, signer/registration, label, version-upgrade and existing-USDT functions. Seven additional cases exercise real Redux Persist reconciliation in both BHR/legacy-root orders and the actual UI AST declaration projection over native Realm/HTTP proof. This does not attest rendered React Native UI, native MMKV, UI navigation or native app relaunch. USDT new-wallet creation/import remains paused; tested USDT records are existing retained records only.
 
 | Operation | Observed production proof | Host result / evidence |
 | --- | --- | --- |
@@ -72,6 +72,7 @@ Most operation mutation callbacks in the core matrix are constructed directly ov
 | Final verification race | PASS native write immediately before actual Redux verification dispatch leaves pending; copied/uncommitted proof cannot bypass it |
 | Account change after send | PASS added after-send A→B→A for all seven operations, with a distinct B seed/account/publicId and independently verified B backup; old A completion leaves B state, native data and remote backup unchanged |
 | Realm close/reopen | PASS stale queued proof rejects the reopened handle; this is not native app/process restart or MMKV evidence |
+| Persisted host rehydration / current-proof display | PASS two actual Redux Persist boot cases and five actual UI AST declaration projection cases over native Realm/HTTP. Saved Verified/interrupted/completed status expires to unverified/pending; consent, confirmation, local records and existing negative findings survive. No replay or upload; only fresh complete readback restores proof |
 | Persisted app interruption/relaunch and background behavior | NOT RUN; mandatory IOS/ANDROID Local checks |
 | Transactional HTTP contract | PASS actual paired route/service/Mongoose transaction path and disposable source contract checks; hosted artifact parity, topology, limits and old-writer fleet rollout remain unverified |
 
@@ -82,6 +83,7 @@ Both platforms must test the final source with disposable accounts/data and a co
 | Native scenario | IOS result + evidence | ANDROID result + evidence |
 | --- | --- | --- |
 | Build and launch exact source; identify native package/version and backend source | NOT RUN | NOT RUN |
+| Cold launch with saved Verified/interrupted state, nested/legacy consent precedence and durable MMKV: unverified/pending until fresh complete readback; no replay, preserved local data/choices/confirmation | NOT RUN | NOT RUN |
 | Opted-in automatic create/edit/delete after initial backup; local data survives forced cloud failure and relaunch | NOT RUN | NOT RUN |
 | Complete server readback and clean Recovery Key restore of newly produced committed dataset | NOT RUN | NOT RUN |
 | Legacy encrypted snapshot upgrade plus absent/stale/transport/server/decryption failure; no false missing/empty/verified or unsolicited replacement | NOT RUN | NOT RUN |
