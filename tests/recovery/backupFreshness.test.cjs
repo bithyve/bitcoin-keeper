@@ -259,6 +259,10 @@ for (const network of [NetworkType.MAINNET, NetworkType.TESTNET]) {
     const added = wallet('later', network, 1);
     const committedOperation = commitFixtureRecovery(f, realm => realm.create('Wallet', initial));
     await f.run('updateAppImageWorker', { payload: { wallets: [initial] }, committedOperation });
+    // The unit Relay supplies acknowledgements only. Name the separate mocked
+    // read-only verification contract before authorizing the next source
+    // operation; native/HTTP integration owns the actual readback evidence.
+    f.mockVerifiedBackupBaseline();
     assert.equal(
       await f.run('addNewWalletsWorker', {
         payload: [{ walletType: WalletType.DEFAULT, walletDetails: { fixture: added } }],
