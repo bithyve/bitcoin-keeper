@@ -84,7 +84,7 @@ cd "$keeper_app_dir"
 yarn install --frozen-lockfile --ignore-scripts
 yarn patch-package
 (cd node_modules/realm && ../.bin/prebuild-install --runtime napi --target 6)
-(cd "$keeper_relay_dir" && npm ci --ignore-scripts)
+(cd "$keeper_relay_dir" && yarn install --frozen-lockfile --non-interactive --ignore-scripts)
 export REALM_DISABLE_ANALYTICS=1
 export KEEPER_RELAY_FIXTURE_MODULE="$keeper_relay_dir/tests/support/automaticBackupHttpFixture.cjs"
 export BACKUP_TEST_MONGO_URL=mongodb://127.0.0.1:27058
