@@ -1,6 +1,7 @@
 import { Signer, Vault, VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { SignerRestriction } from 'src/models/interfaces/AssistedKeys';
+import { EntityKind, VisibilityType } from 'src/services/wallets/enums';
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -12,6 +13,7 @@ export const REFRESH_WALLETS = 'REFRESH_WALLETS';
 export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 export const UPDATE_VAULT_DETAILS = 'UPDATE_VAULT_DETAILS';
+export const UPDATE_RECOVERY_VISIBILITY = 'UPDATE_RECOVERY_VISIBILITY';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
 export const UPDATE_KEY_DETAILS = 'UPDATE_KEY_DETAILS';
 export const GENERATE_NEW_ADDRESS = 'GENERATE_NEW_ADDRESS';
@@ -128,6 +130,17 @@ export const updateVaultDetails = (
     vault,
     details,
   },
+});
+
+export const updateRecoveryVisibility = (
+  entityId: string,
+  entityKind: EntityKind.WALLET | EntityKind.VAULT,
+  visibility: VisibilityType,
+  onLocalComplete?: (updated: boolean) => void
+) => ({
+  type: UPDATE_RECOVERY_VISIBILITY,
+  payload: { entityId, entityKind, visibility },
+  onLocalComplete,
 });
 
 export const updateSignerDetails = (signer: Signer, key: string, value: any) => ({

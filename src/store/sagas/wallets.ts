@@ -101,6 +101,7 @@ import {
   UPDATE_SIGNER_DETAILS,
   UPDATE_KEY_DETAILS,
   UPDATE_VAULT_DETAILS,
+  UPDATE_RECOVERY_VISIBILITY,
   GENERATE_NEW_ADDRESS,
   UPDATED_VAULT_SIGNERS_XPRIV,
 } from '../sagaActions/wallets';
@@ -1695,6 +1696,75 @@ function* updateVaultDetailsWorker({ payload, originAppId, originBackupAccountSe
 }
 
 export const updateVaultDetailsWatcher = createWatcher(updateVaultDetailsWorker, UPDATE_VAULT_DETAILS);
+
+// Hiding an entity changes its encrypted recovery record. The local change and
+// revisioned upload must share one producer before a later Delete can proceed.
+export function* updateRecoveryVisibilityWorker({
+  payload, originAppId, originBackupAccountSession, originBackupWriteIntent, onLocalComplete,
+}: {
+  payload: {
+    entityId: string;
+    entityKind: EntityKind.WALLET | EntityKind.VAULT;
+    visibility: VisibilityType;
+  };
+  originAppId?: string;
+  originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
+  onLocalComplete?: (updated: boolean) => void;
+}) {
+  const sourceAppId = originAppId || currentWalletAccountId();
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  let localCommitted = false;
+  const reportLocalCommit = (updated: boolean) => {
+    try {
+      onLocalComplete?.(updated);
+    } catch (error) {
+      captureError(error);
+    }
+  };
+  try {
+    assertWalletAccount(sourceAppId, requestSession);
+    const schema = payload.entityKind === EntityKind.VAULT
+      ? RealmSchema.Vault : payload.entityKind === EntityKind.WALLET
+      ? RealmSchema.Wallet : undefined;
+    if (!schema || ![VisibilityType.DEFAULT, VisibilityType.HIDDEN].includes(payload.visibility))
+      throw new Error('Invalid recovery visibility change');
+    const operation = beginBackupLocalOperation(sourceAppId, originBackupWriteIntent, requestSession);
+    const committedOperation = commitBackupLocalOperation(operation, (localRealm) => {
+      const stored = localRealm.objectForPrimaryKey(schema, payload.entityId);
+      if (!stored) throw new Error('Recovery visibility target is missing');
+      stored.presentationData = {
+        ...(getJSONFromRealmObject(stored) as unknown as Wallet | Vault).presentationData,
+        visibility: payload.visibility,
+      };
+    });
+    if (!committedOperation.committed) throw new Error('Local recovery visibility update failed');
+    localCommitted = true;
+    assertWalletAccount(sourceAppId, requestSession);
+    reportLocalCommit(true);
+    const stored = dbManager.getObjectById(schema, payload.entityId);
+    if (!stored) throw new Error('Committed recovery visibility target is missing');
+    if (schema === RealmSchema.Vault)
+      yield call(updateVaultImageWorker, {
+        payload: { vault: getJSONFromRealmObject(stored) as unknown as Vault, isUpdate: true },
+        originAppId: sourceAppId, originBackupAccountSession: requestSession, committedOperation,
+      });
+    else
+      yield call(updateAppImageWorker, {
+        payload: { wallets: [getJSONFromRealmObject(stored) as unknown as Wallet] },
+        originAppId: sourceAppId, originBackupAccountSession: requestSession, committedOperation,
+      });
+    assertWalletAccount(sourceAppId, requestSession);
+    return true;
+  } catch {
+    if (!localCommitted) reportLocalCommit(false);
+    return localCommitted;
+  }
+}
+
+export const updateRecoveryVisibilityWatcher = createWatcher(
+  updateRecoveryVisibilityWorker, UPDATE_RECOVERY_VISIBILITY
+);
 
 export function* updateSignerDetailsWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }) {
   const sourceAppId = originAppId || currentWalletAccountId();

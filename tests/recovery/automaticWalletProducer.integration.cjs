@@ -4,7 +4,7 @@
 // commit/proof is mocked.
 const assert = require('node:assert/strict');
 const { test, before, after } = require('node:test');
-const { createRealmClient, declarations, evaluate, plain, Realm } = require('./automaticWriteRealmRelay.fixture.cjs');
+const { createRealmClient, declarations, componentDeclarations, evaluate, plain, Realm } = require('./automaticWriteRealmRelay.fixture.cjs');
 const fixtureModule = process.env.KEEPER_RELAY_FIXTURE_MODULE;
 assert.ok(fixtureModule, 'Set KEEPER_RELAY_FIXTURE_MODULE to the pinned production Relay fixture');
 const { createFixture } = require(fixtureModule);
@@ -59,6 +59,7 @@ async function setup(t, prepare = () => {}) {
   const sagas = f.productionSagas([
     'currentBackupAppId', 'buildAutomaticAppMutation', 'buildAutomaticVaultMutation',
     'queueCommittedBackupWorker', 'updateAppImageWorker', 'updateVaultImageWorker',
+    'deleteAppImageEntityWorker', 'deleteVaultImageWorker',
   ], {
     ...f.automatic,
     addNewWallet: async (_type, details) => details.fixture,
@@ -72,9 +73,19 @@ async function setup(t, prepare = () => {}) {
   });
   evaluate(declarations('src/store/sagas/wallets.ts', [
     'currentWalletAccountId', 'assertWalletAccount', 'addNewWalletsWorker',
-    'updateWalletDetailsWorker', 'addNewVaultWorker',
+    'updateWalletDetailsWorker', 'updateRecoveryVisibilityWorker', 'addNewVaultWorker',
+    'deleteVaultWorker',
   ]), sagas.scope, 'production-wallet-producers.ts');
+  const uiScope = {
+    ...sagas.scope,
+    activeRealmAppId: () => f.appId,
+    isBackupVerificationCurrent: f.automatic.isBackupVerificationCurrent,
+  };
+  evaluate(componentDeclarations(
+    'src/screens/AppSettings/ManageWallets.tsx', 'ManageWallets', ['canDeleteRecoveryEntity']
+  ), uiScope, 'production-manage-wallets-delete-gate.tsx');
   f.scope = sagas.scope;
+  f.canDeleteRecoveryEntity = uiScope.canDeleteRecoveryEntity;
   f.run = (name, payload, metadata = {}) => sagas.run(name, {
     payload, originAppId: f.appId,
     originBackupAccountSession: f.transport.currentBackupAccountSession(),
@@ -123,6 +134,50 @@ test('actual wallet rename survives HTTP conflict and reports local success with
   assert.equal((await f.remoteImage()).wallets.wallet.presentationData.name, 'Initial wallet');
 });
 
+test('native Hide holds Delete until readback, then managed wallet deletion can use the new revision', async t => {
+  const f = await setup(t, f => assert.equal(f.dbManager.createObject(f.RealmSchema.Wallet, wallet(f)), true));
+  let entered;
+  const mutationStarted = new Promise(resolve => { entered = resolve; });
+  server.armFault({ mode: 'delay-reply', operation: 'updateAppImage', delayMs: 350,
+    beforeMutation() { entered(); } });
+  let localCommit;
+  const hiding = f.run('updateRecoveryVisibilityWorker', {
+    entityId: 'wallet', entityKind: f.enums.EntityKind.WALLET,
+    visibility: f.enums.VisibilityType.HIDDEN,
+  }, { onLocalComplete: updated => { localCommit = updated; } });
+  await mutationStarted;
+  assert.equal(localCommit, true);
+  assert.equal(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet').presentationData.visibility, 'HIDDEN');
+  assert.equal(f.canDeleteRecoveryEntity(wallet(f)), false);
+  assert.equal(await hiding, true);
+  assert.equal(f.canDeleteRecoveryEntity(wallet(f)), true);
+  assert.equal((await f.remoteImage()).wallets.wallet.presentationData.visibility, 'HIDDEN');
+  assert.equal(writes().length, 1);
+  const removed = await f.run('deleteAppImageEntityWorker', { walletIds: ['wallet'] });
+  assert.equal(removed.updated, true);
+  assert.equal(removed.backupConfirmed, true);
+  assert.equal(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet'), undefined);
+  assert.deepEqual(Object.keys((await f.remoteImage()).wallets), []);
+  assert.equal(writes().length, 2);
+});
+
+test('lost Hide acknowledgement keeps the local change but withholds Delete and does not replay it', async t => {
+  const f = await setup(t, f => assert.equal(f.dbManager.createObject(f.RealmSchema.Wallet, wallet(f)), true));
+  server.armFault({ mode: 'lost-reply', operation: 'updateAppImage' });
+  let localCommit;
+  assert.equal(await f.run('updateRecoveryVisibilityWorker', {
+    entityId: 'wallet', entityKind: f.enums.EntityKind.WALLET,
+    visibility: f.enums.VisibilityType.HIDDEN,
+  }, { onLocalComplete: updated => { localCommit = updated; } }), true);
+  assert.equal(localCommit, true);
+  assert.equal(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet').presentationData.visibility, 'HIDDEN');
+  assert.equal(f.canDeleteRecoveryEntity(wallet(f)), false);
+  assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[f.appId], true);
+  assert.equal(writes().length, 1);
+  assert.equal((await f.remoteImage()).wallets.wallet.presentationData.visibility, 'HIDDEN');
+  assert.equal(writes().length, 1);
+});
+
 test('actual old-session wallet factory completion cannot save after A to B to A', async t => {
   const f = await setup(t);
   let entered, release;
@@ -166,6 +221,23 @@ async function vaultSetup(t) {
     assert.equal(f.dbManager.createObject(f.RealmSchema.Vault, vault(f, 'old-vault', key)), true);
   });
 }
+
+test('native vault Hide and managed Delete both advance the verified remote image', async t => {
+  const f = await vaultSetup(t);
+  const hiding = await f.run('updateRecoveryVisibilityWorker', {
+    entityId: 'old-vault', entityKind: f.enums.EntityKind.VAULT,
+    visibility: f.enums.VisibilityType.HIDDEN,
+  });
+  assert.equal(hiding, true);
+  assert.equal(f.dbManager.getObjectById(f.RealmSchema.Vault, 'old-vault').presentationData.visibility, 'HIDDEN');
+  assert.equal(f.canDeleteRecoveryEntity({ entityKind: f.enums.EntityKind.VAULT }), true);
+  assert.equal((await f.remoteImage()).vaults['old-vault'].presentationData.visibility, 'HIDDEN');
+  assert.equal(writes().length, 1);
+  assert.equal(await f.run('deleteVaultWorker', { vaultId: 'old-vault' }), true);
+  assert.equal(f.dbManager.getObjectById(f.RealmSchema.Vault, 'old-vault'), undefined);
+  assert.deepEqual(Object.keys((await f.remoteImage()).vaults), []);
+  assert.equal(writes().length, 2);
+});
 
 function newVaultPayload(f, migrated = false) {
   const key = plain(f.dbManager.getObjectByPrimaryId(f.RealmSchema.VaultSigner, 'xpub', 'disposable-vault-public-key'));
