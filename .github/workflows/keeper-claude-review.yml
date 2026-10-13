@@ -84,7 +84,8 @@ jobs:
           owner: KeeperCommunity
           repositories: KeeperCommunity-keeper-review-ledger
           permission-contents: write
-          # Private repository branch-rules metadata requires this read scope.
+          # Read-only rule inspection; never grant administration write.
+          # Verify full bypass-actor visibility with this exact App token.
           permission-administration: read
 
       - name: Review immutable PR data with tool-free Claude Sonnet 5.5

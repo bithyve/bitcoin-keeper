@@ -7,6 +7,7 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 
 SPEC = importlib.util.spec_from_file_location(
@@ -29,6 +30,7 @@ KEY = flow.STATE_KEY
 EPOCH = "1" * 32
 APP_ID = 314
 STATE_REPO = ledger_module.STATE_REPOSITORY
+STATE_REPO_ID = 1416741877
 STATE_BRANCH = ledger_module.STATE_BRANCH
 ROOT = f"/repos/{STATE_REPO}"
 
@@ -43,7 +45,7 @@ def git_blob_sha(raw):
 
 
 class FakeStateAPI:
-    """Contents CAS and Git ancestry double for the separate private repository."""
+    """Contents CAS and Git ancestry double for the public metadata-only ledger."""
 
     def __init__(self, activated=True):
         self.calls = []
@@ -58,8 +60,11 @@ class FakeStateAPI:
         self.bad_write_parent = False
         self.contents_overrides = {}
         self.installation = {"total_count": 1,
-                             "repositories": [{"full_name": STATE_REPO, "private": True}]}
-        self.repository = {"full_name": STATE_REPO, "private": True}
+                             "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False,
+                                               "visibility": "public"}]}
+        self.repository = {"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False, "visibility": "public",
+                           "fork": False, "archived": False, "disabled": False}
+        self.source_repository = {"full_name": REPO, "private": False, "visibility": "public"}
         self.rulesets = [
             {"id": 1, "target": "branch", "enforcement": "active", "source_type": "Repository"},
             {"id": 2, "target": "branch", "enforcement": "active", "source_type": "Repository"},
@@ -114,6 +119,8 @@ class FakeStateAPI:
             return copy.deepcopy(self.installation)
         if path == ROOT:
             return copy.deepcopy(self.repository)
+        if path == f"/repos/{REPO}":
+            return copy.deepcopy(self.source_repository)
         if path == ROOT + "/rulesets":
             return copy.deepcopy(self.rulesets)
         if path.startswith(ROOT + "/rulesets/"):
@@ -289,12 +296,36 @@ class LedgerBoundaryTests(unittest.TestCase):
                     self.make_ledger(key=key).reserve(7049, claim())
         self.assertEqual(self.api.writes(), [])
 
-    def test_private_repository_and_installation_token_single_repo_scope_are_required(self):
+    def test_public_ledger_installation_token_single_repo_scope_is_required(self):
         invalid = [
             {"total_count": 0, "repositories": []},
-            {"total_count": 2, "repositories": [{"full_name": STATE_REPO, "private": True}]},
-            {"total_count": 1, "repositories": [{"full_name": REPO, "private": True}]},
-            {"total_count": 1, "repositories": [{"full_name": STATE_REPO, "private": False}]},
+            {"total_count": 2, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False,
+                                                "visibility": "public"}]},
+            {"total_count": True, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False,
+                                                   "visibility": "public"}]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID, "full_name": REPO, "private": False,
+                                                "visibility": "public"}]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": True,
+                                                "visibility": "private"}]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False}]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": 0,
+                                                "visibility": "public"}]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False,
+                                                "visibility": "internal"}]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID, "full_name": STATE_REPO, "private": False,
+                                                "visibility": "public"},
+                                               {"full_name": REPO, "private": False,
+                                                "visibility": "public"}]},
+            {"total_count": 1, "repositories": {}},
+            {"total_count": 1, "repositories": [None]},
+            {"total_count": 1, "repositories": [{"id": STATE_REPO_ID + 1, "full_name": STATE_REPO,
+                                                "private": False, "visibility": "public"}]},
+            {"total_count": 1, "repositories": [{"id": True, "full_name": STATE_REPO,
+                                                "private": False, "visibility": "public"}]},
+            {"total_count": 1, "repositories": [{"id": str(STATE_REPO_ID), "full_name": STATE_REPO,
+                                                "private": False, "visibility": "public"}]},
+            {"total_count": 1, "repositories": [{"full_name": STATE_REPO,
+                                                "private": False, "visibility": "public"}]},
         ]
         for installation in invalid:
             with self.subTest(installation=installation):
@@ -303,11 +334,77 @@ class LedgerBoundaryTests(unittest.TestCase):
                 with self.assertRaises(ledger_module.LedgerError):
                     self.make_ledger(api)
                 self.assertEqual(api.writes(), [])
+
+    def test_ledger_metadata_must_identify_active_public_nonfork_repository(self):
+        changes = [{"id": STATE_REPO_ID + 1}, {"id": True}, {"id": str(STATE_REPO_ID)},
+                   {"full_name": REPO}, {"private": True}, {"private": 0},
+                   {"visibility": "private"}, {"visibility": "internal"},
+                   {"fork": True}, {"fork": None}, {"archived": True},
+                   {"archived": 0}, {"disabled": True}, {"disabled": None}]
+        for change in changes:
+            with self.subTest(change=change):
+                api = FakeStateAPI()
+                api.repository.update(change)
+                with self.assertRaises(ledger_module.LedgerError):
+                    self.make_ledger(api)
+                self.assertEqual(api.writes(), [])
+        for field in ("id", "full_name", "private", "visibility", "fork", "archived", "disabled"):
+            with self.subTest(missing=field):
+                api = FakeStateAPI()
+                del api.repository[field]
+                with self.assertRaises(ledger_module.LedgerError):
+                    self.make_ledger(api)
+                self.assertEqual(api.writes(), [])
+
+    def test_public_source_identity_and_visibility_are_required(self):
+        changes = [{"full_name": "attacker/repository"}, {"private": True}, {"private": 0},
+                   {"visibility": "private"}, {"visibility": "internal"}, {"visibility": None}]
+        for change in changes:
+            with self.subTest(change=change):
+                api = FakeStateAPI()
+                api.source_repository.update(change)
+                with self.assertRaises(ledger_module.LedgerError):
+                    self.make_ledger(api)
+                self.assertEqual(api.writes(), [])
+        for field in ("full_name", "private", "visibility"):
+            with self.subTest(missing=field):
+                api = FakeStateAPI()
+                del api.source_repository[field]
+                with self.assertRaises(ledger_module.LedgerError):
+                    self.make_ledger(api)
+                self.assertEqual(api.writes(), [])
+
+    def test_unreadable_source_metadata_fails_closed_before_ledger_writes(self):
         api = FakeStateAPI()
-        api.repository["private"] = False
+        api.fail_paths.add(f"/repos/{REPO}")
         with self.assertRaises(ledger_module.LedgerError):
             self.make_ledger(api)
         self.assertEqual(api.writes(), [])
+
+    def test_visibility_and_app_scope_are_rechecked_before_public_state_write(self):
+        mutations = [lambda api: api.source_repository.update(private=True, visibility="private"),
+                     lambda api: api.repository.update(private=True, visibility="private"),
+                     lambda api: api.installation.update(total_count=2),
+                     lambda api: api.repository.update(id=STATE_REPO_ID + 1),
+                     lambda api: api.installation["repositories"][0].update(id=STATE_REPO_ID + 1)]
+        for mutate in mutations:
+            with self.subTest(mutation=mutate):
+                api = FakeStateAPI()
+                subject = self.make_ledger(api)
+                mutate(api)
+                with self.assertRaises(ledger_module.LedgerError):
+                    subject.reserve(7049, claim())
+                self.assertEqual(api.writes(), [])
+                self.assertEqual(api.document()["attempts"], [])
+
+    def test_source_turning_private_cannot_publish_completion_metadata(self):
+        claim_id = self.subject.reserve(7049, claim())
+        self.api.source_repository.update(private=True, visibility="private")
+        with self.assertRaises(ledger_module.LedgerError):
+            self.subject.complete(7049, claim_id, "complete")
+        self.assertEqual(len(self.api.writes()), 1)
+        self.assertEqual(self.api.document()["attempts"][0]["status"], "started")
+        self.assertEqual(self.api.document()["attempts"][0]["reservation"], "3.00")
 
     def test_unreadable_rulesets_or_missing_effective_rules_refuse_payment(self):
         mutations = [lambda api: api.rulesets.clear(),
@@ -336,6 +433,22 @@ class LedgerBoundaryTests(unittest.TestCase):
             with self.subTest(ruleset_id=ruleset_id, actors=actors):
                 api = FakeStateAPI()
                 api.details[ruleset_id]["bypass_actors"] = actors
+                with self.assertRaises(ledger_module.LedgerError):
+                    self.make_ledger(api)
+                self.assertEqual(api.writes(), [])
+
+    def test_missing_or_malformed_bypass_metadata_is_not_no_bypass(self):
+        for ruleset_id in (1, 2):
+            for actors in (None, {}, "", "none"):
+                with self.subTest(ruleset=ruleset_id, actors=actors):
+                    api = FakeStateAPI()
+                    api.details[ruleset_id]["bypass_actors"] = actors
+                    with self.assertRaises(ledger_module.LedgerError):
+                        self.make_ledger(api)
+                    self.assertEqual(api.writes(), [])
+            with self.subTest(ruleset=ruleset_id, missing=True):
+                api = FakeStateAPI()
+                del api.details[ruleset_id]["bypass_actors"]
                 with self.assertRaises(ledger_module.LedgerError):
                     self.make_ledger(api)
                 self.assertEqual(api.writes(), [])
@@ -457,13 +570,24 @@ class LedgerBoundaryTests(unittest.TestCase):
 
 class RealLedgerReviewBoundaryTests(unittest.TestCase):
     def test_each_invalid_payment_boundary_results_in_zero_messages_calls(self):
-        failures = ["bootstrap", "missing", "signature", "scope", "protection", "cas", "uncertain", "replay"]
+        failures = ["bootstrap", "missing", "signature", "scope", "state-private", "state-recreated", "source-private",
+                    "source-identity", "source-unreadable", "protection", "cas", "uncertain", "replay"]
         for failure in failures:
             with self.subTest(failure=failure):
                 api = flow.FakeAPI()
                 state_api = FakeStateAPI(activated=failure != "bootstrap")
                 if failure == "scope":
                     state_api.installation["total_count"] = 2
+                elif failure == "state-private":
+                    state_api.repository.update(private=True, visibility="private")
+                elif failure == "state-recreated":
+                    state_api.repository["id"] = STATE_REPO_ID + 1
+                elif failure == "source-private":
+                    state_api.source_repository.update(private=True, visibility="private")
+                elif failure == "source-identity":
+                    state_api.source_repository["full_name"] = "attacker/repository"
+                elif failure == "source-unreadable":
+                    state_api.fail_paths.add(f"/repos/{REPO}")
                 with self.assertRaises((ledger_module.LedgerError, flow.reviewer.ReviewError)):
                     subject_ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, APP_ID)
                     if failure == "missing":
@@ -485,6 +609,92 @@ class RealLedgerReviewBoundaryTests(unittest.TestCase):
                     subject.review()
                 self.assertEqual(api.paid_calls(), [])
                 self.assertFalse(any(call[0] != "github" for call in state_api.calls))
+
+    def test_source_turning_private_after_collection_cannot_send_prompt_to_token_counter(self):
+        api = flow.FakeAPI()
+        state_api = FakeStateAPI()
+        ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, APP_ID)
+        subject = flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger)
+        original_collect = subject.collect
+
+        def collect_then_make_private(pr):
+            prompt = original_collect(pr)
+            state_api.source_repository.update(private=True, visibility="private")
+            return prompt
+
+        with patch.object(subject, "collect", side_effect=collect_then_make_private):
+            with self.assertRaises((ledger_module.LedgerError, flow.reviewer.ReviewError)):
+                subject.review()
+        self.assertFalse(any(call[0] == "anthropic" for call in api.calls))
+        self.assertEqual(state_api.writes(), [])
+        self.assertEqual(api.comments, [])
+
+    def test_source_turning_private_during_failed_preparation_withholds_diagnostic_metadata(self):
+        api = flow.FakeAPI()
+        state_api = FakeStateAPI()
+        ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, APP_ID)
+        subject = flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger)
+
+        def fail_collection_after_privacy_change(pr):
+            state_api.source_repository.update(private=True, visibility="private")
+            raise flow.reviewer.ReviewError("Missing patch containing private filename")
+
+        with patch.object(subject, "collect", side_effect=fail_collection_after_privacy_change):
+            with self.assertRaises((ledger_module.LedgerError, flow.reviewer.ReviewError)):
+                subject.review()
+        self.assertFalse(any(call[0] == "anthropic" for call in api.calls))
+        self.assertEqual(state_api.writes(), [])
+        self.assertEqual(api.comments, [])
+
+    def test_source_turning_private_during_counting_makes_no_paid_call_or_state_write(self):
+        api = flow.FakeAPI()
+        state_api = FakeStateAPI()
+        ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, APP_ID)
+        subject = flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger)
+        api.on_count = lambda: state_api.source_repository.update(private=True, visibility="private")
+        with self.assertRaises((ledger_module.LedgerError, flow.reviewer.ReviewError)):
+            subject.review()
+        self.assertEqual(api.paid_calls(), [])
+        self.assertEqual(state_api.writes(), [])
+        self.assertEqual(state_api.document()["attempts"], [])
+        self.assertEqual(api.comments, [])
+
+    def test_source_turning_private_after_reservation_preserves_claim_without_paying(self):
+        api = flow.FakeAPI()
+        state_api = FakeStateAPI()
+        ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, APP_ID)
+        subject = flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger)
+        original_reserve = ledger.reserve
+
+        def reserve_then_make_private(*args, **kwargs):
+            claim_id = original_reserve(*args, **kwargs)
+            state_api.source_repository.update(private=True, visibility="private")
+            return claim_id
+
+        with patch.object(ledger, "reserve", side_effect=reserve_then_make_private):
+            with self.assertRaises((ledger_module.LedgerError, flow.reviewer.ReviewError)):
+                subject.review()
+        self.assertEqual(api.paid_calls(), [])
+        self.assertEqual(api.comments, [])
+        self.assertEqual(len(state_api.writes()), 1)
+        record = state_api.document()["attempts"][0]
+        self.assertEqual(record["status"], "started")
+        self.assertEqual(record["reservation"], "3.00")
+
+    def test_source_turning_private_during_review_preserves_payment_and_withholds_findings(self):
+        api = flow.FakeAPI()
+        state_api = FakeStateAPI()
+        ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, APP_ID)
+        subject = flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger)
+        api.on_paid = lambda: state_api.source_repository.update(private=True, visibility="private")
+        with self.assertRaises((ledger_module.LedgerError, flow.reviewer.ReviewError)):
+            subject.review()
+        self.assertEqual(len(api.paid_calls()), 1)
+        self.assertEqual(api.comments, [])
+        self.assertEqual(len(state_api.writes()), 1)
+        record = state_api.document()["attempts"][0]
+        self.assertEqual(record["status"], "started")
+        self.assertEqual(record["reservation"], "3.00")
 
     def test_actual_review_flow_enforces_head_and_pr_limits_on_repeated_manual_retries(self):
         api = flow.FakeAPI()

@@ -26,7 +26,7 @@ attempt. Exhaustion requires a separately reviewed administrator decision; this
 runner has no reset, grant or cap-override path.
 
 Payment history is HMAC-signed, epoch-bound `ledger.json` on the fixed orphan
-branch `keeper-claude-review-state` in private repository
+branch `keeper-claude-review-state` in public repository
 `KeeperCommunity/KeeperCommunity-keeper-review-ledger`. It records request, head/base, run,
 status, claim ID and full reservation. The Contents API's old file SHA provides
 compare-and-swap; the runner verifies the resulting immutable commit and file
@@ -43,6 +43,42 @@ App; deletion/non-fast-forward blocked for everyone, including this App.
 Administrators can still change repository policy, so administrator access and
 policy audit are part of the trust boundary. Runtime verifies effective rules
 and fails closed if either restriction is missing or weakened.
+
+## Public metadata ledger on GitHub Free
+
+Public repository rulesets are available on GitHub Free; private organization
+repositories require Team/Enterprise for these protections. The public ledger
+therefore avoids an organization subscription while retaining both mandatory
+rulesets. Public access grants no write access, signing authority or paid-review
+permission. Restrict ledger administrators and writers, disable unused Issues,
+Projects and Wiki features, and avoid adding application collaborators as writers.
+
+Anyone can read PR numbers, head/base SHAs, request/run IDs, statuses, $3
+reservations, counters, epoch, parent commit, verification flag and HMAC signatures,
+plus Git commit metadata. These values are bookkeeping for already-public PRs;
+signatures and epoch are not signing secrets. The ledger schema accepts no source,
+prompts, review text, wallet data or credentials. Actual Claude findings remain
+public comments on the application PR. Administrator commit messages and author
+identity are public too; never place confidential incident details there.
+
+Runtime pins ledger repository ID `1416741877` as well as its name and requires
+both repositories to be explicitly public. It checks source visibility before
+state writes, token counting, Messages and publishing
+findings. Inaccessible/private/unknown metadata fails closed, preserving any
+existing reservation. Before making the application repository private, disable
+the reviewer and drain running jobs; visibility changes cannot erase metadata
+already public or be made atomic with a GitHub comment/API request. A private
+source would require a separately reviewed private-state design.
+
+GitHub may omit `bypass_actors` from rule details for callers without sufficient
+access. Missing is unknown and fails closed. Verify that the **actual State App
+token** returns full actor lists for both rulesets, not only their rule types.
+Never grant Administration write or weaken either ruleset to satisfy this check.
+If this token cannot prove the bypass lists, remain disabled and resolve the read
+boundary independently before production use.
+
+[GitHub ruleset availability](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
+and [ruleset detail access](https://docs.github.com/en/rest/repos/rules#get-a-repository-ruleset).
 
 ## Required administrator actions
 
@@ -64,9 +100,12 @@ These are deployment prerequisites, not actions performed by this PR.
    dedicated low-spend Anthropic workspace; configure workspace spending/rate
    backstops and verify Sonnet 5.5 standard pricing. Store it only in the protected
    environment as `KEEPER_CLAUDE_API_KEY`. Never paste keys into PRs/logs/source.
-4. Create the separate **private** ledger repository with no ordinary PR-writer
-   write access. Create a dedicated GitHub App installed only there, with
-   Contents **write**, Administration **read** for private branch-rule metadata,
+4. Use the existing `KeeperCommunity/KeeperCommunity-keeper-review-ledger`
+   repository; inspect its entire history before making it **public**. It currently
+   contains a non-secret README only; no duplicate repository or rename is needed.
+   Keep ordinary application PR writers out of ledger write/admin access. Create
+   a dedicated GitHub App installed only there, with
+   Contents **write**, Administration **read** for branch-rule inspection,
    and implicit Metadata read. Grant no Actions, Workflows, Secrets or
    Administration write permission, and no access to the application repository.
    Store its private key only in the protected environment as
@@ -74,7 +113,9 @@ These are deployment prerequisites, not actions performed by this PR.
    `KEEPER_CLAUDE_LEDGER_APP_ID` to its positive numeric App/Integration ID.
    The pinned token action requests only this repository and these permissions,
    revokes the installation token after the job, and runtime verifies that the
-   token is an installation token scoped to exactly this one private repository.
+   token is an installation token scoped to exactly this one public repository.
+   Verify the actual App token can read public source metadata without an
+   installation on the application repository; a denied read keeps it disabled.
 5. Generate an independent random signing secret (at least 32 characters) and
    random 32-lowercase-hex epoch. Store secret `KEEPER_CLAUDE_STATE_KEY` and
    environment variable `KEEPER_CLAUDE_LEDGER_EPOCH`. Keep their recovery copies
@@ -97,13 +138,16 @@ These are deployment prerequisites, not actions performed by this PR.
    exactly `refs/heads/keeper-claude-review-state` with empty exclusions:
    (a) `creation`, `update`, bypass actors exactly the State App Integration ID,
    `bypass_mode: always`; (b) `deletion`, `non_fast_forward`, **no bypass actors**.
-   Confirm effective branch-rules endpoints contain both rulesets. No normal
+   Confirm effective branch-rules endpoints contain both rulesets and the actual
+   State App token sees explicit complete bypass lists. No normal
    user/admin role has a configured bypass; protect repository-admin membership.
 8. Record exact-SHA negative verification: ordinary internal PR/branch jobs
    cannot obtain any protected key; source/path/title/comment injection reaches
-   no shell; the App cannot access the application repo, delete/force-reset state
+   no shell; the App cannot write the application repo or access protected/private
+   resources there, delete/force-reset state
    or alter rulesets; missing ledger, invalid signature/epoch/parent, weakened
-   rules, extra installation repository, unauthorized/stale requests, comment
+   rules, omitted bypass lists, private/inaccessible source, extra installation
+   repository, unauthorized/stale requests, comment
    deletion, retry-limit exhaustion and CAS conflict produce **zero Messages**.
    Check trusted checkout, default-branch event provenance, no PR-code execution,
    narrow token scope/revocation and full historical migration. Use offline fakes
@@ -187,6 +231,11 @@ Sonnet 5.5 documented standard pricing is $2/M input and $10/M output. Messages
 has no provider-enforced per-call dollar parameter; this conservative envelope
 and dedicated workspace limits supply complementary controls. Recheck pricing
 before changing model or routing.
+Sonnet 5.5 supports `thinking: {type: between_tools}` at medium effort even without
+tools; its response then contains only text. This avoids up-front thinking while
+preserving the bounded single-call request. See the model-specific
+[thinking documentation](https://platform.claude.com/docs/en/build-with-claude/thinking#turning-thinking-off)
+and [Messages schema](https://platform.claude.com/docs/en/api/messages/create).
 [Model/versioning](https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions),
 [pricing](https://platform.claude.com/docs/en/about-claude/pricing),
 [token counting](https://platform.claude.com/docs/en/build-with-claude/token-counting),

@@ -84,6 +84,10 @@ class FakeLedger:
             raise reviewer.ReviewError(self.error)
         return copy.deepcopy([record for record in self.records if record["pr"] == pr])
 
+    def verify_public_source(self):
+        if self.error:
+            raise reviewer.ReviewError(self.error)
+
     def reserve(self, pr, state):
         records = self.states(pr)
         if not self.production_verified:
@@ -244,6 +248,8 @@ class ReviewFlowTests(unittest.TestCase):
         self.assertEqual(paid["service_tier"], "standard_only")
         self.assertEqual(paid["inference_geo"], "global")
         self.assertEqual(paid["max_tokens"], reviewer.MAX_OUTPUT)
+        self.assertEqual(paid["thinking"], {"type": "between_tools"})
+        self.assertEqual(paid["output_config"], {"effort": "medium"})
         self.assertNotIn("tools", paid)
         self.assertNotIn("tool_choice", paid)
         self.assertEqual(paid["messages"], counted["messages"])

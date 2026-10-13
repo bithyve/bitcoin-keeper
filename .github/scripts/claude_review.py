@@ -298,6 +298,7 @@ class Reviewer:
         return None
 
     def post(self, body):
+        self.ledger.verify_public_source()
         return self.api.request("github", self.comments, {"body": body})
 
     def incomplete(self, head, base, reason):
@@ -455,6 +456,7 @@ class Reviewer:
             return "documentation only; no paid call or completion marker"
         input_body = {"model": MODEL, "system": SYSTEM,
                       "messages": [{"role": "user", "content": prompt}]}
+        self.ledger.verify_public_source()
         counted = self.api.request("anthropic", "/v1/messages/count_tokens", input_body)
         reserved = budget_reserve(prompt, counted["input_tokens"])
         diff_base = json.loads(prompt)["diff_base"]
@@ -469,9 +471,12 @@ class Reviewer:
         # PR comments are display/request data only and cannot reset this claim.
         claim_id = self.ledger.reserve(self.number, state)
         paid_body = dict(input_body, max_tokens=MAX_OUTPUT, service_tier="standard_only",
+                         # Sonnet 5.5 supports between_tools at medium effort,
+                         # including tool-free requests (no up-front thinking).
                          inference_geo="global", thinking={"type": "between_tools"},
                          output_config={"effort": "medium"})
         try:
+            self.ledger.verify_public_source()
             response = self.api.request("anthropic", "/v1/messages", paid_body)
             text = "\n".join(b["text"] for b in response.get("content", []) if b["type"] == "text")
             escaped = safe_text(text or "No complete review returned.")

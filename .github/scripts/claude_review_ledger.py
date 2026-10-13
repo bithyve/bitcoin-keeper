@@ -9,6 +9,7 @@ import re
 import secrets
 
 STATE_REPOSITORY = "KeeperCommunity/KeeperCommunity-keeper-review-ledger"
+STATE_REPOSITORY_ID = 1416741877
 STATE_BRANCH = "keeper-claude-review-state"
 STATE_FILE = "ledger.json"
 MAX_LEDGER_BYTES = 900_000
@@ -82,16 +83,30 @@ class Ledger:
         installation = self._request("/installation/repositories",
                                      query={"per_page": 100, "page": 1})
         repos = installation.get("repositories", []) if isinstance(installation, dict) else []
-        if (not isinstance(installation, dict) or installation.get("total_count") != 1 or
+        if (not isinstance(installation, dict) or type(installation.get("total_count")) is not int or
+                installation.get("total_count") != 1 or
                 not isinstance(repos, list) or len(repos) != 1 or
                 not isinstance(repos[0], dict) or
-                repos[0].get("full_name") != STATE_REPOSITORY or repos[0].get("private") is not True):
-            raise LedgerError("State App token must access only the private payment-ledger repository")
+                type(repos[0].get("id")) is not int or repos[0].get("id") != STATE_REPOSITORY_ID or
+                repos[0].get("full_name") != STATE_REPOSITORY or
+                repos[0].get("private") is not False or repos[0].get("visibility") != "public"):
+            raise LedgerError("State App token must access only the public payment-ledger repository")
         repository = self._request(self.root)
         if (not isinstance(repository, dict) or repository.get("full_name") != STATE_REPOSITORY or
-                repository.get("private") is not True):
-            raise LedgerError("Payment-ledger repository must remain separate and private")
+                type(repository.get("id")) is not int or repository.get("id") != STATE_REPOSITORY_ID or
+                repository.get("private") is not False or repository.get("visibility") != "public" or
+                any(repository.get(field) is not False for field in ("fork", "archived", "disabled"))):
+            raise LedgerError("Payment-ledger repository must remain separate, public and active")
+        self.verify_public_source()
         self._verify_protection()
+
+    def verify_public_source(self):
+        # The narrowly scoped State App can read public repository metadata;
+        # a private/inaccessible source fails closed without expanding its scope.
+        repository = self._request(f"/repos/{self.code_repo}")
+        if (not isinstance(repository, dict) or repository.get("full_name") != self.code_repo or
+                repository.get("private") is not False or repository.get("visibility") != "public"):
+            raise LedgerError("Public payment state requires a public source repository")
 
     def _verify_protection(self):
         # The detailed ruleset establishes its bypass actors; the effective
@@ -117,7 +132,9 @@ class Ledger:
             conditions = ruleset.get("conditions") or {}
             ref = conditions.get("ref_name") or {} if isinstance(conditions, dict) else {}
             rules = ruleset.get("rules", [])
-            actors = ruleset.get("bypass_actors", [])
+            # GitHub can redact this field for callers without sufficient
+            # access. Missing is unknown, never proof of an empty bypass list.
+            actors = ruleset.get("bypass_actors")
             exact = (ruleset.get("id") == ruleset_id and ruleset.get("enforcement") == "active" and
                     ruleset.get("target") == "branch" and isinstance(ref, dict) and
                     ref.get("include") == [f"refs/heads/{STATE_BRANCH}"] and ref.get("exclude") == [] and
@@ -235,7 +252,7 @@ class Ledger:
         raw = canonical(document).encode("utf-8")
         if len(raw) > MAX_LEDGER_BYTES:
             raise LedgerError("Payment ledger exhausted; administrator archival required")
-        self._verify_protection()
+        self._verify_boundary()
         response = self._request(self.root + f"/contents/{STATE_FILE}", {
             "message": "Record permanent Claude review payment reservation",
             "content": base64.b64encode(raw).decode("ascii"),
