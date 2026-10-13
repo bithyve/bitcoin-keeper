@@ -9,20 +9,21 @@ Automatic-backup implementation and disposable proof are mandatory R4 work. Crit
 | Field | Current record |
 | --- | --- |
 | Audit starting app source | b160656218dc6065ad12af9db220c974255bfc23; historical |
-| Final tested code commit before documentation | efa6f89ebf7140f738f03ce8a7218a2a1e7f9bc2 |
+| Final tested code commit before documentation | a243b53b5682a276eb88851c3d34379c0908fedd; includes the frozen-Yarn CI setup and email/derivation utility fixes |
 | Tested Relay fixture commit | b600416e5ba7325927d7d2871cff7776f4e593fe; runner requires clean tracked source |
 | Runtime and topology | Node 22.23.3, actual Realm 12.15.0, Linux host, disposable loopback keeperQA Mongo replica set on port 27058; no hosted credentials |
-| Combined genuine fixture command/result | `npm run test:automatic-backup-genuine`: PASS 253/253, 0 failures/skips, 162.1566 seconds, terminal recorded 2026-10-13 04:12 UTC; core 206 + producers 46 + restore 1 |
-| Recovery unit command/result | `npm run test:recovery`: 430/430 PASS, 0 failures, 0 skips; source 0f37506a58e6bf44061dd6788b20e5fa095a10c6, including c308aa405 wallet guard follow-up |
+| Combined genuine fixture command/result | `npm run test:automatic-backup-genuine`: PASS 253/253, 0 failures/skips, 195.046 seconds, clean frozen-Yarn run terminal recorded 2026-10-13 04:40 UTC; core 206 + producers 46 + restore 1 |
+| Recovery unit command/result | `npm run test:recovery`: 434/434 PASS, 0 failures/skips, 67.140 seconds at a243b53b5682a276eb88851c3d34379c0908fedd |
 | Clean encrypted Recovery Key restore | PASS: actual recovery saga, real key derivation/AES, blank encrypted Realm and real HTTP reads; complete image, all signer fields and normalized nodes checked |
 | Source/hosted flags | AUTOMATIC_BACKUP_SOURCE_READY=true for DEVELOPMENT loopback only; AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY=false; hosted rollout remains false |
 | IOS / ANDROID exact-source result | NOT RUN / NOT RUN; NEEDS_LOCAL |
-| Review and current-head CI | Independent agent fixture architecture review completed with restore assertion gap corrected. Final external developer review/current-head GitHub CI remain open; inherited backup Sonar failure and source PR #7042 with no checks remain visible |
+| Review and current-head CI | Independent agent fixture architecture review completed with restore assertion gap corrected. Final external developer review/current-head combined GitHub CI remain open. Earlier backup Sonar failure stays disclosed. Source PR #7042 trigger corrected by workflow-only 74df55446d8645ebfac05405fce81fa43446acd9; runtime unchanged, CodeQL workflow succeeded, hosted Tests run 38347397038 pending. Separate CodeQL alert-check success is not inferred |
+| Current Jest | 42 suites / 432 tests PASS, 72.836 seconds at a243b53b5682a276eb88851c3d34379c0908fedd |
 | Type/lint boundary | Focused six core module lint/format PASS. Whole-project tsc FAIL with 945 inherited diagnostics versus 957 at baseline bb66cea459fbb00ec33c5c4ebd601d07c0d7c125; zero added normalized diagnostics, not a clean typecheck |
 | Current release preflight | FAIL: 2026-10-13 04:11 UTC command found iOS store history older than 24 hours; refresh required before release |
 | Production running artifact/topology/authorization | NOT VERIFIED; no deployment, merge or publication authorized |
 
-Use PASS, FAIL, BLOCKED or NOT RUN with provenance. The source SHA precedes this documentation commit; the final PR handoff must separately name the actual post-push head SHA. No real seed, private key, account identifier, label content, plaintext backup or credentials are included in the evidence.
+Use PASS, FAIL, BLOCKED or NOT RUN with provenance. The source SHA precedes this documentation commit; the final PR handoff must separately name the actual post-push head SHA. Earlier October results at efa6 (253 genuine) and 0f375 (430 recovery), and the earlier 41-suite/393-test Jest report, remain as the prior checkpoint in the linked evidence. No real seed, private key, account identifier, label content, plaintext backup or credentials are included in the evidence.
 
 ## Common cases required for every operation
 

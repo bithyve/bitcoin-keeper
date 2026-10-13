@@ -4,7 +4,7 @@ This is a sanitized result summary. It contains source identities, commands, cou
 
 ## Source identity and enablement boundary
 
-- Final tested app code commit before this documentation commit: `efa6f89ebf7140f738f03ce8a7218a2a1e7f9bc2`.
+- Final tested app code commit before this documentation commit: `a243b53b5682a276eb88851c3d34379c0908fedd`. This includes frozen-Yarn Relay CI setup, bounded ASCII email validation and strict derivation-account parsing fixes.
 - Paired Relay: `b600416e5ba7325927d7d2871cff7776f4e593fe`. The app runner requires this exact clean tracked checkout and the expected fixture path.
 - Final flags: `AUTOMATIC_BACKUP_SOURCE_READY=true` permits DEVELOPMENT loopback testing only; `AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY=false` remains unchanged. Development source readiness does not enable hosted writes.
 - The final PR Local handoff must separately record the exact post-push head SHA. This evidence file cannot name its own future commit or confer release approval.
@@ -13,7 +13,7 @@ This is a sanitized result summary. It contains source identities, commands, cou
 
 Command: `npm run test:automatic-backup-genuine`, with Node 22.23.3 on Linux, actual Realm 12.15.0, `KEEPER_RELAY_FIXTURE_MODULE` pointing to the pinned Relay's `tests/support/automaticBackupHttpFixture.cjs`, and `BACKUP_TEST_MONGO_URL=mongodb://127.0.0.1:27058`. The runner refuses a missing/different/dirty tracked Relay, missing required matrix, unavailable native binding, unsupported Node or non-loopback/credentialed Mongo. A missing prerequisite fails; it is not skipped or replaced by a unit adapter.
 
-Final combined command outcome/time: **PASS 253/253, 0 failures, 0 skips**, exit 0, 162.1566 seconds; terminal log recorded 2026-10-13 04:12 UTC on the exact app/Relay sources above. Earlier combined seven-file run passed 245/245 with zero skips. Eight added direct schedules passed 8/8 with zero skips, 30.469 seconds, observed 2026-10-13 04:08 UTC at fixture commit 7b1ad70ba9e2aa1a2778b375f36e776bdd26a5ad: one native local change after the first actual CAS while its ACK is held, and after-send A→B→A for each of the seven operations. Each B account uses a distinct seed/appId/publicId and real verified B baseline; old A completion preserves B UI/native/remote state. The final seven-file combined run includes all eight schedules at the enabled code SHA.
+Final combined command outcome/time: **PASS 253/253, 0 failures, 0 skips**, exit 0, 195.046 seconds; clean frozen-Yarn run terminal log recorded 2026-10-13 04:40 UTC on the exact app/Relay sources above. Earlier combined seven-file run passed 245/245 with zero skips. Eight added direct schedules passed 8/8 with zero skips, 30.469 seconds, observed 2026-10-13 04:08 UTC at fixture commit 7b1ad70ba9e2aa1a2778b375f36e776bdd26a5ad: one native local change after the first actual CAS while its ACK is held, and after-send A→B→A for each of the seven operations. Each B account uses a distinct seed/appId/publicId and real verified B baseline; old A completion preserves B UI/native/remote state. The final seven-file combined run includes all eight schedules at the enabled code SHA.
 
 | File / scope | Observed result |
 | --- | --- |
@@ -35,16 +35,20 @@ Clean restoration uses real BIP39/BIP32/BIP85/AES and actual getAppImageWorker/r
 
 | Check | Actual outcome / boundary |
 | --- | --- |
-| Recovery suite: `npm run test:recovery` | 430/430 PASS, zero failures/skips, 47.9 seconds. Independently run on app source 0f37506a58e6bf44061dd6788b20e5fa095a10c6 after c308aa405 session-guard follow-up. Producer unit adapters are distinguished from genuine integration files; actual native Realm wrapper regressions are included |
+| Recovery suite: `npm run test:recovery` | 434/434 PASS, zero failures/skips, 67.140 seconds, exit 0 on app source a243b53b5682a276eb88851c3d34379c0908fedd. Producer unit adapters are distinguished from genuine integration files; actual native Realm wrapper regressions are included |
 | Realm commit/invalidation/open-session focused suite | 20/20 PASS, including ten actual-native atomic commit/rollback/observer cases |
-| Root Jest | Coordinator reports 41 suites / 393 tests PASS |
+| Root Jest | 42 suites / 432 tests PASS, exit 0, 72.836 seconds on a243b53b5682a276eb88851c3d34379c0908fedd |
 | Release tooling | Coordinator reports Node 28 PASS, Python 7 PASS and Ruby 21 runs / 117 assertions PASS; these are tooling tests, not signing/store validation |
 | Local validation gate tests | Coordinator reports 11/11 PASS; gate test code passing does not supply an actual Local validation comment |
 | Six core backup modules lint/format | Coordinator reports PASS |
 | Whole-project TypeScript | FAIL: coordinator reports 945 inherited diagnostics versus 957 at baseline bb66cea459fbb00ec33c5c4ebd601d07c0d7c125, zero added normalized diagnostics. No clean whole-project typecheck is claimed |
 | Current release preflight | FAIL: observed 2026-10-13 04:11 UTC, iOS store history older than 24 hours; no release-readiness pass is inferred from tooling tests |
-| Source CI gaps | Inherited backup Sonar failure and source PR #7042 without checks remain disclosed; current-head combined GitHub CI and external review are separate gates |
+| Source CI gaps | Earlier backup Sonar failure remains disclosed. Source PR #7042 pull_request trigger was corrected by workflow-only commit 74df55446d8645ebfac05405fce81fa43446acd9; runtime unchanged. CodeQL workflow succeeded; hosted Tests run 38347397038 remains pending. Workflow success is not a separate CodeQL alert-check pass or current-head combined CI/external signoff |
 | Independent agent fixture review | PASS architecture/evidence review after strengthening missing full-signers/nodes restore assertions; no external final-source developer signoff implied |
+
+## Preserved earlier October checkpoint
+
+The earlier source checkpoint remains evidence for its own tested source: genuine 253/253, zero failures/skips, 162.1566 seconds at app efa6f89ebf7140f738f03ce8a7218a2a1e7f9bc2 and the same pinned Relay, terminal recorded 2026-10-13 04:12 UTC. Earlier recovery 430/430, zero failures/skips, 47.9 seconds was run on 0f37506a58e6bf44061dd6788b20e5fa095a10c6 after the c308aa405 session guards. The coordinator's earlier Jest report was 41 suites / 393 tests PASS. These are historical October results, superseded for the current source by the refreshed counts above; no result is retroactively transferred to a new SHA. September evidence files are unchanged.
 
 ## Open gates
 
