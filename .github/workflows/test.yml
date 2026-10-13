@@ -10,6 +10,7 @@ on:
   pull_request:
     branches:
       - sprint
+      - codex/r3-release-baseline-to-sprint
       - dev
       - main
       - release/2.6.3
