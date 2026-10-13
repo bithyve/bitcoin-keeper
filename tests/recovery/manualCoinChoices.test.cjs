@@ -42,7 +42,34 @@ function sagaFixture(options = {}) {
     f.remote.vault = payload.vault;
     return { updated: true };
   };
-  loadFunctions(f.scope, 'src/store/sagas/bhr.ts', ['updateVaultImageWorker']);
+  // Disposable local transaction and cloud adapters exercise the production
+  // producer ordering. Transport proof/CAS is covered by its own fixtures.
+  f.scope.beginBackupLocalOperation = (appId, originIntent, accountSession) => ({ appId, accountSession, originIntent });
+  f.scope.commitBackupLocalOperation = (operation, write) => {
+    if (options.rejectLocalWrite) return { committed: false };
+    const before = clone(f.collections);
+    try {
+      write({ objectForPrimaryKey: (kind, id) => f.collections[kind].find(row => row.id === id) });
+    } catch {
+      for (const [kind, rows] of Object.entries(before)) f.collections[kind] = rows;
+      return { committed: false };
+    }
+    f.actions.push({ type: 'invalidateBackupRepair', payload: operation.appId });
+    return { committed: true, intent: operation };
+  };
+  f.scope.enqueueAutomaticBackupOperation = async (_commit, mutations) => {
+    if (options.online === false)
+      return { updated: false, backupConfirmed: false, backupPending: true };
+    for (const mutation of mutations) {
+      const response = await f.scope.Relay[mutation.operation](mutation.body);
+      if (!response.updated) return { updated: false, backupConfirmed: false, backupPending: true };
+    }
+    return { updated: true, backupConfirmed: true, backupPending: false };
+  };
+  loadFunctions(f.scope, 'src/store/sagas/bhr.ts', [
+    'buildAutomaticAppMutation', 'buildAutomaticVaultMutation',
+    'queueCommittedBackupWorker', 'updateVaultImageWorker',
+  ]);
   loadFunctions(f.scope, 'src/store/sagas/utxos.ts', [
     'currentOriginApp', 'persistSpendabilityForOrigin', 'markUTXOSpendabilityWorker',
   ]);

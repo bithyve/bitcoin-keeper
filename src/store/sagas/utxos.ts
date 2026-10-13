@@ -1,11 +1,17 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call, delay, put } from 'redux-saga/effects';
+import { call, put } from 'redux-saga/effects';
+import Realm from 'realm';
 import { BIP329Label, UTXOSpendability } from 'src/services/wallets/interfaces';
 import { EntityKind, LabelRefType, NetworkType } from 'src/services/wallets/enums';
-import Relay from 'src/services/backend/Relay';
 import { currentBackupAccountSession } from 'src/services/backup/transport';
 import type { BackupWriteIntent } from 'src/services/backup/intent';
+import {
+  beginBackupLocalOperation,
+  commitBackupLocalOperation,
+  enqueueAutomaticBackupOperation,
+} from 'src/services/backup/automatic';
+import type { BackupLocalCommit, BackupLocalOperation } from 'src/services/backup/automatic';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { generateAbbreviatedOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { Vault } from 'src/services/wallets/interfaces/vault';
@@ -22,7 +28,6 @@ import {
 } from '../sagaActions/utxos';
 import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 import {
-  checkBackupCondition,
   setServerBackupFailed,
   updateAppImageWorker,
   updateVaultImageWorker,
@@ -48,20 +53,25 @@ function persistTagsForOrigin(
   added: BIP329Label[],
   deleted: string[] = [],
   scope?: LabelSyncScope,
-  accountSession?: number
+  accountSession?: number,
+  operation?: BackupLocalOperation
 ) {
-  if (!currentOriginApp(originAppId)) return false;
-  if (accountSession !== undefined && accountSession !== currentBackupAccountSession()) return false;
+  if (!operation || !currentOriginApp(originAppId)) return { committed: false };
+  if (accountSession !== undefined && accountSession !== currentBackupAccountSession()) return { committed: false };
   if (
     scope &&
     (scope.appId !== originAppId || store.getState().settings.bitcoinNetworkType !== scope.networkType)
   )
-    return false;
-  if (added.length && dbManager.createObjectBulk(RealmSchema.Tags, added) !== true) return false;
-  for (const id of deleted) {
-    if (dbManager.deleteObjectById(RealmSchema.Tags, id) !== true) return false;
-  }
-  return true;
+    return { committed: false };
+  // Additions and removals are one local transaction. A failed import or
+  // deletion cannot leave a partial operation eligible for upload.
+  return commitBackupLocalOperation(operation, (rawRealm) => {
+    for (const tag of added) rawRealm.create(RealmSchema.Tags, tag, Realm.UpdateMode.All);
+    for (const id of deleted) {
+      const tag = rawRealm.objectForPrimaryKey(RealmSchema.Tags, id);
+      if (tag) rawRealm.delete(tag);
+    }
+  });
 }
 
 function persistSpendabilityForOrigin(
@@ -69,11 +79,49 @@ function persistSpendabilityForOrigin(
   schema: RealmSchema,
   id: string,
   specs: any,
-  accountSession?: number
+  accountSession?: number,
+  operation?: BackupLocalOperation
 ) {
-  if (!currentOriginApp(originAppId)) return false;
-  if (accountSession !== undefined && accountSession !== currentBackupAccountSession()) return false;
-  return dbManager.updateObjectById(schema, id, { specs }) === true;
+  if (!operation || !currentOriginApp(originAppId)) return { committed: false };
+  if (accountSession !== undefined && accountSession !== currentBackupAccountSession()) return { committed: false };
+  return commitBackupLocalOperation(operation, (rawRealm) => {
+    const wallet: any = rawRealm.objectForPrimaryKey(schema, id);
+    if (!wallet) throw new Error('Wallet no longer exists');
+    wallet.specs = specs;
+  });
+}
+
+function* backupCommittedLabels(
+  originAppId: string,
+  requestSession: number,
+  committedOperation: BackupLocalCommit,
+  added: BIP329Label[],
+  deleted: string[] = []
+) {
+  if (!committedOperation.committed) return;
+  const app = currentOriginApp(originAppId);
+  if (!app || requestSession !== currentBackupAccountSession()) return;
+  const encryptionKey = generateEncryptionKey(app.primarySeed);
+  const deletedIds = new Set(deleted);
+  // Deletion wins when the same label occurs on both sides of an edit, as in
+  // the local transaction. Read back each addition instead of encrypting the
+  // action payload, and let the queue prove it again before network.
+  const addedIds = [...new Set(added.map((tag) => tag.id))].filter((id) => !deletedIds.has(id));
+  const addLabels = addedIds.map((id) => {
+    const persisted = dbManager.getObjectById(RealmSchema.Tags, id);
+    if (!persisted) throw new Error('Committed label no longer exists');
+    const tag = getJSONFromRealmObject(persisted);
+    return {
+      id: hash256(hash256(encryptionKey + id)),
+      content: encrypt(encryptionKey, JSON.stringify(tag)),
+    };
+  });
+  const deleteLabels = [...deletedIds].map((id) => hash256(hash256(encryptionKey + id)));
+  if (!addLabels.length && !deleteLabels.length) return;
+  yield call(enqueueAutomaticBackupOperation, committedOperation, [{
+    operation: 'modifyLabels',
+    body: { appId: originAppId, addLabels, deleteLabels },
+  }]);
 }
 
 function originUiAction<T extends { type: string }>(action: T, originAppId: string): T & { originAppId: string } {
@@ -103,7 +151,7 @@ export function* addLabelsWorker({
     if (requestSession !== currentBackupAccountSession()) return;
     const app = currentOriginApp(originAppId);
     if (!app) return;
-    const primarySeed = app.primarySeed;
+    const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, requestSession);
     yield put(originUiAction(setSyncingUTXOs(true), originAppId));
     const { txId, vout, wallet, labels, type } = payload;
     const origin = generateAbbreviatedOutputDescriptors(wallet);
@@ -120,20 +168,15 @@ export function* addLabelsWorker({
       };
       tags.push(tag);
     });
-    if (!(yield call(persistTagsForOrigin, originAppId, tags, [], undefined, requestSession))) return;
+    const committedOperation: BackupLocalCommit = yield call(
+      persistTagsForOrigin, originAppId, tags, [], undefined, requestSession, operation
+    );
+    if (!committedOperation.committed) return;
     try {
-      const backupResponse = yield call(checkBackupCondition, originAppId);
-      if (!backupResponse && currentOriginApp(originAppId) && requestSession === currentBackupAccountSession()) {
-        const encryptionKey = generateEncryptionKey(primarySeed);
-        const tagsToBackup = tags.map((tag) => ({
-          id: hash256(hash256(encryptionKey + tag.id)),
-          content: encrypt(encryptionKey, JSON.stringify(tag)),
-        }));
-        yield call(Relay.modifyLabels, originAppId, tagsToBackup, [], originBackupWriteIntent);
-      } else yield delay(100);
-    } catch (error) {
-      console.log('🚀 ~ addLabelsWorker error:', error);
-      yield call(setServerBackupFailed, originAppId);
+      yield call(backupCommittedLabels, originAppId, requestSession, committedOperation, tags);
+    } catch {
+      if (currentOriginApp(originAppId) && requestSession === currentBackupAccountSession())
+        yield call(setServerBackupFailed, originAppId);
     }
     yield put(originUiAction(resetState(), originAppId));
   } catch (e) {
@@ -170,7 +213,7 @@ export function* bulkUpdateLabelsWorker({
     if (requestSession !== currentBackupAccountSession()) return;
     const app = currentOriginApp(originAppId);
     if (!app) return;
-    const primarySeed = app.primarySeed;
+    const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, requestSession);
     yield put(originUiAction(setSyncingUTXOs(true), originAppId));
     const { labelChanges, wallet, UTXO, txId, address, scope } = payload;
     if (
@@ -199,33 +242,15 @@ export function* bulkUpdateLabelsWorker({
     if (labelChanges.deleted) {
       deletedTagIds = labelChanges.deleted.map((label) => `${ref}${label.name}`);
     }
-    if (!(yield call(persistTagsForOrigin, originAppId, addedTags, deletedTagIds, scope, requestSession))) return;
+    const committedOperation: BackupLocalCommit = yield call(
+      persistTagsForOrigin, originAppId, addedTags, deletedTagIds, scope, requestSession, operation
+    );
+    if (!committedOperation.committed) return;
     try {
-      const backupResponse = yield call(checkBackupCondition, originAppId);
-      if (
-        !backupResponse &&
-        currentOriginApp(originAppId) &&
-        requestSession === currentBackupAccountSession() &&
-        (!scope ||
-          (scope.appId === originAppId &&
-            store.getState().settings.bitcoinNetworkType === scope.networkType))
-      ) {
-        const encryptionKey = generateEncryptionKey(primarySeed);
-        const tagsToBackup = addedTags.map((tag) => ({
-          id: hash256(hash256(encryptionKey + tag.id)),
-          content: encrypt(encryptionKey, JSON.stringify(tag)),
-        }));
-        const tagsToDelete = deletedTagIds.map((tag) => hash256(hash256(encryptionKey + tag)));
-        yield call(
-          Relay.modifyLabels,
-          originAppId,
-          tagsToBackup.length ? tagsToBackup : [],
-          tagsToDelete.length ? tagsToDelete : [],
-          originBackupWriteIntent
-        );
-      } else yield delay(100);
-    } catch (error) {
-      yield call(setServerBackupFailed, originAppId);
+      yield call(backupCommittedLabels, originAppId, requestSession, committedOperation, addedTags, deletedTagIds);
+    } catch {
+      if (currentOriginApp(originAppId) && requestSession === currentBackupAccountSession())
+        yield call(setServerBackupFailed, originAppId);
     }
     yield put(originUiAction(resetState(), originAppId));
   } catch (e) {
@@ -261,7 +286,7 @@ export function* importLabelsWorker({
     if (requestSession !== currentBackupAccountSession()) return;
     const app = currentOriginApp(originAppId);
     if (!app) return;
-    const primarySeed = app.primarySeed;
+    const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, requestSession);
     yield put(originUiAction(setSyncingUTXOs(true), originAppId));
     const { labels } = payload;
     let addedTags: BIP329Label[] = [];
@@ -278,24 +303,85 @@ export function* importLabelsWorker({
       }));
     }
 
-    if (!(yield call(persistTagsForOrigin, originAppId, addedTags, [], undefined, requestSession))) return;
-
+    const committedOperation: BackupLocalCommit = yield call(
+      persistTagsForOrigin, originAppId, addedTags, [], undefined, requestSession, operation
+    );
+    if (!committedOperation.committed) return;
     try {
-      const backupResponse = yield call(checkBackupCondition, originAppId);
-      if (!backupResponse && currentOriginApp(originAppId) && requestSession === currentBackupAccountSession()) {
-        const encryptionKey = generateEncryptionKey(primarySeed);
-        const tagsToBackup = addedTags.map((tag) => ({
-          id: hash256(hash256(encryptionKey + tag.id)),
-          content: encrypt(encryptionKey, JSON.stringify(tag)),
-        }));
-        yield call(Relay.modifyLabels, originAppId, tagsToBackup.length ? tagsToBackup : [], [], originBackupWriteIntent);
-      } else yield delay(100);
-    } catch (error) {
-      yield call(setServerBackupFailed, originAppId);
+      yield call(backupCommittedLabels, originAppId, requestSession, committedOperation, addedTags);
+    } catch {
+      if (currentOriginApp(originAppId) && requestSession === currentBackupAccountSession())
+        yield call(setServerBackupFailed, originAppId);
     }
     yield put(originUiAction(resetState(), originAppId));
   } catch (e) {
     if (originAppId) yield put(originUiAction(setSyncingUTXOError(e), originAppId));
+  } finally {
+    if (originAppId) yield put(originUiAction(setSyncingUTXOs(false), originAppId));
+  }
+}
+
+// A send may create a transaction note and several labels on its change
+// output. They share one local commit and one remote mutation, so failure
+// cannot authorize a later child with the original remote revision.
+export function* transactionLabelsWorker({
+  payload,
+  originAppId,
+  originBackupAccountSession,
+  originBackupWriteIntent,
+}: {
+  payload: {
+    txId: string;
+    wallet: Wallet | Vault;
+    note?: string;
+    finalOutputs?: { address: string }[];
+    inputs?: { txId: string; vout: number }[];
+  };
+  originAppId?: string;
+  originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
+}) {
+  try {
+    if (!originAppId) return;
+    const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+    if (requestSession !== currentBackupAccountSession() || !currentOriginApp(originAppId)) return;
+    const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, requestSession);
+    const { txId, wallet, note, finalOutputs = [], inputs = [] } = payload;
+    const origin = generateAbbreviatedOutputDescriptors(wallet);
+    const tags: BIP329Label[] = [];
+    if (note) tags.push({
+      id: `${txId}${note}`, ref: txId, type: LabelRefType.TXN,
+      label: note, origin, isSystem: false,
+    });
+    const changeOutputIndex = finalOutputs.findIndex((output) =>
+      Object.values(wallet.specs.addresses.internal).includes(output.address)
+    );
+    if (changeOutputIndex !== -1) {
+      const inputRefs = new Set(inputs.map((input) => `${input.txId}:${input.vout}`));
+      const inherited: BIP329Label[] = dbManager.getCollection(RealmSchema.Tags)
+        .filter((tag) => inputRefs.has(tag.ref));
+      const ref = `${txId}:${changeOutputIndex}`;
+      const changeLabels = [{ label: 'Change', isSystem: false }, ...inherited];
+      for (const label of changeLabels) tags.push({
+        id: `${ref}${label.label}`, ref, type: LabelRefType.OUTPUT,
+        label: label.label, isSystem: label.isSystem, origin,
+      });
+    }
+    if (!tags.length) return;
+    yield put(originUiAction(setSyncingUTXOs(true), originAppId));
+    const committedOperation: BackupLocalCommit = yield call(
+      persistTagsForOrigin, originAppId, tags, [], undefined, requestSession, operation
+    );
+    if (!committedOperation.committed) return;
+    try {
+      yield call(backupCommittedLabels, originAppId, requestSession, committedOperation, tags);
+    } catch {
+      if (currentOriginApp(originAppId) && requestSession === currentBackupAccountSession())
+        yield call(setServerBackupFailed, originAppId);
+    }
+    yield put(originUiAction(resetState(), originAppId));
+  } catch (error) {
+    if (originAppId) yield put(originUiAction(setSyncingUTXOError(error), originAppId));
   } finally {
     if (originAppId) yield put(originUiAction(setSyncingUTXOs(false), originAppId));
   }
@@ -326,6 +412,7 @@ export function* markUTXOSpendabilityWorker({
     const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
     if (requestSession !== currentBackupAccountSession()) return;
     if (!currentOriginApp(originAppId)) return;
+    const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, requestSession);
     const { wallet, txId, vout, spendability } = payload;
 
     const schema = wallet.entityKind === EntityKind.VAULT ? RealmSchema.Vault : RealmSchema.Wallet;
@@ -354,24 +441,31 @@ export function* markUTXOSpendabilityWorker({
     }
 
     if (!changed) return;
-    const persisted = yield call(persistSpendabilityForOrigin, originAppId, schema, wallet.id, specs, requestSession);
-    if (persisted !== true) return;
+    const committedOperation: BackupLocalCommit = yield call(
+      persistSpendabilityForOrigin, originAppId, schema, wallet.id, specs, requestSession, operation
+    );
+    if (!committedOperation.committed) return;
+    const committedWallet = dbManager.getObjectById(schema, wallet.id);
+    if (!committedWallet) return;
+    const freshWallet = getJSONFromRealmObject(committedWallet) as unknown as Wallet | Vault;
     // Persist the user's choice first, then invalidate/refresh Assisted Server
     // Backup through its normal opt-in/offline-aware incremental path.
     try {
       const response =
         schema === RealmSchema.Vault
           ? yield call(updateVaultImageWorker, {
-              payload: { vault: walletJSON as Vault, isUpdate: true },
+              payload: { vault: freshWallet as Vault, isUpdate: true },
               originAppId,
               originBackupAccountSession: requestSession,
               originBackupWriteIntent,
+              committedOperation,
             })
           : yield call(updateAppImageWorker, {
-              payload: { wallets: [walletJSON as Wallet] },
+              payload: { wallets: [freshWallet as Wallet] },
               originAppId,
               originBackupAccountSession: requestSession,
               originBackupWriteIntent,
+              committedOperation,
             });
       if (!response?.updated) yield call(setServerBackupFailed, originAppId);
     } catch {

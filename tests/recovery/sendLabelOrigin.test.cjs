@@ -4,6 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const ts = require('typescript');
+const { runSaga } = require('redux-saga');
+const { call, put, select } = require('redux-saga/effects');
 
 const root = path.join(__dirname, '../..');
 function sourceFile(file) {
@@ -125,4 +127,54 @@ test('an async label import from an old A session cannot rebase after A to B to 
   await started;
   assert.deepEqual(seen, []);
   assert.equal(errors.length, 1);
+});
+
+for (const phase of ['Two', 'Three']) test(`send phase ${phase} forwards note and change output through one child operation with the original intent`, async () => {
+  const source = sourceFile('src/store/sagas/send_and_receive.ts');
+  const names = new Set([`sendPhase${phase}Worker`, 'handleChangeOutputLabels']);
+  const extracted = source.statements
+    .filter(node => ts.isFunctionDeclaration(node) && names.has(node.name?.text))
+    .map(node => node.getText(source)).join('\n');
+  const labels = [];
+  const finalOutputs = [{ address: 'recipient' }, { address: 'change-address' }];
+  const inputs = [{ txId: 'input', vout: 0 }];
+  const intent = { appId: 'A', accountSession: 7, baseRevision: 'a'.repeat(64), baselineEpoch: 3 };
+  const context = {
+    call, put, select, console,
+    _: require('lodash'), idx: (value, getter) => getter(value),
+    EntityKind: { WALLET: 'WALLET', VAULT: 'VAULT' },
+    ELECTRUM_CLIENT: { isClientConnected: true },
+    ELECTRUM_NOT_CONNECTED_ERR: 'offline', ELECTRUM_NOT_CONNECTED_ERR_TOR: 'tor-offline',
+    WalletOperations: {
+      transferST2: async () => ({ txid: 'sent', finalOutputs, inputs }),
+      transferST3: async () => ({ txid: 'sent', finalOutputs, inputs }),
+    },
+    transactionLabelsWorker: function* (action) { labels.push(action); },
+    sendPhaseTwoExecuted: payload => ({ type: 'phase-two', payload }),
+    sendPhaseThreeExecuted: payload => ({ type: 'phase-three', payload }),
+    setElectrumNotConnectedErr: error => ({ type: 'error', error }),
+  };
+  vm.runInNewContext(ts.transpileModule(extracted, {
+    compilerOptions: { target: ts.ScriptTarget.ES2020 },
+  }).outputText, context);
+  const actions = [];
+  await runSaga({
+    getState: () => ({ sendAndReceive: {
+      sendPhaseOne: { outputs: { txPrerequisites: {} } },
+      customPrioritySendPhaseOne: { outputs: { customTxPrerequisites: {} } },
+      sendPhaseTwo: { serializedPSBTEnvelops: [] },
+    } }),
+    dispatch: action => actions.push(action),
+  }, context[`sendPhase${phase}Worker`], {
+    originAppId: 'A', originBackupAccountSession: 7, originBackupWriteIntent: intent,
+    payload: { wallet: { id: 'wallet', entityKind: 'WALLET' }, note: 'one note' },
+  }).toPromise();
+  assert.equal(actions[0].payload.successful, true);
+  assert.equal(labels.length, 1);
+  assert.equal(labels[0].originAppId, 'A');
+  assert.equal(labels[0].originBackupAccountSession, 7);
+  assert.equal(labels[0].originBackupWriteIntent, intent);
+  assert.equal(labels[0].payload.note, 'one note');
+  assert.equal(labels[0].payload.finalOutputs, finalOutputs);
+  assert.equal(labels[0].payload.inputs, inputs);
 });
