@@ -701,7 +701,8 @@ function* deleteSigningDeviceWorker({
     return false;
   } catch (error) {
     captureError(error);
-    if (currentWalletAccountId() === sourceAppId && store.getState().storage.appId === sourceAppId) {
+    if (currentWalletAccountId() === sourceAppId && store.getState().storage.appId === sourceAppId &&
+      currentBackupAccountSession() === requestSession) {
       yield put(hideDeletingKeyModal());
       yield put(relaySignersUpdateFail('An error occurred while deleting signers.'));
     }
@@ -761,9 +762,9 @@ function* migrateVaultWorker({
   originBackupAccountSession?: number;
   originBackupWriteIntent?: BackupWriteIntent;
 }) {
+  const sourceAppId = originAppId || currentWalletAccountId();
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
   try {
-    const sourceAppId = originAppId || currentWalletAccountId();
-    const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
     assertWalletAccount(sourceAppId, requestSession);
     const { newVaultInfo, oldVaultId } = payload;
     const migrated = yield call(addNewVaultWorker, {
@@ -772,7 +773,10 @@ function* migrateVaultWorker({
       originBackupWriteIntent,
       payload: { newVaultInfo, isMigrated: true, oldVaultId },
     });
+    assertWalletAccount(sourceAppId, requestSession);
+    if (!migrated) throw new Error('Vault migration could not be saved');
     const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
+    assertWalletAccount(sourceAppId, requestSession);
     if (migrated && migratedVault) {
       yield put(
         vaultMigrationCompleted({
@@ -782,14 +786,18 @@ function* migrateVaultWorker({
         })
       );
     }
+    return migrated;
   } catch (error) {
-    yield put(
-      vaultMigrationCompleted({
-        hasMigrationSucceeded: false,
-        hasMigrationFailed: true,
-        error: error.toString(),
-      })
-    );
+    if (currentWalletAccountId() === sourceAppId && store.getState().storage.appId === sourceAppId &&
+      currentBackupAccountSession() === requestSession)
+      yield put(
+        vaultMigrationCompleted({
+          hasMigrationSucceeded: false,
+          hasMigrationFailed: true,
+          error: error.toString(),
+        })
+      );
+    return false;
   }
 }
 

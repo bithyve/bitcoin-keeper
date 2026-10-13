@@ -530,3 +530,79 @@ test('A policy response after B login cannot change B signer or policy UI state'
     action.type === 'updateDelayedPolicyUpdate' ||
     (action.type === 'setSignerPolicyError' && action.payload === 'success')));
 });
+
+function bindMigrationWorker(f) {
+  vm.runInNewContext(ts.transpileModule(functions('src/store/sagas/wallets.ts', ['migrateVaultWorker']),
+    { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, f.scope);
+  f.scope.vaultMigrationCompleted = (payload) => ({ type: 'vaultMigrationCompleted', payload });
+}
+
+function roundTripAccount(f, appId) {
+  f.app.id = 'another-disposable-account'; f.state.storage.appId = f.app.id;
+  f.app.id = appId; f.state.storage.appId = appId;
+}
+
+test('signer deletion rejection after A to B to A cannot hide or fail the later A modal', async () => {
+  const f = fixture();
+  const recordedErrors = [];
+  f.scope.captureError = (error) => recordedErrors.push(error.message);
+  const originAppId = f.app.id;
+  let finishDelete;
+  f.scope.deleteAppImageEntityWorker = () => new Promise((resolve) => { finishDelete = resolve; });
+  const deleting = f.run('deleteSigningDeviceWorker', {
+    originAppId, payload: { signers: [signer('AABBCCDD', enums.NetworkType.MAINNET)] },
+  });
+  for (let i = 0; i < 30 && !finishDelete; i++) await new Promise(setImmediate);
+  assert.equal(typeof finishDelete, 'function');
+  const initialActions = f.actions.length;
+  roundTripAccount(f, originAppId);
+  finishDelete({ updated: false });
+  assert.equal(await deleting, false);
+  assert.deepEqual(recordedErrors, ['Account changed']);
+  assert.ok(!f.actions.slice(initialActions).some((action) =>
+    ['hideDeletingKeyModal', 'relaySignersUpdateFail', 'showKeyDeletedSuccessModal'].includes(action.type)));
+});
+
+test('vault migration completion after A to B to A cannot publish success or failure for later A', async () => {
+  const f = fixture();
+  bindMigrationWorker(f);
+  const originAppId = f.app.id;
+  const originBackupAccountSession = f.scope.currentBackupAccountSession();
+  let finishCreate;
+  f.scope.addNewVaultWorker = () => new Promise((resolve) => { finishCreate = resolve; });
+  const migrating = f.run('migrateVaultWorker', { originAppId, originBackupAccountSession,
+    payload: { newVaultInfo: {}, oldVaultId: 'disposable-old-vault' } });
+  for (let i = 0; i < 30 && !finishCreate; i++) await new Promise(setImmediate);
+  assert.equal(typeof finishCreate, 'function');
+  roundTripAccount(f, originAppId);
+  finishCreate(true);
+  assert.equal(await migrating, false);
+  assert.ok(!f.actions.some((action) => action.type === 'vaultMigrationCompleted'));
+});
+
+test('account switch while selecting migration UI state cannot publish a stale completion', async () => {
+  const f = fixture();
+  bindMigrationWorker(f);
+  const originAppId = f.app.id;
+  f.scope.addNewVaultWorker = () => true;
+  Object.defineProperty(f.state, 'vault', { get() {
+    roundTripAccount(f, originAppId);
+    return { intrimVault: { id: 'disposable-new-vault' } };
+  } });
+  assert.equal(await f.run('migrateVaultWorker', { originAppId,
+    originBackupAccountSession: f.scope.currentBackupAccountSession(),
+    payload: { newVaultInfo: {}, oldVaultId: 'disposable-old-vault' } }), false);
+  assert.ok(!f.actions.some((action) => action.type === 'vaultMigrationCompleted'));
+});
+
+test('failed local migration reports failure only for its current originating session', async () => {
+  const f = fixture();
+  bindMigrationWorker(f);
+  f.scope.addNewVaultWorker = () => false;
+  assert.equal(await f.run('migrateVaultWorker', { originAppId: f.app.id,
+    originBackupAccountSession: f.scope.currentBackupAccountSession(),
+    payload: { newVaultInfo: {}, oldVaultId: 'disposable-old-vault' } }), false);
+  const result = f.actions.find((action) => action.type === 'vaultMigrationCompleted');
+  assert.equal(result.payload.hasMigrationFailed, true);
+  assert.equal(result.payload.hasMigrationSucceeded, false);
+});
