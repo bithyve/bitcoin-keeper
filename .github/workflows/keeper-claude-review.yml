@@ -82,7 +82,7 @@ jobs:
           app-id: ${{ vars.KEEPER_CLAUDE_LEDGER_APP_ID }}
           private-key: ${{ secrets.KEEPER_CLAUDE_LEDGER_APP_PRIVATE_KEY }}
           owner: KeeperCommunity
-          repositories: keeper-review-ledger
+          repositories: KeeperCommunity-keeper-review-ledger
           permission-contents: write
           # Private repository branch-rules metadata requires this read scope.
           permission-administration: read

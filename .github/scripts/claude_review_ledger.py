@@ -8,7 +8,7 @@ import json
 import re
 import secrets
 
-STATE_REPOSITORY = "KeeperCommunity/keeper-review-ledger"
+STATE_REPOSITORY = "KeeperCommunity/KeeperCommunity-keeper-review-ledger"
 STATE_BRANCH = "keeper-claude-review-state"
 STATE_FILE = "ledger.json"
 MAX_LEDGER_BYTES = 900_000

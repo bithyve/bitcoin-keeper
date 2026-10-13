@@ -27,7 +27,7 @@ runner has no reset, grant or cap-override path.
 
 Payment history is HMAC-signed, epoch-bound `ledger.json` on the fixed orphan
 branch `keeper-claude-review-state` in private repository
-`KeeperCommunity/keeper-review-ledger`. It records request, head/base, run,
+`KeeperCommunity/KeeperCommunity-keeper-review-ledger`. It records request, head/base, run,
 status, claim ID and full reservation. The Contents API's old file SHA provides
 compare-and-swap; the runner verifies the resulting immutable commit and file
 before Messages. A race, uncertain write or failed acknowledgement blocks
