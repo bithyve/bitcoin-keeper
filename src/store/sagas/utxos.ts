@@ -358,7 +358,7 @@ export function* transactionLabelsWorker({
     );
     if (changeOutputIndex !== -1) {
       const inputRefs = new Set(inputs.map((input) => `${input.txId}:${input.vout}`));
-      const inherited: BIP329Label[] = dbManager.getCollection(RealmSchema.Tags)
+      const inherited = (dbManager.getCollection(RealmSchema.Tags) as unknown as BIP329Label[])
         .filter((tag) => inputRefs.has(tag.ref));
       const ref = `${txId}:${changeOutputIndex}`;
       const changeLabels = [{ label: 'Change', isSystem: false }, ...inherited];
