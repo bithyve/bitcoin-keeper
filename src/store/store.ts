@@ -4,9 +4,35 @@ import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { reduxStorage } from 'src/storage';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import {
+  captureBackupWriteIntent,
+  canAccessBackupAccount,
+  backupConsentEpoch,
+  observeBackupConsentAction,
+  protectBackupConsentCompletion,
+  currentBackupAccountSession,
+  markBackupMutation,
+  observeBackupAccount,
+  setBackupReconciliationHandler,
+  setBackupUploadGuard,
+} from 'src/services/backup/transport';
+import {
+  isBackupVerificationCurrent,
+  noteCommittedBackupRecovery,
+  setAutomaticBackupVerificationCommit,
+} from 'src/services/backup/automatic';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import loginReducer from './reducers/login';
 import notificationsReducer from './reducers/notifications';
-import bhrReducer from './reducers/bhr';
+import bhrReducer, {
+  invalidateBackupRepair,
+  isAutomaticCloudBackupEnabled,
+  setPendingAllBackup,
+  commitBackupInspection,
+  setAutomaticCloudBackup,
+} from './reducers/bhr';
 import rootSaga from './sagas';
 import sendAndReceiveReducer from './reducers/send_and_receive';
 import settingsReducer from './reducers/settings';
@@ -25,23 +51,6 @@ import helpAiReducer from './reducers/helpAi';
 
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
-import {
-  captureBackupWriteIntent,
-  currentBackupAccountSession,
-  clearVerifiedRemoteRevision,
-  markBackupMutation,
-  observeBackupAccount,
-  setBackupReconciliationHandler,
-  setBackupUploadGuard,
-} from 'src/services/backup/transport';
-import {
-  invalidateBackupRepair,
-  isAutomaticCloudBackupEnabled,
-  setPendingAllBackup,
-} from './reducers/bhr';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 
 const appReducer = combineReducers({
   settings: settingsReducer,
@@ -134,13 +143,35 @@ const accountOwnedUtxoUiActions = new Set([
   'utxos/resetState',
 ]);
 const bindActionOrigin = (api) => (next) => (action) => {
+  if (
+    action?.type === 'bhr/commitBackupInspection' &&
+    action.payload?.phase === 'verified' &&
+    !isBackupVerificationCurrent(action.payload.appId)
+  )
+    action = { ...action, payload: { ...action.payload, phase: 'unverified', pending: true } };
   const originAppId = api.getState()?.storage?.appId;
-  const enablesBackup = action?.type === 'bhr/setAutomaticCloudBackup' &&
-    action.payload?.enabled === true;
-  const reportsBackupSuccess = action?.type === 'bhr/setBackupAllSuccess' &&
-    action.payload?.status === true;
+  if (
+    ['bhr/setAutomaticCloudBackup', 'DELETE_BACKUP', 'BACKUP_ALL_SIGNERS_AND_VAULTS'].includes(
+      action?.type
+    )
+  ) {
+    const choiceAppId = action.payload?.appId || action.appId || action.originAppId || originAppId;
+    const disablesConsent =
+      action.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === false;
+    if (
+      !choiceAppId ||
+      choiceAppId !== originAppId ||
+      (!disablesConsent && !canAccessBackupAccount(choiceAppId, true)) ||
+      !observeBackupConsentAction(action, choiceAppId)
+    )
+      return action;
+  }
+  const enablesBackup =
+    action?.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === true;
+  const reportsBackupSuccess =
+    action?.type === 'bhr/setBackupAllSuccess' && action.payload?.status === true;
   if (enablesBackup || reportsBackupSuccess) {
-    const appId = action.payload.appId;
+    const { appId } = action.payload;
     if (!appId || originAppId !== appId) return action;
     try {
       if ((dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !== appId)
@@ -153,18 +184,15 @@ const bindActionOrigin = (api) => (next) => (action) => {
     try {
       if (
         action.originAppId !== originAppId ||
-        (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !== originAppId
-      ) return action;
+        (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !==
+          originAppId
+      )
+        return action;
     } catch {
       return action;
     }
   }
-  if (
-    originAppId &&
-    action &&
-    accountOwnedActions.has(action.type) &&
-    !('originAppId' in action)
-  )
+  if (originAppId && action && accountOwnedActions.has(action.type) && !('originAppId' in action))
     action = { ...action, originAppId };
   if (
     action &&
@@ -218,7 +246,9 @@ setBackupUploadGuard((appId, explicitChoice) => {
   )
     return false;
   try {
-    return (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id === appId;
+    return (
+      (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id === appId
+    );
   } catch {
     return false;
   }
@@ -235,6 +265,41 @@ setBackupReconciliationHandler((appId) => {
   // settled and a later inspection captures the resulting local state.
 });
 
+dbManager.setRecoveryCommitObserver(noteCommittedBackupRecovery);
+setAutomaticBackupVerificationCommit((appId, deleted, consentEpoch) => {
+  if (
+    store.getState().storage.appId !== appId ||
+    !isBackupVerificationCurrent(appId) ||
+    !canAccessBackupAccount(appId, deleted) ||
+    backupConsentEpoch(appId) !== consentEpoch
+  )
+    return false;
+  store.dispatch(
+    commitBackupInspection({ appId, phase: deleted ? 'unverified' : 'verified', pending: false })
+  );
+  // Middleware also checks the proof immediately before reducers accept it.
+  if (
+    !isBackupVerificationCurrent(appId) ||
+    !canAccessBackupAccount(appId, deleted) ||
+    backupConsentEpoch(appId) !== consentEpoch ||
+    (!deleted && !store.getState().bhr.backupRepairCompletedByAppId?.[appId])
+  )
+    return false;
+  if (deleted)
+    store.dispatch(
+      protectBackupConsentCompletion(
+        setAutomaticCloudBackup({ appId, enabled: false }),
+        appId,
+        consentEpoch
+      )
+    );
+  return (
+    isBackupVerificationCurrent(appId) &&
+    canAccessBackupAccount(appId, deleted) &&
+    backupConsentEpoch(appId) === consentEpoch
+  );
+});
+
 dbManager.setRecoveryMutationObserver(() => {
   let appId: string | undefined;
   try {
@@ -246,7 +311,6 @@ dbManager.setRecoveryMutationObserver(() => {
   // Realm can change while an inspection is between its final local capture
   // and completion. Invalidate the revision before any recovery write commits.
   markBackupMutation(appId);
-  clearVerifiedRemoteRevision(appId);
   store.dispatch(invalidateBackupRepair(appId));
   store.dispatch(setPendingAllBackup({ appId, pending: true }));
 });

@@ -2,12 +2,14 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import config from 'src/utils/service-utilities/config';
+import realmDatabase from 'src/storage/realm/realm';
 import { generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 import {
   getKeyUID,
   sanitizeSeedKeyForBackup,
   sanitizeVaultSignersForSeedKeyBackup,
 } from 'src/utils/utilities';
+import { captureLocalRecovery, backupMetadataMatches } from './localSnapshot';
 import {
   BACKUP_DEADLINE_MS,
   BackupRequestError,
@@ -70,8 +72,10 @@ function replacementWouldDiscardRecovery(local: BackupImage, remote: BackupImage
   for (const kind of Object.keys(remote) as (keyof BackupImage)[]) {
     for (const [id, stored] of Object.entries(remote[kind])) {
       const current = local[kind][id];
-      if (!current ||
-        canonical(recoveryContent(kind, current)) !== canonical(recoveryContent(kind, stored)))
+      if (
+        !current ||
+        canonical(recoveryContent(kind, current)) !== canonical(recoveryContent(kind, stored))
+      )
         return true;
     }
   }
@@ -234,6 +238,7 @@ export function inspectBackup(
     try {
       notify('checking');
       const app = clone(dbManager.getObjectByIndex(RealmSchema.KeeperApp));
+      const localEvidence = captureLocalRecovery(realmDatabase.getDatabase());
       assertCurrent();
       const key = generateEncryptionKey(app.primarySeed);
       const local = await captureBackupImage(assertCurrent);
@@ -241,6 +246,7 @@ export function inspectBackup(
       let expectedRevision: string;
       let needsVaultRepair = false;
       let needsLabelRepair = false;
+      let needsMetadataRepair = false;
       let unavailableVaultIds: string[] = [];
       let unavailableLabelIds: string[] = [];
       const read = async (readback = false) => {
@@ -257,6 +263,7 @@ export function inspectBackup(
         if (response.data?.revisionedMutations !== true)
           throw new Error('Revisioned backup protocol unavailable');
         expectedRevision = response.data.revision;
+        needsMetadataRepair = !backupMetadataMatches(app, response.data.appImage);
         const unavailable = response.data.unavailableVaultIds ?? [];
         if (!Array.isArray(unavailable) || new Set(unavailable).size !== unavailable.length)
           throw new Error('Invalid unavailable backup records');
@@ -297,20 +304,21 @@ export function inspectBackup(
         // participant. The relay withholds that participant's ciphertext. Only
         // this explicit backup check may compare the remaining records; clean
         // restore still rejects the incomplete reference list.
-        const availableResponse = unavailable.length || unavailableLabels.length
-          ? {
-              ...response.data,
-              appImage: {
-                ...response.data.appImage,
-                vaults: unavailable.length
-                  ? references.filter((id) => !unavailable.includes(id))
-                  : response.data.appImage.vaults,
-                labels: unavailableLabels.length
-                  ? labelReferences.filter((id) => !unavailableLabels.includes(id))
-                  : response.data.appImage.labels,
-              },
-            }
-          : response.data;
+        const availableResponse =
+          unavailable.length || unavailableLabels.length
+            ? {
+                ...response.data,
+                appImage: {
+                  ...response.data.appImage,
+                  vaults: unavailable.length
+                    ? references.filter((id) => !unavailable.includes(id))
+                    : response.data.appImage.vaults,
+                  labels: unavailableLabels.length
+                    ? labelReferences.filter((id) => !unavailableLabels.includes(id))
+                    : response.data.appImage.labels,
+                },
+              }
+            : response.data;
         if (!readback) stage = 'snapshot-decryption';
         // Restore can salvage legacy map aliases. Inspection requires the
         // stored key to match the ID inside each encrypted wallet record.
@@ -329,7 +337,8 @@ export function inspectBackup(
       stage = 'comparison';
       const contentComparison = await compareImages(local, remote, assertCurrent);
       const comparison =
-        contentComparison === 'matched' && (needsVaultRepair || needsLabelRepair)
+        contentComparison === 'matched' &&
+        (needsVaultRepair || needsLabelRepair || needsMetadataRepair)
           ? 'different'
           : contentComparison;
       assertCurrent();
@@ -346,9 +355,8 @@ export function inspectBackup(
           replacementWouldDiscardRecovery(local, remote) ||
           unavailableVaultIds.some((id) => !local.vaults[id]) ||
           unavailableLabelIds.some(
-            (id) => !Object.keys(local.labels).some(
-              (localId) => hash256(hash256(key + localId)) === id
-            )
+            (id) =>
+              !Object.keys(local.labels).some((localId) => hash256(hash256(key + localId)) === id)
           )
         ) {
           notify('conflict');
@@ -368,6 +376,7 @@ export function inspectBackup(
         notify('uploading');
         stage = 'repair-upload';
         let revisionedRepairAcknowledged = false;
+        let acknowledgedRepairRevision: string | undefined;
         try {
           const response = await boundedBackupPost(
             `${config.RELAY}revisionedBackupMutation`,
@@ -384,7 +393,11 @@ export function inspectBackup(
             deadline
           );
           revisionedRepairAcknowledged =
-            response.data?.updated === true && response.data?.preconditionApplied === true;
+            response.data?.updated === true &&
+            response.data?.preconditionApplied === true &&
+            /^[a-f0-9]{64}$/.test(response.data?.newRevision) &&
+            response.data.newRevision !== expectedRevision;
+          if (revisionedRepairAcknowledged) acknowledgedRepairRevision = response.data.newRevision;
         } catch {
           // A lost response is not proof the upload failed. Read back, but do
           // not mark this repair verified without an acknowledged v2 write.
@@ -395,8 +408,10 @@ export function inspectBackup(
         stage = 'repair-readback';
         if (
           !revisionedRepairAcknowledged ||
+          expectedRevision !== acknowledgedRepairRevision ||
           needsVaultRepair ||
           needsLabelRepair ||
+          needsMetadataRepair ||
           (await compareImages(local, verifiedRemote, assertCurrent)) !== 'matched'
         )
           throw new Error('Backup not verified');
@@ -408,6 +423,10 @@ export function inspectBackup(
       )
         throw new Error('Local backup changed');
       assertCurrent();
+      if (
+        captureLocalRecovery(realmDatabase.getDatabase()).fingerprint !== localEvidence.fingerprint
+      )
+        throw new Error('Committed recovery changed during final verification');
       recordVerifiedRemoteRevision(appId, expectedRevision, expectedSession);
       notify('verified');
       return 'verified';

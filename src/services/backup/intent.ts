@@ -4,4 +4,8 @@ export type BackupWriteIntent = Readonly<{
   accountSession: number;
   baseRevision: string;
   baselineEpoch: number;
+  localGeneration?: number;
+  localFingerprint?: string;
+  operationId?: string;
+  consentEpoch?: number;
 }>;

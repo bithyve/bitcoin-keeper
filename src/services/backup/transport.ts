@@ -5,13 +5,63 @@ import type { BackupWriteIntent } from './intent';
 const queues = new Map<string, Promise<unknown>>();
 const revisions = new Map<string, number>();
 const queuedMutationRevisions = new Map<string, number>();
-const verifiedRemoteRevisions = new Map<string, { revision: string; session: number; epoch: number }>();
+const verifiedRemoteRevisions = new Map<
+  string,
+  { revision: string; session: number; epoch: number; evidence?: LocalEvidence }
+>();
 const baselineEpochs = new Map<string, number>();
+const capturedIntents = new WeakSet<BackupWriteIntent>();
+const consentEpochs = new Map<string, number>();
+const consentCompletions = new WeakMap<object, { appId: string; epoch: number }>();
+export const backupConsentEpoch = (appId: string) => consentEpochs.get(appId) || 0;
+export function protectBackupConsentCompletion<T extends object>(
+  action: T,
+  appId: string,
+  epoch: number
+): T {
+  consentCompletions.set(action, { appId, epoch });
+  return action;
+}
+export function observeBackupConsentAction(action: any, appId: string): boolean {
+  const completion = consentCompletions.get(action);
+  if (completion) {
+    consentCompletions.delete(action);
+    return completion.appId === appId && completion.epoch === backupConsentEpoch(appId);
+  }
+  consentEpochs.set(appId, backupConsentEpoch(appId) + 1);
+  return true;
+}
+export const isCapturedBackupWriteIntent = (intent: BackupWriteIntent) =>
+  capturedIntents.has(intent);
+type LocalEvidence = { appId: string; generation: number; fingerprint: string };
+let localEvidence: (() => LocalEvidence) | undefined;
+let automaticPost:
+  | ((
+      path: string,
+      body: any,
+      explicitChoice: boolean,
+      intent?: BackupWriteIntent
+    ) => Promise<{ data: any }>)
+  | undefined;
+export const setBackupLocalEvidenceProvider = (provider: () => LocalEvidence) => {
+  localEvidence = provider;
+};
+export const setAutomaticBackupPostHandler = (handler: typeof automaticPost) => {
+  automaticPost = handler;
+};
+export const backupBaselineEpoch = (appId: string) => baselineEpochs.get(appId) || 0;
+export const notifyBackupReconciliation = (appId: string) => onBackupReconciliationRequired(appId);
+export const markBackupQueuedMutation = (id: string) => {
+  markBackupMutation(id);
+  queuedMutationRevisions.set(id, backupRevision(id));
+};
 let activeAccount: string | undefined;
 let accountSession = 0;
 let mayUploadForAccount: (appId: string, explicitChoice: boolean) => boolean = () => false;
 let onBackupReconciliationRequired: (appId: string) => void = () => undefined;
-export const setBackupUploadGuard = (guard: (appId: string, explicitChoice: boolean) => boolean) => {
+export const setBackupUploadGuard = (
+  guard: (appId: string, explicitChoice: boolean) => boolean
+) => {
   mayUploadForAccount = guard;
 };
 // A failed or ambiguous write requires a fresh backup check. The encrypted
@@ -38,23 +88,37 @@ export function clearVerifiedRemoteRevision(appId: string) {
   baselineEpochs.set(appId, (baselineEpochs.get(appId) || 0) + 1);
 }
 export function recordVerifiedRemoteRevision(appId: string, revision: string, session: number) {
-  if (
-    !/^[a-f0-9]{64}$/.test(revision) ||
-    session !== accountSession ||
-    appId !== activeAccount
-  ) return;
+  if (!/^[a-f0-9]{64}$/.test(revision) || session !== accountSession || appId !== activeAccount)
+    return;
   clearVerifiedRemoteRevision(appId);
   verifiedRemoteRevisions.set(appId, {
-    revision, session, epoch: baselineEpochs.get(appId) || 0,
+    revision,
+    session,
+    epoch: baselineEpochs.get(appId) || 0,
+    evidence: localEvidence?.(),
   });
 }
 export function captureBackupWriteIntent(appId: string): BackupWriteIntent | undefined {
   const verified = verifiedRemoteRevisions.get(appId);
   if (!verified || appId !== activeAccount || verified.session !== accountSession) return undefined;
-  return {
-    appId, accountSession: verified.session,
-    baseRevision: verified.revision, baselineEpoch: verified.epoch,
-  };
+  let evidence: LocalEvidence | undefined;
+  try {
+    evidence = localEvidence?.();
+  } catch {
+    return undefined;
+  }
+  if (localEvidence && evidence?.appId !== appId) return undefined;
+  const intent = Object.freeze({
+    appId,
+    accountSession: verified.session,
+    baseRevision: verified.revision,
+    baselineEpoch: verified.epoch,
+    localGeneration: verified.evidence?.generation,
+    localFingerprint: verified.evidence?.fingerprint,
+    consentEpoch: backupConsentEpoch(appId),
+  });
+  capturedIntents.add(intent);
+  return intent;
 }
 export const markBackupMutation = (id: string) => {
   revisions.set(id, backupRevision(id) + 1);
@@ -63,7 +127,13 @@ export const BACKUP_STALL_MS = 30_000;
 export const BACKUP_DEADLINE_MS = 10 * 60_000;
 
 export type BackupRequestFailure =
-  'conflict' | 'protocol' | 'http-4xx' | 'http-5xx' | 'timeout' | 'network' | 'other';
+  | 'conflict'
+  | 'protocol'
+  | 'http-4xx'
+  | 'http-5xx'
+  | 'timeout'
+  | 'network'
+  | 'other';
 
 export class BackupRequestError extends Error {
   constructor(public readonly category: BackupRequestFailure) {
@@ -74,7 +144,13 @@ export class BackupRequestError extends Error {
 function requestFailureCategory(error: unknown, aborted: boolean): BackupRequestFailure {
   if (aborted) return 'timeout';
   if (!error || typeof error !== 'object') return 'other';
-  const failure = error as { response?: { status?: unknown }; status?: unknown; code?: unknown; name?: unknown; message?: unknown };
+  const failure = error as {
+    response?: { status?: unknown };
+    status?: unknown;
+    code?: unknown;
+    name?: unknown;
+    message?: unknown;
+  };
   const status = failure.response?.status ?? failure.status;
   if (typeof status === 'number') {
     if (status === 409) return 'conflict';
@@ -82,7 +158,11 @@ function requestFailureCategory(error: unknown, aborted: boolean): BackupRequest
     if (status >= 500 && status < 600) return 'http-5xx';
     return 'other';
   }
-  if (failure.code === 'ECONNABORTED' || failure.code === 'ETIMEDOUT' || failure.name === 'AbortError')
+  if (
+    failure.code === 'ECONNABORTED' ||
+    failure.code === 'ETIMEDOUT' ||
+    failure.name === 'AbortError'
+  )
     return 'timeout';
   if (failure.code === 'ERR_NETWORK' || failure.message === 'Network Error') return 'network';
   return 'other';
@@ -144,10 +224,14 @@ export async function boundedBackupPost(
 }
 
 export function backupPost(
-  _path: string, body: any, explicitChoice = false, intent?: BackupWriteIntent
+  _path: string,
+  body: any,
+  explicitChoice?: boolean,
+  intent?: BackupWriteIntent
 ): Promise<{ data: any; json?: any }> {
   const appId = body.appId || body.appID;
   if (!appId) return Promise.reject(new Error('Missing backup account'));
+  if (automaticPost) return automaticPost(_path, body, explicitChoice === true, intent);
   // Every attempted incremental write invalidates an outstanding inspection
   // and leaves a visible pending state, including pre-send session/guard
   // failures from direct hooks and upgrade workers.

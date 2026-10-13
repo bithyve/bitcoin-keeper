@@ -75,7 +75,8 @@ for (const os of ['ios', 'android']) test(`${os} RestClient preserves the read-o
       requests.push({ path, body, options });
       if (requests.length === 1) throw { code: 'ERR_NETWORK' };
       return { data: {
-        appImage: { appId: 'disposable', wallets: {}, signers: {}, nodes: [], vaults: [], labels: [] },
+        appImage: { appId: 'disposable', publicId: 'fixture', version: '2.5.16',
+          subscription: JSON.stringify({ level: 1 }), wallets: {}, signers: {}, nodes: [], vaults: [], labels: [] },
         allVaultImages: [], labels: [], revision: 'a'.repeat(64), revisionedMutations: true,
       } };
     } },
