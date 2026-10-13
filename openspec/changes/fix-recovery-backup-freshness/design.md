@@ -1,6 +1,6 @@
 # Design
 
-This is the R4 target contract reconciled on 13 October 2026 from audit starting app head b160656218dc6065ad12af9db220c974255bfc23. Automatic write implementation and proof must be recorded in [the result matrix](automatic-write-validation.md) before any gate is marked complete. The September native/fixture results in [validation](validation.md) remain historical.
+This is the R4 contract reconciled on 13 October 2026 from audit starting app head b160656218dc6065ad12af9db220c974255bfc23. The implemented source and observed host Realm/transactional HTTP proof are recorded in [the result matrix](automatic-write-validation.md) and [October evidence](evidence/automatic-backup-source-proof-2026-10-13.md). Source readiness permits development loopback testing; hosted Relay rollout remains disabled. The September native/fixture results in [validation](validation.md) remain historical.
 
 ## Entry points, consent and user flow
 
@@ -22,7 +22,7 @@ The per-account queue covers automatic app/vault/label/deletion mutations and ex
 
 image.ts compares canonical decrypted recovery data with deterministic ordering. Ignore rebuildable chain/balance/sync/receiving-address caches and live connection flags. Retain keys, derivation, address counters, manual UTXO spendability overrides by outpoint, signer/vault policy, archive state, labels, nodes and user metadata. Include both BTC networks, USDT, signers and all referenced vault/label records. Sanitize secrets with existing helpers; checking does not mutate Realm.
 
-Prove additions/updates by decrypting the proposed record and matching its exact ID and recoverable fields with the committed record. Prove deletion by committed local absence and presence in the validated remote snapshot; retained vaults must remain recoverable. migrateXfps uses exact KeyUID map entries, not bare fingerprints, and validates affected vault signer references. Labels use account-derived hashed IDs and current tag content. Whole-backup deletion is a separate explicit same-session opt-out operation; preserve consent until a positive acknowledgement.
+Prove additions/updates by decrypting the proposed record and matching its exact ID and recoverable fields with the committed record. Prove deletion by committed local absence and presence in the validated remote snapshot; retained vaults must remain recoverable. migrateXfps uses exact KeyUID map entries, not bare fingerprints, and validates affected vault signer references. Labels use account-derived hashed IDs and current tag content. Whole-backup deletion is a separate explicit same-session opt-out operation; preserve the user's consent choice until a positive acknowledgement, complete empty readback and final current-session/current-consent-epoch commit. A newer off-to-on choice cannot be overwritten by the older deletion completion.
 
 Apply the proposed operation to the validated remote snapshot in memory before send. Reject removal of remote-only recovery records or immutable key/derivation/network/script/policy conflicts without explicit reconciliation. An invalid/partial/decryption-failed response is unavailable, never empty. Repairable registration metadata is distinct from immutable identity and must be preserved and propagated to every affected vault with readback.
 
@@ -40,7 +40,7 @@ A request timeout/lost response may have committed on the server. Do not replay 
 
 After the last acknowledged effect, read back and decrypt the complete server image, validating all referenced records. Compare it with a newly captured local image at the same committed generation. Recheck the originating account/session, consent, generation and operation at the final Redux verification commit. A concurrent local mutation, incomplete response, missing record or immutable conflict invalidates completion. Only this atomic final transition may set verified or clear durable pending state.
 
-BHR persists per-account verification/repair state separately from transient running state. Nullish defaults protect older persisted state. Account switching cannot clear another account's pending flag or grant its backup consent. Interrupted state returns to pending/unverified until a fresh read-only comparison completes. No Realm schema migration is authorized by this document.
+BHR defines persisted per-account verification/repair state separately from transient running state. Nullish defaults protect older persisted state. Account switching cannot clear another account's pending flag or grant its backup consent. Interrupted state returns to pending/unverified until a fresh read-only comparison completes. The host fixture uses real reducers and extracted production store hooks/origin middleware; it does not prove MMKV persistence or native app relaunch. Those checks remain in the required IOS/ANDROID matrix. No Realm schema migration is authorized by this document.
 
 ## NFR and restore boundaries
 

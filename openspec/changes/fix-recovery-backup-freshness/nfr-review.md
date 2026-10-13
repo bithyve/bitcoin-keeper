@@ -2,6 +2,10 @@
 
 Reviewed 29 September 2026; evidence boundary clarified 13 October 2026. This file preserves the historical check → prompt → update → verify audit and measurements. Statements below about implemented safeguards, completed native runs or infrastructure describe that historical candidate; they are not exact-head R4 automatic-write acceptance. See [design.md](design.md), [validation.md](validation.md) and [the current automatic-write matrix](automatic-write-validation.md) for current requirements/results. No approved numerical backup performance budgets were found in the product sources or OpenSpec documents searched at the historical review. The thresholds below remain proposed engineering targets, subject to native validation.
 
+## Current source evidence and unrun native measurements
+
+The October source/fixture results are linked in [the result matrix](automatic-write-validation.md) and [the sanitized proof record](evidence/automatic-backup-source-proof-2026-10-13.md). Host Realm/HTTP failure, timeout and readback tests exercise production cancellation and truthful pending state; they do not measure React Native frame time, memory, accessibility or background persistence. Required IOS/ANDROID safety flows and native 1/10/50-wallet profiles, including enlarged text and large/single-record workloads, remain NOT RUN. Development loopback readiness does not approve hosted limits, running artifacts, store submission or release.
+
 ## Historical original observed gaps
 
 - `src/services/rest/RestClient.ts:64`: POST passes headers only to Axios. The backup endpoints supply no explicit request timeout, abort signal, or transfer progress callbacks. No global Axios timeout override was found. A stalled request can leave the loading state pending indefinitely. An existing unrelated call passes `{timeout: 20000}` as the headers argument, so that pattern must not be copied as a timeout implementation.

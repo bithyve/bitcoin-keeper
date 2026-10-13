@@ -100,12 +100,17 @@ After all acknowledged effects the app SHALL read back, decrypt and validate the
 - **AND** reconstruct fresh work after restart rather than replaying a prepared old payload
 
 ### Requirement: Whole-backup deletion uses explicit same-account consent
-deleteBackup SHALL require an explicit opt-out for the same selected account/session and validated remote revision. It SHALL preserve consent until a positive revisioned acknowledgement and treat lost responses as uncertain.
+deleteBackup SHALL require an explicit opt-out for the same selected account/session and validated remote revision. It SHALL preserve the user's consent choice until a positive revisioned acknowledgement, complete empty readback and a current-session/current-consent-epoch final commit, and treat lost responses as uncertain.
 
 #### Scenario: Remote deletion acknowledgement is lost
 - **WHEN** explicit opt-out may have deleted the backup but no valid acknowledgement arrived
 - **THEN** do not claim deletion or consent-change success
 - **AND** preserve local recovery data and reconcile by readback before another deletion attempt
+
+#### Scenario: A newer consent choice arrives before deletion completes
+- **WHEN** the user makes a newer off-to-on choice while an older deletion is awaiting its reply or final completion
+- **THEN** reject the older consent completion and preserve the newer selected choice
+- **AND** retain pending/unverified state without claiming the older operation completed
 
 ### Requirement: Repair has bounded accessible progress
 The repair screen SHALL expose truthful checking, preparing, uploading and verifying stages, slow-operation explanation after ten seconds and Back throughout. It SHALL NOT claim background execution or rollback. Stalled transport SHALL abort, repeated repair requests SHALL coalesce, and oversized records SHALL fail without truncation.

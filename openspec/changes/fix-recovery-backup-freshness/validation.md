@@ -4,7 +4,7 @@
 
 Audit starting app source: `b160656218dc6065ad12af9db220c974255bfc23`. The automatic fix and disposable proof are mandatory R4 requirements; critical native iOS/Android backup acceptance also precedes release. Physical-device-only follow-up does not waive the fixture/native safety checks.
 
-Current exact-source result placeholders and evidence links live in [automatic-write-validation.md](automatic-write-validation.md). No new implementation, fixture, native or deployment pass is claimed by this documentation reconciliation. Populate the exact app/backend source, commands, outcome counts and redacted artifacts from coordinator evidence before checking [tasks](tasks.md).
+Current exact-source results live in [automatic-write-validation.md](automatic-write-validation.md), with a sanitized [October source-proof record](evidence/automatic-backup-source-proof-2026-10-13.md). Source local-first generation/session/payload proof and disposable host Realm/HTTP outcomes are now recorded; required IOS/ANDROID native backup acceptance and hosted deployment remain open. The source flag permits development loopback testing only; hosted rollout remains fenced. See [tasks](tasks.md) for evidence-backed completion and remaining gates.
 
 The baseline automatic transport fails closed before network until end-to-end local commit/generation, originating-session/payload proof, revisioned fanout and final complete readback are implemented and proved. Earlier success of manual repair or a pre-persistence automatic writer does not establish readiness for this contract. A lost write acknowledgement leaves its originating operation pending; a content-only match is not an acknowledged write or fanout completion.
 

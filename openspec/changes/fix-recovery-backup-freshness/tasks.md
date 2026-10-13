@@ -1,34 +1,35 @@
 # R4 automatic Assisted Backup tasks
 
-Reconciled 13 October 2026 at audit starting app source b160656218dc6065ad12af9db220c974255bfc23. The earlier checked checklist described a September candidate, including pre-persistence writes; it did not prove today's automatic-write contract. Historical results remain in [validation](validation.md) and unchanged evidence files. Check a current task only after exact-source implementation/proof is linked in [automatic-write-validation](automatic-write-validation.md).
+Reconciled 13 October 2026 at audit starting app source b160656218dc6065ad12af9db220c974255bfc23, then updated from observed October source and disposable proof. The earlier checked checklist described a September candidate, including pre-persistence writes; it did not prove today's automatic-write contract. Historical results remain in [validation](validation.md) and unchanged evidence files. Current completion refers to [the result matrix](automatic-write-validation.md) and [sanitized October evidence](evidence/automatic-backup-source-proof-2026-10-13.md), not native or hosted release readiness.
 
 ## Local-first implementation
 
-- [ ] Give each logical recovery operation an originating account/session, operation ID and monotonic generation captured after all related local writes commit.
-- [ ] Reorder wallet/signer/vault creation, edits and deletions so local persistence precedes cloud effects; cloud failure preserves local results and durable pending state.
-- [ ] Prove all seven operation payloads/deletion targets against fresh committed Realm data at queue head with real decrypt/identity validation.
-- [ ] Reject stale generation, failed/partial commit, wrong owner/key/consent and A→B→A without network or later substitution of a newer verified base.
-- [ ] Cover account-bound node/version writes, exact-KeyUID migration, USDT direct deletion, delayed import callbacks and shared registration propagation.
-- [ ] Handle explicit whole-backup opt-out separately; retain consent until positive revisioned acknowledgement and reconcile lost responses.
+- [x] Give each logical recovery operation an originating account/session, operation ID and monotonic generation captured after all related local writes commit.
+- [x] Reorder wallet/signer/vault creation, edits and deletions so local persistence precedes cloud effects; cloud failure preserves local results and the reducer pending-state contract. Verify actual persisted restart behavior in the native matrix below.
+- [x] Prove all seven operation payloads/deletion targets against fresh committed Realm data at queue head with real decrypt/identity validation.
+- [x] Reject stale generation, failed/partial commit, wrong owner/key/consent and queued A→B→A without network or later substitution of a newer verified base.
+- [x] Cover account-bound node/version writes, exact-KeyUID migration, USDT direct deletion, delayed import callbacks and shared registration propagation in the recorded source/producer cases.
+- [x] Handle explicit whole-backup opt-out separately; retain the user's choice until acknowledged empty readback and current consent/session completion, and reconcile lost responses.
 
 ## Server sequencing and verification
 
-- [ ] Validate v2 snapshot/capabilities and preserve remote-only/conflicting recovery content before automatic send.
-- [ ] Enforce atomic expectedRevision with positive precondition acknowledgement and valid newRevision; prohibit legacy fallback.
-- [ ] Use one atomic fanout transaction or a serialized acknowledged revision chain, revalidating local proof for each member.
-- [ ] Stop fanout on 409/404/protocol/network/timeout/lost response; do not replay prepared ciphertext or claim intermediate success.
-- [ ] Complete and decrypt server readback, then compare fresh local data at the same committed generation and account/session.
-- [ ] Make the final Redux verified transition reject a local mutation injected immediately before completion; preserve pending across interruption/restart.
+- [x] Validate v2 snapshot/capabilities and preserve remote-only/conflicting recovery content before automatic send.
+- [x] Enforce atomic expectedRevision with positive precondition acknowledgement and valid newRevision; prohibit legacy fallback.
+- [x] Use a serialized acknowledged revision chain, revalidating local proof for each member.
+- [x] Stop on 409/404/protocol/network/timeout/lost response; do not replay prepared ciphertext or claim intermediate success. The matrix states which multi-member fault schedules actually ran.
+- [x] Complete and decrypt server readback, then compare fresh local data at the same committed generation and account/session.
+- [x] Make the final Redux verified transition reject a local mutation injected immediately before completion.
+- [ ] Verify persisted pending state across actual native app interruption/restart; SDK Realm close/reopen and reducer tests do not substitute for this.
 
 ## Mandatory R4 disposable proof
 
-- [ ] Exercise each of seven production saga/hook/transport operation entry points with real encryption and disposable Realm + transactional Relay fixtures.
-- [ ] Record valid committed write once, stale data/commit rejection, A→B→A, remote-only/conflicting snapshot, 409/old-route 404/malformed acknowledgement, timeout/lost response and complete readback outcomes per operation.
-- [ ] Prove vault creation+archive, multi-vault registration and label add/delete fanouts, including successful first member then failure and no later prepared send.
-- [ ] Prove disabled/unconsented accounts send zero writes and successful local create/edit/delete survives cloud failure.
-- [ ] Prove clean Recovery Key restoration from the newly produced backup, validating all intended records and key/policy/registration identity.
-- [ ] Run revisioned Relay HTTP/transaction tests against a disposable replica set, including old-writer fences and competing writers at exact source.
-- [ ] Link exact app/backend SHA, commands, fixture provenance, pass/fail/blocked counts and redacted artifacts in the current matrix; prior logs are not replacements.
+- [x] Exercise each of seven production transport operations with real encryption and disposable Realm + transactional Relay fixtures, with separate actual saga/hook producer coverage.
+- [x] Record valid committed write once, stale data/commit rejection, queued and after-send A→B→A, remote-only/conflicting snapshot, 409/old-route 404/malformed acknowledgement, timeout/lost response and complete readback outcomes per operation.
+- [x] Prove vault creation+archive, multi-vault registration and label add/delete fanouts, including successful first member then failure and no later prepared send. Direct native mutation after first actual CAS/held ACK also stops the remaining effects.
+- [x] Prove disabled/unconsented accounts send zero writes and successful local create/edit/delete survives cloud failure in the observed producer cases.
+- [x] Prove clean Recovery Key restoration from the disposable encrypted backup, validating all intended records and key/policy/registration identity.
+- [x] Run revisioned Relay HTTP/transaction source tests against a disposable replica set, including old-writer fences and competing writers. Deployed source/topology and fleet rollout remain open.
+- [x] Link exact app/backend SHA, commands, fixture provenance, pass/fail/blocked counts and sanitized evidence in the current matrix; prior logs are not replacements.
 
 ## Mandatory critical native backup acceptance
 
@@ -45,4 +46,4 @@ Reconciled 13 October 2026 at audit starting app source b160656218dc6065ad12af9d
 - [ ] Verify deployed request limits and transaction topology, compatible running Relay artifact and old-writer drain/rollout under existing operator authorization.
 - [ ] Refresh store histories/counters and source/artifact manifest; obtain intended merge/signing/submission/deployment/release approval separately.
 
-Documentation reconciliation does not complete any unchecked implementation, fixture, native or production task. Reproducibility, Bitkey/Recoverable Wallet and unrelated R4 code stay independent.
+Checked items describe observed source/disposable proof only. Every unchecked native, infrastructure, review/CI or release task remains open. Reproducibility, Bitkey/Recoverable Wallet and unrelated R4 code stay independent.

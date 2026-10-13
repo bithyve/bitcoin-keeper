@@ -1,27 +1,28 @@
 # R4 automatic Assisted Backup: result matrix
 
-This is the required proof matrix, reconciled 13 October 2026. **No implementation or test pass is asserted by these placeholders.** The coordinator replaces a result only with observed exact-source evidence. Historical September repair/native logs are preserved in [validation.md](validation.md) and do not complete this matrix.
+Updated 13 October 2026 from observed source/disposable evidence. Historical September logs remain unchanged in [validation.md](validation.md). The [sanitized October proof record](evidence/automatic-backup-source-proof-2026-10-13.md) records commands, source identities, counts and coverage boundaries.
 
-Automatic-backup implementation and disposable proof are mandatory R4 work. Critical native IOS and ANDROID backup acceptance also precedes release. Explicitly physical-device-only follow-up may be separate; it cannot waive the required fixtures or critical simulator/emulator checks.
+Automatic-backup implementation and disposable proof are mandatory R4 work. Critical IOS/ANDROID backup acceptance also precedes release. Host-native Realm means the real Node Realm SDK, not an iOS/Android app launch. Physical-device-only follow-up cannot waive critical simulator/emulator safety checks.
 
 ## Source and result record
 
 | Field | Current record |
 | --- | --- |
-| Audit starting app source | b160656218dc6065ad12af9db220c974255bfc23; not final proof source |
-| Final tested app commit / working-tree state | NOT RECORDED |
-| Final tested Relay commit / working-tree state | NOT RECORDED |
-| Fixture command, UTC time, runtime and platform | NOT RUN / awaiting coordinator evidence |
-| Disposable Realm dataset and Mongo replica-set topology | NOT RECORDED |
-| HTTP entry points and production saga/hook/transport coverage | NOT RECORDED |
-| Test counts and individual result artifact | NOT RECORDED |
-| Clean encrypted Recovery Key restore result | NOT RUN |
-| IOS exact-source native result | NOT RUN |
-| ANDROID exact-source native result | NOT RUN |
-| Independent developer review / current-head CI | NOT RECORDED |
-| Production running artifact / topology / authorization | NOT VERIFIED; no production action authorized by this matrix |
+| Audit starting app source | b160656218dc6065ad12af9db220c974255bfc23; historical |
+| Final tested code commit before documentation | efa6f89ebf7140f738f03ce8a7218a2a1e7f9bc2 |
+| Tested Relay fixture commit | b600416e5ba7325927d7d2871cff7776f4e593fe; runner requires clean tracked source |
+| Runtime and topology | Node 22.23.3, actual Realm 12.15.0, Linux host, disposable loopback keeperQA Mongo replica set on port 27058; no hosted credentials |
+| Combined genuine fixture command/result | `npm run test:automatic-backup-genuine`: PASS 253/253, 0 failures/skips, 162.1566 seconds, terminal recorded 2026-10-13 04:12 UTC; core 206 + producers 46 + restore 1 |
+| Recovery unit command/result | `npm run test:recovery`: 430/430 PASS, 0 failures, 0 skips; source 0f37506a58e6bf44061dd6788b20e5fa095a10c6, including c308aa405 wallet guard follow-up |
+| Clean encrypted Recovery Key restore | PASS: actual recovery saga, real key derivation/AES, blank encrypted Realm and real HTTP reads; complete image, all signer fields and normalized nodes checked |
+| Source/hosted flags | AUTOMATIC_BACKUP_SOURCE_READY=true for DEVELOPMENT loopback only; AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY=false; hosted rollout remains false |
+| IOS / ANDROID exact-source result | NOT RUN / NOT RUN; NEEDS_LOCAL |
+| Review and current-head CI | Independent agent fixture architecture review completed with restore assertion gap corrected. Final external developer review/current-head GitHub CI remain open; inherited backup Sonar failure and source PR #7042 with no checks remain visible |
+| Type/lint boundary | Focused six core module lint/format PASS. Whole-project tsc FAIL with 945 inherited diagnostics versus 957 at baseline bb66cea459fbb00ec33c5c4ebd601d07c0d7c125; zero added normalized diagnostics, not a clean typecheck |
+| Current release preflight | FAIL: 2026-10-13 04:11 UTC command found iOS store history older than 24 hours; refresh required before release |
+| Production running artifact/topology/authorization | NOT VERIFIED; no deployment, merge or publication authorized |
 
-Use PASS, FAIL, BLOCKED or NOT RUN per scenario, with command/log/provenance. A blocked/missing critical result keeps the gate open. A count from unit tests alone must not be described as real Realm/HTTP/native evidence. Preserve hashes/source/run IDs and sanitized counts; never record real account/wallet identifiers, seed/Recovery Key material, plaintext backups, production configuration or credentials.
+Use PASS, FAIL, BLOCKED or NOT RUN with provenance. The source SHA precedes this documentation commit; the final PR handoff must separately name the actual post-push head SHA. No real seed, private key, account identifier, label content, plaintext backup or credentials are included in the evidence.
 
 ## Common cases required for every operation
 
@@ -38,36 +39,40 @@ Use PASS, FAIL, BLOCKED or NOT RUN per scenario, with command/log/provenance. A 
 | C9 complete readback | Final decrypted server image includes all recovery records/references and matches freshly captured local state at the same committed generation/session. Corruption, partial response or missing references cannot produce verified. |
 | C10 final commit race/restart | Inject a local mutation immediately before Redux verification commit: pending persists and verified is rejected. Restart keeps committed local data and pending state; it does not replay prepared payloads. |
 
-## Seven-operation matrix
+## Seven-operation host matrix
 
-Every row must cover C1–C10 with real encryption/decryption and production producer/transport entry points against disposable committed Realm and transactional Relay fixtures. Whole-backup deletion is the explicit opt-out exception to payload-equals-retained-local-image, not an automatic wipe operation.
+The genuine matrix uses actual production snapshot/commit/automatic/transport code, real AES, production schemas and encrypted native Realm, extracted production Redux middleware/store observers, and real HTTP into the pinned transactional Relay. Common negatives include stale generation, queued A→B→A, remote-only/key conflict, failed commit, copied/missing proof, unsupported/malformed protocol, timeout/lost ACK, incomplete/wrong-key readback and closed/reopened Realm. The additional after-send A→B→A and inter-member native-write schedules passed 8/8 at fixture commit 7b1ad70ba9e2aa1a2778b375f36e776bdd26a5ad, before source commit efa6f89ebf7140f738f03ce8a7218a2a1e7f9bc2 enabled development loopback testing. The combined final runner result is recorded separately.
 
-USDT fixtures use existing/recovered wallet records and their supported metadata/deletion paths. They do not enable the paused new-wallet setup/import or GasFree/transactional product flows.
+Most operation mutation callbacks in the core matrix are constructed directly over the production commit API. Separate producer files exercise actual wallet/vault, signer/registration, label, version-upgrade and existing-USDT functions. This does not attest full React Native store boot, MMKV, UI navigation or native app relaunch. USDT new-wallet creation/import remains paused; tested USDT records are existing retained records only.
 
-| Operation | Operation-specific proof / target | C1–C5 result + evidence | C6–C10 result + evidence |
-| --- | --- | --- | --- |
-| updateAppImage | Wallet/USDT/signer ciphertext and exact IDs match committed sanitized records; replaceNodes equals normalized current nodes; app/version metadata belongs to current KeeperApp. Cover creation, edit, nodes and version producers. | NOT RUN | NOT RUN |
-| migrateXfps | Old exact KeyUID absent locally; new exact KeyUID/signer matches committed Realm; expected old remote map exists; retained vault signer references remain valid. | NOT RUN | NOT RUN |
-| deleteAppImageEntity | Each BTC/USDT/signer ID absent after successful local commit and present in expected remote image; retained vaults stay recoverable. Cover direct USDT hook and saga paths. | NOT RUN | NOT RUN |
-| deleteVaults | Exact committed local absence; shared/participant references remain owned and recoverable; server-only vaults are preserved. | NOT RUN | NOT RUN |
-| updateVaultImage | Vault ID, policy, sanitized signer records, archive state and signersData match committed Vault and persisted registrations. Cover creation/edit and migration/registration producers. | NOT RUN | NOT RUN |
-| modifyLabels | Added ciphertext matches current tag and account-derived hashed ID; deleted hashed IDs correspond to committed absence; add/delete overlap and delayed import callbacks are reconciled. | NOT RUN | NOT RUN |
-| deleteBackup | Explicit same-account/session opt-out; fresh validated remote revision and exact whole-account target; local recovery data retained and consent unchanged until positive acknowledgement. Lost response does not imply deletion success. | NOT RUN | NOT RUN |
+| Operation | Observed production proof | Host result / evidence |
+| --- | --- | --- |
+| updateAppImage | Committed wallet/signer records, node exact-set replacement and app/version metadata; stale action ciphertext rejected | PASS existing core/producer cases; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| migrateXfps | Exact old/new KeyUID and committed sanitized signer, live/archive vault references and registration/policy continuity | PASS existing core + signer producer 9; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| deleteAppImageEntity | Committed local BTC/USDT/signer absence with validated expected remote target and retained recovery content | PASS existing core + existing-USDT producer 11; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| deleteVaults | Exact committed local absence and preserved retained/server-only recovery records | PASS existing core; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| updateVaultImage | Committed vault/policy/archive/signersData and shared registrations; real create/archive and correction fanouts | PASS existing core + wallet 8 + signer 9; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| modifyLabels | Committed tags, exact account-derived hash/ciphertext, grouped send/change labels and import rollback | PASS existing core + label 9 + upgrade 9; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
+| deleteBackup | Fresh explicit same-session opt-out, positive ACK, complete empty readback, retained local records and protected consent completion | PASS existing core including newer-choice/reentrant completion guards; added held-ACK schedules PASS; [October proof](evidence/automatic-backup-source-proof-2026-10-13.md) |
 
 ## Logical fanout and producer proof
 
-| Scenario | Required assertion | Result + evidence |
-| --- | --- | --- |
-| New vault plus archived predecessor | Local logical commit completes before cloud effects. One transaction or acknowledged revision chain includes both; final full readback/restore retains active and archived continuity. | NOT RUN |
-| Registration shared by several vaults | Committed registration propagates to every affected vault and complete readback includes it. No intermediate response marks the whole backup verified. | NOT RUN |
-| Label import plus deletion | Local tags commit first; exact hashed IDs/ciphertext and overlap reconciliation are proved. Remote-only content survives. | NOT RUN |
-| First fanout member succeeds, next fails | Remaining prepared members never run; no rollback/success fiction; local data survives and pending persists until reconciliation. Exercise 409, malformed acknowledgement and lost response. | NOT RUN |
-| Interleaved local mutation between fanout members | Revalidate proof and committed generation before each send; reject stale effects, stop the chain and keep pending. | NOT RUN |
-| Queued action receives newer verification | It cannot borrow the new baseline/epoch or operation-generation proof to authorize old ciphertext. | NOT RUN |
-| Pre-persistence producers | Wallet/signer/vault creation and BTC/USDT/signer/vault deletion use local-first completion; cloud failure preserves truthful local result and pending backup. | NOT RUN |
-| Disabled/new unconsented account | Local create/edit/delete works; zero automatic writes and no inherited consent. | NOT RUN |
-| Complete encrypted restore | A clean disposable Recovery Key restore includes intended BTC MAINNET/TESTNET wallets, USDT recovery metadata, keys, active/archived vaults, registrations, labels and nodes with exact recoverable identities. No partial/empty success. | NOT RUN |
-| Transactional HTTP/old writers | Real replica-set CAS race, rollback, malformed/unsupported HTTP, old/full-writer fencing and running source parity are tested. This is not production topology/deployment proof. | NOT RUN |
+| Scenario | Result / observed boundary |
+| --- | --- |
+| New vault plus archived predecessor | PASS real wallet producer migration; both local effects precede HTTP, archive sends before new vault, success readback and second-CAS rejection tested |
+| Shared registration | PASS real persisted VaultSigner registration fans out to active/archive vaults; complete readback required; second CAS rejection leaves pending |
+| Label import plus deletion / grouped send labels | PASS actual label producers, real tags/AES/HTTP; invalid late import rolls back atomically; 409/404/malformed/lost response preserves local data |
+| First fanout member succeeds, next fails | PASS second-member 409 schedules for create/archive, shared registration and label fanouts. Signer/upgrade lost-first-reply schedules stop later effects. This does not claim every fault was injected at every position |
+| Native local mutation between fanout members | PASS added actual native-write schedule after first real CAS while its ACK is held: the next prepared member sends nothing, local data survives and pending remains |
+| New verification cannot authorize old/cloned intent | PASS immutable original-base/captured intent/operation tests, queued stale generation and no-original-baseline producer cases |
+| Local-first creation/edit/deletion | PASS observed actual wallet/vault/signer/label/upgrade/existing-USDT producers; failures retain truthful committed local results and pending backup |
+| Disabled/unconsented account | PASS no-original-baseline/consent-off host cases and unit coverage; no inherited consent or upload. Fresh explicit whole-backup opt-out while consent already off is separately tested |
+| Complete encrypted restore | PASS actual Recovery Key worker into blank Realm; BTC MAINNET/TESTNET, existing DEFAULT/IMPORTED USDT, keys, active/archive vaults, registrations, labels and nodes |
+| Final verification race | PASS native write immediately before actual Redux verification dispatch leaves pending; copied/uncommitted proof cannot bypass it |
+| Account change after send | PASS added after-send A→B→A for all seven operations, with a distinct B seed/account/publicId and independently verified B backup; old A completion leaves B state, native data and remote backup unchanged |
+| Realm close/reopen | PASS stale queued proof rejects the reopened handle; this is not native app/process restart or MMKV evidence |
+| Persisted app interruption/relaunch and background behavior | NOT RUN; mandatory IOS/ANDROID Local checks |
+| Transactional HTTP contract | PASS actual paired route/service/Mongoose transaction path and disposable source contract checks; hosted artifact parity, topology, limits and old-writer fleet rollout remain unverified |
 
 ## Mandatory critical native acceptance
 
@@ -87,10 +92,6 @@ Both platforms must test the final source with disposable accounts/data and a co
 
 Native performance/layout and hardware/physical-only results remain separately described in [nfr-review.md](nfr-review.md) and the final Local handoff. Any accepted physical-only follow-up must name the exact unperformed scenario and its authority; it must not relabel required critical native safety checks as optional. Store/signing/deployment/merge approval remains separate from test results.
 
-## Durable evidence link plan
+## Durable evidence and handoff
 
-1. Freeze exact app and Relay source plus fixture/runtime provenance. Record working-tree changes instead of implying committed clean source.
-2. Save a sanitized per-scenario result artifact under this change's evidence directory using final source/run identity; link it from the relevant rows. Include actual command, UTC execution time, outcome/count and negative-case assertions. Preserve existing historical logs unchanged.
-3. Attach the complete disposable Realm/HTTP/restore report and CI run references to the existing PR. Unit-only and native results receive separate labels.
-4. After the final Cloud push, add the AGENTS.md Codex local handoff with the actual current SHA and IOS, ANDROID (plus relevant HARDWARE) checks. Link exact-head Local validation for each native row; new code commits invalidate earlier signoff.
-5. Only observed evidence closes a task. Keep production/operator and release blockers visible even after all source/fixture/native rows pass. This document does not send messages, edit trackers, push code or authorize release operations.
+The October proof record is sanitized durable evidence; September files remain unchanged. After the final Cloud push, the AGENTS.md Codex local handoff must name the actual current PR head and required IOS, ANDROID and relevant HARDWARE checks. Each native row requires exact-head Local results; new code commits invalidate prior signoff. Source/disposable passes do not authorize hosted rollout, merge, signing, store submission or publication.
