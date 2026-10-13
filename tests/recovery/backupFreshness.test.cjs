@@ -5,6 +5,16 @@ const ts = require('typescript');
 const { fixture, enums, encryption, wallet, loadModule, functions } = require('./sagaHarness.cjs');
 const { NetworkType, WalletType } = enums;
 
+function commitFixtureRecovery(f, write) {
+  const session = f.scope.currentBackupAccountSession();
+  const operation = f.scope.beginBackupLocalOperation(f.app.id, {
+    appId: f.app.id, accountSession: session,
+  }, session);
+  const receipt = f.scope.commitBackupLocalOperation(operation, write);
+  assert.equal(receipt.committed, true);
+  return receipt;
+}
+
 test('archived-only resume keeps checking an empty hidden vault without notifications', async () => {
   const f = fixture();
   f.collections.Wallet.push(wallet('visible-wallet', NetworkType.MAINNET));
@@ -247,8 +257,8 @@ for (const network of [NetworkType.MAINNET, NetworkType.TESTNET]) {
     const f = fixture();
     const initial = wallet('initial', NetworkType.MAINNET);
     const added = wallet('later', network, 1);
-    f.collections.Wallet.push(initial);
-    await f.run('updateAppImageWorker', { payload: { wallets: [initial] } });
+    const committedOperation = commitFixtureRecovery(f, realm => realm.create('Wallet', initial));
+    await f.run('updateAppImageWorker', { payload: { wallets: [initial] }, committedOperation });
     assert.equal(
       await f.run('addNewWalletsWorker', {
         payload: [{ walletType: WalletType.DEFAULT, walletDetails: { fixture: added } }],
@@ -361,7 +371,7 @@ test('recovery upgrade does not bypass per-account backup consent', async () => 
   assert.equal(f.collections.VersionHistory.filter((record) => record.title === 'Recovered Wallet').length, 1);
 });
 
-test('relay rejection retains the existing wallet-creation failure contract', async () => {
+test('relay rejection preserves committed wallet creation and leaves backup pending', async () => {
   const f = fixture({ rejectIncremental: true });
   const result = await f.run('addNewWalletsWorker', {
     payload: [
@@ -371,10 +381,23 @@ test('relay rejection retains the existing wallet-creation failure contract', as
       },
     ],
   });
-  assert.equal(result, false);
-  assert.equal(f.collections.Wallet.length, 0);
+  assert.equal(result, true);
+  assert.equal(f.collections.Wallet.length, 1);
+  assert.equal(f.collections.Wallet[0].id, 'rejected');
+  assert.equal(f.remote.wallets.rejected, undefined);
   assert.equal(f.state.bhr.pendingAllBackup, true);
-  assert.ok(f.actions.some((a) => a.type === 'relayWalletUpdateFail' && a.payload === 'rejected'));
+  assert.equal(f.actions.some((a) => a.type === 'relayWalletUpdateFail'), false);
+});
+
+test('a direct BHR update without a committed source receipt remains pending and sends nothing', async () => {
+  const f = fixture();
+  const persisted = wallet('existing', NetworkType.MAINNET);
+  f.collections.Wallet.push(persisted);
+  const result = await f.run('updateAppImageWorker', { payload: { wallets: [persisted] } });
+  assert.equal(result.backupPending, true);
+  assert.equal(result.backupConfirmed, false);
+  assert.equal(f.calls.length, 0);
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[f.app.id], true);
 });
 
 for (const enabled of [true, false]) {
