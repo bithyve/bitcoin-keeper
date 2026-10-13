@@ -6,9 +6,13 @@ import {
   backupRevision,
   captureBackupWriteIntent,
   currentBackupAccountSession,
+  backupConsentEpoch,
+  protectBackupConsentCompletion,
   markBackupMutation,
 } from 'src/services/backup/transport';
 import type { BackupWriteIntent } from 'src/services/backup/intent';
+import { beginBackupLocalOperation, commitBackupLocalOperation, enqueueAutomaticBackupOperation, beginBackupDeleteOperation, isBackupVerificationCurrent, isAutomaticBackupResultCurrent } from 'src/services/backup/automatic';
+import type { BackupLocalCommit } from 'src/services/backup/automatic';
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put, select, takeMaybe, takeEvery } from 'redux-saga/effects';
@@ -48,6 +52,14 @@ import CloudBackupModule from 'src/nativemodules/CloudBackup';
 import { generateOutputDescriptors } from 'src/utils/service-utilities/utils';
 import { hcStatusType } from 'src/models/interfaces/HeathCheckTypes';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
+import {
+  getKeyUID,
+  sanitizeSeedKeyForBackup,
+  sanitizeVaultSignersForSeedKeyBackup,
+} from 'src/utils/utilities';
+import NetInfo from '@react-native-community/netinfo';
+import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 import { autoSyncWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
@@ -92,18 +104,10 @@ import { uaiActioned, uaiChecks } from '../sagaActions/uai';
 import { setAppCreated, setAppId, setDefaultWalletCreated } from '../reducers/storage';
 import { applyUpgradeSequence, KEY_MANAGEMENT_VERSION } from './upgrade';
 import { RootState, store } from '../store';
-import { setupRecoveryKeySigningKey } from 'src/hardware/signerSetup';
 import { addNewWalletsWorker, addSigningDeviceWorker, NewWalletInfo } from './wallets';
-import {
-  getKeyUID,
-  sanitizeSeedKeyForBackup,
-  sanitizeVaultSignersForSeedKeyBackup,
-} from 'src/utils/utilities';
-import NetInfo from '@react-native-community/netinfo';
 import { addToUaiStackWorker, uaiActionedWorker } from './uai';
 import { addAccount, saveDefaultWalletState, setRecoveryKeyStatus } from '../reducers/account';
 import { loadConciergeTickets, loadConciergeUser } from '../reducers/concierge';
-import { USDTWallet } from 'src/services/wallets/factories/USDTWalletFactory';
 
 function currentBackupAppId(): string | undefined {
   try {
@@ -114,376 +118,181 @@ function currentBackupAppId(): string | undefined {
   }
 }
 
-// An in-flight request can complete after the selected account cycles A -> B -> A.
-// Its outcome cannot be attributed to the new session, so require readback.
-function* flagUncertainBackupOutcome(appId: string) {
-  markBackupMutation(appId);
-  yield put(invalidateBackupRepair(appId));
+// Builders read committed Realm records. Action objects are used only to select
+// IDs, never as the recovery payload sent to the server.
+export function buildAutomaticAppMutation(
+  payload: { wallets?: (Wallet | USDTWallet)[]; signers?: Signer[]; updateNodes?: boolean },
+  appId: string
+) {
+  if (currentBackupAppId() !== appId) throw new Error('Backup account changed');
+  const app = getJSONFromRealmObject(dbManager.getObjectByIndex(RealmSchema.KeeperApp)) as unknown as KeeperApp;
+  const encryptionKey = generateEncryptionKey(app.primarySeed);
+  const walletsObject: Record<string, string> = {};
+  const signersObject: Record<string, string> = {};
+  for (const selected of payload.wallets || []) {
+    const schema = selected.entityKind === EntityKind.USDT_WALLET ? RealmSchema.USDTWallet : RealmSchema.Wallet;
+    const stored = dbManager.getObjectById(schema, selected.id);
+    if (!stored) throw new Error('Committed wallet is missing');
+    walletsObject[selected.id] = encrypt(encryptionKey, JSON.stringify(getJSONFromRealmObject(stored)));
+  }
+  for (const selected of payload.signers || []) {
+    const signerId = getKeyUID(selected);
+    const stored = dbManager.getObjectByPrimaryId(RealmSchema.Signer, 'id', signerId);
+    if (!stored) throw new Error('Committed signer is missing');
+    signersObject[signerId] = encrypt(encryptionKey,
+      JSON.stringify(sanitizeSeedKeyForBackup(getJSONFromRealmObject(stored) as unknown as Signer)));
+  }
+  const nodes = payload.updateNodes
+    ? Array.from(dbManager.getCollection(RealmSchema.NodeConnect)).map((node: any) =>
+      encrypt(encryptionKey, JSON.stringify({ ...(node.toJSON ? getJSONFromRealmObject(node) : node), isConnected: false })))
+    : [];
+  return { operation: 'updateAppImage' as const, body: {
+    appId, publicId: app.publicId, walletsObject, signersObject,
+    networkType: app.networkType, subscription: JSON.stringify(app.subscription),
+    version: app.version, nodes, replaceNodes: !!payload.updateNodes,
+  } };
+}
+
+export function buildAutomaticVaultMutation(vaultId: string, appId: string, isUpdate = true) {
+  if (currentBackupAppId() !== appId) throw new Error('Backup account changed');
+  const app = getJSONFromRealmObject(dbManager.getObjectByIndex(RealmSchema.KeeperApp)) as unknown as KeeperApp;
+  const stored = dbManager.getObjectById(RealmSchema.Vault, vaultId);
+  if (!stored) throw new Error('Committed vault is missing');
+  const vault = getJSONFromRealmObject(stored) as unknown as Vault;
+  return { operation: 'updateVaultImage' as const, body: {
+    appId, appID: appId, vaultId, isUpdate,
+    vault: encrypt(generateEncryptionKey(app.primarySeed),
+      JSON.stringify(sanitizeVaultSignersForSeedKeyBackup(vault))),
+    signersData: vault.signers.map((signer) => ({
+      signerId: getKeyUID(signer), xfpHash: hash256(signer.masterFingerprint),
+    })),
+    isArchived: !!vault.archived, subscription: JSON.stringify(app.subscription),
+  } };
+}
+
+export function* queueCommittedBackupWorker(
+  appId: string,
+  committedOperation: BackupLocalCommit | undefined,
+  mutations: Parameters<typeof enqueueAutomaticBackupOperation>[1],
+  requestSession: number
+) {
+  if (currentBackupAppId() !== appId || requestSession !== currentBackupAccountSession())
+    return { updated: false, backupPending: true, error: 'Backup account changed' };
+  if (committedOperation?.committed === false)
+    return { updated: false, backupPending: true, error: 'Local recovery operation failed' };
+  const enabled = yield select((state: RootState) => isAutomaticCloudBackupEnabled(state.bhr, appId));
+  if (!enabled) return { updated: committedOperation?.committed === true,
+    backupConfirmed: false, backupPending: false, error: '' };
   yield put(setPendingAllBackup({ appId, pending: true }));
-}
-
-export function* updateAppImageWorker({
-  payload,
-  originAppId,
-  originBackupAccountSession,
-  originBackupWriteIntent,
-}: {
-  originAppId?: string;
-  originBackupAccountSession?: number;
-  originBackupWriteIntent?: BackupWriteIntent;
-  payload: {
-    wallets?: Wallet[] | USDTWallet[];
-    signers?: Signer[];
-    updateNodes?: boolean;
-  };
-}) {
-  const appId = originAppId || currentBackupAppId();
-  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
-  const accountIsCurrent = () =>
-    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
-  if (!appId || !accountIsCurrent())
-    return { updated: false, error: 'Backup account changed' };
+  if (!committedOperation)
+    return { updated: false, localCommitted: false, backupConfirmed: false,
+      backupPending: true, error: 'Committed local operation is missing' };
   try {
-    const backupResponse = yield call(checkBackupCondition, appId);
-    if (!accountIsCurrent())
-      return { updated: false, error: 'Backup account changed' };
-    if (backupResponse) return { updated: true, error: '' };
-
-    const { wallets, signers, updateNodes } = payload;
-    const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.KeeperApp
-    );
-    if (id !== appId) return { updated: false, error: 'Backup account changed' };
-    const walletsObject = {};
-    const signersObject = {};
-    const nodesList = [];
-    const encryptionKey = generateEncryptionKey(primarySeed);
-    if (wallets) {
-      for (const wallet of wallets) {
-        const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-        walletsObject[wallet.id] = encrytedWallet;
-      }
-    }
-    if (signers) {
-      for (const signer of signers) {
-        const encrytedSigner = encrypt(
-          encryptionKey,
-          JSON.stringify(sanitizeSeedKeyForBackup(signer))
-        );
-        signersObject[getKeyUID(signer)] = encrytedSigner;
-      }
-    }
-    if (updateNodes) {
-      const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-      if (nodes && nodes.length > 0) {
-        for (const index in nodes) {
-          const node = { ...nodes[index], isConnected: false };
-          const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
-          nodesList.push(encrytedNode);
-        }
-      }
-    }
-
-    if (!accountIsCurrent())
-      return { updated: false, error: 'Backup account changed' };
-
-    const response = yield call(Relay.updateAppImage, {
-      appId: id,
-      publicId,
-      walletsObject,
-      signersObject,
-      networkType,
-      subscription: JSON.stringify(subscription),
-      version,
-      nodes: nodesList,
-      replaceNodes: !!updateNodes,
-    }, originBackupWriteIntent);
-    if (!accountIsCurrent()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return { updated: false, error: 'Backup account changed' };
-    }
-    if (!response?.updated) yield call(setServerBackupFailed, appId);
-    return response;
-  } catch (err) {
-    console.log({ err });
-    console.error('App image update failed', err);
-    if (!accountIsCurrent()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return { updated: false, error: 'Backup account changed' };
-    }
-    yield call(setServerBackupFailed, appId);
-    // Local wallet/key changes may continue offline; the relay write is still
-    // unverified and the account-scoped pending flag remains set.
-    return { updated: true, backupConfirmed: false, backupPending: true, error: '' };
+    const result = yield call(enqueueAutomaticBackupOperation, committedOperation, mutations);
+    if (currentBackupAppId() !== appId || requestSession !== currentBackupAccountSession())
+      return { updated: false, localCommitted: committedOperation.committed,
+        backupConfirmed: false, backupPending: true, error: 'Backup account changed' };
+    // Cloud confirmation is separate from the successful local commit. A
+    // transport failure never rolls back or prevents the user's local change.
+    return { ...result, updated: committedOperation.committed, error: '' };
+  } catch {
+    if (currentBackupAppId() !== appId || requestSession !== currentBackupAccountSession())
+      return { updated: false, localCommitted: committedOperation.committed,
+        backupConfirmed: false, backupPending: true, error: 'Backup account changed' };
+    yield put(setPendingAllBackup({ appId, pending: true }));
+    return { updated: committedOperation.committed, backupConfirmed: false, backupPending: true, error: '' };
   }
 }
 
-export function* updateVaultImageWorker({
-  payload,
-  originAppId,
-  originBackupAccountSession,
-  originBackupWriteIntent,
-}: {
+export function* updateAppImageWorker({ payload, originAppId, originBackupAccountSession, committedOperation }: {
   originAppId?: string;
   originBackupAccountSession?: number;
   originBackupWriteIntent?: BackupWriteIntent;
-  payload: {
-    vault: Vault;
-    archiveVaultId?: string;
-    isUpdate?: boolean;
-  };
+  committedOperation?: BackupLocalCommit;
+  payload: { wallets?: Wallet[] | USDTWallet[]; signers?: Signer[]; updateNodes?: boolean };
 }) {
   const appId = originAppId || currentBackupAppId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
-  const accountIsCurrent = () =>
-    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
-  if (!appId || !accountIsCurrent())
+  if (!appId || currentBackupAppId() !== appId || requestSession !== currentBackupAccountSession())
     return { updated: false, error: 'Backup account changed' };
-  const backupResponse = yield call(checkBackupCondition, appId);
-  if (!accountIsCurrent())
-    return { updated: false, error: 'Backup account changed' };
-  if (backupResponse) return { updated: true, error: '' };
-
-  const { vault, archiveVaultId, isUpdate } = payload;
-  const { primarySeed, id, subscription }: KeeperApp = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.KeeperApp
-  );
-  if (id !== appId) return { updated: false, error: 'Backup account changed' };
-  const encryptionKey = generateEncryptionKey(primarySeed);
-  const vaultEncrypted = encrypt(
-    encryptionKey,
-    JSON.stringify(sanitizeVaultSignersForSeedKeyBackup(vault))
-  );
-
-  const signersData: Array<{
-    signerId: string;
-    xfpHash: string;
-  }> = [];
-  for (const signer of vault.signers) {
-    signersData.push({
-      // TODO: Upate relay to use KeyUID
-      signerId: getKeyUID(signer),
-      xfpHash: hash256(signer.masterFingerprint),
-    });
-  }
-  if (!accountIsCurrent())
-    return { updated: false, error: 'Backup account changed' };
-
-  if (isUpdate) {
-    try {
-      const response = yield call(Relay.updateVaultImage, {
-        isUpdate,
-        signersData,
-        appId: id,
-        vaultId: vault.id,
-        vault: vaultEncrypted,
-        isArchived: !!vault.archived,
-      }, originBackupWriteIntent);
-      if (!accountIsCurrent()) {
-        yield call(flagUncertainBackupOutcome, appId);
-        return { updated: false, error: 'Backup account changed' };
-      }
-      return response;
-    } catch (err) {
-      if (!accountIsCurrent()) {
-        yield call(flagUncertainBackupOutcome, appId);
-        return { updated: false, error: 'Backup account changed' };
-      }
-      throw err;
-    }
-  }
-
-  // TODO to be removed
-  const subscriptionStrings = JSON.stringify(subscription);
-
   try {
-    const response = yield call(Relay.updateVaultImage, {
-      // The v2 Relay route requires appId even when the legacy appID alias is
-      // retained for older request builders. Both must identify this account.
-      appId: id,
-      appID: id,
-      vaultId: vault.id,
-      signersData,
-      vault: vaultEncrypted,
-      isArchived: !!vault.archived,
-      subscription: subscriptionStrings,
-      ...(archiveVaultId && { archiveVaultId }),
-    }, originBackupWriteIntent);
-    if (!accountIsCurrent()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return { updated: false, error: 'Backup account changed' };
-    }
-    return response;
-  } catch (err) {
-    captureError(err);
-    if (!accountIsCurrent()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return { updated: false, error: 'Backup account changed' };
-    }
-    yield call(setServerBackupFailed, appId);
-    // Keep local vault editing available while making the failed backup visible.
-    return { updated: true, backupConfirmed: false, backupPending: true, error: '' };
+    return yield call(queueCommittedBackupWorker, appId, committedOperation,
+      [buildAutomaticAppMutation(payload, appId)], requestSession);
+  } catch {
+    yield put(setPendingAllBackup({ appId, pending: true }));
+    return { updated: !!committedOperation?.committed, backupConfirmed: false, backupPending: true, error: 'Committed app image unavailable' };
   }
 }
 
-// TODO: Other functions here only handle Relay backup, but this also updates local DB, should move that part out
-export function* deleteAppImageEntityWorker({
-  payload,
-  originAppId,
-  originBackupAccountSession,
-  originBackupWriteIntent,
-}: {
+export function* updateVaultImageWorker({ payload, originAppId, originBackupAccountSession, committedOperation }: {
   originAppId?: string;
   originBackupAccountSession?: number;
   originBackupWriteIntent?: BackupWriteIntent;
-  payload: {
-    signerIds?: string[];
-    walletIds?: string[];
-  };
+  committedOperation?: BackupLocalCommit;
+  payload: { vault: Vault; archiveVaultId?: string; isUpdate?: boolean };
 }) {
   const appId = originAppId || currentBackupAppId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
-  const accountIsCurrent = () =>
-    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
-  if (!appId || !accountIsCurrent())
+  if (!appId || currentBackupAppId() !== appId || requestSession !== currentBackupAccountSession())
     return { updated: false, error: 'Backup account changed' };
-  let remoteDeleteAttempted = false;
   try {
-    const { signerIds, walletIds } = payload;
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (id !== appId) return { updated: false, error: 'Backup account changed' };
-    let response;
-
-    const backupResponse = yield call(checkBackupCondition, appId);
-    if (!accountIsCurrent())
-      return { updated: false, error: 'Backup account changed' };
-    if (backupResponse) response = { updated: true, error: '' };
-    else {
-      remoteDeleteAttempted = true;
-      response = yield call(Relay.deleteAppImageEntity, {
-        appId: id,
-        signers: signerIds,
-        walletIds,
-      }, originBackupWriteIntent);
-    }
-
-    if (!accountIsCurrent()) {
-      if (remoteDeleteAttempted) yield call(flagUncertainBackupOutcome, appId);
-      return { updated: false, error: 'Backup account changed' };
-    }
-    if (response?.updated !== true) {
-      yield put(setPendingAllBackup({ appId, pending: true }));
-      yield call(setServerBackupFailed, appId);
-      return response || { updated: false, error: 'Backup deletion not confirmed' };
-    }
-    const remoteDeleteSucceeded = !backupResponse;
-
-    if (walletIds?.length > 0) {
-      for (const walletId of walletIds) {
-        if (!accountIsCurrent()) {
-          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
-          return { updated: false, error: 'Backup account changed' };
-        }
-        const deleted = yield call(dbManager.deleteObjectById, RealmSchema.Wallet, walletId);
-        const stillPresent = deleted === true
-          ? yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId)
-          : true;
-        if (!accountIsCurrent()) {
-          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
-          return { updated: false, error: 'Backup account changed' };
-        }
-        if (deleted !== true || stillPresent) {
-          if (remoteDeleteSucceeded) {
-            yield put(setPendingAllBackup({ appId, pending: true }));
-            yield call(setServerBackupFailed, appId);
-          }
-          return { updated: false, error: 'Local wallet deletion failed' };
-        }
-      }
-    }
-    if (signerIds?.length > 0) {
-      for (const signerId of signerIds) {
-        if (!accountIsCurrent()) {
-          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
-          return { updated: false, error: 'Backup account changed' };
-        }
-        const deleted = yield call(
-          dbManager.deleteObjectByPrimaryKey,
-          RealmSchema.Signer,
-          'id',
-          signerId
-        );
-        const stillPresent = deleted === true
-          ? yield call(dbManager.getObjectByPrimaryId, RealmSchema.Signer, 'id', signerId)
-          : true;
-        if (!accountIsCurrent()) {
-          if (remoteDeleteSucceeded) yield call(flagUncertainBackupOutcome, appId);
-          return { updated: false, error: 'Backup account changed' };
-        }
-        if (deleted !== true || stillPresent) {
-          if (remoteDeleteSucceeded) {
-            yield put(setPendingAllBackup({ appId, pending: true }));
-            yield call(setServerBackupFailed, appId);
-          }
-          return { updated: false, error: 'Local signer deletion failed' };
-        }
-      }
-    }
-    return response;
-  } catch (err) {
-    captureError(err);
-    if (remoteDeleteAttempted && !accountIsCurrent())
-      yield call(flagUncertainBackupOutcome, appId);
-    return { updated: false, error: err };
+    return yield call(queueCommittedBackupWorker, appId, committedOperation,
+      [buildAutomaticVaultMutation(payload.vault.id, appId, payload.isUpdate)], requestSession);
+  } catch {
+    yield put(setPendingAllBackup({ appId, pending: true }));
+    return { updated: !!committedOperation?.committed, backupConfirmed: false, backupPending: true, error: 'Committed vault image unavailable' };
   }
 }
 
-export function* deleteVaultImageWorker({
-  payload,
-  originAppId,
-  originBackupAccountSession,
-  originBackupWriteIntent,
-}: {
+export function* deleteAppImageEntityWorker({ payload, originAppId, originBackupAccountSession, originBackupWriteIntent }: {
   originAppId?: string;
   originBackupAccountSession?: number;
   originBackupWriteIntent?: BackupWriteIntent;
-  payload: {
-    vaultIds: string[];
-  };
+  payload: { signerIds?: string[]; walletIds?: string[]; walletSchema?: RealmSchema };
 }) {
   const appId = originAppId || currentBackupAppId();
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
-  const accountIsCurrent = () =>
-    currentBackupAppId() === appId && currentBackupAccountSession() === requestSession;
-  if (!appId || !accountIsCurrent())
+  if (!appId || currentBackupAppId() !== appId || requestSession !== currentBackupAccountSession())
     return { updated: false, error: 'Backup account changed' };
-  let remoteDeleteAttempted = false;
-  try {
-    const backupResponse = yield call(checkBackupCondition, appId);
-    if (!accountIsCurrent())
-      return { updated: false, error: 'Backup account changed' };
-    if (backupResponse) return { updated: true, error: '' };
-    const { vaultIds } = payload;
-    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (id !== appId) return { updated: false, error: 'Backup account changed' };
-    remoteDeleteAttempted = true;
-    const response = yield call(Relay.deleteVaultImage, {
-      appId: id,
-      vaults: vaultIds,
-    }, originBackupWriteIntent);
-    if (!accountIsCurrent()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return { updated: false, error: 'Backup account changed' };
+  const operation = beginBackupLocalOperation(appId, originBackupWriteIntent, requestSession);
+  const walletIds = [...new Set(payload.walletIds || [])];
+  const signerIds = [...new Set(payload.signerIds || [])];
+  const walletSchema = payload.walletSchema || RealmSchema.Wallet;
+  const committedOperation = commitBackupLocalOperation(operation, (localRealm) => {
+    for (const vault of localRealm.objects(RealmSchema.Vault)) {
+      if (vault.signers.some((key) => signerIds.includes(getKeyUID(key))))
+        throw new Error('A retained vault still requires this signer');
     }
-    return response;
-  } catch (err) {
-    captureError(err);
-    if (remoteDeleteAttempted && !accountIsCurrent())
-      yield call(flagUncertainBackupOutcome, appId);
-    return { updated: false, error: err };
-  }
+    for (const walletId of walletIds) {
+      const stored = localRealm.objectForPrimaryKey(walletSchema, walletId);
+      if (!stored) throw new Error('Wallet deletion target is missing');
+      localRealm.delete(stored);
+    }
+    for (const signerId of signerIds) {
+      const stored = localRealm.objectForPrimaryKey(RealmSchema.Signer, signerId);
+      if (!stored) throw new Error('Signer deletion target is missing');
+      localRealm.delete(stored);
+    }
+  });
+  if (!committedOperation.committed) return { updated: false, error: 'Local recovery deletion failed' };
+  return yield call(queueCommittedBackupWorker, appId, committedOperation, [{
+    operation: 'deleteAppImageEntity', body: { appId, walletIds, signers: signerIds },
+  }], requestSession);
+}
+
+export function* deleteVaultImageWorker({ payload, originAppId, originBackupAccountSession, committedOperation }: {
+  originAppId?: string;
+  originBackupAccountSession?: number;
+  originBackupWriteIntent?: BackupWriteIntent;
+  committedOperation?: BackupLocalCommit;
+  payload: { vaultIds: string[] };
+}) {
+  const appId = originAppId || currentBackupAppId();
+  const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  if (!appId) return { updated: false, error: 'Backup account changed' };
+  return yield call(queueCommittedBackupWorker, appId, committedOperation, [{
+    operation: 'deleteVaults', body: { appId, vaults: [...new Set(payload.vaultIds)] },
+  }], requestSession);
 }
 
 function* seedBackeupConfirmedWorked({
@@ -975,9 +784,7 @@ function* healthCheckSatutsUpdateWorker({
           };
 
           const oldDetialsArray = [...signer.healthCheckDetails];
-          const oldDetails = oldDetialsArray.map((details) => {
-            return { ...details, date: new Date(details.actionDate) };
-          });
+          const oldDetails = oldDetialsArray.map((details) => ({ ...details, date: new Date(details.actionDate) }));
 
           const updatedDetailsArray: HealthCheckDetails[] = [...oldDetails, newHealthCheckDetails];
 
@@ -1373,6 +1180,9 @@ function* backupAllSignersAndVaultsWorker({
   originBackupAccountSession?: number;
 }) {
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
+  const requestConsentEpoch = backupConsentEpoch(appId);
+  const isCurrentChoice = () => currentBackupAppId() === appId &&
+    requestSession === currentBackupAccountSession() && backupConsentEpoch(appId) === requestConsentEpoch;
   if (requestSession !== currentBackupAccountSession()) return false;
   const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   if (!appId || appId !== id) return false;
@@ -1383,19 +1193,21 @@ function* backupAllSignersAndVaultsWorker({
   yield put(setBackupAllLoading({ appId, status: true }));
   try {
     const verified = yield call(runBackupInspection, true, appId, true, requestSession);
-    const current: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    const stillSelected = yield select((state: RootState) => state.storage.appId === appId);
-    if (current?.id !== appId || !stillSelected || requestSession !== currentBackupAccountSession())
-      return false;
-    if (verified) yield put(setAutomaticCloudBackup({ appId, enabled: true }));
-    yield put(
-      verified
-        ? setBackupAllSuccess({ appId, status: true })
-        : setBackupAllFailure({ appId, status: true })
-    );
-    return verified;
+    return yield call(() => {
+      if (!isCurrentChoice()) return false;
+      const state = store.getState();
+      const stillVerified = verified && state.bhr.backupRepairStateByAppId?.[appId] === 'verified' &&
+        state.bhr.pendingAllBackupByAppId?.[appId] === false && isBackupVerificationCurrent(appId);
+      if (stillVerified) store.dispatch(protectBackupConsentCompletion(
+        setAutomaticCloudBackup({ appId, enabled: true }), appId, requestConsentEpoch
+      ));
+      if (!isCurrentChoice() || (stillVerified && !isBackupVerificationCurrent(appId))) return false;
+      store.dispatch(stillVerified ? setBackupAllSuccess({ appId, status: true })
+        : setBackupAllFailure({ appId, status: true }));
+      return stillVerified;
+    });
   } finally {
-    yield put(setBackupAllLoading({ appId, status: false }));
+    if (isCurrentChoice()) yield put(setBackupAllLoading({ appId, status: false }));
   }
 }
 
@@ -1404,53 +1216,44 @@ export const backupAllSignersAndVaultsWatcher = createWatcher(
   BACKUP_ALL_SIGNERS_AND_VAULTS
 );
 
-function* deleteBackupWorker({
-  appId,
-  originBackupAccountSession,
-  originBackupWriteIntent,
-}: {
+function* deleteBackupWorker({ appId, originBackupAccountSession }: {
   appId: string;
   originBackupAccountSession?: number;
   originBackupWriteIntent?: BackupWriteIntent;
 }) {
   const requestSession = originBackupAccountSession ?? currentBackupAccountSession();
-  if (requestSession !== currentBackupAccountSession()) return false;
-  const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (!appId || appId !== id) return false;
+  const requestConsentEpoch = backupConsentEpoch(appId);
+  const isCurrent = () => currentBackupAppId() === appId && currentBackupAccountSession() === requestSession &&
+    backupConsentEpoch(appId) === requestConsentEpoch;
+  if (!appId || !isCurrent()) return false;
   yield put(setBackupAllLoading({ appId, status: true }));
-  let remoteDeleteAttempted = false;
   try {
-    const current: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (current?.id !== appId || requestSession !== currentBackupAccountSession()) return false;
-    remoteDeleteAttempted = true;
-    const response = yield call(Relay.deleteBackup, {
-      appId,
-    }, originBackupWriteIntent);
-    if (requestSession !== currentBackupAccountSession()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return false;
+    // Opt-out deliberately removes the remote copy while retaining every local
+    // record. Its own fresh v2 snapshot is bound to this original session.
+    const intent = yield call(beginBackupDeleteOperation, appId, requestSession);
+    if (!isCurrent()) return false;
+    if (!intent?.committed || !intent.intent) throw new Error('Backup deletion preflight failed');
+    const result = yield call(enqueueAutomaticBackupOperation, intent, [{
+      operation: 'deleteBackup', body: { appId },
+    }]);
+    if (!result?.updated || !result?.backupConfirmed) throw new Error('Backup deletion not confirmed');
+    const completed = yield call(() => {
+      if (!isCurrent() || !isAutomaticBackupResultCurrent(result, appId)) return false;
+      store.dispatch(setDeleteBackupSuccess({ appId, status: true }));
+      if (!isCurrent() || !isAutomaticBackupResultCurrent(result, appId)) return false;
+      store.dispatch(setPendingAllBackup({ appId, pending: false }));
+      return true;
+    });
+    if (!completed && isCurrent()) yield put(setDeleteBackupFailure({ appId, status: true }));
+    return completed;
+  } catch {
+    if (isCurrent()) {
+      yield put(setPendingAllBackup({ appId, pending: true }));
+      yield put(setDeleteBackupFailure({ appId, status: true }));
     }
-    if (response?.updated !== true && response?.data?.updated !== true)
-      throw new Error('Backup deletion not confirmed');
-    const afterDelete: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    if (afterDelete?.id !== appId || requestSession !== currentBackupAccountSession()) {
-      yield call(flagUncertainBackupOutcome, appId);
-      return false;
-    }
-    yield put(setAutomaticCloudBackup({ appId, enabled: false }));
-    yield put(setDeleteBackupSuccess({ appId, status: true }));
-    yield put(setPendingAllBackup({ appId, pending: false }));
-    return true;
-  } catch (error) {
-    if (requestSession !== currentBackupAccountSession()) {
-      if (remoteDeleteAttempted) yield call(flagUncertainBackupOutcome, appId);
-      return false;
-    }
-    yield put(setDeleteBackupFailure({ appId, status: true }));
-    console.log('🚀 ~ deleteBackupWorker ~ error:', error);
     return false;
   } finally {
-    yield put(setBackupAllLoading({ appId, status: false }));
+    if (isCurrent()) yield put(setBackupAllLoading({ appId, status: false }));
   }
 }
 

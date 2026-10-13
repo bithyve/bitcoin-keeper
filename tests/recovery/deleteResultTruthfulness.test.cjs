@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const { fixture, enums, wallet } = require('./sagaHarness.cjs');
 
-test('BTC wallet delete completion is false when the relay rejects the delete', async () => {
+test('BTC wallet delete completion reflects saved local removal while a rejected cloud delete stays pending', async () => {
   const f = fixture();
   f.collections.Wallet.push(wallet('keep', enums.NetworkType.MAINNET));
   f.scope.Relay.deleteAppImageEntity = async () => ({ updated: false, error: 'rejected' });
@@ -18,9 +18,10 @@ test('BTC wallet delete completion is false when the relay rejects the delete', 
     onComplete: (deleted) => completed.push(deleted),
   });
 
-  assert.equal(result, false);
-  assert.deepEqual(completed, [false]);
-  assert.deepEqual(f.collections.Wallet.map((row) => row.id), ['keep']);
+  assert.equal(result, true);
+  assert.deepEqual(completed, [true]);
+  assert.deepEqual(f.collections.Wallet, []);
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[f.app.id], true);
 });
 
 test('BTC wallet delete completion is true only after the Realm object is gone', async () => {
@@ -93,10 +94,10 @@ test('vault delete callback is scoped to its request and fires once after local 
       .includes(action.type)));
 });
 
-test('vault delete callback reports failure once when Relay rejects deletion', async () => {
+test('vault delete callback reports saved local removal once while cloud deletion is pending', async () => {
   const f = fixture();
   f.collections.Vault.push({ id: 'keep' });
-  f.scope.deleteVaultImageWorker = function* () { return { updated: false, error: 'rejected' }; };
+  f.scope.Relay.deleteVaults = async () => ({ updated: false, error: 'rejected' });
   const completed = [];
 
   const result = await f.run('deleteVaultRequestWorker', {
@@ -105,9 +106,10 @@ test('vault delete callback reports failure once when Relay rejects deletion', a
     onComplete: (deleted) => completed.push(deleted),
   });
 
-  assert.equal(result, false);
-  assert.deepEqual(completed, [false]);
-  assert.deepEqual(f.collections.Vault.map((row) => row.id), ['keep']);
+  assert.equal(result, true);
+  assert.deepEqual(completed, [true]);
+  assert.deepEqual(f.collections.Vault, []);
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[f.app.id], true);
   assert.ok(!f.actions.some((action) =>
     ['setRelayVaultUpdateLoading', 'relayVaultUpdateSuccess', 'relayVaultUpdateFail']
       .includes(action.type)));
@@ -151,9 +153,9 @@ test('overlapping vault saga requests report their own outcomes despite unrelate
   assert.equal(await second, true);
   assert.deepEqual(completed, [['second', true]]);
   pending.get('first')({ updated: false, error: 'rejected' });
-  assert.equal(await first, false);
-  assert.deepEqual(completed, [['second', true], ['first', false]]);
-  assert.deepEqual(f.collections.Vault.map((row) => row.id), ['first']);
+  assert.equal(await first, true);
+  assert.deepEqual(completed, [['second', true], ['first', true]]);
+  assert.deepEqual(f.collections.Vault, []);
 });
 
 test('signer delete completion is false if Realm reports success but retains the signer', async () => {

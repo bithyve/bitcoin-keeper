@@ -12,6 +12,28 @@ function switchToOptedInB(f) {
   f.state.bhr.automaticCloudBackupByAppId.B = true;
 }
 
+// Unit producer boundary: commit fixture records before exercising backup-only builders.
+function commitRecord(f, schema, record) {
+  const session = f.scope.currentBackupAccountSession();
+  const operation = f.scope.beginBackupLocalOperation(f.app.id, { appId: f.app.id, accountSession: session }, session);
+  const receipt = f.scope.commitBackupLocalOperation(operation, (raw) => raw.create(schema, record));
+  assert.equal(receipt.committed, true);
+  return receipt;
+}
+
+function deferEnqueue(f) {
+  const original = f.scope.enqueueAutomaticBackupOperation;
+  let release, entered = false;
+  const gate = new Promise((resolve) => { release = resolve; });
+  f.scope.enqueueAutomaticBackupOperation = async (...args) => {
+    entered = true; await gate; return original(...args);
+  };
+  return { release, wait: async () => {
+    for (let i = 0; i < 30 && !entered; i++) await new Promise(setImmediate);
+    assert.equal(entered, true, 'Source must reach the queue after local commit');
+  } };
+}
+
 test('vault creation names the same account for the revisioned Relay contract', async () => {
   const f = fixture();
   let sent;
@@ -19,7 +41,10 @@ test('vault creation names the same account for the revisioned Relay contract', 
     sent = body;
     return { updated: true };
   };
+  const vault = { id: 'disposable-vault', signers: [], archived: false };
+  const committedOperation = commitRecord(f, 'Vault', vault);
   const result = await f.run('updateVaultImageWorker', {
+    committedOperation,
     originAppId: f.app.id,
     originBackupAccountSession: 0,
     payload: { vault: { id: 'disposable-vault', signers: [], archived: false } },
@@ -99,8 +124,9 @@ test('new receive address invalidates a verified backup after local persistence'
 
   assert.equal(updated, true);
   assert.equal(f.collections.Wallet[0].specs.totalExternalAddresses, 2);
-  assert.deepEqual(mutations, [originAppId]);
-  assert.deepEqual(invalidatedRevisions, [originAppId]);
+  assert.ok(mutations.length >= 1);
+  assert.ok(mutations.every((appId) => appId === originAppId));
+  assert.deepEqual(invalidatedRevisions, [], 'Ordinary local commit preserves the captured CAS base');
   assert.ok(f.actions.some((action) => action.type === 'invalidateBackupRepair' &&
     action.payload === originAppId));
   assert.equal(f.state.bhr.pendingAllBackupByAppId[originAppId], true);
@@ -130,6 +156,10 @@ test('dispatch gate drops stale enable and success actions while preserving acco
     RealmSchema: { KeeperApp: 'KeeperApp' },
     dbManager: { getObjectByIndex: () => ({ id: realmAppId }) },
     currentBackupAccountSession: () => session,
+    canAccessBackupAccount: (appId) => appId === selectedAppId && appId === realmAppId,
+    observeBackupConsentAction: loadTransportModule('src/services/backup/transport.ts', {
+      '../rest/RestClient': {},
+    }).observeBackupConsentAction,
     captureBackupWriteIntent: (appId) => appId === selectedAppId ? {
       appId, accountSession: session, baseRevision: 'a'.repeat(64), baselineEpoch: 1,
     } : undefined,
@@ -165,7 +195,7 @@ test('dispatch gate drops stale enable and success actions while preserving acco
   selectedAppId = 'B';
   middleware({ type: 'bhr/setAutomaticCloudBackup', payload: { appId: 'A', enabled: false } });
   middleware({ type: 'bhr/setBackupAllSuccess', payload: { appId: 'A', status: false } });
-  assert.equal(seen.length, 4, 'A disable and success reset remain account-specific after switch');
+  assert.equal(seen.length, 3, 'An old A consent choice is blocked while account-specific success reset remains allowed');
   selectedAppId = 'A';
   realmAppId = 'A';
   middleware({ type: 'UPDATE_APP_IMAGE', payload: {} });
@@ -190,41 +220,21 @@ test('dispatch gate drops stale enable and success actions while preserving acco
   assert.equal(seen.at(-1).originBackupAccountSession, 3);
 });
 
-test('A to opted-in B during connectivity wait blocks upload and preserves B local wallet', async () => {
+test('A local delete queued before B login cannot upload or consume B wallet with the same ID', async () => {
   const f = fixture();
   const originAppId = f.app.id;
   const sharedId = 'same-id-in-both-accounts';
   f.collections.Wallet.push(wallet(sharedId, enums.NetworkType.MAINNET));
-  let resumeConnectivity;
-  f.scope.NetInfo.fetch = () => new Promise((resolve) => { resumeConnectivity = resolve; });
-  const deleting = f.run('deleteAppImageEntityWorker', {
-    originAppId,
-    payload: { walletIds: [sharedId] },
-  });
-  for (let i = 0; i < 20 && !resumeConnectivity; i++) await new Promise(setImmediate);
-  assert.ok(resumeConnectivity, 'test must switch while the original account is waiting');
+  const gate = deferEnqueue(f);
+  const deleting = f.run('deleteAppImageEntityWorker', { originAppId, payload: { walletIds: [sharedId] } });
+  await gate.wait();
+  assert.deepEqual(f.collections.Wallet, [], 'A local deletion is committed before queueing cloud work');
   switchToOptedInB(f);
-  resumeConnectivity({ isConnected: true });
-  const result = await deleting;
-  assert.equal(result.updated, false);
-  assert.equal(f.calls.length, 0, 'no remote delete may target either account');
+  f.collections.Wallet.push(wallet(sharedId, enums.NetworkType.MAINNET));
+  gate.release();
+  assert.equal((await deleting).updated, false, 'Old completion cannot be attributed to B');
   assert.deepEqual(f.collections.Wallet.map(({ id }) => id), [sharedId]);
-
-  let resumeSecondCheck;
-  f.scope.NetInfo.fetch = () => new Promise((resolve) => { resumeSecondCheck = resolve; });
-  f.app.id = originAppId;
-  f.app.primarySeed = 'ab'.repeat(32);
-  f.state.storage.appId = originAppId;
-  const updating = f.run('updateAppImageWorker', {
-    originAppId,
-    payload: { wallets: [wallet('A-wallet', enums.NetworkType.MAINNET)], updateNodes: true },
-  });
-  for (let i = 0; i < 20 && !resumeSecondCheck; i++) await new Promise(setImmediate);
-  assert.ok(resumeSecondCheck);
-  switchToOptedInB(f);
-  resumeSecondCheck({ isConnected: true });
-  assert.equal((await updating).updated, false);
-  assert.equal(f.calls.length, 0, 'A payload must never be encrypted with B seed or sent to B');
+  assert.equal(f.calls.length, 0, 'Old receipt must fail before Relay');
 });
 
 test('queued A transport cannot execute after opted-in B becomes active', async () => {
@@ -279,28 +289,21 @@ test('queued A ciphertext cannot replace a newer server wallet after A to B to A
   assert.equal(calls.length, 0, 'stale ciphertext must never reach Relay');
 });
 
-test('incremental worker rejects an A payload prepared before A to B to A', async () => {
+test('incremental worker rejects a committed A receipt queued before A to B to A', async () => {
   const f = fixture();
   const originAppId = f.app.id;
   let session = 1;
   f.scope.currentBackupAccountSession = () => session;
-  let resumeConnectivity;
-  f.scope.NetInfo.fetch = () => new Promise((resolve) => { resumeConnectivity = resolve; });
-  const updating = f.run('updateAppImageWorker', {
-    originAppId,
-    originBackupAccountSession: session,
-    payload: { wallets: [wallet('shared', enums.NetworkType.MAINNET)] },
-  });
-  for (let i = 0; i < 20 && !resumeConnectivity; i++) await new Promise(setImmediate);
-  assert.ok(resumeConnectivity);
-  f.app.id = 'B';
-  f.state.storage.appId = 'B';
-  session += 1;
-  f.app.id = originAppId;
-  f.state.storage.appId = originAppId;
-  session += 1;
+  const saved = wallet('shared', enums.NetworkType.MAINNET);
+  const committedOperation = commitRecord(f, 'Wallet', saved);
+  const gate = deferEnqueue(f);
+  const updating = f.run('updateAppImageWorker', { originAppId, originBackupAccountSession: session,
+    committedOperation, payload: { wallets: [saved] } });
+  await gate.wait();
+  f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
+  f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
   f.remote.wallets.shared = 'newer-A-ciphertext';
-  resumeConnectivity({ isConnected: true });
+  gate.release();
   assert.equal((await updating).updated, false);
   assert.equal(f.remote.wallets.shared, 'newer-A-ciphertext');
   assert.equal(f.calls.length, 0);
@@ -330,23 +333,20 @@ test('wallet creation paused before backup cannot upload a stale A wallet after 
   assert.equal(f.collections.Wallet.length, 0);
 });
 
-test('vault update paused at connectivity cannot upload stale A vault after A to B to A', async () => {
+test('queued committed vault update cannot upload stale A vault after A to B to A', async () => {
   const f = fixture();
   const originAppId = f.app.id;
   let session = 1;
   f.scope.currentBackupAccountSession = () => session;
-  let finishConnectivity;
-  f.scope.NetInfo.fetch = () => new Promise((resolve) => { finishConnectivity = resolve; });
-  const updating = f.run('updateVaultImageWorker', {
-    originAppId,
-    originBackupAccountSession: session,
-    payload: { vault: { id: 'shared', signers: [], archived: false } },
-  });
-  for (let i = 0; i < 20 && !finishConnectivity; i++) await new Promise(setImmediate);
-  assert.ok(finishConnectivity);
+  const saved = { id: 'shared', signers: [], archived: false };
+  const committedOperation = commitRecord(f, 'Vault', saved);
+  const gate = deferEnqueue(f);
+  const updating = f.run('updateVaultImageWorker', { originAppId, originBackupAccountSession: session,
+    committedOperation, payload: { vault: saved } });
+  await gate.wait();
   f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
   f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
-  finishConnectivity({ isConnected: true });
+  gate.release();
   assert.equal((await updating).updated, false);
   assert.equal(f.calls.length, 0);
 });
@@ -356,12 +356,15 @@ test('queued session rejection cannot report a successful incremental backup', a
   const originAppId = f.app.id;
   let session = 1;
   f.scope.currentBackupAccountSession = () => session;
+  const saved = wallet('shared', enums.NetworkType.MAINNET);
+  const committedOperation = commitRecord(f, 'Wallet', saved);
   let rejectQueued;
   f.scope.Relay.updateAppImage = () => new Promise((_resolve, reject) => { rejectQueued = reject; });
   const updating = f.run('updateAppImageWorker', {
     originAppId,
     originBackupAccountSession: session,
-    payload: { wallets: [wallet('shared', enums.NetworkType.MAINNET)] },
+    committedOperation,
+    payload: { wallets: [saved] },
   });
   for (let i = 0; i < 20 && !rejectQueued; i++) await new Promise(setImmediate);
   assert.ok(rejectQueued);
@@ -371,36 +374,24 @@ test('queued session rejection cannot report a successful incremental backup', a
   assert.equal((await updating).updated, false);
 });
 
-test('vault signer xpriv refresh cannot write an old key after A to B to A', async () => {
+test('queued vault signer xpriv refresh cannot write an old key after A to B to A', async () => {
   const f = fixture();
   const originAppId = f.app.id;
   let session = 1;
   f.scope.currentBackupAccountSession = () => session;
   const key = signer('AABBCCDD', enums.NetworkType.MAINNET, enums.SignerType.SEED_WORDS);
   key.id = 'AABBCCDD0M';
-  key.signerXpubs[enums.XpubTypes.P2WPKH][0].xpriv = 'old-secret';
   key.signerXpubs[enums.XpubTypes.P2WSH] = [{ xpub: 'vault-xpub', xpriv: 'old-secret' }];
-  let finishVaultRead;
-  const originalRead = f.scope.dbManager.getObjectByIndex;
-  f.scope.dbManager.getObjectByIndex = (schema, ...args) => schema === 'Vault'
-    ? new Promise((resolve) => { finishVaultRead = resolve; })
-    : originalRead(schema, ...args);
-  f.scope.WalletUtilities.getSignerPurposeFromPath = () => enums.DerivationPurpose.BIP84;
-  let writes = 0;
-  f.scope.dbManager.updateObjectByPrimaryId = () => { writes++; return true; };
-  const updating = f.run('updateVaultSignerXprivWorker', {
-    signers: [key], originAppId, originBackupAccountSession: session,
-  });
-  for (let i = 0; i < 20 && !finishVaultRead; i++) await new Promise(setImmediate);
-  assert.ok(finishVaultRead);
+  f.collections.VaultSigner = [{ xpub: 'vault-xpub', xpriv: 'newer-secret', masterFingerprint: key.masterFingerprint }];
+  const queued = { signers: [key], originAppId, originBackupAccountSession: session };
   f.app.id = 'B'; f.state.storage.appId = 'B'; session++;
   f.app.id = originAppId; f.state.storage.appId = originAppId; session++;
-  finishVaultRead([{ networkType: enums.NetworkType.MAINNET,
-    signers: [{ ...key.signerXpubs[enums.XpubTypes.P2WSH][0],
-    id: key.id, masterFingerprint: key.masterFingerprint, derivationPath: "m/84'/0'/0'" }],
-  }]);
-  await assert.rejects(updating, /Account changed/);
+  let writes = 0;
+  f.scope.dbManager.updateObjectByPrimaryId = () => { writes++; return true; };
+  assert.equal(await f.run('updateVaultSignerXprivWorker', queued), false);
   assert.equal(writes, 0);
+  assert.equal(f.collections.VaultSigner[0].xpriv, 'newer-secret');
+  assert.equal(f.calls.length, 0);
 });
 
 test('per-account consent starts off, survives switches, and legacy consent needs attribution', () => {
@@ -447,7 +438,7 @@ test('unconfirmed server deletion retains account consent and reports failure', 
     action.payload.enabled === false));
 });
 
-test('rejected entity deletion retains local wallet and queues an account repair', async () => {
+test('rejected cloud entity deletion preserves completed local removal and queues an account repair', async () => {
   const f = fixture();
   const id = f.app.id;
   f.collections.Wallet.push(wallet('keep', enums.NetworkType.MAINNET));
@@ -456,12 +447,12 @@ test('rejected entity deletion retains local wallet and queues an account repair
     originAppId: id,
     payload: { walletIds: ['keep'] },
   });
-  assert.equal(result.updated, false);
-  assert.deepEqual(f.collections.Wallet.map((w) => w.id), ['keep']);
+  assert.equal(result.updated, true);
+  assert.deepEqual(f.collections.Wallet, []);
   assert.equal(f.state.bhr.pendingAllBackupByAppId[id], true);
 });
 
-test('remote entity deletion followed by local failure reports partial deletion', async () => {
+test('failed local entity deletion rolls back and makes zero remote writes', async () => {
   const f = fixture();
   const id = f.app.id;
   f.collections.Wallet.push(wallet('keep', enums.NetworkType.MAINNET));
@@ -488,9 +479,9 @@ test('signer delete reports failure and never shows success after rejected remot
   assert.ok(!f.actions.some((action) => action.type === 'showKeyDeletedSuccessModal'));
 });
 
-test('remote vault deletion followed by failed local delete reports failure and pending repair', async () => {
+test('failed local vault deletion reports failure and pending repair without remote writes', async () => {
   const f = fixture();
-  f.scope.deleteVaultImageWorker = function* () { return { updated: true }; };
+  f.collections.Vault.push({ id: 'keep-vault', signers: [] });
   f.scope.dbManager.deleteObjectById = () => false;
   await f.run('deleteVaultWorker', { originAppId: f.app.id, payload: { vaultId: 'keep-vault' } });
   assert.ok(f.actions.some((action) => action.type === 'relayVaultUpdateFail'));

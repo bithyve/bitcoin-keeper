@@ -29,6 +29,8 @@ function freshInstallFixture(options = {}) {
     schema === 'KeeperApp' ? activeApp : originalGet(schema, ...args);
   f.scope.dbManager.createObject = (schema, value, ...args) => {
     writes.push({ schema, owner: f.state.storage.appId });
+    if ((schema === 'Wallet' && options.rejectWalletWrite) ||
+      (schema === 'Signer' && rejectKeyWrite)) return false;
     if (schema !== 'KeeperApp') return originalCreate(schema, value, ...args);
     if (options.rejectAppWrite) return false;
     activeApp = { ...value };

@@ -115,6 +115,59 @@ function fixture({ consent = true, creationPaused = true, switchDuringRemote = f
     setError: (error) => state.errors.push(error),
     captureError: () => {},
   };
+  // Unit-only disposable transaction adapter. The native Realm/HTTP suite
+  // separately verifies the production commit receipt and transport proof.
+  const rows = { wallet: { id: 'wallet', name: 'old' } };
+  scope.beginBackupLocalOperation = (appId, intent, session) => ({ appId, intent, session });
+  scope.commitBackupLocalOperation = (operation, write) => {
+    if (state.active !== operation.appId || state.session !== operation.session) return { committed: false };
+    const savedRows = JSON.parse(JSON.stringify(rows));
+    const savedLog = state.local.length;
+    try {
+      write({
+        objectForPrimaryKey: (_schema, id) => rows[id] && new Proxy(rows[id], {
+          set(target, key, value) {
+            state.local.push({ appId: state.active, update: { [key]: value } });
+            target[key] = value;
+            if (switchDuringUpdate) state.active = 'B';
+            if (switchDuringUpdateRoundTrip) {
+              state.active = 'B'; state.session += 1;
+              state.active = 'A'; state.session += 1;
+            }
+            return true;
+          },
+        }),
+        create: (_schema, wallet) => {
+          rows[wallet.id] = { ...wallet };
+          state.local.push({ appId: state.active, wallet });
+        },
+        delete: (row) => {
+          if (pretendLocalDelete) throw Error('Injected transaction failure');
+          delete rows[row.id];
+          state.local.push({ appId: state.active, walletId: row.id });
+        },
+      });
+      // Model the production commit observer at the producer boundary, before
+      // any cloud wait. Keep stale completion UI out of a newer account session.
+      state.invalidated.push(operation.appId);
+      if (state.active === operation.appId && state.session === operation.session)
+        scope.dispatch(scope.setPendingAllBackup({ appId: operation.appId, pending: true }));
+      return { committed: true, intent: { ...operation.intent, accountSession: operation.session } };
+    } catch {
+      Object.keys(rows).forEach((id) => delete rows[id]); Object.assign(rows, savedRows);
+      state.local.splice(savedLog);
+      state.invalidated.push(operation.appId);
+      scope.dispatch(scope.setPendingAllBackup({ appId: operation.appId, pending: true }));
+      return { committed: false };
+    }
+  };
+  scope.enqueueAutomaticBackupOperation = async (receipt, mutations) => {
+    if (!receipt.committed || receipt.intent?.accountSession !== state.session || state.active !== receipt.intent.appId)
+      return { updated: false, backupPending: true, backupConfirmed: false };
+    const result = await scope.Relay.deleteAppImageEntity(mutations[0].body, receipt.intent);
+    const current = receipt.intent.accountSession === state.session && state.active === receipt.intent.appId;
+    return { ...result, backupConfirmed: current, backupPending: !current };
+  };
   vm.runInNewContext(`${code}\nglobalThis.callbacks = { createWallet, deleteWallet, updateWallet, syncAccountStatus };`, scope);
   return { state, ...scope.callbacks };
 }
@@ -126,36 +179,36 @@ test('unconsented USDT wallet deletes locally without a relay write', async () =
   assert.equal(f.state.local[0].appId, 'A');
 });
 
-test('USDT delete does not report success when Realm reports true but retains the wallet', async () => {
+test('USDT delete rolls back a local transaction failure before any cloud request', async () => {
   const f = fixture({ pretendLocalDelete: true });
   assert.equal(await f.deleteWallet('wallet'), false);
-  assert.equal(f.state.remote.length, 1);
-  assert.equal(f.state.local.length, 1);
+  assert.equal(f.state.remote.length, 0);
+  assert.equal(f.state.local.length, 0);
   assert.deepEqual(f.state.invalidated, ['A']);
   assert.ok(f.state.dispatched.some((action) => action.type === 'SET_PENDING_ALL_BACKUP'));
 });
 
-test('remote response after account switch cannot delete B local wallet', async () => {
+test('cloud response after account switch preserves the completed A deletion and never deletes B', async () => {
   const f = fixture({ switchDuringRemote: true });
-  assert.equal(await f.deleteWallet('wallet'), false);
+  assert.equal(await f.deleteWallet('wallet'), true);
   assert.equal(f.state.remote.length, 1);
   assert.equal(f.state.remote[0].appId, 'A');
   assert.equal(f.state.remote[0].accountSession, 1);
-  assert.deepEqual(f.state.local, []);
-  assert.deepEqual(f.state.invalidated, ['A']);
+  assert.equal(f.state.local.length, 1);
+  assert.equal(f.state.local[0].appId, 'A');
   assert.equal(f.state.dispatched.find((action) => action.type === 'SET_PENDING_ALL_BACKUP').payload.appId, 'A');
 });
 
-test('remote response after A to B to A cannot delete the new A session wallet', async () => {
+test('cloud response after A to B to A keeps the original committed deletion pending', async () => {
   const f = fixture({ switchDuringRemoteRoundTrip: true });
-  assert.equal(await f.deleteWallet('wallet'), false);
+  assert.equal(await f.deleteWallet('wallet'), true);
   assert.equal(f.state.active, 'A');
   assert.equal(f.state.session, 3);
   assert.equal(f.state.remote.length, 1);
   assert.equal(f.state.remote[0].appId, 'A');
   assert.equal(f.state.remote[0].accountSession, 1);
-  assert.deepEqual(f.state.local, []);
-  assert.deepEqual(f.state.invalidated, ['A']);
+  assert.equal(f.state.local.length, 1);
+  assert.equal(f.state.local[0].appId, 'A');
   assert.equal(f.state.dispatched.find((action) => action.type === 'SET_PENDING_ALL_BACKUP').payload.appId, 'A');
 });
 
@@ -221,7 +274,7 @@ test('when setup resumes, wallet create dispatches backup with captured originat
   const result = await f.createWallet({ type: 'default', name: 'new', description: '' });
   assert.equal(result.newWallet.id, 'wallet');
   assert.equal(f.state.local[0].appId, 'A');
-  assert.equal(f.state.dispatched[0].originAppId, 'A');
+  assert.equal(f.state.dispatched.find((action) => action.type === 'UPDATE_APP_IMAGE').originAppId, 'A');
 });
 
 test('wallet update after account switch cannot dispatch backup for B', async () => {

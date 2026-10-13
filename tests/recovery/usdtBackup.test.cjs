@@ -47,6 +47,14 @@ function hookFixture(options = {}) {
       return true;
     },
   };
+  const updateStored = f.scope.dbManager.updateObjectById;
+  f.scope.dbManager.updateObjectById = (schema, id, patch) => {
+    if (schema !== 'USDTWallet') return updateStored(schema, id, patch);
+    assert.equal('id' in patch, false, 'Realm primary key must not be updated');
+    const stored = f.collections.USDTWallet.find((entry) => entry.id === id);
+    Object.assign(stored, copy(patch));
+    return true;
+  };
   const updateWallet = vm.runInNewContext(ts.transpileModule(`(${callback})`, {
     compilerOptions: { target: ts.ScriptTarget.ES2020 },
   }).outputText, {
@@ -58,6 +66,14 @@ function hookFixture(options = {}) {
     renderAccountSession: 1,
     currentBackupAccountSession: () => 1,
     captureBackupWriteIntent: (appId) => appId === f.app.id ? writeIntent : undefined,
+    beginBackupLocalOperation: (...args) => f.scope.beginBackupLocalOperation(...args),
+    commitBackupLocalOperation: (operation, callback) => {
+      order.push('persist');
+      return f.scope.commitBackupLocalOperation(operation, (rawRealm) => {
+        if (options.failPersistence) throw new Error('Injected atomic local failure');
+        callback(rawRealm);
+      });
+    },
     isOriginCurrent: () => f.app.id === f.state.storage.appId,
     markBackupMutation: (id) => mutations.push(id),
     invalidateBackupRepair: (payload) => ({ type: 'invalidateBackupRepair', payload }),
@@ -121,7 +137,6 @@ for (const type of ['DEFAULT', 'IMPORTED']) {
     const f = hookFixture();
     const original = usdtWallet(type);
     f.collections.USDTWallet.push(copy(original));
-    await f.run('updateAppImageWorker', { payload: { wallets: [original] } });
     const edited = { ...original,
       presentationData: { name: 'After edit', description: 'Updated description', visibility: 'HIDDEN' } };
     assert.equal(await f.update(edited), true);

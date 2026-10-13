@@ -20,13 +20,15 @@ import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import Buttons from 'src/components/Buttons';
 import EmptyListIllustration from 'src/components/EmptyListIllustration';
 import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
-import ServerItem from './components/ServerItem';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
 import { ELECTRUM_CLIENT } from 'src/services/electrum/client';
 import WalletHeader from 'src/components/WalletHeader';
 import Text from 'src/components/KeeperText';
 import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
+import { beginBackupLocalOperation, commitBackupLocalOperation } from 'src/services/backup/automatic';
+import { RealmSchema } from 'src/storage/realm/enum';
+import ServerItem from './components/ServerItem';
 
 function ElectrumDisconnectWarningContent() {
   const { colorMode } = useColorMode();
@@ -40,7 +42,7 @@ function ElectrumDisconnectWarningContent() {
   );
 }
 
-type SelectedNodeAction = { node: NodeDetail; originAppId: string };
+type SelectedNodeAction = { node: NodeDetail; originAppId: string; originBackupAccountSession: number };
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -52,6 +54,7 @@ function NodeSettings() {
 
   const [nodeList, setNodeList] = useState([]);
   const [nodeListAppId, setNodeListAppId] = useState<string | null>(null);
+  const [nodeListAccountSession, setNodeListAccountSession] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [electrumDisconnectWarningVisible, setElectrumDisconnectWarningVisible] = useState(false);
   const [nodeToDisconnect, setNodeToDisconnect] = useState<SelectedNodeAction | null>(null);
@@ -64,49 +67,62 @@ function NodeSettings() {
     useCallback(() => {
       const appId = Node.currentAccountId();
       setNodeListAppId(appId ?? null);
+      setNodeListAccountSession(currentBackupAccountSession());
       setNodeList(appId ? Node.getAllNodes() : []);
     }, [])
   );
 
-  const onDelete = async (selectedItem: NodeDetail, originAppId = nodeListAppId) => {
-    if (!originAppId || !Node.isAccountActive(originAppId)) return;
-    const originBackupAccountSession = currentBackupAccountSession();
+  const onDelete = async (selectedItem: NodeDetail, originAppId = nodeListAppId,
+    originBackupAccountSession = nodeListAccountSession) => {
+    if (!originAppId || originBackupAccountSession === null || !Node.isAccountActive(originAppId) ||
+      currentBackupAccountSession() !== originBackupAccountSession) return;
     const originBackupWriteIntent = captureBackupWriteIntent(originAppId);
+    const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, originBackupAccountSession);
     const isConnected = Node.nodeConnectionStatus(selectedItem);
     if (isConnected) await Node.disconnect(selectedItem);
 
-    if (!Node.isAccountActive(originAppId)) return;
+    if (!Node.isAccountActive(originAppId) || currentBackupAccountSession() !== originBackupAccountSession) return;
 
-    const status = Node.delete(selectedItem);
-    if (status) {
+    const committedOperation = commitBackupLocalOperation(operation, (localRealm) => {
+      const saved = localRealm.objects(RealmSchema.NodeConnect)
+        .filtered('id == $0 AND networkType == $1', selectedItem.id, selectedItem.networkType)[0];
+      if (!saved) throw new Error('Node deletion target is missing');
+      localRealm.delete(saved);
+    });
+    if (committedOperation.committed) {
       const updatedNodes = Node.getAllNodes();
       setNodeList(updatedNodes);
       dispatch({
         ...updateAppImage({ wallets: null, signers: null, updateNodes: true }, originAppId),
         originBackupAccountSession,
         originBackupWriteIntent,
+        committedOperation,
       });
     }
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
     const originAppId = nodeListAppId;
-    if (!originAppId || !Node.isAccountActive(originAppId)) return;
+    const originBackupAccountSession = nodeListAccountSession;
+    const isCurrent = () => Node.isAccountActive(originAppId) &&
+      currentBackupAccountSession() === originBackupAccountSession;
+    if (!originAppId || originBackupAccountSession === null || !isCurrent()) return;
     dispatch(electrumClientConnectionInitiated());
     setLoading(true);
     try {
       const currentlySelectedNode = Node.getAllNodes().find((node) => node.isConnected);
       if (currentlySelectedNode && currentlySelectedNode.id !== selectedNode.id) {
         Node.disconnect(currentlySelectedNode);
-        if (!Node.isAccountActive(originAppId)) return;
+        if (!isCurrent()) return;
         Node.update(currentlySelectedNode, { isConnected: false });
       }
 
       const { connected, connectedTo, error } = await Node.connectToSelectedNode(
         selectedNode,
-        originAppId
+        originAppId,
+        originBackupAccountSession
       );
-      if (!Node.isAccountActive(originAppId)) return;
+      if (!isCurrent()) return;
       if (connected) {
         Node.update(selectedNode, { isConnected: true });
         dispatch(electrumClientConnectionExecuted({ successful: true, connectedTo }));
@@ -115,7 +131,7 @@ function NodeSettings() {
         dispatch(electrumClientConnectionExecuted({ successful: false, error }));
       }
     } catch (error) {
-      if (Node.isAccountActive(originAppId)) {
+      if (isCurrent()) {
         dispatch(
           electrumClientConnectionExecuted({
             successful: false,
@@ -124,17 +140,22 @@ function NodeSettings() {
         );
       }
     } finally {
-      setLoading(false);
-      if (Node.isAccountActive(originAppId)) setNodeList(Node.getAllNodes());
+      if (isCurrent()) {
+        setLoading(false);
+        setNodeList(Node.getAllNodes());
+      }
     }
   };
 
-  const onDisconnectToNode = async (selectedNode: NodeDetail, originAppId: string) => {
-    if (!Node.isAccountActive(originAppId)) return;
+  const onDisconnectToNode = async (selectedNode: NodeDetail, originAppId: string,
+    originBackupAccountSession = nodeListAccountSession) => {
+    const isCurrent = () => Node.isAccountActive(originAppId) &&
+      currentBackupAccountSession() === originBackupAccountSession;
+    if (!isCurrent()) return;
     try {
       setLoading(true);
       Node.disconnect(selectedNode);
-      if (!Node.isAccountActive(originAppId)) return;
+      if (!isCurrent()) return;
       Node.update(selectedNode, { isConnected: false });
       dispatch(
         electrumClientConnectionExecuted({
@@ -145,12 +166,14 @@ function NodeSettings() {
       showToast(`${errorString.disconnectedFrom} ${selectedNode.host}`, <ToastErrorIcon />);
     } catch (error) {
       console.error('Error disconnecting electrum client', error);
-      if (Node.isAccountActive(originAppId)) {
+      if (isCurrent()) {
         showToast(errorString.failedToDiConnect, <ToastErrorIcon />);
       }
     } finally {
-      setLoading(false);
-      if (Node.isAccountActive(originAppId)) setNodeList(Node.getAllNodes());
+      if (isCurrent()) {
+        setLoading(false);
+        setNodeList(Node.getAllNodes());
+      }
     }
   };
 
@@ -173,10 +196,12 @@ function NodeSettings() {
                 onDelete={onDelete}
                 onConnectToNode={onConnectToNode}
                 setNodeToDelete={(node: NodeDetail) => {
-                  if (nodeListAppId) setNodeToDelete({ node, originAppId: nodeListAppId });
+                  if (nodeListAppId && nodeListAccountSession !== null)
+                    setNodeToDelete({ node, originAppId: nodeListAppId, originBackupAccountSession: nodeListAccountSession });
                 }}
                 setNodeToDisconnect={(node: NodeDetail) => {
-                  if (nodeListAppId) setNodeToDisconnect({ node, originAppId: nodeListAppId });
+                  if (nodeListAppId && nodeListAccountSession !== null)
+                    setNodeToDisconnect({ node, originAppId: nodeListAppId, originBackupAccountSession: nodeListAccountSession });
                 }}
                 setElectrumDisconnectWarningVisible={setElectrumDisconnectWarningVisible}
               />
@@ -190,11 +215,11 @@ function NodeSettings() {
       </Box>
       {isNoNodeConnected && (
         <Text
-          key={'node-connection-error'}
+          key="node-connection-error"
           color={`${colorMode}.alertRed`}
           style={{ textAlign: 'center' }}
         >
-          {'Currently in Offline Mode'}
+          Currently in Offline Mode
         </Text>
       )}
       <Box style={styles.footerContainer}>
@@ -221,10 +246,10 @@ function NodeSettings() {
         buttonCallback={async () => {
           setElectrumDisconnectWarningVisible(false);
           if (nodeToDisconnect) {
-            await onDisconnectToNode(nodeToDisconnect.node, nodeToDisconnect.originAppId);
+            await onDisconnectToNode(nodeToDisconnect.node, nodeToDisconnect.originAppId, nodeToDisconnect.originBackupAccountSession);
             setNodeToDisconnect(null);
           } else if (nodeToDelete) {
-            await onDelete(nodeToDelete.node, nodeToDelete.originAppId);
+            await onDelete(nodeToDelete.node, nodeToDelete.originAppId, nodeToDelete.originBackupAccountSession);
             setNodeToDelete(null);
           }
         }}

@@ -1,5 +1,24 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@realm/react';
+import { useDispatch, useStore } from 'react-redux';
+import { useAppSelector } from 'src/store/hooks';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
+import { beginBackupLocalOperation, commitBackupLocalOperation, enqueueAutomaticBackupOperation } from 'src/services/backup/automatic';
+import { canonical, recoveryContent } from 'src/services/backup/image';
+import { captureBackupWriteIntent, currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
+import {
+  invalidateBackupRepair,
+  isAutomaticCloudBackupEnabled,
+  setPendingAllBackup,
+} from 'src/store/reducers/bhr';
+import USDT, {
+  DEFAULT_DEADLINE_SECONDS,
+  USDTTransferOptions,
+} from '../services/wallets/operations/dollars/USDT';
+import { captureError } from '../services/sentry';
+import { RealmSchema } from '../storage/realm/enum';
+import dbManager from '../storage/realm/dbManager';
+import { NetworkType, VisibilityType } from '../services/wallets/enums';
 import {
   generateUSDTWallet,
   syncUSDTWalletBalance,
@@ -11,25 +30,6 @@ import {
   USDTWalletImportDetails,
   USDTWalletSupportedNetwork,
 } from '../services/wallets/factories/USDTWalletFactory';
-import { NetworkType, VisibilityType } from '../services/wallets/enums';
-import dbManager from '../storage/realm/dbManager';
-import { RealmSchema } from '../storage/realm/enum';
-import { captureError } from '../services/sentry';
-import USDT, {
-  DEFAULT_DEADLINE_SECONDS,
-  USDTTransferOptions,
-} from '../services/wallets/operations/dollars/USDT';
-import { useDispatch, useStore } from 'react-redux';
-import { useAppSelector } from 'src/store/hooks';
-import { updateAppImage } from 'src/store/sagaActions/bhr';
-import Relay from 'src/services/backend/Relay';
-import { canonical, recoveryContent } from 'src/services/backup/image';
-import { captureBackupWriteIntent, currentBackupAccountSession, markBackupMutation } from 'src/services/backup/transport';
-import {
-  invalidateBackupRepair,
-  isAutomaticCloudBackupEnabled,
-  setPendingAllBackup,
-} from 'src/store/reducers/bhr';
 
 export interface UseUSDTWalletsOptions {
   getAll?: boolean;
@@ -97,9 +97,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
 
     // Filter hidden wallets if not included
     if (!includeHidden) {
-      filteredWallets = filteredWallets.filter((wallet) => {
-        return wallet.presentationData.visibility !== VisibilityType.HIDDEN;
-      });
+      filteredWallets = filteredWallets.filter((wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN);
     }
 
     return filteredWallets;
@@ -123,12 +121,14 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         renderAccountSession === originSession &&
         originSession === currentBackupAccountSession();
       let beganLocalWrite = false;
+      let localOperation;
       if (USDT_WALLET_CREATION_PAUSED) {
         return { error: 'USDT wallet setup is paused' };
       }
 
       try {
         if (!isCurrentCreate()) throw new Error('Account changed');
+        localOperation = beginBackupLocalOperation(appId, originBackupWriteIntent, originSession);
         setError(null);
         const walletNetworkType = USDTWalletSupportedNetwork;
         const allUSDTWallets: USDTWallet[] = (await dbManager.getObjectByIndex(
@@ -165,8 +165,10 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
         }
 
         beganLocalWrite = true;
-        if ((await dbManager.createObject(RealmSchema.USDTWallet, newWallet)) !== true)
-          throw new Error('Failed to create wallet');
+        const committedOperation = commitBackupLocalOperation(localOperation, (localRealm) => {
+          localRealm.create(RealmSchema.USDTWallet, newWallet);
+        });
+        if (!committedOperation.committed) throw new Error('Failed to create wallet');
         if (!isCurrentCreate()) throw new Error('Account changed');
 
         //  Create usdt wallet backup
@@ -174,6 +176,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
           ...updateAppImage({ wallets: [newWallet], signers: null, updateNodes: false }, appId),
           originBackupAccountSession: originSession,
           originBackupWriteIntent,
+          committedOperation,
         });
 
         return { newWallet };
@@ -202,37 +205,29 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       isOriginCurrent() &&
       renderAccountSession === originSession &&
       originSession === currentBackupAccountSession();
-    let remoteDeleted = false;
-    const markIncompleteDeletion = () => {
-      if (!remoteDeleted) return;
-      markBackupMutation(originAppId);
-      dispatch(invalidateBackupRepair(originAppId));
-      dispatch(setPendingAllBackup({ appId: originAppId, pending: true }));
-    };
     try {
       if (!isCurrentDelete()) return false;
-      // An account without Assisted Server Backup consent still owns its local
-      // wallet. Only the opted-in account needs a corresponding relay delete.
+      const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, originSession);
+      const committedOperation = commitBackupLocalOperation(operation, (localRealm) => {
+        const stored = localRealm.objectForPrimaryKey(RealmSchema.USDTWallet, walletId);
+        if (!stored) throw new Error('Wallet deletion target is missing');
+        localRealm.delete(stored);
+      });
+      if (!committedOperation.committed) throw new Error('Failed to delete wallet');
       if (isAutomaticCloudBackupEnabled(reduxStore.getState().bhr, originAppId)) {
-        const response = await Relay.deleteAppImageEntity({
-          appId: originAppId,
-          signers: null,
-          walletIds: [walletId],
-        }, originBackupWriteIntent);
-        if (!response.updated) throw new Error('Failed to delete wallet');
-        remoteDeleted = true;
+        try {
+          const result = await enqueueAutomaticBackupOperation(committedOperation, [{
+            operation: 'deleteAppImageEntity', body: { appId: originAppId, signers: [], walletIds: [walletId] },
+          }]);
+          if (!result.backupConfirmed && isCurrentDelete())
+            dispatch(setPendingAllBackup({ appId: originAppId, pending: true }));
+        } catch {
+          if (isCurrentDelete()) dispatch(setPendingAllBackup({ appId: originAppId, pending: true }));
+        }
       }
-      if (!isCurrentDelete()) {
-        markIncompleteDeletion();
-        return false;
-      }
-      const deleted = dbManager.deleteObjectById(RealmSchema.USDTWallet, walletId) === true &&
-        !dbManager.getObjectById(RealmSchema.USDTWallet, walletId);
-      if (!deleted) markIncompleteDeletion();
-      return deleted;
+      return true;
     } catch (err) {
-      markIncompleteDeletion();
-      setError(err.message || 'Failed to delete wallet');
+      if (isCurrentDelete()) setError(err.message || 'Failed to delete wallet');
       captureError(err);
       return false;
     }
@@ -253,6 +248,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
       let recoveryChanged = false;
       try {
         if (!isCurrentUpdate()) return false;
+        const operation = beginBackupLocalOperation(originAppId, originBackupWriteIntent, operationSession);
         const previous = dbManager.getObjectById(RealmSchema.USDTWallet, wallet.id);
         if (!previous) throw new Error('Wallet not found');
         const previousWallet = previous.toJSON ? previous.toJSON() : previous;
@@ -261,11 +257,15 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
           canonical(recoveryContent('wallets', wallet));
         const { id, ...walletUpdateData } = wallet;
         if (!isCurrentUpdate()) throw new Error('Account changed');
-        const updated = await dbManager.updateObjectById(
-          RealmSchema.USDTWallet,
-          id,
-          walletUpdateData
-        ); // Realm updates must omit the primary key.
+        const committedOperation = recoveryChanged
+          ? commitBackupLocalOperation(operation, (localRealm) => {
+            const stored = localRealm.objectForPrimaryKey(RealmSchema.USDTWallet, id);
+            if (!stored) throw new Error('Wallet not found');
+            Object.assign(stored, walletUpdateData);
+          })
+          : undefined;
+        const updated = recoveryChanged ? committedOperation.committed
+          : await dbManager.updateObjectById(RealmSchema.USDTWallet, id, walletUpdateData);
         if (!updated) throw new Error('Failed to update wallet');
         if (!isCurrentUpdate()) throw new Error('Account changed');
 
@@ -276,18 +276,19 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
             ...updateAppImage({ wallets: [wallet], signers: null, updateNodes: false }, originAppId),
             originBackupAccountSession: operationSession,
             originBackupWriteIntent,
+            committedOperation,
           });
 
         return true;
       } catch (err) {
         // The database helper can fail after partially writing fields. Do not
         // upload the requested state or leave a previous verification trusted.
-        if (recoveryChanged) {
+        if (recoveryChanged && isCurrentUpdate()) {
           markBackupMutation(originAppId);
           dispatch(invalidateBackupRepair(originAppId));
           dispatch(setPendingAllBackup({ appId: originAppId, pending: true }));
         }
-        setError(err.message || 'Failed to update wallet');
+        if (isCurrentUpdate()) setError(err.message || 'Failed to update wallet');
         captureError(err);
         return false;
       }
@@ -359,9 +360,7 @@ export const useUSDTWallets = (options: UseUSDTWalletsOptions = {}): UseUSDTWall
    * Get wallet by ID
    */
   const getWalletById = useCallback(
-    (walletId: string): USDTWallet | null => {
-      return usdtWallets.find((wallet) => wallet.id === walletId) || null;
-    },
+    (walletId: string): USDTWallet | null => usdtWallets.find((wallet) => wallet.id === walletId) || null,
     [usdtWallets]
   );
 

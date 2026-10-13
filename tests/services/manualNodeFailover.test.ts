@@ -2,6 +2,7 @@ import Node from '../../src/services/electrum/node';
 import ElectrumClient from '../../src/services/electrum/client';
 import dbManager from '../../src/storage/realm/dbManager';
 import { store } from '../../src/store/store';
+import { observeBackupAccount } from '../../src/services/backup/transport';
 import {
   predefinedMainnetNodes,
   predefinedTestnetNodes,
@@ -26,6 +27,7 @@ describe('manual Electrum selection', () => {
 
   beforeEach(() => {
     activeAppId = 'A';
+    observeBackupAccount(activeAppId);
     (store.getState as jest.Mock).mockImplementation(() => ({ storage: { appId: activeAppId } }));
     (dbManager.getObjectByIndex as jest.Mock).mockImplementation(() => ({ id: activeAppId }));
   });
@@ -82,6 +84,21 @@ describe('manual Electrum selection', () => {
       connectedTo: undefined,
       error: 'Account changed',
     });
+    expect(getAllNodes).not.toHaveBeenCalled();
+    expect(ElectrumClient.setFailoverPeers).not.toHaveBeenCalled();
+  });
+
+  it('does not equip old saved peers when the connection returns after A to B to A', async () => {
+    const selected = predefinedTestnetNodes[0];
+    let finishConnection: (result: object) => void;
+    const connection = new Promise((resolve) => { finishConnection = resolve; });
+    (ElectrumClient.connect as jest.Mock).mockReturnValue(connection);
+    const getAllNodes = jest.spyOn(Node, 'getAllNodes');
+    const result = Node.connectToSelectedNode(selected);
+    activeAppId = 'B'; observeBackupAccount(activeAppId);
+    activeAppId = 'A'; observeBackupAccount(activeAppId);
+    finishConnection({ connected: true, connectedTo: selected.host, generation: 2 });
+    await expect(result).resolves.toEqual({ connected: false, connectedTo: undefined, error: 'Account changed' });
     expect(getAllNodes).not.toHaveBeenCalled();
     expect(ElectrumClient.setFailoverPeers).not.toHaveBeenCalled();
   });
