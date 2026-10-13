@@ -410,7 +410,7 @@ for (const enabled of [true, false]) {
     f.collections.Wallet.push(wallet('old', NetworkType.MAINNET));
     assert.equal(await f.run('checkBackupCondition'), !enabled);
     assert.equal(f.calls.length, 0);
-    assert.equal(f.state.bhr.backupRepairCompletedByAppId[f.app.id], undefined);
+    assert.equal(f.state.bhr.backupRepairCompletedByAppId[f.app.id], enabled ? false : undefined);
   });
 }
 
