@@ -1,10 +1,10 @@
 # R4 / 2.6.4 automatic backup: Codex Local handoff
 
-State: **NEEDS_LOCAL**. App source: **APP_HEAD_SHA**, PR [#7045](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045), branch `codex/r4-264-combined-candidate`, base `sprint`. The coordinator replaces `APP_HEAD_SHA` in the handoff prompt after the final Cloud push; Local must compare it with the live PR head before testing.
+State: **NEEDS_LOCAL**. PR [#7045](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045), branch `codex/r4-264-combined-candidate`, base `sprint`. The exact final SHA is recorded in the newest **Codex local handoff** on that PR. The setup below verifies that handoff against the live head before selecting it; this repository document cannot contain its own eventual commit SHA.
 
 Paired disposable Relay: **`b600416e5ba7325927d7d2871cff7776f4e593fe`**, draft [Relay #4](https://github.com/KeeperCommunity/Relay/pull/4). This pin supersedes the earlier `5a42a03` fixture by adding explicit malformed-acknowledgement response overrides after actual commits. It is a loopback test dependency, not a deployed-service assertion. The approved contributor manifest in `dev/local-backend/sources.lock.json` remains Relay `ee935359f22ff7932ea0a62e9084d4b49801f4aa` and SigningServer `3cc7728c27328e7b0358d1f91a32d8d13feba90a`; do not replace those pins or overwrite generated contributor checkouts to prepare this test.
 
-`AUTOMATIC_BACKUP_SOURCE_READY` must remain false until the complete genuine source matrix passes and its evidence is reviewed. `AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY` remains false until the separately authorized deployed fleet, transactions/indexes, v2 route and old-writer drainage are verified. The Node fixture permits its explicit loopback test target. Neither permission nor a simulator test authorizes hosted writes. Do not flip either gate to make a test pass; a source-ready development build can exercise the separate loopback native fixture without enabling hosted rollout.
+`AUTOMATIC_BACKUP_SOURCE_READY` is true after genuine disposable proof and independent fixture review. It permits development loopback validation with an explicit port. `AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY` remains false until the separately authorized deployed fleet, transactions/indexes, v2 route and old-writer drainage are verified. The Node fixture permits its explicit loopback test target. Hosted writes remain fenced. Do not change either gate to make a test pass. Current source and results are recorded in [the proof matrix](../openspec/changes/fix-recovery-backup-freshness/automatic-write-validation.md).
 
 The historical [Local report](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6128906958) at `b160656218dc6065ad12af9db220c974255bfc23` is **LOCAL_FAILED**. Its unsigned iOS simulator compile and Android development build passed; install, launch and UI scenarios were not run because the Mac was locked. Seven automatic writes remained disabled and opted-in deletions remained blocked. Its physical deferral and earlier native evidence do not validate a newer SHA. No current app native pass is claimed by this document.
 
@@ -13,7 +13,7 @@ The combined source also retains the bracketed iOS import and shared PIN keypad 
 ## Copy into Codex Local
 
 ```text
-Validate Keeper PR #7045 on APP_HEAD_SHA.
+Validate Keeper PR #7045 on the exact Head commit in its newest Codex local handoff.
 
 Read the latest PR description, newest Codex local handoff, AGENTS.md and
 release/r4-automatic-backup-local-handoff.md at the final head. Read the complete
@@ -54,12 +54,13 @@ is blocked, but do not waive a critical or required platform result.
 
 ## Safe exact-source setup
 
-Select the existing Node **22** toolchain; use Yarn Classic **1.22.22**. Do not overwrite global tool configuration or existing Node/Realm installations. These commands create private temporary directories and fresh detached checkouts. Run them in Bash and retain the printed workspace path for follow-up. Replace `APP_HEAD_SHA` with the coordinator's full final SHA first.
+Select the existing Node **22** toolchain; use Yarn Classic **1.22.22**. Do not overwrite global tool configuration or existing Node/Realm installations. These commands create private temporary directories and fresh detached checkouts. Run them in Bash and retain the printed workspace path for follow-up. GitHub CLI must have read access; a missing or mismatched exact-head handoff fails before checkout.
 
 ```bash
 set -euo pipefail
 umask 077
-keeper_app_sha=APP_HEAD_SHA
+keeper_app_sha=$(gh pr view 7045 --repo KeeperCommunity/bitcoin-keeper --json headRefOid,body |
+  python3 -c 'import json,re,sys; p=json.load(sys.stdin); h=re.findall(r"(?m)^Head commit:\s*([0-9a-f]{40})\s*$",p["body"]); assert h and h[-1]==p["headRefOid"], "Missing or stale exact-head Codex local handoff"; print(h[-1])')
 keeper_relay_sha=b600416e5ba7325927d7d2871cff7776f4e593fe
 test "${#keeper_app_sha}" -eq 40
 test "$(node -p 'process.versions.node.split(".")[0]')" = 22
@@ -242,7 +243,7 @@ Read [AGENTS.md](../AGENTS.md), including merged [#7050](https://github.com/Keep
 ## Codex local scope decision
 State: OWNER_DEFERRED_PHYSICAL
 PR: #7045
-Head commit: APP_HEAD_SHA
+Head commit: <full SHA captured and tested above>
 Deferred local checks: HARDWARE
 Reason: The release owner directs unrun physical phone, camera, NFC/USB and hardware-signer checks to post-release testing because those devices are unavailable for this Local run. IOS and ANDROID and known critical failures are not deferred.
 Post-release follow-up: The owner will test the installed released iOS/Android builds on physical phones and available signers, including QR, address verification, vault policy and PSBT round trips, and report exact build/device outcomes on #7045 or the release record.
@@ -255,7 +256,7 @@ After testing, post a new report preserving the earlier `LOCAL_FAILED` evidence:
 ```text
 ## Codex local validation
 State: LOCAL_PASSED | LOCAL_FAILED | BLOCKED
-Tested commit: APP_HEAD_SHA
+Tested commit: <full SHA captured and tested above>
 iOS build/simulator: PASS/FAIL/NOT RUN — exact commands, installed artifact identity, actual launch and critical UI/recovery outcomes; private log locations.
 Android build/emulator: PASS/FAIL/NOT RUN — exact commands, package/version/counter, debug certificate/hash/alignment, actual launch and critical UI/recovery outcomes; private log locations.
 Real devices/signers: NOT RUN / OWNER-DEFERRED PHYSICAL only if the exact-SHA owner decision exists; name its URL and every deferred scenario. Otherwise report actual results or BLOCKED.
