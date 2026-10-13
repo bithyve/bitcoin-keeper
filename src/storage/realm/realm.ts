@@ -1,12 +1,34 @@
 import Realm from 'realm';
 import { captureError } from 'src/services/sentry';
+import { captureLocalRecovery } from 'src/services/backup/localSnapshot';
 import { RealmSchema } from './enum';
 import schema from './schema';
 import { runRealmMigrations } from './migrations';
+
 export const REALM_FILE = 'keeper.realm';
+export type RecoveryCommitObserver = (appId: string, fingerprint: string) => void;
+type TransactionState = { failed: boolean; error?: unknown };
+
+function captureRecovery(database: Realm) {
+  try {
+    return captureLocalRecovery(database);
+  } catch {
+    // Initial account setup may not yet have a recoverable KeeperApp. An
+    // unreadable/partial image cannot supply a committed generation proof.
+    return undefined;
+  }
+}
 
 export class RealmDatabase {
   private realm: Realm;
+
+  private transactions = new WeakMap<Realm, TransactionState>();
+
+  private recoveryCommitObserver: RecoveryCommitObserver | undefined;
+
+  public setRecoveryCommitObserver = (observer: RecoveryCommitObserver) => {
+    this.recoveryCommitObserver = observer;
+  };
 
   private openGeneration = 0;
 
@@ -114,7 +136,63 @@ export class RealmDatabase {
    * It handles operations in a single, idempotent update. A write transaction is all or nothing
    * @param  {} callback
    */
-  public writeTransaction = (realm: Realm, callback) => realm.write(callback);
+  public writeTransaction = <T>(database: Realm, callback: () => T): T => {
+    const execute = () => {
+      // Reject native async callbacks before their first side effect. Other
+      // thenable-returning callbacks are rejected inside the transaction.
+      if (Object.prototype.toString.call(callback) === '[object AsyncFunction]')
+        throw new Error('Realm transaction callbacks must be synchronous');
+      const result = callback();
+      if (
+        result !== null &&
+        (typeof result === 'object' || typeof result === 'function') &&
+        typeof (result as { then?: unknown }).then === 'function'
+      ) throw new Error('Realm transaction callbacks must be synchronous');
+      return result;
+    };
+    const outer = this.transactions.get(database);
+    if (outer) {
+      try {
+        return execute();
+      } catch (error) {
+        // Even if a nested helper converts this exception to false, the outer
+        // transaction must roll back every preceding write in the group.
+        outer.failed = true;
+        outer.error = error;
+        throw error;
+      }
+    }
+    if (database.isInTransaction)
+      throw new Error('Recovery writes require a managed outer Realm transaction');
+
+    const before = captureRecovery(database);
+    const transaction: TransactionState = { failed: false };
+    this.transactions.set(database, transaction);
+    let result: T;
+    try {
+      result = database.write(() => {
+        const value = execute();
+        if (transaction.failed) throw transaction.error;
+        return value;
+      });
+    } finally {
+      this.transactions.delete(database);
+    }
+
+    // Realm.write has returned: the native transaction successfully committed.
+    // Cache/history-only changes compare equal and do not advance generation.
+    const after = captureRecovery(database);
+    if (after && before?.fingerprint !== after.fingerprint) {
+      try {
+        this.recoveryCommitObserver?.(after.app.id, after.fingerprint);
+      } catch {
+        // A notification failure cannot turn a successful local save into a
+        // reported failed transaction. No private snapshot is sent to Sentry.
+        captureError(new Error('Recovery commit observer unavailable'));
+      }
+    }
+    return result;
+  };
 
   /**
    * close the database when done with a realm instance to avoid memory leaks.
@@ -155,11 +233,11 @@ export class RealmDatabase {
   public createBulk = (schema: RealmSchema, objects: any[], updateMode) => {
     const realm = this.getDatabase();
     try {
-      for (const object of objects) {
-        this.writeTransaction(realm, () => {
+      this.writeTransaction(realm, () => {
+        for (const object of objects) {
           realm.create(schema, object, updateMode);
-        });
-      }
+        }
+      });
 
       return true;
     } catch (err) {
@@ -178,6 +256,7 @@ export class RealmDatabase {
       return realm.objects(schema);
     } catch (err) {
       console.log({ err });
+      return undefined;
     }
   };
 
@@ -187,11 +266,8 @@ export class RealmDatabase {
    */
   public write = (callback) => {
     const realm = this.getDatabase();
-    try {
-      this.writeTransaction(realm, callback);
-    } catch (err) {
-      console.log({ err });
-    }
+    this.writeTransaction(realm, callback);
+    return true;
   };
 
   /**
@@ -200,14 +276,14 @@ export class RealmDatabase {
    */
   public delete = (object: any) => {
     const realm = this.getDatabase();
-    try {
-      this.writeTransaction(realm, () => {
-        realm.delete(object);
-      });
-    } catch (err) {
-      console.log({ err });
-    }
+    this.writeTransaction(realm, () => {
+      realm.delete(object);
+    });
+    return true;
   };
 }
 
-export default new RealmDatabase();
+const realmDatabase = new RealmDatabase();
+export const setRecoveryCommitObserver = (observer: RecoveryCommitObserver) =>
+  realmDatabase.setRecoveryCommitObserver(observer);
+export default realmDatabase;

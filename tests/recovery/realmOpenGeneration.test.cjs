@@ -29,6 +29,11 @@ function fixture() {
     {
       realm: { default: Realm, __esModule: true },
       'src/services/sentry': { captureError: (error) => errors.push(error) },
+      // These tests prove only open/close races; the fake handles intentionally
+      // provide no recovery content or post-commit generation evidence.
+      'src/services/backup/localSnapshot': { captureLocalRecovery() {
+        throw new Error('Recovery content unavailable in open-race fixture');
+      } },
       './schema': { default: [], __esModule: true },
       './migrations': { runRealmMigrations() {} },
       './enum': { RealmSchema: {} },

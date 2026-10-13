@@ -1,11 +1,14 @@
 import { changesBackedUpRecovery, isBackedUpSchema } from 'src/services/backup/localMutation';
 import { RealmSchema } from './enum';
 import realm from './realm';
+import type { RecoveryCommitObserver } from './realm';
 
 let recoveryMutationObserver: () => void = () => undefined;
 const setRecoveryMutationObserver = (observer: () => void) => {
   recoveryMutationObserver = observer;
 };
+const setRecoveryCommitObserver = (observer: RecoveryCommitObserver) =>
+  realm.setRecoveryCommitObserver(observer);
 const notifyRecoveryCreateOrDelete = (schema: RealmSchema, hasObject: boolean) => {
   if (hasObject && isBackedUpSchema(schema)) recoveryMutationObserver();
 };
@@ -44,6 +47,7 @@ const createObject = (schema: RealmSchema, object: any, updateMode = Realm.Updat
     return hasCreated;
   } catch (err) {
     console.log(err);
+    return false;
   }
 };
 
@@ -63,6 +67,7 @@ const createObjectBulk = (
     return hasCreated;
   } catch (err) {
     console.log(err);
+    return false;
   }
 };
 
@@ -120,11 +125,11 @@ const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => 
   try {
     const object = getObjectById(schema, id);
     notifyRecoveryUpdate(schema, object, updateProps);
-    for (const [key, value] of Object.entries(updateProps)) {
-      realm.write(() => {
+    realm.write(() => {
+      for (const [key, value] of Object.entries(updateProps)) {
         object[key] = value;
-      });
-    }
+      }
+    });
     return true;
   } catch (err) {
     console.error({ err });
@@ -147,11 +152,11 @@ const updateObjectByPrimaryId = (
   try {
     const object = getObjectByPrimaryId(schema, name, primaryId);
     notifyRecoveryUpdate(schema, object, updateProps);
-    for (const [key, value] of Object.entries(updateProps)) {
-      realm.write(() => {
+    realm.write(() => {
+      for (const [key, value] of Object.entries(updateProps)) {
         object[key] = value;
-      });
-    }
+      }
+    });
     return true;
   } catch (err) {
     console.error({ err });
@@ -234,11 +239,11 @@ const updateObjectByQuery = (
     const object = objects.find(queryFn);
     if (object) {
       notifyRecoveryUpdate(schema, object, updateProps);
-      for (const [key, value] of Object.entries(updateProps)) {
-        realm.write(() => {
+      realm.write(() => {
+        for (const [key, value] of Object.entries(updateProps)) {
           object[key] = value;
-        });
-      }
+        }
+      });
       return true;
     }
     return false;
@@ -288,4 +293,5 @@ export default {
   updateObjectByQuery,
   getObjectByQuery,
   setRecoveryMutationObserver,
+  setRecoveryCommitObserver,
 };

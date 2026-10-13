@@ -2,6 +2,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { canonical, recoveryContent } from './image';
 
 const backedUpSchemas = new Set<RealmSchema>([
+  RealmSchema.KeeperApp,
   RealmSchema.Wallet,
   RealmSchema.USDTWallet,
   RealmSchema.Vault,
@@ -20,6 +21,10 @@ function plain(record: any) {
 }
 
 function recoveryView(schema: RealmSchema, record: any) {
+  if (schema === RealmSchema.KeeperApp) return {
+    id: record.id, publicId: record.publicId, primarySeed: record.primarySeed,
+    version: record.version, networkType: record.networkType, subscription: record.subscription,
+  };
   if (schema === RealmSchema.Wallet || schema === RealmSchema.USDTWallet)
     return recoveryContent('wallets', record);
   if (schema === RealmSchema.Vault) return recoveryContent('vaults', record);
@@ -29,9 +34,10 @@ function recoveryView(schema: RealmSchema, record: any) {
   return record;
 }
 
-// Run before the Realm write. This also covers helpers that may commit some
-// fields before returning failure. Cache-only wallet refreshes and active-node
-// rotation cannot change the encrypted recovery image.
+// Run before the Realm write to conservatively invalidate UI verification,
+// including writes that later fail. Generation proof comes only from the
+// separate successful post-commit observer. Cache-only wallet refreshes and
+// active-node rotation cannot change the encrypted recovery image.
 export function changesBackedUpRecovery(schema: RealmSchema, previous: any, patch: any) {
   if (!isBackedUpSchema(schema) || !previous || !patch || typeof patch !== 'object') return false;
   try {
