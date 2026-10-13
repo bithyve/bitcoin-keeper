@@ -1,244 +1,197 @@
 import fs from 'fs';
 import path from 'path';
-import { call, put, select } from 'redux-saga/effects';
 import ts from 'typescript';
 import vm from 'vm';
 import semver from 'semver';
-import { applyUpgradeSequence, updateVersionHistoryWorker } from 'src/store/sagas/upgrade';
-import { updateVersionHistory } from 'src/store/sagaActions/upgrade';
+import { runSaga } from 'redux-saga';
+import * as effects from 'redux-saga/effects';
+import * as enums from 'src/services/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
-import dbManager from 'src/storage/realm/dbManager';
-import Relay from 'src/services/backend/Relay';
-import { setAppVersion } from 'src/store/reducers/storage';
-import { store } from 'src/store/store';
+import * as bip39 from 'bip39';
+import BIP32Factory from 'bip32';
+import * as bitcoinJS from 'bitcoinjs-lib';
+import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 
-jest.mock('src/storage/realm/dbManager', () => ({
-  getObjectByIndex: jest.fn(),
-  createObject: jest.fn(),
-}));
-jest.mock('src/services/backend/Relay', () => ({ updateAppImage: jest.fn() }));
-jest.mock('src/services/backup/transport', () => ({ currentBackupAccountSession: () => 1 }));
-jest.mock('src/store/store', () => ({ store: { getState: jest.fn() } }));
-jest.mock('src/store/reducers/bhr', () => ({
-  isAutomaticCloudBackupEnabled: (backup, appId) => backup.automaticCloudBackupByAppId?.[appId] === true,
-  setPendingAllBackup: (payload) => ({ type: 'setPendingAllBackup', payload }),
-}));
-jest.mock('src/services/backend/SigningServer', () => ({}));
-jest.mock('src/utils/service-utilities/utils', () => ({}));
-jest.mock('src/services/wallets/factories/WalletFactory', () => ({}));
-jest.mock('src/utils/service-utilities/encryption', () => ({}));
-jest.mock('src/utils/utilities', () => ({}));
-jest.mock('src/services/wallets/operations/utils', () => ({}));
-jest.mock('src/store/sagas/bhr', () => ({}));
-jest.mock('@react-native-firebase/app', () => ({ getApp: jest.fn() }));
-jest.mock('@react-native-firebase/messaging', () => ({
-  getMessaging: jest.fn(),
-  subscribeToTopic: jest.fn(),
-  unsubscribeFromTopic: jest.fn(),
-}));
-jest.mock('react-native-device-info', () => ({ getBuildNumber: () => '624' }));
-
+const { encryption, image, loadModule } = require('../recovery/helpers.cjs');
+const { prepareRecoveryImage } = loadModule('src/services/backup/restore.ts', { './image': image });
+const BIP85 = loadModule('src/services/wallets/operations/BIP85.ts', {
+  'src/utils/service-utilities/config': {},
+  '../enums': enums,
+  './taproot-utils/noble_ecc': ecc,
+}).default;
+const bip32 = BIP32Factory(ecc);
 const previousVersion = '2.5.15';
 const newVersion = '2.5.16';
-const writeIntent = {
-  appId: 'test-app', accountSession: 1, baseRevision: 'a'.repeat(64), baselineEpoch: 1,
-};
-
-function setActiveAccount(appId: string, enabled = true) {
-  (dbManager.getObjectByIndex as jest.Mock).mockReturnValue({ id: appId });
-  (store.getState as jest.Mock).mockReturnValue({
-    storage: { appId },
-    bhr: { automaticCloudBackupByAppId: { [appId]: enabled } },
-  });
-}
-
-function writeHistory(action) {
-  const appId = action.originAppId;
-  const worker = updateVersionHistoryWorker(action) as Generator<any, any, any>;
-  expect(worker.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
-  const choice = worker.next({ id: appId } as any).value as any;
-  expect(choice.type).toBe('SELECT');
-  expect(choice.payload.selector(store.getState())).toBe(true);
-  expect(worker.next(true).value).toEqual(
-    call(Relay.updateAppImage, { appId, version: newVersion }, action.originBackupWriteIntent)
-  );
-  const write = worker.next({} as any).value as any;
-  expect(write.payload.fn).toBe(dbManager.createObject);
-  expect(write.payload.args[0]).toBe(RealmSchema.VersionHistory);
-  expect(worker.next().done).toBe(true);
-  return write.payload.args[1];
-}
-
-function recoverWithoutDuplicateHistory(action) {
-  const appId = action.originAppId;
-  const worker = updateVersionHistoryWorker(action) as Generator<any, any, any>;
-  expect(worker.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
-  expect((worker.next({ id: appId } as any).value as any).type).toBe('SELECT');
-  expect(worker.next(true).value).toEqual(
-    call(Relay.updateAppImage, { appId, version: newVersion }, action.originBackupWriteIntent)
-  );
-  expect(worker.next({} as any).done).toBe(true);
-}
-
-describe('Version History retains recovery provenance through required upgrades', () => {
-  beforeEach(() => setActiveAccount('test-app'));
-
-  test.each([true, false])('upgrade handles recovery=%s without duplicate history', (isRecovery) => {
-    const upgrade = applyUpgradeSequence({ previousVersion, newVersion, isRecovery,
-      originBackupWriteIntent: writeIntent });
-    expect(upgrade.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
-    expect(upgrade.next({ id: 'test-app' } as any).value).toEqual(put(setAppVersion(newVersion)));
-    const history = upgrade.next().value as any;
-    expect(history).toEqual(put({
-      ...updateVersionHistory(previousVersion, newVersion, isRecovery, 'test-app'),
-      originBackupAccountSession: 1,
-      originBackupWriteIntent: writeIntent,
-    }));
-    if (isRecovery) {
-      recoverWithoutDuplicateHistory(history.payload.action);
-    } else {
-      const record = writeHistory(history.payload.action);
-      expect(record.version).toBe('2.5.16(624)');
-      expect(record.title).toBe('Upgraded from 2.5.15 to 2.5.16');
-    }
-    expect(upgrade.next().done).toBe(true);
-  });
-
-  test('unbound history events cannot write another account', () => {
-    const worker = updateVersionHistoryWorker({ payload: { previousVersion, newVersion } });
-    expect(worker.next().value).toEqual(call(dbManager.getObjectByIndex, RealmSchema.KeeperApp));
-    expect(worker.next({ id: 'test-app' } as any).done).toBe(true);
-  });
-
-  test('recovery does not skip any of the legacy migrations', () => {
-    const trace = (isRecovery: boolean) => {
-      const yielded: any[] = [];
-      const upgrade = applyUpgradeSequence({
-        previousVersion: '1.0.4',
-        newVersion,
-        isRecovery,
-      }) as Generator<any, any, any>;
-      let step = upgrade.next();
-      while (!step.done) {
-        yielded.push(step.value);
-        step = upgrade.next(step.value?.type === 'CALL' &&
-          step.value.payload.fn === dbManager.getObjectByIndex ? { id: 'test-app' } : undefined);
-      }
-      return yielded;
-    };
-    const ordinary = trace(false);
-    const recovered = trace(true);
-    expect(recovered.slice(0, -1)).toEqual(ordinary.slice(0, -1));
-    expect(recovered.length).toBeGreaterThan(3);
-  });
+const writeIntent = Object.freeze({
+  appId: 'test-app',
+  accountSession: 1,
+  baseRevision: 'a'.repeat(64),
+  baselineEpoch: 1,
 });
+const clone = (value) => JSON.parse(JSON.stringify(value));
 
-// Execute the real recovery orchestration with disposable in-memory dependencies.
-// This verifies call-site provenance; it does not claim native Realm or wallet recovery QA.
-function recoveryFixture(backupVersion: string) {
+function sourceDeclarations(file: string, names?: string[]) {
   const source = ts.createSourceFile(
-    'bhr.ts',
-    fs.readFileSync(path.join(process.cwd(), 'src/store/sagas/bhr.ts'), 'utf8'),
+    file,
+    fs.readFileSync(path.join(process.cwd(), file), 'utf8'),
     ts.ScriptTarget.Latest,
     true
   );
-  const functions = source.statements.filter(
-    (node) =>
-      ts.isFunctionDeclaration(node) &&
-      ['getAppImageWorker', 'recoverApp', 'writeRecoveredObject'].includes(node.name?.text)
-  );
-  const writes = [];
-  const recoveryUpgrades = [];
-  const errors = [];
+  return source.statements
+    .filter(
+      (node) =>
+        (ts.isFunctionDeclaration(node) && (!names || names.includes(node.name?.text))) ||
+        (ts.isVariableStatement(node) &&
+          node.declarationList.declarations.some((declaration) =>
+            names
+              ? names.includes(declaration.name.getText(source))
+              : declaration.name.getText(source) === 'upgradeAccountIsActive' ||
+                declaration.name.getText(source).endsWith('_VERSION')
+          ))
+    )
+    .map((node) =>
+      node
+        .getText(source)
+        .replace(/^export /, '')
+        .replace(/^const /, 'var ')
+    )
+    .join('\n');
+}
+
+// Tests orchestration with an explicit unit transaction adapter. Native Realm,
+// branded CAS and readback are tested by automaticUpgradeProducer.integration.
+// Encryption, BIP39/BIP32 and BIP85 use real production/pure crypto primitives.
+function fixture(appId = 'test-app') {
+  const state = {
+    appId,
+    session: 1,
+    events: [],
+    queue: [],
+    actions: [],
+    errors: [],
+    rollbackHistory: false,
+    migrations: [],
+    topics: [],
+  };
+  const app: any = { id: appId, version: previousVersion, primarySeed: 'ab'.repeat(32) };
+  const records: Record<string, any[]> = {
+    Wallet: [{ id: 'legacy-wallet' }],
+    USDTWallet: [],
+    Signer: [],
+    Vault: [],
+    VaultSigner: [],
+    Tags: [],
+    VersionHistory: [],
+    BackupHistory: [],
+    NodeConnect: [],
+    UTXOInfo: [
+      { walletId: 'legacy-wallet', txId: 'legacy-tx', vout: 0, labels: [{ name: 'old note' }] },
+    ],
+  };
+  const create = (schema, value) => {
+    if (state.rollbackHistory && schema === RealmSchema.VersionHistory)
+      throw new Error('history rollback fixture');
+    if (schema === RealmSchema.KeeperApp) Object.assign(app, clone(value));
+    else {
+      const rows = (records[schema] ||= []);
+      const primary = schema === RealmSchema.VersionHistory ? 'version' : 'id';
+      const index = rows.findIndex((row) => row[primary] === value[primary]);
+      if (index < 0) rows.push(clone(value));
+      else rows[index] = clone(value);
+    }
+    return true;
+  };
+  const raw = {
+    objectForPrimaryKey: (schema, id) =>
+      schema === RealmSchema.KeeperApp
+        ? app.id === id
+          ? app
+          : undefined
+        : records[schema].find((row) => row.id === id),
+    objects: (schema) => records[schema],
+    create,
+  };
   const scope: any = {
-    call,
-    put,
-    select,
-    semver,
-    console,
-    currentBackupAccountSession: () => 1,
-    currentBackupAppId: () => require('crypto').createHash('sha256')
-      .update(Buffer.from('fixture')).digest('hex'),
+    ...effects,
+    ...encryption,
+    ...enums,
     RealmSchema,
-    applyUpgradeSequence,
-    DeviceInfo: { getVersion: () => newVersion, getBuildNumber: () => '624' },
-    bip39: { validateMnemonic: () => true, mnemonicToSeedSync: () => Buffer.from('fixture') },
-    crypto: require('crypto'),
-    BIP85: { bip39MnemonicToEntropy: () => Buffer.from('fixture') },
-    config: { BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH: 'fixture' },
-    generateEncryptionKey: () => 'fixture',
-    decrypt: (_key, content) => content,
-    prepareRecoveryImage: (_key, _appId, image) => ({
-      wallets: Object.fromEntries(
-        Object.entries(image.wallets).map(([id, content]) => [id, JSON.parse(content as string)])
-      ),
-      signers: {},
-      vaults: {},
-      nodes: {},
-      labels: {},
-    }),
-    WalletUtilities: { getFingerprintFromSeed: () => 'AAAAAAAA' },
-    SubscriptionTier: { L1: 'L1', L3: 'L3' },
-    AppSubscriptionLevel: { L1: 1, L3: 3 },
-    BackupType: { SEED: 'SEED' },
-    EntityKind: { USDT_WALLET: 'USDT_WALLET' },
-    BackupAction: { SEED_BACKUP_CONFIRMED: 'confirmed' },
-    pauseBackup: () => {},
-    NetworkType: { MAINNET: 'MAINNET', TESTNET: 'TESTNET' },
-    uaiType: {},
-    moment: () => ({ unix: () => 1 }),
-    setupRecoveryKeySigningKey: () => ({
-      id: 'recovery',
-      signerXpubs: {
-        fixture: [
-          {
-            xpub: 'fixture-public',
-            xpriv: 'fixture-private',
-            derivationPath: 'fixture-path',
-          },
-        ],
-      },
-    }),
-    getKeyUID: (signer) => signer.id,
-    addSigningDeviceWorker: () => {},
+    semver,
+    Date,
+    Buffer,
+    Promise,
+    console: { log() {}, error() {} },
+    Realm: { UpdateMode: { Modified: 'modified' } },
+    store: { getState: () => ({ storage: { appId: state.appId } }) },
     dbManager: {
-      createObject: (schema, record) => {
-        if (schema === RealmSchema.VersionHistory) writes.push(record);
+      getObjectByIndex: () => app,
+      getObjectById: raw.objectForPrimaryKey,
+      getObjectByPrimaryId: (schema, key, id) => records[schema].find((row) => row[key] === id),
+      getCollection: (schema) => clone(records[schema] || []),
+      createObject: create,
+      createObjectBulk: (schema, values) => {
+        values.forEach((value) => create(schema, value));
         return true;
       },
-      createObjectBulk: () => {},
-      getCollection: (schema) =>
-        schema === RealmSchema.Signer
-          ? [
-              {
-                id: 'recovery',
-                signerXpubs: {
-                  fixture: [
-                    {
-                      xpub: 'fixture-public',
-                      xpriv: 'fixture-private',
-                      derivationPath: 'fixture-path',
-                    },
-                  ],
-                },
-              },
-            ]
-          : [],
+      deleteObjectById: (schema, id) => {
+        records[schema] = records[schema].filter((row) => row.id !== id);
+        return true;
+      },
     },
-    Relay: {
-      getAppImage: () => ({
-        appImage: {
-          appId: 'disposable',
-          version: backupVersion,
-          wallets: { test: JSON.stringify({ id: 'test-wallet' }) },
-          signers: {},
-          nodes: [],
-        },
-      }),
-      updateAppImage: () => ({}),
+    currentBackupAccountSession: () => state.session,
+    currentBackupAppId: () => (app.id === state.appId ? app.id : undefined),
+    beginBackupLocalOperation: (id, intent, session) => ({ id, intent, session }),
+    commitBackupLocalOperation: (operation, write) => {
+      if (operation.id !== state.appId || operation.session !== state.session)
+        return { committed: false };
+      const beforeApp = clone(app),
+        beforeRecords = clone(records);
+      try {
+        write(raw);
+      } catch {
+        Object.assign(app, beforeApp);
+        Object.keys(records).forEach((name) => {
+          records[name] = beforeRecords[name];
+        });
+        state.events.push('rollback');
+        return { committed: false };
+      }
+      state.events.push('local commit');
+      return Object.freeze({ committed: true, intent: operation.intent });
     },
+    enqueueAutomaticBackupOperation: async (receipt, mutations) => {
+      state.events.push('queue');
+      state.queue.push({ receipt, mutations: clone(mutations), persistedVersion: app.version });
+      return { updated: true, backupConfirmed: false, backupPending: true };
+    },
+    notifyBackupReconciliation: () => state.events.push('pending'),
+    buildAutomaticAppMutation: (_payload, id) => ({
+      operation: 'updateAppImage',
+      body: { appId: id, version: app.version },
+    }),
+    buildAutomaticVaultMutation: (id, owner) => ({
+      operation: 'updateVaultImage',
+      body: { appId: owner, vaultId: id },
+    }),
+    DeviceInfo: { getVersion: () => newVersion, getBuildNumber: () => '624' },
+    getApp: () => ({}),
+    getMessaging: () => ({}),
+    getReleaseTopic: (version) => version,
+    subscribeToTopic: (_messaging, topic) => state.topics.push(['subscribe', topic]),
+    unsubscribeFromTopic: (_messaging, topic) => state.topics.push(['unsubscribe', topic]),
+    generateAbbreviatedOutputDescriptors: () => 'public-unit-label-origin',
+    getKeyUID: (signer) => signer.id,
+    hcStatusType: { HEALTH_CHECK_SUCCESSFULL: 'HEALTH_CHECK_SUCCESSFULL' },
+    captureError: (error) => state.errors.push(error.message),
   };
+  const dispatch = (action) => {
+    state.actions.push(action);
+    if (action.type === 'setAppId') state.appId = action.payload;
+    if (action.type === 'setAppImageError' && action.payload) state.errors.push(action.payload);
+  };
+  scope.store.dispatch = dispatch;
   for (const name of [
+    'setAppVersion',
     'setAppImageError',
     'setSeedConfirmed',
     'setBackupType',
@@ -251,62 +204,236 @@ function recoveryFixture(backupVersion: string) {
     'uaiChecks',
     'loadConciergeUser',
     'loadConciergeTickets',
-    'setRecoveryKeyBackedUp',
     'setRecoveryKeyStatus',
     'appImagerecoveryRetry',
-  ]) {
+  ])
     scope[name] = (payload) => ({ type: name, payload });
-  }
   vm.runInNewContext(
-    ts.transpileModule(functions.map((node) => node.getText(source)).join('\n'), {
-      compilerOptions: { target: ts.ScriptTarget.ES2019 },
+    ts.transpileModule(sourceDeclarations('src/store/sagas/upgrade.ts'), {
+      compilerOptions: { target: ts.ScriptTarget.ES2020 },
     }).outputText,
     scope
   );
-  function drive(generator) {
-    let result = generator.next();
-    while (!result.done) {
-      const effect = result.value;
-      let response;
-      if (effect.type === 'SELECT') response = { bitcoinNetworkType: 'TESTNET' };
-      if (effect.type === 'CALL') {
-        const { fn, args } = effect.payload;
-        if (fn === applyUpgradeSequence) recoveryUpgrades.push(args[0]);
-        response = fn(...args);
-        if (response?.next) response = drive(response);
-        if (fn === scope.recoverApp && response === undefined) response = 1;
-      }
-      if (effect.type === 'PUT') {
-        const action = effect.payload.action;
-        if (action.type === 'setAppImageError' && action.payload) errors.push(action.payload);
-        if (action.type === 'UPDATE_VERSION_HISTORY') {
-          if (action.payload.isRecovery) recoverWithoutDuplicateHistory(action);
-          else writes.push(writeHistory(action));
-        }
-      }
-      result = generator.next(response);
+  const run = (name, ...args) =>
+    runSaga(
+      {
+        getState: () => ({
+          storage: { appId: state.appId },
+          settings: { bitcoinNetworkType: enums.NetworkType.TESTNET },
+          bhr: {},
+        }),
+        dispatch,
+      },
+      scope[name],
+      ...args
+    ).toPromise();
+  return { state, scope, app, records, run };
+}
+
+describe('Version History retains recovery provenance with local-first upgrades', () => {
+  test.each([true, false])(
+    'upgrade persists version first and recovery=%s controls duplicate history',
+    async (isRecovery) => {
+      const f = fixture();
+      expect(
+        await f.run('applyUpgradeSequence', {
+          previousVersion,
+          newVersion,
+          isRecovery,
+          originBackupAccountSession: 1,
+          originBackupWriteIntent: writeIntent,
+        })
+      ).toBe(true);
+      expect(f.app.version).toBe(newVersion);
+      expect(f.state.events).toEqual(['local commit', 'queue']);
+      expect(f.state.queue[0].persistedVersion).toBe(newVersion);
+      expect(f.state.queue[0].receipt.intent).toBe(writeIntent);
+      expect(f.records.VersionHistory).toEqual(
+        isRecovery
+          ? []
+          : [
+              expect.objectContaining({
+                version: '2.5.16(624)',
+                title: 'Upgraded from 2.5.15 to 2.5.16',
+              }),
+            ]
+      );
+      expect(f.state.actions).toContainEqual({ type: 'setAppVersion', payload: newVersion });
     }
-    return result.value;
-  }
-  drive(scope.getAppImageWorker({ payload: { primaryMnemonic: 'disposable mocked fixture' } }));
-  return { writes, recoveryUpgrades, errors };
+  );
+
+  test('unbound history events cannot write another account', async () => {
+    const f = fixture();
+    expect(
+      await f.run('updateVersionHistoryWorker', { payload: { previousVersion, newVersion } })
+    ).toBe(false);
+    expect(f.state.events).toEqual([]);
+    expect(f.app.version).toBe(previousVersion);
+  });
+
+  test('failed local history transaction does not upload or advance the app version', async () => {
+    const f = fixture();
+    f.state.rollbackHistory = true;
+    expect(
+      await f.run('applyUpgradeSequence', {
+        previousVersion,
+        newVersion,
+        originBackupWriteIntent: writeIntent,
+      })
+    ).toBe(false);
+    expect(f.app.version).toBe(previousVersion);
+    expect(f.records.VersionHistory).toEqual([]);
+    expect(f.state.queue).toEqual([]);
+    expect(f.state.actions).not.toContainEqual({ type: 'setAppVersion', payload: newVersion });
+  });
+
+  test.each([true, false])(
+    'recovery=%s retains legacy label migration in the same local group',
+    async (isRecovery) => {
+      const f = fixture();
+      f.records.Vault.push(
+        { id: 'legacy-active-vault', archived: false, signers: [] },
+        { id: 'legacy-archived-vault', archived: true, signers: [] }
+      );
+      f.records.Signer.push({
+        id: 'public-legacy-key',
+        masterFingerprint: 'AABB0011',
+        type: enums.SignerType.COLDCARD,
+        lastHealthCheck: '2026-09-01T00:00:00.000Z',
+        signerXpubs: {},
+      });
+      expect(
+        await f.run('applyUpgradeSequence', {
+          previousVersion: '1.0.4',
+          newVersion,
+          isRecovery,
+          originBackupWriteIntent: writeIntent,
+        })
+      ).toBe(true);
+      expect(f.records.Tags).toEqual([
+        expect.objectContaining({ ref: 'legacy-tx:0', label: 'old note' }),
+      ]);
+      expect(f.state.events).toEqual(['local commit', 'queue']);
+      expect(f.state.queue[0].mutations.map((mutation) => mutation.operation)).toEqual([
+        'updateAppImage',
+        'updateVaultImage',
+        'updateVaultImage',
+        'modifyLabels',
+      ]);
+      expect(f.state.queue[0].mutations[2].body.vaultId).toBe('legacy-archived-vault');
+      expect(f.records.Signer[0].healthCheckDetails).toEqual([
+        { type: 'HEALTH_CHECK_SUCCESSFULL', actionDate: '2026-09-01T00:00:00.000Z' },
+      ]);
+      expect(f.records.VersionHistory).toHaveLength(isRecovery ? 0 : 1);
+    }
+  );
+});
+
+async function recoveryFixture(backupVersion: string) {
+  const mnemonic = bip39.entropyToMnemonic('00000000000000000000000000000000');
+  const seed = bip39.mnemonicToSeedSync(mnemonic);
+  const id = require('crypto').createHash('sha256').update(seed).digest('hex');
+  const f = fixture(id);
+  const key = encryption.generateEncryptionKey(seed.toString('hex'));
+  const root = bip32.fromSeed(seed, bitcoinJS.networks.testnet);
+  const derived = root.derivePath("m/48'/1'/0'/2'");
+  const recoverySigner = {
+    id: 'recovery',
+    signerXpubs: {
+      fixture: [
+        {
+          xpub: derived.neutered().toBase58(),
+          xpriv: derived.toBase58(),
+          derivationPath: "m/48'/1'/0'/2'",
+        },
+      ],
+    },
+  };
+  const requestedUpgrades = [];
+  Object.assign(f.scope, {
+    bip39,
+    crypto: require('crypto'),
+    BIP85,
+    prepareRecoveryImage,
+    config: { BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH: "m/83696968'/128169'/64'/0'" },
+    WalletUtilities: {
+      getFingerprintFromSeed: (value) =>
+        bip32.fromSeed(value).fingerprint.toString('hex').toUpperCase(),
+    },
+    SubscriptionTier: { L1: 'L1', L3: 'L3' },
+    AppSubscriptionLevel: { L1: 1, L3: 3 },
+    BackupType: { SEED: 'SEED' },
+    BackupAction: { SEED_BACKUP_CONFIRMED: 'confirmed' },
+    pauseBackup: image.pauseBackup,
+    uaiType: {},
+    moment: () => ({ unix: () => 1 }),
+    KEY_MANAGEMENT_VERSION: '1.1.9',
+    setupRecoveryKeySigningKey: () => recoverySigner,
+    addSigningDeviceWorker: ({ payload }) => {
+      payload.signers.forEach((record) =>
+        f.scope.dbManager.createObject(RealmSchema.Signer, record)
+      );
+      return true;
+    },
+    Relay: {
+      getAppImage: async () => ({
+        appImage: {
+          appId: id,
+          version: backupVersion,
+          wallets: {
+            test: encryption.encrypt(
+              key,
+              JSON.stringify({ id: 'test-wallet', entityKind: enums.EntityKind.WALLET })
+            ),
+          },
+          signers: {},
+          nodes: [],
+        },
+        allVaultImages: [],
+        labels: [],
+      }),
+    },
+  });
+  const actualUpgrade = f.scope.applyUpgradeSequence;
+  f.scope.applyUpgradeSequence = function* (action) {
+    requestedUpgrades.push(clone(action));
+    return yield* actualUpgrade(action);
+  };
+  vm.runInNewContext(
+    ts.transpileModule(
+      sourceDeclarations('src/store/sagas/bhr.ts', [
+        'getAppImageWorker',
+        'recoverApp',
+        'writeRecoveredObject',
+      ]),
+      {
+        compilerOptions: { target: ts.ScriptTarget.ES2020 },
+      }
+    ).outputText,
+    f.scope
+  );
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic } });
+  return { writes: f.records.VersionHistory, requestedUpgrades, errors: f.state.errors };
 }
 
 test.each(['2.5.15', '2.5.16'])(
-  'recovery of backup %s finishes with one recovered entry',
-  (backupVersion) => {
-    const { writes, recoveryUpgrades, errors } = recoveryFixture(backupVersion);
+  'recovery of encrypted backup %s finishes with one recovered history entry',
+  async (backupVersion) => {
+    const { writes, requestedUpgrades, errors } = await recoveryFixture(backupVersion);
     expect(errors).toEqual([]);
     expect(writes).toEqual([
-      expect.objectContaining({
-        version: '2.5.16(624)',
-        title: 'Recovered Wallet',
-      }),
+      expect.objectContaining({ version: '2.5.16(624)', title: 'Recovered Wallet' }),
     ]);
-    expect(recoveryUpgrades).toEqual(
+    expect(requestedUpgrades).toEqual(
       backupVersion === '2.5.15'
-        ? [{ previousVersion: backupVersion, newVersion, isRecovery: true,
-          originBackupAccountSession: 1 }]
+        ? [
+            {
+              previousVersion: backupVersion,
+              newVersion,
+              isRecovery: true,
+              originBackupAccountSession: 1,
+            },
+          ]
         : []
     );
   }
