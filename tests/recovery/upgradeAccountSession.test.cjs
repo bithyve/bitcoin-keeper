@@ -7,81 +7,101 @@ const ts = require('typescript');
 const semver = require('semver');
 const { runSaga } = require('redux-saga');
 const { call, put, select } = require('redux-saga/effects');
-const writeIntent = { appId: 'A', accountSession: 7,
-  baseRevision: 'a'.repeat(64), baselineEpoch: 0 };
+const { encryption } = require('./helpers.cjs');
+const plain = (value) => JSON.parse(JSON.stringify(value));
+const writeIntent = Object.freeze({ appId: 'A', accountSession: 7,
+  baseRevision: 'a'.repeat(64), baselineEpoch: 0 });
+const source = ts.createSourceFile('upgrade.ts',
+  fs.readFileSync(path.join(__dirname, '../../src/store/sagas/upgrade.ts'), 'utf8'), ts.ScriptTarget.Latest, true);
+const declarations = source.statements.filter((node) =>
+  ts.isFunctionDeclaration(node) || (ts.isVariableStatement(node) &&
+    node.declarationList.declarations.some((value) => value.name.getText(source) === 'upgradeAccountIsActive')));
+const code = ts.transpileModule(declarations.map((node) => node.getText(source).replace(/^export /, '')).join('\n'), {
+  compilerOptions: { target: ts.ScriptTarget.ES2020 },
+}).outputText;
 
-const file = 'src/store/sagas/upgrade.ts';
-const source = ts.createSourceFile(
-  file, fs.readFileSync(path.join(__dirname, '../..', file), 'utf8'), ts.ScriptTarget.Latest, true
-);
-
-function extract(names) {
-  const selected = source.statements.filter((node) =>
-    (ts.isFunctionDeclaration(node) && names.includes(node.name?.text)) ||
-    (ts.isVariableStatement(node) && node.declarationList.declarations.some(
-      (declaration) => declaration.name.getText(source) === 'upgradeAccountIsActive'
-    ))
-  );
-  return ts.transpileModule(selected.map((node) => node.getText(source).replace(/^export /, '')).join('\n'), {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText;
-}
-
-function fixture(names) {
-  const state = { appId: 'A', session: 7, actions: [], relay: [], local: [] };
-  const app = () => ({ id: state.appId, primarySeed: `seed-${state.appId}` });
-  const dbManager = {
-    getObjectByIndex: () => app(),
-    getCollection: (schema) => {
-      if (schema === 'UTXOInfo') return [{ walletId: 'wallet', txId: 'tx', vout: 0, labels: [{ name: 'note' }] }];
-      if (schema === 'Wallet') return [{ id: 'wallet' }];
-      if (schema === 'Signer') return [];
-      if (schema === 'Vault') return [{ id: 'vault', archived: false }];
-      return [];
+// Producer/account tests only: the separate native Realm/HTTP Relay fixture
+// proves commit-generation, atomic rollback, encrypted CAS and readback itself.
+// AES, key derivation for encryption and hashing here are production primitives.
+function fixture() {
+  const state = { appId: 'A', session: 7, actions: [], queued: [], events: [], commits: 0,
+    failSchema: null, topics: [], records: {
+      KeeperApp: [{ id: 'A', primarySeed: 'ab'.repeat(32), version: '2.5.16' }],
+      Wallet: [{ id: 'wallet' }], Signer: [], Tags: [], VersionHistory: [], VaultSigner: [],
+      Vault: [{ id: 'vault', archived: false }, { id: 'old-vault', archived: true }],
+      UTXOInfo: [{ walletId: 'wallet', txId: 'tx', vout: 0, labels: [{ name: 'note' }] }],
+    } };
+  const rawRealm = {
+    objectForPrimaryKey(schema, id) { return state.records[schema].find((value) => value.id === id); },
+    objects(schema) { return state.records[schema]; },
+    create(schema, value) {
+      if (state.failSchema === schema) throw Error('disposable local transaction failure');
+      const rows = state.records[schema];
+      const primary = schema === 'VersionHistory' ? 'version' : 'id';
+      const existing = rows.findIndex((row) => row[primary] === value[primary]);
+      if (existing >= 0) rows[existing] = plain(value);
+      else rows.push(plain(value));
     },
-    createObject: (...args) => state.local.push(args),
-    createObjectBulk: (...args) => state.local.push(args),
+  };
+  const dbManager = {
+    getObjectByIndex: () => state.records.KeeperApp[0],
+    getCollection: (schema) => plain(state.records[schema]),
   };
   const scope = {
-    call, put, select, semver, dbManager,
-    console: { log() {} },
-    RealmSchema: { KeeperApp: 'KeeperApp', UTXOInfo: 'UTXOInfo', Wallet: 'Wallet',
-      Signer: 'Signer', Vault: 'Vault', Tags: 'Tags', VersionHistory: 'VersionHistory' },
+    call, put, select, semver, dbManager, Realm: { UpdateMode: { Modified: 'modified' } },
+    RealmSchema: Object.fromEntries(Object.keys(state.records).map((schema) => [schema, schema])),
     store: { getState: () => ({ storage: { appId: state.appId } }) },
     currentBackupAccountSession: () => state.session,
-    LABELS_INTRODUCTION_VERSION: '1.0.4',
-    BIP329_INTRODUCTION_VERSION: '1.0.7',
-    KEY_MANAGEMENT_VERSION: '1.1.9',
-    APP_KEY_UPGRADE_VERSION: '1.1.12',
-    HEALTH_CHECK_TIMELINE_MIGRATION_VERSION: '1.2.6',
-    SIGNER_POLICY_MIGRATION_VERSION: '2.1.0',
-    migrateLabelsToBip329: (originAppId) => ({ type: 'MIGRATE_LABELS_329', originAppId }),
-    updateVersionHistory: (previousVersion, newVersion, isRecovery, originAppId) => ({
-      type: 'UPDATE_VERSION_HISTORY', payload: { previousVersion, newVersion, isRecovery }, originAppId,
-    }),
-    setAppVersion: (version) => ({ type: 'setAppVersion', version }),
-    setPendingAllBackup: (payload) => ({ type: 'setPendingAllBackup', payload }),
-    isAutomaticCloudBackupEnabled: () => true,
-    Relay: {
-      updateAppImage: async (...args) => { state.relay.push(['version', ...args]); return { updated: true }; },
-      modifyLabels: async (...args) => { state.relay.push(['labels', ...args]); return { updated: true }; },
+    notifyBackupReconciliation: () => state.events.push('pending'),
+    LABELS_INTRODUCTION_VERSION: '1.0.4', BIP329_INTRODUCTION_VERSION: '1.0.7',
+    KEY_MANAGEMENT_VERSION: '1.1.9', APP_KEY_UPGRADE_VERSION: '1.1.12',
+    HEALTH_CHECK_TIMELINE_MIGRATION_VERSION: '1.2.6', SIGNER_POLICY_MIGRATION_VERSION: '2.1.0',
+    beginBackupLocalOperation(appId, intent, session) { return { appId, intent, session }; },
+    commitBackupLocalOperation(operation, write) {
+      if (operation.appId !== state.appId || operation.session !== state.session)
+        return { committed: false };
+      const previous = plain(state.records);
+      try { write(rawRealm); } catch {
+        state.records = previous;
+        state.events.push('rollback');
+        return { committed: false };
+      }
+      state.commits++;
+      state.events.push('commit');
+      return Object.freeze({ committed: true, intent: operation.intent });
+    },
+    async enqueueAutomaticBackupOperation(receipt, mutations) {
+      state.events.push('queue');
+      state.queued.push({ receipt, mutations: plain(mutations), local: plain(state.records) });
+      return { updated: true, backupConfirmed: !!receipt.intent, backupPending: !receipt.intent };
+    },
+    buildAutomaticAppMutation(payload, appId) {
+      const app = state.records.KeeperApp[0];
+      return { operation: 'updateAppImage', body: { appId, version: app.version,
+        wallets: plain(payload.wallets), signers: plain(payload.signers) } };
+    },
+    buildAutomaticVaultMutation(id, appId) {
+      return { operation: 'updateVaultImage', body: { appId,
+        vault: plain(state.records.Vault.find((value) => value.id === id)) } };
     },
     DeviceInfo: { getBuildNumber: () => '1' },
     getApp: () => ({}), getMessaging: () => ({}),
-    unsubscribeFromTopic() {}, subscribeToTopic() {}, getReleaseTopic: (version) => version,
+    unsubscribeFromTopic: (_messaging, topic) => state.topics.push(['old', topic]),
+    subscribeToTopic: (_messaging, topic) => state.topics.push(['new', topic]),
+    getReleaseTopic: (version) => version,
+    setAppVersion: (version) => ({ type: 'setAppVersion', version }),
     generateAbbreviatedOutputDescriptors: () => 'disposable-origin',
-    LabelRefType: { OUTPUT: 'OUTPUT' },
-    generateEncryptionKey: (seed) => seed,
-    hash256: (value) => `hash(${value})`,
-    encrypt: (_key, content) => content,
-    SignerType: { KEEPER: 'KEEPER', MOBILE_KEY: 'MOBILE_KEY', MY_KEEPER: 'MY_KEEPER' },
+    LabelRefType: { OUTPUT: 'OUTPUT' }, ...encryption,
+    SignerType: { KEEPER: 'KEEPER', MOBILE_KEY: 'MOBILE_KEY', MY_KEEPER: 'MY_KEEPER', POLICY_SERVER: 'POLICY_SERVER' },
+    XpubTypes: { P2WSH: 'P2WSH' },
+    hcStatusType: { HEALTH_CHECK_SUCCESSFULL: 'HEALTH_CHECK_SUCCESSFULL' },
+    captureError() {},
   };
-  vm.runInNewContext(extract(names), scope);
-  const run = (name, ...args) => runSaga(
-    { getState: () => ({ storage: { appId: state.appId }, bhr: {} }),
-      dispatch: (action) => state.actions.push(action) },
-    scope[name], ...args
-  ).toPromise();
+  vm.runInNewContext(code, scope);
+  const run = (name, ...args) => runSaga({
+    getState: () => ({ storage: { appId: state.appId }, settings: {}, bhr: {} }),
+    dispatch: (action) => state.actions.push(plain(action)),
+  }, scope[name], ...args).toPromise();
   return { state, scope, dbManager, run };
 }
 
@@ -91,142 +111,128 @@ function deferred() {
   return { promise, resolve };
 }
 
-test('upgrade sequence stamps its original session on nested migrations and dispatched actions', async () => {
-  const f = fixture(['applyUpgradeSequence']);
-  const nested = [];
-  for (const name of [
-    'migrateStructureforSignersInAppImage', 'migrateStructureforVaultInAppImage',
-    'updateAppKeysToEnableSigning',
-  ]) f.scope[name] = function* (...args) { nested.push([name, ...args]); };
-  f.scope.healthCheckTimelineMigration = function* () {};
-  f.scope.migrateServerKeyPolicy = function* () {};
+const versionAction = { originAppId: 'A', originBackupAccountSession: 7, originBackupWriteIntent: writeIntent,
+  payload: { previousVersion: '2.5.16', newVersion: '2.5.17', isRecovery: true } };
 
-  await f.run('applyUpgradeSequence', { previousVersion: '1.0.5', newVersion: '2.5.17',
-    originBackupWriteIntent: writeIntent });
-
-  assert.equal(nested.length, 3);
-  assert.ok(nested.every(([, appId, session]) => appId === 'A' && session === 7));
-  const backupActions = f.state.actions.filter((action) =>
-    action.type === 'MIGRATE_LABELS_329' || action.type === 'UPDATE_VERSION_HISTORY'
-  );
-  assert.equal(backupActions.length, 2);
-  assert.ok(backupActions.every((action) => action.originAppId === 'A' &&
-    action.originBackupAccountSession === 7));
-  assert.ok(backupActions.every((action) =>
-    action.originBackupWriteIntent?.baseRevision === writeIntent.baseRevision));
+test('launch upgrade commits all migrations and version once before one original-intent queue', async () => {
+  const f = fixture();
+  assert.equal(await f.run('applyUpgradeSequence', {
+    previousVersion: '1.0.5', newVersion: '2.5.17', originBackupAccountSession: 7,
+    originBackupWriteIntent: writeIntent,
+  }), true);
+  assert.equal(f.state.commits, 1);
+  assert.deepEqual(f.state.events, ['commit', 'queue']);
+  assert.equal(f.state.queued.length, 1);
+  const queued = f.state.queued[0];
+  assert.equal(queued.receipt.intent, writeIntent);
+  assert.equal(queued.local.KeeperApp[0].version, '2.5.17');
+  assert.equal(queued.local.VersionHistory.length, 1);
+  assert.equal(queued.local.Tags.length, 1);
+  assert.deepEqual(queued.mutations.map((value) => value.operation),
+    ['updateAppImage', 'updateVaultImage', 'updateVaultImage', 'modifyLabels']);
+  assert.equal(queued.mutations[2].body.vault.archived, true);
+  assert.deepEqual(f.state.actions, [{ type: 'setAppVersion', version: '2.5.17' }]);
 });
 
-test('upgrade sequence paused on its first app read stops after A to B to A', async () => {
-  const f = fixture(['applyUpgradeSequence']);
-  const entered = deferred();
-  const resume = deferred();
-  let first = true;
-  f.dbManager.getObjectByIndex = () => {
-    if (first) { first = false; entered.resolve(); return resume.promise; }
-    return { id: f.state.appId };
+test('paused launch upgrade stops after A to B to A without any local commit or queue', async () => {
+  const f = fixture();
+  const entered = deferred(), resume = deferred();
+  const getCollection = f.dbManager.getCollection;
+  f.dbManager.getCollection = (schema) => {
+    if (schema === 'UTXOInfo') { entered.resolve(); return resume.promise; }
+    return getCollection(schema);
   };
-  f.scope.migrateStructureforSignersInAppImage = function* () { throw Error('stale migration'); };
-  f.scope.migrateStructureforVaultInAppImage = function* () { throw Error('stale migration'); };
-
   const pending = f.run('applyUpgradeSequence', { previousVersion: '1.0.5', newVersion: '2.5.17' });
   await entered.promise;
   f.state.appId = 'B'; f.state.session = 8;
   f.state.appId = 'A'; f.state.session = 9;
-  resume.resolve({ id: 'A' });
-  await pending;
-
+  resume.resolve(getCollection('UTXOInfo'));
+  assert.equal(await pending, false);
+  assert.equal(f.state.commits, 0);
+  assert.deepEqual(f.state.queued, []);
   assert.deepEqual(f.state.actions, []);
-  assert.deepEqual(f.state.relay, []);
 });
 
-test('upgrade invoked after A to B to A rejects the caller original session before backup', async () => {
-  const f = fixture(['applyUpgradeSequence']);
-  f.state.appId = 'B'; f.state.session = 8;
-  f.state.appId = 'A'; f.state.session = 9;
-  f.scope.migrateStructureforSignersInAppImage = function* () { throw Error('stale upload'); };
-  f.scope.migrateStructureforVaultInAppImage = function* () { throw Error('stale upload'); };
-  await f.run('applyUpgradeSequence', {
-    previousVersion: '1.0.5',
-    newVersion: '2.5.17',
-    originBackupAccountSession: 7,
-  });
-  assert.deepEqual(f.state.actions, []);
-  assert.deepEqual(f.state.relay, []);
+test('a caller original session is rejected before upgrade after A to B to A', async () => {
+  const f = fixture();
+  f.state.session = 9;
+  assert.equal(await f.run('applyUpgradeSequence', { previousVersion: '1.0.5', newVersion: '2.5.17',
+    originBackupAccountSession: 7 }), false);
+  assert.equal(await f.run('updateVersionHistoryWorker', versionAction), false);
+  assert.equal(f.state.commits, 0);
+  assert.deepEqual(f.state.queued, []);
 });
 
-test('version update passes session to Relay and blocks stale A to B to A action', async () => {
-  const f = fixture(['updateVersionHistoryWorker']);
-  const action = { originAppId: 'A', originBackupAccountSession: 7,
-    originBackupWriteIntent: writeIntent,
-    payload: { previousVersion: '2.5.16', newVersion: '2.5.17', isRecovery: true } };
-  await f.run('updateVersionHistoryWorker', action);
-  assert.equal(f.state.relay.length, 1);
-  assert.equal(f.state.relay[0][2].accountSession, 7);
-  assert.equal(f.state.relay[0][2].baseRevision, writeIntent.baseRevision);
-
-  const entered = deferred();
-  const resume = deferred();
-  let first = true;
-  f.dbManager.getObjectByIndex = () => {
-    if (first) { first = false; entered.resolve(); return resume.promise; }
-    return { id: f.state.appId };
-  };
-  const pending = f.run('updateVersionHistoryWorker', action);
-  await entered.promise;
-  f.state.appId = 'B'; f.state.session = 8;
-  f.state.appId = 'A'; f.state.session = 9;
-  resume.resolve({ id: 'A' });
-  await pending;
-  assert.equal(f.state.relay.length, 1);
-  assert.deepEqual(f.state.local, []);
+test('version update persists the new KeeperApp version before queue and preserves recovery history', async () => {
+  const f = fixture();
+  assert.equal(await f.run('updateVersionHistoryWorker', versionAction), true);
+  assert.deepEqual(f.state.events, ['commit', 'queue']);
+  const queued = f.state.queued[0];
+  assert.equal(queued.receipt.intent, writeIntent);
+  assert.equal(queued.local.KeeperApp[0].version, '2.5.17');
+  assert.equal(queued.mutations[0].body.version, '2.5.17');
+  assert.deepEqual(f.state.records.VersionHistory, []);
 });
 
-test('label migration passes session to Relay and blocks stale A to B to A action', async () => {
-  const f = fixture(['migrateLablesWorker']);
-  const action = { originAppId: 'A', originBackupAccountSession: 7,
-    originBackupWriteIntent: writeIntent };
-  await f.run('migrateLablesWorker', action);
-  assert.equal(f.state.relay.length, 1);
-  assert.equal(f.state.relay[0][4].accountSession, 7);
-  assert.equal(f.state.relay[0][4].baseRevision, writeIntent.baseRevision);
+test('version history failure rolls back the version and never queues a cloud operation', async () => {
+  const f = fixture();
+  f.state.failSchema = 'VersionHistory';
+  assert.equal(await f.run('updateVersionHistoryWorker', {
+    ...versionAction, payload: { ...versionAction.payload, isRecovery: false },
+  }), false);
+  assert.equal(f.state.records.KeeperApp[0].version, '2.5.16');
+  assert.deepEqual(f.state.records.VersionHistory, []);
+  assert.deepEqual(f.state.events, ['rollback']);
+  assert.deepEqual(f.state.queued, []);
+  assert.deepEqual(f.state.topics, []);
+});
 
-  const entered = deferred();
-  const resume = deferred();
+test('migrated label ciphertext encodes the committed tag with production AES and hashed label ID', async () => {
+  const f = fixture();
+  await f.run('migrateLablesWorker', { originAppId: 'A', originBackupAccountSession: 7,
+    originBackupWriteIntent: writeIntent });
+  const queued = f.state.queued[0];
+  assert.equal(queued.receipt.intent, writeIntent);
+  const label = queued.mutations[0].body.addLabels[0];
+  const key = encryption.generateEncryptionKey(f.state.records.KeeperApp[0].primarySeed);
+  assert.equal(label.id, encryption.hash256(encryption.hash256(key + f.state.records.Tags[0].id)));
+  assert.deepEqual(JSON.parse(encryption.decrypt(key, label.content)), f.state.records.Tags[0]);
+  assert.notEqual(label.content, JSON.stringify(f.state.records.Tags[0]));
+  assert.deepEqual(f.state.events, ['commit', 'queue']);
+});
+
+test('paused label migration stops after A to B to A before committing staged tags', async () => {
+  const f = fixture();
+  const entered = deferred(), resume = deferred();
   const getCollection = f.dbManager.getCollection;
-  let first = true;
   f.dbManager.getCollection = (schema) => {
-    if (schema === 'UTXOInfo' && first) {
-      first = false; entered.resolve(); return resume.promise;
-    }
+    if (schema === 'UTXOInfo') { entered.resolve(); return resume.promise; }
     return getCollection(schema);
   };
-  const pending = f.run('migrateLablesWorker', action);
+  const pending = f.run('migrateLablesWorker', { originAppId: 'A', originBackupAccountSession: 7,
+    originBackupWriteIntent: writeIntent });
   await entered.promise;
   f.state.appId = 'B'; f.state.session = 8;
   f.state.appId = 'A'; f.state.session = 9;
   resume.resolve(getCollection('UTXOInfo'));
-  await pending;
-  assert.equal(f.state.relay.length, 1);
-  assert.equal(f.state.local.length, 1);
+  assert.equal(await pending, false);
+  assert.equal(f.state.commits, 0);
+  assert.deepEqual(f.state.records.Tags, []);
+  assert.deepEqual(f.state.queued, []);
 });
 
-test('nested upgrade backup workers receive the original session', async () => {
-  const f = fixture([
-    'migrateStructureforSignersInAppImage', 'migrateStructureforVaultInAppImage',
-    'updateAppKeysToEnableSigning',
-  ]);
-  const nested = [];
-  f.scope.updateAppImageWorker = function* (action) { nested.push(['app', action]); return { updated: true }; };
-  f.scope.updateVaultImageWorker = function* (action) { nested.push(['vault', action]); return { updated: true }; };
-  f.scope.mapAppKeysToWallets = () => ({ appKeyWalletMap: {}, myAppKeySigners: [] });
-  f.scope.generateExtendedKeysForSigners = () => ({});
-  f.scope.updateVaultSigners = () => {};
-  f.scope.updateSignerDetails = () => {};
+test('a missing original verification baseline never gets recaptured by an upgrade producer', async () => {
+  const f = fixture();
+  await f.run('updateVersionHistoryWorker', { ...versionAction, originBackupWriteIntent: undefined });
+  assert.equal(f.state.records.KeeperApp[0].version, '2.5.17');
+  assert.equal(f.state.queued[0].receipt.intent, undefined);
+});
 
-  await f.run('migrateStructureforSignersInAppImage', 'A', 7);
-  await f.run('migrateStructureforVaultInAppImage', 'A', 7);
-  await f.run('updateAppKeysToEnableSigning', 'A', 7);
-  assert.deepEqual(nested.map(([kind]) => kind), ['app', 'vault', 'app']);
-  assert.ok(nested.every(([, action]) => action.originAppId === 'A' &&
-    action.originBackupAccountSession === 7));
+test('cloud payload preparation failure preserves the committed local upgrade and marks pending', async () => {
+  const f = fixture();
+  f.scope.buildAutomaticAppMutation = () => { throw Error('disposable payload preparation failure'); };
+  assert.equal(await f.run('updateVersionHistoryWorker', versionAction), true);
+  assert.equal(f.state.records.KeeperApp[0].version, '2.5.17');
+  assert.deepEqual(f.state.events, ['commit', 'pending']);
+  assert.deepEqual(f.state.queued, []);
 });
