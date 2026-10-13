@@ -67,9 +67,10 @@ const managedCommits = new WeakSet<BackupLocalOperation>();
 const results = new WeakMap<object, { proof: Proof; session: number; appId: string }>();
 const generations = new Map<string, { generation: number; fingerprint: string }>();
 let sequence = 0;
-// Source proof is being exercised on disposable loopback fixtures. Hosted
-// writes remain fenced until the matrix and the Relay fleet rollout are approved.
-export const AUTOMATIC_BACKUP_SOURCE_READY = false;
+// The genuine Realm/transactional Relay matrix permits development loopback
+// validation. Hosted writes remain fenced until the separate fleet rollout,
+// old-writer drainage and operator evidence have been reviewed and approved.
+export const AUTOMATIC_BACKUP_SOURCE_READY = true;
 export const AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY = false;
 let commitVerification: (appId: string, deleted: boolean, consentEpoch: number) => boolean = () =>
   false;
