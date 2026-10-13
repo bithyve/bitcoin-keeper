@@ -1,8 +1,8 @@
 # Backup comparison and repair: NFR review
 
-Reviewed 29 September 2026. This audit records the original baseline for the check → prompt → update → verify flow. The flow and safeguards are now implemented locally; see design.md and validation.md for current status. The observations below describe the pre-change candidate, not the final implementation. No approved numerical backup performance budgets were found in the synced product sources or repository OpenSpec documents searched. The thresholds below are proposed engineering targets, subject to native validation.
+Reviewed 29 September 2026; evidence boundary clarified 13 October 2026. This file preserves the historical check → prompt → update → verify audit and measurements. Statements below about implemented safeguards, completed native runs or infrastructure describe that historical candidate; they are not exact-head R4 automatic-write acceptance. See [design.md](design.md), [validation.md](validation.md) and [the current automatic-write matrix](automatic-write-validation.md) for current requirements/results. No approved numerical backup performance budgets were found in the product sources or OpenSpec documents searched at the historical review. The thresholds below remain proposed engineering targets, subject to native validation.
 
-## Original observed gaps (addressed unless listed as a remaining gate in design.md)
+## Historical original observed gaps
 
 - `src/services/rest/RestClient.ts:64`: POST passes headers only to Axios. The backup endpoints supply no explicit request timeout, abort signal, or transfer progress callbacks. No global Axios timeout override was found. A stalled request can leave the loading state pending indefinitely. An existing unrelated call passes `{timeout: 20000}` as the headers argument, so that pattern must not be copied as a timeout implementation.
 - `src/store/sagas/bhr.ts`: full backup synchronously serializes/encrypts all wallet, signer, vault, node and label records before posting one large request. Saga orchestration does not move synchronous encryption off the React Native JavaScript thread. One large wallet can stall it even if work yields between smaller records.
@@ -37,14 +37,14 @@ Transfer estimates exclude the initial comparison download, protocol overhead, l
 8. **Privacy and consent:** preserve Assisted Server Backup opt-out. Report diagnostic sizes, durations, stage and error category only; no Recovery Key, private keys, plaintext backup, wallet IDs or addresses in telemetry/logs. Do not add new analytics as part of this review.
 9. **Accessibility:** use existing Keeper components; stage/failure text must remain readable at small widths and enlarged system text sizes. Controls remain reachable, progress changes are accessible, and a spinner is not the only status signal.
 
-## Native acceptance matrix / current status
+## Historical native acceptance matrix
 
-**Completed locally:** native small-fixture upgrade and clean recovery on Android/iOS, Android repair/readback, iOS backend failure/retry. These are development/simulator results.
+**Historically completed, September source only:** native small-fixture upgrade and clean recovery on Android/iOS, Android repair/readback, iOS backend failure/retry. These development/simulator results do not validate the final R4 automatic pipeline.
 
 **Remaining native matrix:** large/single-large-record datasets; many labels/signers; both networks and USDT; normal network, 1 Mbps network, high latency, no response, offline/reconnect; background/foreground, OS kill/relaunch, screen navigation, account switch, repeated taps, and wallet mutation during upload. Measure UI stalls, end-to-end stage durations, peak memory, bytes and retry count. Verify bounded stalled-state exit and uncertain-outcome readback, and that matching backups produce no repair prompt.
 
 **Infrastructure update:** the shared Docker VM still has storage errors. A separate `keeper-recovery-qa` Colima profile now runs a healthy disposable MongoDB replica set and local relay; database/HTTP contract tests pass. Native performance acceptance is still pending. The Mac benchmark is a finding, not an NFR pass; keep the candidate in Now until applicable release gates pass.
 
-## Current desktop stress follow-up
+## Historical desktop stress follow-up
 
 The real production AES/comparison path under Node 22, with mocked Realm/transport, repaired 10 wallets + 10 keys in 487 ms, 100 + 100 in 3,866 ms and 1,000 + 1,000 in 35,314 ms. Comparison took 189 / 2,050 / 20,145 ms; maximum event-loop delays were 36 / 37 / 91 ms on a busy Mac. The largest case exceeds the proposed 50 ms task target even here. This is not native NFR acceptance. Evidence: now-candidate-2026-09-29/evidence/backup-performance.json.

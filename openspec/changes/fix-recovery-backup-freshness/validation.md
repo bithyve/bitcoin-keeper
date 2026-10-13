@@ -1,4 +1,16 @@
-# Recovery candidate validation — 29 September 2026
+# R4 recovery validation — current gates and historical evidence
+
+## Current automatic-write status — 13 October 2026
+
+Audit starting app source: `b160656218dc6065ad12af9db220c974255bfc23`. The automatic fix and disposable proof are mandatory R4 requirements; critical native iOS/Android backup acceptance also precedes release. Physical-device-only follow-up does not waive the fixture/native safety checks.
+
+Current exact-source result placeholders and evidence links live in [automatic-write-validation.md](automatic-write-validation.md). No new implementation, fixture, native or deployment pass is claimed by this documentation reconciliation. Populate the exact app/backend source, commands, outcome counts and redacted artifacts from coordinator evidence before checking [tasks](tasks.md).
+
+The baseline automatic transport fails closed before network until end-to-end local commit/generation, originating-session/payload proof, revisioned fanout and final complete readback are implemented and proved. Earlier success of manual repair or a pre-persistence automatic writer does not establish readiness for this contract. A lost write acknowledgement leaves its originating operation pending; a content-only match is not an acknowledged write or fanout completion.
+
+## Historical recovery candidate — 29 September 2026
+
+The material below preserves prior recorded results and their original source/artifact boundaries. It has not been rerun in this reconciliation. References to local uncommitted source, earlier versions/counters, native completion or remaining gates describe that September candidate, not the final R4 source. In particular, older tests requiring upload before local commit are superseded by the local-first model; their logs remain unchanged as provenance.
 
 Local, uncommitted public source at `/Users/devaccount/Workspace/keeper-recovery-t060`, based on `7fdd502702a8aa149f5a3ad87aac7a274a61e6e8`. Paired relay source at `/Users/devaccount/Workspace/keeper-recovery-relay`, based on `5551550d7ba0e84ce239a7f154f34613081c5c20`. No production deployment, commit, push or store submission has occurred. T-060 remains Now.
 

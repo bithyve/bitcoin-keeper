@@ -1,12 +1,14 @@
 # Automatic Assisted Backup writes: implementation gates
 
-Scope reviewed: Keeper `0550ac9ffa938a079816ae4ed58bc970324c3e08` and Relay PR #4 at `82ee3b10708a56d220170505d1bb7e3bc8429e77`. This is an implementation plan, not permission to enable the currently disabled seven incremental writes. No release or Relay deployment is implied.
+R4 requirements reconciled 13 October 2026 from audit starting app head `b160656218dc6065ad12af9db220c974255bfc23`. The original plan reviewed Keeper `0550ac9ffa938a079816ae4ed58bc970324c3e08` and Relay PR #4 `82ee3b10708a56d220170505d1bb7e3bc8429e77`; those are historical inputs, not the final proof source.
 
-## Why the current intent cannot authorize a write
+The owner requires the automatic-backup fix and disposable proof in R4. Critical native IOS/ANDROID backup checks also precede release; explicitly physical-only follow-up may be recorded separately. This plan authorizes no production enablement, merge or Relay deployment. Source implementation must stay fail-closed until committed-payload/session proof and the required disposable matrix pass. Record current implementation and results in [automatic-write-validation.md](automatic-write-validation.md); no future gate is marked complete here.
 
-`BackupWriteIntent` records the selected account session and a previously verified Relay revision. It does not identify the local recovery state represented by an encrypted payload or deletion. `backupPost` therefore rejects all seven operations before network. This is required: some producers encrypt action data before Realm persistence, Realm may change while an action waits, and one action can emit several Relay writes with the same captured base revision. A valid server compare-and-swap protects against another server writer; it does not prove that the client is sending its present local recovery data.
+## Why the audit-baseline intent cannot authorize a write
 
-The central Realm observer invalidates backup verification **before** each relevant write. It has no post-commit token and can fire for several field writes in one logical action. The transport's `queuedMutationRevisions` is currently never populated, so it cannot provide a queue completion proof. A pre-send comparison of a prepared ciphertext against the current Realm image is necessary but still insufficient for operations deliberately sent before local persistence.
+At the audit starting source, `BackupWriteIntent` records the selected account session and a previously verified Relay revision. It does not identify the local recovery state represented by an encrypted payload or deletion. `backupPost` therefore rejects all seven operations before network. This is required at that baseline: some producers encrypt action data before Realm persistence, Realm may change while an action waits, and one action can emit several Relay writes with the same captured base revision. A valid server compare-and-swap protects against another server writer; it does not prove that the client is sending its present local recovery data. Later implementation/proof must update the result matrix; these observations are not a claim about its final source.
+
+The baseline central Realm observer invalidates backup verification **before** each relevant write. It has no post-commit token and can fire for several field writes in one logical action. The baseline transport's `queuedMutationRevisions` is never populated, so it cannot provide a queue completion proof. A pre-send comparison of a prepared ciphertext against the current Realm image is necessary but still insufficient for operations deliberately sent before local persistence.
 
 ## Required transaction model
 
@@ -20,7 +22,7 @@ The central Realm observer invalidates backup verification **before** each relev
 
 ## Operation-specific proof at the queue head
 
-| Relay operation | Local proof before send | Current producer complication |
+| Relay operation | Local proof before send | Audit-baseline producer complication |
 | --- | --- | --- |
 | `updateAppImage` | Decrypt each wallet/USDT/signer ciphertext with the active account seed; map IDs, sanitized signer records and recoverable fields must equal the committed Realm records. `replaceNodes` requires the exact current normalized node set; app metadata must come from the current KeeperApp. | New wallet and signer creation call backup before Realm insertion. Node and version paths use different timing. Action payloads may be stale. |
 | `migrateXfps` | Old exact KeyUID must be absent in committed Realm; new exact KeyUID and decrypted sanitized signer must match Realm. Verify all affected vault signer references, and prove the old map entry exists in the validated Relay snapshot. | The worker updates a live signer before building the request. It previously sent bare fingerprints while Relay maps use KeyUIDs; a narrow key fix is included separately, with transport still disabled. |
@@ -36,4 +38,4 @@ Run each of the seven operations against disposable Realm and transactional Rela
 
 Add focused multi-write fixtures for (a) creating and archiving a vault, (b) one VaultSigner registration affecting several vaults, and (c) label import plus deletion. Make the first Relay write succeed and the next fail; assert local data survives, the remaining prepared writes do not run, and neither a saga nor Redux reports verified. Assert a local mutation injected just before the final verification commit leaves the backup pending. Pair these tests with native iOS/Android create, edit, delete, relaunch and clean Recovery Key restore on the exact app SHA, plus Relay v2 HTTP tests against a disposable replica set.
 
-Keep automatic transport disabled until this matrix passes and all old Relay instances and legacy full writers are drained. Production transaction topology and the actual Relay deployment are separate release evidence. A future source change must never turn an endpoint name or revision string alone into a freshness proof.
+Keep automatic source transport fail-closed until this matrix passes. Production delivery additionally requires verified transaction topology, compatible running Relay artifacts and protection from old/legacy writers under separately authorized rollout; a source pass is not deployment evidence. A future source change must never turn an endpoint name or revision string alone into a freshness proof. The current result matrix also tracks mandatory native and clean Recovery Key restore checks independently of fixture outcomes.
