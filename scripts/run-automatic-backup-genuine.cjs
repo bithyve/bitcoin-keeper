@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const relaySha = '5a42a0368223d952e1dda475859743ce30d08058';
+const relaySha = 'b600416e5ba7325927d7d2871cff7776f4e593fe';
 const root = path.resolve(__dirname, '..');
 const fixture = process.env.KEEPER_RELAY_FIXTURE_MODULE;
 assert.equal(process.versions.node.split('.')[0], '22', 'Run the genuine automatic backup matrix with Node 22');
@@ -42,11 +42,14 @@ try {
   fs.rmSync(directory, { recursive: true, force: true });
 }
 
-const result = spawnSync(process.execPath, [
-  '--test',
-  'tests/recovery/automaticWriteRealmRelay.integration.cjs',
-  'tests/recovery/automaticLabelProducers.integration.cjs',
-], {
+const matrices = fs.readdirSync(path.join(root, 'tests/recovery'))
+  .filter(filename => filename.endsWith('.integration.cjs')).sort();
+for (const required of ['automaticWriteRealmRelay.integration.cjs',
+  'automaticLabelProducers.integration.cjs', 'automaticUpgradeProducer.integration.cjs',
+  'automaticWalletProducer.integration.cjs', 'automaticUSDTProducer.integration.cjs',
+  'automaticSignerProducer.integration.cjs', 'automaticRecoveryRestore.integration.cjs'])
+  assert.ok(matrices.includes(required), `Missing genuine production matrix ${required}`);
+const result = spawnSync(process.execPath, ['--test', ...matrices.map(filename => `tests/recovery/${filename}`)], {
   cwd: root, stdio: 'inherit',
   env: { ...process.env, KEEPER_RELAY_FIXTURE_MODULE: filename, BACKUP_TEST_MONGO_URL: mongoUrl.toString() },
 });

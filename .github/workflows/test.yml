@@ -101,7 +101,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: KeeperCommunity/Relay
-          ref: 5a42a0368223d952e1dda475859743ce30d08058
+          ref: b600416e5ba7325927d7d2871cff7776f4e593fe
           path: .ci-relay
           persist-credentials: false
 
