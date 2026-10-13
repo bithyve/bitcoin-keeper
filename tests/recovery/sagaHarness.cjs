@@ -111,6 +111,7 @@ function fixture(options = {}) {
     USDTWallet: [],
     Signer: [],
     Vault: [],
+    VaultSigner: [],
     Tags: [],
     NodeConnect: [],
     UAI: [],
@@ -123,7 +124,6 @@ function fixture(options = {}) {
   const scope = {
     ...effects,
     markBackupMutation: () => {},
-    currentBackupAccountSession: () => 0,
     store: { getState: () => state },
     isAutomaticCloudBackupEnabled: (backup, id) => !!backup.automaticCloudBackupByAppId?.[id],
     ...encryption,
@@ -147,7 +147,7 @@ function fixture(options = {}) {
     },
     Realm: { UpdateMode: { Modified: 'modified' } },
     captureError: (error) => { throw error; },
-    getJSONFromRealmObject: (object) => object,
+    getJSONFromRealmObject: (object) => object?.toJSON ? object.toJSON() : JSON.parse(JSON.stringify(object)),
     RealmSchema: new Proxy({}, { get: (_, name) => name }),
     dbManager: {
       getObjectByIndex: (schema, _index, all) =>
@@ -155,13 +155,14 @@ function fixture(options = {}) {
       getObjectById: (schema, id) => collections[schema]?.find((row) => row.id === id),
       getObjectByPrimaryId: (schema, key, value) =>
         collections[schema]?.find((row) => String(row[key]) === String(value)),
-      getCollection: (schema) => collections[schema] || [],
+      getCollection: (schema) => JSON.parse(JSON.stringify(collections[schema] || [])),
       getObjectByField: (schema) => collections[schema] || [],
       createObject: (schema, value) => {
         if (schema === 'KeeperApp') Object.assign(app, value);
         else {
           const rows = (collections[schema] ||= []);
-          const index = rows.findIndex((row) => row.id && row.id === value.id);
+          const primary = schema === 'VaultSigner' ? 'xpub' : 'id';
+          const index = rows.findIndex((row) => row[primary] && row[primary] === value[primary]);
           if (index < 0) rows.push(value);
           else rows[index] = value;
         }
@@ -180,13 +181,23 @@ function fixture(options = {}) {
         return true;
       },
       updateObjectById: (schema, id, patch) => {
-        const row = collections[schema].find((record) => String(record.id) === String(id));
+        const row = schema === 'KeeperApp' ? scope.dbManager.getObjectByIndex(schema)
+          : collections[schema]?.find((record) => String(record.id) === String(id));
         if (!row) return false;
         Object.assign(row, patch);
         return true;
       },
       updateObjectByQuery: (schema, predicate, patch) => {
-        collections[schema].filter(predicate).forEach((row) => Object.assign(row, patch));
+        const row = collections[schema]?.find(predicate);
+        if (!row) return false;
+        Object.assign(row, patch);
+        return true;
+      },
+      updateObjectByPrimaryId: (schema, key, value, patch) => {
+        const row = collections[schema]?.find((record) => String(record[key]) === String(value));
+        if (!row) return false;
+        Object.assign(row, patch);
+        return true;
       },
     },
     Relay: {
@@ -244,6 +255,201 @@ function fixture(options = {}) {
       return options.syncFails !== true;
     },
   };
+
+  // Producer-boundary UNIT adapter only. It exercises source saga ordering,
+  // committed-record builders and real AES with mutable in-memory DB/Relay
+  // controls. It is not the branded generation/CAS/readback implementation or
+  // native/HTTP proof; automaticWriteRealmRelay.integration owns that evidence.
+  let selectedAppId = state.storage.appId;
+  let accountSession = 0;
+  Object.defineProperty(state.storage, 'appId', {
+    enumerable: true,
+    get: () => selectedAppId,
+    set: (value) => {
+      if (value !== selectedAppId) accountSession += 1;
+      selectedAppId = value;
+    },
+  });
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const receipts = new WeakMap();
+  const results = new WeakMap();
+  const consentEpochs = new Map();
+  const consentCompletions = new WeakMap();
+  scope.backupConsentEpoch = (id) => consentEpochs.get(id) || 0;
+  scope.protectBackupConsentCompletion = (action, id, epoch) => {
+    consentCompletions.set(action, { appId: id, epoch });
+    return action;
+  };
+  const rawReferences = new WeakMap();
+  const fingerprint = () => JSON.stringify({
+    app: scope.dbManager.getObjectByIndex('KeeperApp'), collections,
+  });
+  const primary = (schema) => schema === 'VaultSigner' ? 'xpub' : 'id';
+  const managed = (schema, row) => {
+    if (!row) return undefined;
+    const proxy = new Proxy(row, {
+      get: (target, key) => key === 'toJSON' ? () => clone(target) : target[key],
+      set: (target, key, value) => {
+        const saved = schema === 'VaultSigner'
+          ? scope.dbManager.updateObjectByPrimaryId(schema, 'xpub', target.xpub, { [key]: value })
+          : scope.dbManager.updateObjectById(schema, target.id, { [key]: value });
+        if (saved !== true) throw new Error('Unit local write failed');
+        return true;
+      },
+    });
+    rawReferences.set(proxy, { schema, row });
+    return proxy;
+  };
+  const localRealm = {
+    objects: (schema) => (schema === 'KeeperApp' ? [scope.dbManager.getObjectByIndex(schema)] : collections[schema] || [])
+      .filter(Boolean).map((row) => managed(schema, row)),
+    objectForPrimaryKey: (schema, value) => managed(schema,
+      schema === 'KeeperApp' ? scope.dbManager.getObjectByIndex(schema)
+        : (collections[schema] || []).find((row) => String(row[primary(schema)]) === String(value))),
+    create: (schema, value, mode) => {
+      if (scope.dbManager.createObject(schema, value, mode) !== true) throw new Error('Unit local creation failed');
+      return localRealm.objectForPrimaryKey(schema, value[primary(schema)]);
+    },
+    delete: (object) => {
+      const record = rawReferences.get(object);
+      if (!record) throw new Error('Unit deletion target missing');
+      const key = primary(record.schema);
+      const deleted = record.schema === 'Signer' || record.schema === 'VaultSigner'
+        ? scope.dbManager.deleteObjectByPrimaryKey(record.schema, key, record.row[key])
+        : scope.dbManager.deleteObjectById(record.schema, record.row[key]);
+      if (deleted !== true || (collections[record.schema] || []).includes(record.row))
+        throw new Error('Unit deletion was not persisted');
+    },
+  };
+  scope.realm = { getDatabase: () => localRealm };
+  scope.currentBackupAccountSession = () => accountSession;
+  const sessionNow = () => scope.currentBackupAccountSession();
+  const markUnitPending = (id) => {
+    // Production automatic.ts notifies reconciliation after a failed local
+    // commit. This adapter models that state boundary without claiming proof.
+    scope.markBackupMutation(id);
+    if (scope.invalidateBackupRepair && scope.store.dispatch)
+      scope.store.dispatch(scope.invalidateBackupRepair(id));
+    if (scope.setPendingAllBackup && scope.store.dispatch)
+      scope.store.dispatch(scope.setPendingAllBackup({ appId: id, pending: true }));
+  };
+  scope.beginBackupLocalOperation = (id, intent, session = sessionNow()) => {
+    const current = scope.dbManager.getObjectByIndex('KeeperApp');
+    if (current?.id !== id || state.storage.appId !== id || session !== sessionNow())
+      throw new Error('Unit account session changed');
+    return { appId: id, accountSession: session, database: scope.realm.getDatabase(),
+      before: fingerprint(), origin: intent, consentEpoch: scope.backupConsentEpoch(id) };
+  };
+  scope.commitBackupLocalOperation = (operation, callback) => {
+    const active = scope.dbManager.getObjectByIndex('KeeperApp');
+    if (active?.id !== operation.appId || state.storage.appId !== operation.appId ||
+      operation.accountSession !== sessionNow() || operation.database !== scope.realm.getDatabase() ||
+      operation.consentEpoch !== scope.backupConsentEpoch(operation.appId))
+      return { committed: false };
+    const before = new Map(Object.entries(collections).map(([schema, rows]) =>
+      [schema, rows.map((row) => ({ row, value: clone(row) }))]));
+    const appBefore = clone(active);
+    try {
+      const value = callback(localRealm);
+      if (value?.then) throw new Error('Unit local commit must be synchronous');
+      const receipt = { committed: true,
+        intent: operation.origin && operation.origin.appId === operation.appId &&
+          operation.origin.accountSession === sessionNow() &&
+          (operation.origin.consentEpoch === undefined ||
+            operation.origin.consentEpoch === scope.backupConsentEpoch(operation.appId))
+          ? operation.origin : undefined };
+      receipts.set(receipt, { appId: operation.appId, session: sessionNow(),
+        fingerprint: fingerprint(), consentEpoch: operation.consentEpoch, deletion: false });
+      markUnitPending(operation.appId);
+      return receipt;
+    } catch {
+      for (const key of Object.keys(active)) delete active[key];
+      Object.assign(active, appBefore);
+      for (const [schema, saved] of before) {
+        for (const { row, value } of saved) {
+          for (const key of Object.keys(row)) delete row[key];
+          Object.assign(row, value);
+        }
+        collections[schema] = saved.map(({ row }) => row);
+      }
+      markUnitPending(operation.appId);
+      return { committed: false };
+    }
+  };
+  scope.beginBackupDeleteOperation = async (id, session = sessionNow()) => {
+    const operation = scope.beginBackupLocalOperation(id, undefined, session);
+    const receipt = { committed: true, intent: { appId: id, accountSession: session } };
+    receipts.set(receipt, { appId: id, session, fingerprint: operation.before,
+      consentEpoch: operation.consentEpoch, deletion: true });
+    return receipt;
+  };
+  scope.isAutomaticBackupResultCurrent = (result, id) => {
+    const evidence = results.get(result);
+    return !!evidence && evidence.appId === id && id === state.storage.appId &&
+      evidence.session === sessionNow() && evidence.consentEpoch === scope.backupConsentEpoch(id) &&
+      evidence.fingerprint === fingerprint();
+  };
+  scope.isBackupVerificationCurrent = (id) => id === state.storage.appId && !!state.bhr.backupRepairCompletedByAppId[id];
+  scope.enqueueAutomaticBackupOperation = async (receipt, mutations) => {
+    const evidence = receipt && receipts.get(receipt);
+    const appId = evidence?.appId || receipt?.intent?.appId || mutations[0]?.body?.appId;
+    if (appId) markUnitPending(appId);
+    const finish = (updated, confirmed = false) => {
+      const result = { updated, localCommitted: receipt?.committed === true,
+        backupConfirmed: confirmed, backupPending: !confirmed };
+      if (evidence) results.set(result, evidence);
+      return result;
+    };
+    if (!evidence || !receipt.intent || evidence.appId !== state.storage.appId ||
+      evidence.session !== sessionNow() || evidence.consentEpoch !== scope.backupConsentEpoch(evidence.appId) ||
+      evidence.fingerprint !== fingerprint()) return finish(false);
+    if (options.online === false) return finish(false);
+    try {
+      for (const mutation of mutations) {
+        const { body, operation } = mutation;
+        let reply;
+        if (operation === 'updateAppImage') reply = await scope.Relay.updateAppImage(body);
+        else if (operation === 'updateVaultImage') reply = await scope.Relay.updateVaultImage(body);
+        else if (operation === 'deleteAppImageEntity') reply = await scope.Relay.deleteAppImageEntity(body);
+        else if (operation === 'deleteVaults') reply = await scope.Relay.deleteVaults(body);
+        else if (operation === 'modifyLabels') reply = await scope.Relay.modifyLabels(body.appId, body.addLabels, body.deleteLabels);
+        else if (operation === 'migrateXfps') reply = await scope.Relay.migrateXfp(body.appId, body.signerChanges);
+        else if (operation === 'deleteBackup') reply = await scope.Relay.deleteBackup(body);
+        else throw new Error('Unsupported unit mutation');
+        if (reply !== true && reply?.updated !== true) return finish(false);
+        if (evidence.appId !== state.storage.appId || evidence.session !== sessionNow() ||
+          evidence.consentEpoch !== scope.backupConsentEpoch(evidence.appId) ||
+          evidence.fingerprint !== fingerprint()) return finish(false);
+      }
+      // The disposable Relay adapter provides only acknowledgements. A native
+      // readback proof is not invented here. Explicit unit opt-out tests may
+      // mock that separate confirmation contract via this named option.
+      const confirmed = evidence.deletion && options.confirmBackupDeletion === true;
+      if (confirmed) {
+        // Explicitly mocked confirmation models the coordinator's protected
+        // completion. It preserves the choice epoch and emits opt-out once.
+        scope.store.dispatch(scope.protectBackupConsentCompletion(
+          scope.setAutomaticCloudBackup({ appId: evidence.appId, enabled: false }),
+          evidence.appId, evidence.consentEpoch));
+      }
+      return finish(true, confirmed);
+    } catch { return finish(false); }
+  };
+  scope.Relay.updateVaultImage = async (body) => {
+    calls.push(['vault', body]);
+    if (options.incrementalError) throw new Error('offline');
+    return { updated: true };
+  };
+  scope.Relay.deleteVaults = async (body) => { calls.push(['delete-vault', body]); return { updated: true }; };
+  scope.Relay.migrateXfp = async (id, changes) => {
+    calls.push(['migrate', changes]);
+    for (const change of changes) {
+      delete remote.signers[change.oldSignerId];
+      remote.signers[change.newSignerId] = change.newSignerDetails;
+    }
+    return true;
+  };
+  scope.Relay.deleteBackup = async () => { calls.push(['delete-backup']); return { updated: true }; };
   const names = [
     'setBackupRepairCompleted',
     'invalidateBackupRepair',
@@ -294,6 +500,7 @@ function fixture(options = {}) {
     ]) + '\n' +
     functions('src/store/sagas/bhr.ts', [
       'currentBackupAppId',
+      'buildAutomaticAppMutation', 'buildAutomaticVaultMutation', 'queueCommittedBackupWorker',
       'flagUncertainBackupOutcome',
       'deleteAppImageEntityWorker',
       'deleteAppImageEntityRequestWorker',
@@ -311,7 +518,9 @@ function fixture(options = {}) {
     '\n' +
     functions('src/store/sagas/wallets.ts', [
       'currentWalletAccountId', 'assertWalletAccount',
-      'addNewWalletsWorker', 'addSigningDeviceWorker', 'mergeSimilarKeysWorker',
+      'rewriteSignerFingerprintReferences', 'planSignerIdentityMerges', 'applySignerIdentityMerges',
+      'applySignerXprivUpdates', 'buildSignerMigrationMutation',
+      'addNewWalletsWorker', 'addSigningDeviceWorker',
       'deleteSigningDeviceWorker', 'deleteVaultWorker',
       'deleteVaultRequestWorker',
       'generateNewExternalAddressWorker', 'updateSignerPolicyWorker',
@@ -322,26 +531,69 @@ function fixture(options = {}) {
     ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText,
     scope
   );
-  const run = (name, ...args) =>
-    runSaga(
+  const dispatch = (action) => {
+    if (action.type === 'setAutomaticCloudBackup') {
+      const id = action.payload.appId;
+      const completion = consentCompletions.get(action);
+      if (completion) {
+        consentCompletions.delete(action);
+        if (completion.appId !== id || completion.epoch !== scope.backupConsentEpoch(id)) return;
+      } else consentEpochs.set(id, scope.backupConsentEpoch(id) + 1);
+    }
+    actions.push(action);
+    if (action.type === 'setBackupRepairCompleted')
+      state.bhr.backupRepairCompletedByAppId[action.payload] = true;
+    if (action.type === 'invalidateBackupRepair')
+      state.bhr.backupRepairCompletedByAppId[action.payload] = false;
+    if (action.type === 'setPendingAllBackup') {
+      const { appId: pendingAppId, pending } = action.payload;
+      state.bhr.pendingAllBackupByAppId[pendingAppId] = pending;
+      state.bhr.pendingAllBackup = pending;
+    }
+    if (action.type === 'setAutomaticCloudBackup')
+      state.bhr.automaticCloudBackupByAppId[action.payload.appId] = action.payload.enabled;
+    state.account = account.default(state.account, action);
+  };
+  scope.store.dispatch = dispatch;
+  const mutationActions = new Set([
+    'addNewWalletsWorker', 'addSigningDeviceWorker', 'deleteSigningDeviceWorker',
+    'deleteAppImageEntityWorker', 'deleteAppImageEntityRequestWorker',
+    'deleteVaultWorker', 'deleteVaultRequestWorker', 'updateSignerPolicyWorker',
+    'updateVaultSignerXprivWorker', 'updateSignerDetailsWorker', 'updateKeyDetailsWorker',
+  ]);
+  const run = (name, ...args) => {
+    if (mutationActions.has(name) && args[0] && typeof args[0] === 'object') {
+      const action = args[0];
+      args[0] = { originAppId: state.storage.appId, originBackupAccountSession: sessionNow(), ...action,
+        // A top-level source mutation receives the unit middleware intent.
+        // Direct BHR payloads never receive a fabricated committed receipt.
+        ...(Object.hasOwn(action, 'originBackupWriteIntent') ? {} : {
+          originBackupWriteIntent: state.bhr.backupRepairCompletedByAppId[state.storage.appId]
+            ? { appId: state.storage.appId, accountSession: sessionNow(),
+              consentEpoch: scope.backupConsentEpoch(state.storage.appId) }
+            : undefined,
+        }),
+      };
+    }
+    return runSaga(
       {
         getState: () => state,
-        dispatch(action) {
-          actions.push(action);
-          if (action.type === 'setBackupRepairCompleted')
-            state.bhr.backupRepairCompletedByAppId[action.payload] = true;
-          if (action.type === 'setPendingAllBackup') {
-            const { appId: pendingAppId, pending } = action.payload;
-            state.bhr.pendingAllBackupByAppId[pendingAppId] = pending;
-            state.bhr.pendingAllBackup = pending;
-          }
-          state.account = account.default(state.account, action);
-        },
+        dispatch,
       },
       scope[name],
       ...args
     ).toPromise();
-  return { scope, app, collections, remote, calls, actions, state, run };
+  };
+  const mockVerifiedBackupBaseline = () => {
+    // Unit-only stand-in for a successful fresh read-only inspection. Never
+    // called automatically after an ACK; native CAS/readback proof is separate.
+    state.bhr.backupRepairCompletedByAppId[state.storage.appId] = true;
+    state.bhr.backupRepairStateByAppId ||= {};
+    state.bhr.backupRepairStateByAppId[state.storage.appId] = 'verified';
+    state.bhr.pendingAllBackupByAppId[state.storage.appId] = false;
+    state.bhr.pendingAllBackup = false;
+  };
+  return { scope, app, collections, remote, calls, actions, state, run, mockVerifiedBackupBaseline };
 }
 
 module.exports = { fixture, enums, encryption, account, wallet, signer, loadModule, functions };

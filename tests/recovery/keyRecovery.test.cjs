@@ -25,6 +25,7 @@ for (const network of [NetworkType.MAINNET, NetworkType.TESTNET]) {
       later.signerName = 'Travel device';
       later.hidden = true;
       await f.run('addSigningDeviceWorker', { payload: { signers: [first] } });
+      f.mockVerifiedBackupBaseline();
       await f.run('addSigningDeviceWorker', { payload: { signers: [later] } });
       assert.equal(f.calls.length, 2);
       assert.equal(f.collections.Signer.length, 2);
@@ -33,7 +34,8 @@ for (const network of [NetworkType.MAINNET, NetworkType.TESTNET]) {
       assert.ok(f.remote.signers[id]);
       assert.ok(!f.remote.signers[id].includes('Travel device'));
       assert.deepEqual(await restoreKeys(f), expected);
-      assert.equal(f.state.bhr.pendingAllBackup, pendingAllBackup);
+      assert.equal(f.state.bhr.pendingAllBackup, true,
+        'an acknowledged unit adapter write is not complete server readback proof');
     });
   }
 }
@@ -41,6 +43,7 @@ for (const network of [NetworkType.MAINNET, NetworkType.TESTNET]) {
 test('same fingerprint on different networks and accounts retains three distinct keys', async () => {
   const f = fixture();
   for (const [network, account] of [[NetworkType.MAINNET, 0], [NetworkType.TESTNET, 0], [NetworkType.MAINNET, 1]]) {
+    f.mockVerifiedBackupBaseline();
     f.state.settings.bitcoinNetworkType = network;
     await f.run('addSigningDeviceWorker', {
       payload: { signers: [signer('AABBCCDD', network, SignerType.COLDCARD, account)] },
@@ -55,9 +58,16 @@ test('mixed wallet, signer and node update backs up every requested record', asy
   const f = fixture();
   const key = signer('AABBCCDD', NetworkType.MAINNET);
   key.id = f.scope.getKeyUID(key);
+  const storedWallet = wallet('wallet', NetworkType.MAINNET);
   f.collections.NodeConnect.push({ id: 'node-fixture', host: 'fixture.invalid', isConnected: true });
+  const operation = f.scope.beginBackupLocalOperation(f.app.id,
+    { appId: f.app.id, accountSession: f.scope.currentBackupAccountSession() });
+  const committedOperation = f.scope.commitBackupLocalOperation(operation, (database) => {
+    database.create('Wallet', storedWallet);
+    database.create('Signer', key);
+  });
   await f.run('updateAppImageWorker', {
-    payload: { wallets: [wallet('wallet', NetworkType.MAINNET)], signers: [key], updateNodes: true },
+    payload: { wallets: [storedWallet], signers: [key], updateNodes: true }, committedOperation,
   });
   assert.equal(f.calls.length, 1);
   assert.ok(f.remote.wallets.wallet);
@@ -71,8 +81,41 @@ test('empty wallet array does not suppress signer migration', async () => {
   const f = fixture();
   const key = signer('AABBCCDD', NetworkType.MAINNET);
   key.id = f.scope.getKeyUID(key);
-  await f.run('updateAppImageWorker', { payload: { wallets: [], signers: [key] } });
+  const operation = f.scope.beginBackupLocalOperation(f.app.id,
+    { appId: f.app.id, accountSession: f.scope.currentBackupAccountSession() });
+  const committedOperation = f.scope.commitBackupLocalOperation(operation,
+    (database) => database.create('Signer', key));
+  await f.run('updateAppImageWorker', { payload: { wallets: [], signers: [key] }, committedOperation });
   assert.ok(f.remote.signers[key.id]);
+});
+
+test('a detached BHR action cannot upload uncommitted wallet or signer records', async () => {
+  const f = fixture();
+  const key = signer('AABBCCDD', NetworkType.MAINNET);
+  key.id = f.scope.getKeyUID(key);
+  const result = await f.run('updateAppImageWorker', {
+    payload: { wallets: [wallet('uncommitted', NetworkType.MAINNET)], signers: [key] },
+  });
+  assert.equal(result.updated, false);
+  assert.equal(result.backupPending, true);
+  assert.deepEqual(f.calls, []);
+  assert.deepEqual(f.collections.Wallet, []);
+  assert.deepEqual(f.collections.Signer, []);
+});
+
+test('an upload acknowledgement does not authorize the next automatic key mutation', async () => {
+  const f = fixture();
+  await f.run('addSigningDeviceWorker', {
+    payload: { signers: [signer('AABBCCDD', NetworkType.MAINNET)] },
+  });
+  assert.equal(f.state.bhr.backupRepairCompletedByAppId[f.app.id], false);
+  await f.run('addSigningDeviceWorker', {
+    payload: { signers: [signer('11223344', NetworkType.MAINNET)] },
+  });
+  assert.equal(f.collections.Signer.length, 2, 'local work remains committed');
+  assert.equal(f.calls.length, 1, 'another write requires a fresh verified baseline');
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[f.app.id], true);
+  assert.ok(!f.remote.signers['112233440M']);
 });
 
 test('key name, description, archive and health metadata updates survive clean restore', async () => {
@@ -83,7 +126,10 @@ test('key name, description, archive and health metadata updates survive clean r
     signerName: 'Renamed device', signerDescription: 'Recorded on physical device',
     archived: true, hidden: true,
     healthCheckDetails: [{ type: 'address-verification', actionDate: '2026-09-29T00:00:00.000Z' }],
-  })) await f.run('updateSignerDetailsWorker', { payload: { signer: key, key: field, value } });
+  })) {
+    f.mockVerifiedBackupBaseline();
+    await f.run('updateSignerDetailsWorker', { payload: { signer: key, key: field, value } });
+  }
   const expected = plain(f.collections.Signer);
   assert.deepEqual(await restoreKeys(f), expected);
 });
@@ -97,6 +143,7 @@ test('seed-key private material is omitted while software and Recovery Key mater
   const software = signer('33333333', NetworkType.MAINNET, SignerType.MY_KEEPER);
   software.extraData = { instanceNumber: 1 };
   for (const record of [ordinary, recovery, software]) {
+    f.mockVerifiedBackupBaseline();
     record.signerXpubs[XpubTypes.P2WPKH][0].xpriv = `${record.masterFingerprint}-disposable-private`;
     await f.run('addSigningDeviceWorker', { payload: { signers: [record] } });
   }
@@ -197,14 +244,15 @@ for (const problem of ['missing', 'ambiguous', 'different-public-key', 'differen
 test('fingerprint migration applies the same seed-secret exclusion as normal backups', async () => {
   const f = fixture();
   const old = signer('AAAAAAAA', NetworkType.MAINNET, SignerType.SEED_WORDS);
+  old.id = f.scope.getKeyUID(old);
   const updated = plain(old);
   updated.masterFingerprint = 'BBBBBBBB';
   updated.signerXpubs[XpubTypes.P2WPKH][0].xpriv = 'disposable-private';
   f.collections.Signer.push(old);
-  f.scope.dbManager.getObjectByQuery = () => [];
+  f.remote.signers[old.id] = encryption.encrypt(keyFor(f), JSON.stringify(old));
   let migrated;
   f.scope.Relay.migrateXfp = async (_appId, records) => { migrated = records[0]; return true; };
-  assert.equal(await f.run('mergeSimilarKeysWorker', { payload: { signer: updated } }), true);
+  assert.equal(await f.run('addSigningDeviceWorker', { payload: { signers: [updated] } }), true);
   const restored = JSON.parse(encryption.decrypt(keyFor(f), migrated.newSignerDetails));
   assert.equal(restored.signerXpubs[XpubTypes.P2WPKH][0].xpriv, null);
   assert.equal(updated.signerXpubs[XpubTypes.P2WPKH][0].xpriv, 'disposable-private');
@@ -218,13 +266,13 @@ function registrationFixture(options = {}) {
   const key = { masterFingerprint: device.masterFingerprint,
     ...device.signerXpubs[XpubTypes.P2WPKH][0], registeredVaults: [] };
   f.collections.Signer.push(device);
+  f.collections.VaultSigner.push(key);
   f.collections.Vault.push(...['vault-a', 'vault-b'].map((id) => ({ id, networkType: NetworkType.MAINNET,
     signers: [key], scheme: { m: 1, n: 1 } })));
-  f.scope.dbManager.getObjectByPrimaryId = () => ({ toJSON: () => plain(key) });
+  const update = f.scope.dbManager.updateObjectByPrimaryId;
   f.scope.dbManager.updateObjectByPrimaryId = (_schema, _field, _id, patch) => {
     if (options.writeFails) return false;
-    Object.assign(key, patch);
-    return true;
+    return update(_schema, _field, _id, patch);
   };
   const uploaded = [];
   f.scope.Relay.updateVaultImage = async (payload) => {
@@ -261,7 +309,8 @@ test('disabled server backup preserves local key registration without uploading'
   await f.run('updateKeyDetailsWorker', { payload: { signer: key, key: 'registered', value: { vaultId: 'vault-a', registered: true } } });
   assert.equal(key.registeredVaults[0].registered, true);
   assert.equal(uploaded.length, 0);
-  assert.equal(f.state.bhr.pendingAllBackup, false);
+  assert.equal(f.state.bhr.pendingAllBackupByAppId[f.app.id], true,
+    'local recovery changed, while disabled consent still prevents every upload');
 });
 
 test('failed local key registration write never publishes an unpersisted success', async () => {
@@ -269,7 +318,7 @@ test('failed local key registration write never publishes an unpersisted success
   assert.equal(await f.run('updateKeyDetailsWorker', { payload: { signer: key, key: 'registered', value: { vaultId: 'vault-a', registered: true } } }), false);
   assert.equal(uploaded.length, 0);
   assert.equal(key.registeredVaults.length, 0);
-  assert.ok(f.actions.some((action) => action.type === 'relaySignersUpdateFail' && action.payload === 'Key registration could not be saved'));
+  assert.ok(f.actions.some((action) => action.type === 'relaySignersUpdateFail' && action.payload === 'Key changes could not be saved'));
 });
 
 test('remembering an imported seed for signing remains local and does not trigger a vault upload', async () => {
