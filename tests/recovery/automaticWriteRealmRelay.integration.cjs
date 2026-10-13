@@ -197,6 +197,31 @@ function assertPending(f) {
   assert.notEqual(state.backupRepairCompletedByAppId[f.appId], true);
 }
 
+async function awaitCommittedReplyBarrier(request, appId) {
+  const deadline = Date.now() + 2000;
+  while (!server.trace.some((event) => event.path === '/revisionedBackupMutation' && event.appId === appId && event.committed)) {
+    assert.equal(request.isSettled(), false, 'The client must still be waiting for the actual held HTTP acknowledgement');
+    assert.ok(Date.now() < deadline, 'The real route must commit before the bounded reply window expires');
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  assert.equal(request.isSettled(), false, 'Observe a real committed transaction while its HTTP acknowledgement is still outstanding');
+}
+
+function outstanding(invoke) {
+  let isSettled = false;
+  const result = invoke().then((value) => { isSettled = true; return value; }, (error) => {
+    isSettled = true;
+    throw error;
+  });
+  return { result, isSettled: () => isSettled };
+}
+
+function accountBackupFlags(f, appId) {
+  return Object.fromEntries(Object.entries(f.store.getState().bhr)
+    .filter(([name]) => name.endsWith('ByAppId'))
+    .map(([name, values]) => [name, values[appId]]));
+}
+
 for (const operation of Object.keys(operations)) {
   test(`${operation}: matching committed native payload/target reaches real v2 once`, async (t) => {
     const f = await setup(t, operation);
@@ -460,6 +485,82 @@ for (const fanout of ['create-and-archive-vaults', 'shared-vault-registration', 
     assert.equal(attemptedWrites()[1].committed, false);
     assert.equal(await f.image.compareImages(before, await f.repair.captureBackupImage()), 'matched');
     assertPending(f);
+  });
+}
+
+test('a genuine native write between fanout members stops every later member after the first real CAS', async (t) => {
+  const f = await setup(t, 'modifyLabels');
+  const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+    realm.delete(realm.objectForPrimaryKey('Tags', 'old-label'));
+    for (const id of ['first-imported-label', 'second-imported-label', 'third-imported-label']) {
+      realm.create('Tags', f.defaults(f.RealmSchema.Tags, { id, type: 'TX', ref: id, label: id }));
+    }
+  });
+  assert.equal(receipt.committed, true);
+  const before = await f.repair.captureBackupImage();
+  const mutations = [];
+  for (const [index, id] of ['first-imported-label', 'second-imported-label', 'third-imported-label'].entries()) {
+    mutations.push({ operation: 'modifyLabels', body: await labelBody(f, [id], index === 0 ? ['old-label'] : []) });
+  }
+  server.armFault({ mode: 'delay-reply', operation: 'modifyLabels', delayMs: 3000 });
+  const request = outstanding(() => f.automatic.enqueueAutomaticBackupOperation(receipt, mutations));
+  await awaitCommittedReplyBarrier(request, f.appId);
+  persist(f, f.RealmSchema.Tags, f.defaults(f.RealmSchema.Tags, { id: 'interleaved-local-label', type: 'TX', ref: 'interleaved', label: 'A later committed local write' }));
+  assert.equal(request.isSettled(), false, 'The local write must finish before the real timed acknowledgement arrives');
+  const result = await request.result;
+  assert.notEqual(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 1, 'The second and third prepared members must send no HTTP request');
+  assert.equal(attemptedWrites()[0].committed, true);
+  assertPending(f);
+  const after = await f.repair.captureBackupImage();
+  for (const [id, label] of Object.entries(before.labels)) assert.deepEqual(plain(after.labels[id]), plain(label));
+  assert.equal(after.labels['interleaved-local-label'].label, 'A later committed local write');
+  const remote = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), await server.snapshot(f.appId), f.appId);
+  assert.ok(remote.labels['first-imported-label']);
+  assert.equal(remote.labels['second-imported-label'], undefined);
+  assert.equal(remote.labels['third-imported-label'], undefined);
+  assert.equal(remote.labels['old-label'], undefined);
+});
+
+for (const operation of Object.keys(operations)) {
+  test(`${operation}: after-send A to B to A rejects an outstanding real acknowledgement without changing the new account UI`, async (t) => {
+    const f = await setup(t, operation);
+    const prepared = await committedRequest(f, operation);
+    const expectedA = await f.repair.captureBackupImage();
+    server.armFault({ mode: 'delay-reply', operation, delayMs: 3000 });
+    const request = outstanding(() => settled(prepared));
+    await awaitCommittedReplyBarrier(request, f.appId);
+    const seedB = 'cd'.repeat(32);
+    const appIdB = f.encryption.hash256(seedB);
+    await f.selectAccount(appIdB);
+    assert.equal(f.dbManager.updateObjectById(f.RealmSchema.KeeperApp, appIdB, {
+      primarySeed: seedB, publicId: appIdB.slice(0, 8), imageEncryptionKey: f.encryption.generateEncryptionKey(seedB),
+    }), true);
+    persist(f, f.RealmSchema.Wallet, wallet(f, 'distinct-account-b-wallet', 'A separate account B record'));
+    f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: appIdB, enabled: true }));
+    const expectedB = await f.repair.captureBackupImage();
+    assert.notEqual(f.dbManager.getObjectById(f.RealmSchema.KeeperApp, appIdB).primarySeed, f.seed);
+    await server.seed(await f.payloadForCurrentImage());
+    assert.equal(await f.sagas.run('runBackupInspection', false, appIdB), true, 'Account B gets its own genuine baseline and UI state');
+    await f.selectAccount(f.appId);
+    const newAFlags = accountBackupFlags(f, f.appId);
+    const unchangedBFlags = accountBackupFlags(f, appIdB);
+    assert.equal(request.isSettled(), false, 'All distinct-key B setup and the A return must finish while the real acknowledgement is outstanding');
+    const actionBoundary = f.actions.length;
+    const result = await request.result;
+    assert.notEqual(result.backupConfirmed, true);
+    assert.equal(server.trace.filter((event) => event.path === '/revisionedBackupMutation' && event.appId === f.appId).length, 1);
+    assertPending(f);
+    assert.deepEqual(accountBackupFlags(f, f.appId), newAFlags, 'The old completion cannot change the newly selected A UI');
+    assert.deepEqual(accountBackupFlags(f, appIdB), unchangedBFlags, 'The old A completion cannot change B backup state');
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true, 'Old delete acknowledgements cannot disable new-session consent');
+    assert.equal(f.actions.slice(actionBoundary).some((action) => action.type === f.bhr.commitBackupInspection.type), false);
+    assert.equal(await f.image.compareImages(expectedA, await f.repair.captureBackupImage()), 'matched', 'Every committed native A record survives');
+    const remoteB = await f.image.decodeImage(f.encryption.generateEncryptionKey(seedB), await server.snapshot(appIdB), appIdB);
+    assert.equal(await f.image.compareImages(expectedB, remoteB), 'matched', 'B records and its independently encrypted backup remain untouched');
+    await f.selectAccount(appIdB);
+    assert.equal(await f.image.compareImages(expectedB, await f.repair.captureBackupImage()), 'matched', 'Native B records remain untouched after the old A completion');
   });
 }
 
