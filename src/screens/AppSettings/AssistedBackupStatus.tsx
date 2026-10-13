@@ -7,6 +7,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { checkBackupFreshness, repairBackup } from 'src/store/sagaActions/bhr';
 import { isAutomaticCloudBackupEnabled } from 'src/store/reducers/bhr';
+import { isBackupVerificationCurrent } from 'src/services/backup/automatic';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import WalletHeader from 'src/components/WalletHeader';
@@ -27,7 +28,9 @@ export default function AssistedBackupStatus() {
     backupRepairRunningByAppId = {},
   } = useAppSelector((state) => state.bhr);
   const automaticCloudBackup = isAutomaticCloudBackupEnabled({ automaticCloudBackupByAppId }, id);
-  const phase = backupRepairStateByAppId[id];
+  const recordedPhase = backupRepairStateByAppId[id];
+  const phase =
+    recordedPhase === 'verified' && !isBackupVerificationCurrent(id) ? 'unverified' : recordedPhase;
   const running = !!backupRepairRunningByAppId[id];
   const [slow, setSlow] = useState(false);
   useEffect(() => {
