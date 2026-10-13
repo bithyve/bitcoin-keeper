@@ -32,6 +32,7 @@ import bhrReducer, {
   setPendingAllBackup,
   commitBackupInspection,
   setAutomaticCloudBackup,
+  invalidateRehydratedBackupState,
 } from './reducers/bhr';
 import rootSaga from './sagas';
 import sendAndReceiveReducer from './reducers/send_and_receive';
@@ -142,83 +143,122 @@ const accountOwnedUtxoUiActions = new Set([
   'utxos/setSyncingUTXOError',
   'utxos/resetState',
 ]);
-const bindActionOrigin = (api) => (next) => (action) => {
-  if (
-    action?.type === 'bhr/commitBackupInspection' &&
-    action.payload?.phase === 'verified' &&
-    !isBackupVerificationCurrent(action.payload.appId)
-  )
-    action = { ...action, payload: { ...action.payload, phase: 'unverified', pending: true } };
-  const originAppId = api.getState()?.storage?.appId;
-  if (
-    ['bhr/setAutomaticCloudBackup', 'DELETE_BACKUP', 'BACKUP_ALL_SIGNERS_AND_VAULTS'].includes(
-      action?.type
-    )
-  ) {
-    const choiceAppId = action.payload?.appId || action.appId || action.originAppId || originAppId;
-    const disablesConsent =
-      action.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === false;
-    if (
-      !choiceAppId ||
-      choiceAppId !== originAppId ||
-      (!disablesConsent && !canAccessBackupAccount(choiceAppId, true)) ||
-      !observeBackupConsentAction(action, choiceAppId)
-    )
-      return action;
-  }
-  const enablesBackup =
-    action?.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === true;
-  const reportsBackupSuccess =
-    action?.type === 'bhr/setBackupAllSuccess' && action.payload?.status === true;
-  if (enablesBackup || reportsBackupSuccess) {
-    const { appId } = action.payload;
-    if (!appId || originAppId !== appId) return action;
-    try {
-      if ((dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !== appId)
-        return action;
-    } catch {
-      return action;
+const bindActionOrigin = (api) => {
+  let canonicalBhrHydration: 'unresolved' | 'present' | 'absent' | 'failed' = 'unresolved';
+  let deferredLegacyBhr: Parameters<typeof invalidateRehydratedBackupState>[0];
+  return (next) => (action) => {
+    if (action?.type === 'persist/REHYDRATE') {
+      if (action.key === 'bhr') {
+        const present =
+          !!action.payload && typeof action.payload === 'object' && !Array.isArray(action.payload);
+        canonicalBhrHydration =
+          action.err || (!present && action.payload != null)
+            ? 'failed'
+            : present
+            ? 'present'
+            : 'absent';
+        const restored =
+          canonicalBhrHydration === 'present'
+            ? action.payload
+            : canonicalBhrHydration === 'absent'
+            ? deferredLegacyBhr
+            : undefined;
+        deferredLegacyBhr = undefined;
+        action = { ...action, payload: invalidateRehydratedBackupState(restored) };
+      } else if (action.key === 'root' && action.payload?.bhr) {
+        // Older root snapshots can still contain bhr despite its current blacklist.
+        const payload = { ...action.payload };
+        delete payload.bhr;
+        if (!action.err && canonicalBhrHydration === 'unresolved') {
+          deferredLegacyBhr = action.payload.bhr;
+        } else if (!action.err && canonicalBhrHydration === 'absent') {
+          const currentBhr = api.getState()?.bhr;
+          payload.bhr = {
+            ...currentBhr,
+            ...invalidateRehydratedBackupState(action.payload.bhr),
+            _persist: currentBhr?._persist,
+          };
+        }
+        action = { ...action, payload };
+      }
     }
-  }
-  if (action?.originAppId && accountOwnedUtxoUiActions.has(action.type)) {
-    try {
+    if (
+      action?.type === 'bhr/commitBackupInspection' &&
+      action.payload?.phase === 'verified' &&
+      !isBackupVerificationCurrent(action.payload.appId)
+    )
+      action = { ...action, payload: { ...action.payload, phase: 'unverified', pending: true } };
+    const originAppId = api.getState()?.storage?.appId;
+    if (
+      ['bhr/setAutomaticCloudBackup', 'DELETE_BACKUP', 'BACKUP_ALL_SIGNERS_AND_VAULTS'].includes(
+        action?.type
+      )
+    ) {
+      const choiceAppId = action.payload?.appId || action.appId || action.originAppId || originAppId;
+      const disablesConsent =
+        action.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === false;
       if (
-        action.originAppId !== originAppId ||
-        (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !==
-          originAppId
+        !choiceAppId ||
+        choiceAppId !== originAppId ||
+        (!disablesConsent && !canAccessBackupAccount(choiceAppId, true)) ||
+        !observeBackupConsentAction(action, choiceAppId)
       )
         return action;
-    } catch {
-      return action;
     }
-  }
-  if (originAppId && action && accountOwnedActions.has(action.type) && !('originAppId' in action))
-    action = { ...action, originAppId };
-  if (
-    action &&
-    (accountOwnedActions.has(action.type) ||
-      action.type === 'DELETE_BACKUP' ||
-      action.type === 'BACKUP_ALL_SIGNERS_AND_VAULTS') &&
-    !('originBackupAccountSession' in action)
-  )
-    action = { ...action, originBackupAccountSession: currentBackupAccountSession() };
-  // Stamp the verified remote base at dispatch, before any saga can wait or
-  // mutate Realm. A caller that captured an earlier intent must never be
-  // silently rebased to the account's current remote state here.
-  if (
-    action &&
-    (accountOwnedActions.has(action.type) ||
-      action.type === 'DELETE_BACKUP' ||
-      action.type === 'BACKUP_ALL_SIGNERS_AND_VAULTS') &&
-    !('originBackupWriteIntent' in action)
-  ) {
-    const appId = action.originAppId || action.appId || originAppId;
-    action = {
-      ...action,
-      originBackupWriteIntent: appId ? captureBackupWriteIntent(appId) : undefined,
-    };
-  }
-  return next(action);
+    const enablesBackup =
+      action?.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === true;
+    const reportsBackupSuccess =
+      action?.type === 'bhr/setBackupAllSuccess' && action.payload?.status === true;
+    if (enablesBackup || reportsBackupSuccess) {
+      const { appId } = action.payload;
+      if (!appId || originAppId !== appId) return action;
+      try {
+        if ((dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !== appId)
+          return action;
+      } catch {
+        return action;
+      }
+    }
+    if (action?.originAppId && accountOwnedUtxoUiActions.has(action.type)) {
+      try {
+        if (
+          action.originAppId !== originAppId ||
+          (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !==
+            originAppId
+        )
+          return action;
+      } catch {
+        return action;
+      }
+    }
+    if (originAppId && action && accountOwnedActions.has(action.type) && !('originAppId' in action))
+      action = { ...action, originAppId };
+    if (
+      action &&
+      (accountOwnedActions.has(action.type) ||
+        action.type === 'DELETE_BACKUP' ||
+        action.type === 'BACKUP_ALL_SIGNERS_AND_VAULTS') &&
+      !('originBackupAccountSession' in action)
+    )
+      action = { ...action, originBackupAccountSession: currentBackupAccountSession() };
+    // Stamp the verified remote base at dispatch, before any saga can wait or
+    // mutate Realm. A caller that captured an earlier intent must never be
+    // silently rebased to the account's current remote state here.
+    if (
+      action &&
+      (accountOwnedActions.has(action.type) ||
+        action.type === 'DELETE_BACKUP' ||
+        action.type === 'BACKUP_ALL_SIGNERS_AND_VAULTS') &&
+      !('originBackupWriteIntent' in action)
+    ) {
+      const appId = action.originAppId || action.appId || originAppId;
+      action = {
+        ...action,
+        originBackupWriteIntent: appId ? captureBackupWriteIntent(appId) : undefined,
+      };
+    }
+    return next(action);
+  };
 };
 const middlewars = [bindActionOrigin, sagaMiddleware];
 

@@ -120,6 +120,51 @@ export const isAutomaticCloudBackupEnabled = (
   appId?: string
 ): boolean => !!appId && backup.automaticCloudBackupByAppId?.[appId] === true;
 
+// Redux persistence contains historical UI state, never the current session's
+// Realm/revision proof. Invalidate saved completion and interrupted operations
+// before Redux Persist merges them; consent and recovery records stay intact.
+export const invalidateRehydratedBackupState = (saved: Partial<typeof initialState>) => {
+  if (!saved || typeof saved !== 'object') return saved;
+  const phases = { ...saved.backupRepairStateByAppId };
+  const completed = { ...saved.backupRepairCompletedByAppId };
+  const pending = { ...saved.pendingAllBackupByAppId };
+  const running = { ...saved.backupRepairRunningByAppId };
+  const expiredPhases = new Set(['verified', 'checking', 'preparing', 'uploading', 'verifying']);
+  const appIds = new Set([...Object.keys(phases), ...Object.keys(completed), ...Object.keys(running)]);
+  for (const appId of appIds) {
+    if (expiredPhases.has(phases[appId]) || completed[appId] === true || running[appId] === true) {
+      phases[appId] = 'unverified';
+      completed[appId] = false;
+      pending[appId] = true;
+    }
+    if (appId in running) running[appId] = false;
+  }
+  const transientUi: Partial<typeof initialState> = {};
+  for (const field of [
+    'backupAllLoading', 'backupAllSuccess', 'backupAllFailure',
+    'deleteBackupSuccess', 'deleteBackupFailure',
+  ] as const) {
+    if (field in saved) transientUi[field] = false;
+  }
+  for (const field of [
+    'backupAllLoadingByAppId', 'backupAllSuccessByAppId', 'backupAllFailureByAppId',
+    'deleteBackupSuccessByAppId', 'deleteBackupFailureByAppId',
+  ] as const) {
+    if (field in saved)
+      transientUi[field] = Object.fromEntries(
+        Object.keys(saved[field] || {}).map((appId) => [appId, false])
+      );
+  }
+  return {
+    ...saved,
+    ...transientUi,
+    backupRepairStateByAppId: phases,
+    backupRepairCompletedByAppId: completed,
+    pendingAllBackupByAppId: pending,
+    backupRepairRunningByAppId: running,
+  };
+};
+
 const bhrSlice = createSlice({
   name: 'bhr',
   initialState,
