@@ -1,0 +1,799 @@
+// Required enablement matrix, intentionally separate from the credential-free
+// unit glob. It MUST use the native Realm binding and a real transactional Relay
+// helper; missing prerequisites fail the command and are never a skipped pass.
+const assert = require('node:assert/strict');
+const { test, before, after } = require('node:test');
+const { createRealmClient, plain, Realm } = require('./automaticWriteRealmRelay.fixture.cjs');
+
+const fixtureModule = process.env.KEEPER_RELAY_FIXTURE_MODULE;
+assert.ok(fixtureModule, 'Set KEEPER_RELAY_FIXTURE_MODULE to Relay tests/support/automaticBackupHttpFixture.cjs');
+const { createFixture } = require(fixtureModule);
+let server;
+before(async () => { server = await createFixture(); });
+after(async () => { await server?.close(); Realm.shutdown(); });
+
+const tick = () => new Promise((resolve) => setImmediate(resolve));
+function barrier() {
+  let release;
+  const promise = new Promise((resolve) => { release = resolve; });
+  return { promise, release };
+}
+const attemptedWrites = () => server.trace.filter((event) => event.path === '/revisionedBackupMutation');
+
+function wallet(f, id = 'wallet-a', name = 'Initial wallet') {
+  return f.defaults(f.RealmSchema.Wallet, {
+    id, entityKind: f.enums.EntityKind.WALLET, type: f.enums.WalletType.DEFAULT,
+    networkType: f.enums.NetworkType.TESTNET, scriptType: 'P2WPKH',
+    derivationDetails: f.defaults(f.RealmSchema.WalletDerivationDetails, { instanceNum: 0, xDerivationPath: "m/84'/1'/0'" }),
+    presentationData: f.defaults(f.RealmSchema.WalletPresentationData, { name, visibility: 'DEFAULT' }),
+    specs: f.defaults(f.RealmSchema.WalletSpecs, { xpub: `disposable-public-${id}`, nextFreeAddressIndex: 1 }),
+  });
+}
+
+function signer(f, fingerprint = 'aaaa0001') {
+  const record = f.defaults(f.RealmSchema.Signer, {
+    masterFingerprint: fingerprint, type: f.enums.SignerType.COLDCARD, storageType: f.enums.SignerStorage.COLD,
+    signerName: 'Disposable public key', networkType: f.enums.NetworkType.TESTNET,
+    signerXpubs: f.defaults(f.RealmSchema.SignerXpubs, {
+      [f.enums.XpubTypes.P2WSH]: [{ xpub: 'disposable-vault-public-key', xpriv: null, derivationPath: "m/48'/1'/0'/2'" }],
+    }),
+  });
+  record.id = f.utilities.getKeyUID(record);
+  return record;
+}
+
+function vault(f, id = 'vault-a', key = signer(f)) {
+  const publicKey = key.signerXpubs[f.enums.XpubTypes.P2WSH][0];
+  const vaultSigner = f.defaults(f.RealmSchema.VaultSigner, {
+    ...publicKey, masterFingerprint: key.masterFingerprint, xfp: key.masterFingerprint, registeredVaults: [],
+  });
+  return f.defaults(f.RealmSchema.Vault, {
+    id, entityKind: f.enums.EntityKind.VAULT, type: f.enums.VaultType.DEFAULT,
+    networkType: f.enums.NetworkType.TESTNET, isMultiSig: true, scriptType: 'P2WSH',
+    scheme: f.defaults(f.RealmSchema.VaultScheme, { m: 1, n: 1 }),
+    signers: [vaultSigner],
+    presentationData: f.defaults(f.RealmSchema.VaultPresentationData, { name: 'Initial vault', visibility: 'DEFAULT' }),
+    specs: f.defaults(f.RealmSchema.VaultSpecs, { xpubs: [publicKey.xpub], nextFreeAddressIndex: 1 }),
+  });
+}
+
+function persist(f, schema, record) {
+  assert.equal(f.dbManager.createObject(schema, record), true, `Actual Realm ${schema} fixture must persist`);
+}
+
+function persistVault(f, id) {
+  const key = signer(f);
+  if (!f.dbManager.getObjectById(f.RealmSchema.Signer, key.id)) persist(f, f.RealmSchema.Signer, key);
+  persist(f, f.RealmSchema.Vault, vault(f, id, key));
+}
+
+async function vaultBody(f, id) {
+  const snapshot = await f.repair.captureBackupImage();
+  const value = snapshot.vaults[id];
+  assert.ok(value, 'Vault body must come from current native Realm image');
+  return {
+    appId: f.appId, vaultId: id, vault: await f.image.encryptRecord(f.encryption.generateEncryptionKey(f.seed), value),
+    isArchived: !!value.archived, isUpdate: true,
+    signersData: value.signers.map((key) => ({ signerId: f.utilities.getKeyUID(key), xfpHash: f.encryption.hash256(key.masterFingerprint) })),
+  };
+}
+
+async function labelBody(f, addIds, deleteIds = []) {
+  const current = await f.repair.captureBackupImage();
+  const key = f.encryption.generateEncryptionKey(f.seed);
+  const hashed = (id) => f.encryption.hash256(f.encryption.hash256(key + id));
+  const addLabels = [];
+  for (const id of addIds) addLabels.push({ id: hashed(id), content: await f.image.encryptRecord(key, current.labels[id]) });
+  return { appId: f.appId, addLabels, deleteLabels: deleteIds.map(hashed) };
+}
+
+const operations = {
+  updateAppImage: {
+    prepare(f) { persist(f, f.RealmSchema.Wallet, wallet(f)); },
+    mutate(realm) { realm.objectForPrimaryKey('Wallet', 'wallet-a').presentationData.name = 'Committed wallet'; },
+    async body(f) {
+      const current = await f.repair.captureBackupImage();
+      return { appId: f.appId, walletsObject: { 'wallet-a': await f.image.encryptRecord(f.encryption.generateEncryptionKey(f.seed), current.wallets['wallet-a']) } };
+    },
+    invoke(f, body, intent) { return f.Relay.updateAppImage(body, intent); },
+  },
+  migrateXfps: {
+    prepare(f) { persist(f, f.RealmSchema.Signer, signer(f)); },
+    mutate(realm, f) { realm.delete(realm.objectForPrimaryKey('Signer', signer(f).id)); realm.create('Signer', signer(f, 'bbbb0002')); },
+    async body(f) {
+      const oldKey = signer(f), newKey = signer(f, 'bbbb0002');
+      const current = await f.repair.captureBackupImage();
+      return { appId: f.appId, signerChanges: [{ oldSignerId: oldKey.id, newSignerId: newKey.id,
+        newSignerDetails: await f.image.encryptRecord(f.encryption.generateEncryptionKey(f.seed), current.signers[newKey.id]) }] };
+    },
+    invoke(f, body, intent) { return f.Relay.migrateXfp(body.appId, body.signerChanges, intent); },
+  },
+  deleteAppImageEntity: {
+    prepare(f) { persist(f, f.RealmSchema.Wallet, wallet(f)); },
+    mutate(realm) { realm.delete(realm.objectForPrimaryKey('Wallet', 'wallet-a')); },
+    async body(f) { return { appId: f.appId, walletIds: ['wallet-a'], signers: [] }; },
+    invoke(f, body, intent) { return f.Relay.deleteAppImageEntity(body, intent); },
+  },
+  deleteVaults: {
+    prepare(f) { persistVault(f, 'vault-a'); },
+    mutate(realm) { realm.delete(realm.objectForPrimaryKey('Vault', 'vault-a')); },
+    async body(f) { return { appId: f.appId, vaults: ['vault-a'] }; },
+    invoke(f, body, intent) { return f.Relay.deleteVaultImage(body, intent); },
+  },
+  updateVaultImage: {
+    prepare(f) { persistVault(f, 'vault-a'); },
+    mutate(realm) { realm.objectForPrimaryKey('Vault', 'vault-a').presentationData.name = 'Committed vault'; },
+    async body(f) { return vaultBody(f, 'vault-a'); },
+    invoke(f, body, intent) { return f.Relay.updateVaultImage(body, intent); },
+  },
+  modifyLabels: {
+    prepare(f) { persist(f, f.RealmSchema.Tags, f.defaults(f.RealmSchema.Tags, { id: 'old-label', type: 'TX', ref: 'public-tx', label: 'Old label' })); },
+    mutate(realm, f) {
+      realm.delete(realm.objectForPrimaryKey('Tags', 'old-label'));
+      realm.create('Tags', f.defaults(f.RealmSchema.Tags, { id: 'new-label', type: 'TX', ref: 'public-tx', label: 'Committed label' }));
+    },
+    async body(f) { return labelBody(f, ['new-label'], ['old-label']); },
+    invoke(f, body, intent) { return f.Relay.modifyLabels(body.appId, body.addLabels, body.deleteLabels, intent); },
+  },
+  deleteBackup: {
+    prepare(f) { persist(f, f.RealmSchema.Wallet, wallet(f)); },
+    async body(f) { return { appId: f.appId }; },
+    invoke(f, body, intent) { return f.Relay.deleteBackup(body, intent); },
+  },
+};
+
+async function setup(t, operation, options = {}) {
+  await server.reset();
+  const f = await createRealmClient(server.url, options);
+  t.after(async () => { await f.close(); });
+  f.automatic = f.load('src/services/backup/automatic');
+  f.installProductionStoreObservers(f.automatic);
+  f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: true }));
+  f.removeNativeListener = f.listen();
+  t.after(() => f.removeNativeListener());
+  operations[operation].prepare(f);
+  persist(f, f.RealmSchema.Wallet, wallet(f, 'retained-wallet', 'Retained local recovery record'));
+  if (operation === 'deleteVaults') persistVault(f, 'retained-vault');
+  await tick();
+  await server.seed(await f.payloadForCurrentImage());
+  f.sagas = f.productionSagas(['currentBackupAppId', 'backupInspectionOwners', 'runBackupInspection']);
+  assert.equal(await f.sagas.run('runBackupInspection', false, f.appId), true, 'Production saga baseline comes from actual encrypted HTTP readback');
+  assert.equal(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified');
+  assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[f.appId], false);
+  assert.ok(f.transport.captureBackupWriteIntent(f.appId), 'Actual inspection must provide the baseline');
+  server.clearTrace();
+  return f;
+}
+
+async function committedRequest(f, operation) {
+  const contract = operations[operation];
+  let intent;
+  let receipt;
+  if (operation === 'deleteBackup') {
+    receipt = await f.automatic.beginBackupDeleteOperation(f.appId, f.transport.currentBackupAccountSession());
+    assert.equal(receipt.committed, true);
+    intent = receipt.intent;
+  } else {
+    const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+    receipt = f.automatic.commitBackupLocalOperation(op, (realm) => contract.mutate(realm, f));
+    assert.equal(receipt.committed, true, 'Logical operation must commit a real Realm transaction');
+    assert.ok(receipt.intent, 'A committed operation with a verified originating base requires a branded intent');
+    intent = receipt.intent;
+  }
+  assert.ok(intent);
+  const body = await contract.body(f);
+  return { receipt, intent, body, invoke: () => contract.invoke(f, body, intent) };
+}
+
+async function settled(request) {
+  try { return await request.invoke(); }
+  catch (error) { return { updated: false, failure: error.name }; }
+}
+
+function assertPending(f) {
+  const state = f.store.getState().bhr;
+  assert.equal(state.pendingAllBackupByAppId[f.appId], true, 'Failed/uncertain operation must remain pending');
+  assert.notEqual(state.backupRepairStateByAppId[f.appId], 'verified');
+  assert.notEqual(state.backupRepairCompletedByAppId[f.appId], true);
+}
+
+for (const operation of Object.keys(operations)) {
+  test(`${operation}: matching committed native payload/target reaches real v2 once`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    const result = await settled(request);
+    assert.equal(result.updated, true);
+    assert.equal(attemptedWrites().length, 1);
+    assert.equal(attemptedWrites()[0].operation, operation);
+    assert.equal(attemptedWrites()[0].committed, true);
+    if (operation !== 'deleteBackup') {
+      const remote = await server.snapshot(f.appId);
+      const decoded = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), remote, f.appId);
+      assert.equal(await f.image.compareImages(await f.repair.captureBackupImage(), decoded), 'matched');
+      assert.equal(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified');
+      assert.ok(f.nativeEvents.length > 0, 'Actual native change listeners must observe persistence');
+    } else {
+      assert.ok(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet-a'), 'Opt-out retains native local wallet');
+      assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], false);
+    }
+  });
+
+  test(`${operation}: queued receipt is invalid after a subsequent native local mutation`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    const gate = barrier();
+    t.after(gate.release);
+    f.transport.withBackupSession(f.appId, () => gate.promise);
+    const result = settled(request);
+    persist(f, f.RealmSchema.Tags, f.defaults(f.RealmSchema.Tags, { id: 'later-local-change', type: 'TX', ref: 'later', label: 'Changed after receipt' }));
+    gate.release();
+    await result;
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: queued A to B to A receipt cannot send in the new session`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    const gate = barrier();
+    t.after(gate.release);
+    f.transport.withBackupSession(f.appId, () => gate.promise);
+    const result = settled(request);
+    await f.selectAccount('disposable-account-b');
+    await f.selectAccount(f.appId);
+    gate.release();
+    await result;
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  for (const mode of ['409', '404', 'malformed', 'lost-reply', 'equal-old-ack']) {
+    test(`${operation}: actual HTTP ${mode} stops the write and never reports verified`, async (t) => {
+      const f = await setup(t, operation);
+      const request = await committedRequest(f, operation);
+      server.armFault({ mode, operation });
+      const result = await settled(request);
+      assert.notEqual(result.backupConfirmed, true);
+      assert.equal(attemptedWrites().length, 1);
+      assertPending(f);
+      if (operation === 'deleteBackup') assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true, 'Opt-out consent changes only after a positive acknowledged deletion');
+      const generation = f.transport.backupRevision(f.appId);
+      const check = await f.repair.inspectBackup(f.appId, false, () => {});
+      assert.ok(['verified', 'different', 'unverified', 'conflict'].includes(check));
+      assert.equal(attemptedWrites().length, 1, 'Read-only reconciliation cannot repeat an uncertain write');
+      assert.ok(f.transport.backupRevision(f.appId) >= generation);
+    });
+  }
+
+  for (const [failure, acknowledgement] of Object.entries({
+    'updated false': { updated: false, preconditionApplied: true, newRevision: 'c'.repeat(64) },
+    'missing updated': { preconditionApplied: true, newRevision: 'c'.repeat(64) },
+    'precondition false': { updated: true, preconditionApplied: false, newRevision: 'c'.repeat(64) },
+    'missing precondition': { updated: true, newRevision: 'c'.repeat(64) },
+    'missing new revision': { updated: true, preconditionApplied: true },
+  })) test(`${operation}: a real committed write with ${failure} acknowledgement remains pending`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    server.armFault({ mode: 'malformed', operation, acknowledgement });
+    await settled(request);
+    assert.equal(attemptedWrites().length, 1);
+    assert.equal(attemptedWrites()[0].committed, true);
+    assertPending(f);
+    if (operation === 'deleteBackup') assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
+  });
+
+  test(`${operation}: genuine delayed HTTP reply is aborted and remains pending`, async (t) => {
+    const f = await setup(t, operation, { backupTimerCeilingMs: 200 });
+    const request = await committedRequest(f, operation);
+    server.armFault({ mode: 'delay-reply', operation, delayMs: 1000 });
+    await settled(request);
+    assert.equal(attemptedWrites().length, 1);
+    assertPending(f);
+    if (operation === 'deleteBackup') assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
+  });
+
+  for (const remoteChange of ['remote-only', 'key-conflict']) {
+    test(`${operation}: a peer ${remoteChange} snapshot cannot be overwritten by the old local receipt`, async (t) => {
+      const f = await setup(t, operation);
+      const baseline = await f.payloadForCurrentImage();
+      const request = await committedRequest(f, operation);
+      const peerPayload = { ...baseline, walletObject: { ...baseline.walletObject } };
+      const value = wallet(f, remoteChange === 'remote-only' ? 'server-only-wallet' : 'retained-wallet');
+      if (remoteChange === 'key-conflict') value.specs.xpub = 'different-public-key-identity';
+      peerPayload.walletObject[value.id] = await f.image.encryptRecord(f.encryption.generateEncryptionKey(f.seed), value);
+      await server.seed(peerPayload);
+      server.clearTrace();
+      await settled(request);
+      assert.equal(attemptedWrites().length, 0);
+      assertPending(f);
+      const remote = await server.snapshot(f.appId);
+      const decoded = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), remote, f.appId);
+      assert.equal(decoded.wallets[value.id].specs.xpub, value.specs.xpub, 'Peer recovery content must survive intact');
+    });
+  }
+
+  test(`${operation}: current generation cannot authorize a mismatched decrypted payload or deletion target`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    const key = f.encryption.generateEncryptionKey(f.seed);
+    async function staleCipher(cipher, mutate) {
+      const value = await f.image.decryptRecord(key, cipher);
+      mutate(value);
+      return f.image.encryptRecord(key, value);
+    }
+    if (operation === 'updateAppImage') request.body.walletsObject['wallet-a'] = await staleCipher(request.body.walletsObject['wallet-a'], (value) => { value.presentationData.name = 'Uncommitted action data'; });
+    if (operation === 'migrateXfps') request.body.signerChanges[0].newSignerDetails = await staleCipher(request.body.signerChanges[0].newSignerDetails, (value) => { value.signerName = 'Uncommitted action data'; });
+    if (operation === 'deleteAppImageEntity') request.body.walletIds = ['retained-wallet'];
+    if (operation === 'deleteVaults') request.body.vaults = ['retained-vault'];
+    if (operation === 'updateVaultImage') request.body.vault = await staleCipher(request.body.vault, (value) => { value.presentationData.name = 'Uncommitted action data'; });
+    if (operation === 'modifyLabels') request.body.addLabels[0].content = await staleCipher(request.body.addLabels[0].content, (value) => { value.label = 'Uncommitted action data'; });
+    if (operation === 'deleteBackup') request.body.appId = 'different-disposable-account';
+    await settled(request);
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: failed actual Realm commit supplies no usable write intent`, async (t) => {
+    const f = await setup(t, operation);
+    const local = plain(f.nativeRealm().objects('Tags'));
+    const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+    const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+      realm.create('Tags', f.defaults(f.RealmSchema.Tags, { id: 'rolled-back', type: 'TX', ref: 'rollback', label: 'Must never persist' }));
+      throw new Error('Disposable native transaction failure');
+    });
+    assert.equal(receipt.committed, false);
+    assert.equal(receipt.intent, undefined);
+    assert.deepEqual(plain(f.nativeRealm().objects('Tags')), local, 'Real native transaction rollback must preserve the entire prior collection');
+    const body = { appId: f.appId };
+    await settled({ invoke: () => operations[operation].invoke(f, body, receipt.intent) });
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: copying a branded committed intent never authorizes a request`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    await settled({ invoke: () => operations[operation].invoke(f, request.body, { ...request.intent }) });
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: a missing committed receipt sends nothing and never borrows the current baseline`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    await f.automatic.enqueueAutomaticBackupOperation(undefined, [{ operation, body: request.body }]);
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: closed and reopened native Realm rejects the old queued receipt`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    const gate = barrier();
+    t.after(gate.release);
+    f.transport.withBackupSession(f.appId, () => gate.promise);
+    const result = settled(request);
+    const original = f.nativeRealm();
+    f.realmDatabase.closeDatabase();
+    await f.selectAccount(f.appId);
+    assert.equal(original.isClosed, true);
+    assert.notEqual(f.nativeRealm(), original);
+    gate.release();
+    await result;
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: a malformed missing-reference snapshot authorizes no mutation`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    server.armFault({ mode: 'before-snapshot-reply', appId: f.appId, beforeReply({ body }) {
+      return { ...body, appImage: { ...body.appImage, vaults: [...body.appImage.vaults, 'missing-vault-reference'] } };
+    } });
+    await settled(request);
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+  });
+
+  test(`${operation}: a later consent-off choice invalidates the previously prepared operation`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: false }));
+    await settled(request);
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], false);
+  });
+
+  test(`${operation}: wrong-key final ciphertext leaves the acknowledged update pending`, async (t) => {
+    const f = await setup(t, operation);
+    const request = await committedRequest(f, operation);
+    const wrongCipher = await f.image.encryptRecord(f.encryption.generateEncryptionKey('different-public-fixture-key'), wallet(f, 'retained-wallet'));
+    server.armFault({ mode: 'before-snapshot-reply', appId: f.appId, after: 1, beforeReply({ body }) {
+      return { ...body, appImage: { ...body.appImage, wallets: { ...body.appImage.wallets, 'retained-wallet': wrongCipher } } };
+    } });
+    await settled(request);
+    assert.equal(attemptedWrites().length, 1);
+    assert.equal(attemptedWrites()[0].committed, true);
+    assertPending(f);
+    if (operation === 'deleteBackup') assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
+  });
+}
+
+for (const fanout of ['create-and-archive-vaults', 'shared-vault-registration', 'label-import-and-delete']) {
+  test(`${fanout}: first real CAS succeeds, second fails, remaining effects stop and all local data survives`, async (t) => {
+    const f = await setup(t, fanout === 'label-import-and-delete' ? 'modifyLabels' : 'updateVaultImage');
+    if (fanout !== 'label-import-and-delete') {
+      persistVault(f, 'vault-b'); persistVault(f, 'vault-c');
+      await server.seed(await f.payloadForCurrentImage());
+      assert.equal(await f.sagas.run('runBackupInspection', false, f.appId), true);
+      server.clearTrace();
+    }
+    const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+    const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+      if (fanout === 'create-and-archive-vaults') {
+        realm.objectForPrimaryKey('Vault', 'vault-a').archived = true;
+        realm.create('Vault', vault(f, 'new-vault'), Realm.UpdateMode.Modified);
+        realm.objectForPrimaryKey('Vault', 'vault-c').presentationData.name = 'Third prepared effect';
+      } else if (fanout === 'shared-vault-registration') {
+        realm.objectForPrimaryKey('VaultSigner', 'disposable-vault-public-key').registeredVaults = [
+          { vaultId: 'vault-a', registered: true }, { vaultId: 'vault-b', registered: true }, { vaultId: 'vault-c', registered: true },
+        ];
+      } else {
+        realm.delete(realm.objectForPrimaryKey('Tags', 'old-label'));
+        for (const id of ['label-one', 'label-two', 'label-three']) realm.create('Tags', f.defaults(f.RealmSchema.Tags, { id, type: 'TX', ref: id, label: id }));
+      }
+    });
+    assert.equal(receipt.committed, true);
+    const before = await f.repair.captureBackupImage();
+    const mutations = [];
+    if (fanout === 'label-import-and-delete') {
+      for (const [index, id] of ['label-one', 'label-two', 'label-three'].entries()) mutations.push({ operation: 'modifyLabels', body: await labelBody(f, [id], index === 0 ? ['old-label'] : []) });
+    } else {
+      for (const id of fanout === 'create-and-archive-vaults' ? ['vault-a', 'new-vault', 'vault-c'] : ['vault-a', 'vault-b', 'vault-c']) mutations.push({ operation: 'updateVaultImage', body: await vaultBody(f, id) });
+    }
+    server.armFault({ mode: '409', operation: mutations[0].operation, after: 1 });
+    const result = await f.automatic.enqueueAutomaticBackupOperation(receipt.intent, mutations);
+    assert.notEqual(result.backupConfirmed, true);
+    assert.equal(attemptedWrites().length, 2);
+    assert.equal(attemptedWrites()[0].committed, true);
+    assert.equal(attemptedWrites()[1].committed, false);
+    assert.equal(await f.image.compareImages(before, await f.repair.captureBackupImage()), 'matched');
+    assertPending(f);
+  });
+}
+
+test('real native mutation immediately before Redux final verification commit prevents a verified claim', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const request = await committedRequest(f, 'updateAppImage');
+  let injected = false;
+  f.setBeforeDispatch((action) => {
+    if (!injected && action.type === f.bhr.commitBackupInspection.type) {
+      injected = true;
+      persist(f, f.RealmSchema.Tags, f.defaults(f.RealmSchema.Tags, { id: 'final-commit-race', type: 'TX', ref: 'race', label: 'Native change at final Redux gate' }));
+    }
+  });
+  await settled(request);
+  assert.equal(injected, true, 'The actual production verification dispatch must be exercised');
+  assert.equal(attemptedWrites().length, 1);
+  assertPending(f);
+});
+
+test('actual BHR app producer builds ciphertext from committed native IDs rather than stale action data', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const request = await committedRequest(f, 'updateAppImage');
+  const producer = f.productionSagas(['currentBackupAppId', 'buildAutomaticAppMutation', 'queueCommittedBackupWorker', 'updateAppImageWorker']);
+  const result = await producer.run('updateAppImageWorker', {
+    payload: { wallets: [wallet(f, 'wallet-a', 'Old delayed action name')] },
+    originAppId: f.appId, originBackupAccountSession: f.transport.currentBackupAccountSession(), committedOperation: request.receipt,
+  });
+  assert.equal(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 1);
+  const restored = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), await server.snapshot(f.appId), f.appId);
+  assert.equal(restored.wallets['wallet-a'].presentationData.name, 'Committed wallet');
+});
+
+test('actual BHR node producer reads the genuine persisted collection and clears nodes with an exact set', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const producer = f.productionSagas(['currentBackupAppId', 'buildAutomaticAppMutation', 'queueCommittedBackupWorker', 'updateAppImageWorker']);
+  const origin = f.transport.captureBackupWriteIntent(f.appId);
+  const op = f.automatic.beginBackupLocalOperation(f.appId, origin, f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => realm.create('NodeConnect', f.defaults(f.RealmSchema.NodeConnect, {
+    id: 12, host: 'public-disposable-node.invalid', port: '50002', useSSL: true, networkType: f.enums.NetworkType.TESTNET,
+  })));
+  assert.equal(receipt.committed, true);
+  const result = await producer.run('updateAppImageWorker', { payload: { updateNodes: true }, originAppId: f.appId,
+    originBackupAccountSession: f.transport.currentBackupAccountSession(), committedOperation: receipt });
+  assert.equal(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 1);
+  let remote = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), await server.snapshot(f.appId), f.appId);
+  assert.equal(remote.nodes['12'].host, 'public-disposable-node.invalid');
+  server.clearTrace();
+  const deletion = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  const removed = f.automatic.commitBackupLocalOperation(deletion, (realm) => realm.delete(realm.objects('NodeConnect')));
+  const cleared = await producer.run('updateAppImageWorker', { payload: { updateNodes: true }, originAppId: f.appId,
+    originBackupAccountSession: f.transport.currentBackupAccountSession(), committedOperation: removed });
+  assert.equal(cleared.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 1);
+  remote = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), await server.snapshot(f.appId), f.appId);
+  assert.deepEqual(Object.keys(remote.nodes), []);
+});
+
+test('actual BHR vault producer builds from shared native registrations and acknowledges the complete fanout', async (t) => {
+  const f = await setup(t, 'updateVaultImage');
+  persistVault(f, 'vault-b');
+  await server.seed(await f.payloadForCurrentImage());
+  assert.equal(await f.sagas.run('runBackupInspection', false, f.appId), true);
+  server.clearTrace();
+  const producer = f.productionSagas(['currentBackupAppId', 'buildAutomaticVaultMutation', 'queueCommittedBackupWorker']);
+  const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+    realm.objectForPrimaryKey('VaultSigner', 'disposable-vault-public-key').registeredVaults = [
+      { vaultId: 'vault-a', registered: true, hmac: 'disposable-receipt' }, { vaultId: 'vault-b', registered: true, hmac: 'disposable-receipt' },
+    ];
+  });
+  const mutations = ['vault-a', 'vault-b'].map((id) => producer.scope.buildAutomaticVaultMutation(id, f.appId));
+  const result = await producer.run('queueCommittedBackupWorker', f.appId, receipt, mutations, f.transport.currentBackupAccountSession());
+  assert.equal(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 2);
+  const remote = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), await server.snapshot(f.appId), f.appId);
+  for (const id of ['vault-a', 'vault-b']) assert.equal(remote.vaults[id].signers[0].registeredVaults.length, 2);
+  assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[f.appId], false);
+});
+
+test('create plus archive fanout proves archive target before mutation and verifies the full actual image', async (t) => {
+  const f = await setup(t, 'updateVaultImage');
+  const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+    realm.objectForPrimaryKey('Vault', 'vault-a').archived = true;
+    realm.create('Vault', vault(f, 'new-vault'), Realm.UpdateMode.Modified);
+  });
+  assert.equal(receipt.committed, true);
+  const producer = f.productionSagas(['currentBackupAppId', 'buildAutomaticVaultMutation', 'queueCommittedBackupWorker']);
+  const create = producer.scope.buildAutomaticVaultMutation('new-vault', f.appId, false);
+  create.body.archiveVaultId = 'vault-a';
+  const archived = producer.scope.buildAutomaticVaultMutation('vault-a', f.appId);
+  const result = await producer.run('queueCommittedBackupWorker', f.appId, receipt, [archived, create], f.transport.currentBackupAccountSession());
+  assert.equal(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 2);
+  const remote = await f.image.decodeImage(f.encryption.generateEncryptionKey(f.seed), await server.snapshot(f.appId), f.appId);
+  assert.equal(remote.vaults['vault-a'].archived, true);
+  assert.equal(remote.vaults['new-vault'].archived, false);
+});
+
+test('an archive alias without its preceding committed archive ciphertext sends nothing', async (t) => {
+  const f = await setup(t, 'updateVaultImage');
+  const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+    realm.objectForPrimaryKey('Vault', 'vault-a').archived = true;
+    realm.create('Vault', vault(f, 'new-vault'), Realm.UpdateMode.Modified);
+  });
+  const body = await vaultBody(f, 'new-vault');
+  body.archiveVaultId = 'vault-a';
+  const result = await f.automatic.enqueueAutomaticBackupOperation(receipt, [{ operation: 'updateVaultImage', body }]);
+  assert.notEqual(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 0);
+  assertPending(f);
+});
+
+for (const field of ['publicId', 'version', 'subscription']) {
+  test(`complete final readback with malformed ${field} cannot claim verification`, async (t) => {
+    const f = await setup(t, 'updateAppImage');
+    const request = await committedRequest(f, 'updateAppImage');
+    server.armFault({ mode: 'malformed-metadata', appId: f.appId, after: 1,
+      metadata: { [field]: field === 'subscription' ? '{}' : 'not-the-committed-value' } });
+    await settled(request);
+    assert.equal(attemptedWrites().length, 1);
+    assert.equal(attemptedWrites()[0].committed, true);
+    assertPending(f);
+  });
+}
+
+function disposableExtendedKey(f, byte) {
+  const ecc = f.load('src/services/wallets/operations/taproot-utils/noble_ecc').default;
+  const bip32 = require('bip32').default(ecc);
+  return bip32.fromSeed(Buffer.alloc(32, byte), require('bitcoinjs-lib').networks.testnet).derivePath("m/48'/1'/0'/2'");
+}
+
+for (const field of ['xpub', 'private-key', 'network']) {
+  test(`a same-ID signer ${field} identity replacement cannot upload committed native data`, async (t) => {
+    const f = await setup(t, 'migrateXfps');
+    const id = signer(f).id;
+    const original = disposableExtendedKey(f, 0x31);
+    const replacement = disposableExtendedKey(f, 0x32);
+    f.nativeRealm().write(() => {
+      f.nativeRealm().objectForPrimaryKey('Signer', id).signerXpubs[f.enums.XpubTypes.P2WSH][0].xpub = original.neutered().toBase58();
+    });
+    await server.seed(await f.payloadForCurrentImage());
+    assert.equal(await f.sagas.run('runBackupInspection', false, f.appId), true);
+    server.clearTrace();
+    const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+    const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+      const record = realm.objectForPrimaryKey('Signer', id);
+      if (field === 'xpub') record.signerXpubs[f.enums.XpubTypes.P2WSH][0].xpub = replacement.neutered().toBase58();
+      if (field === 'private-key') record.signerXpubs[f.enums.XpubTypes.P2WSH][0].xpriv = replacement.toBase58();
+      if (field === 'network') record.networkType = f.enums.NetworkType.MAINNET;
+    });
+    assert.equal(receipt.committed, true);
+    const current = await f.repair.captureBackupImage();
+    const result = await f.automatic.enqueueAutomaticBackupOperation(receipt, [{ operation: 'updateAppImage', body: {
+      appId: f.appId, signersObject: { [id]: await f.image.encryptRecord(f.encryption.generateEncryptionKey(f.seed), current.signers[id]) },
+    } }]);
+    assert.notEqual(result.backupConfirmed, true);
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+    assert.equal(current.signers[id].id, id, 'The rejection is for a changed identity at the same persisted ID');
+  });
+}
+
+for (const field of ['key', 'policy']) {
+  test(`a same-ID vault ${field} replacement cannot upload committed native data`, async (t) => {
+    const f = await setup(t, 'updateVaultImage');
+    const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+    const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+      const record = realm.objectForPrimaryKey('Vault', 'vault-a');
+      if (field === 'policy') record.scheme.m = 2;
+      else {
+        const xpub = disposableExtendedKey(f, 0x33).neutered().toBase58();
+        const previous = plain(record.signers[0]);
+        record.signers = [realm.create('VaultSigner', { ...previous, xpub }, Realm.UpdateMode.Modified)];
+        record.specs.xpubs = [xpub];
+        realm.objectForPrimaryKey('Signer', signer(f).id).signerXpubs[f.enums.XpubTypes.P2WSH][0].xpub = xpub;
+      }
+    });
+    assert.equal(receipt.committed, true);
+    const result = await f.automatic.enqueueAutomaticBackupOperation(receipt, [{ operation: 'updateVaultImage', body: await vaultBody(f, 'vault-a') }]);
+    assert.notEqual(result.backupConfirmed, true);
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+    assert.ok(f.dbManager.getObjectById(f.RealmSchema.Vault, 'vault-a'), 'The committed local record remains available for an explicit repair choice');
+  });
+}
+
+test('a cloned originating baseline cannot mint an automatic receipt from a genuine local commit', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const original = f.transport.captureBackupWriteIntent(f.appId);
+  const op = f.automatic.beginBackupLocalOperation(f.appId, { ...original }, f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => operations.updateAppImage.mutate(realm, f));
+  assert.equal(receipt.committed, true, 'Local saving remains available without cloud proof');
+  assert.equal(receipt.intent, undefined);
+  await f.automatic.enqueueAutomaticBackupOperation(receipt, [{ operation: 'updateAppImage', body: await operations.updateAppImage.body(f) }]);
+  assert.equal(attemptedWrites().length, 0);
+  assertPending(f);
+});
+
+test('an uncommitted native image or caller boolean cannot issue a committed-generation proof', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  let observedInside;
+  assert.throws(() => f.nativeRealm().write(() => {
+    f.nativeRealm().create('Tags', f.defaults(f.RealmSchema.Tags, { id: 'uncommitted-tag', type: 'TX', ref: 'pending', label: 'Must roll back' }));
+    observedInside = f.transport.captureBackupWriteIntent(f.appId);
+    assert.throws(() => f.automatic.beginBackupLocalOperation(f.appId, observedInside));
+    throw new Error('Deliberate rollback');
+  }), /Deliberate rollback/);
+  assert.equal(observedInside, undefined);
+  assert.equal(f.nativeRealm().objectForPrimaryKey('Tags', 'uncommitted-tag'), null);
+  const forgedCompletion = f.automatic.completeBackupLocalOperation(op, true);
+  assert.equal(forgedCompletion.intent, undefined);
+  assert.equal(attemptedWrites().length, 0);
+});
+
+test('a selected-account switch inside the final native transaction callback rolls back the whole operation', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const before = plain(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet-a'));
+  const op = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  const receipt = f.automatic.commitBackupLocalOperation(op, (realm) => {
+    operations.updateAppImage.mutate(realm, f);
+    f.store.dispatch(f.storage.setAppId('different-disposable-account'));
+  });
+  assert.equal(receipt.committed, false);
+  assert.equal(receipt.intent, undefined);
+  assert.deepEqual(plain(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet-a')), before);
+  assert.equal(attemptedWrites().length, 0);
+});
+
+test('fixture authorization never permits a hosted Relay target', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const request = await committedRequest(f, 'updateAppImage');
+  f.config.RELAY = 'https://hosted-recovery-fixture.invalid/';
+  await settled(request);
+  assert.equal(attemptedWrites().length, 0);
+  assertPending(f);
+});
+
+for (const mode of ['development-loopback', 'production-environment', 'development-disabled', 'missing-explicit-port']) {
+  test(`without the Node fixture override ${mode} obeys the native source and rollout gates`, async (t) => {
+    const f = await setup(t, 'updateAppImage');
+    const request = await committedRequest(f, 'updateAppImage');
+    if (mode === 'production-environment') f.config.ENVIRONMENT = 'PRODUCTION';
+    if (mode === 'development-disabled') f.config.isDevMode = () => false;
+    if (mode === 'missing-explicit-port') f.config.RELAY = 'http://127.0.0.1/';
+    const fixtureModule = process.env.KEEPER_RELAY_FIXTURE_MODULE;
+    delete process.env.KEEPER_RELAY_FIXTURE_MODULE;
+    try {
+      await settled(request);
+    } finally {
+      process.env.KEEPER_RELAY_FIXTURE_MODULE = fixtureModule;
+    }
+    if (mode === 'development-loopback' && f.automatic.AUTOMATIC_BACKUP_SOURCE_READY) {
+      assert.equal(attemptedWrites().length, 1);
+      assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[f.appId], false);
+    } else {
+      assert.equal(attemptedWrites().length, 0);
+      assertPending(f);
+    }
+    assert.equal(f.automatic.AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY, false, 'Disposable source proof never enables the hosted Relay fleet');
+  });
+}
+
+test('a counterfeit local operation never executes its native transaction callback', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  const genuine = f.automatic.beginBackupLocalOperation(f.appId, f.transport.captureBackupWriteIntent(f.appId), f.transport.currentBackupAccountSession());
+  let entered = false;
+  const receipt = f.automatic.commitBackupLocalOperation({ ...genuine }, (realm) => {
+    entered = true;
+    operations.updateAppImage.mutate(realm, f);
+  });
+  assert.equal(entered, false);
+  assert.equal(receipt.committed, false);
+  assert.equal(receipt.intent, undefined);
+  assert.equal(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet-a').presentationData.name, 'Initial wallet');
+  assert.equal(attemptedWrites().length, 0);
+});
+
+test('actual BHR Delete Backup worker acknowledges an explicit deletion without discarding native data', async (t) => {
+  const f = await setup(t, 'deleteBackup');
+  const worker = f.productionSagas(['currentBackupAppId', 'deleteBackupWorker']);
+  await worker.run('deleteBackupWorker', { appId: f.appId, originBackupAccountSession: f.transport.currentBackupAccountSession() });
+  assert.equal(attemptedWrites().length, 1);
+  assert.equal(attemptedWrites()[0].committed, true);
+  assert.equal(f.store.getState().bhr.deleteBackupSuccessByAppId[f.appId], true);
+  assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], false);
+  assert.ok(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet-a'));
+});
+
+test('a fresh explicit whole-account deletion works after automatic consent is already off', async (t) => {
+  const f = await setup(t, 'deleteBackup');
+  f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: false }));
+  const request = await committedRequest(f, 'deleteBackup');
+  const result = await settled(request);
+  assert.equal(result.backupConfirmed, true);
+  assert.equal(attemptedWrites().length, 1);
+  assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], false);
+});
+
+test('a newer off-to-on choice while the actual delete reply is delayed cannot be overwritten', async (t) => {
+  const f = await setup(t, 'deleteBackup');
+  const request = await committedRequest(f, 'deleteBackup');
+  server.armFault({ mode: 'delay-reply', operation: 'deleteBackup', delayMs: 250 });
+  const completion = settled(request);
+  const deadline = Date.now() + 5000;
+  while (!attemptedWrites().some((entry) => entry.committed)) {
+    assert.ok(Date.now() < deadline, 'The genuine server deletion must reach its delayed reply');
+    await new Promise((resolve) => setTimeout(resolve, 5));
+  }
+  f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: false }));
+  f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: true }));
+  const result = await completion;
+  assert.notEqual(result.backupConfirmed, true);
+  assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
+  assertPending(f);
+});
+
+test('a reentrant newer enable choice immediately before final consent disable remains selected', async (t) => {
+  const f = await setup(t, 'deleteBackup');
+  const request = await committedRequest(f, 'deleteBackup');
+  let changed = false;
+  f.setBeforeDispatch((action) => {
+    if (!changed && action.type === f.bhr.setAutomaticCloudBackup.type && action.payload?.enabled === false) {
+      changed = true;
+      f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: true }));
+    }
+  });
+  const result = await settled(request);
+  assert.equal(changed, true);
+  assert.notEqual(result.backupConfirmed, true);
+  assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
+  assertPending(f);
+});
