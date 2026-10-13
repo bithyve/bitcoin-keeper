@@ -18,10 +18,17 @@ const withCoins = (kind = 'Wallet') => ({
   specs: { confirmedUTXOs: [coin('spendable', { isManualOverride: false })],
     unconfirmedUTXOs: [], transactions: [], addresses: { external: {}, internal: {} } },
 });
-function loadFunctions(scope, file, names) {
+function loadFunctions(scope, file, names, constantNames = []) {
   const source = ts.createSourceFile(file, fs.readFileSync(path.join(__dirname, '../..', file), 'utf8'), ts.ScriptTarget.Latest, true);
-  const code = source.statements.filter(node => ts.isFunctionDeclaration(node) && names.includes(node.name?.text))
-    .map(node => node.getText(source).replace(/^export /, '')).join('\n');
+  const constants = source.statements.filter(ts.isVariableStatement)
+    .flatMap(node => Array.from(node.declarationList.declarations))
+    .filter(node => ts.isIdentifier(node.name) && constantNames.includes(node.name.text));
+  assert.equal(constants.length, constantNames.length);
+  const code = [
+    ...constants.map(node => `const ${node.getText(source)};`),
+    ...source.statements.filter(node => ts.isFunctionDeclaration(node) && names.includes(node.name?.text))
+      .map(node => node.getText(source).replace(/^export /, '')),
+  ].join('\n');
   assert.equal(source.statements.filter(node => ts.isFunctionDeclaration(node) && names.includes(node.name?.text)).length, names.length);
   vm.runInNewContext(ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText, scope);
 }
@@ -114,9 +121,23 @@ test('rejected local persistence never uploads an unapplied coin choice', async 
 for (const kind of ['Wallet', 'Vault']) for (const choice of ['doNotSpend', 'spendable']) test(`${kind}: restored manual ${choice} survives real refresh orchestration`, async () => {
   const f = sagaFixture(); const restored = withCoins(kind); restored.specs.confirmedUTXOs = [coin(choice)];
   f.collections[kind].push(restored);
-  f.scope.ELECTRUM_CLIENT = { isClientConnected: true };
+  f.scope.store = { getState: () => f.state };
+  f.scope.ELECTRUM_CLIENT = { isClientConnected: true, activePeer: { networkType: enums.NetworkType.MAINNET } };
+  f.scope.ElectrumClient = {
+    getConnectionGeneration: () => 1,
+    assertConnectionGeneration: (generation, networkType) => {
+      assert.equal(generation, 1);
+      assert.equal(networkType, f.state.settings.bitcoinNetworkType);
+      assert.equal(networkType, f.scope.ELECTRUM_CLIENT.activePeer.networkType);
+    },
+    resetCurrentPeerIndex: () => { throw Error('Current fixture connection should not reconnect'); },
+  };
+  let syncCalls = 0, persistCalls = 0;
+  const persist = f.scope.dbManager.updateObjectById;
+  f.scope.dbManager.updateObjectById = (...args) => { persistCalls += 1; return persist(...args); };
   f.scope.WalletUtilities.getNetworkByType = () => ({});
   f.scope.WalletOperations = { syncWalletsViaElectrumClient: async () => {
+    syncCalls += 1;
     const synced = clone(restored);
     synced.specs.confirmedUTXOs = [coin('spendable', { isManualOverride: false })];
     return { synchedWallets: [{ synchedWallet: synced, newUTXOs: [] }] };
@@ -129,8 +150,10 @@ for (const kind of ['Wallet', 'Vault']) for (const choice of ['doNotSpend', 'spe
   f.scope.setSyncing = payload => ({ type: 'syncing', payload });
   f.scope.setElectrumNotConnectedErr = error => { throw Error(error); };
   f.scope.ELECTRUM_NOT_CONNECTED_ERR = 'offline'; f.scope.ELECTRUM_NOT_CONNECTED_ERR_TOR = 'tor-offline';
-  loadFunctions(f.scope, 'src/store/sagas/wallets.ts', ['refreshWalletsWorker']);
-  await f.run('refreshWalletsWorker', { payload: { wallets: [restored], options: { hardRefresh: true } } });
+  loadFunctions(f.scope, 'src/store/sagas/wallets.ts', ['refreshWalletsWorker'], ['WALLET_SYNC_SCOPE_CHANGED']);
+  assert.equal(await f.run('refreshWalletsWorker', { payload: { wallets: [restored], options: { hardRefresh: true } } }), true);
+  assert.equal(syncCalls, 1);
+  assert.equal(persistCalls, 1);
   assert.equal(f.collections[kind][0].specs.confirmedUTXOs[0].spendability, choice);
   assert.equal(f.collections[kind][0].specs.confirmedUTXOs[0].isManualOverride, true);
 });
