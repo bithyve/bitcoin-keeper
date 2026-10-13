@@ -179,21 +179,26 @@ const screenFile = path.join(__dirname, '../../src/screens/AppSettings/ManageWal
 const screen = ts.createSourceFile(screenFile, fs.readFileSync(screenFile, 'utf8'),
   ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
 let deleteDeclaration;
+let guardDeclaration;
 function findDelete(node) {
   if (ts.isVariableDeclaration(node) && node.name.getText(screen) === 'deleteSelectedEntity')
     deleteDeclaration = node;
+  if (ts.isVariableDeclaration(node) && node.name.getText(screen) === 'canDeleteRecoveryEntity')
+    guardDeclaration = node;
   ts.forEachChild(node, findDelete);
 }
 findDelete(screen);
 assert.ok(deleteDeclaration, 'production ManageWallets delete handler must exist');
+assert.ok(guardDeclaration, 'production ManageWallets backup deletion guard must exist');
 const deleteHandlerCode = ts.transpileModule(
-  `const ${deleteDeclaration.getText(screen)}; globalThis.deleteSelectedEntity = deleteSelectedEntity;`,
+  `const ${guardDeclaration.getText(screen)}; const ${deleteDeclaration.getText(screen)}; globalThis.deleteSelectedEntity = deleteSelectedEntity;`,
   { compilerOptions: { target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.React } }
 ).outputText;
 
 function screenFixture(entityKind, usdtResult = false) {
   const state = {
-    active: 'A', session: 1, present: true, presentById: new Map(), actions: [], toasts: [],
+    active: 'A', session: 1, consent: true, verified: true,
+    present: true, presentById: new Map(), actions: [], toasts: [],
   };
   const scope = {
     React: { createElement: (component) => component },
@@ -210,6 +215,12 @@ function screenFixture(entityKind, usdtResult = false) {
     },
     activeRealmAppId: () => state.active,
     currentBackupAccountSession: () => state.session,
+    store: { getState: () => ({ storage: { appId: state.active }, bhr: {
+      automaticCloudBackupByAppId: { [state.active]: state.consent },
+    } }) },
+    isAutomaticCloudBackupEnabled: (backup, appId) =>
+      backup.automaticCloudBackupByAppId[appId] === true,
+    isBackupVerificationCurrent: (appId) => state.verified && appId === state.active,
     deleteAppImageEntity: (request) => ({ type: 'DELETE_BTC', ...request }),
     deleteVault: (id, onComplete) => ({ type: 'DELETE_VAULT', id, onComplete }),
     deleteUSDTWallet: async () => usdtResult,
@@ -233,6 +244,22 @@ test('ManageWallets waits for the BTC delete outcome before showing a toast', as
 
   f.state.actions[0].onComplete(false);
   assert.equal(f.state.toasts[0].message, 'Failed to delete wallet');
+});
+
+test('ManageWallets withholds a consented BTC Delete after PIN if Hide is still pending', async () => {
+  const f = screenFixture('WALLET');
+  f.state.verified = false;
+  await f.deleteSelectedEntity();
+  assert.deepEqual(f.state.actions, []);
+  assert.equal(f.state.toasts[0].message, 'Verify your assisted backup before deleting');
+});
+
+test('ManageWallets permits local BTC Delete with assisted consent off', async () => {
+  const f = screenFixture('WALLET');
+  f.state.consent = false;
+  f.state.verified = false;
+  await f.deleteSelectedEntity();
+  assert.deepEqual(f.state.actions.map(action => action.type), ['DELETE_BTC']);
 });
 
 test('ManageWallets refuses a BTC success toast while the Realm wallet still exists', async () => {
