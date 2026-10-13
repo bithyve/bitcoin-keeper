@@ -520,7 +520,7 @@ function fixture(options = {}) {
       'currentWalletAccountId', 'assertWalletAccount',
       'rewriteSignerFingerprintReferences', 'planSignerIdentityMerges', 'applySignerIdentityMerges',
       'applySignerXprivUpdates', 'buildSignerMigrationMutation',
-      'addNewWalletsWorker', 'addSigningDeviceWorker',
+      'addNewWalletsWorker', 'addSigningDeviceWorker', 'mergeSimilarKeysWorker',
       'deleteSigningDeviceWorker', 'deleteVaultWorker',
       'deleteVaultRequestWorker',
       'generateNewExternalAddressWorker', 'updateSignerPolicyWorker',
@@ -556,7 +556,7 @@ function fixture(options = {}) {
   };
   scope.store.dispatch = dispatch;
   const mutationActions = new Set([
-    'addNewWalletsWorker', 'addSigningDeviceWorker', 'deleteSigningDeviceWorker',
+    'addNewWalletsWorker', 'addSigningDeviceWorker', 'mergeSimilarKeysWorker', 'deleteSigningDeviceWorker',
     'deleteAppImageEntityWorker', 'deleteAppImageEntityRequestWorker',
     'deleteVaultWorker', 'deleteVaultRequestWorker', 'updateSignerPolicyWorker',
     'updateVaultSignerXprivWorker', 'updateSignerDetailsWorker', 'updateKeyDetailsWorker',

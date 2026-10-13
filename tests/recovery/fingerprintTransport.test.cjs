@@ -75,7 +75,7 @@ test('direct migration attempts never send ciphertext and keep redacted errors',
   assert.deepEqual(pending, ['fixture-account', 'fixture-account']);
 });
 
-test('fingerprint migration targets the actual KeyUID map entry after Realm changes the live signer', async () => {
+test('fingerprint migration targets the actual KeyUID map entry after atomic signer replacement', async () => {
   const f = sagaFixture();
   const oldSigner = sagaSigner('AABBCCDD', enums.NetworkType.MAINNET);
   oldSigner.signerXpubs[enums.XpubTypes.P2WSH] = [{
@@ -90,6 +90,7 @@ test('fingerprint migration targets the actual KeyUID map entry after Realm chan
   const newKey = f.scope.getKeyUID(replacement);
   assert.notEqual(oldKey, oldSigner.masterFingerprint);
   assert.notEqual(newKey, replacement.masterFingerprint);
+  oldSigner.id = oldKey;
   f.collections.Signer.push(oldSigner);
   f.remote.signers[oldKey] = 'old-ciphertext';
   f.scope.dbManager.getObjectByQuery = () => [];
@@ -107,7 +108,10 @@ test('fingerprint migration targets the actual KeyUID map entry after Realm chan
     originAppId: f.app.id,
     payload: { signer: replacement },
   }), true);
-  assert.equal(oldSigner.masterFingerprint, replacement.masterFingerprint);
+  const stored = f.scope.dbManager.getObjectById('Signer', newKey);
+  assert.equal(stored.masterFingerprint, replacement.masterFingerprint);
+  assert.equal(f.scope.dbManager.getObjectById('Signer', oldKey), undefined);
+  assert.equal(oldSigner.masterFingerprint, 'AABBCCDD', 'the deleted object is not the current signer');
   assert.equal(submitted.appId, f.app.id);
   assert.equal(submitted.changes[0].oldSignerId, oldKey);
   assert.equal(submitted.changes[0].newSignerId, newKey);
