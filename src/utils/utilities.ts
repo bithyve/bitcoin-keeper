@@ -158,9 +158,35 @@ export const crossInteractionHandler = (error): string => {
 export const getBackupDuration = () =>
   config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800;
 
-export const emailCheck = (email) => {
-  const reg = /^\w+([.\-+]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-  return reg.test(email);
+export const emailCheck = (email: unknown): boolean => {
+  if (typeof email !== 'string') return false;
+  const at = email.indexOf('@');
+  if (at <= 0 || at !== email.lastIndexOf('@')) return false;
+  const lastDot = email.lastIndexOf('.');
+  if (lastDot <= at + 1 || email.length - lastDot - 1 < 2) return false;
+
+  const isWord = (code: number) =>
+    (code >= 65 && code <= 90) ||
+    (code >= 97 && code <= 122) ||
+    (code >= 48 && code <= 57) ||
+    code === 95;
+  const validPart = (start: number, end: number, separators: string) => {
+    let previousWasWord = false;
+    for (let index = start; index < end; index += 1) {
+      if (isWord(email.charCodeAt(index))) previousWasWord = true;
+      else if (previousWasWord && separators.includes(email[index])) previousWasWord = false;
+      else return false;
+    }
+    return previousWasWord;
+  };
+
+  // Preserve the existing ASCII word/separator rules without ambiguous regex
+  // repetition. The final dotted suffix contains at least two word characters.
+  if (!validPart(0, at, '.-+') || !validPart(at + 1, lastDot, '.-')) return false;
+  for (let index = lastDot + 1; index < email.length; index += 1) {
+    if (!isWord(email.charCodeAt(index))) return false;
+  }
+  return true;
 };
 
 export function numberToOrdinal(cardinal) {
