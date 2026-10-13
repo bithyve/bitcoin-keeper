@@ -281,16 +281,13 @@ const parseKeyExpression = (keyExpression) => {
   if (bracketMatch) {
     const insideBracket = bracketMatch[1];
     masterFingerprint = insideBracket.substring(0, 8).toUpperCase();
-    path = `m${insideBracket
-      .substring(8)
-      .replace(/(\d+)h/g, "$1'")
-      .replace(/'/g, "'")}`;
+    path = `m${insideBracket.substring(8).replace(/(\d+)h/g, "$1'")}`;
     xpub = bracketMatch[2].replace(/[^\w\s]+$/, '').split(/[^\w]+/)[0];
   } else {
     // Case 2: If the keyExpression is not enclosed in square brackets
     const parts = keyExpression.split("'");
     masterFingerprint = parts[0].substring(0, 8).toUpperCase();
-    path = `m${keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1).replace(/'/g, "'")}`;
+    path = `m${keyExpression.substring(8, keyExpression.lastIndexOf("'") + 1)}`;
     xpub = keyExpression
       .substring(keyExpression.lastIndexOf("'") + 1)
       .replace(/[^\w\s]+$/, '')
@@ -779,6 +776,16 @@ export function findChangeFromReceiverAddresses(
   return receiverAddresses;
 }
 
-export const accountNoFromDerivationPath = (derivationPath) => {
-  return derivationPath.split('/')[3].replace("'", '');
+export const accountNoFromDerivationPath = (derivationPath: string): string => {
+  if (typeof derivationPath !== 'string') throw new Error('Invalid derivation path');
+  const segments = derivationPath.split('/');
+  if (segments[0] !== 'm' || segments.length < 4) throw new Error('Invalid derivation path');
+  let accountNumber = '';
+  for (let index = 1; index < segments.length; index += 1) {
+    const child = /^([0-9]+)(?:'|h)?$/.exec(segments[index]);
+    if (!child || child[0] !== segments[index] || Number(child[1]) > 0x7fffffff)
+      throw new Error('Invalid derivation path');
+    if (index === 3) [, accountNumber] = child;
+  }
+  return accountNumber;
 };
