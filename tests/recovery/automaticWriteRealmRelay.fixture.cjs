@@ -9,6 +9,8 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const ts = require('typescript');
 const { configureStore } = require('@reduxjs/toolkit');
+const { combineReducers } = require('redux');
+const { persistReducer, persistStore, createMigrate } = require('redux-persist');
 const { runSaga } = require('redux-saga');
 const effects = require('redux-saga/effects');
 const Realm = require('realm');
@@ -23,6 +25,16 @@ function declarations(file, names) {
     (ts.isVariableStatement(node) && node.declarationList.declarations.some((declaration) => names.includes(declaration.name?.text))));
   assert.equal(matches.length, names.length, `Missing production declarations in ${file}`);
   return matches.map((node) => node.getText(source).replace(/^export /, '').replace(/^const /, 'var ')).join('\n');
+}
+
+function componentDeclarations(file, component, names) {
+  const source = ts.createSourceFile(file, fs.readFileSync(path.join(root, file), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const declaration = source.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === component);
+  assert.ok(declaration?.body, `Missing production component ${component}`);
+  const matches = declaration.body.statements.filter((node) => ts.isVariableStatement(node) &&
+    node.declarationList.declarations.some((value) => names.includes(value.name?.text)));
+  assert.equal(matches.length, names.length, `Missing production declarations in ${component}`);
+  return matches.map((node) => node.getText(source).replace(/^const /, 'var ')).join('\n');
 }
 
 function classMembers(file, name, names) {
@@ -85,6 +97,28 @@ async function createRealmClient(url, options = {}) {
   assert.match(url, /^http:\/\/(127\.0\.0\.1|localhost):\d+\/$/, 'Fixture must use a loopback HTTP Relay');
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'keeper-native-realm-backup-'));
   const diagnostics = [];
+  const persistedHostRecords = new Map();
+  const persistedHostReads = [];
+  const persistedBootStates = [];
+  let firstPersistedKey;
+  let secondaryPersistedRead;
+  let failingPersistedKey;
+  // Only the MMKV host storage boundary is replaced. When explicitly requested,
+  // actual redux-persist reads and reconciles these serialized persisted bytes;
+  // the adapter never supplies Realm records, backup evidence or HTTP replies.
+  const reduxStorage = {
+    getItem: async (key) => {
+      persistedHostReads.push(key);
+      // Controlling MMKV completion order must not replace any Redux action,
+      // reducer, backup proof or server response in the genuine matrix.
+      if (firstPersistedKey && key !== `persist:${firstPersistedKey}`)
+        await secondaryPersistedRead.promise;
+      if (key === `persist:${failingPersistedKey}`) throw new Error('Disposable host storage read failed');
+      return persistedHostRecords.get(key) ?? null;
+    },
+    setItem: async (key, value) => { persistedHostRecords.set(key, value); },
+    removeItem: async (key) => { persistedHostRecords.delete(key); },
+  };
   const bindings = {
     realm: Realm,
     'src/services/sentry': { captureError(error) { diagnostics.push(error?.name || 'error'); } },
@@ -93,9 +127,7 @@ async function createRealmClient(url, options = {}) {
     'react-native-rsa-native': { RSA: new Proxy({}, { get: () => () => { throw new Error('Unexpected native RSA use'); } }) },
     'src/utils/service-utilities/config': { RELAY: url, HEXA_ID: 'disposable-fixture', ENVIRONMENT: 'DEVELOPMENT', isDevMode: () => true },
     'src/storage/realm/migrations': { runRealmMigrations() { throw new Error('A fresh fixture must never migrate an existing Realm'); } },
-    // No MMKV/native persistence is available on Node. Redux reducers are real;
-    // this unused host adapter never supplies recovery state or write proof.
-    'src/storage': { reduxStorage: { getItem: async () => null, setItem: async () => undefined, removeItem: async () => undefined } },
+    'src/storage': { reduxStorage },
     'redux-persist/es/persistReducer': require('redux-persist/lib/persistReducer').default,
   };
   const load = sourceLoader(bindings, options);
@@ -120,19 +152,35 @@ async function createRealmClient(url, options = {}) {
   const storage = load('src/store/reducers/storage');
   const account = load('src/store/reducers/account');
   const settings = load('src/store/reducers/settings');
-  const middlewareScope = { dbManager, RealmSchema, ...transport,
+  const middlewareScope = { dbManager, RealmSchema, ...transport, ...bhr,
     isBackupVerificationCurrent: (...args) => load('src/services/backup/automatic').isBackupVerificationCurrent(...args) };
   evaluate(declarations('src/store/store.ts', ['accountOwnedActions', 'accountOwnedUtxoUiActions', 'bindActionOrigin']), middlewareScope, 'production-origin-middleware.ts');
   const actions = [];
   let beforeDispatch;
+  // This Node fixture mounts the four production slices used by recovery. The
+  // optional root wrapper uses the actual production declarations/config and
+  // redux-persist reconciler, rather than simulating REHYDRATE with a reducer.
+  let reducer = combineReducers({ bhr: bhr.default, storage: storage.default, account: account.default, settings: settings.default });
+  if (options.persistedRedux) {
+    const persistenceScope = { appReducer: reducer, storage: reduxStorage, reduxStorage,
+      RESET_REDUX_STORE: 'RESET_REDUX_STORE', persistReducer, createMigrate,
+      reduxPersistMigrations: load('src/store/migrations').default };
+    evaluate(declarations('src/store/store.ts', ['rootReducer', 'persistConfig', 'persistedReducer']), persistenceScope, 'production-root-persistence.ts');
+    reducer = persistenceScope.persistedReducer;
+  }
   const store = configureStore({
-    reducer: { bhr: bhr.default, storage: storage.default, account: account.default, settings: settings.default },
+    reducer,
     middleware: (defaults) => defaults({ serializableCheck: false, immutableCheck: false }).concat(() => (next) => (action) => {
       beforeDispatch?.(action);
       return next(action);
     }, middlewareScope.bindActionOrigin, () => (next) => (action) => {
       actions.push(action);
-      return next(action);
+      const result = next(action);
+      if (action.type === 'persist/REHYDRATE') {
+        persistedBootStates.push({ key: action.key, bhr: plain(store.getState().bhr) });
+        if (action.key === firstPersistedKey) secondaryPersistedRead.release();
+      }
+      return result;
     }),
   });
   store.dispatch(settings.setBitcoinNetwork(enums.NetworkType.TESTNET));
@@ -188,6 +236,40 @@ async function createRealmClient(url, options = {}) {
     return nativeRealm();
   }
   await selectAccount();
+  let persistor;
+
+  async function rehydratePersistedRedux(recordsByKey, { firstKey, failKey } = {}) {
+    assert.equal(options.persistedRedux, true, 'Actual root persistence must be requested before creating the store');
+    assert.equal(persistor, undefined, 'Each fixture represents one cold Redux persistence boot');
+    if (firstKey) {
+      assert.ok(['bhr', 'root'].includes(firstKey));
+      firstPersistedKey = firstKey;
+      let release;
+      const promise = new Promise((resolve) => { release = resolve; });
+      secondaryPersistedRead = { promise, release };
+    }
+    failingPersistedKey = failKey;
+    for (const [key, state] of Object.entries(recordsByKey)) {
+      const serialized = Object.fromEntries(Object.entries(state).map(([name, value]) => [name, JSON.stringify(value)]));
+      persistedHostRecords.set(`persist:${key}`, JSON.stringify(serialized));
+    }
+    await new Promise((resolve) => { persistor = persistStore(store, undefined, resolve); });
+    assert.equal(persistor.getState().bootstrapped, true);
+    assert.equal(store.getState()._persist.rehydrated, true);
+    assert.equal(store.getState().bhr._persist.rehydrated, true);
+    await persistor.flush();
+  }
+
+  async function flushPersistedRedux() {
+    assert.ok(persistor, 'Actual persistStore must have booted before flush');
+    await persistor.flush();
+  }
+
+  function readPersistedRedux(key) {
+    const serialized = persistedHostRecords.get(`persist:${key}`);
+    assert.equal(typeof serialized, 'string', `Actual redux-persist must have stored ${key}`);
+    return Object.fromEntries(Object.entries(JSON.parse(serialized)).map(([name, value]) => [name, JSON.parse(value)]));
+  }
 
   function installProductionStoreObservers(extra = {}) {
     const source = ts.createSourceFile('store.ts', fs.readFileSync(path.join(root, 'src/store/store.ts'), 'utf8'), ts.ScriptTarget.Latest, true);
@@ -257,9 +339,10 @@ async function createRealmClient(url, options = {}) {
     config: bindings['src/utils/service-utilities/config'],
     defaults, nativeRealm, selectAccount, selected: () => selected, nativeEvents, diagnostics, actions,
     listen, installProductionStoreObservers, productionSagas, payloadForCurrentImage,
+    rehydratePersistedRedux, flushPersistedRedux, readPersistedRedux, persistedHostReads, persistedBootStates,
     setBeforeDispatch(callback) { beforeDispatch = callback; },
-    async close() { realmDatabase.closeDatabase(); fs.rmSync(directory, { recursive: true, force: true }); },
+    async close() { persistor?.pause(); realmDatabase.closeDatabase(); fs.rmSync(directory, { recursive: true, force: true }); },
   };
 }
 
-module.exports = { createRealmClient, declarations, classMembers, evaluate, sourceLoader, plain, Realm };
+module.exports = { createRealmClient, declarations, componentDeclarations, classMembers, evaluate, sourceLoader, plain, Realm };

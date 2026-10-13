@@ -3,7 +3,7 @@
 // helper; missing prerequisites fail the command and are never a skipped pass.
 const assert = require('node:assert/strict');
 const { test, before, after } = require('node:test');
-const { createRealmClient, plain, Realm } = require('./automaticWriteRealmRelay.fixture.cjs');
+const { createRealmClient, componentDeclarations, evaluate, plain, Realm } = require('./automaticWriteRealmRelay.fixture.cjs');
 
 const fixtureModule = process.env.KEEPER_RELAY_FIXTURE_MODULE;
 assert.ok(fixtureModule, 'Set KEEPER_RELAY_FIXTURE_MODULE to Relay tests/support/automaticBackupHttpFixture.cjs');
@@ -897,4 +897,296 @@ test('a reentrant newer enable choice immediately before final consent disable r
   assert.notEqual(result.backupConfirmed, true);
   assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
   assertPending(f);
+});
+
+for (const persistedKey of ['bhr', 'root']) {
+  test(`actual ${persistedKey} Redux Persist boot expires historical verification until fresh encrypted readback`, async (t) => {
+    await server.reset();
+    const f = await createRealmClient(server.url, { persistedRedux: true });
+    t.after(async () => { await f.close(); });
+    f.automatic = f.load('src/services/backup/automatic');
+    f.installProductionStoreObservers(f.automatic);
+    persist(f, f.RealmSchema.Wallet, wallet(f));
+    await tick();
+    const localBeforeBoot = await f.repair.captureBackupImage();
+    await server.seed(await f.payloadForCurrentImage());
+    server.clearTrace();
+
+    const interrupted = 'disposable-interrupted-account';
+    const completedOnly = 'disposable-completed-only-account';
+    const runningOnly = 'disposable-running-only-account';
+    const knownDifferent = 'disposable-known-different-account';
+    const consentOnly = 'disposable-consent-only-account';
+    const consent = {
+      [f.appId]: true, [interrupted]: false, [completedOnly]: true,
+      [runningOnly]: true, [knownDifferent]: false, [consentOnly]: false,
+    };
+    const historicalBhr = {
+      ...plain(f.store.getState().bhr),
+      backupMethod: 'SEED', seedConfirmed: true,
+      automaticCloudBackupByAppId: consent,
+      backupAllLoading: true, backupAllSuccess: true, backupAllFailure: true,
+      deleteBackupSuccess: true, deleteBackupFailure: true,
+      backupAllLoadingByAppId: { [f.appId]: true },
+      backupAllSuccessByAppId: { [f.appId]: true, [completedOnly]: true },
+      backupAllFailureByAppId: { [interrupted]: true },
+      deleteBackupSuccessByAppId: { [f.appId]: true },
+      deleteBackupFailureByAppId: { [interrupted]: true },
+      backupRepairStateByAppId: { [f.appId]: 'verified', [interrupted]: 'uploading', [knownDifferent]: 'different' },
+      backupRepairCompletedByAppId: { [f.appId]: true, [completedOnly]: true, [knownDifferent]: false },
+      pendingAllBackupByAppId: { [f.appId]: false, [interrupted]: false, [completedOnly]: false, [runningOnly]: false, [knownDifferent]: true },
+      // Older snapshots may contain running state despite today's blacklist.
+      backupRepairRunningByAppId: { [interrupted]: true, [runningOnly]: true },
+      _persist: { version: -1, rehydrated: true },
+    };
+    const rootSnapshot = {
+      storage: { ...plain(f.store.getState().storage), appVersion: 'persisted-safe-version' },
+      account: plain(f.store.getState().account),
+      _persist: { version: 4, rehydrated: true },
+      ...(persistedKey === 'root' ? { bhr: historicalBhr } : {}),
+    };
+    const inboundBeforeBoot = plain(historicalBhr);
+    await f.rehydratePersistedRedux({ root: rootSnapshot, ...(persistedKey === 'bhr' ? { bhr: historicalBhr } : {}) }, { firstKey: persistedKey });
+    const state = f.store.getState();
+    assert.ok(f.persistedHostReads.includes('persist:root'));
+    assert.ok(f.persistedHostReads.includes('persist:bhr'));
+    assert.ok(f.actions.some((action) => action.type === 'persist/REHYDRATE' && action.key === persistedKey),
+      'Actual persistStore must dispatch through production middleware before the real reconciler merges');
+    assert.equal(f.persistedBootStates[0].key, persistedKey, 'The real storage adapter must exercise the requested reconciliation order');
+    if (persistedKey === 'root') {
+      assert.notEqual(f.persistedBootStates[0].bhr.automaticCloudBackupByAppId[f.appId], true,
+        'Legacy consent waits until the nested read actually confirms absence');
+      assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true,
+        'An absent canonical snapshot allows sanitized legacy consent fallback');
+    }
+    assert.deepEqual(state.bhr.automaticCloudBackupByAppId, consent, 'Stored per-account consent must remain unchanged');
+    assert.equal(state.bhr.backupMethod, 'SEED');
+    assert.equal(state.bhr.seedConfirmed, true);
+    for (const field of ['backupAllLoading', 'backupAllSuccess', 'backupAllFailure', 'deleteBackupSuccess', 'deleteBackupFailure'])
+      assert.equal(state.bhr[field], false, `Historical ${field} must not reappear after a cold boot`);
+    for (const field of ['backupAllLoadingByAppId', 'backupAllSuccessByAppId', 'backupAllFailureByAppId', 'deleteBackupSuccessByAppId', 'deleteBackupFailureByAppId'])
+      assert.ok(Object.values(state.bhr[field]).every((value) => value === false), `Historical ${field} must not reappear after a cold boot`);
+    assert.equal(state.storage.appVersion, 'persisted-safe-version');
+    assert.equal(state.storage.appId, f.appId);
+    for (const id of [f.appId, interrupted, completedOnly, runningOnly]) {
+      assert.equal(state.bhr.backupRepairStateByAppId[id], 'unverified');
+      assert.equal(state.bhr.backupRepairCompletedByAppId[id], false);
+      assert.equal(state.bhr.pendingAllBackupByAppId[id], true);
+      assert.notEqual(state.bhr.backupRepairRunningByAppId[id], true);
+    }
+    assert.equal(state.bhr.backupRepairStateByAppId[knownDifferent], 'different', 'Existing negative findings are retained');
+    assert.equal(state.bhr.pendingAllBackupByAppId[knownDifferent], true);
+    assert.equal(state.bhr.backupRepairStateByAppId[consentOnly], undefined, 'Consent alone never manufactures proof or an interrupted job');
+    assert.deepEqual(historicalBhr, inboundBeforeBoot, 'Sanitizing the inbound action must not mutate the host snapshot');
+    assert.deepEqual(await f.repair.captureBackupImage(), localBeforeBoot, 'Boot must preserve every native recovery record');
+    assert.equal(f.transport.captureBackupWriteIntent(f.appId), undefined, 'Saved UI status cannot supply a fresh session revision');
+    assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), false);
+    await tick();
+    assert.equal(server.trace.length, 0, 'Rehydration must not replay a read, repair or encrypted write');
+
+    // This is a genuine native commit without a baseline, not a fabricated
+    // pending receipt. Saving the unchanged presentation field stays local.
+    const noBaseline = f.automatic.beginBackupLocalOperation(f.appId, undefined, f.transport.currentBackupAccountSession());
+    const localReceipt = f.automatic.commitBackupLocalOperation(noBaseline, (realm) => {
+      realm.objectForPrimaryKey('Wallet', 'wallet-a').presentationData.name = 'Initial wallet';
+    });
+    assert.equal(localReceipt.committed, true);
+    assert.equal(localReceipt.intent, undefined);
+    const pending = await f.automatic.enqueueAutomaticBackupOperation(localReceipt, [{
+      operation: 'updateAppImage', body: await operations.updateAppImage.body(f),
+    }]);
+    assert.notEqual(pending.backupConfirmed, true);
+    assertPending(f);
+    assert.equal(server.trace.length, 0, 'No saved completion may authorize this commit or replay its payload');
+
+    const sagas = f.productionSagas(['currentBackupAppId', 'backupInspectionOwners', 'runBackupInspection']);
+    assert.equal(await sagas.run('runBackupInspection', false, f.appId), true,
+      'Only current native capture and genuine encrypted HTTP snapshot comparison may earn verification');
+    assert.ok(server.trace.some((event) => event.path === '/getBackupSnapshot'));
+    assert.equal(attemptedWrites().length, 0, 'Read-only verification must not repair or replay the earlier local operation');
+    assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), true);
+    assert.equal(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified');
+    assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[f.appId], false);
+    assert.deepEqual(f.store.getState().bhr.automaticCloudBackupByAppId, consent);
+
+    const fresh = await committedRequest(f, 'updateAppImage');
+    const uploaded = await settled(fresh);
+    assert.equal(uploaded.backupConfirmed, true);
+    assert.equal(attemptedWrites().length, 1, 'Only a fresh post-inspection operation may upload');
+    assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[f.appId], false);
+    assert.equal(f.store.getState().bhr.backupRepairStateByAppId[completedOnly], 'unverified', 'Current-account proof never restores another account completion');
+  });
+}
+
+async function persistedConsentFixture(t) {
+  await server.reset();
+  const f = await createRealmClient(server.url, { persistedRedux: true });
+  t.after(async () => { await f.close(); });
+  f.automatic = f.load('src/services/backup/automatic');
+  f.installProductionStoreObservers(f.automatic);
+  persist(f, f.RealmSchema.Wallet, wallet(f));
+  await tick();
+  const localBeforeBoot = await f.repair.captureBackupImage();
+  await server.seed(await f.payloadForCurrentImage());
+  server.clearTrace();
+  const legacy = {
+    ...plain(f.store.getState().bhr),
+    automaticCloudBackupByAppId: { [f.appId]: true, 'legacy-only-disposable-account': true },
+    backupRepairStateByAppId: { [f.appId]: 'verified' },
+    backupRepairCompletedByAppId: { [f.appId]: true },
+    pendingAllBackupByAppId: { [f.appId]: false },
+    _persist: { version: -1, rehydrated: true },
+  };
+  const canonicalConsent = { [f.appId]: false, 'canonical-disposable-peer': false };
+  const canonical = { ...legacy, backupMethod: 'SEED', seedConfirmed: true, automaticCloudBackupByAppId: canonicalConsent };
+  const rootSnapshot = {
+    storage: plain(f.store.getState().storage), account: plain(f.store.getState().account),
+    bhr: legacy, _persist: { version: 4, rehydrated: true },
+  };
+  const subscriberConsent = [];
+  const unsubscribe = f.store.subscribe(() => {
+    subscriberConsent.push(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId]);
+  });
+  t.after(unsubscribe);
+  return { f, canonical, canonicalConsent, rootSnapshot, localBeforeBoot, subscriberConsent };
+}
+
+for (const firstKey of ['root', 'bhr']) {
+  test(`actual persisted ${firstKey}-first reconciliation never lets legacy consent override canonical opt-out`, async (t) => {
+    const { f, canonical, canonicalConsent, rootSnapshot, localBeforeBoot, subscriberConsent } = await persistedConsentFixture(t);
+    await f.rehydratePersistedRedux({ root: rootSnapshot, bhr: canonical }, { firstKey });
+    assert.deepEqual(f.persistedBootStates.map((state) => state.key).filter((key) => ['root', 'bhr'].includes(key)), [firstKey, firstKey === 'root' ? 'bhr' : 'root']);
+    assert.ok(subscriberConsent.every((value) => value !== true),
+      'Actual subscribers must never observe legacy opt-in while the canonical MMKV read is unresolved or opted out');
+    assert.deepEqual(f.store.getState().bhr.automaticCloudBackupByAppId, canonicalConsent,
+      'Canonical consent is authoritative for every account; legacy-only consent cannot survive either reconciliation order');
+    assert.equal(f.store.getState().bhr.seedConfirmed, true);
+    assert.equal(f.store.getState().bhr.backupMethod, 'SEED');
+    assertPending(f);
+    assert.equal(f.transport.captureBackupWriteIntent(f.appId), undefined);
+    assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), false);
+    assert.deepEqual(await f.repair.captureBackupImage(), localBeforeBoot);
+    await tick();
+    assert.equal(server.trace.length, 0, 'Persistence reconciliation must not request or replay a backup');
+
+    const sagas = f.productionSagas(['currentBackupAppId', 'backupInspectionOwners', 'runBackupInspection']);
+    assert.equal(await sagas.run('runBackupInspection', false, f.appId, true), true,
+      'An explicit read-only check can earn a genuine current proof without re-enabling automatic backup');
+    assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), true);
+    assert.deepEqual(f.store.getState().bhr.automaticCloudBackupByAppId, canonicalConsent);
+    assert.ok(server.trace.some((event) => event.path === '/getBackupSnapshot'));
+    assert.equal(attemptedWrites().length, 0);
+    const readsBeforeCommit = server.trace.length;
+    const request = await committedRequest(f, 'updateAppImage');
+    const pending = await f.automatic.enqueueAutomaticBackupOperation(request.receipt, [{ operation: 'updateAppImage', body: request.body }]);
+    assert.notEqual(pending.backupConfirmed, true);
+    assert.equal(f.dbManager.getObjectById(f.RealmSchema.Wallet, 'wallet-a').presentationData.name, 'Committed wallet');
+    assert.equal(server.trace.length, readsBeforeCommit, 'A fresh proof still cannot authorize an automatic write against saved opt-out');
+    assert.equal(attemptedWrites().length, 0);
+    assertPending(f);
+    assert.deepEqual(f.store.getState().bhr.automaticCloudBackupByAppId, canonicalConsent);
+  });
+}
+
+test('an actual failed canonical persistence read cannot fall back to older root consent', async (t) => {
+  const { f, rootSnapshot, localBeforeBoot, subscriberConsent } = await persistedConsentFixture(t);
+  await f.rehydratePersistedRedux({ root: rootSnapshot }, { firstKey: 'root', failKey: 'bhr' });
+  assert.deepEqual(f.persistedBootStates.map((state) => state.key).filter((key) => ['root', 'bhr'].includes(key)), ['root', 'bhr']);
+  assert.ok(f.actions.some((action) => action.type === 'persist/REHYDRATE' && action.key === 'bhr' && action.err),
+    'The actual persistStore failure path must reach production middleware');
+  assert.ok(subscriberConsent.every((value) => value !== true), 'A failed read must never expose the older opt-in to subscribers');
+  assert.notEqual(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true);
+  assert.notEqual(f.store.getState().bhr.backupRepairCompletedByAppId[f.appId], true);
+  assert.notEqual(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified');
+  assert.equal(f.transport.captureBackupWriteIntent(f.appId), undefined);
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), false);
+  assert.deepEqual(await f.repair.captureBackupImage(), localBeforeBoot);
+  await tick();
+  assert.equal(server.trace.length, 0);
+  const sagas = f.productionSagas(['currentBackupAppId', 'backupInspectionOwners', 'runBackupInspection']);
+  assert.equal(await sagas.run('runBackupInspection', false, f.appId, true), true);
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), true);
+  assert.notEqual(f.store.getState().bhr.automaticCloudBackupByAppId[f.appId], true,
+    'A subsequent real read-only verification cannot turn unavailable stored consent into opt-in');
+  assert.equal(attemptedWrites().length, 0);
+});
+
+test('actual absent-first legacy fallback without persistence metadata retains future nested writes', async (t) => {
+  const { f, rootSnapshot, localBeforeBoot } = await persistedConsentFixture(t);
+  const pendingPeer = 'disposable-persisted-pending-peer';
+  // This is the raw shape of an older root snapshot, before BHR had nested
+  // persistence. It deliberately omits live initialized fields and _persist.
+  rootSnapshot.bhr = {
+    backupMethod: 'SEED', automaticCloudBackupByAppId: { [f.appId]: true },
+    backupRepairStateByAppId: { [f.appId]: 'verified' },
+    backupRepairCompletedByAppId: { [f.appId]: true },
+    pendingAllBackupByAppId: { [f.appId]: false, [pendingPeer]: false },
+  };
+  await f.rehydratePersistedRedux({ root: rootSnapshot }, { firstKey: 'bhr' });
+  assert.deepEqual(f.persistedBootStates.map((state) => state.key).filter((key) => ['root', 'bhr'].includes(key)), ['bhr', 'root']);
+  const restored = f.store.getState().bhr;
+  assert.equal(restored.automaticCloudBackupByAppId[f.appId], true, 'Confirmed nested absence permits sanitized raw legacy fallback');
+  assert.equal(restored.backupMethod, 'SEED');
+  assertPending(f);
+  assert.equal(restored._persist.rehydrated, true, 'The late root merge must retain live nested persistence metadata');
+  assert.equal(restored._persist.version, -1);
+  assert.deepEqual(plain(restored.backupAllLoadingByAppId), {});
+  assert.deepEqual(plain(restored.seedWords), [], 'Initialized fields absent from old payloads must remain available');
+  assert.equal(f.transport.captureBackupWriteIntent(f.appId), undefined);
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), false);
+  assert.deepEqual(await f.repair.captureBackupImage(), localBeforeBoot);
+  assert.equal(server.trace.length, 0);
+
+  f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId: f.appId, enabled: false }));
+  f.store.dispatch(f.bhr.setPendingAllBackup({ appId: pendingPeer, pending: true }));
+  await f.flushPersistedRedux();
+  const saved = f.readPersistedRedux('bhr');
+  assert.equal(saved.automaticCloudBackupByAppId[f.appId], false, 'Actual nested persistence must store a later consent opt-out');
+  assert.equal(saved.pendingAllBackupByAppId[pendingPeer], true, 'Actual nested persistence must store a later pending-state change');
+  assert.equal(saved.backupRepairStateByAppId[f.appId], 'unverified');
+  assert.equal(saved.backupRepairCompletedByAppId[f.appId], false);
+  assert.equal(saved.backupMethod, 'SEED');
+  assert.equal(saved._persist.rehydrated, true);
+  assert.equal(f.store.getState().bhr._persist.rehydrated, true);
+  assert.equal(f.transport.captureBackupWriteIntent(f.appId), undefined);
+  assert.deepEqual(await f.repair.captureBackupImage(), localBeforeBoot);
+  await tick();
+  assert.equal(server.trace.length, 0, 'Legacy fallback and subsequent storage flush must never replay a backup request');
+});
+
+test('actual AssistedBackupStatus phase expression requires current native session proof', async (t) => {
+  const f = await setup(t, 'updateAppImage');
+  // Execute the exact production phase declarations only. This is a native
+  // proof/HTTP integration contract, not a React render or native UI test.
+  const expression = componentDeclarations('src/screens/AppSettings/AssistedBackupStatus.tsx',
+    'AssistedBackupStatus', ['recordedPhase', 'phase']);
+  function displayedPhase() {
+    const scope = { id: f.appId, backupRepairStateByAppId: f.store.getState().bhr.backupRepairStateByAppId,
+      isBackupVerificationCurrent: f.automatic.isBackupVerificationCurrent };
+    evaluate(expression, scope, 'production-assisted-backup-phase.ts');
+    return scope.phase;
+  }
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), true);
+  assert.equal(displayedPhase(), 'verified', 'Fresh complete encrypted HTTP comparison may display Verified');
+  await f.selectAccount('disposable-status-other-account');
+  await f.selectAccount();
+  assert.equal(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified',
+    'Historical Redux phase deliberately remains present while session proof has expired');
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), false);
+  assert.equal(displayedPhase(), 'unverified', 'Returning to A cannot reuse the first A session display claim');
+  assert.equal(server.trace.length, 0, 'Evaluating status must never request or replay a backup');
+  assert.equal(await f.sagas.run('runBackupInspection', false, f.appId), true);
+  assert.ok(server.trace.some((event) => event.path === '/getBackupSnapshot'));
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), true);
+  assert.equal(displayedPhase(), 'verified', 'A fresh genuine readback may restore the display claim');
+  const beforeLocalChange = server.trace.length;
+  f.nativeRealm().write(() => {
+    f.nativeRealm().objectForPrimaryKey('Wallet', 'wallet-a').presentationData.name = 'Changed native recovery record';
+  });
+  assert.equal(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified',
+    'The display predicate must also reject a stale phase before Redux has received a mutation notification');
+  assert.equal(f.automatic.isBackupVerificationCurrent(f.appId), false);
+  assert.equal(displayedPhase(), 'unverified');
+  assert.equal(server.trace.length, beforeLocalChange);
+  assert.equal(attemptedWrites().length, 0);
 });
