@@ -121,7 +121,7 @@ jobs:
 
       - name: Install paired Relay dependencies
         working-directory: .ci-relay
-        run: npm ci --ignore-scripts
+        run: yarn install --frozen-lockfile --non-interactive --ignore-scripts
 
       - name: Start disposable loopback Mongo replica set
         shell: bash
