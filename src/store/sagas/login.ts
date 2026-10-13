@@ -203,6 +203,8 @@ function* credentialsAuthWorker({ payload }) {
       // setting correct app id from realm at login
       const keeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
       if (originSession !== currentBackupAccountSession()) return;
+      if (currentAccount && !keeperApp?.id)
+        throw new Error('Saved account has no KeeperApp record');
       if (keeperApp?.id) {
         const onlyKnownAccount =
           allAccounts.length <= 1 &&
@@ -223,7 +225,8 @@ function* credentialsAuthWorker({ payload }) {
         ? captureBackupWriteIntent(keeperApp.id)
         : undefined;
       loginSession = loginAccountSession;
-      if (store.getState().storage.appId !== keeperApp?.id) return;
+      const expectedAppId = keeperApp?.id ?? '';
+      if (store.getState().storage.appId !== expectedAppId) return;
 
       // Store temporary account details
       if (!allAccounts.length) {
@@ -236,8 +239,11 @@ function* credentialsAuthWorker({ payload }) {
       const lastElement = versionCollection[versionCollection.length - 1];
       const lastVersionCode = lastElement.version.split(/[()]/);
       const currentVersionCode = DeviceInfo.getBuildNumber();
-      if (currentBackupAccountSession() !== loginAccountSession ||
-          store.getState().storage.appId !== keeperApp?.id) return;
+      if (
+        currentBackupAccountSession() !== loginAccountSession ||
+        store.getState().storage.appId !== expectedAppId
+      )
+        return;
       if (semver.lt(previousVersion, newVersion)) {
         yield call(applyUpgradeSequence, {
           previousVersion,
@@ -252,8 +258,11 @@ function* credentialsAuthWorker({ payload }) {
           title: `Upgraded from ${lastVersionCode[1]} to ${currentVersionCode}`,
         });
       }
-      if (currentBackupAccountSession() !== loginAccountSession ||
-          store.getState().storage.appId !== keeperApp?.id) return;
+      if (
+        currentBackupAccountSession() !== loginAccountSession ||
+        store.getState().storage.appId !== expectedAppId
+      )
+        return;
       if (appId) {
         try {
           const { id }: KeeperApp = yield call(

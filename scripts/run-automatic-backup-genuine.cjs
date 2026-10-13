@@ -6,7 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
-const relaySha = 'b600416e5ba7325927d7d2871cff7776f4e593fe';
+const relaySha = '838049e537e07eb646a2a0393eb969fba43d0739';
 const root = path.resolve(__dirname, '..');
 const fixture = process.env.KEEPER_RELAY_FIXTURE_MODULE;
 assert.equal(process.versions.node.split('.')[0], '22', 'Run the genuine automatic backup matrix with Node 22');

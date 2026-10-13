@@ -2,7 +2,7 @@
 
 State: **NEEDS_LOCAL**. PR [#7045](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045), branch `codex/r4-264-combined-candidate`, base `sprint`. The exact final SHA is recorded in the newest **Codex local handoff** on that PR. The setup below verifies that handoff against the live head before selecting it; this repository document cannot contain its own eventual commit SHA.
 
-Paired disposable Relay: **`b600416e5ba7325927d7d2871cff7776f4e593fe`**, draft [Relay #4](https://github.com/KeeperCommunity/Relay/pull/4). This pin supersedes the earlier `5a42a03` fixture by adding explicit malformed-acknowledgement response overrides after actual commits. It is a loopback test dependency, not a deployed-service assertion. The approved contributor manifest in `dev/local-backend/sources.lock.json` remains Relay `ee935359f22ff7932ea0a62e9084d4b49801f4aa` and SigningServer `3cc7728c27328e7b0358d1f91a32d8d13feba90a`; do not replace those pins or overwrite generated contributor checkouts to prepare this test.
+Paired disposable Relay: **`838049e537e07eb646a2a0393eb969fba43d0739`**, draft [Relay #4](https://github.com/KeeperCommunity/Relay/pull/4). The originally requested `b600416e5ba7325927d7d2871cff7776f4e593fe` was tested: native Android opt-in reached a real repair write but failed complete readback because `createNewApp` had precreated an AppImage without subscription and repair wrote that field only on insert. The successor sets subscription on existing AppImages during explicit revisioned repair, after the transaction's revision and conflict checks. It is a loopback test dependency, not a deployed-service assertion. The approved contributor manifest in `dev/local-backend/sources.lock.json` remains Relay `ee935359f22ff7932ea0a62e9084d4b49801f4aa` and SigningServer `3cc7728c27328e7b0358d1f91a32d8d13feba90a`; do not replace those pins or overwrite generated contributor checkouts to prepare this test.
 
 `AUTOMATIC_BACKUP_SOURCE_READY` is true after genuine disposable proof and independent fixture review. It permits development loopback validation with an explicit port. `AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY` remains false until the separately authorized deployed fleet, transactions/indexes, v2 route and old-writer drainage are verified. The Node fixture permits its explicit loopback test target. Hosted writes remain fenced. Do not change either gate to make a test pass. Current source and results are recorded in [the proof matrix](../openspec/changes/fix-recovery-backup-freshness/automatic-write-validation.md).
 
@@ -22,7 +22,7 @@ report the mismatch and obtain the current handoff rather than testing stale cod
 
 Preserve every existing checkout, installed owner app, wallet and database. Use
 new isolated checkouts, simulator/emulator state and disposable test accounts.
-Use paired public Relay b600416e5ba7325927d7d2871cff7776f4e593fe separately from
+Use paired public Relay 838049e537e07eb646a2a0393eb969fba43d0739 separately from
 the approved contributor bootstrap. Do not edit its source or replace the
 approved sources.lock.json pins. Save exact source identities and private logs.
 
@@ -59,9 +59,16 @@ Select the existing Node **22** toolchain; use Yarn Classic **1.22.22**. Do not 
 ```bash
 set -euo pipefail
 umask 077
-keeper_app_sha=$(gh pr view 7045 --repo KeeperCommunity/bitcoin-keeper --json headRefOid,body |
-  python3 -c 'import json,re,sys; p=json.load(sys.stdin); h=re.findall(r"(?m)^Head commit:\s*([0-9a-f]{40})\s*$",p["body"]); assert h and h[-1]==p["headRefOid"], "Missing or stale exact-head Codex local handoff"; print(h[-1])')
-keeper_relay_sha=b600416e5ba7325927d7d2871cff7776f4e593fe
+keeper_app_sha=$(gh pr view 7045 --repo KeeperCommunity/bitcoin-keeper --json headRefOid |
+  python3 -c 'import json,sys; print(json.load(sys.stdin)["headRefOid"])')
+keeper_handoff_sha=$(gh api --paginate --slurp \
+  'repos/KeeperCommunity/bitcoin-keeper/issues/7045/comments?per_page=100' |
+  python3 -c 'import json,re,sys; pages=json.load(sys.stdin); comments=[c for page in pages for c in page]; handoffs=[c["body"] for c in comments if c.get("body", "").startswith("## Codex local handoff")]; assert handoffs, "Missing Codex local handoff"; matches=re.findall(r"(?m)^Head commit:\s*([0-9a-f]{40})\s*$", handoffs[-1]); assert matches, "Missing handoff SHA"; print(matches[-1])')
+test "$keeper_app_sha" = "$keeper_handoff_sha" || {
+  printf 'Live PR head and newest Codex local handoff differ.\n' >&2
+  exit 1
+}
+keeper_relay_sha=838049e537e07eb646a2a0393eb969fba43d0739
 test "${#keeper_app_sha}" -eq 40
 test "$(node -p 'process.versions.node.split(".")[0]')" = 22
 keeper_qa_root=$(mktemp -d "${TMPDIR:-/tmp}/keeper-r4-local.XXXXXX")
@@ -83,6 +90,7 @@ git -C "$keeper_relay_dir" diff --quiet HEAD
 cd "$keeper_app_dir"
 yarn install --frozen-lockfile --ignore-scripts
 yarn patch-package
+./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack --yarn
 (cd node_modules/realm && ../.bin/prebuild-install --runtime napi --target 6)
 (cd "$keeper_relay_dir" && yarn install --frozen-lockfile --non-interactive --ignore-scripts)
 export REALM_DISABLE_ANALYTICS=1
@@ -199,7 +207,7 @@ xcrun simctl install "$keeper_ios_udid" ios/build/r4-local/Build/Products/Debug-
 xcrun simctl launch "$keeper_ios_udid" io.hexawallet.hexakeeper.dev
 ```
 
-An unsigned compile is not launch/entitlement evidence. If the simulator refuses that artifact because of local signing/entitlements, record the exact outcome; use the contributor README's simulator-only Debug build with its normal local/ad-hoc signing for launch if available without distribution credentials. Record both builds and which artifact actually launched. This is not production/release signing, and it does not make the unsigned artifact a launched artifact.
+An unsigned compile is not functional entitlement evidence. The unsigned app may launch but Keychain can reject PIN storage with OSStatus -34018; a passcode screen alone does not establish onboarding or Realm persistence. Inspect the effective signed entitlements and actual PIN/Realm outcome. If signing or launch blocks this flow, record the exact action and error; use the contributor README's simulator-only Debug build with its normal local development signing if available without distribution credentials. A manually re-signed bundle may itself fail simulator launch policy. Record each artifact and which one actually launched. This is not production/release signing, and it does not turn an unsigned or nonfunctional launch into native acceptance.
 
 For Android, select a disposable emulator serial and its architecture. Use JDK **17**, SDK **36**, build tools **35.0.0**, NDK **27.1.12297006** and CMake **3.22.1** as required by this source. The development artifact uses the checked-in disposable debug certificate, not a production signing key.
 

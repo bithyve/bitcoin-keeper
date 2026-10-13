@@ -30,11 +30,23 @@ function deferred() {
   return { promise, resolve };
 }
 
-function fixture(pauseAt) {
+function fixture(pauseAt, options = {}) {
+  const {
+    persistedAppId = 'A',
+    keeperApp = { id: 'A' },
+    allAccounts = [
+      {
+        appId: 'A',
+        hash: 'disposable-hash',
+        realmId: 'A.realm',
+      },
+    ],
+    appVersion = '2.5.0',
+  } = options;
   const state = {
-    storage: { appId: 'A', appVersion: '2.5.0', defaultWalletCreated: {} },
+    storage: { appId: persistedAppId, appVersion, defaultWalletCreated: {} },
     account: {
-      allAccounts: [{ appId: 'A', hash: 'disposable-hash', realmId: 'A.realm' }],
+      allAccounts,
       backupMethodByAppId: {},
     },
   };
@@ -63,10 +75,11 @@ function fixture(pauseAt) {
         realmOpens.push(realmId);
         return pauseAt === 'realm' ? gate({ success: true }) : { success: true };
       },
-      getObjectByIndex: () => ({ id: 'A' }),
-      getCollection: () => [{ version: '2.5.0(1)' }],
+      getObjectByIndex: () => keeperApp,
+      getCollection: () => [{ version: `${appVersion}(2)` }],
     },
     RealmSchema: { KeeperApp: 'KeeperApp', VersionHistory: 'VersionHistory' },
+    REALM_FILE: 'keeper.realm',
     store: { getState: () => state },
     DeviceInfo: { getVersion: () => '2.5.16', getBuildNumber: () => '2' },
     semver: require('semver'),
@@ -85,6 +98,7 @@ function fixture(pauseAt) {
     'setPinHash',
     'migrateLegacyAutomaticCloudBackup',
     'setAppId',
+    'setTempDetails',
     'credsAuthenticated',
   ])
     scope[name] = (payload) => ({ type: name, payload });
@@ -130,6 +144,65 @@ test('old login cannot start upgrade after A -> B -> A during Realm open', async
   assert.equal(
     f.actions.some((action) => action.type === 'setAppId'),
     false
+  );
+  assert.equal(f.upgradeCalls.length, 0);
+});
+
+test('fresh account without KeeperApp completes login when persisted app ID is empty', async () => {
+  const f = fixture(null, {
+    persistedAppId: '',
+    keeperApp: null,
+    allAccounts: [],
+    appVersion: '2.5.16',
+  });
+  await f.run();
+  assert.equal(f.realmOpens.length, 1);
+  assert.equal(
+    f.actions.some((action) => action.type === 'setTempDetails'),
+    true
+  );
+  assert.equal(
+    f.actions.some((action) => action.type === 'credsAuthenticated' && action.payload === true),
+    true
+  );
+  assert.equal(f.upgradeCalls.length, 0);
+});
+
+test('fresh account login rejects a stale nonempty persisted app ID', async () => {
+  const f = fixture(null, {
+    persistedAppId: 'STALE',
+    keeperApp: null,
+    allAccounts: [],
+    appVersion: '2.5.16',
+  });
+  await f.run();
+  assert.equal(f.realmOpens.length, 1);
+  assert.equal(
+    f.actions.some((action) => action.type === 'setTempDetails'),
+    false
+  );
+  assert.equal(
+    f.actions.some((action) => action.type === 'credsAuthenticated'),
+    false
+  );
+  assert.equal(f.upgradeCalls.length, 0);
+});
+
+test('known account with missing KeeperApp fails authentication', async () => {
+  const f = fixture(null, {
+    persistedAppId: '',
+    keeperApp: null,
+    appVersion: '2.5.16',
+  });
+  await f.run();
+  assert.equal(f.realmOpens.length, 1);
+  assert.equal(
+    f.actions.some((action) => action.type === 'credsAuthenticated' && action.payload === true),
+    false
+  );
+  assert.equal(
+    f.actions.some((action) => action.type === 'credsAuthenticated' && action.payload === false),
+    true
   );
   assert.equal(f.upgradeCalls.length, 0);
 });

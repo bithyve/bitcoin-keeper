@@ -1,6 +1,6 @@
 # R4 automatic Assisted Backup: result matrix
 
-Updated 13 October 2026 from observed source/disposable evidence. Historical September logs remain unchanged in [validation.md](validation.md). The [sanitized October proof record](evidence/automatic-backup-source-proof-2026-10-13.md) records commands, source identities, counts and coverage boundaries.
+Updated 13 October 2026 from observed source/disposable evidence. Historical September logs remain unchanged in [validation.md](validation.md). The [sanitized October proof record](evidence/automatic-backup-source-proof-2026-10-13.md) records commands, source identities, counts and coverage boundaries. The table below retains the original Cloud source-proof result; a later exact-head Codex Local report on PR #7045 records native results and any new app SHA.
 
 Automatic-backup implementation and disposable proof are mandatory R4 work. Critical IOS/ANDROID backup acceptance also precedes release. Host-native Realm means the real Node Realm SDK, not an iOS/Android app launch. Physical-device-only follow-up cannot waive critical simulator/emulator safety checks.
 
@@ -10,7 +10,8 @@ Automatic-backup implementation and disposable proof are mandatory R4 work. Crit
 | --- | --- |
 | Audit starting app source | b160656218dc6065ad12af9db220c974255bfc23; historical |
 | Final tested code commit before documentation | 3cc9368ca2f3b2149db5743a5f9d230aa516d6a0; includes persisted-proof expiration, current-proof status projection and seven new genuine cases |
-| Tested Relay fixture commit | b600416e5ba7325927d7d2871cff7776f4e593fe; runner requires clean tracked source |
+| Original tested Relay fixture commit | b600416e5ba7325927d7d2871cff7776f4e593fe; runner requires clean tracked source. Native Android later exposed an incomplete repair readback on this fixture |
+| Current paired disposable Relay source | 838049e537e07eb646a2a0393eb969fba43d0739 in draft Relay #4 fixes subscription metadata on an existing AppImage during explicit revisioned repair. Focused route regression RED 0/1 on b600 and GREEN 1/1 on 838; full HTTP 58/58, backup suite 120/120 and Relay TypeScript PASS. This is loopback evidence, not deployed Relay readiness or final exact-SHA app signoff |
 | Runtime and topology | Node 22.23.3, actual Realm 12.15.0, Linux host, disposable loopback keeperQA Mongo replica set on port 27058; no hosted credentials |
 | Combined genuine fixture command/result | `npm run test:automatic-backup-genuine`: PASS 260/260, 0 failures/skips, 208.779 seconds, clean frozen-Yarn run terminal recorded 2026-10-13 05:26 UTC; core 213 + producers 46 + restore 1 |
 | Recovery unit command/result | `npm run test:recovery`: 443/443 PASS, 0 failures/skips, 52.156 seconds at 3cc9368ca2f3b2149db5743a5f9d230aa516d6a0 |
