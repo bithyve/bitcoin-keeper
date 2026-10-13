@@ -54,6 +54,12 @@ class ReviewError(Exception):
     pass
 
 
+class APIHTTPError(ReviewError):
+    def __init__(self, origin, status):
+        self.origin, self.status = origin, status
+        super().__init__(f"{origin} HTTP {status}; no automatic retry")
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         raise ReviewError("Authenticated HTTP redirect refused")
@@ -110,7 +116,7 @@ class API:
                 return json.loads(raw)
         except urllib.error.HTTPError as exc:
             # Error bodies can echo input; don't expose them or retry paid calls.
-            raise ReviewError(f"{origin} HTTP {exc.code}; no automatic retry") from None
+            raise APIHTTPError(origin, exc.code) from None
         except (urllib.error.URLError, TimeoutError, ValueError):
             raise ReviewError(f"{origin} response unavailable; no automatic retry") from None
 
@@ -273,7 +279,15 @@ class Reviewer:
             login = (comment.get("user") or {}).get("login", "")
             if not command or command[1] != head or not re.fullmatch(r"[A-Za-z0-9-]+", login):
                 continue
-            permission = self.api.request("github", f"{self.root}/collaborators/{login}/permission")
+            try:
+                permission = self.api.request("github", f"{self.root}/collaborators/{login}/permission")
+            except APIHTTPError as error:
+                # A non-collaborator's command must not suppress an automatic
+                # review or an older genuine maintainer request. Every other
+                # permission/API failure remains fail-closed.
+                if error.origin == "github" and error.status == 404:
+                    continue
+                raise
             if (permission.get("permission") in {"write", "admin"} or
                     permission.get("role_name") in {"maintain", "write", "admin"}):
                 # Only the newest authorized current-head command is considered;

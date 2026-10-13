@@ -157,7 +157,10 @@ The model receives data only, never keys or environment access.
 Requests are `/claude-review FULL_HEAD_SHA` from a current write/maintain/admin
 collaborator. Event coalescing recovers the newest authorized current-head
 command from comments; spent request IDs remain in protected state even if that
-comment is removed. Docs-only Markdown/MDX consumes no paid attempt; agent-policy
+comment is removed. A collaborator-permission HTTP 404 means that command is
+ignored; it cannot suppress automatic review or an older authorized command.
+Other permission/API errors still stop the review before payment.
+Docs-only Markdown/MDX consumes no paid attempt; agent-policy
 and `.github/` files always count as reviewable. Later code pushes can receive
 an unused first automatic attempt. Automatic events never repay an earlier call.
 

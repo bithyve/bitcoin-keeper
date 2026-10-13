@@ -161,7 +161,10 @@ class FakeAPI:
             return copy.deepcopy(self.branch_policies)
         if path.endswith("/permission"):
             login = path.rsplit("/", 2)[1]
-            return copy.deepcopy(self.permissions.get(login, self.permission))
+            permission = self.permissions.get(login, self.permission)
+            if isinstance(permission, Exception):
+                raise permission
+            return copy.deepcopy(permission)
         if path == root + "/pulls/7049":
             return copy.deepcopy(self.pr)
         if path.startswith(root + "/compare/"):
@@ -669,6 +672,68 @@ class DurableCommandRecoveryTests(unittest.TestCase):
                 self.assertFalse(any("/compare/" in call[1] for call in api.calls))
 
 
+class CommandPermissionBoundaryTests(unittest.TestCase):
+    def subject(self, api):
+        return reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger)
+
+    def event(self, api):
+        return {"action": "created", "issue": {"number": 7049,
+                                                   "pull_request": {"url": "offline://pull/7049"}},
+                "comment": copy.deepcopy(api.comments[-1])}
+
+    def test_noncollaborator_permission_404_does_not_block_first_automatic_review(self):
+        api = FakeAPI()
+        api.comments = [command_comment(124, HEAD, "outsider")]
+        api.permissions["outsider"] = reviewer.APIHTTPError("github", 404)
+        self.assertEqual(self.subject(api).review(), "complete")
+        self.assertEqual(len(api.paid_calls()), 1)
+        self.assertEqual(api.states()[0]["request"], "auto")
+
+    def test_newer_outsider_404_preserves_older_authorized_intent_in_both_stages(self):
+        for request in ("auto", "reconcile"):
+            with self.subTest(request=request):
+                api = FakeAPI()
+                api.comments = [command_comment(123), command_comment(124, HEAD, "outsider")]
+                api.permissions["outsider"] = reviewer.APIHTTPError("github", 404)
+                self.assertTrue(reviewer.authorize(api, REPO, "issue_comment", self.event(api), "12345"))
+                self.assertEqual(api.paid_calls(), [])
+                self.assertTrue(all(call[0] == "github" and call[2] is None for call in api.calls))
+                self.assertEqual(self.subject(api).review(request), "complete")
+                self.assertEqual(len(api.paid_calls()), 1)
+                self.assertEqual(api.states()[0]["request"], "comment-123")
+                self.assertIn("no paid call", self.subject(api).review(request))
+                self.assertEqual(len(api.paid_calls()), 1)
+
+    def test_only_outsider_404_cannot_authorize_or_start_a_manual_review(self):
+        api = FakeAPI()
+        api.comments = [command_comment(124, HEAD, "outsider")]
+        api.permissions["outsider"] = reviewer.APIHTTPError("github", 404)
+        self.assertFalse(reviewer.authorize(api, REPO, "issue_comment", self.event(api), "12345"))
+        self.assertEqual(self.subject(api).review("reconcile"), "no authorized current-head review request")
+        self.assertEqual(api.count_calls(), [])
+        self.assertEqual(api.paid_calls(), [])
+        self.assertEqual(api.states(), [])
+
+    def test_other_permission_failures_remain_fail_closed_in_both_stages(self):
+        errors = [reviewer.APIHTTPError("github", status) for status in (403, 429, 500)]
+        errors.extend([reviewer.APIHTTPError("anthropic", 404), TimeoutError("offline timeout"),
+                       reviewer.ReviewError("github HTTP 404 text cannot authorize skipping")])
+        for error in errors:
+            with self.subTest(error=type(error).__name__, status=getattr(error, "status", None),
+                              origin=getattr(error, "origin", None)):
+                api = FakeAPI()
+                api.comments = [command_comment(123), command_comment(124, HEAD, "outsider")]
+                api.permissions["outsider"] = error
+                with self.assertRaises(type(error)):
+                    reviewer.authorize(api, REPO, "issue_comment", self.event(api), "12345")
+                for request in ("auto", "reconcile"):
+                    with self.assertRaises(type(error)):
+                        self.subject(api).review(request)
+                self.assertEqual(api.count_calls(), [])
+                self.assertEqual(api.paid_calls(), [])
+                self.assertEqual(api.states(), [])
+
+
 class CollectionAndBudgetTests(unittest.TestCase):
     def setUp(self):
         self.api = FakeAPI()
@@ -944,6 +1009,28 @@ class HTTPBoundaryTests(unittest.TestCase):
                     self.assertNotIn(secret, str(caught.exception))
                     self.assertIn("no automatic retry", str(caught.exception))
                     self.assertEqual(request.call_count, 1)
+
+    def test_http_status_is_typed_without_reading_or_exposing_sensitive_error_body(self):
+        secret = "offline-sensitive-error-body-and-reason"
+        for origin, status in (("github", 404), ("github", 403), ("github", 429),
+                               ("github", 500), ("anthropic", 404)):
+            with self.subTest(origin=origin, status=status):
+                api = reviewer.API("offline-github-token", "offline-anthropic-key")
+                body = unittest.mock.MagicMock(spec=io.BytesIO)
+                url = "https://api.github.com/offline" if origin == "github" else "https://api.anthropic.com/v1/messages"
+                error = urllib.error.HTTPError(url, status, secret, {}, body)
+                path = f"/repos/{REPO}/collaborators/outsider/permission" if origin == "github" else "/v1/messages"
+                with patch.object(api.opener, "open", side_effect=error) as request:
+                    with self.assertRaises(reviewer.APIHTTPError) as caught:
+                        api.request(origin, path)
+                self.assertEqual(caught.exception.origin, origin)
+                self.assertEqual(caught.exception.status, status)
+                self.assertIsInstance(caught.exception, reviewer.ReviewError)
+                self.assertNotIn(secret, str(caught.exception))
+                self.assertNotIn("offline-github-token", str(caught.exception))
+                self.assertNotIn("offline-anthropic-key", str(caught.exception))
+                body.read.assert_not_called()
+                self.assertEqual(request.call_count, 1)
 
     def test_untrusted_origin_path_and_pagination_are_refused_without_network(self):
         api = reviewer.API("offline-github-key", "offline-anthropic-key")
