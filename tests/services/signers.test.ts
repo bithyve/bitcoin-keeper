@@ -1,4 +1,17 @@
 jest.mock('src/services/electrum/client', () => ({}));
+const mockCanaryDispatch = jest.fn();
+jest.mock('react-redux', () => ({ useDispatch: () => mockCanaryDispatch }));
+jest.mock('@react-navigation/native', () => ({ useNavigation: () => ({ navigate: jest.fn() }) }));
+jest.mock('src/store/hooks', () => ({
+  useAppSelector: (selector) =>
+    selector({ ...require('src/store/store').store.getState(), bhr: {} }),
+}));
+jest.mock('src/hooks/useToastMessage', () => () => ({ showToast: jest.fn() }));
+jest.mock('src/context/Localization/LocContext', () => ({
+  LocalizationContext: require('react').createContext({
+    translations: { wallet: {}, error: {}, common: {}, home: {} },
+  }),
+}));
 jest.mock('src/store/store', () => ({
   store: {
     getState: jest.fn(() => ({
@@ -43,6 +56,11 @@ import * as bitcoin from 'bitcoinjs-lib';
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 import WalletUtilities from 'src/services/wallets/operations/utils';
 import { store } from 'src/store/store';
+import React from 'react';
+import { act, create } from 'react-test-renderer';
+import useCanaryWalletSetup from 'src/hooks/UseCanaryWalletSetup';
+import { generateDataFromPSBT } from 'src/utils/utilities';
+import { Signer } from 'src/services/wallets/interfaces/vault';
 
 describe.each([NetworkType.MAINNET, NetworkType.TESTNET])(
   'OneKey %s public keys',
@@ -143,6 +161,83 @@ describe.each([NetworkType.MAINNET, NetworkType.TESTNET])(
           null
         )
       ).toThrow();
+    });
+
+    test('creates a Canary wallet from a legacy OneKey single-sig key', () => {
+      const data = exportData();
+      const signer = {
+        type: SignerType.ONEKEY,
+        masterFingerprint: data.mfp,
+        signerXpubs: {
+          [XpubTypes.P2WPKH]: [{ xpub: data.singleSigXpub, derivationPath: data.singleSigPath }],
+        },
+      };
+      let createCanary: ReturnType<typeof useCanaryWalletSetup>['createCreateCanaryWallet'];
+      const Probe = () => {
+        createCanary = useCanaryWalletSetup({}).createCreateCanaryWallet;
+        return null;
+      };
+      let renderer;
+      mockCanaryDispatch.mockClear();
+      try {
+        act(() => {
+          renderer = create(React.createElement(Probe));
+        });
+        let result;
+        act(() => {
+          result = createCanary(signer);
+        });
+        expect(result.vaultSigners[0].xpub).toBe(accountKey(data.singleSigPath));
+        expect(mockCanaryDispatch).toHaveBeenCalledWith(
+          expect.objectContaining({ payload: { newVaultInfo: result } })
+        );
+        expect(signer.signerXpubs[XpubTypes.P2WPKH][0].xpub).toBe(data.singleSigXpub);
+      } finally {
+        act(() => renderer?.unmount());
+      }
+    });
+
+    test('previews an external multisig PSBT with a legacy OneKey key and rejects a different key', () => {
+      const data = exportData();
+      const path = `${data.multiSigPath}/0/3`;
+      const node = bip32.fromSeed(seed, network).derivePath(path);
+      const otherRoot = bip32.fromSeed(Buffer.alloc(32, 2), network);
+      const otherPubkey = otherRoot.derivePath(path).publicKey;
+      const payment = bitcoin.payments.p2wsh({
+        redeem: bitcoin.payments.p2ms({
+          m: 2,
+          pubkeys: [node.publicKey, otherPubkey].sort(Buffer.compare),
+          network,
+        }),
+        network,
+      });
+      const psbt = new bitcoin.Psbt({ network })
+        .addInput({
+          hash: Buffer.alloc(32, 3),
+          index: 0,
+          witnessUtxo: { script: payment.output, value: 10000 },
+          witnessScript: payment.redeem.output,
+          bip32Derivation: [
+            { masterFingerprint: Buffer.from(data.mfp, 'hex'), pubkey: node.publicKey, path },
+          ],
+        })
+        .addOutput({ script: payment.output, value: 9000 });
+      const signer = {
+        type: SignerType.ONEKEY,
+        masterFingerprint: data.mfp,
+        signerXpubs: {
+          [XpubTypes.P2WSH]: [{ xpub: data.multiSigXpub, derivationPath: data.multiSigPath }],
+        },
+      } as unknown as Signer;
+      const preview = generateDataFromPSBT(psbt.toBase64(), signer);
+      expect(preview.signerMatched).toBe(true);
+      expect(preview.fees).toBe(1000);
+      expect(preview.senderAddresses[0].address).toBe(payment.address);
+      signer.signerXpubs[XpubTypes.P2WSH][0].xpub = otherRoot
+        .derivePath(data.multiSigPath)
+        .neutered()
+        .toBase58();
+      expect(generateDataFromPSBT(psbt.toBase64(), signer).signerMatched).toBe(false);
     });
   }
 );

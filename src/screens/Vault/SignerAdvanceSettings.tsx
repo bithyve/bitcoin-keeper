@@ -412,14 +412,13 @@ function SignerAdvanceSettings({ route }: any) {
         setCanaryVaultLoading(false);
         setSingleSigModal(true);
       } else {
-        const ssVaultKey: VaultSigner = {
-          ...singleSigSigner,
-          masterFingerprint: signer.masterFingerprint,
-          xfp: WalletUtilities.getFingerprintFromExtendedKey(
-            singleSigSigner.xpub,
-            WalletUtilities.getNetworkByType(bitcoinNetworkType)
-          ),
-        };
+        const ssVaultKey: VaultSigner = WalletUtilities.getKeyForScheme(
+          false,
+          signer,
+          null,
+          singleSigSigner,
+          null
+        );
         const canaryVaultId = generateVaultId([ssVaultKey], CANARY_SCHEME);
         setCanaryWalletId(canaryVaultId);
         const canaryVault = allCanaryVaults.find((vault) => vault.id === canaryVaultId);
