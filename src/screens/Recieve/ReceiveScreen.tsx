@@ -288,6 +288,8 @@ function ReceiveScreen({ route }: { route }) {
             const vKey = (wallet as Vault).signers?.find(
               (vaultSigner) => getKeyUID(vaultSigner) === getKeyUID(signer)
             );
+            // Restore Receive focus so the modal can start its BLE operation.
+            navigation.dispatch(CommonActions.goBack());
             setOnekeyVerifyState({
               visible: true,
               signer,

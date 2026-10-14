@@ -4,6 +4,7 @@ import { SignMessageScreen } from 'src/screens/WalletDetails/SignMessageScreen';
 import SignWithOneKeyBle from 'src/screens/SignTransaction/SignWithOneKeyBle';
 import SignMessageOneKeyBle from 'src/screens/OneKey/SignMessageOneKeyBle';
 import OneKeyBleModal from 'src/components/OneKeyBleModal';
+import ReceiveScreen from 'src/screens/Recieve/ReceiveScreen';
 import * as oneKey from 'src/services/onekeyBle';
 import { healthCheckStatusUpdate } from 'src/store/sagaActions/bhr';
 
@@ -23,6 +24,7 @@ let mockUIHandler: (event: string) => void;
 
 jest.mock('react-redux', () => ({ useDispatch: () => mockDispatch }));
 jest.mock('src/store/hooks', () => ({
+  useAppDispatch: () => mockDispatch,
   useAppSelector: (selector) =>
     selector({
       settings: { bitcoinNetworkType: 'MAINNET' },
@@ -40,11 +42,16 @@ jest.mock('src/hooks/useVault', () => () => ({ activeVault: mockVault }));
 jest.mock('src/hooks/useSigners', () => () => ({ vaultSigners: [mockSigner] }));
 jest.mock('src/context/Localization/LocContext', () => ({
   LocalizationContext: require('react').createContext({
-    translations: { common: { sign: 'Sign' }, wallet: {}, error: {} },
+    translations: {
+      common: { sign: 'Sign', verfyAddressbutton: 'Verify address' },
+      wallet: {}, error: {}, home: {}, vault: {},
+    },
   }),
 }));
 jest.mock('@gluestack-ui/themed-native-base', () => ({
   Box: 'Box',
+  HStack: 'HStack',
+  Pressable: 'Pressable',
   Input: 'Input',
   KeyboardAvoidingView: 'KeyboardAvoidingView',
   ScrollView: 'ScrollView',
@@ -80,7 +87,10 @@ jest.mock('src/services/onekeyBle', () => ({
 }));
 jest.mock('src/hooks/useSignerFromKey', () => () => ({ signer: mockSigner }));
 jest.mock('src/services/sentry', () => ({ captureError: jest.fn() }));
-jest.mock('src/utils/utilities', () => ({ validatePSBT: jest.fn() }));
+jest.mock('src/utils/utilities', () => ({
+  validatePSBT: jest.fn(),
+  getKeyUID: (key) => key.masterFingerprint,
+}));
 jest.mock('src/store/reducers/send_and_receive', () => ({ updatePSBTEnvelops: jest.fn() }));
 jest.mock('src/store/sagaActions/bhr', () => ({ healthCheckStatusUpdate: jest.fn() }));
 jest.mock('src/store/sagaActions/vaults', () => ({ addSigningDevice: jest.fn() }));
@@ -107,7 +117,10 @@ jest.mock('src/components/KeeperModal', () => {
     visible ? React.createElement('KeeperModal', props, <Content />) : null;
 });
 jest.mock('src/screens/Vault/HardwareModalMap', () => ({ InteracationMode: {} }));
-jest.mock('src/services/wallets/operations', () => ({}));
+jest.mock('src/services/wallets/operations', () => ({
+  getNextFreeAddress: () => 'fixture-address',
+  getExternalInternalAddressAtIdx: () => 'fixture-address',
+}));
 jest.mock('src/services/wallets/operations/utils', () => ({ isValidAddress: () => true }));
 jest.mock('src/store/sagaActions/wallets', () => ({
   refreshWallets: jest.fn(),
@@ -119,9 +132,32 @@ jest.mock('src/assets/images/usb_white.svg', () => () => null);
 jest.mock('src/assets/images/qr_comms.svg', () => () => null);
 jest.mock('src/assets/images/import.svg', () => () => null);
 jest.mock('src/assets/images/icon_tick.svg', () => () => null);
+jest.mock('src/hooks/useLabelsNew', () => () => ({ labels: {} }));
+jest.mock('src/constants/Bitcoin', () => ({ SATOSHIS_IN_BTC: 100000000 }));
+jest.mock('src/hooks/useExchangeRates', () => () => ({}));
+jest.mock('src/store/hooks/state-selectors/useCurrencyCode', () => () => 'USD');
+jest.mock('src/screens/Recieve/ReceiveAddress', () => () => null);
+jest.mock('src/screens/Recieve/ReceiveQR', () => () => null);
+jest.mock('src/screens/Recieve/AddressUsageBadge', () => () => null);
+jest.mock('src/components/UTXOsComponents/UTXOList', () => ({ UTXOLabel: () => null }));
+jest.mock('src/screens/UTXOManagement/components/LabelsEditor', () => () => null);
+jest.mock('src/components/AppNumPad/KeyPadView', () => () => null);
+jest.mock('src/screens/Send/AmountDetailsInput', () => () => null);
+jest.mock('src/assets/images/delete.svg', () => () => null);
+jest.mock('src/assets/images/deleteLight.svg', () => () => null);
+jest.mock('src/assets/images/nav-left.svg', () => () => null);
+jest.mock('src/assets/images/nav-left-white.svg', () => () => null);
+jest.mock('src/assets/images/nav-right.svg', () => () => null);
+jest.mock('src/assets/images/nav-right-white.svg', () => () => null);
+jest.mock('src/assets/images/qr-new.svg', () => () => null);
+jest.mock('src/assets/images/qr-new-white.svg', () => () => null);
+jest.mock('src/assets/images/modal_close.svg', () => () => null);
+jest.mock('src/assets/images/error.svg', () => () => null);
+jest.mock('src/assets/images/error-dark.svg', () => () => null);
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockNavigate.mockReset();
   mockFocused = true;
   mockParams = {
     vaultKey: { xfp: '1234ABCD' },
@@ -197,6 +233,52 @@ describe('OneKey flow cancellation', () => {
   afterEach(() => {
     jest.clearAllTimers();
     jest.useRealTimers();
+  });
+
+  test('selecting OneKey from the receive screen starts address verification after returning', async () => {
+    const wallet = {
+      ...mockVault,
+      id: 'fixture-vault',
+      entityKind: 'VAULT',
+      specs: {
+        ...mockVault.specs,
+        totalExternalAddresses: 1,
+        nextFreeAddressIndex: 0,
+        transactions: [],
+      },
+    };
+    const route = { params: { wallet } };
+    mockNavigate.mockImplementation((action) => {
+      // The selector covers Receive until the callback returns to it.
+      if (action[0] === 'SignerSelectionListScreen') mockFocused = false;
+      if (action === 'goBack') mockFocused = true;
+    });
+    (oneKey.verifyAddressOnOneKey as jest.Mock).mockResolvedValueOnce('fixture-address');
+    let view: ReactTestRenderer;
+    await act(async () => { view = create(<ReceiveScreen route={route} />); });
+    await act(async () => {
+      view.root.findAllByType('Buttons' as any)
+        .find((node) => node.props.primaryText === 'Verify address')
+        .props.primaryCallback();
+    });
+    await act(async () => { view.update(<ReceiveScreen route={route} />); });
+    expect(mockFocused).toBe(false);
+    expect(oneKey.searchOneKeyDevices).not.toHaveBeenCalled();
+
+    const [, selection] = mockNavigate.mock.calls[0][0];
+    await act(async () => { selection.callback(mockSigner, 'OneKey'); });
+    await act(async () => jest.advanceTimersByTimeAsync(300));
+
+    expect(oneKey.verifyAddressOnOneKey).toHaveBeenCalledWith(expect.objectContaining({
+      connectId: 'test-device',
+      deviceId: 'test-id',
+      path: "m/84'/0'/0'/0/0",
+    }));
+    expect(mockShowToast).toHaveBeenCalledWith(
+      'Address verified successfully on OneKey', expect.anything()
+    );
+    expect(view.root.findAllByType('KeeperModal' as any)).toHaveLength(0);
+    await act(async () => view.unmount());
   });
 
   test.each([SignWithOneKeyBle, SignMessageOneKeyBle])(
