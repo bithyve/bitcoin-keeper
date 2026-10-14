@@ -124,6 +124,7 @@ const onSignerSelect = (
       setHotWalletInstanceNum(null);
     }
   } else {
+    if (selectedSigners.has(getKeyUID(signer))) return;
     const maxKeys =
       scheme?.miniscriptScheme?.usedMiniscriptTypes?.length > 0
         ? Object.keys(scheme?.miniscriptScheme?.keyInfoMap || {}).length
@@ -615,6 +616,7 @@ function Signers({
   const [visibleImportXpub, setVisibleImportXpub] = useState(false);
   const [showSSModal, setShowSSModal] = useState(false);
   const [showSignerModal, setShowSignerModal] = useState(false);
+  const [selectedOneKeyDevices, setSelectedOneKeyDevices] = useState<Record<string, string>>({});
   const [modalContent, setModalContent] = useState({
     name: '',
     title: '',
@@ -721,21 +723,24 @@ function Signers({
     const deviceDetails = devices.map((device) =>
       `${device.name}\nSerial: ${device.serialNo || 'Not recorded'}`
     ).join('\n\n');
-    return devices.length > 1
-      ? `${deviceDetails}\n\nThese devices share the same key. Counts as 1 wallet key.`
-      : deviceDetails;
+    return deviceDetails;
   };
 
   const renderSigners = useCallback(
     (signerFilters = []) => {
+      const selectedKeys = selectedSigners as Map<string, boolean>;
       const myAppKeys = getSelectedKeysByType(vaultKeys, signerMap, SignerType.MY_KEEPER);
       const filteredSigners =
         signerFilters.length > 0
           ? signers.filter((signer) => signerFilters.includes(signer.type))
           : signers;
 
-      const signerCards = filteredSigners.map((signer) => {
-        if (signer.archived) return null;
+      const signerCards = filteredSigners.flatMap((signer) => {
+        if (signer.archived) return [];
+        const keyUID = getKeyUID(signer);
+        const devices = signer.type === SignerType.ONEKEY ? getOneKeyDeviceBindings(signer) : [];
+        const selectedDeviceId =
+          selectedOneKeyDevices[keyUID] || devices[0]?.serialNo || devices[0]?.bleConnectId;
 
         const disabledMessage = getDisabledMessage(
           signer,
@@ -748,51 +753,68 @@ function Signers({
         );
         const disabled = disabledMessage !== null;
 
-        return (
-          <SignerCard
-            showSelection={showSelection}
-            disabledWithTouch={disabled}
-            key={getKeyUID(signer)}
-            name={
-              !signer.isBIP85
-                ? getSignerNameFromType(signer.type, signer.isMock, false)
-                : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`
-            }
-            description={getSelectionDescription(signer)}
-            numberOfLines={signer.type === SignerType.ONEKEY ? 0 : 1}
-            customStyle={signer.type === SignerType.ONEKEY ? { height: 'auto', minHeight: wp(135) } : undefined}
-            icon={SDIcons({ type: signer.type }).Icon}
-            image={signer?.extraData?.thumbnailPath}
-            isSelected={!!selectedSigners.get(getKeyUID(signer))}
-            onCardSelect={(selected) => {
-              handleSignerSelect(
-                selected,
-                signer,
-                disabledMessage,
-                vaultType,
-                setModalContent,
-                setShowSignerModal,
-                onSignerSelect,
-                {
-                  scheme,
-                  vaultKeys,
-                  setVaultKeys,
-                  selectedSigners,
-                  setSelectedSigners,
-                  setHotWalletSelected,
-                  setHotWalletInstanceNum,
-                  showToast,
+        return (devices.length ? devices : [undefined]).map((device) => {
+          const deviceId = device?.serialNo || device?.bleConnectId;
+          const isSelected =
+            !!selectedKeys.get(keyUID) && (!device || selectedDeviceId === deviceId);
+          const duplicateSelected = !!selectedKeys.get(keyUID) && !isSelected;
+          return (
+            <SignerCard
+              showSelection={showSelection}
+              disabled={duplicateSelected}
+              disabledWithTouch={disabled}
+              key={`${keyUID}:${deviceId || ''}`}
+              name={
+                device?.name ||
+                (!signer.isBIP85
+                  ? getSignerNameFromType(signer.type, signer.isMock, false)
+                  : `${getSignerNameFromType(signer.type, signer.isMock, false)} +`)
+              }
+              subtitle={device?.serialNo ? `Serial: ${device.serialNo}` : undefined}
+              description={device ? '' : getSignerDescription(signer)}
+              numberOfLines={signer.type === SignerType.ONEKEY ? 0 : 1}
+              customStyle={
+                signer.type === SignerType.ONEKEY
+                  ? { height: 'auto', minHeight: wp(135) }
+                  : undefined
+              }
+              icon={SDIcons({ type: signer.type }).Icon}
+              image={signer?.extraData?.thumbnailPath}
+              isSelected={isSelected}
+              onCardSelect={(selected) => {
+                if (!selected && selectedKeys.has(keyUID)) return;
+                handleSignerSelect(
+                  selected,
+                  signer,
+                  disabledMessage,
+                  vaultType,
+                  setModalContent,
+                  setShowSignerModal,
+                  onSignerSelect,
+                  {
+                    scheme,
+                    vaultKeys,
+                    setVaultKeys,
+                    selectedSigners,
+                    setSelectedSigners,
+                    setHotWalletSelected,
+                    setHotWalletInstanceNum,
+                    showToast,
+                  }
+                );
+                if (deviceId && !selected && !disabled && selectedKeys.has(keyUID)) {
+                  setSelectedOneKeyDevices((current) => ({ ...current, [keyUID]: deviceId }));
                 }
-              );
-            }}
-            colorMode={colorMode}
-          />
-        );
+              }}
+              colorMode={colorMode}
+            />
+          );
+        });
       });
 
       return signerCards;
     },
-    [signers, signerFilters]
+    [signers, signerFilters, selectedSigners, selectedOneKeyDevices, vaultKeys]
   );
 
   const renderCollaborativeSigners = useCallback(() => {
