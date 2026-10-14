@@ -106,6 +106,9 @@ const onSignerSelect = (
       if (isMock) {
         const updatedKeys = vaultKeys.filter((key) => msXpub && key.xpub !== msXpub.xpub);
         setVaultKeys(updatedKeys);
+      } else if (signer.type === SignerType.ONEKEY) {
+        // The selected key may have a normalized version unlike an older signer record.
+        setVaultKeys(vaultKeys.filter((key) => getKeyUID(key) !== getKeyUID(signer)));
       } else if (isAmf) {
         const updatedKeys = vaultKeys.filter((key) => amfXpub && key.xpub !== amfXpub.xpub);
         setVaultKeys(updatedKeys);

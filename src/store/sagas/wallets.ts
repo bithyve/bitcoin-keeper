@@ -387,15 +387,31 @@ export function* addSigningDeviceWorker({
       return;
     }
 
-    const keysMatch = (type, newSigner, existingSigner) =>
-      !!newSigner.signerXpubs[type]?.[0] &&
-      !!existingSigner.signerXpubs[type]?.[0] &&
-      newSigner.signerXpubs[type]?.[0]?.xpub === existingSigner.signerXpubs[type]?.[0]?.xpub;
+    const keysMatch = (type, newSigner, existingSigner) => {
+      const newKey = newSigner.signerXpubs[type]?.[0]?.xpub;
+      const existingKey = existingSigner.signerXpubs[type]?.[0]?.xpub;
+      if (!newKey || !existingKey) return false;
+      if (newKey === existingKey) return true;
+      if (
+        newSigner.type !== SignerType.ONEKEY ||
+        existingSigner.type !== SignerType.ONEKEY ||
+        newSigner.networkType !== existingSigner.networkType ||
+        WalletUtilities.getNetworkFromPrefix(newKey.slice(0, 4)) !== newSigner.networkType ||
+        WalletUtilities.getNetworkFromPrefix(existingKey.slice(0, 4)) !== existingSigner.networkType
+      ) {
+        return false;
+      }
+      const network = WalletUtilities.getNetworkByType(newSigner.networkType);
+      return (
+        WalletUtilities.getXpubFromExtendedKey(newKey, network) ===
+        WalletUtilities.getXpubFromExtendedKey(existingKey, network)
+      );
+    };
 
     const keysDifferent = (type, newSigner, existingSigner) =>
       !!newSigner.signerXpubs[type]?.[0] &&
       !!existingSigner.signerXpubs[type]?.[0] &&
-      newSigner.signerXpubs[type][0].xpub !== existingSigner.signerXpubs[type][0].xpub;
+      !keysMatch(type, newSigner, existingSigner);
 
     for (const newSigner of signers) {
       if (!checkSignerAccountsMatch(newSigner)) {

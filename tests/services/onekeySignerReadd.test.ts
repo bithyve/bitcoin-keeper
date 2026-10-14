@@ -9,8 +9,13 @@ import {
   mergeOneKeyDeviceBindings,
 } from 'src/services/onekeyBle/deviceConstants';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
+import BIP32Factory from 'bip32';
+import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
+import WalletUtilities from 'src/services/wallets/operations/utils';
+import { relaySignersUpdateFail } from 'src/store/reducers/bhr';
 
 jest.mock('src/store/utilities', () => ({ createWatcher: jest.fn() }));
+jest.mock('src/store/store', () => ({ store: { getState: jest.fn() } }));
 jest.mock('src/storage/realm/dbManager', () => ({ getCollection: jest.fn() }));
 jest.mock('src/store/sagas/bhr', () => ({ updateAppImageWorker: jest.fn() }));
 jest.mock('src/utils/utilities', () => ({
@@ -21,7 +26,9 @@ jest.mock('src/services/sentry', () => ({ captureError: jest.fn() }));
 jest.mock('src/services/backend/Relay', () => ({}));
 jest.mock('src/services/backend/SigningServer', () => ({}));
 jest.mock('src/services/wallets/operations', () => ({}));
-jest.mock('src/services/wallets/operations/utils', () => ({}));
+jest.mock('src/services/wallets/operations/utils', () =>
+  jest.requireActual('src/services/wallets/operations/utils')
+);
 jest.mock('src/services/wallets/factories/VaultFactory', () => ({}));
 jest.mock('src/services/wallets/factories/WalletFactory', () => ({}));
 jest.mock('src/storage/realm/utils', () => ({}));
@@ -141,3 +148,61 @@ test('importing a second physical device preserves the original device and prefe
   expect(saved.extraData.bleConnectId).toBe('pro-address');
   expect(saved.extraData.oneKeyDevices.map((device) => device.serialNo)).toEqual(['PRO', 'PRO2']);
 });
+
+test.each([NetworkType.MAINNET, NetworkType.TESTNET])(
+  're-adds an existing %s SLIP-132 key but rejects a different key',
+  (networkType) => {
+    const network = WalletUtilities.getNetworkByType(networkType);
+    const coinType = networkType === NetworkType.TESTNET ? 1 : 0;
+    const derivationPath = `m/84'/${coinType}'/0'`;
+    const bip32 = BIP32Factory(ecc);
+    const key = (seedByte: number, version = network.bip32.public) =>
+      bip32
+        .fromSeed(Buffer.alloc(32, seedByte), {
+          ...network,
+          bip32: { ...network.bip32, public: version },
+        })
+        .derivePath(derivationPath)
+        .neutered()
+        .toBase58();
+
+    for (const seedByte of [1, 2]) {
+      const existing = {
+        type: SignerType.ONEKEY,
+        masterFingerprint: '1234ABCD',
+        networkType,
+        signerXpubs: {
+          [XpubTypes.P2WPKH]: [
+            { derivationPath, xpub: key(1, coinType ? 0x045f1cf6 : 0x04b24746) },
+          ],
+        },
+        extraData: { bleConnectId: 'old-id' },
+      } as unknown as Signer;
+      const incoming = {
+        ...existing,
+        signerXpubs: { [XpubTypes.P2WPKH]: [{ derivationPath, xpub: key(seedByte) }] },
+        extraData: { bleConnectId: 'new-id' },
+      } as unknown as Signer;
+      const worker: Generator<any, void, any> = addSigningDeviceWorker({
+        payload: { signers: [incoming] },
+      });
+      worker.next();
+      worker.next();
+      worker.next({ bitcoinNetworkType: networkType });
+      const firstResult = worker.next([existing]).value;
+      const result = seedByte === 1 ? worker.next().value : firstResult;
+      if (seedByte === 1) {
+        expect(result.payload.fn).toBe(updateAppImageWorker);
+        expect(
+          result.payload.args[0].payload.signers[0].signerXpubs[XpubTypes.P2WPKH][0].xpub
+        ).toBe(key(1));
+      } else {
+        expect(result.payload.action).toEqual(
+          relaySignersUpdateFail(
+            'OneKey public keys do not match the existing key. The device was not added.'
+          )
+        );
+      }
+    }
+  }
+);

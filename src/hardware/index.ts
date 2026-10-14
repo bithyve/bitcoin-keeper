@@ -101,7 +101,18 @@ export const generateSignerFromMetaData = ({
     Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
       let { xpub, xpriv, derivationPath } = xpubDetail;
       signerXpubs[key] = signerXpubs[key] || [];
-      if ([SignerType.JADE, SignerType.SEEDSIGNER, SignerType.SPECTER].includes(signerType)) {
+      if (
+        signerType === SignerType.ONEKEY &&
+        (WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4)) !== bitcoinNetworkType ||
+          getNetworkTypeFromDerivationPath(derivationPath) !== bitcoinNetworkType)
+      ) {
+        throw new HWError(HWErrorType.INCORRECT_NETWORK);
+      }
+      if (
+        [SignerType.JADE, SignerType.SEEDSIGNER, SignerType.SPECTER, SignerType.ONEKEY].includes(
+          signerType
+        )
+      ) {
         xpub = WalletUtilities.getXpubFromExtendedKey(xpub, network);
       }
       signerXpubs[key].push({ xpub, xpriv, derivationPath: derivationPath.replaceAll('h', "'") });
