@@ -147,6 +147,110 @@ test('wallet-open failures stop device identification before key derivation', as
   expect(sdk.btcGetPublicKey).not.toHaveBeenCalled();
 });
 
+describe('iOS initial BLE write timeout recovery', () => {
+  const writeTimeout = {
+    success: false,
+    payload: { code: 710, error: 'BLE write timeout after 10000ms' },
+  };
+
+  beforeEach(async () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+    await getOneKeySdk();
+    jest.clearAllMocks();
+  });
+
+  test('releases the failed session and reconnects once before reading keys', async () => {
+    sdk.openWalletSession.mockResolvedValueOnce(writeTimeout);
+    sdk.getDeviceState.mockResolvedValueOnce({
+      success: true,
+      payload: { identity: { deviceId: 'test-id', deviceType: 'pro', serialNo: 'PRO-SERIAL' } },
+    });
+    sdk.btcGetPublicKey.mockResolvedValueOnce({
+      success: true,
+      payload: { root_fingerprint: 0x1234abcd },
+    });
+
+    await expect(getOneKeyDeviceInfo('test-device')).resolves.toMatchObject({
+      deviceId: 'test-id',
+      masterFingerprint: '1234ABCD',
+    });
+    expect(sdk.openWalletSession.mock.calls).toEqual([
+      ['test-device', { mode: 'standard' }],
+      ['test-device', { mode: 'standard' }],
+    ]);
+    expect(sdk.dispose).toHaveBeenCalledTimes(1);
+    expect(sdk.init).toHaveBeenCalledTimes(1);
+    expect(sdk.dispose.mock.invocationCallOrder[0]).toBeLessThan(
+      sdk.init.mock.invocationCallOrder[0]
+    );
+    expect(sdk.init.mock.invocationCallOrder[0]).toBeLessThan(
+      sdk.openWalletSession.mock.invocationCallOrder[1]
+    );
+    expect(sdk.btcGetPublicKey).toHaveBeenCalledTimes(1);
+  });
+
+  test('a second write timeout stops without further retries or key requests', async () => {
+    sdk.openWalletSession.mockResolvedValueOnce(writeTimeout).mockResolvedValueOnce(writeTimeout);
+    await expect(getOneKeyDeviceInfo('test-device')).rejects.toThrow(
+      'BLE write timeout after 10000ms'
+    );
+    expect(sdk.openWalletSession).toHaveBeenCalledTimes(2);
+    expect(sdk.dispose).toHaveBeenCalledTimes(1);
+    expect(sdk.getDeviceState).not.toHaveBeenCalled();
+    expect(sdk.btcGetPublicKey).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['android', writeTimeout.payload],
+    ['ios', { code: 710, error: 'Pairing was cancelled' }],
+    ['ios', { code: 802, error: 'PIN cancelled' }],
+    ['ios', { code: 713, error: 'BLE response timeout after 10000ms' }],
+  ])('%s does not retry an unrelated failure: %j', async (os, payload) => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: os });
+    sdk.openWalletSession.mockResolvedValueOnce({ success: false, payload });
+    await expect(getOneKeyDeviceInfo('test-device')).rejects.toThrow();
+    expect(sdk.openWalletSession).toHaveBeenCalledTimes(1);
+    expect(sdk.dispose).not.toHaveBeenCalled();
+    expect(sdk.btcGetPublicKey).not.toHaveBeenCalled();
+  });
+
+  test('cancelling during teardown prevents reinitialization and a second connection', async () => {
+    const controller = new AbortController();
+    let finishTeardown;
+    sdk.openWalletSession.mockResolvedValueOnce(writeTimeout);
+    sdk.dispose.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finishTeardown = resolve;
+      })
+    );
+    const result = expect(getOneKeyDeviceInfo('test-device', controller.signal)).rejects.toThrow(
+      'cancelled'
+    );
+    await jest.advanceTimersByTimeAsync(1);
+    expect(sdk.dispose).toHaveBeenCalledTimes(1);
+    controller.abort();
+    finishTeardown();
+    await result;
+    expect(sdk.init).not.toHaveBeenCalled();
+    expect(sdk.openWalletSession).toHaveBeenCalledTimes(1);
+    expect(sdk.btcGetPublicKey).not.toHaveBeenCalled();
+  });
+
+  test('a transaction signing write timeout is not retried', async () => {
+    sdk.btcSignPsbt.mockResolvedValueOnce(writeTimeout);
+    await expect(
+      signPsbtWithOneKey({
+        connectId: 'test-device',
+        deviceId: 'test-id',
+        networkType: NetworkType.TESTNET,
+        serializedPSBT: 'cHNidP8=',
+      })
+    ).rejects.toThrow('BLE write timeout after 10000ms');
+    expect(sdk.btcSignPsbt).toHaveBeenCalledTimes(1);
+    expect(sdk.dispose).not.toHaveBeenCalled();
+  });
+});
+
 test('a different device identity cannot continue the opened wallet flow', async () => {
   sdk.getDeviceState.mockResolvedValueOnce({
     success: true,

@@ -79,6 +79,7 @@ let uiState: {
 } = { phase: 'closed' };
 
 const SCAN_TIMEOUT_MS = 15_000;
+const BLE_WRITE_CHARACTERISTIC_ERROR = 710;
 const bip32 = BIP32Factory(ecc);
 const HD_HARDENED = 0x80000000;
 
@@ -453,13 +454,32 @@ export const getOneKeyDeviceInfo = async (
   signal?: AbortSignal
 ): Promise<OneKeyDeviceInfo> => {
   checkCancellation(signal);
-  const sdk = await getOneKeySdk();
-  const walletResult = await callWithCancellation(
+  let sdk = await getOneKeySdk();
+  let walletResult = await callWithCancellation(
     sdk,
     () => sdk.openWalletSession(connectId, { mode: 'standard' }),
     signal,
     connectId
   );
+  if (
+    Platform.OS === 'ios' &&
+    walletResult.success === false &&
+    walletResult.payload.code === BLE_WRITE_CHARACTERISTIC_ERROR &&
+    /^BLE write timeout after \d+ms$/.test(getErrorMessage(walletResult))
+  ) {
+    // Pairing can outlast the first native write. Reopen once on a fresh link;
+    // keep recovery here so key derivation and signing are never replayed.
+    checkCancellation(signal);
+    await disconnectOneKey();
+    checkCancellation(signal);
+    sdk = await getOneKeySdk();
+    walletResult = await callWithCancellation(
+      sdk,
+      () => sdk.openWalletSession(connectId, { mode: 'standard' }),
+      signal,
+      connectId
+    );
+  }
   if (!walletResult.success) throw new Error(getErrorMessage(walletResult));
   if (walletResult.payload.walletType !== 'standard') {
     throw new Error('OneKey hidden wallets are not supported');
