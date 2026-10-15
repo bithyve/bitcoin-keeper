@@ -170,6 +170,15 @@ android {
     }
 
 dependencies {
+    // Portal's transitive JNA 5.14.0 has an 8 KB RELRO boundary even though
+    // its LOAD segments are 64 KB aligned. Keep classes and JNI on one AAR.
+    // 5.18.1 retains the 5.17 native fix and fixes the subsequent UniFFI
+    // Structure deadlock/concurrency regressions (JNA #1681 and #1686).
+    implementation('net.java.dev.jna:jna:5.18.1@aar') {
+        version { strictly '5.18.1' }
+        because 'Portal requires 16 KB JNA natives and the UniFFI Structure fixes'
+    }
+
     // The version of react-native is set by the React Native Gradle Plugin
     implementation project(':react-native-iap')
     implementation 'com.google.mlkit:barcode-scanning:17.3.0'

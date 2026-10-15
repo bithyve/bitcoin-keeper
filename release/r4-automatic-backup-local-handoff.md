@@ -2,6 +2,8 @@
 
 State: **NEEDS_LOCAL**. PR [#7045](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045), branch `codex/r4-264-combined-candidate`, base `sprint`. The exact final SHA is recorded in the newest **Codex local handoff** on that PR. The setup below verifies that handoff against the live head before selecting it; this repository document cannot contain its own eventual commit SHA.
 
+**15 October Android continuation:** read the [16 KB supplier proof and targeted retest](r4-android-16kb.md) and retain the [698078 Local failure](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6178691569). The new JNA selection requires a new development build and actual strict-16-KB launch; no native result transfers to this head. Android C8 / [#7056](https://github.com/KeeperCommunity/bitcoin-keeper/issues/7056) remains owner-parked with its observed FAIL: do not restart that bug's fix/retest cycle. Other required native and release blockers remain open. Production AAB/generated-split construction, signing, upload and runtime verification are a separate owner-approved artifact stage.
+
 Paired disposable Relay: **`838049e537e07eb646a2a0393eb969fba43d0739`**, draft [Relay #4](https://github.com/KeeperCommunity/Relay/pull/4). The originally requested `b600416e5ba7325927d7d2871cff7776f4e593fe` was tested: native Android opt-in reached a real repair write but failed complete readback because `createNewApp` had precreated an AppImage without subscription and repair wrote that field only on insert. The successor sets subscription on existing AppImages during explicit revisioned repair, after the transaction's revision and conflict checks. It is a loopback test dependency, not a deployed-service assertion. The approved contributor manifest in `dev/local-backend/sources.lock.json` remains Relay `ee935359f22ff7932ea0a62e9084d4b49801f4aa` and SigningServer `3cc7728c27328e7b0358d1f91a32d8d13feba90a`; do not replace those pins or overwrite generated contributor checkouts to prepare this test.
 
 `AUTOMATIC_BACKUP_SOURCE_READY` is true after genuine disposable proof and independent fixture review. It permits development loopback validation with an explicit port. `AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY` remains false until the separately authorized deployed fleet, transactions/indexes, v2 route and old-writer drainage are verified. The Node fixture permits its explicit loopback test target. Hosted writes remain fenced. Do not change either gate to make a test pass. Current source and results are recorded in [the proof matrix](../openspec/changes/fix-recovery-backup-freshness/automatic-write-validation.md).
@@ -14,6 +16,9 @@ The combined source also retains the bracketed iOS import and shared PIN keypad 
 
 ```text
 Validate Keeper PR #7045 on the exact Head commit in its newest Codex local handoff.
+
+For the Android 16 KB continuation, also follow release/r4-android-16kb.md.
+Keep Android C8/#7056 parked; retain its observed FAIL without a fix/retest cycle.
 
 Read the latest PR description, newest Codex local handoff, AGENTS.md and
 release/r4-automatic-backup-local-handoff.md at the final head. Read the complete

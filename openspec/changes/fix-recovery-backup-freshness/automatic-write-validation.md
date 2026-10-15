@@ -4,6 +4,8 @@ Updated 13 October 2026 from observed source/disposable evidence. Historical Sep
 
 Automatic-backup implementation and disposable proof are mandatory R4 work. Critical IOS/ANDROID backup acceptance also precedes release. Host-native Realm means the real Node Realm SDK, not an iOS/Android app launch. Physical-device-only follow-up cannot waive critical simulator/emulator safety checks.
 
+The [15 October exact-698 Local report](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6178691569) supersedes the historical native NOT RUN cells only for its explicitly tested subset. It records a strict-16-KB Android startup FAIL. The [targeted supplier correction and new-head retest](../../../release/r4-android-16kb.md) do not constitute native acceptance or R4 readiness. Android C8/#7056 remains owner-parked and failed; this continuation must not restart that separate fix/retest cycle. Both hosted-backup readiness constants and the approved contributor manifest are unchanged.
+
 ## Source and result record
 
 | Field | Current record |
