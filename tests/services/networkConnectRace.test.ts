@@ -9,6 +9,7 @@ import { connectToNodeWorker } from '../../src/store/sagas/network';
 let mockGeneration = 0;
 let mockRealmAppId = 'account-a';
 const mockNodes = predefinedTestnetNodes;
+const mockRealm = { create: jest.fn() };
 const mockState = {
   settings: { bitcoinNetworkType: NetworkType.TESTNET },
   storage: { appId: 'account-a' },
@@ -19,12 +20,33 @@ const mockState = {
 };
 
 jest.mock('src/store/store', () => ({ store: { getState: jest.fn(() => mockState) } }));
+// These remain connection-ownership unit tests. Genuine node bootstrap tests
+// separately run the native Realm transaction and actual backup proof/HTTP.
+jest.mock('src/storage/realm/realm', () => ({
+  __esModule: true,
+  default: { getDatabase: jest.fn(() => mockRealm) },
+}));
+jest.mock('src/services/backup/transport', () => ({
+  captureBackupWriteIntent: jest.fn(() => undefined),
+  currentBackupAccountSession: jest.fn(() => 0),
+}));
+jest.mock('src/services/backup/automatic', () => ({
+  beginBackupLocalOperation: jest.fn(() => ({})),
+  commitBackupLocalOperation: jest.fn((_operation, write) => {
+    write(mockRealm);
+    return { committed: true };
+  }),
+}));
+jest.mock('src/store/sagas/bhr', () => ({
+  updateAppImageWorker: jest.fn(function* backupNodes() {
+    return undefined;
+  }),
+}));
 jest.mock('src/storage/realm/dbManager', () => ({
   __esModule: true,
   default: {
     getObjectByIndex: jest.fn(() => ({ id: mockRealmAppId })),
     getCollection: jest.fn(() => mockNodes),
-    createObject: jest.fn(() => true),
     updateObjectById: jest.fn(() => true),
   },
 }));
@@ -114,7 +136,7 @@ describe('overlapping Electrum connection workers', () => {
       connectToNodeWorker
     ).toPromise();
 
-    expect(dbManager.createObject).toHaveBeenCalledWith(RealmSchema.NodeConnect, mockNodes[1]);
+    expect(mockRealm.create).toHaveBeenCalledWith(RealmSchema.NodeConnect, mockNodes[1]);
     expect(actions).toContainEqual(
       expect.objectContaining({
         type: 'network/setTestnetFallbackNodeAdded',

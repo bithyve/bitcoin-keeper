@@ -152,6 +152,7 @@ async function createRealmClient(url, options = {}) {
   const storage = load('src/store/reducers/storage');
   const account = load('src/store/reducers/account');
   const settings = load('src/store/reducers/settings');
+  const network = options.withNetwork ? load('src/store/reducers/network') : undefined;
   const middlewareScope = { dbManager, RealmSchema, ...transport, ...bhr,
     isBackupVerificationCurrent: (...args) => load('src/services/backup/automatic').isBackupVerificationCurrent(...args) };
   evaluate(declarations('src/store/store.ts', ['accountOwnedActions', 'accountOwnedUtxoUiActions', 'bindActionOrigin']), middlewareScope, 'production-origin-middleware.ts');
@@ -160,7 +161,8 @@ async function createRealmClient(url, options = {}) {
   // This Node fixture mounts the four production slices used by recovery. The
   // optional root wrapper uses the actual production declarations/config and
   // redux-persist reconciler, rather than simulating REHYDRATE with a reducer.
-  let reducer = combineReducers({ bhr: bhr.default, storage: storage.default, account: account.default, settings: settings.default });
+  let reducer = combineReducers({ bhr: bhr.default, storage: storage.default, account: account.default, settings: settings.default,
+    ...(network ? { network: network.default } : {}) });
   if (options.persistedRedux) {
     const persistenceScope = { appReducer: reducer, storage: reduxStorage, reduxStorage,
       RESET_REDUX_STORE: 'RESET_REDUX_STORE', persistReducer, createMigrate,
@@ -335,7 +337,7 @@ async function createRealmClient(url, options = {}) {
 
   return {
     appId, seed, directory, load, bindings, enums, RealmSchema, Realm, realmDatabase, dbManager, store,
-    encryption, image, repair, transport, Relay, bhr, storage, account, settings, utilities: utilitiesScope,
+    encryption, image, repair, transport, Relay, bhr, storage, account, settings, network, utilities: utilitiesScope,
     config: bindings['src/utils/service-utilities/config'],
     defaults, nativeRealm, selectAccount, selected: () => selected, nativeEvents, diagnostics, actions,
     listen, installProductionStoreObservers, productionSagas, payloadForCurrentImage,

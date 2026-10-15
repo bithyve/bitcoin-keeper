@@ -133,7 +133,9 @@ function* sendPhaseTwoWorker({ payload, originAppId, originBackupAccountSession,
   SendPhaseTwoAction & { originAppId?: string; originBackupAccountSession?: number; originBackupWriteIntent?: BackupWriteIntent }) {
   if (!ELECTRUM_CLIENT.isClientConnected) {
     ElectrumClient.resetCurrentPeerIndex();
-    yield call(connectToNodeWorker);
+    yield call(connectToNodeWorker, {
+      originAppId, originBackupAccountSession, originBackupWriteIntent,
+    });
   }
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
@@ -222,7 +224,9 @@ function* sendPhaseThreeWorker({ payload, originAppId, originBackupAccountSessio
   SendPhaseThreeAction & { originAppId?: string; originBackupAccountSession?: number; originBackupWriteIntent?: BackupWriteIntent }) {
   if (!ELECTRUM_CLIENT.isClientConnected) {
     ElectrumClient.resetCurrentPeerIndex();
-    yield call(connectToNodeWorker);
+    yield call(connectToNodeWorker, {
+      originAppId, originBackupAccountSession, originBackupWriteIntent,
+    });
   }
 
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(

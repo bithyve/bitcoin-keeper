@@ -932,7 +932,11 @@ function* refreshWalletsWorker({
     }
     if (!ELECTRUM_CLIENT.isClientConnected || !connectionMatchesScope) {
       ElectrumClient.resetCurrentPeerIndex();
-      yield call(connectToNodeWorker);
+      yield call(connectToNodeWorker, {
+        originAppId: sourceAppId,
+        originBackupAccountSession: requestSession,
+        originBackupWriteIntent,
+      });
     }
 
     assertAccountRealmScope();
@@ -1599,7 +1603,11 @@ export function* testcoinsWorker({ payload, originAppId, originBackupAccountSess
         // The old profile or network's connection must not be reused.
       }
       if (!ELECTRUM_CLIENT.isClientConnected || !connectionMatchesScope) {
-        yield call(connectToNodeWorker);
+        yield call(connectToNodeWorker, {
+          originAppId: faucetScope.appId,
+          originBackupAccountSession: requestSession,
+          originBackupWriteIntent,
+        });
       }
       if (!isCurrentFaucetScope()) return;
       const connectionGeneration = ElectrumClient.getConnectionGeneration();
