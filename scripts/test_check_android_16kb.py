@@ -2,6 +2,7 @@
 
 import importlib.util
 import io
+import json
 import pathlib
 import struct
 import subprocess
@@ -10,6 +11,8 @@ import tempfile
 import unittest
 import warnings
 import zipfile
+from contextlib import redirect_stdout
+from unittest.mock import patch
 
 SPEC = importlib.util.spec_from_file_location("check_android_16kb", pathlib.Path(__file__).with_name("check-android-16kb.py"))
 CHECK = importlib.util.module_from_spec(SPEC)
@@ -145,6 +148,31 @@ class ArchiveAlignmentTests(unittest.TestCase):
         result = self.inspect_temp(payload, ".apk")
         self.assertEqual(result["status"], "FAIL")
         self.assertTrue(result["errors"])
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "malformed.apk"
+            path.write_bytes(payload)
+            cli = subprocess.run([sys.executable, str(pathlib.Path(CHECK.__file__)), str(path)], capture_output=True, text=True, check=False)
+            self.assertEqual(cli.returncode, 1)
+            self.assertEqual(json.loads(cli.stdout)["artifacts"][0]["status"], "FAIL")
+            self.assertNotIn("Traceback", cli.stderr)
+
+    def test_bare_zip_read_eof_is_recorded_and_cli_emits_failure_json(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "truncated.apk"
+            path.write_bytes(native_zip(elf(relros=[])))
+            # Python 3.9 zipfile can raise EOFError() with no message for a
+            # malformed local header; newer versions may raise BadZipFile.
+            with patch.object(CHECK.zipfile.ZipFile, "read", side_effect=EOFError()):
+                result = CHECK.inspect_file(path)
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    status = CHECK.main([str(path)])
+            self.assertEqual(result["status"], "FAIL")
+            self.assertIn("lib/arm64-v8a/libexample.so: EOFError", result["errors"])
+            self.assertEqual(status, 1)
+            recorded = json.loads(output.getvalue())["artifacts"][0]
+            self.assertEqual(recorded["status"], "FAIL")
+            self.assertIn("lib/arm64-v8a/libexample.so: EOFError", recorded["errors"])
 
     def test_malformed_local_signature_is_rejected(self):
         payload = bytearray(native_zip(elf(relros=[])))

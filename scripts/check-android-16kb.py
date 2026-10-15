@@ -207,8 +207,8 @@ def inspect_file(path):
                         if item["apk_zip"]["status"] not in ("PASS", "NOT_APPLICABLE"):
                             item["failures"].append("APK ZIP packaging is " + item["apk_zip"]["status"])
                         result["libraries"].append(item)
-                    except (InspectionError, ValueError, RuntimeError, zipfile.BadZipFile, struct.error) as exc:
-                        result["errors"].append(info.filename + ": " + str(exc))
+                    except (InspectionError, ValueError, RuntimeError, EOFError, zipfile.BadZipFile, struct.error) as exc:
+                        result["errors"].append(info.filename + ": " + (str(exc) or type(exc).__name__))
         else:
             raise InspectionError("expected an explicit .so, .aar, or .apk input")
         if not result["libraries"]:
