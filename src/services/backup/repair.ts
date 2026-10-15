@@ -205,7 +205,6 @@ export function inspectBackup(
     if (running.phase) onPhase(running.phase);
     return running.promise;
   }
-  clearVerifiedRemoteRevision(appId);
   const listeners = new Set([onPhase]);
   const notify = (phase: RepairPhase) => {
     const active = inFlight.get(operationKey);
@@ -479,6 +478,9 @@ export function inspectBackup(
         notify('unverified');
         return Promise.resolve('unverified' as RepairPhase);
       }
+      // Invalidate only after admission, so a later inspection cannot cancel
+      // an earlier writer. Each admitted retry must expire its own baseline.
+      clearVerifiedRemoteRevision(appId);
       return inspectOnce(allowRetry);
     });
   const result: Promise<RepairPhase> = runOnce(true).then(async (phase) =>
