@@ -313,6 +313,10 @@ test('the actual Recovery Key worker restores a protected full image into blank 
   assert.equal(mutations().length, 1); assert.equal(mutations()[0].replaceNodes, true);
   assert.equal(mutations()[0].nodeCount, 2);
   const uploaded = await assertComplete(source); assert.equal(uploaded.snapshot.appImage.nodes.length, 2);
+  const uploadedImage = await source.image.decodeImage(source.encryption.generateEncryptionKey(source.seed),
+    uploaded.snapshot, uploaded.namespaceId);
+  assert.ok(Object.values(uploadedImage.nodes).every(node => node.isConnected === false),
+    'The real producer clears all transient connection flags in the encrypted backup');
   const expected = await source.repair.captureBackupImage();
   const { f, saga } = await blankRecoveryClient(t); server.clearTrace();
   await saga.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic } });
@@ -324,7 +328,10 @@ test('the actual Recovery Key worker restores a protected full image into blank 
   assert.equal(restoredNodes.length, 2);
   assert.equal(restoredNodes.find(node => node.id === defaultNode.id).host, defaultNode.host);
   assert.equal(restoredNodes.find(node => node.id === customNode.id).host, customNode.host);
-  assert.ok(restoredNodes.every(node => node.isConnected === false), 'Restore does not revive stale connection flags');
+  // The unchanged recovery worker selects the first restored node when all
+  // uploaded flags are false. This is local selection, not a network connection.
+  assert.equal(restoredNodes[0].isConnected, true);
+  assert.ok(restoredNodes.slice(1).every(node => node.isConnected === false));
   assert.notEqual(f.store.getState().bhr.automaticCloudBackupByAppId[appId], true);
   assert.equal(f.store.getState().bhr.recoveryDiscovery.provenance.source, 'protected');
   assert.equal(server.trace.some(event => event.legacyRead), false); assert.equal(mutations().length, 0);
