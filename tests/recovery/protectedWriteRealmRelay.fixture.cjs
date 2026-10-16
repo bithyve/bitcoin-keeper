@@ -100,9 +100,14 @@ async function createProtectedServer() {
       request.on('data', chunk => chunks.push(chunk));
       request.on('end', () => {
         const raw = Buffer.concat(chunks);
-        const upstreamUrl = new URL(request.url, target);
-        if (!request.url.startsWith('/') || request.url.startsWith('//') || upstreamUrl.origin !== target.origin) {
-          response.writeHead(400); response.end(); return;
+        let upstreamUrl;
+        // Route only fixed fixture endpoints. Never construct an outgoing URL
+        // from an incoming target, including query, authority or escape forms.
+        switch (request.url) {
+          case '/backup/v3/enroll': upstreamUrl = new URL('/backup/v3/enroll', target); break;
+          case '/backup/v3/snapshot': upstreamUrl = new URL('/backup/v3/snapshot', target); break;
+          case '/backup/v3/mutate': upstreamUrl = new URL('/backup/v3/mutate', target); break;
+          default: response.writeHead(400); response.end(); return;
         }
         let body;
         try { body = JSON.parse(raw.toString('utf8')); } catch { /* malformed fault cases stay inert */ }

@@ -108,8 +108,14 @@ function recoverySagas(f) {
     'shared-production-recovery-crypto-setup.ts');
   return scope.cryptoAndRecovery(f);
 }
-async function blankRecoveryClient(t) {
+async function blankRecoveryClient(t, { inheritedConsent = false } = {}) {
   const f = await client(t); const saga = recoverySagas(f);
+  if (inheritedConsent) {
+    // Establish saved consent while this account is genuinely selected. An
+    // unbranded enable for an unselected account is correctly rejected.
+    f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId, enabled: true })); await tick();
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[appId], true);
+  }
   f.realmDatabase.closeDatabase(); const filename = path.join(f.directory, 'protected-clean-restore.realm');
   assert.equal((await f.dbManager.initializeRealm(Buffer.alloc(64, 7), filename)).success, true);
   f.store.dispatch(f.storage.setAppId(''));
@@ -579,4 +585,210 @@ test('different-selected-account older recovery disables the target saved true c
   assert.equal(f.transport.captureBackupWriteIntent(appId), undefined);
   assert.equal(server.trace.filter(event => event.legacyRead).length, 1);
   assert.equal(mutations().length, 0); assert.equal(server.trace.some(event => event.path === '/backup/v3/enroll'), false);
+});
+
+for (const recoverySource of ['protected', 'legacy-older']) {
+  test(`${recoverySource}: a newer same-session discovery invalidates an older real decrypt before any local recovery change`, { timeout: 30000 }, async t => {
+    const source = await setup(t), sourceCrypto = recoverySagas(source);
+    persist(source, source.RealmSchema.Signer, sourceCrypto.scope.setupRecoveryKeySigningKey(mnemonic));
+    assert.equal(await source.sagas.run('runBackupInspection', true, appId, true), true);
+    if (recoverySource === 'legacy-older') await server.seedLegacy(await source.payloadForCurrentImage());
+    const { f, saga } = await blankRecoveryClient(t, { inheritedConsent: true });
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[appId], true);
+    const entered = barrier(), resume = barrier(); t.after(resume.release);
+    const actualPause = f.image.pauseBackup;
+    let held = false;
+    // Delay one ordinary production per-record decrypt yield. The real timer,
+    // AES, complete decoder, HTTP and recovery worker all remain in use.
+    f.image.pauseBackup = async () => {
+      await actualPause();
+      if (!held) { held = true; entered.release(); await resume.promise; }
+    };
+    t.after(() => { f.image.pauseBackup = actualPause; });
+    server.clearTrace();
+    const older = saga.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic,
+      ...(recoverySource === 'legacy-older'
+        ? { selection: { source: 'legacy-older', olderCopyConfirmed: true } } : {}) } });
+    await entered.promise;
+    assert.equal(f.nativeRealm().objects('KeeperApp').length, 0);
+    const originSession = f.transport.currentBackupAccountSession();
+    const otherMnemonic = require('bip39').entropyToMnemonic('44'.repeat(16));
+    await saga.run('getAppImageWorker', { payload: { primaryMnemonic: otherMnemonic } });
+    assert.equal(f.store.getState().bhr.recoveryDiscovery.status, 'protected-absent');
+    assert.equal(f.transport.currentBackupAccountSession(), originSession);
+    const expectedState = plain(f.store.getState());
+    const expectedEpoch = f.transport.backupConsentEpoch(appId);
+    const expectedRevision = f.transport.backupRevision(appId);
+    resume.release(); await older;
+    t.diagnostic(JSON.stringify({ recoverySource, held,
+      keeperApps: f.nativeRealm().objects('KeeperApp').length,
+      consentStillTrue: f.store.getState().bhr.automaticCloudBackupByAppId[appId] === true,
+      consentEpochUnchanged: f.transport.backupConsentEpoch(appId) === expectedEpoch,
+      localRevisionUnchanged: f.transport.backupRevision(appId) === expectedRevision,
+      sessionUnchanged: f.transport.currentBackupAccountSession() === originSession,
+      reduxUnchanged: JSON.stringify(plain(f.store.getState())) === JSON.stringify(expectedState) }));
+    assert.equal(f.nativeRealm().objects('KeeperApp').length, 0, 'The superseded recovery must not perform its first local write');
+    for (const schema of f.nativeRealm().schema.filter(schema => !schema.embedded))
+      assert.equal(f.nativeRealm().objects(schema.name).length, 0, 'The superseded recovery must preserve the blank native Realm');
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[appId], true);
+    assert.equal(f.transport.backupConsentEpoch(appId), expectedEpoch);
+    assert.equal(f.transport.backupRevision(appId), expectedRevision);
+    assert.equal(f.transport.currentBackupAccountSession(), originSession);
+    assert.deepEqual(plain(f.store.getState()), expectedState);
+    assert.equal(mutations().length, 0);
+    assert.equal(server.trace.some(event => event.path === '/backup/v3/enroll'), false);
+  });
+}
+
+test('the actual recovery watcher cancels its called decrypt and recovery generators when a newer discovery arrives', { timeout: 30000 }, async t => {
+  const source = await setup(t), sourceCrypto = recoverySagas(source);
+  persist(source, source.RealmSchema.Signer, sourceCrypto.scope.setupRecoveryKeySigningKey(mnemonic));
+  assert.equal(await source.sagas.run('runBackupInspection', true, appId, true), true);
+  const { f, saga } = await blankRecoveryClient(t, { inheritedConsent: true });
+  const entered = barrier(), resume = barrier(), decoded = barrier();
+  t.after(resume.release);
+  const actualPause = f.image.pauseBackup, actualPrepare = saga.scope.prepareRecoveryImage;
+  let held = false;
+  f.image.pauseBackup = async () => {
+    await actualPause();
+    if (!held) { held = true; entered.release(); await resume.promise; }
+  };
+  // Observe completion of the actual crypto/decoder even after cancellation;
+  // never provide a decoded record or a replacement recovery result.
+  saga.scope.prepareRecoveryImage = (...args) => actualPrepare(...args).finally(decoded.release);
+  const actions = f.load('src/store/sagaActions/bhr');
+  Object.assign(saga.scope, { GET_APP_IMAGE: actions.GET_APP_IMAGE }, f.load('src/store/utilities'));
+  evaluate(declarations('src/store/sagas/bhr.ts', ['getAppImageWatcher']), saga.scope,
+    'production-protected-recovery-watcher.ts');
+  const { runSaga, stdChannel } = require('redux-saga'), channel = stdChannel();
+  const called = new Map(), cancelledCalls = [];
+  const dispatch = action => { const result = f.store.dispatch(action); channel.put(action); return result; };
+  const task = runSaga({ channel, dispatch, getState: f.store.getState, sagaMonitor: {
+    effectTriggered({ effectId, effect }) {
+      if (effect.type !== 'CALL') return;
+      if (effect.payload.fn === saga.scope.recoverApp) called.set(effectId, 'recoverApp');
+      if (effect.payload.fn === saga.scope.prepareRecoveryImage) called.set(effectId, 'prepareRecoveryImage');
+    },
+    effectCancelled(effectId) { if (called.has(effectId)) cancelledCalls.push(called.get(effectId)); },
+  } }, saga.scope.getAppImageWatcher);
+  let unsubscribe;
+  try {
+    server.clearTrace(); dispatch(actions.getAppImage(mnemonic, false)); await entered.promise;
+    assert.equal(f.nativeRealm().objects('KeeperApp').length, 0);
+    const originSession = f.transport.currentBackupAccountSession();
+    const newerDone = barrier();
+    unsubscribe = f.store.subscribe(() => {
+      if (f.store.getState().bhr.recoveryDiscovery.status === 'protected-absent') newerDone.release();
+    });
+    dispatch(actions.getAppImage(require('bip39').entropyToMnemonic('55'.repeat(16)), false));
+    await newerDone.promise; unsubscribe(); unsubscribe = undefined;
+    const expectedState = plain(f.store.getState());
+    const expectedEpoch = f.transport.backupConsentEpoch(appId), expectedRevision = f.transport.backupRevision(appId);
+    resume.release(); await decoded.promise; await tick();
+    assert.ok(cancelledCalls.includes('prepareRecoveryImage'), 'The actual watcher must cancel its called decoder effect');
+    assert.ok(cancelledCalls.includes('recoverApp'), 'Cancellation must propagate into the actual called recovery generator');
+    for (const schema of f.nativeRealm().schema.filter(schema => !schema.embedded))
+      assert.equal(f.nativeRealm().objects(schema.name).length, 0);
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[appId], true);
+    assert.equal(f.transport.backupConsentEpoch(appId), expectedEpoch);
+    assert.equal(f.transport.backupRevision(appId), expectedRevision);
+    assert.equal(f.transport.currentBackupAccountSession(), originSession);
+    assert.deepEqual(plain(f.store.getState()), expectedState);
+    assert.equal(mutations().length, 0);
+    assert.equal(server.trace.some(event => event.path === '/backup/v3/enroll'), false);
+  } finally {
+    unsubscribe?.(); resume.release(); task.cancel(); await task.toPromise(); channel.close();
+    f.image.pauseBackup = actualPause; saga.scope.prepareRecoveryImage = actualPrepare;
+  }
+});
+
+test('the actual recovery watcher cancels a called signer producer held before commit and preserves the newer discovery', { timeout: 30000 }, async t => {
+  const source = await setup(t), sourceCrypto = recoverySagas(source);
+  persist(source, source.RealmSchema.Signer, sourceCrypto.scope.setupRecoveryKeySigningKey(mnemonic));
+  assert.equal(await source.sagas.run('runBackupInspection', true, appId, true), true);
+  const { f, saga } = await blankRecoveryClient(t);
+  const actions = f.load('src/store/sagaActions/bhr');
+  Object.assign(saga.scope, { GET_APP_IMAGE: actions.GET_APP_IMAGE }, f.load('src/store/utilities'));
+  evaluate(declarations('src/store/sagas/bhr.ts', ['getAppImageWatcher']), saga.scope,
+    'production-protected-recovery-child-watcher.ts');
+  const { runSaga, stdChannel } = require('redux-saga'), channel = stdChannel();
+  const entered = barrier(), resume = barrier(), readCompleted = barrier();
+  t.after(resume.release);
+  const actualCollection = f.dbManager.getCollection;
+  let childStarted = false, held = false, childCancelled = false, childCallId, phase = 'starting';
+  t.after(() => t.diagnostic(JSON.stringify({ phase, childStarted, held, childCancelled,
+    discoveryStatus: f.store.getState().bhr.recoveryDiscovery.status })));
+  f.dbManager.getCollection = function (schema, ...args) {
+    const actual = actualCollection.call(this, schema, ...args);
+    if (childStarted && !held && schema === f.RealmSchema.Signer) {
+      held = true; phase = 'child-query-held'; entered.release();
+      // Hold only completion of the real native query; never synthesize its
+      // records or replace the actual signer producer/commit implementation.
+      return resume.promise.then(() => { readCompleted.release(); return actual; });
+    }
+    return actual;
+  };
+  const dispatch = action => { const result = f.store.dispatch(action); channel.put(action); return result; };
+  const task = runSaga({ channel, dispatch, getState: f.store.getState, sagaMonitor: {
+    effectTriggered({ effectId, effect }) {
+      if (effect.type === 'CALL' && effect.payload.fn === saga.scope.addSigningDeviceWorker) {
+        childStarted = true; childCallId = effectId;
+      }
+    },
+    effectCancelled(effectId) { if (effectId === childCallId) childCancelled = true; },
+  } }, saga.scope.getAppImageWatcher);
+  const realmFingerprint = () => crypto.createHash('sha256').update(JSON.stringify(
+    f.nativeRealm().schema.filter(schema => !schema.embedded).map(schema =>
+      [schema.name, plain(Array.from(f.nativeRealm().objects(schema.name)))])
+  )).digest('hex');
+  let unsubscribe;
+  try {
+    server.clearTrace(); dispatch(actions.getAppImage(mnemonic, false)); await entered.promise;
+    assert.equal(f.nativeRealm().objects('KeeperApp').length, 1);
+    const originSession = f.transport.currentBackupAccountSession(), newerDone = barrier();
+    unsubscribe = f.store.subscribe(() => {
+      if (f.store.getState().bhr.recoveryDiscovery.status === 'protected-absent') newerDone.release();
+    });
+    dispatch(actions.getAppImage(require('bip39').entropyToMnemonic('66'.repeat(16)), false));
+    await newerDone.promise; phase = 'newer-discovery-finished'; unsubscribe(); unsubscribe = undefined;
+    const expectedState = plain(f.store.getState()), expectedRealm = realmFingerprint();
+    const expectedEpoch = f.transport.backupConsentEpoch(appId), expectedRevision = f.transport.backupRevision(appId);
+    resume.release(); await readCompleted.promise; await tick(); phase = 'old-query-settled';
+    assert.equal(childCancelled, true, 'Cancellation must propagate to the actual called signer producer');
+    assert.equal(realmFingerprint(), expectedRealm, 'The cancelled producer must not commit a native write');
+    assert.equal(f.transport.backupConsentEpoch(appId), expectedEpoch);
+    assert.equal(f.transport.backupRevision(appId), expectedRevision);
+    assert.equal(f.transport.currentBackupAccountSession(), originSession);
+    assert.deepEqual(plain(f.store.getState()), expectedState, 'No stale success, retry or source feedback may replace the newer discovery');
+    assert.equal(mutations().length, 0);
+    assert.equal(server.trace.some(event => event.path === '/backup/v3/enroll'), false);
+  } finally {
+    unsubscribe?.(); resume.release(); task.cancel(); await task.toPromise(); channel.close();
+    f.dbManager.getCollection = actualCollection;
+  }
+});
+
+test('the loopback fixture rejects nonliteral raw request targets before any upstream request', { timeout: 15000 }, async () => {
+  const target = new URL(server.url); assert.equal(target.hostname, '127.0.0.1');
+  const http = require('node:http'); server.clearTrace();
+  for (const rawTarget of [
+    'http://outside.invalid/backup/v3/snapshot', '//outside.invalid/backup/v3/snapshot',
+    '/\\outside.invalid/backup/v3/snapshot', '/backup/v3/snapshot?query=1',
+    '/backup%2fv3%2fsnapshot', '/backup/v3/snapshot/extra', '/not-a-backup-route',
+  ]) {
+    // Raw targets travel only over this fixed owned loopback socket. Never
+    // resolve or contact the authority spelled inside an invalid request path.
+    const status = await new Promise((resolve, reject) => {
+      const request = http.request({ hostname: '127.0.0.1', port: Number(target.port), method: 'POST',
+        path: rawTarget, headers: { 'content-type': 'application/json', 'content-length': 2 } }, response => {
+        response.resume(); response.once('end', () => resolve(response.statusCode));
+        response.once('error', reject);
+      });
+      request.setTimeout(3000, () => request.destroy(new Error('Owned loopback request timed out')));
+      request.once('error', reject); request.end('{}');
+    });
+    assert.equal(status, 400);
+    assert.equal(server.trace.length, 0, 'No invalid target may enter an allowed fixture route');
+    assert.equal(server.backend.trace.length, 0, 'No invalid target may reach the actual backend router');
+  }
 });

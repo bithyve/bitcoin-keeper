@@ -26,7 +26,7 @@ import { beginBackupLocalOperation, commitBackupLocalOperation, enqueueAutomatic
 import type { BackupLocalCommit } from 'src/services/backup/automatic';
 import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
-import { call, put, select, takeMaybe, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeMaybe, takeEvery, takeLatest, cancelled } from 'redux-saga/effects';
 import config from 'src/utils/service-utilities/config';
 import { translations } from 'src/context/Localization/LocContext';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
@@ -105,6 +105,7 @@ import {
   DELETE_APP_IMAGE_ENTITY,
   DELETE_BACKUP,
   GET_APP_IMAGE,
+  getAppImage,
   HEALTH_CHECK_STATUS_UPDATE,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
@@ -359,7 +360,7 @@ function* seedBackedUpWorker() {
 
 let latestRecoveryReadRequest = 0;
 
-function* getAppImageWorker({ payload }) {
+function* getAppImageWorker({ payload }: ReturnType<typeof getAppImage>) {
   const request = ++latestRecoveryReadRequest;
   const requestSession = currentBackupAccountSession();
   const { primaryMnemonic, isForgot } = payload;
@@ -371,13 +372,22 @@ function* getAppImageWorker({ payload }) {
   let provenance: RecoveryProvenance;
   let protectedState: ProtectedBackupState;
   let recoverySession: number;
+  const assertRequestIdentity = () => {
+    if (request !== latestRecoveryReadRequest) throw new Error('Recovery request changed');
+  };
+  const requestIsCurrent = () => request === latestRecoveryReadRequest &&
+    (recoverySession ?? requestSession) === currentBackupAccountSession();
+  function* putCurrent(action: any) {
+    if (requestIsCurrent()) yield put(action);
+  }
   const assertRequestSession = () => {
-    if (request !== latestRecoveryReadRequest || requestSession !== currentBackupAccountSession())
+    assertRequestIdentity();
+    if (requestSession !== currentBackupAccountSession())
       throw new Error('Backup account changed');
   };
   try {
-    yield put(setAppImageError(''));
-    yield put(setRecoveryDiscovery({ status: 'checking', source }));
+    yield* putCurrent(setAppImageError(''));
+    yield* putCurrent(setRecoveryDiscovery({ status: 'checking', source }));
     if (selection.source !== 'protected' &&
       (selection.source !== 'legacy-older' || selection.olderCopyConfirmed !== true))
       throw new Error('Older recovery copy was not selected');
@@ -403,7 +413,7 @@ function* getAppImageWorker({ payload }) {
       assertRequestSession();
       namespaceId = result.namespaceId;
       if (result.state === 'neverEnrolled' || result.state === 'deleted') {
-        yield put(setRecoveryDiscovery({
+        yield* putCurrent(setRecoveryDiscovery({
           status: result.state === 'deleted' ? 'protected-deleted' : 'protected-absent',
           source,
           keeperAppId: appID,
@@ -420,7 +430,7 @@ function* getAppImageWorker({ payload }) {
         generation: result.snapshot.generation, authEpoch: result.snapshot.authEpoch,
       };
       if (!hasRecoveryRecords(result.snapshot)) {
-        yield put(setRecoveryDiscovery({
+        yield* putCurrent(setRecoveryDiscovery({
           status: 'protected-empty', source, keeperAppId: appID, namespaceId,
           legacyMayPredateDeletion: result.snapshot.suppressLegacyFallback,
         }));
@@ -438,7 +448,7 @@ function* getAppImageWorker({ payload }) {
     }
     const { appImage, labels, allVaultImages } = prepared;
     provenance = prepared.provenance;
-    yield put(setRecoveryDiscovery({
+    yield* putCurrent(setRecoveryDiscovery({
       status: source === 'protected' ? 'protected-found' : 'legacy-selected',
       source, keeperAppId: appID, namespaceId, provenance,
     }));
@@ -479,7 +489,8 @@ function* getAppImageWorker({ payload }) {
         // This callback supplies no remote baseline or upload authority.
         recoverySession = ownedSession;
       },
-      source === 'protected'
+      source === 'protected',
+      assertRequestIdentity
     );
     if (request !== latestRecoveryReadRequest ||
       recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
@@ -501,6 +512,7 @@ function* getAppImageWorker({ payload }) {
           instanceNum: 0,
         },
       };
+      assertRequestIdentity();
       const created = yield call(addNewWalletsWorker, {
         payload: [defaultWallet],
         originAppId: appID,
@@ -509,6 +521,7 @@ function* getAppImageWorker({ payload }) {
       if (created !== true) throw new Error('Recovery data unavailable');
     }
 
+    assertRequestIdentity();
     const recoveryKeySigner = setupRecoveryKeySigningKey(primaryMnemonic);
     yield call(addSigningDeviceWorker, {
       payload: { signers: [recoveryKeySigner] },
@@ -544,6 +557,7 @@ function* getAppImageWorker({ payload }) {
     const newVersion = DeviceInfo.getVersion();
     if (previousVersion && semver.lt(previousVersion, newVersion)) {
       console.log(`applying restore upgarde sequence - from: ${previousVersion} to ${newVersion}`);
+      assertRequestIdentity();
       yield call(applyUpgradeSequence, {
         previousVersion,
         newVersion,
@@ -554,18 +568,18 @@ function* getAppImageWorker({ payload }) {
     if (request !== latestRecoveryReadRequest ||
       recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
       throw new Error('Backup account changed');
-    yield put(addAccount(appID));
-    yield put(autoSyncWallets(true, true, false, appID));
-    yield put(
+    yield* putCurrent(addAccount(appID));
+    yield* putCurrent(autoSyncWallets(true, true, false, appID));
+    yield* putCurrent(
       saveDefaultWalletState({
         appId: appID,
         data: { [NetworkType.MAINNET]: true, [NetworkType.TESTNET]: true },
       })
     );
-    yield put(uaiChecks([uaiType.SECURE_VAULT]));
-    yield put(loadConciergeUser(null));
-    yield put(loadConciergeTickets([]));
-    yield put(setRecoveryKeyStatus({ appId: appID, status: 'confirmed' }));
+    yield* putCurrent(uaiChecks([uaiType.SECURE_VAULT]));
+    yield* putCurrent(loadConciergeUser(null));
+    yield* putCurrent(loadConciergeTickets([]));
+    yield* putCurrent(setRecoveryKeyStatus({ appId: appID, status: 'confirmed' }));
     if (protectedState) {
       const hint: ProtectedBackupState = yield select(
         (state: RootState) => state.bhr.protectedBackupStateByAppId?.[appID]
@@ -582,27 +596,28 @@ function* getAppImageWorker({ payload }) {
           hint.status === 'deleted')
       );
       if (comparable && !older)
-        yield put(setProtectedBackupState({ appId: appID, state: protectedState }));
+        yield* putCurrent(setProtectedBackupState({ appId: appID, state: protectedState }));
     }
-    yield put(setRecoveryDiscovery({
+    yield* putCurrent(setRecoveryDiscovery({
       status: 'restored', source, keeperAppId: appID, namespaceId, provenance,
     }));
-    yield put(setAppCreated(true));
+    yield* putCurrent(setAppCreated(true));
   } catch (err) {
     // A late response for a previous account/request must not replace the
     // current recovery screen's provenance or present an error as absence.
     const activeSession = recoverySession ?? requestSession;
     if (request === latestRecoveryReadRequest && activeSession === currentBackupAccountSession()) {
       const error = err.message || 'Recovery data unavailable';
-      yield put(setRecoveryDiscovery({
+      yield* putCurrent(setRecoveryDiscovery({
         status: 'read-error', source, keeperAppId, namespaceId, error,
       }));
-      yield put(setAppImageError(error));
+      yield* putCurrent(setAppImageError(error));
     }
   } finally {
-    if (request === latestRecoveryReadRequest &&
+    const wasCancelled = yield cancelled();
+    if (!wasCancelled && request === latestRecoveryReadRequest &&
       (recoverySession ?? requestSession) === currentBackupAccountSession())
-      yield put(appImagerecoveryRetry());
+      yield* putCurrent(appImagerecoveryRetry());
   }
 }
 
@@ -618,12 +633,14 @@ function* recoverApp(
   previousVersion,
   originBackupAccountSession?: number,
   onRecoverySession?: (ownedSession: number) => void,
-  protectedMetadata = false
+  protectedMetadata = false,
+  assertRecoveryRequest: (() => void) | undefined = undefined
 ) {
   // Recovery selects appID after the first Realm write. Keep the session from
   // the initiating action across decryption and all earlier async work.
   const originSession = originBackupAccountSession ?? currentBackupAccountSession();
   const assertOrigin = () => {
+    assertRecoveryRequest?.();
     if (currentBackupAccountSession() !== originSession)
       throw new Error('Backup account changed');
   };
@@ -636,7 +653,8 @@ function* recoverApp(
     appImage,
     allVaultImages,
     labels,
-    protectedMetadata
+    protectedMetadata,
+    assertOrigin
   );
   if (protectedMetadata)
     validateProtectedRecoveryMetadata({allVaultImages, labels}, recovered, getKeyUID, hash256, encryptionKey);
@@ -662,6 +680,7 @@ function* recoverApp(
     config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
     primaryMnemonic
   );
+  assertOrigin();
   const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
   const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
   const app: KeeperApp = {
@@ -689,6 +708,7 @@ function* recoverApp(
   yield put(setAppId(appID));
   const recoveryAccountSession = currentBackupAccountSession();
   const assertRecoveryAccount = () => {
+    assertRecoveryRequest?.();
     if (currentBackupAccountSession() !== recoveryAccountSession || currentBackupAppId() !== appID)
       throw new Error('Backup account changed');
   };
@@ -1138,7 +1158,11 @@ export const bsmsCloudHealthCheckWatcher = createWatcher(
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
 
-export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
+export function* getAppImageWatcher() {
+  // Recovery owns one intent. Cancellation also stops called wallet/signer/
+  // upgrade generators; explicit request checks still guard async crypto.
+  yield takeLatest(GET_APP_IMAGE, getAppImageWorker);
+}
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 
 export const seedBackeupConfirmedWatcher = createWatcher(

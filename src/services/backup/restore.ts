@@ -110,8 +110,10 @@ export async function prepareRecoveryImage(
   appImage: any,
   allVaultImages: any[],
   labels: any[],
-  verifyProtectedWalletKeys = false
+  verifyProtectedWalletKeys = false,
+  checkpoint: () => void = () => {}
 ) {
+  checkpoint();
   if (!appImage || appImage.appId !== appId) throw new Error('Recovery data unavailable');
   // Older Relay registrations and deletions stored empty maps as empty arrays.
   // Keep those recoverable, but let decodeImage reject nonempty malformed arrays.
@@ -129,9 +131,10 @@ export async function prepareRecoveryImage(
       labels,
     },
     appId,
-    () => {},
+    checkpoint,
     verifyProtectedWalletKeys
   );
+  checkpoint();
   // Legacy USDT wallets cannot recover these addresses from the retired
   // provider. Reject an unusable image before the first Realm write.
   for (const wallet of Object.values(image.wallets) as any[]) {

@@ -24,6 +24,8 @@ Turning off automatic updates keeps existing copies and is not Delete. Persisted
 
 Clean recovery checks the authenticated protected namespace first. Never automatically fall back after absence, tombstone, errors or a known-namespace conflict. A separately selected **Recover an older copy** reads retained legacy data with provenance and a missing-newer-changes warning. Decode and validate the full selected image before the first local write; never report partial/conflicted/unavailable recovery as complete.
 
+A recovery request remains bound to its original request serial as well as account session through asynchronous decrypt/derivation and every consent, Redux and Realm write. Newer discovery cancels the old recovery task and called child generators; cancellation must not emit stale retry or completion. A superseded protected or older-copy request cannot mutate local data or consent.
+
 After validation, revoke target-account automatic-backup consent and expire old queued/opt-in scope before any restore write or producer. This applies even when saved consent was true for a not-yet-selected account. Neither recovery source silently enables or uploads the recovered copy; a later explicit opt-in is separate.
 
 ## Acceptance and remaining gates
