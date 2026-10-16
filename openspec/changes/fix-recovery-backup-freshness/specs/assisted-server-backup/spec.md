@@ -1,3 +1,5 @@
+> Current R4 contract: [protected backup integration](../../protected-backup-integration.md) supersedes the historical v2 protocol and whole-copy Delete language below. Prior checked source/fixture boxes are SHA-scoped historical evidence, not protected-v3, native, hosted or release acceptance. Delete now applies only to the new protected copy; older encrypted copies remain read-only. All-copy erasure is outside approved R4 scope, unimplemented and unscheduled.
+
 ## MODIFIED Requirements
 
 ### Requirement: Enabled Assisted Server Backup includes committed subsequent mutations

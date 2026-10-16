@@ -1,4 +1,5 @@
 import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
+import type { BackupRecoverySelection } from 'src/services/backup/restore';
 
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
@@ -51,11 +52,16 @@ export const updateVaultImage = (payload: {
   payload,
 });
 
-export const getAppImage = (primaryMnemonic: string, isForgot: boolean) => ({
+export const getAppImage = (
+  primaryMnemonic: string,
+  isForgot: boolean,
+  selection: BackupRecoverySelection = { source: 'protected' }
+) => ({
   type: GET_APP_IMAGE,
   payload: {
     primaryMnemonic,
     isForgot,
+    selection,
   },
 });
 

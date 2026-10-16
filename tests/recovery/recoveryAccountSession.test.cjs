@@ -121,7 +121,8 @@ test('successful recovery returns its session before adding the Recovery Key sig
     return returnedSession;
   };
 
-  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'disposable mnemonic' } });
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'disposable mnemonic',
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
 
   assert.equal(returnedSession, session);
   assert.ok(f.collections.Signer.some((row) => row.masterFingerprint === 'RECOVERY'));

@@ -51,14 +51,16 @@ test('a prepared payload cannot adopt a revision established by later repair', a
 test('verified baseline is session bound and invalidated by any attempted mutation', async () => {
   const f = fixture();
   const session = f.transport.currentBackupAccountSession();
-  f.transport.recordVerifiedRemoteRevision('A', 'a'.repeat(64), session);
+  f.transport.recordVerifiedRemoteRevision('A', 'a'.repeat(64), session,
+    { namespaceId: 'unit-protected-A', revision: 'a'.repeat(64), generation: 0, authEpoch: 0 });
   const first = f.transport.captureBackupWriteIntent('A');
   assert.equal(first.baseRevision, 'a'.repeat(64));
   assert.equal(first.accountSession, session);
   await assert.rejects(f.transport.backupPost('fixture/updateAppImage', { appId: 'A' }),
     (error) => error.category === 'protocol');
   assert.equal(f.transport.captureBackupWriteIntent('A'), undefined);
-  f.transport.recordVerifiedRemoteRevision('A', 'b'.repeat(64), session);
+  f.transport.recordVerifiedRemoteRevision('A', 'b'.repeat(64), session,
+    { namespaceId: 'unit-protected-A', revision: 'b'.repeat(64), generation: 1, authEpoch: 0 });
   const next = f.transport.captureBackupWriteIntent('A');
   assert.ok(next.baselineEpoch > first.baselineEpoch);
   f.transport.observeBackupAccount('B');

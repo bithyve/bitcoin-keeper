@@ -1,3 +1,5 @@
+> Current R4 contract: [protected backup integration](protected-backup-integration.md) supersedes the historical v2 protocol and whole-copy Delete language below. Prior checked source/fixture boxes are SHA-scoped historical evidence, not protected-v3, native, hosted or release acceptance. Delete now applies only to the new protected copy; older encrypted copies remain read-only. All-copy erasure is outside approved R4 scope, unimplemented and unscheduled.
+
 # Design
 
 This is the R4 contract reconciled on 13 October 2026 from audit starting app head b160656218dc6065ad12af9db220c974255bfc23. The implemented source and observed host Realm/transactional HTTP proof are recorded in [the result matrix](automatic-write-validation.md) and [October evidence](evidence/automatic-backup-source-proof-2026-10-13.md). Source readiness permits development loopback testing; hosted Relay rollout remains disabled. The September native/fixture results in [validation](validation.md) remain historical.

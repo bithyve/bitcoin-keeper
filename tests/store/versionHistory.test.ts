@@ -13,7 +13,8 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import ecc from 'src/services/wallets/operations/taproot-utils/noble_ecc';
 
 const { encryption, image, loadModule } = require('../recovery/helpers.cjs');
-const { prepareRecoveryImage } = loadModule('src/services/backup/restore.ts', { './image': image });
+const { prepareRecoveryImage, prepareRecoverySourceImage, hasRecoveryRecords } =
+  loadModule('src/services/backup/restore.ts', { './image': image });
 const BIP85 = loadModule('src/services/wallets/operations/BIP85.ts', {
   'src/utils/service-utilities/config': {},
   '../enums': enums,
@@ -111,6 +112,9 @@ function fixture(appId = 'test-app') {
     objects: (schema) => records[schema],
     create,
   };
+  const backupState = { automaticCloudBackupByAppId: { [appId]: false } };
+  const consentEpochs = new Map<string, number>();
+  const recoveryDisables = new WeakMap<object, { appId: string; session: number }>();
   const scope: any = {
     ...effects,
     ...encryption,
@@ -122,7 +126,14 @@ function fixture(appId = 'test-app') {
     Promise,
     console: { log() {}, error() {} },
     Realm: { UpdateMode: { Modified: 'modified' } },
-    store: { getState: () => ({ storage: { appId: state.appId } }) },
+    store: { getState: () => ({ storage: { appId: state.appId }, bhr: backupState }) },
+    backupConsentEpoch: (id) => consentEpochs.get(id) || 0,
+    protectBackupRecoveryConsentDisable: (action, id, session) => {
+      recoveryDisables.set(action, { appId: id, session });
+      return action;
+    },
+    markBackupMutation: () => {},
+    clearVerifiedRemoteRevision: () => {},
     dbManager: {
       getObjectByIndex: () => app,
       getObjectById: raw.objectForPrimaryKey,
@@ -185,6 +196,14 @@ function fixture(appId = 'test-app') {
     captureError: (error) => state.errors.push(error.message),
   };
   const dispatch = (action) => {
+    if (action.type === 'setAutomaticCloudBackup') {
+      const owned = recoveryDisables.get(action);
+      recoveryDisables.delete(action);
+      if (!owned || owned.appId !== action.payload.appId || owned.session !== state.session ||
+        action.payload.enabled !== false) throw new Error('Unowned recovery consent action');
+      consentEpochs.set(owned.appId, scope.backupConsentEpoch(owned.appId) + 1);
+      backupState.automaticCloudBackupByAppId[owned.appId] = false;
+    }
     state.actions.push(action);
     if (action.type === 'setAppId') state.appId = action.payload;
     if (action.type === 'setAppImageError' && action.payload) state.errors.push(action.payload);
@@ -193,6 +212,9 @@ function fixture(appId = 'test-app') {
   for (const name of [
     'setAppVersion',
     'setAppImageError',
+    'setRecoveryDiscovery',
+    'setProtectedBackupState',
+    'setAutomaticCloudBackup',
     'setSeedConfirmed',
     'setBackupType',
     'uaiActioned',
@@ -355,6 +377,10 @@ async function recoveryFixture(backupVersion: string) {
     crypto: require('crypto'),
     BIP85,
     prepareRecoveryImage,
+    prepareRecoverySourceImage,
+    hasRecoveryRecords,
+    validateProtectedRecoveryMetadata: image.validateProtectedRecoveryMetadata,
+    readProtectedBackup: async () => { throw new Error('This unit fixture selects only the older copy'); },
     config: { BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH: "m/83696968'/128169'/64'/0'" },
     WalletUtilities: {
       getFingerprintFromSeed: (value) =>
@@ -403,6 +429,7 @@ async function recoveryFixture(backupVersion: string) {
     ts.transpileModule(
       sourceDeclarations('src/store/sagas/bhr.ts', [
         'getAppImageWorker',
+        'latestRecoveryReadRequest',
         'recoverApp',
         'writeRecoveredObject',
       ]),
@@ -412,7 +439,8 @@ async function recoveryFixture(backupVersion: string) {
     ).outputText,
     f.scope
   );
-  await f.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic } });
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic,
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
   return { writes: f.records.VersionHistory, requestedUpgrades, errors: f.state.errors };
 }
 

@@ -20,6 +20,10 @@ function inspectionRunner(f, afterVerified) {
     (ts.isFunctionDeclaration(n) && n.name?.text === 'runBackupInspection') ||
     (ts.isVariableStatement(n) && n.declarationList.declarations.some(d => d.name?.text === 'backupInspectionOwners'))
   ).map(n => n.getText(source)).join('\n');
+  const protectedSource = ts.createSourceFile('protected.ts', fs.readFileSync(path.join(__dirname,
+    '../../src/services/backup/protected.ts'), 'utf8'), ts.ScriptTarget.Latest, true);
+  const baseComparison = protectedSource.statements.find(n =>
+    ts.isFunctionDeclaration(n) && n.name?.text === 'sameProtectedBackupBase').getText(protectedSource).replace(/^export /, '');
   const operations = [];
   let state = bhr.default(undefined,{type:'init'}); const actions = [];
   const getState = () => ({ bhr:state, storage:{appId:f.app.id} });
@@ -32,6 +36,7 @@ function inspectionRunner(f, afterVerified) {
     operations.push(operation);
     return operation;
   },
+    translations: require('../../src/context/Localization/language/en.json'),
     RealmSchema:{KeeperApp:'KeeperApp',UAI:'UAI'},
     dbManager:{ getObjectByIndex:()=>f.app, getObjectByField:()=>[] },
     currentBackupAppId:()=>f.app.id,
@@ -41,7 +46,7 @@ function inspectionRunner(f, afterVerified) {
     store:{ getState, dispatch },
     uaiType:{SERVER_BACKUP_FAILURE:'failure'}, uaiActionedWorker:()=>{}, addToUaiStackWorker:()=>{},
   };
-  vm.runInNewContext(ts.transpileModule(code,{ compilerOptions:{ target:ts.ScriptTarget.ES2020 }}).outputText,scope);
+  vm.runInNewContext(ts.transpileModule(baseComparison + '\n' + code,{ compilerOptions:{ target:ts.ScriptTarget.ES2020 }}).outputText,scope);
   return {
     start(repair) {
       const sagaTask = saga.runSaga({getState,dispatch},scope.runBackupInspection,repair);

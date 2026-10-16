@@ -7,7 +7,7 @@ import {
 } from 'src/utils/utilities';
 import { BackupImage, canonical, recoveryContent } from './image';
 
-export function backupMetadataMatches(local: any, remote: any) {
+export function backupMetadataMatches(local: any, remote: any, namespaceId = local.id) {
   try {
     const subscription =
       typeof remote?.subscription === 'string'
@@ -15,7 +15,7 @@ export function backupMetadataMatches(local: any, remote: any) {
         : remote?.subscription;
     return (
       !!remote &&
-      remote.appId === local.id &&
+      remote.appId === namespaceId &&
       remote.publicId === local.publicId &&
       remote.version === local.version &&
       canonical(subscription) === canonical(local.subscription)
@@ -83,6 +83,7 @@ export function captureLocalRecovery(database: any) {
     id: app.id,
     publicId: app.publicId,
     primarySeed: app.primarySeed,
+    primaryMnemonic: app.primaryMnemonic,
     version: app.version,
     networkType: app.networkType,
     subscription: app.subscription,

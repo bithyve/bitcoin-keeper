@@ -12,6 +12,7 @@ import {
   backupConsentEpoch,
   observeBackupConsentAction,
   protectBackupConsentCompletion,
+  takeBackupRecoveryConsentDisable,
   currentBackupAccountSession,
   markBackupMutation,
   observeBackupAccount,
@@ -23,6 +24,7 @@ import {
   noteCommittedBackupRecovery,
   setAutomaticBackupVerificationCommit,
 } from 'src/services/backup/automatic';
+import { setProtectedBackupStateObserver, setProtectedBackupStateProvider } from 'src/services/backup/protected';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import loginReducer from './reducers/login';
 import notificationsReducer from './reducers/notifications';
@@ -33,6 +35,7 @@ import bhrReducer, {
   commitBackupInspection,
   setAutomaticCloudBackup,
   invalidateRehydratedBackupState,
+  setProtectedBackupState,
 } from './reducers/bhr';
 import rootSaga from './sagas';
 import sendAndReceiveReducer from './reducers/send_and_receive';
@@ -199,9 +202,10 @@ const bindActionOrigin = (api) => {
       const choiceAppId = action.payload?.appId || action.appId || action.originAppId || originAppId;
       const disablesConsent =
         action.type === 'bhr/setAutomaticCloudBackup' && action.payload?.enabled === false;
+      const recoveryDisable = disablesConsent && takeBackupRecoveryConsentDisable(action, choiceAppId);
       if (
         !choiceAppId ||
-        choiceAppId !== originAppId ||
+        (choiceAppId !== originAppId && !recoveryDisable) ||
         (!disablesConsent && !canAccessBackupAccount(choiceAppId, true)) ||
         !observeBackupConsentAction(action, choiceAppId)
       )
@@ -279,6 +283,15 @@ export const store = configureStore({
 
 observeBackupAccount(store.getState().storage.appId);
 store.subscribe(() => observeBackupAccount(store.getState().storage.appId));
+setProtectedBackupStateProvider(appId => store.getState().bhr.protectedBackupStateByAppId?.[appId]);
+setProtectedBackupStateObserver((appId, session, state) => {
+  if (store.getState().storage.appId !== appId || session !== currentBackupAccountSession()) return;
+  try {
+    if ((dbManager.getObjectByIndex(RealmSchema.KeeperApp) as unknown as KeeperApp)?.id !== appId) return;
+    store.dispatch(setProtectedBackupState({appId, state}));
+  } catch { /* A closed or switched Realm cannot project remote status. */ }
+});
+
 
 setBackupUploadGuard((appId, explicitChoice) => {
   const state = store.getState();

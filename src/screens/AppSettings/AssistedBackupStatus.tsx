@@ -26,6 +26,7 @@ export default function AssistedBackupStatus() {
     automaticCloudBackupByAppId,
     backupRepairStateByAppId = {},
     backupRepairRunningByAppId = {},
+    protectedBackupStateByAppId = {},
   } = useAppSelector((state) => state.bhr);
   const automaticCloudBackup = isAutomaticCloudBackupEnabled({ automaticCloudBackupByAppId }, id);
   const recordedPhase = backupRepairStateByAppId[id];
@@ -33,8 +34,9 @@ export default function AssistedBackupStatus() {
     recordedPhase === 'verified' && !isBackupVerificationCurrent(id) ? 'unverified' : recordedPhase;
   const running = !!backupRepairRunningByAppId[id];
   const [slow, setSlow] = useState(false);
+  const deletionRecorded = protectedBackupStateByAppId[id]?.status === 'deleted';
   useEffect(() => {
-    if (automaticCloudBackup) dispatch(checkBackupFreshness(id));
+    if (id) dispatch(checkBackupFreshness(id));
   }, [id]);
   useEffect(() => {
     setSlow(false);
@@ -42,9 +44,15 @@ export default function AssistedBackupStatus() {
     const timer = setTimeout(() => setSlow(true), 10_000);
     return () => clearTimeout(timer);
   }, [running, phase]);
-  const state = !automaticCloudBackup
+  const state = running
+    ? phase || 'checking'
+    : phase === 'deleted' || phase === 'never-enrolled'
+    ? phase
+    : phase === 'unverified'
+    ? 'unverified'
+    : !automaticCloudBackup
     ? 'disabled'
-    : !running && ['checking', 'preparing', 'uploading', 'verifying'].includes(phase)
+    : ['checking', 'preparing', 'uploading', 'verifying'].includes(phase)
     ? 'unverified'
     : phase || 'unverified';
   return (
@@ -70,12 +78,29 @@ export default function AssistedBackupStatus() {
             </Text>
           )}
         </Box>
-        {!running && automaticCloudBackup && (
+        {deletionRecorded && state !== 'deleted' && (
+          <Box backgroundColor={`${colorMode}.textInputBackground`} style={styles.card}>
+            <Text allowFontScaling medium style={styles.title} accessibilityRole="header">
+              {copy.deletionRecordedTitle}
+            </Text>
+            <Text allowFontScaling style={styles.body}>
+              {copy.deletionRecordedBody}
+            </Text>
+          </Box>
+        )}
+        <Text allowFontScaling style={styles.body}>
+          {copy.retainedCopyNotice}
+        </Text>
+        {!running && (
           <Buttons
             fullWidth
-            primaryText={state === 'different' ? copy.backUp : copy.check}
+            primaryText={automaticCloudBackup && state === 'different' ? copy.backUp : copy.check}
             primaryCallback={() =>
-              dispatch(state === 'different' ? repairBackup(id) : checkBackupFreshness(id))
+              dispatch(
+                automaticCloudBackup && state === 'different'
+                  ? repairBackup(id)
+                  : checkBackupFreshness(id)
+              )
             }
           />
         )}

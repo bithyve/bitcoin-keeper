@@ -54,7 +54,7 @@ function evaluate(source, globals, file) {
     // Native Realm checks JavaScript constructor identity for Mixed values.
     // JSON must share the host that owns the genuine Realm binding, as Metro
     // production code and Realm do; no decoded fields are rewritten here.
-    JSON, Date, Buffer, Uint8Array, Int8Array, ArrayBuffer, Promise, Set, Map, AbortController, setTimeout, clearTimeout, setImmediate, clearImmediate,
+    JSON, Date, Buffer, Uint8Array, Int8Array, ArrayBuffer, Promise, Set, Map, URL, URLSearchParams, AbortController, setTimeout, clearTimeout, setImmediate, clearImmediate,
     console, Realm, process,
   };
   for (const [name, value] of Object.entries(defaults)) if (!Object.hasOwn(globals, name)) globals[name] = value;
@@ -63,6 +63,17 @@ function evaluate(source, globals, file) {
 
 function sourceLoader(bindings, options = {}) {
   const cache = new Map();
+  // The separate protected proof imports these exact installed ESM namespaces
+  // asynchronously before this synchronous Metro-style production loader runs.
+  // Authority/proof/encryption modules themselves cannot be replaced here.
+  const esmPackages = new Set(['@scure/bip32', '@scure/bip39',
+    '@scure/bip39/wordlists/english.js', '@noble/hashes/hkdf.js',
+    '@noble/hashes/sha2.js', '@noble/hashes/utils.js', '@noble/curves/secp256k1.js',
+    '@noble/curves/utils.js', '@exodus/bytes/encoding-lite.js']);
+  for (const [name, namespace] of Object.entries(options.moduleBindings || {})) {
+    assert.ok(esmPackages.has(name), 'Only real external protected-crypto ESM packages may be supplied');
+    assert.equal(Object.prototype.toString.call(namespace), '[object Module]', 'Supply an actual imported ESM namespace');
+  }
   function load(file) {
     const absolute = path.isAbsolute(file) ? file : path.join(root, file);
     const candidate = [absolute, `${absolute}.ts`, `${absolute}.tsx`, `${absolute}.js`, path.join(absolute, 'index.ts')].find((name) => fs.existsSync(name) && fs.statSync(name).isFile());
@@ -77,6 +88,7 @@ function sourceLoader(bindings, options = {}) {
       ...(options.backupTimerCeilingMs ? { setTimeout: (callback, milliseconds, ...args) =>
         setTimeout(callback, Math.min(milliseconds, options.backupTimerCeilingMs), ...args) } : {}),
       require(name) {
+        if (Object.hasOwn(options.moduleBindings || {}, name)) return options.moduleBindings[name];
         if (Object.hasOwn(bindings, name)) return bindings[name];
         if (name.startsWith('src/')) return load(name);
         if (name.startsWith('.')) {
@@ -122,10 +134,14 @@ async function createRealmClient(url, options = {}) {
   const bindings = {
     realm: Realm,
     'src/services/sentry': { captureError(error) { diagnostics.push(error?.name || 'error'); } },
+    // Localization is a host UI boundary; use the actual shipped English data
+    // without bootstrapping React Native contexts in this Node source fixture.
+    'src/context/Localization/LocContext': { translations: require('../../src/context/Localization/language/en.json') },
     'react-native': { Platform: { OS: 'fixture-host' } },
     'react-native-device-info': { getVersion: () => '2.6.4', getBuildNumber: () => '627' },
     'react-native-rsa-native': { RSA: new Proxy({}, { get: () => () => { throw new Error('Unexpected native RSA use'); } }) },
-    'src/utils/service-utilities/config': { RELAY: url, HEXA_ID: 'disposable-fixture', ENVIRONMENT: 'DEVELOPMENT', isDevMode: () => true },
+    'src/utils/service-utilities/config': { ...options.config,
+      RELAY: url, HEXA_ID: 'disposable-fixture', ENVIRONMENT: 'DEVELOPMENT', isDevMode: () => true },
     'src/storage/realm/migrations': { runRealmMigrations() { throw new Error('A fresh fixture must never migrate an existing Realm'); } },
     'src/storage': { reduxStorage },
     'redux-persist/es/persistReducer': require('redux-persist/lib/persistReducer').default,
@@ -277,11 +293,12 @@ async function createRealmClient(url, options = {}) {
     const source = ts.createSourceFile('store.ts', fs.readFileSync(path.join(root, 'src/store/store.ts'), 'utf8'), ts.ScriptTarget.Latest, true);
     const statements = source.statements.filter((statement) => {
       const text = statement.getText(source);
-      return /^(observeBackupAccount\(|store\.subscribe\(|setBackupUploadGuard\(|setBackupReconciliationHandler\(|dbManager\.setRecovery(?:Mutation|Commit)Observer\(|set(?:Backup|AutomaticBackup)\w*\()/.test(text);
+      return /^(observeBackupAccount\(|store\.subscribe\(|setBackupUploadGuard\(|setBackupReconciliationHandler\(|dbManager\.setRecovery(?:Mutation|Commit)Observer\(|set(?:Backup|AutomaticBackup|ProtectedBackup)\w*\()/.test(text);
     });
     assert.ok(statements.length >= 5, 'Production account/local mutation hooks are required');
     evaluate(statements.map((statement) => statement.getText(source)).join('\n'), {
-      store, dbManager, RealmSchema, ...transport, ...bhr, ...repair, ...extra,
+      store, dbManager, RealmSchema, ...transport, ...bhr, ...repair,
+      ...load('src/services/backup/protected'), ...extra,
     }, 'production-store-observers.ts');
   }
 
@@ -296,6 +313,8 @@ async function createRealmClient(url, options = {}) {
     const scope = {
       ...require('redux-saga'), ...effects, ...encryption, ...enums, ...image, ...transport, ...bhr, ...storage, ...account,
       ...load('src/services/backup/automatic'),
+      ...load('src/services/backup/protected'),
+      ...bindings['src/context/Localization/LocContext'],
       ...utilitiesScope, dbManager, realm: realmDatabase, Realm, RealmSchema, store, Relay,
       inspectBackup: repair.inspectBackup, captureError: bindings['src/services/sentry'].captureError,
       getJSONFromRealmObject: (object) => object.toJSON(),

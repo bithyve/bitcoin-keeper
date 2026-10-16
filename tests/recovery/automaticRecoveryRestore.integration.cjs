@@ -1,5 +1,7 @@
 // Clean Recovery Key restore through the actual production recovery saga, real
 // BIP39/BIP32/BIP85/AES, a blank encrypted native Realm and real Relay HTTP reads.
+// This historical public-Relay lane explicitly selects the older read-only copy;
+// protected-default recovery has a separate exact-private-Relay proof lane.
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -18,7 +20,7 @@ after(async () => { await server?.close(); Realm.shutdown(); });
 
 function cryptoAndRecovery(f) {
   const saga = f.productionSagas([
-    'currentBackupAppId', 'recoverApp', 'writeRecoveredObject', 'getAppImageWorker',
+    'currentBackupAppId', 'recoverApp', 'writeRecoveredObject', 'getAppImageWorker', 'latestRecoveryReadRequest',
     'buildAutomaticAppMutation', 'buildAutomaticVaultMutation', 'queueCommittedBackupWorker', 'updateAppImageWorker',
   ], {
     ...f.load('src/store/reducers/wallets'), ...f.load('src/store/reducers/concierge'),
@@ -28,7 +30,8 @@ function cryptoAndRecovery(f) {
     ...f.load('src/models/enums/Hardware'), HWError: f.load('src/hardware/HWErrorState').default,
     ...f.utilities, _: require('lodash'), crypto, bip39, semver: require('semver'), moment: require('moment'),
     config: f.config, DeviceInfo: { getVersion: () => '2.6.4', getBuildNumber: () => '627' },
-    prepareRecoveryImage: f.load('src/services/backup/restore').prepareRecoveryImage,
+    ...f.load('src/services/backup/restore'),
+    readProtectedBackup: f.load('src/services/backup/protected').readProtectedBackup,
     // Metro normally expands idx at build time; this host adapter performs the
     // same guarded field access, never supplies database or crypto results.
     idx(value, getter) { try { return getter(value); } catch (error) { if (error.name === 'TypeError') return undefined; throw error; } },
@@ -168,7 +171,8 @@ test('actual Recovery Key worker restores real crypto and every retained recover
   f.store.dispatch(f.account.setTempDetails({ hash: f.encryption.hash256('public-disposable-passcode-fixture'),
     realmId: path.join(f.directory, 'clean-restore.realm'), accountIdentifier: 'disposable restore' }));
   server.clearTrace();
-  await saga.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic } });
+  await saga.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic,
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
   assert.equal(f.store.getState().storage.appCreated, true, `Production recovery failed: ${f.store.getState().bhr.appImageError || 'no diagnostic'}`);
   assert.equal(f.store.getState().storage.appId, appId);
   assert.equal(f.store.getState().bhr.appImageError, '');

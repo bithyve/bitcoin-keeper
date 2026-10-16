@@ -62,7 +62,8 @@ function recoveryFixture() {
     writes,
     expected: { mobile, vault, label, node, btc, usdt },
     restore: () =>
-      f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only' } }),
+      f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only',
+        selection: { source: 'legacy-older', olderCopyConfirmed: true } } }),
   };
 }
 const completed = (f) => f.actions.some((a) => a.type === 'setAppCreated' && a.payload === true);
@@ -215,7 +216,8 @@ test('explicit empty backup keeps the established first-wallet recovery path', a
     recreated++;
     return true;
   };
-  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only' } });
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only',
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
   assert.deepEqual(errors(f), []);
   assert.equal(completed(f), true);
   assert.equal(recreated, 1);
@@ -226,7 +228,8 @@ test('failed first-wallet recreation cannot complete empty-backup recovery', asy
   f.scope.WalletUtilities.getDerivationPath = () => 'fixture';
   f.scope.DerivationPurpose = { BIP84: 'BIP84' };
   f.scope.addNewWalletsWorker = () => false;
-  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only' } });
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only',
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
   assert.equal(completed(f), false);
   assert.equal(errors(f).length, 1);
 });

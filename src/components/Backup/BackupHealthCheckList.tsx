@@ -65,6 +65,9 @@ function Content({ contentType, asbEnabled }: { contentType: string; asbEnabled?
       <Box alignItems="center">{illustrations[contentType]}</Box>
       {descriptions[contentType] && <Text>{descriptions[contentType]}</Text>}
       {asbEnabled && <Text>{BackupWallet.assistedServerBackupEnabled}</Text>}
+      {contentType !== ContentType.healthCheckSuccessful && (
+        <Text>{BackupWallet.retainedOlderCopyNotice}</Text>
+      )}
     </Box>
   );
 }
@@ -107,7 +110,6 @@ function BackupHealthCheckList({ isUaiFlow }) {
   const onPressConfirm = () => {
     setShowConfirmSeedModal(true);
   };
-
 
   useEffect(() => {
     if (backupAllSuccess) {
@@ -288,12 +290,12 @@ function BackupHealthCheckList({ isUaiFlow }) {
         closeOnOverlayClick={false}
         buttonTextColor={`${colorMode}.buttonText`}
         buttonBackground={`${colorMode}.pantoneGreen`}
-        buttonText={'Backup Now'}
+        buttonText={BackupWallet.backUpNow}
         buttonCallback={() => {
           dispatch(backupAllSignersAndVaults(id));
           setBackupMismatchModal(false);
         }}
-        secondaryButtonText="Home"
+        secondaryButtonText={BackupWallet.home}
         secondaryCallback={() => {
           navigtaion.dispatch(CommonActions.navigate('Home'));
         }}

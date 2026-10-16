@@ -42,7 +42,8 @@ const encryption = loadModule('src/utils/service-utilities/encryption.ts', {
   'react-native-rsa-native': { RSA: {} },
 });
 const { image } = require('./helpers.cjs');
-const { prepareRecoveryImage } = loadModule('src/services/backup/restore.ts', { './image': image });
+const { prepareRecoveryImage, prepareRecoverySourceImage, hasRecoveryRecords } =
+  loadModule('src/services/backup/restore.ts', { './image': image });
 const { selectWalletsForSync } = loadModule('src/store/sagas/walletSyncSelection.js');
 const { acquireWalletRefresh } = loadModule('src/store/sagas/walletRefreshCoordinator.js');
 const account = loadModule('src/store/reducers/account.ts', {
@@ -127,13 +128,20 @@ function fixture(options = {}) {
     store: { getState: () => state },
     isAutomaticCloudBackupEnabled: (backup, id) => !!backup.automaticCloudBackupByAppId?.[id],
     ...encryption,
+    translations: require('../../src/context/Localization/language/en.json'),
     ...enums,
     ...account,
     selectWalletsForSync,
     acquireWalletRefresh,
     finishRefreshRequest: (payload) => ({ type: 'finishRefreshRequest', payload }),
     prepareRecoveryImage,
+    prepareRecoverySourceImage,
+    hasRecoveryRecords,
+    // Protected discovery must be supplied explicitly by tests of that source.
+    // Existing read-only legacy fixtures do not confer authenticated ownership.
+    readProtectedBackup: async () => { throw new Error('Protected fixture not configured'); },
     pauseBackup: image.pauseBackup,
+    validateProtectedRecoveryMetadata: image.validateProtectedRecoveryMetadata,
     console: { log() {}, error() {} },
     Buffer,
     _: require('lodash'),
@@ -275,7 +283,15 @@ function fixture(options = {}) {
   const results = new WeakMap();
   const consentEpochs = new Map();
   const consentCompletions = new WeakMap();
+  const recoveryDisables = new WeakMap();
   scope.backupConsentEpoch = (id) => consentEpochs.get(id) || 0;
+  // Unit model of the middleware's opaque OFF-only recovery action, not remote
+  // authentication. Consent epochs and canonical per-account choices stay real
+  // state transitions in this orchestration fixture.
+  scope.protectBackupRecoveryConsentDisable = (action, appId, session) => {
+    recoveryDisables.set(action, { appId, session });
+    return action;
+  };
   scope.protectBackupConsentCompletion = (action, id, epoch) => {
     consentCompletions.set(action, { appId: id, epoch });
     return action;
@@ -324,15 +340,17 @@ function fixture(options = {}) {
   scope.realm = { getDatabase: () => localRealm };
   scope.currentBackupAccountSession = () => accountSession;
   const sessionNow = () => scope.currentBackupAccountSession();
-  const markUnitPending = (id) => {
+  const markUnitPending = (id, markRevision = true) => {
     // Production automatic.ts notifies reconciliation after a failed local
     // commit. This adapter models that state boundary without claiming proof.
-    scope.markBackupMutation(id);
+    if (markRevision) scope.markBackupMutation(id);
     if (scope.invalidateBackupRepair && scope.store.dispatch)
       scope.store.dispatch(scope.invalidateBackupRepair(id));
     if (scope.setPendingAllBackup && scope.store.dispatch)
       scope.store.dispatch(scope.setPendingAllBackup({ appId: id, pending: true }));
   };
+  scope.clearVerifiedRemoteRevision = (id) => { state.bhr.backupRepairCompletedByAppId[id] = false; };
+  scope.notifyBackupReconciliation = (id) => markUnitPending(id, false);
   scope.beginBackupLocalOperation = (id, intent, session = sessionNow()) => {
     const current = scope.dbManager.getObjectByIndex('KeeperApp');
     if (current?.id !== id || state.storage.appId !== id || session !== sessionNow())
@@ -476,6 +494,8 @@ function fixture(options = {}) {
     'relayVaultUpdateSuccess',
     'relayVaultUpdateFail',
     'setAppImageError',
+    'setRecoveryDiscovery',
+    'setProtectedBackupState',
     'setSeedConfirmed',
     'setBackupType',
     'uaiActioned',
@@ -514,6 +534,7 @@ function fixture(options = {}) {
       'recoverApp',
       'writeRecoveredObject',
       'getAppImageWorker',
+      'latestRecoveryReadRequest',
     ]) +
     '\n' +
     functions('src/store/sagas/wallets.ts', [
@@ -532,6 +553,12 @@ function fixture(options = {}) {
     scope
   );
   const dispatch = (action) => {
+    const recoveryDisable = recoveryDisables.get(action);
+    if (recoveryDisable) {
+      recoveryDisables.delete(action);
+      if (recoveryDisable.appId !== action.payload?.appId || recoveryDisable.session !== sessionNow() ||
+        action.type !== 'setAutomaticCloudBackup' || action.payload.enabled !== false) return;
+    }
     if (action.type === 'setAutomaticCloudBackup') {
       const id = action.payload.appId;
       const completion = consentCompletions.get(action);
@@ -541,6 +568,11 @@ function fixture(options = {}) {
       } else consentEpochs.set(id, scope.backupConsentEpoch(id) + 1);
     }
     actions.push(action);
+    if (action.type === 'setAppId') state.storage.appId = action.payload;
+    if (action.type === 'setAppCreated') state.storage.appCreated = action.payload;
+    if (action.type === 'setRecoveryDiscovery') state.bhr.recoveryDiscovery = action.payload;
+    if (action.type === 'setProtectedBackupState')
+      (state.bhr.protectedBackupStateByAppId ||= {})[action.payload.appId] = action.payload.state;
     if (action.type === 'setBackupRepairCompleted')
       state.bhr.backupRepairCompletedByAppId[action.payload] = true;
     if (action.type === 'invalidateBackupRepair')

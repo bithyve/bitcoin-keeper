@@ -35,6 +35,9 @@ async function setup(t, { nested, legacy, guarded = true } = {}) {
   });
   const storage = loadModule('src/store/reducers/storage.ts', { 'src/services/wallets/enums': enums });
   const proofPredicate = new Set();
+  const { takeBackupRecoveryConsentDisable } = loadModule('src/services/backup/transport.ts', {
+    '../rest/RestClient': {},
+  });
   const actions = [], snapshots = [];
   let store;
   const scope = {
@@ -50,6 +53,7 @@ async function setup(t, { nested, legacy, guarded = true } = {}) {
     captureBackupWriteIntent: () => undefined,
     canAccessBackupAccount: () => false,
     observeBackupConsentAction: (_action, appId) => store.getState().storage.appId === appId,
+    takeBackupRecoveryConsentDisable,
     isBackupVerificationCurrent: (appId) => proofPredicate.has(appId) &&
       store.getState().storage.appId === appId,
   };

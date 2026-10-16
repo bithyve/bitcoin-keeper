@@ -6,6 +6,7 @@ import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 import { VaultSigner } from 'src/services/wallets/interfaces/vault';
 import { seedWordItem } from 'src/screens/Recovery/constants';
+import type { RecoveryDiscovery, ProtectedBackupState } from 'src/services/backup/restore';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -15,6 +16,9 @@ const initialState: {
   loading: boolean;
   appImageError: string;
   appImagerecoveryRetry: boolean;
+  recoveryDiscovery: RecoveryDiscovery;
+  // Persisted source/tombstone hints, never current verification authority.
+  protectedBackupStateByAppId: Record<string, ProtectedBackupState>;
   signingDevices: VaultSigner[];
 
   relayWalletUpdateLoading: boolean;
@@ -71,6 +75,8 @@ const initialState: {
   appImageError: '',
 
   appImagerecoveryRetry: false,
+  recoveryDiscovery: { status: 'idle', source: 'protected' },
+  protectedBackupStateByAppId: {},
   signingDevices: [],
   relayWalletUpdateLoading: false,
   relayWalletUpdate: false,
@@ -187,6 +193,19 @@ const bhrSlice = createSlice({
     },
     appImagerecoveryRetry: (state) => {
       state.appImagerecoveryRetry = !state.appImagerecoveryRetry;
+    },
+    setRecoveryDiscovery: (state, action: PayloadAction<RecoveryDiscovery>) => {
+      state.recoveryDiscovery = action.payload;
+    },
+    resetRecoveryDiscovery: (state) => {
+      state.recoveryDiscovery = { status: 'idle', source: 'protected' };
+    },
+    setProtectedBackupState: (
+      state,
+      action: PayloadAction<{ appId: string; state: ProtectedBackupState }>
+    ) => {
+      if (!action.payload.appId) return;
+      (state.protectedBackupStateByAppId ??= {})[action.payload.appId] = action.payload.state;
     },
     setSigningDevices: (state, action: PayloadAction<any>) => {
       state.signingDevices = _.uniqBy([...state.signingDevices, action.payload], 'signerId');
@@ -396,6 +415,9 @@ export const {
   setBackupLoading,
   setAppImageError,
   appImagerecoveryRetry,
+  setRecoveryDiscovery,
+  resetRecoveryDiscovery,
+  setProtectedBackupState,
 
   setSigningDevices,
 
@@ -454,6 +476,7 @@ const bhrPersistConfig = {
     'loading',
     'appImageError',
     'appImagerecoveryRetry',
+    'recoveryDiscovery',
 
     'relayWalletUpdateLoading',
     'relayWalletUpdate',

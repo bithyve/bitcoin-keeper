@@ -1,3 +1,5 @@
+> Current R4 contract: [protected backup integration](protected-backup-integration.md) supersedes the historical v2 protocol and whole-copy Delete language below. Prior checked source/fixture boxes are SHA-scoped historical evidence, not protected-v3, native, hosted or release acceptance. Delete now applies only to the new protected copy; older encrypted copies remain read-only. All-copy erasure is outside approved R4 scope, unimplemented and unscheduled.
+
 # R4 automatic Assisted Backup: result matrix
 
 Updated 13 October 2026 from observed source/disposable evidence. Historical September logs remain unchanged in [validation.md](validation.md). The [sanitized October proof record](evidence/automatic-backup-source-proof-2026-10-13.md) records commands, source identities, counts and coverage boundaries. The table below retains the original Cloud source-proof result; a later exact-head Codex Local report on PR #7045 records native results and any new app SHA.

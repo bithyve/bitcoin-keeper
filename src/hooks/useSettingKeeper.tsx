@@ -76,6 +76,7 @@ export const useSettingKeeper = () => {
   const data = useQuery(RealmSchema.BackupHistory);
   const [confirmPass, setConfirmPass] = useState(false);
   const [showDeleteBackup, setShowDeleteBackup] = useState(false);
+  const [showEnableBackup, setShowEnableBackup] = useState(false);
   const themeToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const backupToggleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { translations } = useContext(LocalizationContext);
@@ -160,8 +161,9 @@ export const useSettingKeeper = () => {
     if (deleteBackupSuccess && isFocused) {
       dispatch(setDeleteBackupSuccess({ appId: id, status: false }));
       dispatch(setAutomaticCloudBackup({ appId: id, enabled: false }));
+      showToast(settings.assistedServerDeleteBackupConfirmed);
     }
-  }, [deleteBackupSuccess]);
+  }, [deleteBackupSuccess, id, isFocused]);
 
   useEffect(() => {
     if (deleteBackupFailure && isFocused) {
@@ -177,7 +179,7 @@ export const useSettingKeeper = () => {
   }, [backupAllFailure]);
 
   const toggleAutomaticBackupMode = useCallback(() => {
-    if (!automaticCloudBackup) dispatch(backupAllSignersAndVaults(id));
+    if (!automaticCloudBackup) setShowEnableBackup(true);
     else setShowDeleteBackup(true);
   }, [automaticCloudBackup, dispatch, id]);
 
@@ -462,31 +464,52 @@ export const useSettingKeeper = () => {
   ];
 
   const DeleteBackupModal = (
-    <KeeperModal
-      visible={showDeleteBackup}
-      closeOnOverlayClick={false}
-      close={() => setShowDeleteBackup(false)}
-      title={settings.assistedServerBackup}
-      subTitleWidth={wp(240)}
-      subTitle={settings.assistedServerDeleteBackupSubtitle}
-      modalBackground={`${colorMode}.modalWhiteBackground`}
-      textColor={`${colorMode}.textGreen`}
-      subTitleColor={`${colorMode}.modalSubtitleBlack`}
-      Content={() => (
-        <Buttons
-          primaryText={settings.assistedServerDeleteBackupModalCTA}
-          primaryCallback={() => {
-            setShowDeleteBackup(false);
-            dispatch(deleteBackup(id));
-          }}
-          secondaryCallback={() => {
-            setShowDeleteBackup(false);
-            dispatch(setAutomaticCloudBackup({ appId: id, enabled: false }));
-          }}
-          secondaryText={settings.assistedServerDeleteBackupModalSecondaryCTA}
-        />
-      )}
-    />
+    <>
+      <KeeperModal
+        visible={showDeleteBackup}
+        closeOnOverlayClick={false}
+        close={() => setShowDeleteBackup(false)}
+        title={settings.assistedServerDeleteBackupTitle}
+        subTitleWidth={wp(240)}
+        subTitle={settings.assistedServerDeleteBackupSubtitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        Content={() => (
+          <Buttons
+            primaryText={settings.assistedServerDeleteBackupModalCTA}
+            primaryCallback={() => {
+              setShowDeleteBackup(false);
+              dispatch(deleteBackup(id));
+            }}
+            secondaryCallback={() => {
+              setShowDeleteBackup(false);
+              dispatch(setAutomaticCloudBackup({ appId: id, enabled: false }));
+              showToast(settings.assistedServerBackupDisabled);
+            }}
+            secondaryText={settings.assistedServerDeleteBackupModalSecondaryCTA}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={showEnableBackup}
+        closeOnOverlayClick={false}
+        close={() => setShowEnableBackup(false)}
+        title={settings.assistedServerEnableBackupTitle}
+        subTitle={settings.assistedServerEnableBackupSubtitle}
+        subTitleWidth={wp(240)}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        textColor={`${colorMode}.textGreen`}
+        subTitleColor={`${colorMode}.modalSubtitleBlack`}
+        buttonText={settings.assistedServerEnableBackupCTA}
+        buttonCallback={() => {
+          setShowEnableBackup(false);
+          dispatch(backupAllSignersAndVaults(id));
+        }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setShowEnableBackup(false)}
+      />
+    </>
   );
 
   return {

@@ -1,7 +1,6 @@
 /* eslint-disable no-await-in-loop -- Serialize backup records to bound memory and yield to the UI. */
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import config from 'src/utils/service-utilities/config';
 import realmDatabase from 'src/storage/realm/realm';
 import { generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 import {
@@ -10,12 +9,15 @@ import {
   sanitizeVaultSignersForSeedKeyBackup,
 } from 'src/utils/utilities';
 import { captureLocalRecovery, backupMetadataMatches } from './localSnapshot';
+import { readProtectedBackup, enrollProtectedBackup, protectedBackupMutation,
+  protectedBackupBase, sameProtectedBackupBase, assertProtectedBackupWriteReady,
+  ProtectedBackupBase } from './protected';
 import {
   BACKUP_DEADLINE_MS,
   BackupRequestError,
   backupQueuedRevision,
+  backupConsentEpoch,
   backupRevision,
-  boundedBackupPost,
   canAccessBackupAccount,
   clearVerifiedRemoteRevision,
   currentBackupAccountSession,
@@ -27,6 +29,7 @@ import {
   BackupSnapshotValidationError,
   canonical,
   compareImages,
+  validateProtectedRecoveryMetadata,
   decodeImage,
   encryptRecord,
   MAX_BACKUP_BYTES,
@@ -43,7 +46,9 @@ export type RepairPhase =
   | 'verifying'
   | 'verified'
   | 'conflict'
-  | 'unverified';
+  | 'unverified'
+  | 'never-enrolled'
+  | 'deleted';
 type InspectionStage =
   | 'local-capture'
   | 'snapshot-request'
@@ -218,9 +223,11 @@ export function inspectBackup(
     // One deadline covers both read-only attempts; a retry must not double it.
     deadline ??= Date.now() + BACKUP_DEADLINE_MS;
     const revision = backupRevision(appId);
+    const consentEpoch = backupConsentEpoch(appId);
     const assertCurrent = () => {
       if (
         !sessionIsCurrent() ||
+        consentEpoch !== backupConsentEpoch(appId) ||
         Date.now() >= deadline ||
         (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as any)?.id !== appId ||
         !canAccessBackupAccount(appId, explicitChoice)
@@ -237,12 +244,20 @@ export function inspectBackup(
     try {
       notify('checking');
       const app = clone(dbManager.getObjectByIndex(RealmSchema.KeeperApp));
-      const localEvidence = captureLocalRecovery(realmDatabase.getDatabase());
+      const database = realmDatabase.getDatabase();
+      const localEvidence = captureLocalRecovery(database);
+      const assertSource = () => {
+        assertCurrent();
+        if (realmDatabase.getDatabase() !== database ||
+          captureLocalRecovery(database).fingerprint !== localEvidence.fingerprint)
+          throw new Error('Committed recovery changed before backup write');
+      };
       assertCurrent();
       const key = generateEncryptionKey(app.primarySeed);
       const local = await captureBackupImage(assertCurrent);
       assertCurrent();
-      let expectedRevision: string;
+      let expectedBase: ProtectedBackupBase;
+      let discovery: 'never-enrolled' | 'deleted' | undefined;
       let needsVaultRepair = false;
       let needsLabelRepair = false;
       let needsMetadataRepair = false;
@@ -250,19 +265,22 @@ export function inspectBackup(
       let unavailableLabelIds: string[] = [];
       const read = async (readback = false) => {
         stage = readback ? 'repair-readback' : 'snapshot-request';
-        const response = await boundedBackupPost(
-          `${config.RELAY}getBackupSnapshot`,
-          { appId },
-          deadline
-        );
+        let found = await readProtectedBackup(app.primaryMnemonic, deadline, appId, assertCurrent, app);
+        assertCurrent();
+        if (found.state === 'neverEnrolled') {
+          if (!repair || readback) { discovery = 'never-enrolled'; return undefined; }
+          // Enrollment is a remote write: only the explicitly requested repair
+          // owns this captured local/session/consent scope, and it stays gated.
+          assertProtectedBackupWriteReady();
+          found = await enrollProtectedBackup(app.primaryMnemonic, deadline, appId, assertSource, app);
+          if (found.state === 'neverEnrolled') throw new Error('Enrollment not confirmed');
+        }
+        if (found.state === 'deleted' && !repair) { discovery = 'deleted'; return undefined; }
+        const response = {data: found.snapshot};
         if (!readback) stage = 'snapshot-validation';
         assertCurrent();
-        if (!/^[a-f0-9]{64}$/.test(response.data?.revision))
-          throw new Error('Backup snapshot revision unavailable');
-        if (response.data?.revisionedMutations !== true)
-          throw new Error('Revisioned backup protocol unavailable');
-        expectedRevision = response.data.revision;
-        needsMetadataRepair = !backupMetadataMatches(app, response.data.appImage);
+        expectedBase = protectedBackupBase(response.data);
+        needsMetadataRepair = !backupMetadataMatches(app, response.data.appImage, expectedBase.namespaceId);
         const unavailable = response.data.unavailableVaultIds ?? [];
         if (!Array.isArray(unavailable) || new Set(unavailable).size !== unavailable.length)
           throw new Error('Invalid unavailable backup records');
@@ -321,7 +339,8 @@ export function inspectBackup(
         if (!readback) stage = 'snapshot-decryption';
         // Restore can salvage legacy map aliases. Inspection requires the
         // stored key to match the ID inside each encrypted wallet record.
-        const decoded = await decodeImage(key, availableResponse, appId, assertCurrent, true);
+        const decoded = await decodeImage(key, availableResponse, expectedBase.namespaceId, assertCurrent, true);
+        validateProtectedRecoveryMetadata(response.data, decoded, getKeyUID, hash256, key);
         needsVaultRepair =
           unavailable.length > 0 ||
           response.data.allVaultImages.some(
@@ -333,6 +352,11 @@ export function inspectBackup(
         return decoded;
       };
       const remote = await read();
+      if (!remote) {
+        const phase = discovery || 'unverified';
+        notify(phase);
+        return phase;
+      }
       stage = 'comparison';
       const contentComparison = await compareImages(local, remote, assertCurrent);
       const comparison =
@@ -374,40 +398,24 @@ export function inspectBackup(
         assertCurrent();
         notify('uploading');
         stage = 'repair-upload';
-        let revisionedRepairAcknowledged = false;
-        let acknowledgedRepairRevision: string | undefined;
+        assertProtectedBackupWriteReady();
+        let acknowledgedBase: ProtectedBackupBase | undefined;
         try {
-          const response = await boundedBackupPost(
-            `${config.RELAY}revisionedBackupMutation`,
-            // This explicit action replaces the server snapshot only after
-            // proving it preserves the remote recovery content. The relay
-            // checks the revision and activates the incremental-write fence
-            // atomically before accepting it. Old relays return 404 here.
-            {
-              ...payload,
-              operation: 'repairAppBackup',
-              expectedRevision,
-              replaceCurrentState: true,
-            },
-            deadline
-          );
-          revisionedRepairAcknowledged =
-            response.data?.updated === true &&
-            response.data?.preconditionApplied === true &&
-            /^[a-f0-9]{64}$/.test(response.data?.newRevision) &&
-            response.data.newRevision !== expectedRevision;
-          if (revisionedRepairAcknowledged) acknowledgedRepairRevision = response.data.newRevision;
+          const reply = await protectedBackupMutation(app.primaryMnemonic, expectedBase,
+            'repairAppBackup', {...payload, replaceCurrentState: true}, deadline, assertSource, app);
+          acknowledgedBase = reply.base;
         } catch {
-          // A lost response is not proof the upload failed. Read back, but do
-          // not mark this repair verified without an acknowledged v2 write.
+          // An unknown outcome permits a fresh read, never a retry or a new
+          // base for this ciphertext. A matching read alone is not its ACK.
         }
         notify('verifying');
         stage = 'repair-readback';
         const verifiedRemote = await read(true);
         stage = 'repair-readback';
         if (
-          !revisionedRepairAcknowledged ||
-          expectedRevision !== acknowledgedRepairRevision ||
+          !acknowledgedBase ||
+          !sameProtectedBackupBase(expectedBase, acknowledgedBase) ||
+          !verifiedRemote ||
           needsVaultRepair ||
           needsLabelRepair ||
           needsMetadataRepair ||
@@ -426,7 +434,7 @@ export function inspectBackup(
         captureLocalRecovery(realmDatabase.getDatabase()).fingerprint !== localEvidence.fingerprint
       )
         throw new Error('Committed recovery changed during final verification');
-      recordVerifiedRemoteRevision(appId, expectedRevision, expectedSession);
+      recordVerifiedRemoteRevision(appId, expectedBase.revision, expectedSession, expectedBase);
       notify('verified');
       return 'verified';
     } catch (error) {

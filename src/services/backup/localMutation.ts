@@ -22,7 +22,7 @@ function plain(record: any) {
 
 function recoveryView(schema: RealmSchema, record: any) {
   if (schema === RealmSchema.KeeperApp) return {
-    id: record.id, publicId: record.publicId, primarySeed: record.primarySeed,
+    id: record.id, publicId: record.publicId, primarySeed: record.primarySeed, primaryMnemonic: record.primaryMnemonic,
     version: record.version, networkType: record.networkType, subscription: record.subscription,
   };
   if (schema === RealmSchema.Wallet || schema === RealmSchema.USDTWallet)

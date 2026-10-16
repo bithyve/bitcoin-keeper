@@ -353,3 +353,27 @@ export async function decodeImage(
     throw new BackupSnapshotValidationError('Incomplete label backup');
   return image;
 }
+
+/** Match unencrypted scoped reference metadata to every decrypted vault. */
+export function validateProtectedRecoveryMetadata(
+  response: any, image: BackupImage, keyUID: (signer: any) => string,
+  hash: (text: string) => string, encryptionKey: string
+) {
+  const expectedLabels = Object.keys(image.labels).map(id => hash(hash(encryptionKey + id))).sort();
+  const receivedLabels = response.labels.map((label: any) => label.id).sort();
+  if (canonical(expectedLabels) !== canonical(receivedLabels))
+    throw new BackupSnapshotValidationError('Protected label identity differs from recovery data');
+  for (const stored of response.allVaultImages) {
+    const vault = image.vaults[stored.vaultId];
+    if (!vault || !Array.isArray(vault.signers))
+      throw new BackupSnapshotValidationError('Incomplete protected vault metadata');
+    const references = vault.signers.map((signer: any) => ({
+      signerId: keyUID(signer), xfpHash: hash(signer.masterFingerprint),
+    }));
+    if (stored.isArchived !== !!vault.archived ||
+      canonical(stored.scheme) !== canonical(vault.scheme) ||
+      canonical(stored.signersData) !== canonical(references) ||
+      canonical(stored.signerIds) !== canonical(references.map((signer: any) => signer.signerId)))
+      throw new BackupSnapshotValidationError('Protected vault metadata differs from recovery data');
+  }
+}

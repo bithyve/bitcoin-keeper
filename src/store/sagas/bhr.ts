@@ -1,13 +1,24 @@
 import { buffers, END, eventChannel } from 'redux-saga';
 import { inspectBackup, RepairPhase } from 'src/services/backup/repair';
-import { prepareRecoveryImage } from 'src/services/backup/restore';
-import { BackupImage, pauseBackup } from 'src/services/backup/image';
+import {
+  hasRecoveryRecords,
+  prepareRecoveryImage,
+  prepareRecoverySourceImage,
+} from 'src/services/backup/restore';
+import type {
+  BackupRecoverySource, ProtectedBackupState, RecoveryProvenance,
+} from 'src/services/backup/restore';
+import { readProtectedBackup, sameProtectedBackupBase } from 'src/services/backup/protected';
+import { BackupImage, pauseBackup, validateProtectedRecoveryMetadata } from 'src/services/backup/image';
 import {
   backupRevision,
   captureBackupWriteIntent,
   currentBackupAccountSession,
   backupConsentEpoch,
   protectBackupConsentCompletion,
+  protectBackupRecoveryConsentDisable,
+  clearVerifiedRemoteRevision,
+  notifyBackupReconciliation,
   markBackupMutation,
 } from 'src/services/backup/transport';
 import type { BackupWriteIntent } from 'src/services/backup/intent';
@@ -17,6 +28,7 @@ import * as bip39 from 'bip39';
 import { Wallet } from 'src/services/wallets/interfaces/wallet';
 import { call, put, select, takeMaybe, takeEvery } from 'redux-saga/effects';
 import config from 'src/utils/service-utilities/config';
+import { translations } from 'src/context/Localization/LocContext';
 import { encrypt, generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 import BIP85 from 'src/services/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
@@ -81,6 +93,8 @@ import {
   setIsCloudBsmsBackupRequired,
   setPendingAllBackup,
   setSeedConfirmed,
+  setRecoveryDiscovery,
+  setProtectedBackupState,
 } from '../reducers/bhr';
 import {
   CHECK_BACKUP_FRESHNESS,
@@ -166,6 +180,7 @@ export function buildAutomaticVaultMutation(vaultId: string, appId: string, isUp
     signersData: vault.signers.map((signer) => ({
       signerId: getKeyUID(signer), xfpHash: hash256(signer.masterFingerprint),
     })),
+    scheme: vault.scheme,
     isArchived: !!vault.archived, subscription: JSON.stringify(app.subscription),
   } };
 }
@@ -342,17 +357,37 @@ function* seedBackedUpWorker() {
   }
 }
 
+let latestRecoveryReadRequest = 0;
+
 function* getAppImageWorker({ payload }) {
+  const request = ++latestRecoveryReadRequest;
   const requestSession = currentBackupAccountSession();
   const { primaryMnemonic, isForgot } = payload;
+  const selection = payload.selection ?? { source: 'protected' };
+  const source: BackupRecoverySource = selection.source === 'legacy-older'
+    ? 'legacy-older' : 'protected';
+  let keeperAppId: string;
+  let namespaceId: string;
+  let provenance: RecoveryProvenance;
+  let protectedState: ProtectedBackupState;
+  let recoverySession: number;
+  const assertRequestSession = () => {
+    if (request !== latestRecoveryReadRequest || requestSession !== currentBackupAccountSession())
+      throw new Error('Backup account changed');
+  };
   try {
     yield put(setAppImageError(''));
+    yield put(setRecoveryDiscovery({ status: 'checking', source }));
+    if (selection.source !== 'protected' &&
+      (selection.source !== 'legacy-older' || selection.olderCopyConfirmed !== true))
+      throw new Error('Older recovery copy was not selected');
     if (!bip39.validateMnemonic(primaryMnemonic)) {
       throw Error('Invalid mnemonic');
     }
     const { bitcoinNetworkType } = yield select((state: RootState) => state.settings);
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    keeperAppId = appID;
     if (isForgot) {
       // Allow only existing appId to be recovered using forgot passcode flow.
       const { allAccounts } = yield select((state: RootState) => state.account);
@@ -361,13 +396,53 @@ function* getAppImageWorker({ payload }) {
     }
 
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const response = yield call(Relay.getAppImage, appID);
-    if (requestSession !== currentBackupAccountSession())
-      throw new Error('Backup account changed');
-    if (!response?.appImage) throw new Error('Recovery data unavailable');
-    const { appImage } = response;
-    const labels = response.labels === undefined ? [] : response.labels;
-    const allVaultImages = response.allVaultImages === undefined ? [] : response.allVaultImages;
+    assertRequestSession();
+    let prepared;
+    if (source === 'protected') {
+      const result = yield call(readProtectedBackup, primaryMnemonic, undefined, appID);
+      assertRequestSession();
+      namespaceId = result.namespaceId;
+      if (result.state === 'neverEnrolled' || result.state === 'deleted') {
+        yield put(setRecoveryDiscovery({
+          status: result.state === 'deleted' ? 'protected-deleted' : 'protected-absent',
+          source,
+          keeperAppId: appID,
+          namespaceId,
+          legacyMayPredateDeletion: result.state === 'deleted',
+        }));
+        return;
+      }
+      prepared = prepareRecoverySourceImage(appID, {
+        source: 'protected', namespaceId, response: result.snapshot,
+      });
+      protectedState = {
+        status: 'present', namespaceId,
+        generation: result.snapshot.generation, authEpoch: result.snapshot.authEpoch,
+      };
+      if (!hasRecoveryRecords(result.snapshot)) {
+        yield put(setRecoveryDiscovery({
+          status: 'protected-empty', source, keeperAppId: appID, namespaceId,
+          legacyMayPredateDeletion: result.snapshot.suppressLegacyFallback,
+        }));
+        return;
+      }
+    } else {
+      // Older copies are read only after a separate, deliberate UI choice.
+      // A protected absence, tombstone or request error never selects this path.
+      const response = yield call(Relay.getAppImage, appID);
+      assertRequestSession();
+      prepared = prepareRecoverySourceImage(appID, {
+        source: 'legacy-older', olderCopyConfirmed: true, response,
+        legacyMayPredateDeletion: true,
+      });
+    }
+    const { appImage, labels, allVaultImages } = prepared;
+    provenance = prepared.provenance;
+    yield put(setRecoveryDiscovery({
+      status: source === 'protected' ? 'protected-found' : 'legacy-selected',
+      source, keeperAppId: appID, namespaceId, provenance,
+    }));
+    assertRequestSession();
 
     const previousVersion = appImage.version;
 
@@ -386,7 +461,7 @@ function* getAppImageWorker({ payload }) {
       icon: 'assets/ic_diamond_hands.svg',
       receipt: '',
     };
-    const recoverySession: number = yield call(
+    recoverySession = yield call(
       recoverApp,
       primaryMnemonic,
       primarySeed,
@@ -397,9 +472,17 @@ function* getAppImageWorker({ payload }) {
       allVaultImages,
       labels,
       previousVersion,
-      requestSession
+      requestSession,
+      (ownedSession: number) => {
+        if (request !== latestRecoveryReadRequest) throw new Error('Backup account changed');
+        // Error feedback may follow only the session selected by this restore.
+        // This callback supplies no remote baseline or upload authority.
+        recoverySession = ownedSession;
+      },
+      source === 'protected'
     );
-    if (recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+    if (request !== latestRecoveryReadRequest ||
+      recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
       throw new Error('Backup account changed');
 
     if ((!appImage.wallets || !Object.entries(appImage.wallets).length) && !allVaultImages.length) {
@@ -432,7 +515,8 @@ function* getAppImageWorker({ payload }) {
       originAppId: appID,
       originBackupAccountSession: recoverySession,
     });
-    if (recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+    if (request !== latestRecoveryReadRequest ||
+      recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
       throw new Error('Backup account changed');
     const recoveredSigners: Signer[] = yield call(dbManager.getCollection, RealmSchema.Signer);
     const recoveredKey = recoveredSigners.find(
@@ -467,7 +551,8 @@ function* getAppImageWorker({ payload }) {
         originBackupAccountSession: recoverySession,
       });
     }
-    if (recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+    if (request !== latestRecoveryReadRequest ||
+      recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
       throw new Error('Backup account changed');
     yield put(addAccount(appID));
     yield put(autoSyncWallets(true, true, false, appID));
@@ -481,11 +566,43 @@ function* getAppImageWorker({ payload }) {
     yield put(loadConciergeUser(null));
     yield put(loadConciergeTickets([]));
     yield put(setRecoveryKeyStatus({ appId: appID, status: 'confirmed' }));
+    if (protectedState) {
+      const hint: ProtectedBackupState = yield select(
+        (state: RootState) => state.bhr.protectedBackupStateByAppId?.[appID]
+      );
+      if (request !== latestRecoveryReadRequest ||
+        recoverySession !== currentBackupAccountSession() || currentBackupAppId() !== appID)
+        throw new Error('Backup account changed');
+      // Retain a later authenticated tombstone/generation observed during this
+      // restore. This persisted source hint is never verification or consent.
+      const comparable = !hint?.namespaceId || hint.namespaceId === namespaceId;
+      const older = hint && (
+        hint.generation > protectedState.generation || hint.authEpoch > protectedState.authEpoch ||
+        (hint.generation === protectedState.generation && hint.authEpoch === protectedState.authEpoch &&
+          hint.status === 'deleted')
+      );
+      if (comparable && !older)
+        yield put(setProtectedBackupState({ appId: appID, state: protectedState }));
+    }
+    yield put(setRecoveryDiscovery({
+      status: 'restored', source, keeperAppId: appID, namespaceId, provenance,
+    }));
     yield put(setAppCreated(true));
   } catch (err) {
-    yield put(setAppImageError(err.message));
+    // A late response for a previous account/request must not replace the
+    // current recovery screen's provenance or present an error as absence.
+    const activeSession = recoverySession ?? requestSession;
+    if (request === latestRecoveryReadRequest && activeSession === currentBackupAccountSession()) {
+      const error = err.message || 'Recovery data unavailable';
+      yield put(setRecoveryDiscovery({
+        status: 'read-error', source, keeperAppId, namespaceId, error,
+      }));
+      yield put(setAppImageError(error));
+    }
   } finally {
-    yield put(appImagerecoveryRetry());
+    if (request === latestRecoveryReadRequest &&
+      (recoverySession ?? requestSession) === currentBackupAccountSession())
+      yield put(appImagerecoveryRetry());
   }
 }
 
@@ -499,7 +616,9 @@ function* recoverApp(
   allVaultImages,
   labels,
   previousVersion,
-  originBackupAccountSession?: number
+  originBackupAccountSession?: number,
+  onRecoverySession?: (ownedSession: number) => void,
+  protectedMetadata = false
 ) {
   // Recovery selects appID after the first Realm write. Keep the session from
   // the initiating action across decryption and all earlier async work.
@@ -516,8 +635,28 @@ function* recoverApp(
     appID,
     appImage,
     allVaultImages,
-    labels
+    labels,
+    protectedMetadata
   );
+  if (protectedMetadata)
+    validateProtectedRecoveryMetadata({allVaultImages, labels}, recovered, getKeyUID, hash256, encryptionKey);
+  // A restored copy does not inherit old opt-in state. Revoke only after full
+  // validation, before any local write or producer, for BOTH recovery sources.
+  assertOrigin();
+  yield call(() => {
+    assertOrigin();
+    const consentEpoch = backupConsentEpoch(appID);
+    store.dispatch(protectBackupRecoveryConsentDisable(
+      setAutomaticCloudBackup({appId: appID, enabled: false}), appID, originSession
+    ));
+    assertOrigin();
+    if (store.getState().bhr.automaticCloudBackupByAppId?.[appID] !== false ||
+      backupConsentEpoch(appID) <= consentEpoch)
+      throw new Error('Recovery backup consent could not be disabled');
+    markBackupMutation(appID);
+    clearVerifiedRemoteRevision(appID);
+    notifyBackupReconciliation(appID);
+  });
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
     config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -554,6 +693,7 @@ function* recoverApp(
       throw new Error('Backup account changed');
   };
   assertRecoveryAccount();
+  onRecoverySession?.(recoveryAccountSession);
   function* writeRecord(schema: RealmSchema, record: any) {
     yield call(writeRecoveredObject, schema, record, assertRecoveryAccount);
   }
@@ -1063,6 +1203,7 @@ function* runBackupInspection(
       currentIntent.appId === verifiedEvidence.intent.appId &&
       currentIntent.accountSession === verifiedEvidence.intent.accountSession &&
       currentIntent.baseRevision === verifiedEvidence.intent.baseRevision &&
+      sameProtectedBackupBase(currentIntent.protectedBase, verifiedEvidence.intent.protectedBase) &&
       currentIntent.baselineEpoch === verifiedEvidence.intent.baselineEpoch;
   };
   try {
@@ -1135,8 +1276,8 @@ function* runBackupInspection(
           payload: {
             uaiType: uaiType.SERVER_BACKUP_FAILURE,
             uaiDetails: {
-              heading: 'Check Your Backup',
-              body: 'Your Assisted Server Backup may differ from this device. View details to check it.',
+              heading: translations.recoveryBackup.notificationTitle,
+              body: translations.recoveryBackup.notificationBody,
             },
           },
         });
@@ -1164,8 +1305,10 @@ function* backupFreshnessWorker({ type, appId, originBackupAccountSession }) {
   const enabled = yield select((state: RootState) =>
     state.storage.appId === appId && isAutomaticCloudBackupEnabled(state.bhr, appId)
   );
-  if (!enabled || requestSession !== currentBackupAccountSession()) return;
-  yield call(runBackupInspection, type === REPAIR_BACKUP, appId, false, requestSession);
+  const repair = type === REPAIR_BACKUP;
+  if ((repair && !enabled) || requestSession !== currentBackupAccountSession()) return;
+  // Consent-off status checking is read-only; it must not enroll or repair.
+  yield call(runBackupInspection, repair, appId, !repair, requestSession);
 }
 
 export function* backupFreshnessWatcher() {
@@ -1226,10 +1369,12 @@ function* deleteBackupWorker({ appId, originBackupAccountSession }: {
   const isCurrent = () => currentBackupAppId() === appId && currentBackupAccountSession() === requestSession &&
     backupConsentEpoch(appId) === requestConsentEpoch;
   if (!appId || !isCurrent()) return false;
+  yield put(setDeleteBackupSuccess({ appId, status: false }));
+  yield put(setDeleteBackupFailure({ appId, status: false }));
   yield put(setBackupAllLoading({ appId, status: true }));
   try {
-    // Opt-out deliberately removes the remote copy while retaining every local
-    // record. Its own fresh v2 snapshot is bound to this original session.
+    // Delete only the protected copy. Its authenticated fresh tuple is bound
+    // to this original session; retained older copies and all local data stay.
     const intent = yield call(beginBackupDeleteOperation, appId, requestSession);
     if (!isCurrent()) return false;
     if (!intent?.committed || !intent.intent) throw new Error('Backup deletion preflight failed');
@@ -1310,8 +1455,8 @@ export function* setServerBackupFailed(expectedAppId?: string) {
     payload: {
       uaiType: uaiType.SERVER_BACKUP_FAILURE,
       uaiDetails: {
-        heading: 'Assisted Server Backup Has Failed',
-        body: "Retry backup to Keeper's servers",
+        heading: translations.recoveryBackup.retryNotificationTitle,
+        body: translations.recoveryBackup.retryNotificationBody,
       },
     },
   });

@@ -10,7 +10,8 @@ test('opening Recovery Key after restore does not replay health-check consent or
   const f = fixture({ bhr: { automaticCloudBackup: false, seedConfirmed: true } });
   const key = encryption.generateEncryptionKey(f.scope.bip39.mnemonicToSeedSync().toString('hex'));
   f.remote.wallets.local = encryption.encrypt(key, JSON.stringify(wallet('local', enums.NetworkType.MAINNET)));
-  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only' } });
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only',
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
   assert.equal(f.state.account.recoveryKeyStatusByAppId[f.app.id], 'confirmed');
   const signal = f.actions.filter((a) => a.type === 'setSeedConfirmed').at(-1);
   assert.equal(signal?.payload, false, 'restore must clear the transient health-check signal');

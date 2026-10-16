@@ -1,5 +1,7 @@
 # R4 / 2.6.4 automatic backup: Codex Local handoff
 
+**Current protected-v3 continuation:** follow [the protected-backup app handoff](r4-protected-backup-app.md) and the newest exact-SHA PR comment. Its guarded private backend7693/loopback27038 setup supersedes the public-v2 commands below for the current app. The historical public838 results remain preserved; they do not validate v3. Do not run this document’s old v2 setup as current protected-backup acceptance.
+
 State: **NEEDS_LOCAL**. PR [#7045](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045), branch `codex/r4-264-combined-candidate`, base `sprint`. The exact final SHA is recorded in the newest **Codex local handoff** on that PR. The setup below verifies that handoff against the live head before selecting it; this repository document cannot contain its own eventual commit SHA.
 
 **Node-bootstrap continuation:** follow the [managed producer and original-order Local retest](r4-node-bootstrap-backup.md). This supersedes the narrower queue-only retest below: use one new incremental artifact per platform and test initial Verified→ordinary detail bootstrap→automatic complete Verified→ordinary rename→complete readback/cold persistence. Preserve9a19 native controls and its original bootstrap failure separately; all remaining R4 gaps and restrictions stay open.

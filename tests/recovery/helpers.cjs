@@ -32,6 +32,82 @@ const image = loadModule('src/services/backup/image.ts', {
   'src/utils/service-utilities/encryption': encryption,
 });
 const makeImage = () => ({ wallets: {}, signers: {}, vaults: {}, nodes: {}, labels: {} });
+// UNIT-ONLY authenticated-transport boundary for historical kernel schedules.
+// The old fake POST fixture supplies ciphertext/revisions; this facade models
+// namespace/generation/epoch and ACK binding, NOT signing, enrollment or Mongo.
+// Production readiness constants and the separate genuine v3 lane stay real.
+function unitProtectedFacade(transport, app) {
+  let generation = 0, authEpoch = 0, previousRevision;
+  const namespace = () => `unit-protected-${app.id}`;
+  const validRevision = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+  const fail = () => { throw new transport.BackupRequestError('protocol'); };
+  const adopt = revision => {
+    if (!validRevision(revision)) fail();
+    if (previousRevision && previousRevision !== revision) generation++;
+    previousRevision = revision;
+  };
+  const protectedBackupBase = snapshot => {
+    if (!validRevision(snapshot?.revision) || typeof snapshot.namespaceId !== 'string' ||
+      !Number.isSafeInteger(snapshot.generation) || !Number.isSafeInteger(snapshot.authEpoch)) fail();
+    return Object.freeze({ namespaceId: snapshot.namespaceId, revision: snapshot.revision,
+      generation: snapshot.generation, authEpoch: snapshot.authEpoch });
+  };
+  const readProtectedBackup = async (_mnemonic, deadline, _appId, checkpoint = () => {}) => {
+    checkpoint();
+    const response = await transport.boundedBackupPost('fixture/getBackupSnapshot', { appId: app.id }, deadline);
+    checkpoint();
+    const raw = JSON.parse(JSON.stringify(response.data));
+    if (raw?.revisionedMutations !== true) fail();
+    adopt(raw.revision);
+    const namespaceId = namespace();
+    // Normalize only the expected fixture identity; foreign IDs remain invalid.
+    if (raw.appImage?.appId === app.id) raw.appImage.appId = namespaceId;
+    if (Array.isArray(raw.allVaultImages)) raw.allVaultImages.forEach(vault => {
+      if (vault.appId === undefined || vault.appId === app.id) vault.appId = namespaceId;
+      // Complete only omitted projection fields in normal old unit records.
+      // Explicit mismatches remain untouched for the production validator.
+      try {
+        const decoded = JSON.parse(encryption.decrypt(encryption.generateEncryptionKey(app.primarySeed), vault.vault));
+        if (Array.isArray(decoded.signers)) {
+          const references = decoded.signers.map(signer => ({ signerId: signer.id || signer.masterFingerprint,
+            xfpHash: encryption.hash256(signer.masterFingerprint) }));
+          if (vault.signersData === undefined) vault.signersData = references;
+          if (vault.signerIds === undefined) vault.signerIds = references.map(signer => signer.signerId);
+          if (vault.scheme === undefined) vault.scheme = decoded.scheme;
+          if (vault.isArchived === undefined) vault.isArchived = !!decoded.archived;
+        }
+      } catch { /* Invalid ciphertext remains subject to production decode. */ }
+    });
+    return { state: 'present', namespaceId, snapshot: {
+      ...raw, namespaceId, generation, authEpoch, scope: 'protected-backup', exists: true,
+      deleted: false, suppressLegacyFallback: false,
+      backupRevisionRequired: true, incrementalRevisionRequired: true,
+    } };
+  };
+  return {
+    protectedBackupBase,
+    sameProtectedBackupBase: (a, b) => !!a && !!b && a.namespaceId === b.namespaceId &&
+      a.revision === b.revision && a.generation === b.generation && a.authEpoch === b.authEpoch,
+    readProtectedBackup,
+    enrollProtectedBackup: async () => { throw new Error('Enrollment requires the genuine protected fixture'); },
+    assertProtectedBackupWriteReady: () => {}, // Explicit mocked unit boundary only.
+    protectedBackupMutation: async (_mnemonic, base, operation, body, deadline, checkpoint = () => {}) => {
+      checkpoint();
+      if (base.namespaceId !== namespace() || base.revision !== previousRevision ||
+        base.generation !== generation || base.authEpoch !== authEpoch) fail();
+      const response = await transport.boundedBackupPost('fixture/revisionedBackupMutation',
+        { ...body, operation, expectedRevision: base.revision }, deadline);
+      checkpoint();
+      const reply = response.data;
+      if (reply?.updated !== true || reply.preconditionApplied !== true ||
+        !validRevision(reply.newRevision) || reply.newRevision === base.revision) fail();
+      adopt(reply.newRevision);
+      if (operation === 'deleteBackup') authEpoch++;
+      return { ...reply, base: protectedBackupBase({ namespaceId: namespace(),
+        revision: reply.newRevision, generation, authEpoch }) };
+    },
+  };
+}
 function harness(options = {}) {
   const app = {
     id: 'disposable',
@@ -147,6 +223,7 @@ function harness(options = {}) {
       'src/utils/service-utilities/encryption': encryption,
       'src/utils/utilities': utilities,
       './transport': transport,
+      './protected': unitProtectedFacade(transport, app),
       './image': image,
       './localSnapshot': localSnapshot,
     },
@@ -177,4 +254,4 @@ const wallet = (id = 'wallet', networkType = 'MAINNET') => ({
     transactions: [],
   },
 });
-module.exports = { loadModule, encryption, image, makeImage, harness, wallet };
+module.exports = { loadModule, encryption, image, makeImage, harness, wallet, unitProtectedFacade };

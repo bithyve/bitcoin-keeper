@@ -151,15 +151,17 @@ test('verified A backup completion after selected B switch cannot enable A or re
 
 test('dispatch gate drops stale enable and success actions while preserving account-specific resets', () => {
   let session = 1;
+  const consentTransport = loadTransportModule('src/services/backup/transport.ts', {
+    '../rest/RestClient': {},
+  });
   const scope = {
     Set,
     RealmSchema: { KeeperApp: 'KeeperApp' },
     dbManager: { getObjectByIndex: () => ({ id: realmAppId }) },
     currentBackupAccountSession: () => session,
     canAccessBackupAccount: (appId) => appId === selectedAppId && appId === realmAppId,
-    observeBackupConsentAction: loadTransportModule('src/services/backup/transport.ts', {
-      '../rest/RestClient': {},
-    }).observeBackupConsentAction,
+    observeBackupConsentAction: consentTransport.observeBackupConsentAction,
+    takeBackupRecoveryConsentDisable: consentTransport.takeBackupRecoveryConsentDisable,
     captureBackupWriteIntent: (appId) => appId === selectedAppId ? {
       appId, accountSession: session, baseRevision: 'a'.repeat(64), baselineEpoch: 1,
     } : undefined,

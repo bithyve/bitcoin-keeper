@@ -1,5 +1,6 @@
 import RestClient from '../rest/RestClient';
 import type { BackupWriteIntent } from './intent';
+import type { ProtectedBackupBase } from './protected';
 
 // One queue per account covers repair, incremental writes, labels and deletion.
 const queues = new Map<string, Promise<unknown>>();
@@ -7,12 +8,27 @@ const revisions = new Map<string, number>();
 const queuedMutationRevisions = new Map<string, number>();
 const verifiedRemoteRevisions = new Map<
   string,
-  { revision: string; session: number; epoch: number; evidence?: LocalEvidence }
+  { revision: string; session: number; epoch: number; protectedBase?: ProtectedBackupBase; evidence?: LocalEvidence }
 >();
 const baselineEpochs = new Map<string, number>();
 const capturedIntents = new WeakSet<BackupWriteIntent>();
 const consentEpochs = new Map<string, number>();
 const consentCompletions = new WeakMap<object, { appId: string; epoch: number }>();
+const recoveryDisables = new WeakMap<object, { appId: string; session: number }>();
+// Only a validated restore may revoke saved consent for a not-yet-selected
+// target. The ordinary UI/account guard still rejects unbranded actions.
+export function protectBackupRecoveryConsentDisable<T extends object>(action: T, appId: string, session: number): T {
+  recoveryDisables.set(action, {appId, session});
+  return action;
+}
+export function takeBackupRecoveryConsentDisable(action: any, appId: string): boolean {
+  const scope = recoveryDisables.get(action);
+  recoveryDisables.delete(action);
+  return !!scope && scope.appId === appId && scope.session === currentBackupAccountSession() &&
+    action.type === 'bhr/setAutomaticCloudBackup' && action.payload?.appId === appId &&
+    action.payload.enabled === false;
+}
+
 export const backupConsentEpoch = (appId: string) => consentEpochs.get(appId) || 0;
 export function protectBackupConsentCompletion<T extends object>(
   action: T,
@@ -87,7 +103,9 @@ export function clearVerifiedRemoteRevision(appId: string) {
   verifiedRemoteRevisions.delete(appId);
   baselineEpochs.set(appId, (baselineEpochs.get(appId) || 0) + 1);
 }
-export function recordVerifiedRemoteRevision(appId: string, revision: string, session: number) {
+export function recordVerifiedRemoteRevision(
+  appId: string, revision: string, session: number, protectedBase?: ProtectedBackupBase
+) {
   if (!/^[a-f0-9]{64}$/.test(revision) || session !== accountSession || appId !== activeAccount)
     return;
   clearVerifiedRemoteRevision(appId);
@@ -95,12 +113,14 @@ export function recordVerifiedRemoteRevision(appId: string, revision: string, se
     revision,
     session,
     epoch: baselineEpochs.get(appId) || 0,
+    protectedBase: protectedBase ? Object.freeze({ ...protectedBase }) : undefined,
     evidence: localEvidence?.(),
   });
 }
 export function captureBackupWriteIntent(appId: string): BackupWriteIntent | undefined {
   const verified = verifiedRemoteRevisions.get(appId);
-  if (!verified || appId !== activeAccount || verified.session !== accountSession) return undefined;
+  if (!verified?.protectedBase || appId !== activeAccount || verified.session !== accountSession)
+    return undefined;
   let evidence: LocalEvidence | undefined;
   try {
     evidence = localEvidence?.();
@@ -112,6 +132,7 @@ export function captureBackupWriteIntent(appId: string): BackupWriteIntent | und
     appId,
     accountSession: verified.session,
     baseRevision: verified.revision,
+    protectedBase: verified.protectedBase,
     baselineEpoch: verified.epoch,
     localGeneration: verified.evidence?.generation,
     localFingerprint: verified.evidence?.fingerprint,
@@ -183,8 +204,9 @@ export function withBackupSession<T>(id: string, work: () => Promise<T>): Promis
 // has an unknown outcome; callers must read back before deciding to upload again.
 export async function boundedBackupPost(
   path: string,
-  body: object,
-  deadline = Date.now() + BACKUP_DEADLINE_MS
+  body: object | string,
+  deadline?: number,
+  signedHeaders?: Record<string, string>
 ) {
   const controller = new AbortController();
   let idle: ReturnType<typeof setTimeout>;
@@ -194,12 +216,13 @@ export async function boundedBackupPost(
     clearTimeout(idle);
     idle = setTimeout(() => controller.abort(), BACKUP_STALL_MS);
   };
-  const remaining = deadline - Date.now();
+  const remaining = (deadline ?? Date.now() + BACKUP_DEADLINE_MS) - Date.now();
   if (remaining <= 0) throw new BackupRequestError('timeout');
   const total = setTimeout(() => controller.abort(), remaining);
   resetIdle();
   try {
-    return await RestClient.post(path, body, undefined, {
+    return await RestClient.post(path, body as object, signedHeaders, {
+      ...(typeof body === 'string' ? { transformRequest: [(data: string) => data], maxRedirects: 0 } : {}),
       signal: controller.signal,
       onUploadProgress: ({ loaded }) => {
         if (loaded > uploaded) {

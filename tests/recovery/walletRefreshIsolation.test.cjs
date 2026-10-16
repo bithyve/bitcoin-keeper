@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const ts = require('typescript');
 const { fixture, enums, wallet, loadModule, functions } = require('./sagaHarness.cjs');
-const { image, encryption } = require('./helpers.cjs');
+const { image, encryption, unitProtectedFacade } = require('./helpers.cjs');
 const walletState = loadModule('src/store/reducers/wallets.ts', {
   'src/storage': { reduxStorage: {} },
   '../sagaActions/wallets': { ADD_NEW_WALLETS: 'ADD_NEW_WALLETS' },
@@ -182,11 +182,13 @@ test('refresh marks recoverable address counters pending after Realm persistence
     './image': image,
     './localSnapshot': localSnapshot,
     './transport': transport,
+    './protected': unitProtectedFacade(transport, f.app),
   });
   transport.recordVerifiedRemoteRevision(
     originAppId,
     'a'.repeat(64),
-    transport.currentBackupAccountSession()
+    transport.currentBackupAccountSession(),
+    { namespaceId: `unit-protected-${originAppId}`, revision: 'a'.repeat(64), generation: 0, authEpoch: 0 }
   );
   const baseline = transport.captureBackupWriteIntent(originAppId);
   assert.ok(automatic.isBackupVerificationCurrent(originAppId));

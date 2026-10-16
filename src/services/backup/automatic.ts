@@ -1,10 +1,12 @@
 /* eslint-disable no-await-in-loop -- CAS fanout must use each acknowledged revision in order. */
 import realmDatabase from 'src/storage/realm/realm';
-import { RealmSchema } from 'src/storage/realm/enum';
 import config from 'src/utils/service-utilities/config';
+import { RealmSchema } from 'src/storage/realm/enum';
 import { generateEncryptionKey, hash256 } from 'src/utils/service-utilities/encryption';
 import { getKeyUID } from 'src/utils/utilities';
 import type { BackupWriteIntent } from './intent';
+import { readProtectedBackup, protectedBackupMutation, protectedBackupBase,
+  sameProtectedBackupBase, assertProtectedBackupWriteReady } from './protected';
 import {
   BackupImage,
   canonical,
@@ -12,13 +14,13 @@ import {
   decodeImage,
   decryptRecord,
   compareImages,
+  validateProtectedRecoveryMetadata,
 } from './image';
 import { captureLocalRecovery, backupMetadataMatches } from './localSnapshot';
 import {
   BACKUP_DEADLINE_MS,
   backupBaselineEpoch,
   backupConsentEpoch,
-  boundedBackupPost,
   canAccessBackupAccount,
   clearVerifiedRemoteRevision,
   currentBackupAccountSession,
@@ -60,6 +62,7 @@ type Proof = {
   after: Capture;
   generation: number;
   deletion?: boolean;
+  deadline?: number;
 };
 const proofs = new WeakMap<BackupWriteIntent, Proof>();
 const operations = new WeakSet<BackupLocalOperation>();
@@ -301,21 +304,12 @@ export function isAutomaticBackupResultCurrent(result: object, appId: string) {
     return false;
   }
 }
-async function snapshot(appId: string, deadline?: number) {
-  const response = (
-    await boundedBackupPost(`${config.RELAY}getBackupSnapshot`, { appId }, deadline)
-  ).data;
-  if (
-    !/^[a-f0-9]{64}$/.test(response?.revision) ||
-    response.revisionedMutations !== true ||
-    !Array.isArray(response.unavailableVaultIds) ||
-    response.unavailableVaultIds.length ||
-    !Array.isArray(response.unavailableLabelIds) ||
-    response.unavailableLabelIds.length
-  )
-    throw new Error('Incomplete revisioned backup');
-  return response;
+async function snapshot(appId: string, app: any, deadline?: number, checkpoint = () => {}) {
+  const result = await readProtectedBackup(app.primaryMnemonic, deadline, appId, checkpoint, app);
+  if (result.state === 'neverEnrolled') throw new Error('Protected backup is not enrolled');
+  return result.snapshot;
 }
+
 const same = (kind: keyof BackupImage, a: any, b: any) =>
   !!a && !!b && canonical(recoveryContent(kind, a)) === canonical(recoveryContent(kind, b));
 async function project(
@@ -325,7 +319,8 @@ async function project(
 ): Promise<BackupImage> {
   const { appId } = proof.operation;
   const key = generateEncryptionKey(proof.after.app.primarySeed);
-  const remote = await decodeImage(key, response, appId, () => {}, true);
+  const remote = await decodeImage(key, response, response.namespaceId, () => {}, true);
+  validateProtectedRecoveryMetadata(response, remote, getKeyUID, hash256, key);
   const projected = clone(remote) as BackupImage;
   const touched = new Set<string>();
   const before = proof.operation.before.image;
@@ -563,7 +558,7 @@ export function enqueueAutomaticBackupOperation(
   notifyBackupReconciliation(appId);
   return withBackupSession(appId, async () => {
     let acknowledged = 0;
-    const deadline = Date.now() + BACKUP_DEADLINE_MS;
+    const deadline = proof?.deadline ?? Date.now() + BACKUP_DEADLINE_MS;
     const assertOwned = () => {
       if (!intent || !proof || Date.now() >= deadline)
         throw new Error('Backup proof deadline expired');
@@ -582,33 +577,29 @@ export function enqueueAutomaticBackupOperation(
         )
       )
         throw new Error('Backup mutation account does not match originating proof');
-      // Loopback is permitted only in the explicitly selected Node fixture.
-      const loopbackFixture =
-        typeof process !== 'undefined' &&
-        process.env?.KEEPER_RELAY_FIXTURE_MODULE &&
+      const loopbackFixture = typeof process !== 'undefined' &&
+        (process.env?.KEEPER_RELAY_FIXTURE_MODULE || process.env?.KEEPER_PROTECTED_RELAY_CHECKOUT) &&
         /^http:\/\/(127\.0\.0\.1|localhost):\d+\/$/.test(config.RELAY);
-      const nativeLoopback =
-        config.ENVIRONMENT === 'DEVELOPMENT' &&
-        config.isDevMode() &&
+      const nativeLoopback = config.ENVIRONMENT === 'DEVELOPMENT' && config.isDevMode() &&
         /^http:\/\/(127\.0\.0\.1|localhost):\d+\/$/.test(config.RELAY);
-      if (
-        (!AUTOMATIC_BACKUP_SOURCE_READY && !loopbackFixture) ||
-        (!AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY &&
-          !loopbackFixture &&
-          !(AUTOMATIC_BACKUP_SOURCE_READY && nativeLoopback))
-      )
-        throw new Error('Automatic source proof not enabled');
+      if ((!AUTOMATIC_BACKUP_SOURCE_READY && !loopbackFixture) ||
+        (!AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY && !loopbackFixture &&
+          !(AUTOMATIC_BACKUP_SOURCE_READY && nativeLoopback)))
+        throw new Error('Automatic backup source or rollout is not enabled');
+      assertProtectedBackupWriteReady();
       assertOwned();
-      const baseline = await snapshot(appId, deadline);
+      const baseline = await snapshot(appId, proof.after.app, deadline, assertOwned);
       assertOwned();
-      if (baseline.revision !== intent.baseRevision) throw new Error('Remote revision changed');
+      if (intent.baseRevision !== intent.protectedBase?.revision ||
+        !sameProtectedBackupBase(protectedBackupBase(baseline), intent.protectedBase))
+        throw new Error('Remote authority changed');
       if (proof.deletion) {
         if (mutations.length !== 1 || mutations[0].operation !== 'deleteBackup')
           throw new Error('Invalid explicit deletion');
         await decodeImage(
           generateEncryptionKey(proof.after.app.primarySeed),
           baseline,
-          appId,
+          intent.protectedBase.namespaceId,
           () => {},
           true
         );
@@ -616,60 +607,46 @@ export function enqueueAutomaticBackupOperation(
       assertOwned();
       // One immutable receipt is single-use even if the response is lost.
       proofs.delete(intent);
-      let expectedRevision = intent.baseRevision;
+      let expectedBase = intent.protectedBase;
       for (const mutation of mutations) {
         assertOwned();
-        const reply = (
-          await boundedBackupPost(
-            `${config.RELAY}revisionedBackupMutation`,
-            {
-              ...mutation.body,
-              appId,
-              operation: mutation.operation,
-              expectedRevision,
-            },
-            deadline
-          )
-        ).data;
-        if (
-          reply?.updated !== true ||
-          reply.preconditionApplied !== true ||
-          !/^[a-f0-9]{64}$/.test(reply.newRevision) ||
-          reply.newRevision === expectedRevision
-        )
-          throw new Error('Unacknowledged backup revision');
-        expectedRevision = reply.newRevision;
+        const reply = await protectedBackupMutation(proof.after.app.primaryMnemonic,
+          expectedBase, mutation.operation, mutation.body, deadline, assertOwned, proof.after.app);
+        expectedBase = reply.base;
         acknowledged += 1;
       }
       assertOwned();
-      const readback = await snapshot(appId, deadline);
+      const readback = await snapshot(appId, proof.after.app, deadline, assertOwned);
       assertOwned();
-      if (readback.revision !== expectedRevision) throw new Error('Final backup revision changed');
+      if (!sameProtectedBackupBase(protectedBackupBase(readback), expectedBase))
+        throw new Error('Final backup authority changed');
       if (proof.deletion) {
         const remaining = await decodeImage(
           generateEncryptionKey(proof.after.app.primarySeed),
           readback,
-          appId,
+          expectedBase.namespaceId,
           () => {},
           true
         );
-        if (Object.values(remaining).some((records) => Object.keys(records).length))
+        if (!readback.deleted || !readback.suppressLegacyFallback ||
+          Object.values(remaining).some((records) => Object.keys(records).length))
           throw new Error('Backup deletion is incomplete');
       } else {
-        if (!backupMetadataMatches(proof.after.app, readback.appImage))
+        if (!backupMetadataMatches(proof.after.app, readback.appImage, expectedBase.namespaceId))
           throw new Error('Backup metadata readback differs');
         const remote = await decodeImage(
           generateEncryptionKey(proof.after.app.primarySeed),
           readback,
-          appId,
+          expectedBase.namespaceId,
           assertOwned,
           true
         );
+        validateProtectedRecoveryMetadata(readback, remote, getKeyUID, hash256, generateEncryptionKey(proof.after.app.primarySeed));
         if ((await compareImages(proof.after.image, remote, assertOwned)) !== 'matched')
           throw new Error('Complete backup readback differs');
       }
       assertOwned();
-      recordVerifiedRemoteRevision(appId, expectedRevision, intent.accountSession);
+      recordVerifiedRemoteRevision(appId, expectedBase.revision, intent.accountSession, expectedBase);
       if (!commitVerification(appId, !!proof.deletion, proof.operation.consentEpoch))
         throw new Error('Backup changed during final commit');
       const result = Object.freeze({
@@ -694,7 +671,17 @@ export async function beginBackupDeleteOperation(
 ): Promise<BackupLocalCommit> {
   try {
     const op = beginBackupLocalOperation(appId, undefined, originSession);
-    const remote = await withBackupSession(appId, () => snapshot(appId));
+    assertProtectedBackupWriteReady();
+    const deadline = Date.now() + BACKUP_DEADLINE_MS;
+    const assertOrigin = () => {
+      const state = local();
+      if (Date.now() >= deadline || originSession !== currentBackupAccountSession() ||
+        op.consentEpoch !== backupConsentEpoch(appId) || state.database !== op.database ||
+        state.generation !== op.generation || state.capture.fingerprint !== op.before.fingerprint ||
+        !canAccessBackupAccount(appId, true)) throw new Error('Deletion source changed');
+    };
+    const remote = await withBackupSession(appId, () =>
+      snapshot(appId, op.before.app, deadline, assertOrigin));
     const state = local();
     if (
       op.accountSession !== currentBackupAccountSession() ||
@@ -708,7 +695,7 @@ export async function beginBackupDeleteOperation(
     await decodeImage(
       generateEncryptionKey(op.before.app.primarySeed),
       remote,
-      appId,
+      remote.namespaceId,
       () => {},
       true
     );
@@ -725,6 +712,7 @@ export async function beginBackupDeleteOperation(
       appId,
       accountSession: op.accountSession,
       baseRevision: remote.revision,
+      protectedBase: protectedBackupBase(remote),
       baselineEpoch: backupBaselineEpoch(appId),
       localGeneration: state.generation,
       localFingerprint: state.capture.fingerprint,
@@ -736,6 +724,7 @@ export async function beginBackupDeleteOperation(
       after: frozenCopy(state.capture),
       generation: state.generation,
       deletion: true,
+      deadline,
     });
     return Object.freeze({ committed: true, intent });
   } catch {
@@ -746,6 +735,9 @@ export async function beginBackupDeleteOperation(
 }
 setAutomaticBackupPostHandler(async (path, body, _explicit, intent) => {
   const operation = path.split('/').pop() as AutomaticBackupMutation['operation'];
+  if (!['updateAppImage', 'migrateXfps', 'deleteAppImageEntity', 'deleteVaults',
+    'updateVaultImage', 'modifyLabels', 'deleteBackup'].includes(operation))
+    throw new Error('Unsupported backup writer');
   const data = await enqueueAutomaticBackupOperation(intent, [{ operation, body }]);
   return { data };
 });

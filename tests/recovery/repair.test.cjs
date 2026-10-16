@@ -297,7 +297,7 @@ test('incremental attempt during read-only check fails closed and invalidates co
   assert.equal((await write).category, 'protocol');
   assert.deepEqual(f.calls, ['getBackupSnapshot']);
   assert.deepEqual(f.phases, ['checking', 'unverified']);
-  assert.deepEqual(f.diagnostics, [['Assisted Server Backup check failed at stage:', 'snapshot-validation', 'non-transport']]);
+  assert.deepEqual(f.diagnostics, [['Assisted Server Backup check failed at stage:', 'snapshot-request', 'non-transport']]);
 });
 
 test('early revision change without a queued write stays unverified', async () => {
@@ -427,11 +427,12 @@ test('malformed or partial server response is unavailable, never an empty snapsh
   }
 });
 
-test('mutation arriving during upload invalidates completion and remains queued until readback', async () => {
+test('mutation arriving during upload invalidates completion before any further readback request', async () => {
   let f;
   f = harness({ post: async ({ path }) => { if (path.endsWith('revisionedBackupMutation')) f.transport.markBackupMutation(f.app.id); } });
   f.local.Wallet.push(wallet()); assert.equal(await f.run(true), 'unverified'); assert.ok(!f.phases.includes('verified'));
-  assert.deepEqual(f.calls, ['getBackupSnapshot', 'revisionedBackupMutation', 'getBackupSnapshot']);
+  assert.ok(f.remote.wallets.wallet, 'the server commit is retained despite stale local evidence');
+  assert.deepEqual(f.calls, ['getBackupSnapshot', 'revisionedBackupMutation']);
 });
 
 test('account switch during check cannot upload one account with another account data', async () => {

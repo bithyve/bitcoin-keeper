@@ -347,7 +347,8 @@ for (const networks of [
       const w = wallet(network, network);
       f.remote.wallets[w.id] = encryption.encrypt(key, JSON.stringify(w));
     });
-    await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only' } });
+    await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only',
+      selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
     assert.deepEqual(
       f.actions.filter((a) => a.type === 'setAppImageError' && a.payload),
       []
@@ -368,7 +369,8 @@ test('recovery upgrade does not bypass per-account backup consent', async () => 
     JSON.stringify(wallet('disposable', NetworkType.MAINNET))
   );
 
-  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only' } });
+  await f.run('getAppImageWorker', { payload: { primaryMnemonic: 'mock fixture only',
+    selection: { source: 'legacy-older', olderCopyConfirmed: true } } });
 
   assert.deepEqual(f.actions.filter((action) => action.type === 'setAppImageError' && action.payload), []);
   assert.equal(f.calls.filter(([type, payload]) => type === 'incremental' && payload.version).length, 0);

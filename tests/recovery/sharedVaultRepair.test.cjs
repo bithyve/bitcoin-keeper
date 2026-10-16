@@ -145,7 +145,7 @@ for (const ackRevision of ['missing', 'old', 'malformed', 'other'])
       'a readable copy alone must not mint write authority'
     );
   });
-test('archive metadata mismatch is read-only until explicit backup and must match after readback', async () => {
+test('protected archive metadata mismatch stays unverified and explicit backup cannot overwrite it', async () => {
   const { f, state, key, uploads } = fixture({ unavailable: [] });
   f.local.Vault[0].archived = true;
   state.allVaultImages = [
@@ -155,11 +155,15 @@ test('archive metadata mismatch is read-only until explicit backup and must matc
       isArchived: false,
     },
   ];
-  assert.equal(await f.run(), 'different');
+  const ciphertext = state.allVaultImages[0].vault;
+  // The protected reference is bound to decrypted archive/policy metadata.
+  // The former legacy repair behavior must not authorize a v3 replacement.
+  assert.equal(await f.run(), 'unverified');
   assert.equal(uploads(), 0);
-  assert.equal(await f.run(true), 'verified');
-  assert.equal(uploads(), 1);
-  assert.equal(state.allVaultImages[0].isArchived, true);
+  assert.equal(await f.run(true), 'unverified');
+  assert.equal(uploads(), 0);
+  assert.equal(state.allVaultImages[0].isArchived, false);
+  assert.equal(state.allVaultImages[0].vault, ciphertext);
 });
 
 function orphanLabelFixture(hasLocalLabel = true, malformedMarker = false) {
