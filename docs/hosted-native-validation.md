@@ -81,6 +81,12 @@ running it on Linux is not supported. Do not silently regenerate `yarn.lock`, us
 an unlocked install, skip patch failures or replace a failed native build with
 Jest. CocoaPods deployment mode likewise exposes Podfile/lock drift.
 
+The pinned Node compatibility tool is restricted to setup.sh's existing shim
+whitelist without invoking its installer. Unrestricted `--hack` rewrites imports
+to optional packages that the manifest does not contain; the bounded wrapper
+keeps both platform Metro graphs resolvable using committed dependencies. Android
+command-line tools are provisioned explicitly before SDK/NDK installation.
+
 At the initial sprint baseline `def0d6a90c80287edb4f58ae272cbfc340f00d73`,
 two root lint selectors were missing from the Yarn lock. The declared IAP 16.5.0
 also needs NitroModules 0.36.5, and the Pod lock still selected older IAP/Nitro

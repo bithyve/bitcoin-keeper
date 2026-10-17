@@ -43,7 +43,7 @@ def failure_details(log):
     """Bounded tool errors from this fresh CI fixture, never raw process logs."""
     selected = []
     for line in log.splitlines():
-        if not re.search(r'(?:\berror:|^e: |^\[!\]|^FAILURE:|^> (?!Task\b)|^Caused by:|^Could not |'
+        if not re.search(r'(?:\berror:|^error |^e: |^\[!\]|^FAILURE:|^> (?!Task\b)|^Caused by:|^Could not |'
                          r'^A problem occurred|^Execution failed|^The sandbox is not in sync)', line):
             continue
         line = re.sub(r'https?://\S+', '[URL]', line)
@@ -205,7 +205,8 @@ def prepare():
             'Install immutable JavaScript dependencies', timeout=900)
     command(['node_modules/.bin/patch-package', '--error-on-fail'], 'Apply repository dependency patches', timeout=180)
     original_manifest = (ROOT / 'package.json').read_bytes()
-    command(['node_modules/.bin/rn-nodeify', '--hack'], 'Apply existing Node compatibility shims without installing dependencies', timeout=180)
+    command(['node', '.github/native/nodeify.cjs'],
+            'Apply committed Node compatibility whitelist without installing dependencies', timeout=180)
     installed_manifest = (ROOT / 'package.json').read_bytes()
     original = json.loads(original_manifest)
     installed = json.loads(installed_manifest)
