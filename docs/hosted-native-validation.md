@@ -112,7 +112,7 @@ command output stays private to the ephemeral runner; metadata records which
 command failed. Keep artifacts for seven days.
 
 On startup failure, metadata may include fixed Maestro command/assertion labels,
-bounded redacted Metro errors and targeted Android exception messages from this
+bounded redacted Metro errors and targeted native exception messages from this
 job's fresh account-free device. UI hierarchy and credential suffixes are
 excluded; diagnostic collection cannot change a failed result. Cold development
 bundling has a three-minute initial-screen allowance and seven-minute Maestro

@@ -117,6 +117,27 @@ def metro_startup_errors(log):
     return failure_details('\n'.join(selected))
 
 
+def ios_startup_errors(payload, executable):
+    events = json.loads(payload)
+    if not isinstance(events, list):
+        raise ValueError('Unexpected iOS unified log JSON format.')
+    selected = []
+    for event in events:
+        if not isinstance(event, dict):
+            raise ValueError('Unexpected iOS unified log event format.')
+        if Path(event.get('processImagePath', '')).name != executable:
+            continue
+        message = event.get('eventMessage', '')
+        if not isinstance(message, str) or not message.splitlines():
+            continue
+        first_line = message.splitlines()[0]
+        if str(event.get('messageType', '')).lower() in ['error', 'fault'] or re.search(
+                r'(?:\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b)',
+                first_line, re.IGNORECASE):
+            selected.append('error: iOS ' + first_line)
+    return failure_details('\n'.join(selected))
+
+
 def record_startup_failure(report, device):
     """Collect bounded diagnostics before destroying this job's fresh app state."""
     details = {'scope': 'Fresh startup only; no account or persisted PIN created.',
@@ -171,6 +192,33 @@ def record_startup_failure(report, device):
             return {'command': args, 'exit_code': code,
                     'errors': android_startup_errors(private_text(path)) if code == 0 else []}
         collect('android_errors', android_details)
+    elif PLATFORM == 'IOS' and device:
+        def ios_details():
+            executable = read()['built_artifact']['executable']
+            if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]*', executable):
+                raise ValueError('Unsafe iOS executable selector.')
+            predicate = ('process == "%s" AND (messageType == "error" OR messageType == "fault" '
+                         'OR eventMessage CONTAINS[c] "error" OR eventMessage CONTAINS[c] "exception" '
+                         'OR eventMessage CONTAINS[c] "fatal")') % executable
+            args = ['xcrun', 'simctl', 'spawn', device, 'log', 'show', '--style', 'json',
+                    '--last', '3m', '--predicate', predicate]
+            path = PRIVATE / 'ios-startup-errors.log'
+            # Keep log/xcrun notices separate so stderr cannot corrupt JSON stdout.
+            with path.open('wb') as output, (PRIVATE / 'ios-startup-errors-stderr.log').open('wb') as stderr:
+                try:
+                    result = subprocess.run(args, stdout=output, stderr=stderr,
+                                            timeout=25, check=False)
+                    code = result.returncode
+                except subprocess.TimeoutExpired:
+                    code = 124
+            result = {'command': args, 'exit_code': code, 'errors': []}
+            if code == 0:
+                try:
+                    result['errors'] = ios_startup_errors(private_text(path), executable)
+                except (ValueError, TypeError) as error:
+                    result['parse_error'] = type(error).__name__
+            return result
+        collect('ios_errors', ios_details)
     data = read()
     data['startup_diagnostics'] = details
     save(data)

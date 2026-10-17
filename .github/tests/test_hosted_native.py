@@ -113,6 +113,40 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertNotIn('private data', native.EVIDENCE.read_text())
         self.assertTrue(data['startup_diagnostics']['maestro']['testcase_failures'])
 
+    def test_ios_startup_errors_restrict_process_and_redact_first_error_line(self):
+        payload = json.dumps([
+            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
+             'messageType': 'Error', 'eventMessage': 'NSException: module failed token=private; UI hierarchy: PRIVATE_SENTINEL\nprivate stack'},
+            {'processImagePath': '/Applications/OtherApp.app/OtherApp',
+             'messageType': 'Error', 'eventMessage': 'private unrelated application'},
+            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
+             'messageType': 'Default', 'eventMessage': 'normal startup message'},
+            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
+             'messageType': 'Default', 'eventMessage': 'ReferenceError: missing startup module\nPRIVATE_SENTINEL'},
+            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
+             'messageType': 'Default', 'eventMessage': 'NSException: failed native startup\nPRIVATE_SENTINEL'},
+        ])
+        errors = native.ios_startup_errors(payload, 'hexa_keeper_dev')
+        self.assertEqual(len(errors), 3)
+        self.assertIn('NSException: module failed', errors[0])
+        self.assertIn('ReferenceError: missing startup module', errors[1])
+        self.assertIn('NSException: failed native startup', errors[2])
+        self.assertNotIn('private', '\n'.join(errors))
+        self.assertNotIn('PRIVATE_SENTINEL', '\n'.join(errors))
+        with self.assertRaises(ValueError):
+            native.ios_startup_errors('not JSON', 'hexa_keeper_dev')
+
+    def test_ios_collector_rejects_unsafe_executable_without_running_command(self):
+        native.PRIVATE.mkdir()
+        native.save({'commands': [], 'smoke': 'FAIL', 'built_artifact': {'executable': '../unsafe"'}})
+        (native.PRIVATE / 'metro.log').write_text('')
+        with mock.patch.object(native, 'PLATFORM', 'IOS'), mock.patch.object(subprocess, 'run') as run:
+            native.record_startup_failure(native.PRIVATE / 'missing-report.xml', 'owned-simulator')
+        run.assert_not_called()
+        self.assertEqual(native.read()['smoke'], 'FAIL')
+        self.assertIn({'stage': 'ios_errors', 'error_type': 'ValueError'},
+                      native.read()['startup_diagnostics']['collection_errors'])
+
     def test_diagnostic_failure_never_replaces_original_smoke_failure(self):
         native.PRIVATE.mkdir()
         identity = {'sha256': 'test artifact'}
