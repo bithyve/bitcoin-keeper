@@ -43,6 +43,8 @@ def failure_details(log):
     """Bounded tool errors from this fresh CI fixture, never raw process logs."""
     selected = []
     for line in log.splitlines():
+        line = re.split(r'\b(?:UI\s+hierarchy|View\s+hierarchy|credentials?)\s*[:=]',
+                        line, maxsplit=1, flags=re.IGNORECASE)[0].rstrip()
         if re.match(r'^\s*\d+\s*\|', line):
             continue
         if not re.search(r'(?:\berror:|^error |^e: |^\[!\]|^FAILURE:|^> (?!Task\b)|^Caused by:|^Could not |'
@@ -58,6 +60,121 @@ def failure_details(log):
         if len(selected) == 20:
             break
     return selected
+
+
+def maestro_failure_details(log):
+    """Retain only this flow's fixed commands and bounded tool failure messages."""
+    selected = []
+    for raw in log.splitlines():
+        line = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', raw).strip()
+        if line.endswith('FAILED'):
+            if line.startswith(('Launch app', 'Clear state', 'Stop app')) and any(app in line for app in APP_IDS.values()):
+                selected.append('Maestro app launch/stop command FAILED')
+            elif line.startswith(('Assert', 'Wait')) and 'Create a passcode' in line:
+                selected.append('Maestro assertion: Create a passcode visible FAILED')
+            elif line.startswith(('Assert', 'Wait')) and 'Confirm your passcode' in line:
+                selected.append('Maestro assertion: Confirm your passcode state FAILED')
+            elif line.startswith('Tap on'):
+                match = re.search(r'\bkey_[1-4]\b', line)
+                if match:
+                    selected.append('Maestro tap %s FAILED' % match.group())
+        elif line.startswith(('Assertion is false:', 'Element not found:')):
+            # Emit only a category and fixed selector; even a first-line suffix
+            # can contain a hierarchy or arbitrary device text.
+            category = 'assertion failed' if line.startswith('Assertion is false:') else 'element not found'
+            for target in ['Create a passcode', 'Confirm your passcode', 'key_1', 'key_2', 'key_3', 'key_4']:
+                if target in line:
+                    selected.append('Maestro %s: %s' % (category, target))
+                    break
+        elif line.startswith(('Unable to launch app', 'Failed to launch app', 'Unable to connect',
+                              'Failed to connect', 'Failed to start', 'No devices found',
+                              'No connected devices', 'Unable to find device')):
+            selected.extend(failure_details('error: Maestro ' + line))
+        if len(selected) >= 10:
+            break
+    return list(dict.fromkeys(selected))[:10]
+
+
+def android_startup_errors(log):
+    selected = []
+    for line in log.splitlines():
+        match = re.match(r'^[EF]/(AndroidRuntime|ReactNativeJS|ReactNative)\s*\(\s*\d+\):\s*(.*)', line)
+        if not match:
+            continue
+        tag, message = match.groups()
+        if re.search(r'(?:FATAL EXCEPTION|Caused by:|\b[\w.$]*(?:Exception|Error)\b|'
+                     r'Invariant Violation|Unable to load script|Could not)', message):
+            selected.append('error: %s %s' % (tag, message))
+    return failure_details('\n'.join(selected))
+
+
+def metro_startup_errors(log):
+    selected = []
+    for raw in log.splitlines():
+        line = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', raw).strip()
+        if re.match(r'^(?:error\b|(?:Syntax|Type|Reference)Error:|Unable to resolve module)', line, re.IGNORECASE):
+            selected.append('error: Metro ' + line)
+    return failure_details('\n'.join(selected))
+
+
+def record_startup_failure(report, device):
+    """Collect bounded diagnostics before destroying this job's fresh app state."""
+    details = {'scope': 'Fresh startup only; no account or persisted PIN created.',
+               'collection_errors': []}
+
+    def collect(name, action):
+        try:
+            details[name] = action()
+        except Exception as error:
+            details['collection_errors'].append({'stage': name, 'error_type': type(error).__name__})
+
+    def private_text(path):
+        # No raw logs/reports are copied to the artifact directory.
+        with path.open('rb') as source:
+            source.seek(0, os.SEEK_END)
+            source.seek(max(0, source.tell() - 1024 * 1024))
+            return source.read().decode(errors='replace')
+
+    def maestro_details():
+        result = {'failed_commands': [], 'testcase_failures': [], 'report': 'MISSING'}
+        for index, entry in enumerate(read()['commands'], 1):
+            if entry['label'] == 'Assert startup and disposable passcode transition':
+                result['failed_commands'] = maestro_failure_details(private_text(PRIVATE / ('command-%03d.log' % index)))
+        if report.exists():
+            if report.stat().st_size > 1024 * 1024:
+                raise RuntimeError('Maestro report exceeded diagnostic size limit.')
+            suite = ET.parse(report).getroot()
+            result['report'] = 'PRESENT'
+            result['testcase_statuses'] = [case.get('status') if case.get('status') in
+                                            ['SUCCESS', 'ERROR', 'WARNING', 'SKIPPED'] else 'UNKNOWN'
+                                           for case in list(suite.iter('testcase'))[:10]]
+            for failure in list(suite.iter('failure'))[:10]:
+                # Pinned Maestro JUnit stores failure.message separately from UI hierarchy.
+                first_line = ''.join(failure.itertext()).splitlines()[:1]
+                result['testcase_failures'].extend(maestro_failure_details('\n'.join(first_line)))
+        return result
+
+    collect('maestro', maestro_details)
+    collect('metro_errors', lambda: metro_startup_errors(private_text(PRIVATE / 'metro.log')))
+    if PLATFORM == 'ANDROID' and device:
+        def android_details():
+            args = ['adb', '-s', device, 'logcat', '-d', '-t', '300', '-v', 'brief',
+                    'AndroidRuntime:E', 'ReactNativeJS:E', 'ReactNative:E', '*:S']
+            path = PRIVATE / 'android-startup-errors.log'
+            with path.open('wb') as output:
+                try:
+                    result = subprocess.run(args, stdout=output, stderr=subprocess.STDOUT,
+                                            timeout=20, check=False)
+                    code = result.returncode
+                except subprocess.TimeoutExpired:
+                    code = 124
+            return {'command': args, 'exit_code': code,
+                    'errors': android_startup_errors(private_text(path)) if code == 0 else []}
+        collect('android_errors', android_details)
+    data = read()
+    data['startup_diagnostics'] = details
+    save(data)
+    print('Bounded startup diagnostics: ' + json.dumps(details), flush=True)
 
 
 def command(args, label, timeout=120, cwd=ROOT, capture=False):
@@ -119,6 +236,7 @@ def record():
         'os': platform.platform(), 'commands': [], 'build': 'NOT RUN', 'smoke': 'NOT RUN',
         'hardware': 'NOT RUN', 'signing': 'NOT RUN', 'app_id': APP_IDS[PLATFORM],
         'smoke_scope': 'Fresh install; render Create a passcode; type four disposable digits; assert Confirm your passcode; stop before persisting credentials.',
+        'startup_timing_scope': 'Bounded cold development bundle/startup allowance; no release performance acceptance.',
         'artifact_policy': 'Metadata only. No raw logs, screenshots, app binaries, simulator data or credentials.',
     })
     versions = {
@@ -303,7 +421,7 @@ def build():
                  '-configuration', 'Debug', '-sdk', 'iphonesimulator', '-destination', 'generic/platform=iOS Simulator',
                  '-derivedDataPath', str(PRIVATE / 'DerivedData'), 'CODE_SIGNING_ALLOWED=NO',
                  'CODE_SIGNING_REQUIRED=NO', 'ARCHS=' + architecture, 'ONLY_ACTIVE_ARCH=YES', 'build'],
-                'Build unsigned development simulator app', timeout=2100)
+                'Build unsigned development simulator app', timeout=2400)
     else:
         observed = command(['./gradlew', '--version'], 'Record actual Gradle and JVM version',
                            capture=True, cwd=ROOT / 'android')
@@ -328,6 +446,7 @@ def smoke():
     metro = subprocess.Popen(['node', 'node_modules/react-native/cli.js', 'start', '--port', '8081'],
                              cwd=ROOT, stdout=metro_output, stderr=subprocess.STDOUT, start_new_session=True)
     device = None
+    report = PRIVATE / 'smoke-junit.xml'
     try:
         for _ in range(60):
             if metro.poll() is not None:
@@ -372,10 +491,9 @@ def smoke():
         data['device'] = {'id': device, 'image': descriptor, 'fresh_disposable_state': True}
         data['installed_artifact_verified'] = True
         save(data)
-        report = PRIVATE / 'smoke-junit.xml'
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
                  '--format', 'junit', '--output', str(report), '--test-output-dir', str(PRIVATE / 'maestro-output'),
-                 '.github/native/startup.yaml'], 'Assert startup and disposable passcode transition', timeout=240)
+                 '.github/native/startup.yaml'], 'Assert startup and disposable passcode transition', timeout=420)
         suite = ET.parse(report).getroot()
         cases = list(suite.iter('testcase'))
         if not cases or any(list(case.iter('failure')) or list(case.iter('error')) or list(case.iter('skipped'))
@@ -385,6 +503,16 @@ def smoke():
         data['smoke'] = 'PASS'
         data['smoke_test_cases'] = len(cases)
         save(data)
+    except Exception:
+        try:
+            record_startup_failure(report, device)
+        except Exception as error:
+            # Diagnostics never replace the original failed native/UI result.
+            data = read()
+            data['startup_diagnostics'] = {'collection_errors': [
+                {'stage': 'collector', 'error_type': type(error).__name__}]}
+            save(data)
+        raise
     finally:
         if metro.poll() is None:
             os.killpg(metro.pid, signal.SIGTERM)

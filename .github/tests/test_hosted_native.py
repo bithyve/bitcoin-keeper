@@ -67,6 +67,67 @@ class HostedNativeHarnessTest(unittest.TestCase):
             native.command([sys.executable, '-c', 'import time; time.sleep(30)'], 'Timeout', timeout=0.05)
         self.assertEqual(native.read()['commands'][0]['exit_code'], 124)
 
+    def test_startup_diagnostics_keep_fixed_failed_steps_and_redact_error_messages(self):
+        maestro = '\n'.join([
+            'Assert that "Create a passcode" is visible... FAILED',
+            'Tap on id: key_2... FAILED',
+            'Tap on "private recovery phrase"... FAILED',
+            'UI hierarchy: private state',
+            'Assertion is false: "Create a passcode" is visible; UI hierarchy: PRIVATE_SENTINEL',
+            'Element not found: key_1; private arbitrary suffix',
+        ])
+        messages = native.maestro_failure_details(maestro)
+        self.assertTrue(any('Create a passcode' in message for message in messages))
+        self.assertIn('Maestro tap key_2 FAILED', messages)
+        self.assertNotIn('private', '\n'.join(messages))
+        self.assertNotIn('PRIVATE_SENTINEL', '\n'.join(messages))
+        self.assertNotIn('hierarchy', '\n'.join(messages))
+        self.assertIn('Maestro assertion failed: Create a passcode', messages)
+        self.assertIn('Maestro element not found: key_1', messages)
+        metro = native.metro_startup_errors(' BUNDLE index.js\n ERROR Error: Unable to resolve module token=private https://example.test/private; View hierarchy: PRIVATE_SENTINEL')
+        self.assertEqual(len(metro), 1)
+        self.assertNotIn('private', metro[0])
+        self.assertNotIn('PRIVATE_SENTINEL', metro[0])
+        native_errors = native.android_startup_errors('\n'.join([
+            'E/AndroidRuntime( 123): FATAL EXCEPTION: main; credentials: PRIVATE_SENTINEL',
+            'E/ReactNativeJS( 123): TypeError: Cannot load module token=private',
+            'E/OtherApp( 124): Error: private unrelated data',
+            'E/ReactNativeJS( 123):     at unneeded stack frame',
+        ]))
+        self.assertEqual(len(native_errors), 2)
+        self.assertNotIn('private', '\n'.join(native_errors))
+        self.assertNotIn('PRIVATE_SENTINEL', '\n'.join(native_errors))
+
+    def test_junit_failure_collection_omits_hierarchy_and_preserves_failed_result(self):
+        native.PRIVATE.mkdir()
+        native.save({'commands': [], 'build': 'PASS', 'smoke': 'FAIL'})
+        (native.PRIVATE / 'metro.log').write_text('No bundler error\n')
+        report = native.PRIVATE / 'smoke-junit.xml'
+        report.write_text('<testsuites><testsuite><testcase status="ERROR"><failure>'
+                          'Assertion is false: Create a passcode is visible\nUI hierarchy: private data'
+                          '</failure></testcase></testsuite></testsuites>')
+        native.record_startup_failure(report, None)
+        data = native.read()
+        self.assertEqual(data['smoke'], 'FAIL')
+        self.assertEqual(data['startup_diagnostics']['maestro']['testcase_statuses'], ['ERROR'])
+        self.assertNotIn('private data', native.EVIDENCE.read_text())
+        self.assertTrue(data['startup_diagnostics']['maestro']['testcase_failures'])
+
+    def test_diagnostic_failure_never_replaces_original_smoke_failure(self):
+        native.PRIVATE.mkdir()
+        identity = {'sha256': 'test artifact'}
+        native.save({'commands': [], 'build': 'PASS', 'smoke': 'NOT RUN', 'built_artifact': identity})
+        metro = mock.Mock()
+        metro.poll.return_value = 1
+        with mock.patch.object(native, 'artifact_identity', return_value=identity), \
+                mock.patch.object(subprocess, 'Popen', return_value=metro), \
+                mock.patch.object(native, 'record_startup_failure', side_effect=RuntimeError('collector failed')), \
+                self.assertRaisesRegex(RuntimeError, 'Metro exited before the disposable smoke'):
+            native.run_phase('smoke')
+        self.assertEqual(native.read()['smoke'], 'FAIL')
+        self.assertEqual(native.read()['startup_diagnostics']['collection_errors'],
+                         [{'stage': 'collector', 'error_type': 'RuntimeError'}])
+
     def test_missing_executable_is_recorded(self):
         with self.assertRaisesRegex(RuntimeError, 'exit 127'):
             native.command([str(self.root / 'missing-command')], 'Missing')
@@ -150,7 +211,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
                 self.assertIn('ARCHS=' + architecture, arguments)
                 self.assertIn('ONLY_ACTIVE_ARCH=YES', arguments)
                 self.assertIn('CODE_SIGNING_ALLOWED=NO', arguments)
-                self.assertEqual(command.call_args.kwargs['timeout'], 2100)
+                self.assertEqual(command.call_args.kwargs['timeout'], 2400)
                 self.assertEqual(native.read()['toolchain']['ios_simulator_architecture'], architecture)
 
     def test_artifact_hash_detects_changed_apk_before_smoke(self):

@@ -111,6 +111,16 @@ app bundles, keystores and generated account data are not uploaded. Failed raw
 command output stays private to the ephemeral runner; metadata records which
 command failed. Keep artifacts for seven days.
 
+On startup failure, metadata may include fixed Maestro command/assertion labels,
+bounded redacted Metro errors and targeted Android exception messages from this
+job's fresh account-free device. UI hierarchy and credential suffixes are
+excluded; diagnostic collection cannot change a failed result. Cold development
+bundling has a three-minute initial-screen allowance and seven-minute Maestro
+command limit, with all UI assertions still required. This is not release
+performance acceptance. The iOS build command is limited to the hosted
+simulator's architecture and 40 minutes; Android's build command is capped at
+35 minutes.
+
 The iOS job is capped at 65 minutes and Android at 60 minutes, with command and
 emulator boot limits inside those budgets. The jobs have no automatic retries;
 new pushes cancel only

@@ -54,8 +54,8 @@ The subsequent [hosted run at infrastructure head `9509`][repair-run], full SHA
 on **both platforms** and the actual Android development native build. Android
 smoke setup then failed when `emulator -version` exited 127, before app install;
 Android UI smoke has **not passed**. The iOS native build subsequently hit its
-35-minute command timeout (exit 124); iOS smoke was **NOT RUN**. Record final source/run/attempt and actual
-platform results in the PR report after the remaining fixes and final run; these
+35-minute command timeout (exit 124); iOS smoke was **NOT RUN**. Record final
+source/run/attempt and actual platform results in the PR report after the remaining fixes and final run; these
 intermediate results do not establish both-platform native acceptance. Even
 successful #7060 startup smoke will not attest R4 source `be89`, its private
 fixture, or any backup/restore case below.
@@ -65,6 +65,26 @@ CodeQL aggregate were still failing when inspected. Successful Jest, CodeQL
 analysis execution and backend bootstrap jobs do not reverse those results. The
 [current handoff][handoff] records actual exact-source host proofs and their
 limits separately from full native acceptance.
+
+### Exact-R4 setup must be reviewed separately
+
+A read-only source audit found no missing root Yarn selectors at `be89`; no R4
+install or build was attempted here. Its committed Pod lock records CocoaPods
+**1.15.2**, while #7060 installs **1.16.2**. CocoaPods' [deployment verification][pod-deployment]
+compares the complete regenerated lock, including that version field. The
+unchanged #7060 setup therefore cannot satisfy the exact R4 lock. A future R4
+lane must match its reviewed toolchain, including the handoff's Node **22.23.3+**,
+and preserve its Nitro/Hermes inputs. R4's public local-backend guide also warns
+that Hermes podspec checksums can depend on checkout path: report a strict-lock
+mismatch as **BLOCKED**, rather than rewriting the lock to obtain a pass.
+
+R4 has no copy of this new native workflow/harness. Reusing the approach needs
+separately reviewed orchestration of its exact head, without edits to R4 source.
+Explicit generated loopback configuration and dummy Firebase can cover startup;
+blank service values must not activate real-service defaults. Fresh account
+creation needs the separately reviewed public local services, while protected-v3
+requires its separate authorized fixture source. None was obtained or started
+for this assessment. #7060's source or toolchain is not a substitute for R4's.
 
 ## Fresh disposable cloud candidates
 
@@ -166,3 +186,4 @@ modified.
 [infra-pr]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7060
 [initial-run]: https://github.com/KeeperCommunity/bitcoin-keeper/actions/runs/39010808486
 [repair-run]: https://github.com/KeeperCommunity/bitcoin-keeper/actions/runs/39012940184
+[pod-deployment]: https://github.com/CocoaPods/CocoaPods/blob/1.16.2/lib/cocoapods/installer.rb#L489-L497

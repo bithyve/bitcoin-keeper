@@ -8,7 +8,7 @@ name: Disposable startup and passcode input
       all: deny
 - extendedWaitUntil:
     visible: Create a passcode
-    timeout: 60000
+    timeout: 180000
 - assertNotVisible: Confirm your passcode
 - tapOn:
     id: key_1
