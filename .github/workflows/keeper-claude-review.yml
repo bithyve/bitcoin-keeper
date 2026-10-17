@@ -33,7 +33,7 @@ jobs:
       - name: Checkout trusted authorization code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
           sparse-checkout: .github/scripts
           sparse-checkout-cone-mode: true
@@ -64,8 +64,9 @@ jobs:
       - name: Checkout trusted reviewer only
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          # issue_comment uses the default branch's immutable event SHA.
-          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          # Both events use their immutable trusted branch SHA. PR.base.sha
+          # can remain stale after sprint advances; never select code from it.
+          ref: ${{ github.sha }}
           persist-credentials: false
           sparse-checkout: .github/scripts
           sparse-checkout-cone-mode: true

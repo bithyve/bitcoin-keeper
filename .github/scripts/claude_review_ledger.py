@@ -43,21 +43,49 @@ def signed_document(document, signing_key, code_repo, epoch):
     return dict(unsigned, signature=signature)
 
 
+def _validate_configuration(code_repo, epoch, signing_key):
+    if (not isinstance(code_repo, str) or
+            not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", code_repo) or
+            code_repo == STATE_REPOSITORY or not isinstance(epoch, str) or
+            not HEX32.fullmatch(epoch) or not isinstance(signing_key, str) or
+            len(signing_key) < 32):
+        raise LedgerError("Invalid protected payment-ledger configuration")
+
+
 def initial_document(code_repo, epoch, signing_key):
-    """Build the empty orphan bootstrap; admins must migrate history before activation."""
-    return signed_document({"version": 1, "epoch": epoch, "repository": code_repo,
+    """Build an empty v2 orphan bootstrap; history must be migrated before activation."""
+    _validate_configuration(code_repo, epoch, signing_key)
+    return signed_document({"version": 2, "epoch": epoch, "repository": code_repo,
                             "revision": 0, "parent_commit": None,
                             "production_verified": False, "attempts": []},
                            signing_key, code_repo, epoch)
 
 
+def imported_document(code_repo, epoch, signing_key, records):
+    """Build an offline, inactive v2 orphan preserving uncertain legacy debt."""
+    _validate_configuration(code_repo, epoch, signing_key)
+    if not isinstance(records, list) or not records:
+        raise LedgerError("Legacy import requires nonempty historical reservations")
+    ids, requests = set(), set()
+    for record in records:
+        Ledger._validate_attempt(record)
+        if record.get("legacy") is not True:
+            raise LedgerError("Orphan imports may contain only permanent legacy reservations")
+        request_key = (record["pr"], record["request"])
+        if record["id"] in ids or request_key in requests:
+            raise LedgerError("Duplicate payment-ledger reservation")
+        ids.add(record["id"])
+        requests.add(request_key)
+    return signed_document({"version": 2, "epoch": epoch, "repository": code_repo,
+                            "revision": len(records), "parent_commit": None,
+                            "production_verified": False, "attempts": copy.deepcopy(records)},
+                           signing_key, code_repo, epoch)
+
+
 class Ledger:
     def __init__(self, api, code_repo, epoch, signing_key, app_id):
-        if (not isinstance(code_repo, str) or
-                not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", code_repo) or
-                code_repo == STATE_REPOSITORY or not isinstance(epoch, str) or
-                not HEX32.fullmatch(epoch) or not isinstance(signing_key, str) or
-                len(signing_key) < 32 or type(app_id) is not int or app_id <= 0):
+        _validate_configuration(code_repo, epoch, signing_key)
+        if type(app_id) is not int or app_id <= 0:
             raise LedgerError("Invalid protected payment-ledger configuration")
         self.api, self.code_repo, self.epoch = api, code_repo, epoch
         self.signing_key, self.app_id = signing_key, app_id
@@ -159,8 +187,12 @@ class Ledger:
                        isinstance(r.get("type"), str)} for ruleset_id in qualifying):
                 raise LedgerError("Payment-ledger creation/update/deletion/force-push restrictions are not effective")
 
-    def _validate_attempt(self, record):
+    @staticmethod
+    def _validate_attempt(record):
         fields = {"id", "pr", "request", "head", "base", "status", "run", "reservation"}
+        legacy = isinstance(record, dict) and record.get("legacy") is True
+        if legacy:
+            fields.add("legacy")
         if (not isinstance(record, dict) or set(record) != fields or
                 not isinstance(record["id"], str) or not HEX32.fullmatch(record["id"]) or
                 type(record["pr"]) is not int or record["pr"] <= 0 or
@@ -169,14 +201,18 @@ class Ledger:
                 not isinstance(record["run"], str) or not re.fullmatch(r"[1-9][0-9]*", record["run"]) or
                 record["reservation"] != RESERVATION):
             raise LedgerError("Malformed signed payment-state attempt")
-        self._sha(record["head"])
-        self._sha(record["base"])
+        if legacy and (not re.fullmatch(r"audit-[0-9a-f]{40}", record["request"]) or
+                       record["status"] != "started"):
+            raise LedgerError("Legacy reservations require permanent started audit records")
+        for field in ("head", "base"):
+            if not legacy or record[field] is not None:
+                Ledger._sha(record[field])
 
     def _validate_document(self, document, commit):
         fields = {"version", "epoch", "repository", "revision", "parent_commit",
                   "production_verified", "attempts", "signature"}
         if (not isinstance(document, dict) or set(document) != fields or
-                type(document["version"]) is not int or document["version"] != 1 or
+                type(document["version"]) is not int or document["version"] != 2 or
                 document["epoch"] != self.epoch or document["repository"] != self.code_repo or
                 type(document["revision"]) is not int or document["revision"] < 0 or
                 type(document["production_verified"]) is not bool or
@@ -208,11 +244,12 @@ class Ledger:
         parents = commit.get("parents")
         if not isinstance(parents, list):
             raise LedgerError("Payment-ledger commit ancestry unavailable")
-        if document["revision"] == 0:
-            if (parents != [] or document["parent_commit"] is not None or
-                    document["production_verified"] is not False):
-                raise LedgerError("Initial payment ledger must be an administrator-created orphan commit")
+        if parents == []:
+            if (document["parent_commit"] is not None or document["production_verified"] is not False or
+                    any(record.get("legacy") is not True for record in records)):
+                raise LedgerError("Initial payment ledger must be an inactive administrator-created legacy orphan")
         elif (len(parents) != 1 or not isinstance(parents[0], dict) or
+                document["parent_commit"] is None or
                 self._sha(document["parent_commit"]) != self._sha(parents[0].get("sha"))):
             raise LedgerError("Payment-ledger parent mismatch; possible history replay")
 
@@ -246,9 +283,13 @@ class Ledger:
     def _write(self, document, parent_commit, blob_sha):
         # Every update commits the observed parent into authenticated content.
         # The Contents API's old blob SHA is the atomic compare-and-swap guard.
+        self._sha(parent_commit)
+        self._sha(blob_sha)
         document = dict(document, parent_commit=parent_commit,
                         revision=document["revision"] + 1)
         document = signed_document(document, self.signing_key, self.code_repo, self.epoch)
+        # Reject invalid signed transitions before touching the protected ref.
+        self._validate_document(document, {"parents": [{"sha": parent_commit}]})
         raw = canonical(document).encode("utf-8")
         if len(raw) > MAX_LEDGER_BYTES:
             raise LedgerError("Payment ledger exhausted; administrator archival required")
@@ -305,7 +346,7 @@ class Ledger:
             raise LedgerError("Review already reserved/completed; no paid request")
         if len(records) >= MAX_ATTEMPTS_PER_PR:
             raise LedgerError("Permanent PR review budget exhausted ($9 / 3 attempts); administrator decision required")
-        if sum(r["head"] == record["head"] for r in records) >= MAX_ATTEMPTS_PER_HEAD:
+        if sum(r["head"] is None or r["head"] == record["head"] for r in records) >= MAX_ATTEMPTS_PER_HEAD:
             raise LedgerError("Permanent head review budget exhausted ($6 / 2 attempts); administrator decision required")
         document["attempts"].append(record)
         self._write(document, parent, blob)
@@ -321,6 +362,8 @@ class Ledger:
         if len(matches) != 1:
             raise LedgerError("Paid-review reservation unavailable; no automatic retry")
         record = matches[0]
+        if record.get("legacy") is True:
+            raise LedgerError("Legacy payment reservations remain permanently started")
         if record["status"] == status:
             return
         if record["status"] != "started":

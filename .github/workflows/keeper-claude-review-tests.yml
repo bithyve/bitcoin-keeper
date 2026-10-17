@@ -6,7 +6,8 @@ on:
     paths:
       - '.github/scripts/claude_review*.py'
       - '.github/scripts/test_claude_review*.py'
-      - '.github/workflows/keeper-claude-review*.yml'
+      - '.github/scripts/claude_review_legacy.json'
+      - '.github/workflows/keeper-claude-*.yml'
   workflow_dispatch:
 
 permissions:

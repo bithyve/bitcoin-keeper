@@ -37,6 +37,14 @@ wrong-generation or inaccessible history fails closed; runtime never initializes
 an empty ledger. Completion is persisted after successful result publication.
 Deleting a review or request comment cannot erase a paid reservation.
 
+Schema version 2 preserves uncertain historical attempts as explicit
+`legacy: true`, permanently `started` reservations. Unknown historical head or
+base is `null`; current PR metadata must never fill a missing historical snapshot.
+Unknown-head debt counts against every head's limit, and every legacy record
+counts against its PR's limit. Runtime cannot create these records, complete
+them, or migrate version 1 automatically. An imported orphan starts populated
+and inactive; copying it into a later commit fails parent/counter validation.
+
 The state App can append state but cannot delete or force-reset the protected
 branch. Two active rulesets are mandatory: creation/update restricted to this
 App; deletion/non-fast-forward blocked for everyone, including this App.
@@ -120,20 +128,28 @@ These are deployment prerequisites, not actions performed by this PR.
    random 32-lowercase-hex epoch. Store secret `KEEPER_CLAUDE_STATE_KEY` and
    environment variable `KEEPER_CLAUDE_LEDGER_EPOCH`. Keep their recovery copies
    in an administrator-controlled secret manager; API-key rotation preserves them.
-6. With the workflow still disabled, initialize the orphan JSON-only branch.
-   The trusted module's offline `initial_document(...)` helper creates the signed
-   revision-zero document with `production_verified: false`, no parent and no
-   attempts; it performs no network write. Do not put secrets on command lines
-   or enable shell tracing. Import **all** known prior charged/uncertain attempts
-   before activation: validate immutable source SHAs, run IDs, billing/usage and
-   old signatures using administrator-held evidence, assign distinct historical
-   `audit-<40hex>` request IDs if necessary, and retain $3 per attempt. Preserve
-   actual status or `started` for uncertainty; calculate revision as attempt
-   count plus terminal-status count. Each signed migration binds the real single
-   parent commit and preserves the epoch. Historical counts above current caps
-   remain readable and block further payment for that PR; do not discard them.
-   PR #7049 already had four meaningful paid candidate audits before this fix;
-   it must not receive a fresh empty allowance. Verify all other historical runs.
+6. With the workflow still disabled, prepare a populated inactive orphan using
+   `imported_document(...)`, never a fresh empty allowance. The fixed
+   [legacy manifest](scripts/claude_review_legacy.json) preserves seven known
+   charged/uncertain runs for PR #7049, each permanently reserving $3. Three old
+   tool-enabled runs have unknown snapshots; four later snapshot claims are
+   corroborated by immutable harnesses but are not authenticated completion or
+   billing evidence. Run `38214836557` is excluded because its successful
+   immutable harness rejects every Anthropic call and asserts reuse of a prior
+   review. Do not treat it as another paid attempt. Old signatures used the
+   retired Anthropic key, not the new independent signing secret.
+
+   Seven reservations are a conservative known minimum, not proof of the
+   original agent's request/turn count or historical $3 compliance. Reconcile
+   **all** billing, immutable runs and administrator-held evidence before
+   production verification; retain additional charged/uncertain calls if found.
+   Never invent missing SHAs or discard debt. Version 2 imports stay `started`,
+   with revision equal to record count, no parent and
+   `production_verified: false`. Historical over-cap records remain readable
+   and block further spending for that PR. Each subsequent signed migration
+   binds its real single parent, preserves the epoch and computes revision as
+   attempts + terminal updates + verification flag. Do not expose signing
+   secrets on command lines, in logs, or through shell tracing.
 7. Configure two **repository-local, active branch rulesets**, each targeting
    exactly `refs/heads/keeper-claude-review-state` with empty exclusions:
    (a) `creation`, `update`, bypass actors exactly the State App Integration ID,
@@ -156,13 +172,66 @@ These are deployment prerequisites, not actions performed by this PR.
    collect production-boundary evidence. These changes have offline/Codex peer
    checks only; the earlier Sonnet review applies to the old SHA. Production
    triggers and credential isolation are **not verified** while this PR remains
-   unmerged and administrator setup is absent. Do not use legacy keys as a shortcut.
+   unmerged and the protected checks have not run. Do not use legacy keys as a shortcut.
    Once production security is verified and activation is separately authorized,
    an administrator may sign the one verification transition: preserve every
    record/epoch, set `production_verified: true`, bind the current real parent,
    and set revision to attempts + terminal updates + 1. Then enable the repository
    feature variable. Keep Copilot until real exact-head trigger/delivery/dedupe
    checks pass and the user explicitly approves its switch.
+
+## Saved setup and protected administrator check
+
+The owner reports all three environment secrets and both environment variables
+saved, including the independent signing key and epoch
+`fd24ddf2e3336ed75c3ef376a8a14f8c`. The API-secret row and App ID `5313951`
+were visible in owner screenshots; secret values were never read. Live public
+metadata confirms repository ID `1416741877`, App-only ruleset `25288469`,
+no-bypass history ruleset `25288495`, and all four effective restrictions.
+The protected environment permits exactly branch `sprint`, with no tags.
+These observations do not establish actual key validity, installation scope,
+rotation, billing reconciliation or production credential isolation.
+
+The [manual administrator workflow](workflows/keeper-claude-admin.yml) prepares
+the remaining checks using GitHub-held credentials. It is dormant in this PR;
+it cannot run until separately approved trusted installation on `sprint`.
+Do not install or merge it merely to bypass this deployment boundary.
+
+- `preflight` makes no writes and no Anthropic requests. It checks current
+  administrator rights for both the original actor and rerun caller before
+  environment access and again before the App key is used, requires the event
+  SHA still be the actual `sprint` tip, rejects repository/org secret fallbacks,
+  checks the environment policy, and verifies the minted installation token,
+  source visibility and full ledger rules. A missing state branch is reported
+  as uninitialized, never as production readiness.
+- `initialize` additionally creates the fixed seven-record signed orphan,
+  verifies immutable contents and records a nonsecret bootstrap checkpoint on
+  ledger `main`. It never creates an empty allowance, modifies existing payment
+  state, grants retries, sets production verification or activates the feature.
+  It requires the original README-only `main` SHA
+  `a330fe03b8169c31e05dabf3401a2a0c41cf17ab`; concurrent main advancement is
+  rejected. If interrupted after creating state, a rerun can only seal the
+  identical inactive imported root. Uncertain writes stop without automatic
+  replay. Changed, progressed, corrupt or absent-after-checkpoint state requires
+  separately reviewed recovery.
+
+The main checkpoint is administrator-controlled setup bookkeeping, not immutable
+anti-reset authority: an administrator or compromised ledger writer could
+rewind unprotected `main`. The runtime's signed state, exact rulesets and
+fail-closed behavior remain the payment boundary; policy administrators can
+change that boundary and must be trusted and audited. The initializer remains
+admin-only and inactive even if its checkpoint is tampered with.
+
+The Anthropic key enters this administrator workflow only as a **presence
+boolean**; presence proves neither validity nor workspace limits. The private
+App key goes only to the pinned token action, and the signing key only to trusted
+Python. Successful checks prove the **minted token's** one-repository scope,
+not the complete App registration/installation's absence of extra grants.
+Owner installation/permission evidence, legacy-key revocation and provider
+workspace limits, controlled live isolation/forbidden-operation tests, full
+historical reconciliation and independent installed-candidate review remain
+required. Do not test destructive operations against authoritative state.
+No administrator-check result authorizes payment or a Copilot switch.
 
 ## Rotation, incident response and recovery
 
@@ -189,7 +258,12 @@ These are deployment prerequisites, not actions performed by this PR.
 
 Automatic requests use trusted `pull_request_target` code; maintainer commands
 use default-branch `issue_comment` code. Checkout is an immutable trusted
-base/default SHA, never a PR head or merge ref. A credential-free read-only job
+branch event `github.sha`, never a PR head, merge ref or cached PR `base.sha`.
+PR `base.sha` can remain stale after `sprint` advances. Snapshot collection,
+deduplication and every prepayment/publication recheck instead resolve and
+validate the actual current `refs/heads/sprint` commit; an unavailable/malformed
+ref stops safely and a moved base invalidates the earlier snapshot.
+A credential-free read-only job
 reconciles current maintainer permissions before protected environment access;
 those permissions and PR eligibility are rechecked after acquiring the PR lock.
 Only pinned checkout/token actions and Python stdlib run. No package installation,

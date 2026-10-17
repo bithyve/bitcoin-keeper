@@ -254,7 +254,19 @@ class Reviewer:
         self.scope = f"{repo}#{number}:"
 
     def get_pr(self):
-        return self.api.request("github", self.pull)
+        pr = self.api.request("github", self.pull)
+        if not eligible(pr, self.repo):
+            return pr
+        # GitHub's PR response can retain an older base.sha after sprint moves.
+        # Resolve the live target ref for every snapshot, then use that immutable
+        # SHA for collection, payment deduplication and completion attribution.
+        ref = self.api.request("github", self.root + "/git/ref/heads/sprint")
+        obj = ref.get("object") if isinstance(ref, dict) else None
+        if (not isinstance(ref, dict) or ref.get("ref") != "refs/heads/sprint" or
+                not isinstance(obj, dict) or obj.get("type") != "commit"):
+            raise ReviewError("Live sprint base ref unavailable or invalid")
+        base = valid_sha(obj.get("sha"))
+        return dict(pr, base=dict(pr["base"], sha=base))
 
     def get_states(self):
         if self.ledger is None:

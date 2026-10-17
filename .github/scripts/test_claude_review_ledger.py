@@ -40,6 +40,11 @@ def claim(request="comment-123", head=HEAD, base=BASE):
             "status": "started", "run": "12345"}
 
 
+def legacy_record(number=1, head=None, base=None, pr=7049):
+    return dict(claim(f"audit-{number:040x}", head, base), id=f"{number:032x}",
+                pr=pr, reservation="3.00", legacy=True)
+
+
 def git_blob_sha(raw):
     return hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
 
@@ -566,6 +571,157 @@ class LedgerBoundaryTests(unittest.TestCase):
             self.subject.complete(7049, claim_id, "complete")
         self.assertEqual(len(self.api.writes()), 2)
         self.assertEqual(self.subject.states(7049)[0]["reservation"], "3.00")
+
+
+class LegacyReservationTests(unittest.TestCase):
+    def imported_api(self, records, activate=False):
+        api = FakeStateAPI(activated=False)
+        document = ledger_module.imported_document(REPO, EPOCH, KEY, records)
+        api.tip = api.commit(document, [])
+        if activate:
+            document.update(production_verified=True, revision=document["revision"] + 1,
+                            parent_commit=api.tip)
+            document = ledger_module.signed_document(document, KEY, REPO, EPOCH)
+            api.tip = api.commit(document, [api.tip])
+        return api, ledger_module.Ledger(api, REPO, EPOCH, KEY, APP_ID)
+
+    def test_populated_import_is_signed_inactive_v2_orphan_with_no_fabricated_commits(self):
+        records = [legacy_record(number) for number in range(1, 5)]
+        api, subject = self.imported_api(records)
+        document = api.document()
+        self.assertEqual(document["version"], 2)
+        self.assertEqual(document["revision"], 4)
+        self.assertIsNone(document["parent_commit"])
+        self.assertFalse(document["production_verified"])
+        self.assertEqual(api.commits[api.tip]["parents"], [])
+        self.assertEqual(subject.states(7049), records)
+        self.assertTrue(all(record["head"] is None and record["base"] is None and
+                            record["status"] == "started" and record["reservation"] == "3.00"
+                            for record in document["attempts"]))
+        with self.assertRaisesRegex(ledger_module.LedgerError, "production security verification"):
+            subject.reserve(7049, claim())
+        self.assertEqual(api.writes(), [])
+
+    def test_import_helper_rejects_normal_mutable_or_malformed_legacy_records(self):
+        invalid = [[], [dict(claim(), id="1" * 32, pr=7049, reservation="3.00")]]
+        for changes in ({"legacy": False}, {"legacy": 1}, {"request": "auto"},
+                        {"request": "comment-123"}, {"request": "audit-main"},
+                        {"status": "complete"}, {"status": "incomplete"}, {"status": "stale"},
+                        {"head": "main"}, {"base": "b" * 39}, {"pr": True}, {"run": "0"},
+                        {"reservation": "0.00"}, {"unexpected": "field"}):
+            invalid.append([dict(legacy_record(), **changes)])
+        invalid.append([legacy_record(), legacy_record()])
+        invalid.append([legacy_record(), dict(legacy_record(2), request=legacy_record()["request"])])
+        for records in invalid:
+            with self.subTest(records=records):
+                with self.assertRaises(ledger_module.LedgerError):
+                    ledger_module.imported_document(REPO, EPOCH, KEY, records)
+
+    def test_unknown_legacy_head_counts_against_every_prospective_head(self):
+        api, subject = self.imported_api([legacy_record(), legacy_record(2)], activate=True)
+        for head in (HEAD, NEXT_HEAD, "3" * 40):
+            with self.subTest(head=head):
+                with self.assertRaisesRegex(ledger_module.LedgerError, "head review budget exhausted"):
+                    subject.reserve(7049, claim(head=head))
+        self.assertEqual(len(subject.states(7049)), 2)
+        self.assertEqual(api.writes(), [])
+
+    def test_legacy_reservations_count_toward_pr_cap_even_with_known_different_heads(self):
+        records = [legacy_record(number, head=f"{number:040x}") for number in range(1, 4)]
+        api, subject = self.imported_api(records, activate=True)
+        with self.assertRaisesRegex(ledger_module.LedgerError, "PR review budget exhausted"):
+            subject.reserve(7049, claim(head=HEAD))
+        self.assertEqual(api.writes(), [])
+        subject.reserve(7050, claim())
+        self.assertEqual(len(subject.states(7050)), 1)
+
+    def test_unknown_base_cannot_supply_a_completed_review_or_be_completed(self):
+        record = legacy_record(head=HEAD)
+        api, subject = self.imported_api([record], activate=True)
+        for status in ("complete", "incomplete", "stale"):
+            with self.subTest(status=status):
+                with self.assertRaisesRegex(ledger_module.LedgerError, "permanently started"):
+                    subject.complete(7049, record["id"], status)
+        self.assertEqual(api.writes(), [])
+        self.assertFalse(flow.reviewer.already_attempted(subject.states(7049), "comment-123", HEAD, BASE))
+        claim_id = subject.reserve(7049, claim())
+        subject.complete(7049, claim_id, "complete")
+        self.assertEqual(subject.states(7049)[0], record)
+        self.assertEqual(subject.states(7049)[1]["base"], BASE)
+        self.assertNotIn("legacy", subject.states(7049)[1])
+        with self.assertRaisesRegex(ledger_module.LedgerError, "head review budget exhausted"):
+            subject.reserve(7049, claim("comment-124", base=NEXT_BASE))
+        self.assertEqual(len(api.writes()), 2)
+
+    def test_runtime_cannot_create_legacy_records_or_normal_records_with_unknown_commits(self):
+        api = FakeStateAPI()
+        subject = ledger_module.Ledger(api, REPO, EPOCH, KEY, APP_ID)
+        for state in (dict(claim(), legacy=True), claim(head=None), claim(base=None)):
+            with self.subTest(state=state):
+                with self.assertRaises(ledger_module.LedgerError):
+                    subject.reserve(7049, state)
+        self.assertEqual(api.writes(), [])
+        self.assertEqual(subject.states(7049), [])
+
+    def test_v1_document_fails_closed_without_automatic_migration_or_reset(self):
+        api = FakeStateAPI()
+        subject = ledger_module.Ledger(api, REPO, EPOCH, KEY, APP_ID)
+        document = api.document()
+        document["version"] = 1
+        api.replace_document(document, signed=True)
+        for operation in (lambda: subject.states(7049), lambda: subject.reserve(7049, claim())):
+            with self.assertRaisesRegex(ledger_module.LedgerError, "wrong-generation"):
+                operation()
+        self.assertEqual(api.document()["version"], 1)
+        self.assertEqual(api.writes(), [])
+
+    def test_copied_populated_root_and_nonlegacy_or_activated_orphans_are_rejected(self):
+        for invalid in ("copied", "normal", "activated"):
+            with self.subTest(invalid=invalid):
+                api, subject = self.imported_api([legacy_record()])
+                document = api.document()
+                parents = []
+                if invalid == "copied":
+                    parents = [api.tip]
+                elif invalid == "normal":
+                    document["attempts"] = [dict(claim(), id="a" * 32, pr=7049, reservation="3.00")]
+                else:
+                    document.update(production_verified=True, revision=2)
+                document = ledger_module.signed_document(document, KEY, REPO, EPOCH)
+                api.tip = api.commit(document, parents)
+                with self.assertRaises(ledger_module.LedgerError):
+                    subject.states(7049)
+                self.assertEqual(api.writes(), [])
+
+    def test_invalid_write_is_validated_before_any_protected_api_call(self):
+        for invalid in ("version", "null_normal_head", "terminal_legacy", "revision"):
+            with self.subTest(invalid=invalid):
+                api = FakeStateAPI()
+                subject = ledger_module.Ledger(api, REPO, EPOCH, KEY, APP_ID)
+                document = api.document()
+                if invalid == "version":
+                    document["version"] = 1
+                elif invalid == "null_normal_head":
+                    document["attempts"].append(dict(claim(head=None), id="a" * 32,
+                                                     pr=7049, reservation="3.00"))
+                elif invalid == "terminal_legacy":
+                    document["attempts"].append(dict(legacy_record(), status="complete"))
+                else:
+                    document["revision"] = 900
+                calls_before = len(api.calls)
+                with self.assertRaises(ledger_module.LedgerError):
+                    subject._write(document, api.tip, api.files[api.tip]["sha"])
+                self.assertEqual(len(api.calls), calls_before)
+                self.assertEqual(api.writes(), [])
+
+    def test_unknown_legacy_debt_blocks_actual_review_without_paid_messages(self):
+        state_api, ledger = self.imported_api([legacy_record(), legacy_record(2)], activate=True)
+        api = flow.FakeAPI()
+        subject = flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger)
+        with self.assertRaisesRegex(ledger_module.LedgerError, "head review budget exhausted"):
+            subject.review("comment-123", HEAD)
+        self.assertEqual(api.paid_calls(), [])
+        self.assertEqual(state_api.writes(), [])
 
 
 class RealLedgerReviewBoundaryTests(unittest.TestCase):

@@ -121,6 +121,9 @@ class FakeAPI:
 
     def __init__(self):
         self.pr = pull_request()
+        self.base_tip = None
+        self.ref_overrides = {}
+        self.ref_error = None
         self.ledger = FakeLedger()
         self.comments = []
         self.calls = []
@@ -171,8 +174,15 @@ class FakeAPI:
             return copy.deepcopy(permission)
         if path == root + "/pulls/7049":
             return copy.deepcopy(self.pr)
+        if path == root + "/git/ref/heads/sprint":
+            if self.ref_error:
+                raise self.ref_error
+            result = {"ref": "refs/heads/sprint", "object": {"type": "commit",
+                      "sha": self.base_tip if self.base_tip is not None else self.pr["base"]["sha"]}}
+            result.update(copy.deepcopy(self.ref_overrides))
+            return result
         if path.startswith(root + "/compare/"):
-            head, base = self.pr["head"]["sha"], self.pr["base"]["sha"]
+            base, head = path.rsplit("/", 1)[1].split("...")
             result = {
                 "base_commit": {"sha": base},
                 "merge_base_commit": {"sha": base},
@@ -230,6 +240,122 @@ class FakeAPI:
         fields = {"request", "head", "base", "status", "run"}
         return [{key: value for key, value in record.items() if key in fields}
                 for record in self.ledger.states(7049)]
+
+
+class LiveBaseSnapshotTests(unittest.TestCase):
+    def setUp(self):
+        self.api = FakeAPI()
+        self.subject = reviewer.Reviewer(self.api, REPO, 7049, "12345", ledger=self.api.ledger)
+
+    def test_live_target_ref_replaces_stale_embedded_base_without_mutating_pr_response(self):
+        self.api.base_tip = NEXT_BASE
+        pr = self.subject.get_pr()
+        self.assertEqual(pr["base"]["sha"], NEXT_BASE)
+        self.assertEqual(self.api.pr["base"]["sha"], BASE)
+        pr["base"]["sha"] = "e" * 40
+        self.assertEqual(self.api.pr["base"]["sha"], BASE)
+
+    def test_compare_prompt_reservation_and_comment_identify_actual_sprint_tip(self):
+        self.api.base_tip = NEXT_BASE
+        self.assertEqual(self.subject.review(), "complete")
+        self.assertIn(f"/repos/{REPO}/compare/{NEXT_BASE}...{HEAD}",
+                      [call[1] for call in self.api.calls])
+        self.assertNotIn(f"/repos/{REPO}/compare/{BASE}...{HEAD}",
+                         [call[1] for call in self.api.calls])
+        prompt = json.loads(self.api.paid_calls()[0][2]["messages"][0]["content"])
+        self.assertEqual((prompt["base_tip"], prompt["diff_base"]), (NEXT_BASE, NEXT_BASE))
+        self.assertEqual(self.api.states()[0]["base"], NEXT_BASE)
+        self.assertIn(f"Base tip: `{NEXT_BASE}`", self.api.comments[0]["body"])
+        self.assertEqual(self.api.pr["base"]["sha"], BASE)
+
+    def test_completed_old_base_does_not_suppress_explicit_review_of_new_live_base(self):
+        self.assertEqual(self.subject.review("comment-123", HEAD), "complete")
+        self.api.base_tip = NEXT_BASE
+        self.assertEqual(self.subject.review("comment-124", HEAD), "complete")
+        self.assertEqual([state["base"] for state in self.api.states()], [BASE, NEXT_BASE])
+        self.assertEqual(len(self.api.paid_calls()), 2)
+        self.assertEqual(self.api.pr["base"]["sha"], BASE)
+
+    def test_live_base_advance_during_token_count_prevents_reservation_and_payment(self):
+        self.api.on_count = lambda: setattr(self.api, "base_tip", NEXT_BASE)
+        self.assertIn("changed during preparation", self.subject.review())
+        self.assertEqual(self.api.pr["base"]["sha"], BASE)
+        self.assertEqual(self.api.paid_calls(), [])
+        self.assertEqual(self.api.states(), [])
+        self.assertEqual(self.api.comments, [])
+
+    def test_live_base_advance_during_messages_marks_review_stale_without_refund(self):
+        self.api.on_paid = lambda: setattr(self.api, "base_tip", NEXT_BASE)
+        with self.assertRaises(reviewer.ReviewError):
+            self.subject.review()
+        self.assertEqual(self.api.pr["base"]["sha"], BASE)
+        self.assertEqual(self.api.states()[0]["base"], BASE)
+        self.assertEqual(self.api.states()[0]["status"], "stale")
+        self.assertEqual(self.api.ledger.records[0]["reservation"], "3.00")
+        self.assertIn("State: **STALE**", self.api.comments[0]["body"])
+        self.assertIn(f"Base tip: `{BASE}`", self.api.comments[0]["body"])
+        self.assertIn("no paid call", self.subject.review())
+        self.assertEqual(len(self.api.paid_calls()), 1)
+
+    def test_missing_malformed_or_noncommit_live_ref_never_collects_or_pays(self):
+        invalid = [None, [], "refs/heads/sprint", {}, {"ref": "refs/heads/sprint"},
+                   {"ref": "refs/heads/main", "object": {"type": "commit", "sha": BASE}},
+                   {"ref": "refs/tags/sprint", "object": {"type": "commit", "sha": BASE}},
+                   {"ref": "refs/heads/sprint", "object": None},
+                   {"ref": "refs/heads/sprint", "object": []},
+                   {"ref": "refs/heads/sprint", "object": {"type": "tag", "sha": BASE}},
+                   {"ref": "refs/heads/sprint", "object": {"type": "blob", "sha": BASE}}]
+        invalid.extend({"ref": "refs/heads/sprint", "object": {"type": "commit", "sha": sha}}
+                       for sha in (None, True, BASE.upper(), "b" * 39, "main", BASE + "/../secret"))
+        for response in invalid:
+            with self.subTest(response=response):
+                api = FakeAPI()
+                subject = reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger)
+                original_request = api.request
+
+                def request(origin, path, body=None, method=None, query=None):
+                    if path == f"/repos/{REPO}/git/ref/heads/sprint":
+                        return copy.deepcopy(response)
+                    return original_request(origin, path, body, method=method, query=query)
+
+                with patch.object(api, "request", side_effect=request):
+                    with self.assertRaises(reviewer.ReviewError):
+                        subject.review()
+                self.assertEqual(api.count_calls(), [])
+                self.assertEqual(api.paid_calls(), [])
+                self.assertEqual(api.states(), [])
+                self.assertFalse(any("/compare/" in call[1] for call in api.calls))
+
+    def test_denied_unavailable_or_uncertain_live_ref_never_collects_or_pays(self):
+        errors = [reviewer.APIHTTPError("github", status) for status in (403, 404, 429, 500)]
+        errors.append(reviewer.ReviewError("Offline live-ref read unavailable"))
+        for error in errors:
+            with self.subTest(error=error):
+                api = FakeAPI()
+                api.ref_error = error
+                with self.assertRaises(reviewer.ReviewError):
+                    reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
+                self.assertEqual(api.count_calls(), [])
+                self.assertEqual(api.paid_calls(), [])
+                self.assertEqual(api.states(), [])
+                self.assertFalse(any("/compare/" in call[1] for call in api.calls))
+
+    def test_live_ref_failure_during_preparation_prevents_reservation_and_payment(self):
+        self.api.on_count = lambda: setattr(self.api, "ref_error", reviewer.APIHTTPError("github", 403))
+        with self.assertRaises(reviewer.ReviewError):
+            self.subject.review()
+        self.assertEqual(self.api.paid_calls(), [])
+        self.assertEqual(self.api.states(), [])
+        self.assertEqual(self.api.comments, [])
+
+    def test_live_ref_failure_after_messages_retains_claim_without_completed_review(self):
+        self.api.on_paid = lambda: setattr(self.api, "ref_error", reviewer.APIHTTPError("github", 403))
+        with self.assertRaises(reviewer.ReviewError):
+            self.subject.review()
+        self.assertEqual(len(self.api.paid_calls()), 1)
+        self.assertEqual(self.api.states()[0]["status"], "started")
+        self.assertEqual(self.api.ledger.records[0]["reservation"], "3.00")
+        self.assertEqual(self.api.comments, [])
 
 
 class ReviewFlowTests(unittest.TestCase):
@@ -440,7 +566,8 @@ class ReviewFlowTests(unittest.TestCase):
 
     def test_stale_requested_head_never_collects_or_pays(self):
         self.assertIn("stale", self.subject.review("comment-124", NEXT_HEAD))
-        self.assertEqual(len(self.api.calls), 1)
+        self.assertEqual([call[1] for call in self.api.calls],
+                         [self.subject.pull, self.subject.root + "/git/ref/heads/sprint"])
 
     def test_head_or_base_change_during_preparation_prevents_paid_call(self):
         for side, sha in (("head", NEXT_HEAD), ("base", NEXT_BASE)):
@@ -555,7 +682,8 @@ class ReviewFlowTests(unittest.TestCase):
                 api.state_key = key
                 with self.assertRaisesRegex(reviewer.ReviewError, "signing secret"):
                     reviewer.Reviewer(api, REPO, 7049, "12345", ledger=api.ledger).review()
-                self.assertEqual(len(api.calls), 1)
+                self.assertEqual([call[1] for call in api.calls],
+                                 [f"/repos/{REPO}/pulls/7049", f"/repos/{REPO}/git/ref/heads/sprint"])
                 self.assertEqual(api.paid_calls(), [])
 
     def test_deleted_review_comments_cannot_reset_automatic_payment_state(self):
@@ -1270,7 +1398,8 @@ class CredentialFreeAuthorizationTests(unittest.TestCase):
     def test_eligible_pull_request_target_authorizes_without_anthropic_or_state_secret(self):
         event = {"pull_request": {"number": 7049}}
         self.assertTrue(reviewer.authorize(self.api, REPO, "pull_request_target", event, "12345"))
-        self.assertEqual(len(self.api.calls), 1)
+        self.assertEqual([call[1] for call in self.api.calls],
+                         [f"/repos/{REPO}/pulls/7049", f"/repos/{REPO}/git/ref/heads/sprint"])
         self.assert_read_only_github(self.api)
 
     def test_authorization_cli_writes_only_fixed_boolean_with_no_reviewer_credentials(self):
