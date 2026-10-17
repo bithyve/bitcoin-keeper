@@ -36,19 +36,29 @@ exact R4 head above. It supersedes only the subsets it actually exercised:
 - The retained strict-16KB Android VM subsequently failed to finish OS boot after
   the Mac restart. Keeper recovery did not run in that attempt. This is a runtime
   blocker, not a diagnosed app failure or permission to replace its retained data.
-- Required IOS/ANDROID coverage remains incomplete. Real devices/signers remain
-  NOT RUN; a fresh exact-head owner physical-only scope record is still required.
+- Required IOS/ANDROID coverage remains incomplete. At 07:04 UTC, release owner
+  `antuz123` posted a fresh [exact-`be89` physical-only scope decision][owner-scope]
+  deferring eligible unrun HARDWARE checks to owner post-release reporting.
+  Physical tests remain **NOT RUN**. No later `LOCAL_PASSED` report exists;
+  IOS/ANDROID acceptance, known failures and review/release gates remain required.
   The owner-reduced [release-essential plan][owner-plan] remains in effect, with
   its historical SHA boundaries and parked cases preserved.
 
 At this assessment's starting snapshot, [infrastructure PR #7060][infra-pr] was
 at `3e32c3611186cf4e0d41ff2e33aff15c222e8fcf`. Its [hosted run][initial-run]
 failed dependency setup on **both platforms**; native builds and UI smoke were
-NOT RUN. Its 47 passing infrastructure contracts are not native passes. The
-dependency repair and actual hosted passes requested for #7060 are separate work;
-record their final source/run/attempt and actual platform results before treating
-the baseline as demonstrated. Even successful #7060 startup smoke will not attest
-R4 source `be89`, its private fixture, or any backup/restore case below.
+NOT RUN. Its 47 passing infrastructure contracts are not native passes.
+
+The subsequent [hosted run at infrastructure head `9509`][repair-run], full SHA
+`9509da6bb2b533c348846b2ec079ac5ca27ffae3`, passed immutable dependency installation
+on **both platforms** and the actual Android development native build. Android
+smoke setup then failed when `emulator -version` exited 127, before app install;
+Android UI smoke has **not passed**. At this snapshot, iOS native build was still
+in progress and its smoke had not run. Record final source/run/attempt and actual
+platform results in the PR report after the remaining fixes and final run; these
+intermediate results do not establish both-platform native acceptance. Even
+successful #7060 startup smoke will not attest R4 source `be89`, its private
+fixture, or any backup/restore case below.
 
 The R4 head's `keeper/local-validation`, public automatic Realm/Relay lane and
 CodeQL aggregate were still failing when inspected. Successful Jest, CodeQL
@@ -148,9 +158,11 @@ modified.
 [android-positive]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6224434285
 [android-followup]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6224892021
 [owner-plan]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6185462332
+[owner-scope]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6231002359
 [handoff]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6219779493
 [protected-guide]: https://github.com/KeeperCommunity/bitcoin-keeper/blob/be89c34473bb6aab253b98325f1fe746ca391c6f/release/r4-protected-backup-app.md
 [android-16kb]: https://github.com/KeeperCommunity/bitcoin-keeper/blob/be89c34473bb6aab253b98325f1fe746ca391c6f/release/r4-android-16kb.md
 [matrix]: https://github.com/KeeperCommunity/bitcoin-keeper/blob/be89c34473bb6aab253b98325f1fe746ca391c6f/openspec/changes/fix-recovery-backup-freshness/automatic-write-validation.md
 [infra-pr]: https://github.com/KeeperCommunity/bitcoin-keeper/pull/7060
 [initial-run]: https://github.com/KeeperCommunity/bitcoin-keeper/actions/runs/39010808486
+[repair-run]: https://github.com/KeeperCommunity/bitcoin-keeper/actions/runs/39012940184

@@ -199,6 +199,16 @@ def install_maestro():
     save(data)
 
 
+def android_sdk_metadata(sdk, component):
+    properties = (sdk / component / 'source.properties').read_text()
+    values = dict((key.strip(), value.strip()) for line in properties.splitlines()
+                  if '=' in line for key, value in [line.split('=', 1)])
+    if not values.get('Pkg.Revision'):
+        raise RuntimeError('Android SDK component %s has no Pkg.Revision metadata.' % component)
+    return {key: value for key, value in values.items()
+            if key in ['Pkg.Revision', 'AndroidVersion.ApiLevel']}
+
+
 def prepare():
     command(['npm', 'install', '--global', 'yarn@1.22.22', '--ignore-scripts'], 'Install pinned Yarn', timeout=180)
     command(['yarn', 'install', '--frozen-lockfile', '--ignore-scripts', '--non-interactive'],
@@ -251,11 +261,7 @@ def prepare():
         sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '')))
         observed = {}
         for component in ['platforms/android-36', 'build-tools/35.0.0', 'ndk/27.1.12297006']:
-            properties = (sdk / component / 'source.properties').read_text()
-            values = dict((key.strip(), value.strip()) for line in properties.splitlines()
-                          if '=' in line for key, value in [line.split('=', 1)])
-            observed[component] = {key: value for key, value in values.items()
-                                   if key in ['Pkg.Revision', 'AndroidVersion.ApiLevel']}
+            observed[component] = android_sdk_metadata(sdk, component)
         data = read()
         data['toolchain']['observed_android_sdk'] = observed
         save(data)
@@ -338,11 +344,12 @@ def smoke():
             descriptor = 'iPhone 16; iOS 18.5'
         else:
             sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '')))
-            emulator_version = command([str(sdk / 'emulator/emulator'), '-version'],
-                                       'Record actual emulator version', capture=True)
+            # Query the installed SDK package without loading emulator GUI libraries
+            # on the headless host. The emulator runner already booted this image.
+            emulator_version = android_sdk_metadata(sdk, 'emulator')
             adb_version = command(['adb', 'version'], 'Record actual adb version', capture=True)
             data = read()
-            data['toolchain']['emulator'] = emulator_version
+            data['toolchain']['emulator'] = {'source': 'emulator/source.properties', **emulator_version}
             data['toolchain']['adb'] = adb_version
             save(data)
             device = command(['adb', 'get-serialno'], 'Identify fresh emulator', capture=True)

@@ -101,6 +101,25 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertEqual(paths, {'.env.ci', 'firebase.json', 'ios/GoogleService-Info.plist',
                                  'ios/GoogleServices/dev/GoogleService-Info.plist'})
 
+    def test_emulator_revision_comes_from_sdk_metadata_without_executing_binary(self):
+        emulator = self.root / 'emulator'
+        emulator.mkdir()
+        (emulator / 'source.properties').write_text('Pkg.Revision = 36.6.11\nUnrelated = ignored\n')
+        with mock.patch.object(subprocess, 'Popen') as popen:
+            self.assertEqual(native.android_sdk_metadata(self.root, 'emulator'), {'Pkg.Revision': '36.6.11'})
+        popen.assert_not_called()
+
+    def test_emulator_metadata_must_exist_and_contain_revision(self):
+        with self.assertRaises(FileNotFoundError):
+            native.android_sdk_metadata(self.root, 'emulator')
+        emulator = self.root / 'emulator'
+        emulator.mkdir()
+        for text in ['Pkg.Desc = Android Emulator\n', 'Pkg.Revision =  \n']:
+            with self.subTest(properties=text):
+                (emulator / 'source.properties').write_text(text)
+                with self.assertRaisesRegex(RuntimeError, 'no Pkg.Revision metadata'):
+                    native.android_sdk_metadata(self.root, 'emulator')
+
     def test_smoke_requires_successful_build(self):
         with mock.patch.object(subprocess, 'Popen') as popen, \
                 self.assertRaisesRegex(RuntimeError, 'successful native build'):
