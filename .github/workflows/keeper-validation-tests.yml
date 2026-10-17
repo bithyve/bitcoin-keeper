@@ -3,7 +3,6 @@ name: Native validation contracts
 on:
   pull_request:
     branches: [sprint]
-    paths: ['.github/**', 'AGENTS.md', 'docs/hosted-native-validation.md']
   push:
     branches: [sprint]
     paths: ['.github/**']
