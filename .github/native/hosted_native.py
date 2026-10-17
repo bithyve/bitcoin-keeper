@@ -117,25 +117,116 @@ def metro_startup_errors(log):
     return failure_details('\n'.join(selected))
 
 
-def ios_startup_errors(payload, executable):
-    events = json.loads(payload)
-    if not isinstance(events, list):
-        raise ValueError('Unexpected iOS unified log JSON format.')
+def metro_startup_progress(log):
+    # Metro's TerminalReporter uses the same bare BUNDLE line for done and
+    # failed builds. Count observed markers without inferring completion.
+    lines = [re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', line).strip() for line in log.splitlines()]
+    bundles = sum(bool(re.match(r'^BUNDLE\s', line)) for line in lines)
+    prebundles = sum(bool(re.match(r'^PREBUNDLE\s', line)) for line in lines)
+    return {'bundle_marker_observed': bundles > 0, 'bundle_marker_count': bundles,
+            'prebundle_marker_count': prebundles}
+
+
+def private_log_prefix(path):
+    """Read launch-time output, discarding a partially truncated final record."""
+    limit = 1024 * 1024
+    with path.open('rb') as source:
+        payload = source.read(limit + 1)
+    truncated = len(payload) > limit
+    payload = payload[:limit]
+    if truncated:
+        payload = payload.rsplit(b'\n', 1)[0] + b'\n' if b'\n' in payload else b''
+    return payload.decode(errors='replace'), truncated
+
+
+def ios_startup_diagnostics(payload, executable):
+    if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]*', executable):
+        raise ValueError('Unsafe iOS executable selector.')
+    # log(1) compact: ISO timestamp, abbreviated type, process[PID:TID], message.
+    # Only prefixed own-process records qualify; never retain continuation lines.
+    pattern = re.compile(r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?'
+                         r'(?:[+-]\d{2}:?\d{2}|Z)?\s+(\S+)\s+'
+                         r'([A-Za-z0-9_.-]+)\[\d+:[A-Fa-f0-9x]+\]\s+(.*)$')
     selected = []
-    for event in events:
-        if not isinstance(event, dict):
-            raise ValueError('Unexpected iOS unified log event format.')
-        if Path(event.get('processImagePath', '')).name != executable:
+    matched = 0
+    for line in payload.splitlines():
+        match = pattern.match(line)
+        if not match:
             continue
-        message = event.get('eventMessage', '')
-        if not isinstance(message, str) or not message.splitlines():
+        severity, process, message = match.groups()
+        if process != executable:
             continue
-        first_line = message.splitlines()[0]
-        if str(event.get('messageType', '')).lower() in ['error', 'fault'] or re.search(
+        matched += 1
+        if severity.lower() in ['e', 'f', 'er', 'ft', 'error', 'fault'] or re.search(
                 r'(?:\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b)',
-                first_line, re.IGNORECASE):
-            selected.append('error: iOS ' + first_line)
-    return failure_details('\n'.join(selected))
+                message, re.IGNORECASE):
+            selected.append('error: iOS ' + message)
+    return {'format': 'compact', 'matching_process_records': matched,
+            'errors': failure_details('\n'.join(selected))}
+
+
+def startup_hierarchy_signals(directory):
+    """Classify fixed public startup selectors; never export hierarchy content."""
+    # Maestro cli-2.11.0 writes standalone TreeNode snapshots in this layout.
+    flags = ['createPIN', 'confirmPIN', 'RNredbox', 'noScriptURL',
+             'developmentServerError', 'unableLoadScript']
+    result = {flag: False for flag in flags}
+    result.update({'snapshot_count': 0, 'parse_error_types': []})
+    redbox_ids = {'redbox-error', 'redbox-dismiss', 'redbox-reload', 'rn_redbox_stack',
+                  'rn_redbox_dismiss_button', 'rn_redbox_reload_button', 'catalyst_redbox_title'}
+    fixed_messages = {'noScriptURL': 'No script URL provided.',
+                      'developmentServerError': 'Could not connect to development server.',
+                      'unableLoadScript': 'Unable to load script.'}
+    for index, path in enumerate(directory.glob('**/screen-hierarchy/step-*.json')):
+        try:
+            if index >= 8:
+                raise ValueError('Hierarchy snapshot count exceeded limit.')
+            result['snapshot_count'] += 1
+            if path.is_symlink() or not path.resolve().is_relative_to(directory.resolve()):
+                raise ValueError('Hierarchy snapshot must remain in private output.')
+            with path.open('rb') as source:
+                payload = source.read(1024 * 1024 + 1)
+            if len(payload) > 1024 * 1024:
+                raise ValueError('Hierarchy snapshot exceeded byte limit.')
+            pending = [json.loads(payload)]
+            snapshot = {flag: False for flag in flags}
+            nodes = 0
+            while pending:
+                node = pending.pop()
+                nodes += 1
+                if nodes > 10000:
+                    raise ValueError('Hierarchy snapshot exceeded node limit.')
+                if not isinstance(node, dict):
+                    raise TypeError('Unexpected hierarchy node format.')
+                attributes = node.get('attributes') or {}
+                children = node.get('children') or []
+                if not isinstance(attributes, dict) or not isinstance(children, list):
+                    raise TypeError('Unexpected hierarchy attributes or children format.')
+                # iOS StaticText often exposes only accessibilityText. Android
+                # resource IDs include the package prefix before :id/.
+                identifier = attributes.get('resource-id', '')
+                if isinstance(identifier, str) and identifier.rsplit(':id/', 1)[-1] in redbox_ids:
+                    snapshot['RNredbox'] = True
+                for key in ['accessibilityText', 'text', 'title', 'value']:
+                    value = attributes.get(key)
+                    if not isinstance(value, str):
+                        continue
+                    snapshot['createPIN'] |= value.strip() == 'Create a passcode'
+                    snapshot['confirmPIN'] |= value.strip() == 'Confirm your passcode'
+                    for flag, message in fixed_messages.items():
+                        snapshot[flag] |= message in value
+                if len(pending) + len(children) + nodes > 10000:
+                    raise ValueError('Hierarchy snapshot exceeded node limit.')
+                pending.extend(children)
+            for flag in flags:
+                result[flag] |= snapshot[flag]
+        except Exception as error:
+            kind = type(error).__name__
+            if kind not in result['parse_error_types']:
+                result['parse_error_types'].append(kind)
+        if index >= 8:
+            break
+    return result
 
 
 def record_startup_failure(report, device):
@@ -176,7 +267,9 @@ def record_startup_failure(report, device):
         return result
 
     collect('maestro', maestro_details)
+    collect('hierarchy_signals', lambda: startup_hierarchy_signals(PRIVATE / 'maestro-output'))
     collect('metro_errors', lambda: metro_startup_errors(private_text(PRIVATE / 'metro.log')))
+    collect('metro_progress', lambda: metro_startup_progress(private_log_prefix(PRIVATE / 'metro.log')[0]))
     if PLATFORM == 'ANDROID' and device:
         def android_details():
             args = ['adb', '-s', device, 'logcat', '-d', '-t', '300', '-v', 'brief',
@@ -200,10 +293,10 @@ def record_startup_failure(report, device):
             predicate = ('process == "%s" AND (messageType == "error" OR messageType == "fault" '
                          'OR eventMessage CONTAINS[c] "error" OR eventMessage CONTAINS[c] "exception" '
                          'OR eventMessage CONTAINS[c] "fatal")') % executable
-            args = ['xcrun', 'simctl', 'spawn', device, 'log', 'show', '--style', 'json',
-                    '--last', '3m', '--predicate', predicate]
+            args = ['xcrun', 'simctl', 'spawn', device, 'log', 'show', '--style', 'compact',
+                    '--last', '10m', '--predicate', predicate]
             path = PRIVATE / 'ios-startup-errors.log'
-            # Keep log/xcrun notices separate so stderr cannot corrupt JSON stdout.
+            # Keep log/xcrun notices private and separate from compact records.
             with path.open('wb') as output, (PRIVATE / 'ios-startup-errors-stderr.log').open('wb') as stderr:
                 try:
                     result = subprocess.run(args, stdout=output, stderr=stderr,
@@ -214,7 +307,9 @@ def record_startup_failure(report, device):
             result = {'command': args, 'exit_code': code, 'errors': []}
             if code == 0:
                 try:
-                    result['errors'] = ios_startup_errors(private_text(path), executable)
+                    payload, truncated = private_log_prefix(path)
+                    result.update(ios_startup_diagnostics(payload, executable))
+                    result['input_truncated'] = truncated
                 except (ValueError, TypeError) as error:
                     result['parse_error'] = type(error).__name__
             return result
@@ -485,6 +580,33 @@ def build():
     save(data)
 
 
+def warm_ios_metro_bundle():
+    """Bound cold development bundling before competing with simulator startup."""
+    url = 'http://127.0.0.1:8081/index.bundle?platform=ios&dev=true&minify=false'
+    body = PRIVATE / 'ios-development-warmup.bundle'
+    details = {'scope': 'Development bundle setup only; not native or UI evidence.',
+               'url': url, 'timeout_seconds': 240, 'result': 'FAIL', 'http_status': None}
+    started = time.monotonic()
+    try:
+        status = command(['curl', '--fail', '--silent', '--show-error', '--max-time', '240',
+                          '--output', str(body), '--write-out', '%{http_code}', url],
+                         'Warm iOS development bundle (setup only)', timeout=250, capture=True)
+        if re.fullmatch(r'\d{3}', status):
+            details['http_status'] = int(status)
+        if status != '200' or not body.is_file() or body.stat().st_size == 0:
+            raise RuntimeError('iOS development bundle warmup did not return a nonempty HTTP 200 body.')
+        digest = hashlib.sha256()
+        with body.open('rb') as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b''):
+                digest.update(chunk)
+        details.update({'result': 'PASS', 'bytes': body.stat().st_size, 'sha256': digest.hexdigest()})
+    finally:
+        details['duration_seconds'] = round(time.monotonic() - started, 1)
+        data = read()
+        data['metro_warmup'] = details
+        save(data)
+
+
 def smoke():
     if read()['build'] != 'PASS':
         raise RuntimeError('A successful native build is required before smoke testing.')
@@ -508,6 +630,7 @@ def smoke():
         else:
             raise RuntimeError('Metro did not become ready within 60 attempts.')
         if PLATFORM == 'IOS':
+            warm_ios_metro_bundle()
             device = command(['xcrun', 'simctl', 'create', 'Keeper-disposable-ci',
                               'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
                               'com.apple.CoreSimulator.SimRuntime.iOS-18-5'],

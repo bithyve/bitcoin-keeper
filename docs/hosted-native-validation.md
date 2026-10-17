@@ -121,6 +121,15 @@ performance acceptance. The iOS build command is limited to the hosted
 simulator's architecture and 40 minutes; Android's build command is capped at
 35 minutes.
 
+For iOS, a bounded loopback request compiles the development bundle before
+booting the simulator; only its HTTP status, byte count and hash are retained.
+This setup step supplies no native/UI pass. On failure, fixed startup-screen
+flags may be derived from bounded private Maestro hierarchy snapshots, without
+retaining their text or attributes. The iOS exception collector reads the first
+MiB of compact own-process output over the launch window, preserving early
+errors instead of parsing a truncated JSON array. Missing diagnostics remain
+explicit and do not imply a clean runtime.
+
 The iOS job is capped at 65 minutes and Android at 60 minutes, with command and
 emulator boot limits inside those budgets. The jobs have no automatic retries;
 new pushes cancel only

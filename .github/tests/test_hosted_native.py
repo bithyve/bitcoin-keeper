@@ -106,35 +106,134 @@ class HostedNativeHarnessTest(unittest.TestCase):
         report.write_text('<testsuites><testsuite><testcase status="ERROR"><failure>'
                           'Assertion is false: Create a passcode is visible\nUI hierarchy: private data'
                           '</failure></testcase></testsuite></testsuites>')
+        hierarchy = native.PRIVATE / 'maestro-output/2026-10-17_092233/Disposable startup and passcode input/screen-hierarchy'
+        hierarchy.mkdir(parents=True)
+        (hierarchy / 'step-002-assertCondition-Create_a_passcode.json').write_text(json.dumps({
+            'attributes': {'accessibilityText': 'PRIVATE_SENTINEL', 'resource-id': 'redbox-error'},
+            'children': [{'attributes': {'accessibilityText': 'No script URL provided. PRIVATE_SENTINEL'}}]}))
         native.record_startup_failure(report, None)
         data = native.read()
         self.assertEqual(data['smoke'], 'FAIL')
         self.assertEqual(data['startup_diagnostics']['maestro']['testcase_statuses'], ['ERROR'])
         self.assertNotIn('private data', native.EVIDENCE.read_text())
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+        self.assertTrue(data['startup_diagnostics']['hierarchy_signals']['RNredbox'])
+        self.assertTrue(data['startup_diagnostics']['hierarchy_signals']['noScriptURL'])
         self.assertTrue(data['startup_diagnostics']['maestro']['testcase_failures'])
 
+    def test_private_hierarchy_exports_only_fixed_signals_from_standalone_tree_nodes(self):
+        hierarchy = self.root / 'maestro-output/2026-10-17_092233/Disposable startup and passcode input/screen-hierarchy'
+        hierarchy.mkdir(parents=True)
+        (hierarchy / 'step-002-assertCondition-Create_a_passcode.json').write_text(json.dumps({
+            'attributes': {'accessibilityText': 'Create a passcode', 'value': 'PRIVATE_SENTINEL'},
+            'children': [
+                {'attributes': {'accessibilityText': 'Confirm your passcode'}},
+                {'attributes': {'resource-id': 'io.hexawallet.keeper.development:id/rn_redbox_stack',
+                                'text': 'Could not connect to development server. PRIVATE_SENTINEL'}},
+                {'attributes': {'title': 'Unable to load script. PRIVATE_SENTINEL'}},
+                {'attributes': {'text': 'SpringBoard PRIVATE_SENTINEL'}, 'children': None},
+            ]}))
+        # Other JSON files are not hierarchy snapshots and must not be parsed.
+        (hierarchy.parent / 'commands.json').write_text('{ malformed PRIVATE_SENTINEL')
+        signals = native.startup_hierarchy_signals(self.root / 'maestro-output')
+        self.assertEqual(signals, {'createPIN': True, 'confirmPIN': True, 'RNredbox': True,
+                                  'noScriptURL': False, 'developmentServerError': True,
+                                  'unableLoadScript': True, 'snapshot_count': 1, 'parse_error_types': []})
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(signals))
+        self.assertNotIn('SpringBoard', json.dumps(signals))
+
+    def test_private_hierarchy_bounds_bytes_and_nodes_and_records_only_parse_error_classes(self):
+        hierarchy = self.root / 'maestro-output/screen-hierarchy'
+        hierarchy.mkdir(parents=True)
+        (hierarchy / 'step-001-malformed.json').write_text('{ PRIVATE_SENTINEL')
+        (hierarchy / 'step-002-oversize.json').write_bytes(b'PRIVATE_SENTINEL' * (1024 * 1024 // 8))
+        (hierarchy / 'step-003-too-many-nodes.json').write_text(json.dumps({
+            'attributes': {'accessibilityText': 'Create a passcode'}, 'children': [{}] * 10000}))
+        signals = native.startup_hierarchy_signals(self.root / 'maestro-output')
+        self.assertEqual(signals['snapshot_count'], 3)
+        self.assertEqual(set(signals['parse_error_types']), {'JSONDecodeError', 'ValueError'})
+        self.assertFalse(signals['createPIN'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(signals))
+
     def test_ios_startup_errors_restrict_process_and_redact_first_error_line(self):
-        payload = json.dumps([
-            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
-             'messageType': 'Error', 'eventMessage': 'NSException: module failed token=private; UI hierarchy: PRIVATE_SENTINEL\nprivate stack'},
-            {'processImagePath': '/Applications/OtherApp.app/OtherApp',
-             'messageType': 'Error', 'eventMessage': 'private unrelated application'},
-            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
-             'messageType': 'Default', 'eventMessage': 'normal startup message'},
-            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
-             'messageType': 'Default', 'eventMessage': 'ReferenceError: missing startup module\nPRIVATE_SENTINEL'},
-            {'processImagePath': '/Applications/hexa_keeper_dev.app/hexa_keeper_dev',
-             'messageType': 'Default', 'eventMessage': 'NSException: failed native startup\nPRIVATE_SENTINEL'},
+        payload = '\n'.join([
+            'Filtering the log data using the process predicate',
+            'Timestamp               Ty Process[PID:TID]',
+            '2026-10-17 09:22:33.123 E  hexa_keeper_dev[123:abc] [com.facebook.react:javascript] NSException: module failed token=private; UI hierarchy: PRIVATE_SENTINEL',
+            'private stack continuation',
+            '2026-10-17 09:22:34.123 E  OtherApp[124:def] Error: hexa_keeper_dev private unrelated application',
+            '2026-10-17 09:22:35.123 Df hexa_keeper_dev[123:abc] normal startup message',
+            '2026-10-17 09:22:36.123 Df hexa_keeper_dev[123:abc] ReferenceError: missing startup module',
+            'PRIVATE_SENTINEL multiline continuation',
+            '2026-10-17 09:22:37.123+0000 Df hexa_keeper_dev[123:abc] NSException: failed native startup',
+            'PRIVATE_SENTINEL multiline continuation',
+            'Error: hexa_keeper_dev[123:abc] missing timestamp must not be accepted',
         ])
-        errors = native.ios_startup_errors(payload, 'hexa_keeper_dev')
+        diagnostics = native.ios_startup_diagnostics(payload, 'hexa_keeper_dev')
+        errors = diagnostics['errors']
+        self.assertEqual(diagnostics['matching_process_records'], 4)
         self.assertEqual(len(errors), 3)
         self.assertIn('NSException: module failed', errors[0])
         self.assertIn('ReferenceError: missing startup module', errors[1])
         self.assertIn('NSException: failed native startup', errors[2])
         self.assertNotIn('private', '\n'.join(errors))
         self.assertNotIn('PRIVATE_SENTINEL', '\n'.join(errors))
-        with self.assertRaises(ValueError):
-            native.ios_startup_errors('not JSON', 'hexa_keeper_dev')
+        self.assertEqual(native.ios_startup_diagnostics('no compact records', 'hexa_keeper_dev')['matching_process_records'], 0)
+
+    def test_ios_collector_keeps_launch_prefix_when_log_is_truncated_and_preserves_failure(self):
+        native.PRIVATE.mkdir()
+        native.save({'commands': [], 'smoke': 'FAIL', 'built_artifact': {'executable': 'hexa_keeper_dev'}})
+        (native.PRIVATE / 'metro.log').write_text('\x1b[32m BUNDLE \x1b[0m private-path/index.js\n'
+                                                   ' BUNDLE private-path/index.js\n PREBUNDLE private-path/index.js\n')
+
+        def compact_log(args, stdout, **kwargs):
+            self.assertEqual(args[args.index('--style') + 1], 'compact')
+            self.assertEqual(args[args.index('--last') + 1], '10m')
+            stdout.write(b'2026-10-17 09:22:33.123 Df hexa_keeper_dev[123:abc] ReferenceError: launch module failed token=private\n')
+            stdout.write(b'2026-10-17 09:22:34.123 E OtherApp[124:def] Error: private unrelated data\n')
+            # The first MiB ends within a continuation, not a complete record.
+            stdout.write(b'PRIVATE_SENTINEL' * (1024 * 1024 // 8))
+            stdout.write(b'\n2026-10-17 09:30:33.123 E hexa_keeper_dev[123:abc] Error: tail must not replace launch evidence\n')
+            return subprocess.CompletedProcess(args, 0)
+
+        with mock.patch.object(native, 'PLATFORM', 'IOS'), \
+                mock.patch.object(subprocess, 'run', side_effect=compact_log):
+            native.record_startup_failure(native.PRIVATE / 'missing-report.xml', 'owned-simulator')
+        data = native.read()
+        self.assertEqual(data['smoke'], 'FAIL')
+        diagnostics = data['startup_diagnostics']['ios_errors']
+        self.assertTrue(diagnostics['input_truncated'])
+        self.assertEqual(diagnostics['matching_process_records'], 1)
+        self.assertEqual(diagnostics['errors'], ['error: iOS ReferenceError: launch module failed token=[REDACTED]'])
+        self.assertEqual(data['startup_diagnostics']['metro_progress'],
+                         {'bundle_marker_observed': True, 'bundle_marker_count': 2, 'prebundle_marker_count': 1})
+        self.assertNotIn('private unrelated', native.EVIDENCE.read_text())
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+        self.assertNotIn('private-path', native.EVIDENCE.read_text())
+
+    def test_ios_warmup_keeps_body_private_and_does_not_supply_smoke_evidence(self):
+        native.PRIVATE.mkdir()
+        body = b'disposable development bundle PRIVATE_SENTINEL'
+
+        def warmup(args, *unused, **kwargs):
+            self.assertEqual(args[-1], 'http://127.0.0.1:8081/index.bundle?platform=ios&dev=true&minify=false')
+            Path(args[args.index('--output') + 1]).write_bytes(body)
+            return '200'
+
+        with mock.patch.object(native, 'command', side_effect=warmup):
+            native.warm_ios_metro_bundle()
+        data = native.read()
+        self.assertEqual(data['smoke'], 'NOT RUN')
+        self.assertEqual(data['metro_warmup']['result'], 'PASS')
+        self.assertEqual(data['metro_warmup']['http_status'], 200)
+        self.assertEqual(data['metro_warmup']['bytes'], len(body))
+        self.assertEqual(data['metro_warmup']['sha256'], hashlib.sha256(body).hexdigest())
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+        with mock.patch.object(native, 'command', side_effect=RuntimeError('HTTP error')), \
+                self.assertRaisesRegex(RuntimeError, 'HTTP error'):
+            native.warm_ios_metro_bundle()
+        self.assertEqual(native.read()['metro_warmup']['result'], 'FAIL')
+        self.assertEqual(native.read()['smoke'], 'NOT RUN')
 
     def test_ios_collector_rejects_unsafe_executable_without_running_command(self):
         native.PRIVATE.mkdir()
