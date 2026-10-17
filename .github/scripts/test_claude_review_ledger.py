@@ -28,7 +28,7 @@ NEXT_HEAD = flow.NEXT_HEAD
 NEXT_BASE = flow.NEXT_BASE
 KEY = flow.STATE_KEY
 EPOCH = "1" * 32
-APP_ID = 314
+APP_ID = 5313951
 STATE_REPO = ledger_module.STATE_REPOSITORY
 STATE_REPO_ID = 1416741877
 STATE_BRANCH = ledger_module.STATE_BRANCH
@@ -169,6 +169,22 @@ class LedgerBoundaryTests(unittest.TestCase):
         return ledger_module.Ledger(api or self.api, kwargs.get("repo", REPO),
                                     kwargs.get("epoch", EPOCH), kwargs.get("key", KEY),
                                     kwargs.get("app_id", APP_ID))
+
+    def test_matching_substitute_app_and_scoped_installation_cannot_replace_pinned_identity(self):
+        self.assertEqual(ledger_module.STATE_APP_ID, 5313951)
+        for substitute in (1, APP_ID + 1, str(APP_ID), float(APP_ID), True, None):
+            with self.subTest(app_id=substitute):
+                state_api = FakeStateAPI()
+                # The substitute has the correct repository scope and a matching
+                # bypass rule. Neither can override the trusted App identity.
+                state_api.details[1]["bypass_actors"][0]["actor_id"] = substitute
+                api = flow.FakeAPI()
+                with self.assertRaisesRegex(ledger_module.LedgerError, "pinned State App identity"):
+                    ledger = ledger_module.Ledger(state_api, REPO, EPOCH, KEY, substitute)
+                    flow.reviewer.Reviewer(api, REPO, 7049, "12345", ledger=ledger).review()
+                self.assertEqual(state_api.calls, [])
+                self.assertEqual(state_api.writes(), [])
+                self.assertEqual(api.paid_calls(), [])
 
     def test_atomic_claim_is_durable_before_completion_and_full_cost_is_retained(self):
         claim_id = self.subject.reserve(7049, claim())

@@ -10,6 +10,7 @@ import secrets
 
 STATE_REPOSITORY = "KeeperCommunity/KeeperCommunity-keeper-review-ledger"
 STATE_REPOSITORY_ID = 1416741877
+STATE_APP_ID = 5313951
 STATE_BRANCH = "keeper-claude-review-state"
 STATE_FILE = "ledger.json"
 MAX_LEDGER_BYTES = 900_000
@@ -85,10 +86,10 @@ def imported_document(code_repo, epoch, signing_key, records):
 class Ledger:
     def __init__(self, api, code_repo, epoch, signing_key, app_id):
         _validate_configuration(code_repo, epoch, signing_key)
-        if type(app_id) is not int or app_id <= 0:
-            raise LedgerError("Invalid protected payment-ledger configuration")
+        if type(app_id) is not int or app_id != STATE_APP_ID:
+            raise LedgerError("Protected payment ledger requires the pinned State App identity")
         self.api, self.code_repo, self.epoch = api, code_repo, epoch
-        self.signing_key, self.app_id = signing_key, app_id
+        self.signing_key, self.app_id = signing_key, STATE_APP_ID
         self.root = f"/repos/{STATE_REPOSITORY}"
         self._verify_boundary()
 

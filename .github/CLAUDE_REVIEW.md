@@ -78,6 +78,11 @@ the reviewer and drain running jobs; visibility changes cannot erase metadata
 already public or be made atomic with a GitHub comment/API request. A private
 source would require a separately reviewed private-state design.
 
+The State App identity is pinned to Integration ID `5313951` in runtime and
+both token-minting steps. The environment App ID must match it exactly;
+substituting another positive ID together with matching rules cannot change
+payment authority. Changing this App requires a reviewed code/policy migration.
+
 GitHub may omit `bypass_actors` from rule details for callers without sufficient
 access. Missing is unknown and fails closed. Verify that the **actual State App
 token** returns full actor lists for both rulesets, not only their rule types.

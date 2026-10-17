@@ -25,7 +25,7 @@ ledger_module = reviewer._LEDGER_MODULE
 
 REPOSITORY = "KeeperCommunity/bitcoin-keeper"
 EPOCH = "fd24ddf2e3336ed75c3ef376a8a14f8c"
-APP_ID = 5313951
+APP_ID = ledger_module.STATE_APP_ID
 INITIAL_MAIN = "a330fe03b8169c31e05dabf3401a2a0c41cf17ab"
 STATE_ROOT = "/repos/" + ledger_module.STATE_REPOSITORY
 STATE_REF = "refs/heads/" + ledger_module.STATE_BRANCH

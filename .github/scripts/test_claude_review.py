@@ -1251,7 +1251,7 @@ class EventBoundaryTests(unittest.TestCase):
                 "KEEPER_CLAUDE_STATE_KEY": STATE_KEY,
                 "KEEPER_CLAUDE_LEDGER_TOKEN": "offline-state-app-token",
                 "KEEPER_CLAUDE_LEDGER_EPOCH": "1" * 32,
-                "KEEPER_CLAUDE_LEDGER_APP_ID": "314",
+                "KEEPER_CLAUDE_LEDGER_APP_ID": "5313951",
             }
             with patch.dict(reviewer.os.environ, environment, clear=True), \
                     patch.object(reviewer, "API", return_value=api), \

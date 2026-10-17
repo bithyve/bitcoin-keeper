@@ -80,7 +80,7 @@ jobs:
         id: ledger-token
         uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
         with:
-          app-id: ${{ vars.KEEPER_CLAUDE_LEDGER_APP_ID }}
+          app-id: 5313951 # Canonical Keeper Review Ledger App; configuration cannot substitute it.
           private-key: ${{ secrets.KEEPER_CLAUDE_LEDGER_APP_PRIVATE_KEY }}
           owner: KeeperCommunity
           repositories: KeeperCommunity-keeper-review-ledger
