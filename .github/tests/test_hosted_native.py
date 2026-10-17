@@ -47,6 +47,17 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertEqual(record['exit_code'], 3)
         self.assertNotIn('private payload', native.EVIDENCE.read_text())
 
+    def test_tool_error_details_are_bounded_and_redacted(self):
+        output = 'private payload\nerror: missing module https://example.test/private token=secret\n' \
+            + 'Caused by: password=private Bearer private\n' + 'error: detail\n' * 30
+        details = native.failure_details(output)
+        self.assertEqual(len(details), 20)
+        self.assertNotIn('private', '\n'.join(details))
+        self.assertIn('token=[REDACTED]', details[0])
+        self.assertIn('[URL]', details[0])
+        kotlin = '> Task :compile\n' * 40 + 'e: file:///runner/App.kt:1 unresolved reference'
+        self.assertEqual(native.failure_details(kotlin), ['e: file:///runner/App.kt:1 unresolved reference'])
+
     def test_timeout_records_failure_and_terminates_process(self):
         with self.assertRaisesRegex(RuntimeError, 'exit 124'):
             native.command([sys.executable, '-c', 'import time; time.sleep(30)'], 'Timeout', timeout=0.05)

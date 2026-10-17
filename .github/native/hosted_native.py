@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -36,6 +37,25 @@ def save(data):
 
 def read():
     return json.loads(EVIDENCE.read_text())
+
+
+def failure_details(log):
+    """Bounded tool errors from this fresh CI fixture, never raw process logs."""
+    selected = []
+    for line in log.splitlines():
+        if not re.search(r'(?:\berror:|^e: |^\[!\]|^FAILURE:|^> (?!Task\b)|^Caused by:|^Could not |'
+                         r'^A problem occurred|^Execution failed|^The sandbox is not in sync)', line):
+            continue
+        line = re.sub(r'https?://\S+', '[URL]', line)
+        line = re.sub(r'(?i)\b(password|token|secret|api[_-]?key|authorization)\s*[:=]\s*\S+',
+                      r'\1=[REDACTED]', line)
+        line = re.sub(r'(?i)\bBearer\s+\S+', 'Bearer [REDACTED]', line)
+        line = re.sub(r'\b[a-fA-F0-9]{24,}\b', '[HEX]', line)
+        line = re.sub(r'/Users/[^/\s]+', '/Users/[runner]', line)
+        selected.append(line[:500])
+        if len(selected) == 20:
+            break
+    return selected
 
 
 def command(args, label, timeout=120, cwd=ROOT, capture=False):
@@ -74,6 +94,9 @@ def command(args, label, timeout=120, cwd=ROOT, capture=False):
         }
         entry['diagnostic'] = next((message for needle, message in known.items()
                                     if needle in log.lower()), 'Inspect this command locally; private raw output was not retained.')
+        entry['redacted_tool_errors'] = failure_details(log)
+        for line in entry['redacted_tool_errors']:
+            print(line, flush=True)
         save(data)
         raise RuntimeError('%s failed (exit %s). %s' % (label, code, entry['diagnostic']))
     save(data)
@@ -206,6 +229,14 @@ def prepare():
     if PLATFORM == 'IOS':
         command(['gem', 'install', 'cocoapods', '--version', '1.16.2', '--no-document'],
                 'Install pinned CocoaPods', timeout=300)
+        if os.environ.get('KEEPER_POD_LOCK_REPAIR') == '1':
+            # Diagnostic bootstrap only. A candidate lock is reviewed/committed,
+            # then a separate strict deployment run must build and test the app.
+            command(['pod', 'update', 'NitroIap', 'NitroModules', 'openiap', '--no-repo-update'],
+                    'Generate targeted CocoaPods lock candidate (not validation)',
+                    timeout=900, cwd=ROOT / 'ios')
+            shutil.copyfile(ROOT / 'ios/Podfile.lock', EVIDENCE.parent / 'Podfile.lock.candidate')
+            raise RuntimeError('Pod lock candidate generated for review; no native validation performed.')
         command(['pod', 'install', '--deployment'], 'Install immutable CocoaPods dependencies',
                 timeout=900, cwd=ROOT / 'ios')
         # Existing PBX build phases hardcode this path. Adapt the disposable host,

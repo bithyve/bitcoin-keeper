@@ -82,17 +82,23 @@ an unlocked install, skip patch failures or replace a failed native build with
 Jest. CocoaPods deployment mode likewise exposes Podfile/lock drift.
 
 At the initial sprint baseline `def0d6a90c80287edb4f58ae272cbfc340f00d73`,
-`package.json` requests `eslint-plugin-react-native@^5.0.0`, while the lock contains
-only `4.1.0`/`^4.0.0`. Other native setup failures may remain after dependency repair.
-Repair reproducibility in its owning workstream, rerun the actual new source SHA,
-and retain failed outcomes. Do not import the ongoing R4 diagnostic/reproducibility
-branch into this infrastructure PR. Its existing Android build diagnostics are
-useful diagnostics and do not constitute emulator UI evidence.
+two root lint selectors were missing from the Yarn lock. The declared IAP 16.5.0
+also needs NitroModules 0.36.5, and the Pod lock still selected older IAP/Nitro
+versions. This PR repairs these dependency inputs rather than bypassing frozen
+installation. Native lock repair uses an explicit diagnostic candidate run, which
+fails without building/testing and retains only the candidate lock for review.
+Commit the reviewed candidate and disable repair mode before the authoritative
+`pod install --deployment` run. New source commits require new native results.
+Do not import the ongoing R4 diagnostic/reproducibility branch or its private
+fixtures. Its existing Android build diagnostics do not constitute emulator UI
+evidence.
 
 ## Evidence, runner budget and remaining work
 
-Each platform retains allowlisted source/toolchain/runner metadata and actual
-command exit outcomes. Development configuration points service integrations at
+Each platform retains allowlisted source/toolchain/runner metadata, actual command
+exit outcomes and bounded redacted tool-error excerpts. Diagnostic Pod-lock repair
+may also retain its dependency-lock candidate; it cannot report a platform pass.
+Development configuration points service integrations at
 loopback and uses dummy Firebase identities. Only the bounded first-use scenario
 runs on fresh hosted devices. Raw build/device/Metro/Maestro logs, screenshots,
 app bundles, keystores and generated account data are not uploaded. Failed raw
@@ -115,10 +121,13 @@ existing CI jobs. These are planning estimates, not measured native timings or
 an account bill. Observed bootstrap results belong in this PR's validation report.
 Enable spending limits before routine use if needed.
 
-Phase 1 is the CI/gate contract and honest native attempts. Phase 2 repairs the
-owning dependency/native-install blockers and demonstrates both hosted UI passes
-on an actual exact head. Until those runs work reliably, use the existing Mac
-fallback. Hardware and release approval remain separate in every phase.
+The PR's current validation report records the actual source/run/attempt and each
+platform's build/UI outcome. Until both strict native builds and actual UI runs
+work reliably, use the existing local fallback without interrupting an active Mac
+session. A passing startup smoke does not transfer to another PR or prove its
+feature matrix. See [R4 coverage assessment](r4-cloud-test-assessment.md) for fresh
+disposable candidates and cases that must keep their existing Local evidence.
+Hardware and release approval remain separate.
 
 ## Administrative configuration
 

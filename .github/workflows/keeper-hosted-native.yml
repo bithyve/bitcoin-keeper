@@ -26,6 +26,7 @@ jobs:
     timeout-minutes: 65
     env:
       KEEPER_NATIVE_PLATFORM: IOS
+      KEEPER_POD_LOCK_REPAIR: '1'
       DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
     steps:
       - name: Check out exact app source
@@ -37,6 +38,7 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22.22.0'
+          cache: yarn
       - name: Set up Java for Maestro
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
@@ -65,7 +67,9 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: keeper-native-ios-${{ github.event.pull_request.head.sha }}
-          path: artifacts/native/ios/metadata.json
+          path: |
+            artifacts/native/ios/metadata.json
+            artifacts/native/ios/Podfile.lock.candidate
           if-no-files-found: warn
           retention-days: 7
 
@@ -85,11 +89,13 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22.22.0'
+          cache: yarn
       - name: Set up Java
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
       - name: Record runner and toolchain
         run: python3 .github/native/hosted_native.py record
       - name: Install immutable native dependencies
