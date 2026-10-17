@@ -53,8 +53,8 @@ The subsequent [hosted run at infrastructure head `9509`][repair-run], full SHA
 `9509da6bb2b533c348846b2ec079ac5ca27ffae3`, passed immutable dependency installation
 on **both platforms** and the actual Android development native build. Android
 smoke setup then failed when `emulator -version` exited 127, before app install;
-Android UI smoke has **not passed**. At this snapshot, iOS native build was still
-in progress and its smoke had not run. Record final source/run/attempt and actual
+Android UI smoke has **not passed**. The iOS native build subsequently hit its
+35-minute command timeout (exit 124); iOS smoke was **NOT RUN**. Record final source/run/attempt and actual
 platform results in the PR report after the remaining fixes and final run; these
 intermediate results do not establish both-platform native acceptance. Even
 successful #7060 startup smoke will not attest R4 source `be89`, its private

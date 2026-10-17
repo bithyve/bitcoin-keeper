@@ -57,6 +57,10 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertIn('[URL]', details[0])
         kotlin = '> Task :compile\n' * 40 + 'e: file:///runner/App.kt:1 unresolved reference'
         self.assertEqual(native.failure_details(kotlin), ['e: file:///runner/App.kt:1 unresolved reference'])
+        excerpts = ''.join(' %s | +(NSDictionary*)statWithError:(NSError**)error:\n' % line
+                           for line in range(30))
+        self.assertEqual(native.failure_details(excerpts + 'error: actual compiler failure'),
+                         ['error: actual compiler failure'])
 
     def test_timeout_records_failure_and_terminates_process(self):
         with self.assertRaisesRegex(RuntimeError, 'exit 124'):
@@ -125,6 +129,29 @@ class HostedNativeHarnessTest(unittest.TestCase):
                 self.assertRaisesRegex(RuntimeError, 'successful native build'):
             native.smoke()
         popen.assert_not_called()
+
+    def test_ios_build_rejects_unsupported_architecture_before_invoking_xcode(self):
+        with mock.patch.object(native, 'PLATFORM', 'IOS'), \
+                mock.patch.object(native.platform, 'machine', return_value='riscv64'), \
+                mock.patch.object(native, 'command') as command, \
+                self.assertRaisesRegex(RuntimeError, 'Unsupported hosted iOS simulator architecture'):
+            native.build()
+        command.assert_not_called()
+
+    def test_ios_build_uses_only_the_supported_host_simulator_architecture(self):
+        for architecture in ['arm64', 'x86_64']:
+            with self.subTest(architecture=architecture), \
+                    mock.patch.object(native, 'PLATFORM', 'IOS'), \
+                    mock.patch.object(native.platform, 'machine', return_value=architecture), \
+                    mock.patch.object(native, 'artifact_identity', return_value={'sha256': 'test artifact'}), \
+                    mock.patch.object(native, 'command') as command:
+                native.build()
+                arguments = command.call_args.args[0]
+                self.assertIn('ARCHS=' + architecture, arguments)
+                self.assertIn('ONLY_ACTIVE_ARCH=YES', arguments)
+                self.assertIn('CODE_SIGNING_ALLOWED=NO', arguments)
+                self.assertEqual(command.call_args.kwargs['timeout'], 2100)
+                self.assertEqual(native.read()['toolchain']['ios_simulator_architecture'], architecture)
 
     def test_artifact_hash_detects_changed_apk_before_smoke(self):
         apk = self.root / 'android/app/build/outputs/apk/development/debug/app-development-debug.apk'

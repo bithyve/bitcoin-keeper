@@ -43,6 +43,8 @@ def failure_details(log):
     """Bounded tool errors from this fresh CI fixture, never raw process logs."""
     selected = []
     for line in log.splitlines():
+        if re.match(r'^\s*\d+\s*\|', line):
+            continue
         if not re.search(r'(?:\berror:|^error |^e: |^\[!\]|^FAILURE:|^> (?!Task\b)|^Caused by:|^Could not |'
                          r'^A problem occurred|^Execution failed|^The sandbox is not in sync)', line):
             continue
@@ -291,10 +293,17 @@ def artifact_identity():
 
 def build():
     if PLATFORM == 'IOS':
+        architecture = platform.machine()
+        if architecture not in ['arm64', 'x86_64']:
+            raise RuntimeError('Unsupported hosted iOS simulator architecture: %s' % architecture)
+        data = read()
+        data.setdefault('toolchain', {})['ios_simulator_architecture'] = architecture
+        save(data)
         command(['xcodebuild', '-workspace', 'ios/hexa_keeper.xcworkspace', '-scheme', 'hexa_keeper_dev',
                  '-configuration', 'Debug', '-sdk', 'iphonesimulator', '-destination', 'generic/platform=iOS Simulator',
                  '-derivedDataPath', str(PRIVATE / 'DerivedData'), 'CODE_SIGNING_ALLOWED=NO',
-                 'CODE_SIGNING_REQUIRED=NO', 'build'], 'Build unsigned development simulator app', timeout=2100)
+                 'CODE_SIGNING_REQUIRED=NO', 'ARCHS=' + architecture, 'ONLY_ACTIVE_ARCH=YES', 'build'],
+                'Build unsigned development simulator app', timeout=2100)
     else:
         observed = command(['./gradlew', '--version'], 'Record actual Gradle and JVM version',
                            capture=True, cwd=ROOT / 'android')
