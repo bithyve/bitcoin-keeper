@@ -51,6 +51,11 @@ jobs:
         run: python3 .github/native/hosted_native.py record
       - name: Install immutable native dependencies
         run: python3 .github/native/hosted_native.py prepare
+      - name: Check disposable iOS driver readiness
+        run: |
+          test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'
+          git diff --exit-code HEAD -- .github/native .github/workflows/keeper-hosted-native.yml
+          python3 .github/native/hosted_native.py driver
       - name: Build development app
         run: |
           test "$(git rev-parse HEAD)" = '${{ github.event.pull_request.head.sha }}'

@@ -121,8 +121,16 @@ performance acceptance. The iOS build command is limited to the hosted
 simulator's architecture and 40 minutes; Android's build command is capped at
 35 minutes.
 
-For iOS, a bounded loopback request compiles the development bundle before
-booting the simulator; only its HTTP status, byte count and hash are retained.
+Before the iOS build, a separate disposable simulator checks Maestro's driver
+with a bounded `hierarchy` command. This is setup only: it installs no Keeper app
+and supplies no app build or UI credit. Its private XDG state and fixed diagnostic
+flags remain separate from the later smoke. The command is capped at five
+minutes, with Maestro's driver timeout unchanged; owned simulator cleanup runs
+on success or failure.
+
+For both platforms, a bounded loopback request compiles the development bundle
+before iOS simulator creation or Android app installation; only its HTTP status,
+byte count and hash are retained.
 This setup step supplies no native/UI pass. On failure, fixed startup-screen
 flags may be derived from bounded private Maestro hierarchy snapshots, without
 retaining their text or attributes. The iOS exception collector reads the first
@@ -162,6 +170,8 @@ contracts` is a useful additional required check. Do not require both native job
 unconditionally when local fallback is intended: the combined gate resolves
 platform evidence. Administrators should verify the required status app/source,
 default-branch workflow availability, Actions runner permissions and private-repo
-minute budget. Reading sprint protection returned HTTP 403 with the current
-integration, so enforcement could not be independently verified. No protection
-configuration was changed or claimed enforced by this work.
+minute budget. On 2026-10-17, the active branch-rules endpoint reported required
+`keeper/local-validation` and `Tests` checks from GitHub Actions (integration
+15368). The legacy branch-protection endpoint returned HTTP 403; broader
+administrator and bypass settings remain unverified. No protection configuration
+was changed by this work.

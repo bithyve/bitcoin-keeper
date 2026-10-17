@@ -229,6 +229,71 @@ def startup_hierarchy_signals(directory):
     return result
 
 
+def maestro_preflight_diagnostics(directory=None, command_label='Assert startup and disposable passcode transition'):
+    """Export fixed cli-2.11.0 driver markers, never subprocess error text."""
+    markers = {
+        'runner_install_started': '[Start] Install XCUITest runner on',
+        'runner_install_launch_returned': '[Done] Install XCUITest runner on',
+        'status_check_started': '[Start] Perform XCUITest driver status check on',
+        'status_response_received': '[Done] Perform XCUITest driver status check on',
+        'status_check_failed': '[Failed] Perform XCUITest driver status check on',
+        'driver_startup_timeout': 'iOS driver not ready in time, consider increasing timeout by configuring MAESTRO_DRIVER_STARTUP_TIMEOUT env variable',
+        'prebuilt_driver_selected': 'Installing pre built driver without xcodebuild',
+        'xcodebuild_driver_selected': 'Installing driver with xcodebuild',
+        'xctestrun_config_missing': 'xctestrun config does not exist',
+        'ui_test_runner_missing': 'ui test runner does not exist',
+        'xcode_test_execute_failed': '** TEST EXECUTE FAILED **',
+        'xcode_test_failed': '** TEST FAILED **',
+        'xcode_testing_failed': 'Testing failed:',
+    }
+    # The install/status "Done" markers precede readiness evaluation; they do
+    # not prove that the runner installed successfully or became ready.
+    result = {name: False for name in markers}
+    result.update({'host_port_unavailable': False, 'requested_device_disconnected': False,
+                   'exception_types': [], 'logs_read': 0, 'truncated_logs': 0,
+                   'log_limit_reached': False, 'collection_error_types': []})
+    known_types = ['IOSDriverTimeoutException', 'FileNotFoundException', 'CliError',
+                   'IllegalStateException', 'IOException', 'ConnectException',
+                   'SocketTimeoutException', 'TimeoutException', 'RuntimeException',
+                   'UnknownHostException', 'SSLHandshakeException']
+    paths = []
+    for index, entry in enumerate(read()['commands'], 1):
+        if entry['label'] == command_label:
+            paths.append(PRIVATE / ('command-%03d.log' % index))
+    directory = directory if directory is not None else PRIVATE / 'maestro-output'
+    if not directory.resolve().is_relative_to(PRIVATE.resolve()):
+        raise ValueError('Maestro diagnostic directory must remain private.')
+    for pattern in ['**/maestro.log', '**/xctest_runner_*.log']:
+        for path in directory.glob(pattern):
+            paths.append(path)
+            if len(paths) > 6:
+                break
+        if len(paths) > 6:
+            break
+    for path in paths[:6]:
+        try:
+            if path.is_symlink() or not path.resolve().is_relative_to(PRIVATE.resolve()):
+                raise ValueError('Maestro log must remain in private output.')
+            payload, truncated = private_log_prefix(path)
+            result['logs_read'] += 1
+            result['truncated_logs'] += int(truncated)
+            for name, marker in markers.items():
+                result[name] |= marker in payload
+            for line in payload.splitlines():
+                result['host_port_unavailable'] |= ('Requested driver host port ' in line
+                                                   and ' is not available' in line)
+                result['requested_device_disconnected'] |= (' was requested, but it is not connected.' in line)
+            for kind in known_types:
+                if re.search(r'(?<![\w])%s(?![\w])' % kind, payload) and kind not in result['exception_types']:
+                    result['exception_types'].append(kind)
+        except Exception as error:
+            kind = type(error).__name__
+            if kind not in result['collection_error_types']:
+                result['collection_error_types'].append(kind)
+    result['log_limit_reached'] = len(paths) > 6
+    return result
+
+
 def record_startup_failure(report, device):
     """Collect bounded diagnostics before destroying this job's fresh app state."""
     details = {'scope': 'Fresh startup only; no account or persisted PIN created.',
@@ -267,6 +332,7 @@ def record_startup_failure(report, device):
         return result
 
     collect('maestro', maestro_details)
+    collect('maestro_preflight', maestro_preflight_diagnostics)
     collect('hierarchy_signals', lambda: startup_hierarchy_signals(PRIVATE / 'maestro-output'))
     collect('metro_errors', lambda: metro_startup_errors(private_text(PRIVATE / 'metro.log')))
     collect('metro_progress', lambda: metro_startup_progress(private_log_prefix(PRIVATE / 'metro.log')[0]))
@@ -320,7 +386,7 @@ def record_startup_failure(report, device):
     print('Bounded startup diagnostics: ' + json.dumps(details), flush=True)
 
 
-def command(args, label, timeout=120, cwd=ROOT, capture=False):
+def command(args, label, timeout=120, cwd=ROOT, capture=False, error_details=True):
     """Record exact nonsecret argv and status; keep all process output private."""
     PRIVATE.mkdir(parents=True, exist_ok=True)
     data = read()
@@ -356,7 +422,7 @@ def command(args, label, timeout=120, cwd=ROOT, capture=False):
         }
         entry['diagnostic'] = next((message for needle, message in known.items()
                                     if needle in log.lower()), 'Inspect this command locally; private raw output was not retained.')
-        entry['redacted_tool_errors'] = failure_details(log)
+        entry['redacted_tool_errors'] = failure_details(log) if error_details else []
         for line in entry['redacted_tool_errors']:
             print(line, flush=True)
         save(data)
@@ -552,6 +618,56 @@ def artifact_identity():
     return {'path': str(apk.relative_to(ROOT)), 'sha256': hashlib.sha256(apk.read_bytes()).hexdigest()}
 
 
+def driver():
+    """Fail early on iOS driver setup without installing or crediting the app."""
+    if PLATFORM != 'IOS':
+        raise ValueError('The disposable driver preflight is iOS-only.')
+    state = PRIVATE / 'maestro-preflight-state'
+    os.environ['XDG_STATE_HOME'] = str(state)
+    details = {'scope': 'DRIVER PREFLIGHT/setup only; no app build, install or UI credit.',
+               'result': 'FAIL', 'cleanup_errors': []}
+    device = None
+    original_error = None
+    label = 'Check disposable iOS driver readiness'
+    try:
+        created = command(['xcrun', 'simctl', 'create', 'Keeper-driver-preflight-ci',
+                           'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
+                           'com.apple.CoreSimulator.SimRuntime.iOS-18-5'],
+                          'Create owned driver-preflight simulator', timeout=120, capture=True)
+        if not re.fullmatch(r'[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}', created):
+            raise ValueError('simctl create did not return an owned simulator UUID.')
+        device = created
+        command(['xcrun', 'simctl', 'boot', device], 'Boot owned driver-preflight simulator', timeout=120)
+        command(['xcrun', 'simctl', 'bootstatus', device, '-b'],
+                'Wait for driver-preflight simulator boot', timeout=240)
+        command([read()['maestro']['binary'], '--platform', 'ios', '--device', device, 'hierarchy'],
+                label, timeout=300, error_details=False)
+        details['result'] = 'PASS'
+    except Exception as error:
+        original_error = error
+        details['error_type'] = type(error).__name__
+        raise
+    finally:
+        if device:
+            for action in ['shutdown', 'delete']:
+                try:
+                    subprocess.run(['xcrun', 'simctl', action, device], stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL, timeout=30, check=True)
+                except Exception as error:
+                    details['cleanup_errors'].append({'action': action, 'error_type': type(error).__name__})
+        try:
+            details['diagnostics'] = maestro_preflight_diagnostics(state / 'maestro/tests', label)
+        except Exception as error:
+            details['diagnostics'] = {'collection_error_types': [type(error).__name__]}
+        if details['cleanup_errors']:
+            details['result'] = 'FAIL'
+        data = read()
+        data['driver_preflight'] = details
+        save(data)
+        if details['cleanup_errors'] and original_error is None:
+            raise RuntimeError('Owned driver-preflight simulator cleanup failed.')
+
+
 def build():
     if PLATFORM == 'IOS':
         architecture = platform.machine()
@@ -580,21 +696,25 @@ def build():
     save(data)
 
 
-def warm_ios_metro_bundle():
-    """Bound cold development bundling before competing with simulator startup."""
-    url = 'http://127.0.0.1:8081/index.bundle?platform=ios&dev=true&minify=false'
-    body = PRIVATE / 'ios-development-warmup.bundle'
+def warm_metro_bundle():
+    """Bound cold development bundling before starting either disposable app."""
+    bundle_platform = {'IOS': 'ios', 'ANDROID': 'android'}.get(PLATFORM)
+    if bundle_platform is None:
+        raise ValueError('Unsupported native bundle platform.')
+    url = 'http://127.0.0.1:8081/index.bundle?platform=%s&dev=true&minify=false' % bundle_platform
+    body = PRIVATE / ('%s-development-warmup.bundle' % bundle_platform)
     details = {'scope': 'Development bundle setup only; not native or UI evidence.',
-               'url': url, 'timeout_seconds': 240, 'result': 'FAIL', 'http_status': None}
+               'platform': bundle_platform, 'url': url, 'timeout_seconds': 240,
+               'result': 'FAIL', 'http_status': None}
     started = time.monotonic()
     try:
         status = command(['curl', '--fail', '--silent', '--show-error', '--max-time', '240',
                           '--output', str(body), '--write-out', '%{http_code}', url],
-                         'Warm iOS development bundle (setup only)', timeout=250, capture=True)
+                         'Warm %s development bundle (setup only)' % PLATFORM, timeout=250, capture=True)
         if re.fullmatch(r'\d{3}', status):
             details['http_status'] = int(status)
         if status != '200' or not body.is_file() or body.stat().st_size == 0:
-            raise RuntimeError('iOS development bundle warmup did not return a nonempty HTTP 200 body.')
+            raise RuntimeError('Development bundle warmup did not return a nonempty HTTP 200 body.')
         digest = hashlib.sha256()
         with body.open('rb') as source:
             for chunk in iter(lambda: source.read(1024 * 1024), b''):
@@ -629,8 +749,8 @@ def smoke():
                 time.sleep(1)
         else:
             raise RuntimeError('Metro did not become ready within 60 attempts.')
+        warm_metro_bundle()
         if PLATFORM == 'IOS':
-            warm_ios_metro_bundle()
             device = command(['xcrun', 'simctl', 'create', 'Keeper-disposable-ci',
                               'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
                               'com.apple.CoreSimulator.SimRuntime.iOS-18-5'],
@@ -663,6 +783,7 @@ def smoke():
         data['installed_artifact_verified'] = True
         save(data)
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
+                 '--flatten-debug-output', '--debug-output', str(PRIVATE / 'maestro-output'),
                  '--format', 'junit', '--output', str(report), '--test-output-dir', str(PRIVATE / 'maestro-output'),
                  '.github/native/startup.yaml'], 'Assert startup and disposable passcode transition', timeout=420)
         suite = ET.parse(report).getroot()
@@ -703,8 +824,8 @@ def smoke():
 
 
 def main():
-    if PLATFORM not in APP_IDS or len(sys.argv) != 2 or sys.argv[1] not in ['record', 'prepare', 'build', 'smoke']:
-        raise RuntimeError('Expected a hosted platform and record|prepare|build|smoke.')
+    if PLATFORM not in APP_IDS or len(sys.argv) != 2 or sys.argv[1] not in ['record', 'prepare', 'driver', 'build', 'smoke']:
+        raise RuntimeError('Expected a hosted platform and record|prepare|driver|build|smoke.')
     os.environ.update({'ENVFILE': '.env.ci', 'RCT_NO_LAUNCH_PACKAGER': '1',
                        'RCT_NEW_ARCH_ENABLED': '1', 'MAESTRO_CLI_NO_ANALYTICS': '1'})
     run_phase(sys.argv[1])

@@ -47,6 +47,14 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertEqual(record['exit_code'], 3)
         self.assertNotIn('private payload', native.EVIDENCE.read_text())
 
+    def test_hierarchy_command_failure_never_exports_arbitrary_error_lines(self):
+        script = self.root / 'hierarchy_failure.py'
+        script.write_text('print("error: PRIVATE_SENTINEL hierarchy data"); raise SystemExit(1)')
+        with self.assertRaisesRegex(RuntimeError, 'exit 1'):
+            native.command([sys.executable, str(script)], 'Driver hierarchy', error_details=False)
+        self.assertEqual(native.read()['commands'][0]['redacted_tool_errors'], [])
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+
     def test_tool_error_details_are_bounded_and_redacted(self):
         output = 'private payload\nerror: missing module https://example.test/private token=secret\n' \
             + 'Caused by: password=private Bearer private\n' + 'error: detail\n' * 30
@@ -155,6 +163,121 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertFalse(signals['createPIN'])
         self.assertNotIn('PRIVATE_SENTINEL', json.dumps(signals))
 
+    def test_maestro_preflight_retains_fixed_driver_markers_and_known_types_without_raw_messages(self):
+        output = native.PRIVATE / 'maestro-output'
+        output.mkdir(parents=True)
+        native.save({'commands': [{'label': 'Assert startup and disposable passcode transition'}],
+                     'smoke': 'FAIL'})
+        (native.PRIVATE / 'command-001.log').write_text(
+            'xcuitest.installer.LocalXCTestInstaller$IOSDriverTimeoutException: '
+            'iOS driver not ready in time, consider increasing timeout by configuring '
+            'MAESTRO_DRIVER_STARTUP_TIMEOUT env variable PRIVATE_SENTINEL\n'
+            'PRIVATE_SENTINELException: arbitrary exception names must not escape\n')
+        (output / 'maestro.log').write_text(
+            '[Start] Install XCUITest runner on PRIVATE_SENTINEL\n'
+            '[Done] Install XCUITest runner on PRIVATE_SENTINEL\n'
+            '[Start] Perform XCUITest driver status check on PRIVATE_SENTINEL\n'
+            '[Done] Perform XCUITest driver status check on PRIVATE_SENTINEL\n'
+            '[Failed] Perform XCUITest driver status check on PRIVATE_SENTINEL\n'
+            'Installing pre built driver without xcodebuild PRIVATE_SENTINEL\n'
+            'Requested driver host port PRIVATE_SENTINEL is not available\n')
+        (output / 'xctest_runner_fixture.log').write_text(
+            'java.io.FileNotFoundException: xctestrun config does not exist PRIVATE_SENTINEL\n'
+            'ui test runner does not exist PRIVATE_SENTINEL\n'
+            '** TEST EXECUTE FAILED ** PRIVATE_SENTINEL\nTesting failed: PRIVATE_SENTINEL\n')
+        result = native.maestro_preflight_diagnostics()
+        self.assertTrue(result['driver_startup_timeout'])
+        self.assertTrue(result['runner_install_started'])
+        self.assertTrue(result['runner_install_launch_returned'])
+        self.assertTrue(result['status_response_received'])
+        self.assertTrue(result['status_check_failed'])
+        self.assertTrue(result['host_port_unavailable'])
+        self.assertTrue(result['xctestrun_config_missing'])
+        self.assertTrue(result['ui_test_runner_missing'])
+        self.assertTrue(result['xcode_test_execute_failed'])
+        self.assertTrue(result['xcode_testing_failed'])
+        self.assertEqual(set(result['exception_types']), {'IOSDriverTimeoutException', 'FileNotFoundException'})
+        self.assertEqual(result['logs_read'], 3)
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+        self.assertNotIn(str(output), json.dumps(result))
+        self.assertNotIn('driver_ready', result)
+        self.assertEqual(native.read()['smoke'], 'FAIL')
+
+    def test_ios_driver_preflight_is_setup_only_and_cleans_only_its_created_simulator(self):
+        native.save({'commands': [], 'maestro': {'binary': '/private/maestro'},
+                     'build': 'NOT RUN', 'smoke': 'NOT RUN'})
+        owned = '12345678-1234-1234-1234-123456789abc'
+        with mock.patch.object(native, 'PLATFORM', 'IOS'), mock.patch.dict(native.os.environ), \
+                mock.patch.object(native, 'command', side_effect=[owned, None, None, None]) as command, \
+                mock.patch.object(subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as cleanup:
+            native.driver()
+            self.assertEqual(native.os.environ['XDG_STATE_HOME'], str(native.PRIVATE / 'maestro-preflight-state'))
+        self.assertEqual(command.call_args.args[0],
+                         ['/private/maestro', '--platform', 'ios', '--device', owned, 'hierarchy'])
+        self.assertFalse(command.call_args.kwargs['error_details'])
+        self.assertEqual([call.args[0] for call in cleanup.call_args_list],
+                         [['xcrun', 'simctl', 'shutdown', owned], ['xcrun', 'simctl', 'delete', owned]])
+        self.assertEqual(native.read()['driver_preflight']['result'], 'PASS')
+        self.assertEqual(native.read()['build'], 'NOT RUN')
+        self.assertEqual(native.read()['smoke'], 'NOT RUN')
+
+    def test_ios_driver_failure_preserves_original_error_and_attempts_delete_after_cleanup_timeout(self):
+        native.save({'commands': [], 'maestro': {'binary': '/private/maestro'},
+                     'build': 'NOT RUN', 'smoke': 'NOT RUN'})
+        owned = '12345678-1234-1234-1234-123456789abc'
+        with mock.patch.object(native, 'PLATFORM', 'IOS'), mock.patch.dict(native.os.environ), \
+                mock.patch.object(native, 'command', side_effect=[owned, None, None, RuntimeError('driver failed PRIVATE_SENTINEL')]), \
+                mock.patch.object(subprocess, 'run', side_effect=[subprocess.TimeoutExpired('shutdown', 30),
+                                                                subprocess.CompletedProcess([], 0)]) as cleanup, \
+                self.assertRaisesRegex(RuntimeError, 'driver failed PRIVATE_SENTINEL'):
+            native.run_phase('driver')
+        self.assertEqual(cleanup.call_count, 2)
+        self.assertEqual(cleanup.call_args.args[0], ['xcrun', 'simctl', 'delete', owned])
+        data = native.read()
+        self.assertEqual(data['driver_preflight']['result'], 'FAIL')
+        self.assertEqual(data['driver_preflight']['cleanup_errors'], [{'action': 'shutdown', 'error_type': 'TimeoutExpired'}])
+        self.assertEqual(data['failed_phase'], 'driver')
+        self.assertEqual(data['build'], 'NOT RUN')
+        self.assertEqual(data['smoke'], 'NOT RUN')
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+
+    def test_driver_preflight_diagnostics_cannot_contaminate_smoke_flags(self):
+        native.PRIVATE.mkdir()
+        driver_label = 'Check disposable iOS driver readiness'
+        native.save({'commands': [{'label': driver_label},
+                                  {'label': 'Assert startup and disposable passcode transition'}]})
+        (native.PRIVATE / 'command-001.log').write_text('IOSDriverTimeoutException PRIVATE_SENTINEL\n')
+        (native.PRIVATE / 'command-002.log').write_text('ordinary smoke output PRIVATE_SENTINEL\n')
+        state = native.PRIVATE / 'maestro-preflight-state/maestro/tests/timestamp'
+        state.mkdir(parents=True)
+        (state / 'maestro.log').write_text('** TEST EXECUTE FAILED ** PRIVATE_SENTINEL\n')
+        driver = native.maestro_preflight_diagnostics(state.parent, driver_label)
+        smoke = native.maestro_preflight_diagnostics()
+        self.assertTrue(driver['xcode_test_execute_failed'])
+        self.assertEqual(driver['exception_types'], ['IOSDriverTimeoutException'])
+        self.assertFalse(smoke['xcode_test_execute_failed'])
+        self.assertEqual(smoke['exception_types'], [])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(driver))
+
+    def test_maestro_preflight_bounds_files_bytes_and_collection_errors_without_changing_failure(self):
+        output = native.PRIVATE / 'maestro-output'
+        output.mkdir(parents=True)
+        native.save({'commands': [], 'smoke': 'FAIL'})
+        (output / 'maestro.log').write_bytes(
+            b'PRIVATE_SENTINEL' * (1024 * 1024 // 8) + b'\nInstalling driver with xcodebuild\n')
+        for index in range(7):
+            (output / ('xctest_runner_%s.log' % index)).write_text('PRIVATE_SENTINEL\n')
+        result = native.maestro_preflight_diagnostics()
+        self.assertEqual(result['logs_read'], 6)
+        self.assertTrue(result['log_limit_reached'])
+        self.assertEqual(result['truncated_logs'], 1)
+        self.assertFalse(result['xcodebuild_driver_selected'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+        with mock.patch.object(native, 'private_log_prefix', side_effect=OSError('PRIVATE_SENTINEL')):
+            result = native.maestro_preflight_diagnostics()
+        self.assertEqual(result['collection_error_types'], ['OSError'])
+        self.assertEqual(native.read()['smoke'], 'FAIL')
+
     def test_ios_startup_errors_restrict_process_and_redact_first_error_line(self):
         payload = '\n'.join([
             'Filtering the log data using the process predicate',
@@ -211,29 +334,38 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
         self.assertNotIn('private-path', native.EVIDENCE.read_text())
 
-    def test_ios_warmup_keeps_body_private_and_does_not_supply_smoke_evidence(self):
+    def test_warmup_keeps_each_platform_body_private_and_does_not_supply_smoke_evidence(self):
         native.PRIVATE.mkdir()
         body = b'disposable development bundle PRIVATE_SENTINEL'
 
         def warmup(args, *unused, **kwargs):
-            self.assertEqual(args[-1], 'http://127.0.0.1:8081/index.bundle?platform=ios&dev=true&minify=false')
+            self.assertEqual(args[-1], 'http://127.0.0.1:8081/index.bundle?platform=%s&dev=true&minify=false'
+                             % platform.lower())
             Path(args[args.index('--output') + 1]).write_bytes(body)
             return '200'
 
-        with mock.patch.object(native, 'command', side_effect=warmup):
-            native.warm_ios_metro_bundle()
-        data = native.read()
-        self.assertEqual(data['smoke'], 'NOT RUN')
-        self.assertEqual(data['metro_warmup']['result'], 'PASS')
-        self.assertEqual(data['metro_warmup']['http_status'], 200)
-        self.assertEqual(data['metro_warmup']['bytes'], len(body))
-        self.assertEqual(data['metro_warmup']['sha256'], hashlib.sha256(body).hexdigest())
-        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+        for platform in ['IOS', 'ANDROID']:
+            with self.subTest(platform=platform), mock.patch.object(native, 'PLATFORM', platform), \
+                    mock.patch.object(native, 'command', side_effect=warmup):
+                native.warm_metro_bundle()
+            data = native.read()
+            self.assertEqual(data['smoke'], 'NOT RUN')
+            self.assertEqual(data['metro_warmup']['platform'], platform.lower())
+            self.assertEqual(data['metro_warmup']['result'], 'PASS')
+            self.assertEqual(data['metro_warmup']['http_status'], 200)
+            self.assertEqual(data['metro_warmup']['bytes'], len(body))
+            self.assertEqual(data['metro_warmup']['sha256'], hashlib.sha256(body).hexdigest())
+            self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
         with mock.patch.object(native, 'command', side_effect=RuntimeError('HTTP error')), \
                 self.assertRaisesRegex(RuntimeError, 'HTTP error'):
-            native.warm_ios_metro_bundle()
+            native.warm_metro_bundle()
         self.assertEqual(native.read()['metro_warmup']['result'], 'FAIL')
         self.assertEqual(native.read()['smoke'], 'NOT RUN')
+        with mock.patch.object(native, 'PLATFORM', 'unsupported&private=value'), \
+                mock.patch.object(native, 'command') as command, \
+                self.assertRaisesRegex(ValueError, 'Unsupported native bundle platform'):
+            native.warm_metro_bundle()
+        command.assert_not_called()
 
     def test_ios_collector_rejects_unsafe_executable_without_running_command(self):
         native.PRIVATE.mkdir()
