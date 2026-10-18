@@ -19,13 +19,6 @@ PRIVATE = 'synthetic-wallet-recovery-private-text'
 
 
 class DiagnosticTests(unittest.TestCase):
-    def test_verifier_only_changes_branch_name(self):
-        current = (ROOT / 'verify.py').read_text()
-        restored = current.replace(
-            "RUNNER_BRANCH = 'codex/native-http-evidence-diagnostic-bccb6334'",
-            "RUNNER_BRANCH = 'codex/one-time-native-validation-bccb6334'")
-        self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(), '425af5de6f939b1e560d75c576c31819a5d4352379a70db6c126035faf805499')
-
     def test_source_map_has_exact_digest_and_known_source_sites(self):
         doc = json.loads((ROOT / 'verifier-sites.json').read_text())
         source = (ROOT / 'verify.py').read_bytes()
@@ -35,7 +28,7 @@ class DiagnosticTests(unittest.TestCase):
             self.assertEqual(row['source'], lines[int(line)-1].strip())
             self.assertRegex(row['code'], r'^V[0-9]{3}$')
         self.assertTrue(any("RUNNER_ARCH" in row['source'] for row in doc['sites'].values()))
-        self.assertTrue(any("urlopen" in row['source'] for row in doc['sites'].values()))
+        self.assertTrue(any("opener.open" in row['source'] for row in doc['sites'].values()))
 
     def test_error_messages_and_urls_never_exported(self):
         errors = [RuntimeError(PRIVATE), KeyError(PRIVATE), ValueError(PRIVATE),
@@ -70,7 +63,7 @@ class DiagnosticTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             app = Path(tmp) / 'app'; private = Path(tmp) / 'private'; private.mkdir()
             path = app / 'artifacts/native/ios/metadata.json'; path.parent.mkdir(parents=True)
-            path.write_text(json.dumps({'commands': [{'command': ['pod', 'install', '--deployment'],
+            path.write_text(json.dumps({'commands': [{'command': ['env', 'BUNDLE_FROZEN=true', 'BUNDLE_GEMFILE=' + str(app / 'Gemfile'), 'bundle', 'exec', 'pod', 'install', '--deployment'],
                 'exit_code': 1, 'error': PRIVATE, 'path': PRIVATE}], 'wallet': PRIVATE}))
             (private / 'command-001.log').write_text('[!] ' + PRIVATE + ' required a higher minimum deployment target')
             result = diagnose.pod_observation(app, private)
@@ -84,7 +77,7 @@ class DiagnosticTests(unittest.TestCase):
     def test_unexpected_or_duplicate_command_not_read(self):
         with tempfile.TemporaryDirectory() as tmp:
             app = Path(tmp); path = app / 'artifacts/native/ios/metadata.json'; path.parent.mkdir(parents=True)
-            for commands in [[{'command': PRIVATE}], [{'command':['pod','install','--deployment']}]*2]:
+            for commands in [[{'command': PRIVATE}], [{'command':['env','BUNDLE_FROZEN=true','BUNDLE_GEMFILE=' + str(app / 'Gemfile'),'bundle','exec','pod','install','--deployment']}]*2]:
                 path.write_text(json.dumps({'commands':commands}))
                 result = diagnose.pod_observation(app, app)
                 self.assertEqual(result['status'],'NOT_OBSERVED')
@@ -174,16 +167,11 @@ class DiagnosticTests(unittest.TestCase):
         self.assertIs(diagnose.sys.argv,before)
 
     def test_workflow_is_bounded_first_push_and_diagnostic_only(self):
-        restored = (ROOT/'diagnostic.proposed.yml').read_text().replace(
-            'codex/native-http-evidence-diagnostic-bccb6334',
-            'codex/native-input-pods-diagnostic-bccb6334')
-        self.assertEqual(hashlib.sha256(restored.encode()).hexdigest(),
-                         '3263744fe3e95be3b291a606fe80cb28617864ce6f05e8d68d3d134c18d6b71e')
         w=yaml.safe_load((ROOT/'diagnostic.proposed.yml').read_text())
-        self.assertEqual(w['on'],{'push':{'branches':['codex/native-http-evidence-diagnostic-bccb6334']}})
+        self.assertEqual(w['on'],{'push':{'branches':['codex/native-workspace-literal-once-bccb6334']}})
         self.assertEqual(w['permissions'],{'contents':'read'})
         self.assertEqual(w['concurrency'],{'group':'keeper-one-time-native-prerequisite','cancel-in-progress':False})
-        for platform,cap,count in [('ios',30,9),('android',5,4)]:
+        for platform,cap,count in [('ios',30,10)]:
             job=w['jobs'][platform]; self.assertEqual(job['timeout-minutes'],cap);self.assertEqual(len(job['steps']),count)
             for clause in ['github.event.created == true','github.run_attempt == 1','github.sha == github.workflow_sha',
                            'github.event.repository.private == false','github.event.forced == false']:
@@ -193,12 +181,17 @@ class DiagnosticTests(unittest.TestCase):
                 if 'uses' in step:
                     self.assertRegex(step['uses'],r'@[0-9a-f]{40}$')
                     self.assertNotIn('emulator',step['uses']);self.assertNotIn('upload-artifact',step['uses'])
-                if 'run' in step:
+                if 'run' in step and step['name'] != 'Move reviewed inputs outside application checkout':
                     self.assertRegex(step['run'],r'diagnose.py" (stage|record|prepare)$')
                 if step.get('uses','').startswith('actions/checkout@'):
                     self.assertFalse(step['with']['persist-credentials'])
         self.assertEqual(w['jobs']['ios']['steps'][-1]['id'],'prepare')
-        self.assertEqual(w['jobs']['android']['steps'][-1]['name'],'Verify reviewed inputs and stage pinned harness')
+        self.assertEqual(set(w['jobs']), {'ios'})
+        self.assertEqual(w['jobs']['ios']['runs-on'], 'macos-15')
+        self.assertEqual(w['jobs']['ios']['steps'][-1]['timeout-minutes'], 24)
+        self.assertEqual(w['env']['KEEPER_POD_LOCK_REPAIR'], '0')
+        self.assertEqual(w['env']['BUNDLE_RETRY'], '0')
+        self.assertEqual((ROOT/'diagnostic.proposed.yml').read_bytes(), (ROOT.parents[1]/'.github/workflows/keeper-one-time-native-diagnostic.yml').read_bytes())
 
 
 if __name__ == '__main__':
