@@ -1,0 +1,38 @@
+appId: ${APP_ID}
+name: Native bridge persistence and strict IAP lifecycle
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- extendedWaitUntil:
+    visible:
+      id: native-probe-seeded
+    timeout: 60000
+- assertNotVisible:
+    id: native-probe-failed
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: native-probe-mutated
+    timeout: 60000
+- assertNotVisible:
+    id: native-probe-failed
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: native-probe-storage-pass
+    timeout: 60000
+- assertNotVisible:
+    id: native-probe-failed
+- extendedWaitUntil:
+    visible:
+      id: native-probe-iap-pass
+    timeout: 100000
+- assertNotVisible:
+    id: native-probe-failed
+- stopApp

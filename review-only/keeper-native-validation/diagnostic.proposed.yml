@@ -1,0 +1,111 @@
+# REVIEW ONLY: no execution authorized. First new-branch push would run once.
+name: One-time input and Pod diagnostics - requires approval before push
+permissions:
+  contents: read
+concurrency:
+  group: keeper-one-time-native-prerequisite
+  cancel-in-progress: false
+env:
+  CI: 'true'
+  HUSKY: '0'
+  KEEPER_SOURCE_SHA: bccb63348754e7a7975ea140717d31be214f0801
+  MAESTRO_CLI_NO_ANALYTICS: '1'
+  KEEPER_POD_LOCK_REPAIR: '0'
+jobs:
+  ios:
+    name: iOS dependency diagnosis
+    if: ${{ github.repository == 'KeeperCommunity/bitcoin-keeper' && github.event_name == 'push' && github.ref == 'refs/heads/codex/native-http-evidence-diagnostic-bccb6334'
+      && github.event.repository.private == false && github.event.created == true && github.event.deleted == false && github.event.forced == false
+      && github.run_attempt == 1 && github.sha == github.workflow_sha }}
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      KEEPER_NATIVE_PLATFORM: IOS
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+    - name: Check out exact app source
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        ref: bccb63348754e7a7975ea140717d31be214f0801
+        persist-credentials: false
+        repository: KeeperCommunity/bitcoin-keeper
+        path: app
+    - name: Check out pinned reviewed harness
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: 0984c5b97e7e8326d6856ba662274ecf325e5e0f
+        path: harness
+        persist-credentials: false
+    - name: Check out this reviewed runner
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: ${{ github.workflow_sha }}
+        path: review
+        persist-credentials: false
+        fetch-depth: 2
+    - name: Verify reviewed inputs and stage pinned harness
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/diagnose.py" stage
+    - name: Set up Node
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+      with:
+        node-version: 22.22.0
+        package-manager-cache: false
+    - name: Set up Java for Maestro
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+      with:
+        distribution: temurin
+        java-version: '17'
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@675dd7ba1b06c8786a1480d89c384f5620a42647
+      with:
+        ruby-version: 3.3.8
+    - name: Record runner and toolchain
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/diagnose.py" record
+      id: record
+    - name: Install immutable native dependencies
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/diagnose.py" prepare
+      id: prepare
+  android:
+    name: Android input diagnosis
+    if: ${{ github.repository == 'KeeperCommunity/bitcoin-keeper' && github.event_name == 'push' && github.ref == 'refs/heads/codex/native-http-evidence-diagnostic-bccb6334'
+      && github.event.repository.private == false && github.event.created == true && github.event.deleted == false && github.event.forced == false
+      && github.run_attempt == 1 && github.sha == github.workflow_sha }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      KEEPER_NATIVE_PLATFORM: ANDROID
+    steps:
+    - name: Check out exact app source
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        ref: bccb63348754e7a7975ea140717d31be214f0801
+        persist-credentials: false
+        repository: KeeperCommunity/bitcoin-keeper
+        path: app
+    - name: Check out pinned reviewed harness
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: 0984c5b97e7e8326d6856ba662274ecf325e5e0f
+        path: harness
+        persist-credentials: false
+    - name: Check out this reviewed runner
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: ${{ github.workflow_sha }}
+        path: review
+        persist-credentials: false
+        fetch-depth: 2
+    - name: Verify reviewed inputs and stage pinned harness
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/diagnose.py" stage
+defaults:
+  run:
+    shell: bash
+    working-directory: app
+'on':
+  push:
+    branches:
+    - codex/native-http-evidence-diagnostic-bccb6334
