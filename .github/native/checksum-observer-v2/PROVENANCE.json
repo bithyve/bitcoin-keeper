@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "description": "Observer v2 implementation and fixture tests; no runtime diagnostic output.",
+  "repository": "KeeperCommunity/bitcoin-keeper",
+  "base_commit": "def0d6a90c80287edb4f58ae272cbfc340f00d73",
+  "diagnostic_source_commit": "bccb63348754e7a7975ea140717d31be214f0801",
+  "diagnostic_source_tree": "3768d44eaa9005f56f564b1faeb2732bef2da1e8",
+  "harness_commit": "0984c5b97e7e8326d6856ba662274ecf325e5e0f",
+  "baseline_origin": "ios/Podfile.lock at diagnostic_source_commit; parsed content verified equal",
+  "baseline_lock_sha256": "e6241b507e63070634fb25e4c7d88b2cc1cc20ce2b093325bfbda5b70f2924a9",
+  "upstream_fixture_attribution": [
+    {
+      "files": "fixtures/BVLinearGradient.json-*",
+      "package": "react-native-linear-gradient",
+      "version": "2.8.3",
+      "license": "MIT",
+      "upstream": "https://github.com/brentvatne/react-native-linear-gradient"
+    },
+    {
+      "files": "fixtures/react-native-background-timer.json-*",
+      "package": "react-native-background-timer",
+      "version": "2.4.1",
+      "license": "MIT",
+      "upstream": "https://github.com/ocetnik/react-native-background-timer"
+    },
+    {
+      "test": "test_cocoapods_method.rb",
+      "package": "CocoaPods",
+      "version": "1.16.2",
+      "license": "MIT",
+      "upstream": "https://github.com/CocoaPods/CocoaPods",
+      "source_file": "lib/cocoapods/installer.rb",
+      "source_sha256": "a29597f2fa5d1f11e76511689c7ac91ecd0411c67390db07c8b057628fb18fda",
+      "source_lines": [
+        489,
+        498
+      ],
+      "source_included": false
+    }
+  ],
+  "original_files_sha256": {
+    "README.md": "e8c62d2a6c6a9a79a531c8f2a2881690a7958749cb729e6960c5f3de0712d5c3",
+    "baseline-lock.json": "dc0c2fc15460bfa3a025bfa29a0d7aed51c0707a4197dadbeabab29bae28dee4",
+    "capture.rb": "6d77007435fe95b9516443c00916a4126a60917af41286466bce3095a557f91f",
+    "checksum_observer.py": "88dcd869f9c907c2d14e8e394fe7b485a3d7badcf7063da809e947b9fb7b3aa3",
+    "fixture_factory.py": "bd4ccbde849337a3edfbcbfc9fb30b75413156b9b3e69e4d106d92713ecef42e",
+    "fixtures/BVLinearGradient.json-2.7-style.json": "29798fb57553db51dfc9af51705ab08e020bfef2a4af185c08578065f3d90799",
+    "fixtures/BVLinearGradient.json-2.8-style.json": "42267c8b4d6ad66ae734f72230791633d8c28f6173b07b91662e9a430db57d7b",
+    "fixtures/react-native-background-timer.json-2.7-style.json": "f529d96b60ceb32630ada54644fd8ed2d0856b23149341e7d462621268e7fe91",
+    "fixtures/react-native-background-timer.json-2.8-style.json": "f0cd28a50cec56fcc4c03e013a25e11d54468f760d04978aa93bb1487b5b29d9",
+    "pod-allowlist.json": "028a68bee6cf3354e9e942def5e3d7f1163527cade48b9e41630429bbc7b2099",
+    "test_capture.rb": "abe114a943a6cb9a927e8bb648fabe0a64c8d5886a9ee2410d08048cd8fe6066",
+    "test_cocoapods_method.rb": "74250c9847b22b4db8267cd0cde2cb87f7555bb619d8055baf6881f6421a3679",
+    "test_independent.py": "b98c66790471e96517f2722a8dd97a5ddae81ed893e9e87fc0bd556ec8591568",
+    "test_observer.py": "935ec92221299e216c7df3c62fe614f6fa61965ed0571f6f410eda9bbbe3eddc",
+    "test_tool_reader.py": "4c96971001f4537f208bd1087be0a473614a2cfa913d4ba984ae5773fd7b5354",
+    "test_transport.py": "f723b2931934327142064c8eda841b5bc3cc683dd7a9524d340f2ba6c342a080",
+    "transport_fixture.rb": "f0700f41a5b23fa1365f12891ced06b8721af97d0c67a26c92d8158fa8932d37"
+  },
+  "handover_changes": {
+    "README.md": "Replace machine-specific operational history with portable fixture usage and scope.",
+    "test_tool_reader.py": "Replace machine-specific Ruby path/hash with explicit environment inputs; report missing inputs as a skipped test.",
+    "test_transport.py": "Remove machine-specific default Ruby path; keep explicit environment input and existing skip gate.",
+    "test_cocoapods_method.rb": "Replace machine-specific source path with explicit environment input; retain the whole-source hash pin.",
+    "test_capture.rb": "Remove stale environment-specific NOT RUN comment."
+  }
+}
