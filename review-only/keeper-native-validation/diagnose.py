@@ -111,7 +111,7 @@ def pod_observation(app, private):
         if not isinstance(commands, list) or len(commands) > 256:
             return result
         matches = [(i, entry) for i, entry in enumerate(commands, 1)
-                   if isinstance(entry, dict) and entry.get('command') == ['pod', 'install', '--deployment']]
+                   if isinstance(entry, dict) and entry.get('command') == ['env', 'BUNDLE_FROZEN=true', 'bundle', 'exec', 'pod', 'install', '--deployment']]
         if len(matches) != 1:
             return result
         number, entry = matches[0]

@@ -1,0 +1,71 @@
+--- a/.github/native/hosted_native.py
++++ b/.github/native/hosted_native.py
+@@ -594,17 +594,17 @@
+     fixtures()
+     install_maestro()
+     if PLATFORM == 'IOS':
+-        command(['gem', 'install', 'cocoapods', '--version', '1.16.2', '--no-document'],
+-                'Install pinned CocoaPods', timeout=300)
++        command(['env', 'BUNDLE_FROZEN=true', 'bundle', 'install'],
++                'Install frozen application Ruby bundle', timeout=300)
+         if os.environ.get('KEEPER_POD_LOCK_REPAIR') == '1':
+             # Diagnostic bootstrap only. A candidate lock is reviewed/committed,
+             # then a separate strict deployment run must build and test the app.
+-            command(['pod', 'update', 'NitroIap', 'NitroModules', 'openiap', '--no-repo-update'],
++            command(['env', 'BUNDLE_FROZEN=true', 'bundle', 'exec', 'pod', 'update', 'NitroIap', 'NitroModules', 'openiap', '--no-repo-update'],
+                     'Generate targeted CocoaPods lock candidate (not validation)',
+                     timeout=900, cwd=ROOT / 'ios')
+             shutil.copyfile(ROOT / 'ios/Podfile.lock', EVIDENCE.parent / 'Podfile.lock.candidate')
+             raise RuntimeError('Pod lock candidate generated for review; no native validation performed.')
+-        command(['pod', 'install', '--deployment'], 'Install immutable CocoaPods dependencies',
++        command(['env', 'BUNDLE_FROZEN=true', 'bundle', 'exec', 'pod', 'install', '--deployment'], 'Install immutable CocoaPods dependencies',
+                 timeout=900, cwd=ROOT / 'ios')
+         # Existing PBX build phases hardcode this path. Adapt the disposable host,
+         # preserving the app project and the source commit being tested.
+--- /dev/null
++++ b/.github/tests/test_frozen_ruby_bundle.py
+@@ -0,0 +1,44 @@
++"""Command-boundary regressions; no package installer or CocoaPods is executed."""
++import importlib.util
++import os
++from pathlib import Path
++import tempfile
++import unittest
++from unittest import mock
++
++spec=importlib.util.spec_from_file_location('candidate_native',Path(__file__).resolve().parents[1]/'native/hosted_native.py')
++native=importlib.util.module_from_spec(spec);spec.loader.exec_module(native)
++
++class StopFixture(Exception): pass
++
++class FrozenRubyBundleTests(unittest.TestCase):
++    def exercise(self, fail_bundle):
++        with tempfile.TemporaryDirectory() as tmp:
++            root=Path(tmp);(root/'package.json').write_text('{}')
++            calls=[]
++            def command(args,*unused,**kwargs):
++                calls.append(args)
++                if args==['env','BUNDLE_FROZEN=true','bundle','install'] and fail_bundle:
++                    raise StopFixture('frozen lock rejected')
++                if 'pod' in args:raise StopFixture('comparison command reached')
++            with mock.patch.multiple(native,ROOT=root,EVIDENCE=root/'metadata.json',PRIVATE=root/'private',PLATFORM='IOS'), \
++                 mock.patch.object(native,'command',side_effect=command), \
++                 mock.patch.object(native,'fixtures'),mock.patch.object(native,'install_maestro'), \
++                 mock.patch.object(native.subprocess,'check_output',return_value=b''), \
++                 mock.patch.dict(os.environ,{'KEEPER_POD_LOCK_REPAIR':'0'}):
++                native.save({'commands':[]})
++                with self.assertRaises(StopFixture):native.prepare()
++            return calls
++    def test_deployment_uses_frozen_bundle_not_global_pod(self):
++        calls=self.exercise(False)
++        bundle=['env','BUNDLE_FROZEN=true','bundle','install']
++        pod=['env','BUNDLE_FROZEN=true','bundle','exec','pod','install','--deployment']
++        self.assertIn(bundle,calls);self.assertEqual(calls[-1],pod)
++        self.assertLess(calls.index(bundle),calls.index(pod))
++        self.assertFalse(any(c[0] in ('gem','pod','sudo') for c in calls))
++    def test_frozen_bundle_failure_prevents_pod_comparison(self):
++        calls=self.exercise(True)
++        self.assertEqual(calls[-1],['env','BUNDLE_FROZEN=true','bundle','install'])
++        self.assertFalse(any('pod' in c for c in calls))
++
++if __name__=='__main__':unittest.main()
