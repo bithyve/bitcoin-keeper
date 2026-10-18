@@ -1,0 +1,152 @@
+--- a/.github/native/hosted_native.py
++++ b/.github/native/hosted_native.py
+@@ -594,17 +594,38 @@
+     fixtures()
+     install_maestro()
+     if PLATFORM == 'IOS':
+-        command(['gem', 'install', 'cocoapods', '--version', '1.16.2', '--no-document'],
+-                'Install pinned CocoaPods', timeout=300)
++        bundle = ['env', 'BUNDLE_FROZEN=true', 'BUNDLE_GEMFILE=' + str(ROOT / 'Gemfile'), 'bundle']
++        command(bundle + ['install'], 'Install frozen application Ruby bundle', timeout=300)
++        # Load the actual frozen gems from ios, where a separate Fastlane Gemfile exists.
++        probe = ('print JSON.generate({gemfile_matches: Bundler.default_gemfile.realpath.to_s == '
++                 'File.realpath(ENV.fetch("BUNDLE_GEMFILE")), json: JSON::VERSION, '
++                 'cocoapods: Pod::VERSION, xcodeproj: Xcodeproj::VERSION})')
++        actual = json.loads(command(bundle + ['exec', 'ruby', '-rbundler', '-rjson', '-rcocoapods',
++                                              '-rxcodeproj', '-e', probe],
++                                    'Verify loaded frozen Ruby versions and root Gemfile',
++                                    timeout=60, cwd=ROOT / 'ios', capture=True))
++        expected = {'json': '2.7.1', 'cocoapods': '1.16.2', 'xcodeproj': '1.27.0'}
++        observed = actual if isinstance(actual, dict) else {}
++        valid = (set(observed) == set(expected) | {'gemfile_matches'} and
++                 observed.get('gemfile_matches') is True and
++                 all(observed.get(name) == version for name, version in expected.items()))
++        # Emit only fixed values; never reflect probe text, paths, or unexpected versions.
++        print('KEEPER_RUBY_RUNTIME ' + json.dumps({
++            'status': 'VERIFIED' if valid else 'MISMATCH',
++            'gemfile': 'APP_ROOT' if observed.get('gemfile_matches') is True else 'MISMATCH',
++            'versions': {name: version if observed.get(name) == version else 'MISMATCH'
++                         for name, version in expected.items()}}, sort_keys=True), flush=True)
++        if not valid:
++            raise RuntimeError('FROZEN_RUBY_RUNTIME_MISMATCH')
+         if os.environ.get('KEEPER_POD_LOCK_REPAIR') == '1':
+             # Diagnostic bootstrap only. A candidate lock is reviewed/committed,
+             # then a separate strict deployment run must build and test the app.
+-            command(['pod', 'update', 'NitroIap', 'NitroModules', 'openiap', '--no-repo-update'],
++            command(bundle + ['exec', 'pod', 'update', 'NitroIap', 'NitroModules', 'openiap', '--no-repo-update'],
+                     'Generate targeted CocoaPods lock candidate (not validation)',
+                     timeout=900, cwd=ROOT / 'ios')
+             shutil.copyfile(ROOT / 'ios/Podfile.lock', EVIDENCE.parent / 'Podfile.lock.candidate')
+             raise RuntimeError('Pod lock candidate generated for review; no native validation performed.')
+-        command(['pod', 'install', '--deployment'], 'Install immutable CocoaPods dependencies',
++        command(bundle + ['exec', 'pod', 'install', '--deployment'], 'Install immutable CocoaPods dependencies',
+                 timeout=900, cwd=ROOT / 'ios')
+         # Existing PBX build phases hardcode this path. Adapt the disposable host,
+         # preserving the app project and the source commit being tested.
+--- /dev/null
++++ b/.github/tests/test_frozen_ruby_bundle.py
+@@ -0,0 +1,104 @@
++"""Command boundaries and real environment forwarding; no Ruby/gem installer runs."""
++import contextlib
++import importlib.util
++import io
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++spec = importlib.util.spec_from_file_location('candidate_native', Path(__file__).resolve().parents[1] / 'native/hosted_native.py')
++native = importlib.util.module_from_spec(spec); spec.loader.exec_module(native)
++EXPECTED = {'gemfile_matches': True, 'json': '2.7.1', 'cocoapods': '1.16.2', 'xcodeproj': '1.27.0'}
++PRIVATE = 'synthetic_private_runtime_output'
++
++
++class StopFixture(Exception): pass
++
++
++class FrozenRubyBundleTests(unittest.TestCase):
++    def exercise(self, failure=None, actual=EXPECTED):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp); (root / 'package.json').write_text('{}'); (root / 'ios').mkdir()
++            (root / 'Gemfile').write_text('root CocoaPods bundle')
++            (root / 'ios/Gemfile').write_text('ios Fastlane bundle')
++            calls = []; selected = []
++            def command(args, label, **kwargs):
++                calls.append((args, kwargs))
++                if args[-1] == 'install' and args[-2] == 'bundle' and failure == 'install':
++                    raise StopFixture('frozen install rejected')
++                if '-e' in args:
++                    if failure == 'probe': raise StopFixture('runtime load rejected')
++                    self.assertEqual(kwargs['cwd'], root / 'ios')
++                    self.assertTrue(kwargs['capture'])
++                    for expression in ('JSON::VERSION', 'Pod::VERSION', 'Xcodeproj::VERSION', 'Bundler.default_gemfile.realpath'):
++                        self.assertIn(expression, args[-1])
++                    # Real env process boundary from ios with distinct manifests.
++                    child = subprocess.run(args[:3] + [sys.executable, '-c',
++                        'import os,pathlib; print(pathlib.Path(os.environ["BUNDLE_GEMFILE"]).read_text())'],
++                        cwd=root / 'ios', env={'PATH': os.defpath}, text=True, capture_output=True, check=True)
++                    selected.append(child.stdout.strip())
++                    return actual if isinstance(actual, str) else json.dumps(actual)
++                if 'pod' in args:
++                    self.assertEqual(kwargs['cwd'], root / 'ios')
++                    raise StopFixture('deployment reached')
++            with mock.patch.multiple(native, ROOT=root, EVIDENCE=root / 'metadata.json', PRIVATE=root / 'private', PLATFORM='IOS'), \
++                 mock.patch.object(native, 'command', side_effect=command), \
++                 mock.patch.object(native, 'fixtures'), mock.patch.object(native, 'install_maestro'), \
++                 mock.patch.object(native.subprocess, 'check_output', return_value=b''), \
++                 mock.patch.dict(os.environ, {'KEEPER_POD_LOCK_REPAIR': '0'}), \
++                 contextlib.redirect_stdout(io.StringIO()) as out:
++                native.save({'commands': []})
++                with self.assertRaises((StopFixture, RuntimeError, ValueError)):
++                    native.prepare()
++            for args, _ in calls:
++                if 'bundle' in args:
++                    self.assertEqual(args[:4], ['env', 'BUNDLE_FROZEN=true', 'BUNDLE_GEMFILE=' + str(root / 'Gemfile'), 'bundle'])
++            return calls, selected, out.getvalue()
++
++    def test_deployment_uses_same_root_frozen_bundle_after_verified_runtime(self):
++        calls, selected, output = self.exercise()
++        self.assertEqual(selected, ['root CocoaPods bundle'])
++        self.assertEqual(calls[-1][0][4:], ['exec', 'pod', 'install', '--deployment'])
++        self.assertEqual(calls[-1][1]['timeout'], 900)
++        self.assertFalse(any(args[0] in ('gem', 'pod', 'sudo') for args, _ in calls))
++        record = json.loads(output.split('KEEPER_RUBY_RUNTIME ', 1)[1])
++        self.assertEqual(record, {'status': 'VERIFIED', 'gemfile': 'APP_ROOT',
++                                 'versions': {key: value for key, value in EXPECTED.items() if key != 'gemfile_matches'}})
++
++    def test_frozen_install_failure_prevents_probe_and_pod(self):
++        calls, _, output = self.exercise(failure='install')
++        self.assertEqual(calls[-1][0][-1], 'install')
++        self.assertFalse(any('pod' in args or '-e' in args for args, _ in calls))
++        self.assertNotIn('VERIFIED', output)
++
++    def test_runtime_load_failure_prevents_pod(self):
++        calls, _, output = self.exercise(failure='probe')
++        self.assertFalse(any('pod' in args for args, _ in calls))
++        self.assertNotIn('VERIFIED', output)
++
++    def test_wrong_versions_or_manifest_prevent_pod_without_leaking_values(self):
++        for key in EXPECTED:
++            value = dict(EXPECTED); value[key] = PRIVATE
++            calls, _, output = self.exercise(actual=value)
++            self.assertFalse(any('pod' in args for args, _ in calls))
++            self.assertIn('MISMATCH', output)
++            self.assertNotIn(PRIVATE, output)
++        value = dict(EXPECTED, gemfile_matches=1)
++        calls, _, output = self.exercise(actual=value)
++        self.assertFalse(any('pod' in args for args, _ in calls))
++        self.assertIn('MISMATCH', output)
++
++    def test_malformed_missing_extra_and_nonobject_probe_fail_closed(self):
++        for actual in (PRIVATE, {}, [], dict(EXPECTED, extra=PRIVATE)):
++            calls, _, output = self.exercise(actual=actual)
++            self.assertFalse(any('pod' in args for args, _ in calls))
++            self.assertNotIn(PRIVATE, output)
++            self.assertNotIn('VERIFIED', output)
++
++
++if __name__ == '__main__': unittest.main()

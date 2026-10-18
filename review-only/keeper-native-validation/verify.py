@@ -19,7 +19,7 @@ BASE = 'def0d6a90c80287edb4f58ae272cbfc340f00d73'
 SOURCE = 'bccb63348754e7a7975ea140717d31be214f0801'
 SOURCE_TREE = '3768d44eaa9005f56f564b1faeb2732bef2da1e8'
 HARNESS = '0984c5b97e7e8326d6856ba662274ecf325e5e0f'
-RUNNER_BRANCH = 'codex/native-http-evidence-diagnostic-bccb6334'
+RUNNER_BRANCH = 'codex/native-checksum-diff-once-bccb6334'
 PROPOSAL_PATH = 'review-only/keeper-native-validation/'
 PROBE_FILES = ('prerequisite_storage.cjs', 'prerequisite_iap.cjs', 'prerequisite_probe.js',
                'prerequisite_probe.yaml', 'prerequisite_metro.cjs', 'bundle_observer.cjs')
@@ -28,6 +28,41 @@ HARNESS_FILES = {
     'nodeify.cjs': '842ed4755d302fecdcab23099af5eefe02356fe132dfe93417e91a842f742fea',
     'startup.yaml': '89ac67286d1086edf32f797332c98f1ef1ca5cffe04aee82893bd8bd54b5ecea',
 }
+RUNTIME_PATCHES = {
+    'app-runtime.patch': 'fb6a5c0369de573ab31e7195054041d637da0783de3c4ca2e1f19de8c3f25f3e',
+    'harness-bundler.patch': 'ed6c1d5ae977964de9de87e3f453f3ae0788f7422a8df40d50d5425fd7973808',
+}
+RUNTIME_FILES = {
+    'Gemfile': '265e7bb58640ba33f98ee88438dd1072245c44663e2b51befd9e0207c79a552e',
+    'Gemfile.lock': '6fd9e78b81474e5d631124a9f75ed0c21c8b7a284a65a35b2dc960ddaa4fd024',
+}
+STAGED_HARNESS_FILES = dict(HARNESS_FILES, **{
+    'hosted_native.py': '5d36ca9b360276e35a283add778e5d1292d7894923d1d3bace5a81a778e9e69f',
+})
+
+
+def runtime_patch_guard(review):
+    for name, expected in RUNTIME_PATCHES.items():
+        require(digest(review / PROPOSAL_PATH / name) == expected)
+
+
+def apply_runtime_patches(app, review):
+    runtime_patch_guard(review)
+    # Only the reviewed native implementation is staged; the bundled patch also
+    # preserves its source-owner regression test for review, not app execution.
+    for check in (True, False):
+        for name in RUNTIME_PATCHES:
+            args = ['apply'] + (['--check'] if check else [])
+            if name == 'harness-bundler.patch':
+                args += ['--include=.github/native/hosted_native.py']
+            git(app, *args, str(review / PROPOSAL_PATH / name))
+
+
+def runtime_file_guard(app):
+    for name, expected in RUNTIME_FILES.items():
+        require(digest(app / name) == expected)
+
+
 CONFIG = {'firebase.json', '.env.ci', 'ios/GoogleService-Info.plist',
           'ios/GoogleServices/dev/GoogleService-Info.plist', 'android/app/google-services.json'}
 MAPPING_FIELDS = {'browser', 'react-native', 'browserify'}
@@ -61,12 +96,56 @@ def roots():
     return workspace / 'app', workspace / 'harness', workspace / 'review'
 
 
+_API_TOKEN = None
+
+
+class NoApiRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Reject even same-origin redirects; never replay Authorization.
+        return None
+
+
+def api_token():
+    global _API_TOKEN
+    # Consume the step-only credential before any Git or dependency subprocess.
+    supplied = os.environ.pop('KEEPER_PROVENANCE_TOKEN', None)
+    actions = os.environ.get('GITHUB_ACTIONS')
+    if actions != 'true':
+        require(actions in (None, 'false') and supplied is None and _API_TOKEN is None)
+        return None
+    expected = {
+        'GITHUB_REPOSITORY': REPOSITORY,
+        'GITHUB_SERVER_URL': 'https://github.com',
+        'GITHUB_API_URL': 'https://api.github.com',
+        'GITHUB_EVENT_NAME': 'push',
+        'GITHUB_REF': 'refs/heads/' + RUNNER_BRANCH,
+        'GITHUB_WORKFLOW_REF': REPOSITORY + '/.github/workflows/'
+                               'keeper-one-time-native-diagnostic.yml@refs/heads/' + RUNNER_BRANCH,
+        'GITHUB_RUN_ATTEMPT': '1',
+    }
+    require(all(os.environ.get(key) == value for key, value in expected.items()))
+    runner = os.environ.get('GITHUB_SHA', '')
+    require(re.fullmatch(r'[0-9a-f]{40}', runner) and
+            os.environ.get('GITHUB_WORKFLOW_SHA') == runner)
+    if supplied is not None:
+        require(_API_TOKEN is None)
+        require(len(supplied) <= 4096 and re.fullmatch(r'[A-Za-z0-9._~+/-]+=*', supplied))
+        _API_TOKEN = supplied
+    require(_API_TOKEN is not None)
+    return _API_TOKEN
+
+
 def public_get(endpoint):
+    require(endpoint in ('', '/branches/sprint', '/git/ref/heads/' + RUNNER_BRANCH))
+    token = api_token()
     request = urllib.request.Request(
         'https://api.github.com/repos/' + REPOSITORY + endpoint,
         headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'Keeper-review-only-proposal'})
-    # Public read only: no token, secret, permission grant or write endpoint.
-    with urllib.request.urlopen(request, timeout=20) as response:
+    if token is not None:
+        request.add_unredirected_header('Authorization', 'Bearer ' + token)
+    # Fixed HTTPS origin, default TLS verification, no proxy or redirect forwarding.
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoApiRedirect())
+    with opener.open(request, timeout=20) as response:
         require(response.status == 200)
         return json.loads(response.read(1024 * 1024))
 
@@ -83,6 +162,7 @@ def current_source():
 
 
 def verify_inputs():
+    api_token()
     app, harness, review = roots()
     runner = os.environ.get('GITHUB_SHA', '')
     require(re.fullmatch(r'[0-9a-f]{40}', runner))
@@ -96,19 +176,20 @@ def verify_inputs():
     require(os.environ.get('GITHUB_WORKFLOW_SHA') == runner)
     require(os.environ.get('KEEPER_SOURCE_SHA') == SOURCE)
     require(os.environ.get('KEEPER_POD_LOCK_REPAIR') == '0')
-    require(os.environ.get('KEEPER_NATIVE_PLATFORM') in ('IOS', 'ANDROID'))
+    require(os.environ.get('KEEPER_NATIVE_PLATFORM') == 'IOS')
     platform = os.environ['KEEPER_NATIVE_PLATFORM']
     require(os.environ.get('RUNNER_OS') == ('macOS' if platform == 'IOS' else 'Linux'))
     require(os.environ.get('RUNNER_ARCH') == ('ARM64' if platform == 'IOS' else 'X64'))
     for root, sha in ((app, SOURCE), (harness, HARNESS), (review, runner)):
         require(git(root, 'rev-parse', 'HEAD').decode().strip() == sha)
-    require(git(review, 'rev-parse', 'HEAD^').decode().strip() == SOURCE)
+    require(git(review, 'rev-parse', 'HEAD^').decode().strip() == '3535a34109c10b7baba310a41d4a277da359c064')
     require(git(app, 'rev-parse', 'HEAD^{tree}').decode().strip() == SOURCE_TREE)
     require(not git(review, 'status', '--porcelain', '--untracked-files=all'))
     require(not git(harness, 'status', '--porcelain', '--untracked-files=all'))
     require(not git(app, 'diff', '--cached'))
     for name, expected in HARNESS_FILES.items():
         require(digest(harness / '.github/native' / name) == expected)
+    runtime_patch_guard(review)
     return current_source()
 
 
@@ -123,6 +204,7 @@ def stage():
         shutil.copyfile(harness / '.github/native' / name, target / name)
     for name in PROBE_FILES:
         shutil.copyfile(review / PROPOSAL_PATH / name, target / name)
+    apply_runtime_patches(app, review)
     guard()
 
 
@@ -153,8 +235,9 @@ def guard():
     app, _, review = roots()
     target = app / '.github/native'
     require({p.name for p in target.iterdir()} == set(HARNESS_FILES) | set(PROBE_FILES))
-    for name, expected in HARNESS_FILES.items():
+    for name, expected in STAGED_HARNESS_FILES.items():
         require(digest(target / name) == expected)
+    runtime_file_guard(app)
     for name in PROBE_FILES:
         require((target / name).read_bytes() == git(review, 'show', 'HEAD:' + PROPOSAL_PATH + name))
     changed = set(git(app, 'diff', '--name-only', '-z', 'HEAD').decode().strip('\0').split('\0')) - {''}
@@ -162,7 +245,7 @@ def guard():
     allowed = {'.env.ci', 'firebase.json'} | ({'ios/GoogleService-Info.plist',
         'ios/GoogleServices/dev/GoogleService-Info.plist'} if platform == 'IOS'
         else {'android/app/google-services.json'})
-    require(changed <= allowed | {'package.json'})
+    require(changed <= allowed | {'package.json'} | set(RUNTIME_FILES))
     before = json.loads(git(app, 'show', 'HEAD:package.json'))
     after = json.loads((app / 'package.json').read_text())
     require({k: v for k, v in before.items() if k not in MAPPING_FIELDS} ==

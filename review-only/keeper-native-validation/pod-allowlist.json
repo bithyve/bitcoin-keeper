@@ -1,0 +1,861 @@
+{
+  "schema_version": 1,
+  "source_sha": "bccb63348754e7a7975ea140717d31be214f0801",
+  "source_tree": "3768d44eaa9005f56f564b1faeb2732bef2da1e8",
+  "podfile_lock_sha256": "e6241b507e63070634fb25e4c7d88b2cc1cc20ce2b093325bfbda5b70f2924a9",
+  "expected_rows": 142,
+  "pods": [
+    {
+      "id": "P001",
+      "name": "BVLinearGradient",
+      "old_sha1": "880f91a7854faff2df62518f0281afb1c60d49a3",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P002",
+      "name": "CocoaAsyncSocket",
+      "old_sha1": "065fd1e645c7abab64f7a6a2007a48038fdc6a99",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P003",
+      "name": "DoubleConversion",
+      "old_sha1": "cb417026b2400c8f53ae97020b2be961b59470cb",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P004",
+      "name": "FBLazyVector",
+      "old_sha1": "3bcb3055086e5d90a12f0fe1668e79f6eceabc17",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P005",
+      "name": "Firebase",
+      "old_sha1": "99f203d3a114c6ba591f3b32263a9626e450af65",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P006",
+      "name": "FirebaseCore",
+      "old_sha1": "f4428e22415ea3b3eca652c2098413dabf2a23a9",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P007",
+      "name": "FirebaseCoreExtension",
+      "old_sha1": "3473a6ec16a91aee29fb75994a86c0220d2cddf3",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P008",
+      "name": "FirebaseCoreInternal",
+      "old_sha1": "e7bbaeb00ab73011298f35ed223aa7371e212948",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P009",
+      "name": "FirebaseInstallations",
+      "old_sha1": "047343aa91fd6a1ebfa3eb374ddecf36a8aaddfd",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P010",
+      "name": "FirebaseMessaging",
+      "old_sha1": "ed18fb50634e6e85b5d3e77e628c21e2c928cc53",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P011",
+      "name": "GoogleDataTransport",
+      "old_sha1": "aae35b7ea0c09004c3797d53c8c41f66f219d6a7",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P012",
+      "name": "GoogleUtilities",
+      "old_sha1": "00c88b9a86066ef77f0da2fab05f65d7768ed8e1",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P013",
+      "name": "HtmlToPdf",
+      "old_sha1": "5c0649e93aa1c6583f400268eedea00f15e0fa5f",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P014",
+      "name": "MMKVCore",
+      "old_sha1": "3d16ce9f7d411e135020915fde98a056859a1efa",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P015",
+      "name": "NitroIap",
+      "old_sha1": "2aab68488ccce3c0d6046f0e896b3ed4a5838314",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P016",
+      "name": "NitroMmkv",
+      "old_sha1": "1f66a0e71a3a3c5677921aca853aabf7911d92c1",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P017",
+      "name": "NitroModules",
+      "old_sha1": "5115360c2954442d8a6a4fafe836f7a5458815df",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P018",
+      "name": "PDFGenerator",
+      "old_sha1": "17d6bc525db0a3fcd156fbf00f9d1b8d5cc75d1e",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P019",
+      "name": "PromisesObjC",
+      "old_sha1": "f5707f49cb48b9636751c5b2e7d227e43fba9f47",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P020",
+      "name": "QRCoder",
+      "old_sha1": "cbd2bee531cc86d286df7942334cfed94c803ae4",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P021",
+      "name": "RCT-Folly",
+      "old_sha1": "121436bcc4611f6bde5c09bf35f0a7a82cef1969",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P022",
+      "name": "RCTDeprecation",
+      "old_sha1": "c7d33f6bc08dbb8be7dfa70d219bfb034480a406",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P023",
+      "name": "RCTRequired",
+      "old_sha1": "42b13c9504609bae9a9f65673a6b4fcbd8d07bd1",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P024",
+      "name": "RCTSwiftUI",
+      "old_sha1": "cef2010e1e5e699600b2064d3aa702e53c35816c",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P025",
+      "name": "RCTSwiftUIWrapper",
+      "old_sha1": "dc8026f15059e65ae5f23ce8b7032f52318e04bb",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P026",
+      "name": "RCTTypeSafety",
+      "old_sha1": "c5fd6a8092bee25eaa31d4cca03794e902b5fdfd",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P027",
+      "name": "RNCClipboard",
+      "old_sha1": "a9d5216cbfaf2f51cfe80bcb132856bb9158fe0d",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P028",
+      "name": "RNDeviceInfo",
+      "old_sha1": "0a7c1d2532aa7691f9b9925a27e43af006db4dae",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P029",
+      "name": "RNFBApp",
+      "old_sha1": "bb2b158188e3bd5161cbdcd7e9058c2edfaa8c11",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P030",
+      "name": "RNFBMessaging",
+      "old_sha1": "994290a71d043bc0837e89514be19ce02805790c",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P031",
+      "name": "RNFS",
+      "old_sha1": "4ac0f0ea233904cb798630b3c077808c06931688",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P032",
+      "name": "RNFastImage",
+      "old_sha1": "5c9c9fed9c076e521b3f509fe79e790418a544e8",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P033",
+      "name": "RNGestureHandler",
+      "old_sha1": "afae32614741017de0f813f74586eee29773f31a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P034",
+      "name": "RNKeychain",
+      "old_sha1": "182d986f809280edd9444a557adc21845f7d1e6f",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P035",
+      "name": "RNLocalize",
+      "old_sha1": "95a43f85e41a966be7bc9cff2437128911c52da0",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P036",
+      "name": "RNQrGenerator",
+      "old_sha1": "36f1af182d7673bc36e317aca0d293d19883d6e3",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P037",
+      "name": "RNReanimated",
+      "old_sha1": "6b69a94db352e4dae7eb540f6fab60ff05c18508",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P038",
+      "name": "RNSVG",
+      "old_sha1": "6a91afc99237de70b617c7a84ba84c988ad5573b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P039",
+      "name": "RNScreens",
+      "old_sha1": "7179cc1ba31b4e18ed29f10abf20c24a7961cf4c",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P040",
+      "name": "RNSentry",
+      "old_sha1": "f07853ff3fcbb69df26da1d9744e95ee97f683fd",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P041",
+      "name": "RNShare",
+      "old_sha1": "11923289a9964c6bd5f507eaa7fe61ec51b0adce",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P042",
+      "name": "RNWorklets",
+      "old_sha1": "3f35c2c01e5839d4fee0496d10ada185628ba328",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P043",
+      "name": "React",
+      "old_sha1": "6c36d83b2afecc1d45ec2a637158750edad20d87",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P044",
+      "name": "React-Core",
+      "old_sha1": "497da2fa08060213b5b265b38cb64af2e0f0526c",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P045",
+      "name": "React-CoreModules",
+      "old_sha1": "255a3150b3a24c8628ef050e7ae448d198dd003b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P046",
+      "name": "React-Fabric",
+      "old_sha1": "2815ec8bfd1c71a8696bbee7d3ff2a97af27b1c3",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P047",
+      "name": "React-FabricComponents",
+      "old_sha1": "caf3e972e0d2b7feed1f0003377a74a6d9e12cac",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P048",
+      "name": "React-FabricImage",
+      "old_sha1": "9c0298b399cf042d937f42ffcdde9047637fdc0f",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P049",
+      "name": "React-ImageManager",
+      "old_sha1": "f0f9fafd26ff52e16781fbc8844a55bd3ba21513",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P050",
+      "name": "React-Mapbuffer",
+      "old_sha1": "a803b9ab86de5b3cacfd1f7e324300a4e932d201",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P051",
+      "name": "React-NativeModulesApple",
+      "old_sha1": "74bee0c16a7a5426aeadd753179a41d7da413c99",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P052",
+      "name": "React-RCTActionSheet",
+      "old_sha1": "e1c8afe045a25f3a8d73da52bb28e6186718e206",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P053",
+      "name": "React-RCTAnimation",
+      "old_sha1": "f350cac40fbf4d2f7269c50a4809812a51e7143a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P054",
+      "name": "React-RCTAppDelegate",
+      "old_sha1": "c7e4dd9a3a94f348a9c9e3f6ec30a2fa45713d0b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P055",
+      "name": "React-RCTBlob",
+      "old_sha1": "8215edb879697c37ebc3d93d44210c136b0f8f12",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P056",
+      "name": "React-RCTFBReactNativeSpec",
+      "old_sha1": "77b5b284baa526512b143c24ae44d7e24c688e65",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P057",
+      "name": "React-RCTFabric",
+      "old_sha1": "e2a194c2ae6cba49dc67f72250bd48d5457a0711",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P058",
+      "name": "React-RCTImage",
+      "old_sha1": "55ce5873af9d447dde76711c84ea545688eb5e01",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P059",
+      "name": "React-RCTLinking",
+      "old_sha1": "803e8a4356dc848d1cff0882e70b81c2c28f67e1",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P060",
+      "name": "React-RCTNetwork",
+      "old_sha1": "5e13fe88a73150e7cd7eff989a55b5c1c7e4b701",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P061",
+      "name": "React-RCTRuntime",
+      "old_sha1": "ab3bddd645d86fd1858d9005fe4943cf333384a2",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P062",
+      "name": "React-RCTSettings",
+      "old_sha1": "3a6fd39c7169fe408f6cf16d939ba7910b02fe6e",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P063",
+      "name": "React-RCTText",
+      "old_sha1": "5a2c8addcbe6d3d36636407423d9969012fcdaa7",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P064",
+      "name": "React-RCTVibration",
+      "old_sha1": "460b55fcd5ae2f028e9910ccad192f5ffea1d6b8",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P065",
+      "name": "React-RuntimeApple",
+      "old_sha1": "a4f51fa6ebd62e5ac0d3445e47d2a71efd750939",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P066",
+      "name": "React-RuntimeCore",
+      "old_sha1": "c5f51bd6afd2884341749817c5ec512d0dcbc4a7",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P067",
+      "name": "React-RuntimeHermes",
+      "old_sha1": "8382231d2cdfc51bb67785fbc6cc4218f7e934c4",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P068",
+      "name": "React-callinvoker",
+      "old_sha1": "813372c3165324939d57b849f2db0c99390b9aac",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P069",
+      "name": "React-cxxreact",
+      "old_sha1": "e6a1142898716d391d27bd7d05091fca0046e2c5",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P070",
+      "name": "React-debug",
+      "old_sha1": "eeaaa885aed6766643a249e186cb55910847f32d",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P071",
+      "name": "React-defaultsnativemodule",
+      "old_sha1": "ff63dc721adb5db6eef0951035d4a2935ac99aa8",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P072",
+      "name": "React-domnativemodule",
+      "old_sha1": "eb73ab018bdd17b950515fc6d1b06fa0ae953110",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P073",
+      "name": "React-featureflags",
+      "old_sha1": "7ff07b72680999f92cf82fdf58477b38a876d3b1",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P074",
+      "name": "React-featureflagsnativemodule",
+      "old_sha1": "ad7919cff5b36a45af42433d323b8fd23931dadd",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P075",
+      "name": "React-graphics",
+      "old_sha1": "57c9e72ea57228e83474a27367c4182a79acc803",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P076",
+      "name": "React-hermes",
+      "old_sha1": "85101b86c76672bdfc78def14feb93c15445f029",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P077",
+      "name": "React-idlecallbacksnativemodule",
+      "old_sha1": "d8402e2ed16af4bc0f506315bfdf96007decd80b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P078",
+      "name": "React-intersectionobservernativemodule",
+      "old_sha1": "5bc884eb7e1fe8fec87faf712c963adcec95da69",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P079",
+      "name": "React-jserrorhandler",
+      "old_sha1": "0a5be1ec13b7ae0404545422bef137be0d36b38b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P080",
+      "name": "React-jsi",
+      "old_sha1": "abd0559cbfcd75539f61bc6ee3ae1e72c38b8727",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P081",
+      "name": "React-jsiexecutor",
+      "old_sha1": "e96ff30c2e7ab4c1a1652e6a48d44f80b774b411",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P082",
+      "name": "React-jsinspector",
+      "old_sha1": "0199e40d52099d06060387d5143dc32cce90aa83",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P083",
+      "name": "React-jsinspectorcdp",
+      "old_sha1": "6ca5a4774f941b0a791790adeb94fa55f5338b88",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P084",
+      "name": "React-jsinspectornetwork",
+      "old_sha1": "1551f3fb9c1db9e1e178acfca43aec29c99f82a9",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P085",
+      "name": "React-jsinspectortracing",
+      "old_sha1": "ea86019081a9a746470d85307209118daa6aa6cc",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P086",
+      "name": "React-jsitooling",
+      "old_sha1": "3c1dfec708ea756367d36784c158487d149a3b96",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P087",
+      "name": "React-jsitracing",
+      "old_sha1": "ef17de0220ff8f0bbf95b5a41b63b44b81cf5a55",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P088",
+      "name": "React-logger",
+      "old_sha1": "532b0b1405e20c08146a739fbaf6fd16fd771291",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P089",
+      "name": "React-microtasksnativemodule",
+      "old_sha1": "5b3728f26cfad14e7d05bba8e36f19ae083a787b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P090",
+      "name": "React-mutationobservernativemodule",
+      "old_sha1": "db471fd2cc188f72dc7d5add41d2bebf5361f0ce",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P091",
+      "name": "React-networking",
+      "old_sha1": "08d6e4f20fc02f240fb1c7b48bc0d72fdc66b1ea",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P092",
+      "name": "React-oscompat",
+      "old_sha1": "4524d8ccb12b7f07beb12e2ea9c5ea55b55d604b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P093",
+      "name": "React-perflogger",
+      "old_sha1": "ccc20d34acfe74605f0f2d2a414fddf731b14bd1",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P094",
+      "name": "React-performancecdpmetrics",
+      "old_sha1": "a750a2a3276b32d543542bfe72f7509b65fd8a3a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P095",
+      "name": "React-performancetimeline",
+      "old_sha1": "a7bf3ba360917c9001e26c47e55ccab2f6895d00",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P096",
+      "name": "React-rendererconsistency",
+      "old_sha1": "9262a6a4c4be861ffd7e3149c517bd4076a8851f",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P097",
+      "name": "React-renderercss",
+      "old_sha1": "1641d6d12b7aa54fda225dd0f1fa24f199d523ae",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P098",
+      "name": "React-rendererdebug",
+      "old_sha1": "92ee565692a4a3e6806e88fa4ee816bda5cee693",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P099",
+      "name": "React-runtimeexecutor",
+      "old_sha1": "3e96660fb93a17185bc8b23c6bbe10fe25f6d3e2",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P100",
+      "name": "React-runtimescheduler",
+      "old_sha1": "44aa1cbed3ce2759678a1e544ad27108c934a046",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P101",
+      "name": "React-timing",
+      "old_sha1": "ac50e2e44dc82ec7241557bad16adcae184a693b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P102",
+      "name": "React-utils",
+      "old_sha1": "493a45d877f410d62476c045fbf220acbffba194",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P103",
+      "name": "React-webperformancenativemodule",
+      "old_sha1": "9b212313b01f5489f21963fbd4a81ef20f280097",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P104",
+      "name": "ReactAppDependencyProvider",
+      "old_sha1": "5bf52020fdc0d0a337068ea42d4a6676ce4a04bc",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P105",
+      "name": "ReactCodegen",
+      "old_sha1": "5c808345ff57b4f4f1eab230f541921ad9e37500",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P106",
+      "name": "ReactCommon",
+      "old_sha1": "3b79ecfd327035654f6c36cf1de8e222d8b835e6",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P107",
+      "name": "RealmJS",
+      "old_sha1": "a2e97359d58d72ca9fc2deb2e14ba34a218652e5",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P108",
+      "name": "SDWebImage",
+      "old_sha1": "a7f831e1a65eb5e285e3fb046a23fcfbf08e696d",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P109",
+      "name": "SDWebImageWebPCoder",
+      "old_sha1": "908b83b6adda48effe7667cd2b7f78c897e5111d",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P110",
+      "name": "Sentry",
+      "old_sha1": "4e85b40e4b0235853f40f959d315a6b28e3148d8",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P111",
+      "name": "SocketRocket",
+      "old_sha1": "d4aabe649be1e368d1318fdf28a022d714d65748",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P112",
+      "name": "VisionCamera",
+      "old_sha1": "47f10351a1b6a8d251b90986ae72ca5f52331954",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P113",
+      "name": "Yoga",
+      "old_sha1": "e6489bbfdab9b98f8d51993484d6bd40216b7834",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P114",
+      "name": "ZXingObjC",
+      "old_sha1": "8898711ab495761b2dbbdec76d90164a6d7e14c5",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P115",
+      "name": "boost",
+      "old_sha1": "7e761d76ca2ce687f7cc98e698152abd03a18f90",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P116",
+      "name": "fast_float",
+      "old_sha1": "b32c788ed9c6a8c584d114d0047beda9664e7cc6",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P117",
+      "name": "fmt",
+      "old_sha1": "530618a01105dae0fa3a2f27c81ae11fa8f67eac",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P118",
+      "name": "glog",
+      "old_sha1": "5683914934d5b6e4240e497e0f4a3b42d1854183",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P119",
+      "name": "hermes-engine",
+      "old_sha1": "30215ceafa12cccff41931253d1d52e5cbe9fd4a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P120",
+      "name": "libportal-ios",
+      "old_sha1": "d9aa55474e2d5be8e38e96345dd37be34fda45b4",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P121",
+      "name": "libportal-react-native",
+      "old_sha1": "05778ef04321517c8366dc7173d05aa9fe131ff2",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P122",
+      "name": "libwebp",
+      "old_sha1": "02b23773aedb6ff1fd38cec7a77b81414c6842a8",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P123",
+      "name": "nanopb",
+      "old_sha1": "fad817b59e0457d11a5dfbde799381cd727c1275",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P124",
+      "name": "openiap",
+      "old_sha1": "253070b2afe71078a2cae63a2b8e282bdd44a059",
+      "source_kind": "SPEC_REPOSITORY"
+    },
+    {
+      "id": "P125",
+      "name": "react-native-background-timer",
+      "old_sha1": "17ea5e06803401a379ebf1f20505b793ac44d0fe",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P126",
+      "name": "react-native-biometrics",
+      "old_sha1": "3b95f2eb074d537d3a8b05d853c17778f6685c4a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P127",
+      "name": "react-native-blob-util",
+      "old_sha1": "ca455d4d8cc8ed667b6c3dfd7ca00aef09f6ee63",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P128",
+      "name": "react-native-change-icon",
+      "old_sha1": "5bfde1910111f603e75b77e1bf9feabaf2bb070e",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P129",
+      "name": "react-native-config",
+      "old_sha1": "7cd105e71d903104e8919261480858940a6b9c0e",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P130",
+      "name": "react-native-contacts",
+      "old_sha1": "8787d1e792bae8ba6edd1c7ea2749689440ab4bd",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P131",
+      "name": "react-native-document-picker",
+      "old_sha1": "063f6391c62fafd49f97490a3ebb1255e4e30781",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P132",
+      "name": "react-native-get-random-values",
+      "old_sha1": "9856c21cab42a6d8db71dcb35c3059fdaeac2b16",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P133",
+      "name": "react-native-hce",
+      "old_sha1": "ae425226cd27e1831b98e5577f15f686a1a0dab8",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P134",
+      "name": "react-native-image-picker",
+      "old_sha1": "60f4246eb5bb7187fc15638a8c1f13abd3820695",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P135",
+      "name": "react-native-netinfo",
+      "old_sha1": "f0a9899081c185db1de5bb2fdc1c88c202a059ac",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P136",
+      "name": "react-native-nfc-manager",
+      "old_sha1": "1bcdf6f96c9065a8f4c8d9a0c6fb2db625205b2c",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P137",
+      "name": "react-native-pdf",
+      "old_sha1": "cd45064d7ef704e69f44c2cee14f0635764c752b",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P138",
+      "name": "react-native-randombytes",
+      "old_sha1": "421f1c7d48c0af8dbcd471b0324393ebf8fe7846",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P139",
+      "name": "react-native-rsa-native",
+      "old_sha1": "12132eb627797529fdb1f0d22fd0f8f9678df64a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P140",
+      "name": "react-native-safe-area-context",
+      "old_sha1": "0f4986a88ec555aff660503b483d6e4bd6980a9a",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P141",
+      "name": "react-native-tcp-socket",
+      "old_sha1": "c9290d77fea17ee75bee93e599b604bae63166f0",
+      "source_kind": "EXTERNAL"
+    },
+    {
+      "id": "P142",
+      "name": "react-native-worklets-core",
+      "old_sha1": "30da6af07bef6fcb77ed2b53787958c3d56048e8",
+      "source_kind": "EXTERNAL"
+    }
+  ]
+}

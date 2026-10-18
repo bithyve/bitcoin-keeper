@@ -10,6 +10,7 @@ import subprocess
 import sys
 import urllib.error
 import http_evidence
+import checksum_diff
 
 HERE = Path(__file__).resolve().parent
 MAX_METADATA = 1024 * 1024
@@ -27,7 +28,27 @@ POD_PATTERNS = (
     ('INTEGRITY_FAILURE_MARKER', r'verification checksum was incorrect|checksum mismatch'),
     ('UTF8_FAILURE_MARKER', r'invalid byte sequence in utf.8'),
     ('COCOAPODS_ERROR_MARKER', r'^\s*\[!\]'),
+    ('BUNDLE_GEMS_MISSING', r'Bundler::GemNotFound|could not find [^\n]{0,4096} in locally installed gems'),
+    ('BUNDLE_EXECUTABLE_NOT_IN_BUNDLE', r'not currently included in the bundle|bundler: command not found: pod|can.t find executable pod'),
+    ('BUNDLE_FROZEN_LOCK_MISMATCH', r'Bundler::ProductionError|lockfile needs to be updated|deployment mode after changing your Gemfile|frozen mode is set'),
+    ('BUNDLE_VERSION_CONFLICT', r'Bundler::VersionConflict|version solving has failed|could not resolve dependencies'),
+    ('RUBY_LOAD_FAILURE', r'LoadError|cannot load such file|failed to load command'),
+    ('RUBY_GEM_ACTIVATION_CONFLICT', r'Gem::LoadError|already activated [^\n]{0,256} but your Gemfile requires'),
+    ('RUBY_NATIVE_EXTENSION_FAILURE', r'incompatible library version|incompatible architecture|missing compatible arch|symbol not found|extensions are not built'),
+    ('RUBY_SYNTAX_FAILURE', r'SyntaxError|syntax error, unexpected'),
+    ('RUBY_METHOD_OR_NAME_FAILURE', r'NoMethodError|NameError|undefined (?:method|local variable or method)'),
+    ('CDN_RESPONSE_FAILURE', r'CDN:[^\n]{0,4096}(?:couldn.t be downloaded|failed|error)|HTTP[^\n]{0,40}(?:403|404|429|500|502|503|504)'),
+    ('TLS_FAILURE', r'certificate verify failed|SSL_connect|OpenSSL::SSL::SSLError'),
+    ('DNS_FAILURE', r'could not resolve host|getaddrinfo|SocketError'),
+    ('TRANSPORT_TIMEOUT', r'Net::(?:OpenTimeout|ReadTimeout)|execution expired|operation timed out|connection timed out'),
+    ('CONNECTION_FAILURE', r'connection (?:refused|reset)|unexpected EOF|end of file reached'),
+    ('FILESYSTEM_PERMISSION_FAILURE', r'Permission denied|Errno::EACCES'),
+    ('DISK_SPACE_FAILURE', r'No space left on device|Errno::ENOSPC'),
 )
+RUBY_ERROR_CLASSES = ('Bundler::GemNotFound', 'Bundler::GemRequireError', 'Bundler::VersionConflict',
+                      'Bundler::ProductionError', 'Gem::LoadError', 'LoadError', 'SyntaxError',
+                      'NoMethodError', 'NameError', 'RuntimeError', 'OpenSSL::SSL::SSLError',
+                      'Net::OpenTimeout', 'Net::ReadTimeout', 'SocketError', 'Errno::EACCES', 'Errno::ENOSPC')
 LOCK_SECTIONS = ('PODS', 'DEPENDENCIES', 'SPEC REPOS', 'EXTERNAL SOURCES',
                  'CHECKOUT OPTIONS', 'SPEC CHECKSUMS', 'PODFILE CHECKSUM', 'COCOAPODS')
 
@@ -40,7 +61,7 @@ def fixed_record(phase, outcome):
 
 
 def emit(record):
-    # Fixed vocabularies/booleans plus bounded allowlisted HTTP numeric fields.
+    # Fixed vocabularies/booleans plus bounded HTTP and command numeric fields.
     payload = json.dumps(record, sort_keys=True)
     if len(payload.encode()) > 8192:
         payload = json.dumps(fixed_record('UNKNOWN', 'FAILED'))
@@ -97,27 +118,81 @@ def classify_pod_text(text):
         for section in LOCK_SECTIONS:
             if re.search(r'(?m)^\s*[-+]?\s*' + re.escape(section) + r':(?:\s|$)', remainder):
                 sections.append(section)
-    return {'matched_categories': categories, 'lock_section_mentions': sections}
+    classes = [name for name in RUBY_ERROR_CLASSES
+               if re.search(r'(?<![A-Za-z0-9_:])' + re.escape(name) + r'(?![A-Za-z0-9_:])', text)]
+    return {'matched_categories': categories, 'lock_section_mentions': sections,
+            'ruby_error_classes': classes,
+            'classification': 'KNOWN_MARKER' if categories != ['UNCLASSIFIED_POD_FAILURE'] else 'UNKNOWN',
+            'output_state': 'EMPTY' if not text.strip() else 'NONEMPTY'}
+
+
+def bundle_context(app, command_gemfile=None):
+    """Predict Bundler 2.5.6 search selection; never execute Ruby/read arbitrary paths.
+
+    This is source/environment evidence, not a claim of observed Ruby activation.
+    Only filenames and path relationships are tested; no manifest text is exported.
+    """
+    app = Path(os.path.abspath(app))
+    def label(path):
+        if path.is_symlink() or not path.is_file():
+            return 'OTHER_OR_UNAVAILABLE'
+        for name, value in [('Gemfile', 'APP_ROOT'), ('ios/Gemfile', 'IOS')]:
+            if path.absolute() == (app / name).absolute():
+                return value
+        return 'OTHER_OR_UNAVAILABLE'
+
+    given = command_gemfile if command_gemfile is not None else os.environ.get('BUNDLE_GEMFILE')
+    def selection(cwd):
+        if given:
+            path = Path(given)
+            if not path.is_absolute():
+                path = cwd / path
+            # Do not stat, resolve, or open an arbitrary environment-provided path.
+            path = Path(os.path.abspath(path))
+            allowed = [Path(os.path.abspath(app / name)) for name in ('Gemfile', 'ios/Gemfile')]
+            return label(path) if path in allowed else 'OTHER_OR_UNAVAILABLE'
+        current = cwd
+        while current == app or app in current.parents:
+            for name in ('gems.rb', 'Gemfile'):
+                path = current / name
+                if path.is_symlink() or path.is_file():
+                    return label(path)
+            if current == app:
+                break
+            current = current.parent
+        return 'OTHER_OR_UNAVAILABLE'
+
+    return {'method': 'STATIC_BUNDLER_2_5_SEARCH',
+            'gemfile_override': 'PRESENT' if given else 'ABSENT_OR_EMPTY',
+            'install_selection': selection(app), 'pod_selection': selection(app / 'ios')}
 
 
 def pod_observation(app, private):
-    result = {'command': 'POD_INSTALL_DEPLOYMENT', 'status': 'NOT_OBSERVED',
-              'log_window': 'UNAVAILABLE', 'matched_categories': [], 'lock_section_mentions': []}
+    result = {'schema_version': 2, 'capture_stream': 'STDOUT_STDERR_COMBINED',
+              'command': 'POD_INSTALL_DEPLOYMENT', 'status': 'NOT_OBSERVED',
+              'log_window': 'UNAVAILABLE', 'matched_categories': [], 'lock_section_mentions': [],
+              'exit_code': None, 'ruby_error_classes': [], 'classification': 'NOT_OBSERVED',
+              'output_state': 'UNAVAILABLE', 'log_bytes_capped': None}
+    result['bundle_context'] = {'method': 'UNAVAILABLE'}
     try:
+        result['bundle_context'] = bundle_context(app)
         metadata = app / 'artifacts/native/ios/metadata.json'
-        if not metadata.is_file() or metadata.stat().st_size > MAX_METADATA:
+        if metadata.is_symlink() or not metadata.is_file() or metadata.stat().st_size > MAX_METADATA:
             return result
         commands = json.loads(metadata.read_text()).get('commands', [])
         if not isinstance(commands, list) or len(commands) > 256:
             return result
         matches = [(i, entry) for i, entry in enumerate(commands, 1)
-                   if isinstance(entry, dict) and entry.get('command') == ['pod', 'install', '--deployment']]
+                   if isinstance(entry, dict) and entry.get('command') == ['env', 'BUNDLE_FROZEN=true', 'BUNDLE_GEMFILE=' + str(app / 'Gemfile'), 'bundle', 'exec', 'pod', 'install', '--deployment']]
         if len(matches) != 1:
             return result
         number, entry = matches[0]
+        result['bundle_context'] = bundle_context(app, str(app / 'Gemfile'))
         code = entry.get('exit_code')
+        result['exit_code'] = code if type(code) is int and -128 <= code <= 255 else None
         result['status'] = ('COMPLETED' if type(code) is int and code == 0 else
                             'TIMEOUT' if type(code) is int and code == 124 else
+                            'SIGNALED' if type(code) is int and -128 <= code < 0 else
                             'FAILED' if type(code) is int and 0 < code < 256 else 'INCOMPLETE')
         path = private / ('command-%03d.log' % number)
         # Only the fixed private command filename is read, never a metadata path.
@@ -126,12 +201,19 @@ def pod_observation(app, private):
         with path.open('rb') as stream:
             first = stream.read(WINDOW)
             size = path.stat().st_size
+            result['log_bytes_capped'] = min(size, 2147483647)
             if size > WINDOW:
                 stream.seek(max(WINDOW, size - WINDOW))
-                first += b'\n' + stream.read(WINDOW)
+                first += (b'\n' if size > WINDOW * 2 else b'') + stream.read(WINDOW)
         result['log_window'] = 'TRUNCATED' if size > WINDOW * 2 else 'COMPLETE'
+        result['output_state'] = 'EMPTY' if not first.strip() else 'NONEMPTY'
         if result['status'] != 'COMPLETED':
             result.update(classify_pod_text(first.decode(errors='replace')))
+            if result['status'] == 'FAILED':
+                result['checksum_diff'] = checksum_diff.extract(
+                    first.decode(errors='replace'), result['log_window'] == 'COMPLETE')
+        else:
+            result['classification'] = 'NOT_APPLICABLE'
     except Exception:
         result['log_window'] = 'UNAVAILABLE'
     return result
@@ -211,7 +293,19 @@ def run(phase, verify, sites):
                         record['post_prepare_http_response'] = capture_http(error)
                     record['outcome'] = 'FAILED'
                     result = 1
+        # Keep checksum rows out of the capped summary. No raw command text is
+        # emitted; extraction/serialization cannot change the original result.
+        payloads = []
+        evidence = record.get('pod', {}).get('checksum_diff')
+        if evidence is not None:
+            try:
+                payloads = checksum_diff.records(evidence)
+            except Exception:
+                evidence = {'state': 'UNAVAILABLE', 'complete': False, 'changed_roots': None, 'chunks': 0}
+            record['pod']['checksum_diff'] = {k: v for k, v in evidence.items() if k != 'rows'}
         emit(record)
+        for payload in payloads:
+            print('KEEPER_CHECKSUM_DIFF ' + payload, flush=True)
     return result
 
 
