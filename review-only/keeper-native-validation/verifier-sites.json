@@ -1,942 +1,1022 @@
 {
-  "verify_sha256": "e996b2f43bccf81560f74324e947262c84ee7f0fba720e3a494a84cdc4e13cca",
+  "verify_sha256": "f80054c56d778e68f9aa3d7db181d16356ac0673255d2bf1aaa4f74c3c2129e6",
   "sites": {
-    "52": {
+    "45": {
+      "code": "V189",
+      "function": "runtime_patch_guard",
+      "source": "for name, expected in RUNTIME_PATCHES.items():"
+    },
+    "46": {
+      "code": "V190",
+      "function": "runtime_patch_guard",
+      "source": "require(digest(review / PROPOSAL_PATH / name) == expected)"
+    },
+    "50": {
+      "code": "V191",
+      "function": "apply_runtime_patches",
+      "source": "runtime_patch_guard(review)"
+    },
+    "53": {
+      "code": "V192",
+      "function": "apply_runtime_patches",
+      "source": "for check in (True, False):"
+    },
+    "54": {
+      "code": "V193",
+      "function": "apply_runtime_patches",
+      "source": "for name in RUNTIME_PATCHES:"
+    },
+    "55": {
+      "code": "V194",
+      "function": "apply_runtime_patches",
+      "source": "args = ['apply'] + (['--check'] if check else [])"
+    },
+    "56": {
+      "code": "V195",
+      "function": "apply_runtime_patches",
+      "source": "if name == 'harness-bundler.patch':"
+    },
+    "57": {
+      "code": "V197",
+      "function": "apply_runtime_patches",
+      "source": "args += ['--include=.github/native/hosted_native.py']"
+    },
+    "58": {
+      "code": "V196",
+      "function": "apply_runtime_patches",
+      "source": "git(app, *args, str(review / PROPOSAL_PATH / name))"
+    },
+    "62": {
+      "code": "V198",
+      "function": "runtime_file_guard",
+      "source": "for name, expected in RUNTIME_FILES.items():"
+    },
+    "63": {
+      "code": "V199",
+      "function": "runtime_file_guard",
+      "source": "require(digest(app / name) == expected)"
+    },
+    "82": {
+      "code": "V200",
+      "function": "require",
+      "source": "if not condition:"
+    },
+    "83": {
+      "code": "V201",
+      "function": "require",
+      "source": "raise RuntimeError('INPUT_OR_EVIDENCE_CHECK_FAILED')"
+    },
+    "87": {
       "code": "V001",
       "function": "git",
       "source": "return subprocess.check_output(['git', '-C', str(root), *args], stderr=subprocess.DEVNULL)"
     },
-    "56": {
+    "91": {
       "code": "V002",
       "function": "digest",
       "source": "return hashlib.sha256(path.read_bytes()).hexdigest()"
     },
-    "60": {
+    "95": {
       "code": "V003",
       "function": "roots",
       "source": "workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()"
     },
-    "61": {
+    "96": {
       "code": "V004",
       "function": "roots",
       "source": "return workspace / 'app', workspace / 'harness', workspace / 'review'"
     },
-    "65": {
+    "100": {
       "code": "V005",
       "function": "public_get",
       "source": "request = urllib.request.Request("
     },
-    "69": {
+    "104": {
       "code": "V006",
       "function": "public_get",
       "source": "with urllib.request.urlopen(request, timeout=20) as response:"
     },
-    "70": {
+    "105": {
       "code": "V007",
       "function": "public_get",
       "source": "require(response.status == 200)"
     },
-    "71": {
+    "106": {
       "code": "V008",
       "function": "public_get",
       "source": "return json.loads(response.read(1024 * 1024))"
     },
-    "76": {
+    "111": {
       "code": "V009",
       "function": "current_source",
       "source": "repo = public_get('')"
     },
-    "77": {
+    "112": {
       "code": "V010",
       "function": "current_source",
       "source": "require(repo['full_name'] == REPOSITORY and repo['private'] is False)"
     },
-    "78": {
+    "113": {
       "code": "V011",
       "function": "current_source",
       "source": "require(repo['default_branch'] == 'sprint')"
     },
-    "79": {
+    "114": {
       "code": "V012",
       "function": "current_source",
       "source": "require(public_get('/branches/sprint')['commit']['sha'] == BASE)"
     },
-    "80": {
+    "115": {
       "code": "V013",
       "function": "current_source",
       "source": "require(public_get('/git/ref/heads/' + RUNNER_BRANCH)['object']['sha'] =="
     },
-    "82": {
+    "117": {
       "code": "V014",
       "function": "current_source",
       "source": "return BASE"
     },
-    "86": {
+    "121": {
       "code": "V015",
       "function": "verify_inputs",
       "source": "app, harness, review = roots()"
     },
-    "87": {
+    "122": {
       "code": "V016",
       "function": "verify_inputs",
       "source": "runner = os.environ.get('GITHUB_SHA', '')"
     },
-    "88": {
+    "123": {
       "code": "V017",
       "function": "verify_inputs",
       "source": "require(re.fullmatch(r'[0-9a-f]{40}', runner))"
     },
-    "89": {
+    "124": {
       "code": "V018",
       "function": "verify_inputs",
       "source": "require(os.environ.get('GITHUB_EVENT_NAME') == 'push')"
     },
-    "90": {
+    "125": {
       "code": "V019",
       "function": "verify_inputs",
       "source": "require(os.environ.get('GITHUB_REF') == 'refs/heads/' + RUNNER_BRANCH)"
     },
-    "91": {
+    "126": {
       "code": "V020",
       "function": "verify_inputs",
       "source": "require(os.environ.get('GITHUB_RUN_ATTEMPT') == '1')"
     },
-    "92": {
+    "127": {
       "code": "V021",
       "function": "verify_inputs",
       "source": "event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())"
     },
-    "93": {
+    "128": {
       "code": "V022",
       "function": "verify_inputs",
       "source": "require(event.get('created') is True and event.get('deleted') is False)"
     },
-    "94": {
+    "129": {
       "code": "V023",
       "function": "verify_inputs",
       "source": "require(event.get('forced') is False and event.get('after') == runner)"
     },
-    "95": {
+    "130": {
       "code": "V024",
       "function": "verify_inputs",
       "source": "require(os.environ.get('GITHUB_REPOSITORY') == REPOSITORY)"
     },
-    "96": {
+    "131": {
       "code": "V025",
       "function": "verify_inputs",
       "source": "require(os.environ.get('GITHUB_WORKFLOW_SHA') == runner)"
     },
-    "97": {
+    "132": {
       "code": "V026",
       "function": "verify_inputs",
       "source": "require(os.environ.get('KEEPER_SOURCE_SHA') == SOURCE)"
     },
-    "98": {
+    "133": {
       "code": "V027",
       "function": "verify_inputs",
       "source": "require(os.environ.get('KEEPER_POD_LOCK_REPAIR') == '0')"
     },
-    "99": {
-      "code": "V028",
+    "134": {
+      "code": "V202",
       "function": "verify_inputs",
-      "source": "require(os.environ.get('KEEPER_NATIVE_PLATFORM') in ('IOS', 'ANDROID'))"
+      "source": "require(os.environ.get('KEEPER_NATIVE_PLATFORM') == 'IOS')"
     },
-    "100": {
+    "135": {
       "code": "V029",
       "function": "verify_inputs",
       "source": "platform = os.environ['KEEPER_NATIVE_PLATFORM']"
     },
-    "101": {
+    "136": {
       "code": "V030",
       "function": "verify_inputs",
       "source": "require(os.environ.get('RUNNER_OS') == ('macOS' if platform == 'IOS' else 'Linux'))"
     },
-    "102": {
+    "137": {
       "code": "V031",
       "function": "verify_inputs",
       "source": "require(os.environ.get('RUNNER_ARCH') == ('ARM64' if platform == 'IOS' else 'X64'))"
     },
-    "103": {
+    "138": {
       "code": "V032",
       "function": "verify_inputs",
       "source": "for root, sha in ((app, SOURCE), (harness, HARNESS), (review, runner)):"
     },
-    "104": {
+    "139": {
       "code": "V033",
       "function": "verify_inputs",
       "source": "require(git(root, 'rev-parse', 'HEAD').decode().strip() == sha)"
     },
-    "105": {
-      "code": "V034",
+    "140": {
+      "code": "V203",
       "function": "verify_inputs",
-      "source": "require(git(review, 'rev-parse', 'HEAD^').decode().strip() == SOURCE)"
+      "source": "require(git(review, 'rev-parse', 'HEAD^').decode().strip() == '3535a34109c10b7baba310a41d4a277da359c064')"
     },
-    "106": {
+    "141": {
       "code": "V035",
       "function": "verify_inputs",
       "source": "require(git(app, 'rev-parse', 'HEAD^{tree}').decode().strip() == SOURCE_TREE)"
     },
-    "107": {
+    "142": {
       "code": "V036",
       "function": "verify_inputs",
       "source": "require(not git(review, 'status', '--porcelain', '--untracked-files=all'))"
     },
-    "108": {
+    "143": {
       "code": "V037",
       "function": "verify_inputs",
       "source": "require(not git(harness, 'status', '--porcelain', '--untracked-files=all'))"
     },
-    "109": {
+    "144": {
       "code": "V038",
       "function": "verify_inputs",
       "source": "require(not git(app, 'diff', '--cached'))"
     },
-    "110": {
+    "145": {
       "code": "V039",
       "function": "verify_inputs",
       "source": "for name, expected in HARNESS_FILES.items():"
     },
-    "111": {
+    "146": {
       "code": "V040",
       "function": "verify_inputs",
       "source": "require(digest(harness / '.github/native' / name) == expected)"
     },
-    "112": {
+    "147": {
+      "code": "V204",
+      "function": "verify_inputs",
+      "source": "runtime_patch_guard(review)"
+    },
+    "148": {
       "code": "V041",
       "function": "verify_inputs",
       "source": "return current_source()"
     },
-    "116": {
+    "152": {
       "code": "V042",
       "function": "stage",
       "source": "verify_inputs()"
     },
-    "117": {
+    "153": {
       "code": "V043",
       "function": "stage",
       "source": "app, harness, review = roots()"
     },
-    "118": {
+    "154": {
       "code": "V044",
       "function": "stage",
       "source": "require(not git(app, 'status', '--porcelain', '--untracked-files=all'))"
     },
-    "119": {
+    "155": {
       "code": "V045",
       "function": "stage",
       "source": "target = app / '.github/native'"
     },
-    "120": {
+    "156": {
       "code": "V046",
       "function": "stage",
       "source": "require(not target.exists())"
     },
-    "121": {
+    "157": {
       "code": "V047",
       "function": "stage",
       "source": "target.mkdir(parents=True)"
     },
-    "122": {
+    "158": {
       "code": "V048",
       "function": "stage",
       "source": "for name in HARNESS_FILES:"
     },
-    "123": {
+    "159": {
       "code": "V049",
       "function": "stage",
       "source": "shutil.copyfile(harness / '.github/native' / name, target / name)"
     },
-    "124": {
+    "160": {
       "code": "V050",
       "function": "stage",
       "source": "for name in PROBE_FILES:"
     },
-    "125": {
+    "161": {
       "code": "V051",
       "function": "stage",
       "source": "shutil.copyfile(review / PROPOSAL_PATH / name, target / name)"
     },
-    "126": {
+    "162": {
+      "code": "V205",
+      "function": "stage",
+      "source": "apply_runtime_patches(app, review)"
+    },
+    "163": {
       "code": "V052",
       "function": "stage",
       "source": "guard()"
     },
-    "130": {
+    "167": {
       "code": "V053",
       "function": "check_configuration",
       "source": "require((app / '.env.ci').read_text() == ENV_CI)"
     },
-    "131": {
+    "168": {
       "code": "V054",
       "function": "check_configuration",
       "source": "require(json.loads((app / 'firebase.json').read_text()) == {'react-native': {"
     },
-    "134": {
+    "171": {
       "code": "V055",
       "function": "check_configuration",
       "source": "if platform == 'IOS':"
     },
-    "135": {
+    "172": {
       "code": "V056",
       "function": "check_configuration",
       "source": "for path, bundle in [('ios/GoogleService-Info.plist', 'io.hexawallet.keeper'),"
     },
-    "137": {
+    "174": {
       "code": "V057",
       "function": "check_configuration",
       "source": "require(plistlib.loads((app / path).read_bytes()) == {"
     },
-    "144": {
+    "181": {
       "code": "V058",
       "function": "check_configuration",
       "source": "require(json.loads((app / 'android/app/google-services.json').read_text()) == {"
     },
-    "152": {
+    "189": {
       "code": "V059",
       "function": "guard",
       "source": "number = verify_inputs()"
     },
-    "153": {
+    "190": {
       "code": "V060",
       "function": "guard",
       "source": "app, _, review = roots()"
     },
-    "154": {
+    "191": {
       "code": "V061",
       "function": "guard",
       "source": "target = app / '.github/native'"
     },
-    "155": {
+    "192": {
       "code": "V062",
       "function": "guard",
       "source": "require({p.name for p in target.iterdir()} == set(HARNESS_FILES) | set(PROBE_FILES))"
     },
-    "156": {
-      "code": "V063",
+    "193": {
+      "code": "V206",
       "function": "guard",
-      "source": "for name, expected in HARNESS_FILES.items():"
+      "source": "for name, expected in STAGED_HARNESS_FILES.items():"
     },
-    "157": {
+    "194": {
       "code": "V064",
       "function": "guard",
       "source": "require(digest(target / name) == expected)"
     },
-    "158": {
+    "195": {
+      "code": "V207",
+      "function": "guard",
+      "source": "runtime_file_guard(app)"
+    },
+    "196": {
       "code": "V065",
       "function": "guard",
       "source": "for name in PROBE_FILES:"
     },
-    "159": {
+    "197": {
       "code": "V066",
       "function": "guard",
       "source": "require((target / name).read_bytes() == git(review, 'show', 'HEAD:' + PROPOSAL_PATH + name))"
     },
-    "160": {
+    "198": {
       "code": "V067",
       "function": "guard",
       "source": "changed = set(git(app, 'diff', '--name-only', '-z', 'HEAD').decode().strip('\\0').split('\\0')) - {''}"
     },
-    "161": {
+    "199": {
       "code": "V068",
       "function": "guard",
       "source": "platform = os.environ['KEEPER_NATIVE_PLATFORM']"
     },
-    "162": {
+    "200": {
       "code": "V069",
       "function": "guard",
       "source": "allowed = {'.env.ci', 'firebase.json'} | ({'ios/GoogleService-Info.plist',"
     },
-    "165": {
-      "code": "V070",
+    "203": {
+      "code": "V208",
       "function": "guard",
-      "source": "require(changed <= allowed | {'package.json'})"
+      "source": "require(changed <= allowed | {'package.json'} | set(RUNTIME_FILES))"
     },
-    "166": {
+    "204": {
       "code": "V071",
       "function": "guard",
       "source": "before = json.loads(git(app, 'show', 'HEAD:package.json'))"
     },
-    "167": {
+    "205": {
       "code": "V072",
       "function": "guard",
       "source": "after = json.loads((app / 'package.json').read_text())"
     },
-    "168": {
+    "206": {
       "code": "V073",
       "function": "guard",
       "source": "require({k: v for k, v in before.items() if k not in MAPPING_FIELDS} =="
     },
-    "170": {
+    "208": {
       "code": "V074",
       "function": "guard",
       "source": "require(not git(app, 'diff', 'HEAD', '--', 'yarn.lock', 'ios/Podfile.lock'))"
     },
-    "171": {
+    "209": {
       "code": "V075",
       "function": "guard",
       "source": "metadata = app / 'artifacts/native' / platform.lower() / 'metadata.json'"
     },
-    "172": {
+    "210": {
       "code": "V076",
       "function": "guard",
       "source": "if metadata.is_file():"
     },
-    "173": {
+    "211": {
       "code": "V077",
       "function": "guard",
       "source": "require(metadata.stat().st_size <= 1024 * 1024)"
     },
-    "174": {
+    "212": {
       "code": "V078",
       "function": "guard",
       "source": "recorded = json.loads(metadata.read_text())"
     },
-    "175": {
+    "213": {
       "code": "V079",
       "function": "guard",
       "source": "if platform == 'IOS' and 'toolchain' in recorded:"
     },
-    "176": {
+    "214": {
       "code": "V080",
       "function": "guard",
       "source": "versions = safe_versions(recorded, platform)"
     },
-    "177": {
+    "215": {
       "code": "V081",
       "function": "guard",
       "source": "require(versions['xcode'] == '16.4' and versions['sdk'] == '18.5')"
     },
-    "178": {
+    "216": {
       "code": "V082",
       "function": "guard",
       "source": "prepared = metadata.is_file() and 'configuration_overlays' in json.loads(metadata.read_text())"
     },
-    "179": {
+    "217": {
       "code": "V083",
       "function": "guard",
       "source": "if changed & CONFIG or prepared:"
     },
-    "180": {
+    "218": {
       "code": "V084",
       "function": "guard",
       "source": "check_configuration(app, platform)"
     },
-    "181": {
+    "219": {
       "code": "V085",
       "function": "guard",
       "source": "return number"
     },
-    "185": {
+    "223": {
       "code": "V086",
       "function": "checked_junit",
       "source": "require(path.is_file() and path.stat().st_size <= 1024 * 1024)"
     },
-    "186": {
+    "224": {
       "code": "V087",
       "function": "checked_junit",
       "source": "cases = list(ET.parse(path).getroot().iter('testcase'))"
     },
-    "187": {
+    "225": {
       "code": "V088",
       "function": "checked_junit",
       "source": "require(cases and not any(list(c.iter('failure')) or list(c.iter('error')) or"
     },
-    "189": {
+    "227": {
       "code": "V089",
       "function": "checked_junit",
       "source": "return len(cases)"
     },
-    "193": {
+    "231": {
       "code": "V090",
       "function": "evidence",
       "source": "\"\"\"Select fixed statuses, numeric counts and hashes; never export raw fields.\"\"\""
     },
-    "194": {
+    "232": {
       "code": "V091",
       "function": "evidence",
       "source": "require(metadata.get('source_sha') == SOURCE and metadata.get('platform') == platform)"
     },
-    "195": {
+    "233": {
       "code": "V092",
       "function": "evidence",
       "source": "for field, env in [('workflow_sha', 'GITHUB_WORKFLOW_SHA'), ('run_id', 'GITHUB_RUN_ID'),"
     },
-    "197": {
+    "235": {
       "code": "V093",
       "function": "evidence",
       "source": "require(str(metadata.get(field)) == os.environ.get(env))"
     },
-    "198": {
+    "236": {
       "code": "V094",
       "function": "evidence",
       "source": "required = {'record', 'prepare', 'build', 'smoke', 'bridge'} | ({'driver'} if platform == 'IOS' else set())"
     },
-    "199": {
+    "237": {
       "code": "V095",
       "function": "evidence",
       "source": "success = all(outcomes.get(p) == 'success' for p in required)"
     },
-    "200": {
+    "238": {
       "code": "V096",
       "function": "evidence",
       "source": "success = success and metadata.get('build') == metadata.get('smoke') == 'PASS'"
     },
-    "201": {
+    "239": {
       "code": "V097",
       "function": "evidence",
       "source": "success = success and metadata.get('installed_artifact_verified') is True"
     },
-    "202": {
+    "240": {
       "code": "V098",
       "function": "evidence",
       "source": "success = success and metadata.get('device', {}).get('fresh_disposable_state') is True"
     },
-    "203": {
+    "241": {
       "code": "V099",
       "function": "evidence",
       "source": "success = success and type(junit_count) is int and junit_count > 0"
     },
-    "204": {
+    "242": {
       "code": "V100",
       "function": "evidence",
       "source": "success = success and metadata.get('smoke_test_cases') == junit_count"
     },
-    "205": {
+    "243": {
       "code": "V101",
       "function": "evidence",
       "source": "success = success and metadata.get('built_artifact') == built_now and bool(built_now)"
     },
-    "206": {
+    "244": {
       "code": "V102",
       "function": "evidence",
       "source": "keys = ['executable_sha256', 'bundle_tree_sha256'] if platform == 'IOS' else ['sha256']"
     },
-    "207": {
+    "245": {
       "code": "V103",
       "function": "evidence",
       "source": "hashes = {k: built_now[k] for k in keys} if built_now else {}"
     },
-    "208": {
+    "246": {
       "code": "V104",
       "function": "evidence",
       "source": "require(all(re.fullmatch(r'[0-9a-f]{64}', v) for v in hashes.values()))"
     },
-    "209": {
+    "247": {
       "code": "V105",
       "function": "evidence",
       "source": "return {'scope': 'NATIVE_BRIDGE_PREREQUISITE_ONLY', 'acceptance': 'NOT_ACCEPTED',"
     },
-    "218": {
+    "256": {
       "code": "V106",
       "function": "safe_versions",
       "source": "toolchain = metadata.get('toolchain', {})"
     },
-    "219": {
+    "257": {
       "code": "V107",
       "function": "safe_versions",
       "source": "patterns = {'node': r'^v([0-9]+\\.[0-9]+\\.[0-9]+)$',"
     },
-    "221": {
+    "259": {
       "code": "V108",
       "function": "safe_versions",
       "source": "if platform == 'IOS':"
     },
-    "222": {
+    "260": {
       "code": "V109",
       "function": "safe_versions",
       "source": "patterns.update({'xcode': r'^Xcode ([0-9]+\\.[0-9]+)', 'sdk': r'^([0-9]+\\.[0-9]+)$'})"
     },
-    "224": {
+    "262": {
       "code": "V110",
       "function": "safe_versions",
       "source": "patterns['gradle'] = r'(?m)^Gradle ([0-9]+(?:\\.[0-9]+)+)$'"
     },
-    "225": {
+    "263": {
       "code": "V111",
       "function": "safe_versions",
       "source": "result = {}"
     },
-    "226": {
+    "264": {
       "code": "V112",
       "function": "safe_versions",
       "source": "for name, pattern in patterns.items():"
     },
-    "227": {
+    "265": {
       "code": "V113",
       "function": "safe_versions",
       "source": "value = toolchain.get(name, '')"
     },
-    "228": {
+    "266": {
       "code": "V114",
       "function": "safe_versions",
       "source": "require(isinstance(value, str))"
     },
-    "229": {
+    "267": {
       "code": "V115",
       "function": "safe_versions",
       "source": "match = re.search(pattern, value.strip())"
     },
-    "230": {
+    "268": {
       "code": "V116",
       "function": "safe_versions",
       "source": "require(match is not None)"
     },
-    "231": {
+    "269": {
       "code": "V117",
       "function": "safe_versions",
       "source": "result[name] = match.group(1)"
     },
-    "232": {
+    "270": {
       "code": "V118",
       "function": "safe_versions",
       "source": "if platform == 'ANDROID':"
     },
-    "233": {
+    "271": {
       "code": "V119",
       "function": "safe_versions",
       "source": "revision = toolchain.get('emulator', {}).get('Pkg.Revision', '')"
     },
-    "234": {
+    "272": {
       "code": "V120",
       "function": "safe_versions",
       "source": "require(isinstance(revision, str) and re.fullmatch(r'[0-9]+(?:\\.[0-9]+)+', revision))"
     },
-    "235": {
+    "273": {
       "code": "V121",
       "function": "safe_versions",
       "source": "result['emulator'] = revision"
     },
-    "236": {
+    "274": {
       "code": "V122",
       "function": "safe_versions",
       "source": "return result"
     },
-    "240": {
+    "278": {
       "code": "V123",
       "function": "failure_record",
       "source": "result = {'acceptance': 'NOT_ACCEPTED', 'bootstrap_observation': 'BLOCKED',"
     },
-    "243": {
+    "281": {
       "code": "V124",
       "function": "failure_record",
       "source": "category = metadata.get('bridge_failure_category')"
     },
-    "244": {
+    "282": {
       "code": "V125",
       "function": "failure_record",
       "source": "if isinstance(category, str) and category in {"
     },
-    "248": {
+    "286": {
       "code": "V126",
       "function": "failure_record",
       "source": "result['failure'] = category"
     },
-    "249": {
+    "287": {
       "code": "V127",
       "function": "failure_record",
       "source": "return result"
     },
-    "253": {
+    "291": {
       "code": "V128",
       "function": "summary",
       "source": "result = {'acceptance': 'NOT_ACCEPTED', 'bootstrap_observation': 'BLOCKED',"
     },
-    "255": {
+    "293": {
       "code": "V129",
       "function": "summary",
       "source": "success = False"
     },
-    "256": {
+    "294": {
       "code": "V130",
       "function": "summary",
       "source": "metadata = {}"
     },
-    "257": {
+    "295": {
       "code": "V131",
       "function": "summary",
       "source": "try:"
     },
-    "258": {
+    "296": {
       "code": "V132",
       "function": "summary",
       "source": "base = guard()"
     },
-    "259": {
+    "297": {
       "code": "V133",
       "function": "summary",
       "source": "app, harness, _ = roots()"
     },
-    "260": {
+    "298": {
       "code": "V134",
       "function": "summary",
       "source": "platform = os.environ['KEEPER_NATIVE_PLATFORM']"
     },
-    "261": {
+    "299": {
       "code": "V135",
       "function": "summary",
       "source": "path = app / 'artifacts/native' / platform.lower() / 'metadata.json'"
     },
-    "262": {
+    "300": {
       "code": "V136",
       "function": "summary",
       "source": "require(path.is_file() and path.stat().st_size <= 1024 * 1024)"
     },
-    "263": {
+    "301": {
       "code": "V137",
       "function": "summary",
       "source": "metadata = json.loads(path.read_text())"
     },
-    "264": {
+    "302": {
       "code": "V138",
       "function": "summary",
       "source": "outcomes = {p: os.environ.get('STEP_' + p.upper(), '') for p in PHASES}"
     },
-    "265": {
+    "303": {
       "code": "V139",
       "function": "summary",
       "source": "count = 0"
     },
-    "266": {
+    "304": {
       "code": "V140",
       "function": "summary",
       "source": "artifact = {}"
     },
-    "267": {
+    "305": {
       "code": "V141",
       "function": "summary",
       "source": "if all(outcomes[p] == 'success' for p in ('build', 'smoke')):"
     },
-    "268": {
+    "306": {
       "code": "V142",
       "function": "summary",
       "source": "count = checked_junit(Path(os.environ['RUNNER_TEMP']) / 'keeper-native-private/smoke-junit.xml')"
     },
-    "269": {
+    "307": {
       "code": "V143",
       "function": "summary",
       "source": "spec = importlib.util.spec_from_file_location('reviewed_harness', harness / '.github/native/hosted_native.py')"
     },
-    "270": {
+    "308": {
       "code": "V144",
       "function": "summary",
       "source": "module = importlib.util.module_from_spec(spec)"
     },
-    "271": {
+    "309": {
       "code": "V145",
       "function": "summary",
       "source": "spec.loader.exec_module(module)"
     },
-    "272": {
+    "310": {
       "code": "V146",
       "function": "summary",
       "source": "module.ROOT = app"
     },
-    "273": {
+    "311": {
       "code": "V147",
       "function": "summary",
       "source": "artifact = module.artifact_identity()"
     },
-    "274": {
+    "312": {
       "code": "V148",
       "function": "summary",
       "source": "result = evidence(metadata, outcomes, count, artifact, platform)"
     },
-    "275": {
+    "313": {
       "code": "V149",
       "function": "summary",
       "source": "probe = metadata.get('bridge_probe', {})"
     },
-    "276": {
+    "314": {
       "code": "V150",
       "function": "summary",
       "source": "require(outcomes['bridge'] == 'success' and probe.get('result') == 'PASS')"
     },
-    "277": {
+    "315": {
       "code": "V151",
       "function": "summary",
       "source": "require(probe.get('installed_artifact_verified') is True)"
     },
-    "278": {
+    "316": {
       "code": "V152",
       "function": "summary",
       "source": "require(probe.get('device', {}).get('fresh_disposable_state') is True)"
     },
-    "279": {
+    "317": {
       "code": "V153",
       "function": "summary",
       "source": "bridge_count = checked_junit(Path(os.environ['RUNNER_TEMP']) / 'keeper-native-private/bridge-junit.xml')"
     },
-    "280": {
+    "318": {
       "code": "V154",
       "function": "summary",
       "source": "require(bridge_count == probe.get('successful_junit_cases') and bridge_count == 1)"
     },
-    "281": {
+    "319": {
       "code": "V155",
       "function": "summary",
       "source": "result['bridge_junit_cases'] = bridge_count"
     },
-    "282": {
+    "320": {
       "code": "V156",
       "function": "summary",
       "source": "result['same_binary_storage_reopen'] = 'PASS'"
     },
-    "283": {
+    "321": {
       "code": "V157",
       "function": "summary",
       "source": "result['iap_init_end_reinit'] = 'PASS'"
     },
-    "284": {
+    "322": {
       "code": "V158",
       "function": "summary",
       "source": "result['prior_release_upgrade'] = 'NOT VERIFIED'"
     },
-    "285": {
+    "323": {
       "code": "V159",
       "function": "summary",
       "source": "require(metadata.get('device', {}).get('image'))"
     },
-    "286": {
+    "324": {
       "code": "V160",
       "function": "summary",
       "source": "result['device_image_sha256'] = hashlib.sha256(metadata['device']['image'].encode()).hexdigest()"
     },
-    "287": {
+    "325": {
       "code": "V161",
       "function": "summary",
       "source": "result['observed_versions'] = safe_versions(metadata, platform)"
     },
-    "288": {
+    "326": {
       "code": "V162",
       "function": "summary",
       "source": "result['durable_provenance'] = provenance.select(metadata, platform,"
     },
-    "290": {
+    "328": {
       "code": "V163",
       "function": "summary",
       "source": "for phase in ['startup', 'bridge']:"
     },
-    "291": {
+    "329": {
       "code": "V164",
       "function": "summary",
       "source": "served = Path(os.environ['RUNNER_TEMP']) / 'keeper-native-private' / (phase + '-served.json')"
     },
-    "292": {
+    "330": {
       "code": "V165",
       "function": "summary",
       "source": "require(served.is_file() and served.stat().st_size <= 16384)"
     },
-    "293": {
+    "331": {
       "code": "V166",
       "function": "summary",
       "source": "require(json.loads(served.read_text()) == metadata[phase + '_probe']['served_bundles'])"
     },
-    "295": {
+    "333": {
       "code": "V167",
       "function": "summary",
       "source": "for row in metadata['configuration_overlays']:"
     },
-    "296": {
+    "334": {
       "code": "V168",
       "function": "summary",
       "source": "require(digest(app / row['path']) == row['sha256'])"
     },
-    "297": {
+    "335": {
       "code": "V169",
       "function": "summary",
       "source": "mapping = metadata['nodeify_overlay']"
     },
-    "298": {
+    "336": {
       "code": "V170",
       "function": "summary",
       "source": "require(digest(app / 'package.json') == mapping['after_sha256'])"
     },
-    "299": {
+    "337": {
       "code": "V171",
       "function": "summary",
       "source": "require(hashlib.sha256(git(app, 'show', 'HEAD:package.json')).hexdigest() == mapping['before_sha256'])"
     },
-    "300": {
+    "338": {
       "code": "V172",
       "function": "summary",
       "source": "require(hashlib.sha256(git(app, 'diff', 'HEAD', '--', 'package.json')).hexdigest() == mapping['diff_sha256'])"
     },
-    "301": {
+    "339": {
       "code": "V173",
       "function": "summary",
       "source": "result['staged_probe_sha256'] = {name: digest(app / '.github/native' / name) for name in PROBE_FILES}"
     },
-    "302": {
+    "340": {
       "code": "V174",
       "function": "summary",
       "source": "result['source_file_sha256'] = {name: hashlib.sha256(git(app, 'show', 'HEAD:' + name)).hexdigest()"
     },
-    "305": {
+    "343": {
       "code": "V175",
       "function": "summary",
       "source": "result['expected_device'] = 'iPhone16_iOS18.5' if platform == 'IOS' else 'pixel6_API35_googleapis_x86_64'"
     },
-    "306": {
+    "344": {
       "code": "V176",
       "function": "summary",
       "source": "result.update({'source_sha': SOURCE, 'source_tree': SOURCE_TREE, 'harness_sha': HARNESS,"
     },
-    "309": {
+    "347": {
       "code": "V177",
       "function": "summary",
       "source": "for field in ('GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT'):"
     },
-    "310": {
+    "348": {
       "code": "V178",
       "function": "summary",
       "source": "require(re.fullmatch(r'[1-9][0-9]*', os.environ.get(field, '')))"
     },
-    "311": {
+    "349": {
       "code": "V179",
       "function": "summary",
       "source": "result[field.lower()] = int(os.environ[field])"
     },
-    "312": {
+    "350": {
       "code": "V180",
       "function": "summary",
       "source": "success = result['bootstrap_observation'] == 'PASS'"
     },
-    "314": {
+    "352": {
       "code": "V181",
       "function": "summary",
       "source": "result = failure_record(metadata)"
     },
-    "315": {
+    "353": {
       "code": "V182",
       "function": "summary",
       "source": "payload = json.dumps(result, sort_keys=True, indent=2)"
     },
-    "316": {
+    "354": {
       "code": "V183",
       "function": "summary",
       "source": "require(len(payload.encode()) <= 64 * 1024)"
     },
-    "317": {
+    "355": {
       "code": "V184",
       "function": "summary",
       "source": "with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as output:"
     },
-    "318": {
+    "356": {
       "code": "V185",
       "function": "summary",
       "source": "output.write('```json\\n' + payload + '\\n```\\n')"
     },
-    "319": {
+    "357": {
       "code": "V186",
       "function": "summary",
       "source": "require(success)"
     },
-    "323": {
+    "361": {
       "code": "V187",
       "function": "main",
       "source": "require(len(sys.argv) == 2 and sys.argv[1] in ('stage', 'guard', 'summary'))"
     },
-    "324": {
+    "362": {
       "code": "V188",
       "function": "main",
       "source": "{'stage': stage, 'guard': guard, 'summary': summary}[sys.argv[1]]()"

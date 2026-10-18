@@ -19,7 +19,7 @@ BASE = 'def0d6a90c80287edb4f58ae272cbfc340f00d73'
 SOURCE = 'bccb63348754e7a7975ea140717d31be214f0801'
 SOURCE_TREE = '3768d44eaa9005f56f564b1faeb2732bef2da1e8'
 HARNESS = '0984c5b97e7e8326d6856ba662274ecf325e5e0f'
-RUNNER_BRANCH = 'codex/native-http-evidence-diagnostic-bccb6334'
+RUNNER_BRANCH = 'codex/native-runtime-prepare-once-bccb6334'
 PROPOSAL_PATH = 'review-only/keeper-native-validation/'
 PROBE_FILES = ('prerequisite_storage.cjs', 'prerequisite_iap.cjs', 'prerequisite_probe.js',
                'prerequisite_probe.yaml', 'prerequisite_metro.cjs', 'bundle_observer.cjs')
@@ -28,6 +28,41 @@ HARNESS_FILES = {
     'nodeify.cjs': '842ed4755d302fecdcab23099af5eefe02356fe132dfe93417e91a842f742fea',
     'startup.yaml': '89ac67286d1086edf32f797332c98f1ef1ca5cffe04aee82893bd8bd54b5ecea',
 }
+RUNTIME_PATCHES = {
+    'app-runtime.patch': 'fb6a5c0369de573ab31e7195054041d637da0783de3c4ca2e1f19de8c3f25f3e',
+    'harness-bundler.patch': '6c374c092b5f758c6031c1d5b011b32432937ab3a80726da8fbcf315b1ba43c2',
+}
+RUNTIME_FILES = {
+    'Gemfile': '265e7bb58640ba33f98ee88438dd1072245c44663e2b51befd9e0207c79a552e',
+    'Gemfile.lock': '6fd9e78b81474e5d631124a9f75ed0c21c8b7a284a65a35b2dc960ddaa4fd024',
+}
+STAGED_HARNESS_FILES = dict(HARNESS_FILES, **{
+    'hosted_native.py': '3ff70788a1a6df8400e3e79c9c1bf4d951125f078ad14df3dc1c97d91ab94210',
+})
+
+
+def runtime_patch_guard(review):
+    for name, expected in RUNTIME_PATCHES.items():
+        require(digest(review / PROPOSAL_PATH / name) == expected)
+
+
+def apply_runtime_patches(app, review):
+    runtime_patch_guard(review)
+    # Only the reviewed native implementation is staged; the bundled patch also
+    # preserves its source-owner regression test for review, not app execution.
+    for check in (True, False):
+        for name in RUNTIME_PATCHES:
+            args = ['apply'] + (['--check'] if check else [])
+            if name == 'harness-bundler.patch':
+                args += ['--include=.github/native/hosted_native.py']
+            git(app, *args, str(review / PROPOSAL_PATH / name))
+
+
+def runtime_file_guard(app):
+    for name, expected in RUNTIME_FILES.items():
+        require(digest(app / name) == expected)
+
+
 CONFIG = {'firebase.json', '.env.ci', 'ios/GoogleService-Info.plist',
           'ios/GoogleServices/dev/GoogleService-Info.plist', 'android/app/google-services.json'}
 MAPPING_FIELDS = {'browser', 'react-native', 'browserify'}
@@ -96,19 +131,20 @@ def verify_inputs():
     require(os.environ.get('GITHUB_WORKFLOW_SHA') == runner)
     require(os.environ.get('KEEPER_SOURCE_SHA') == SOURCE)
     require(os.environ.get('KEEPER_POD_LOCK_REPAIR') == '0')
-    require(os.environ.get('KEEPER_NATIVE_PLATFORM') in ('IOS', 'ANDROID'))
+    require(os.environ.get('KEEPER_NATIVE_PLATFORM') == 'IOS')
     platform = os.environ['KEEPER_NATIVE_PLATFORM']
     require(os.environ.get('RUNNER_OS') == ('macOS' if platform == 'IOS' else 'Linux'))
     require(os.environ.get('RUNNER_ARCH') == ('ARM64' if platform == 'IOS' else 'X64'))
     for root, sha in ((app, SOURCE), (harness, HARNESS), (review, runner)):
         require(git(root, 'rev-parse', 'HEAD').decode().strip() == sha)
-    require(git(review, 'rev-parse', 'HEAD^').decode().strip() == SOURCE)
+    require(git(review, 'rev-parse', 'HEAD^').decode().strip() == '3535a34109c10b7baba310a41d4a277da359c064')
     require(git(app, 'rev-parse', 'HEAD^{tree}').decode().strip() == SOURCE_TREE)
     require(not git(review, 'status', '--porcelain', '--untracked-files=all'))
     require(not git(harness, 'status', '--porcelain', '--untracked-files=all'))
     require(not git(app, 'diff', '--cached'))
     for name, expected in HARNESS_FILES.items():
         require(digest(harness / '.github/native' / name) == expected)
+    runtime_patch_guard(review)
     return current_source()
 
 
@@ -123,6 +159,7 @@ def stage():
         shutil.copyfile(harness / '.github/native' / name, target / name)
     for name in PROBE_FILES:
         shutil.copyfile(review / PROPOSAL_PATH / name, target / name)
+    apply_runtime_patches(app, review)
     guard()
 
 
@@ -153,8 +190,9 @@ def guard():
     app, _, review = roots()
     target = app / '.github/native'
     require({p.name for p in target.iterdir()} == set(HARNESS_FILES) | set(PROBE_FILES))
-    for name, expected in HARNESS_FILES.items():
+    for name, expected in STAGED_HARNESS_FILES.items():
         require(digest(target / name) == expected)
+    runtime_file_guard(app)
     for name in PROBE_FILES:
         require((target / name).read_bytes() == git(review, 'show', 'HEAD:' + PROPOSAL_PATH + name))
     changed = set(git(app, 'diff', '--name-only', '-z', 'HEAD').decode().strip('\0').split('\0')) - {''}
@@ -162,7 +200,7 @@ def guard():
     allowed = {'.env.ci', 'firebase.json'} | ({'ios/GoogleService-Info.plist',
         'ios/GoogleServices/dev/GoogleService-Info.plist'} if platform == 'IOS'
         else {'android/app/google-services.json'})
-    require(changed <= allowed | {'package.json'})
+    require(changed <= allowed | {'package.json'} | set(RUNTIME_FILES))
     before = json.loads(git(app, 'show', 'HEAD:package.json'))
     after = json.loads((app / 'package.json').read_text())
     require({k: v for k, v in before.items() if k not in MAPPING_FIELDS} ==
