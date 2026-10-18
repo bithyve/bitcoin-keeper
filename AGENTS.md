@@ -4,6 +4,40 @@ This repository uses a **Cloud code complete → hosted native validation → sh
 
 Repository: `KeeperCommunity/bitcoin-keeper`. Use `sprint` as the PR base unless the task explicitly specifies another base.
 
+## R5 and future releases: permanent cloud-first default
+
+Follow [the cloud release pipeline](docs/cloud-release-pipeline.md) for R5 and every
+subsequent release. Complete code and representative native acceptance on hosted
+iOS simulators/Android emulators, then assign remaining real-device checks to a
+named authorized tester. The release owner's personal Mac is not the default
+handoff destination. Keep the existing Local path below as the safe fallback
+until each hosted capability is reviewed, installed and verified; its current
+`Codex local handoff` / `State: NEEDS_LOCAL` syntax remains the gate protocol, not
+a claim that a Mac session is always required. In that handoff, put hosted work
+and run URLs in `Cloud checks`, and set `Local checks requested: NONE` only when
+trusted hosted evidence satisfies all requested native checks and no physical
+checks remain. Otherwise name the actual remaining checks and who can run them.
+
+Bootstrap depends on reviewed [PR #7060](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7060);
+check its current state. The initial Phase A candidate is stacked on that PR.
+Its reusable `keeper-native-platform.yml` workflow is called by
+`keeper-release-acceptance.yml` automatically for future PRs targeting `sprint`;
+there is no R5-only release selector or manual copying step. The active R4 PR
+#7045 is excluded. Do not change R4 source, refs, private fixtures, Mac work,
+required gate or approval process. Installing #7060 and this infrastructure on
+`sprint` requires independent review and owner approval. Diagnostic candidate
+runs are not trusted acceptance for R5 or another source SHA.
+
+Record the exact source SHA, workflow run/attempt, both platforms' actual
+build/UI outcomes, safe artifact hashes and unresolved feature acceptance.
+A startup smoke or representative probe does not prove R5's deletion, recovery,
+upgrade or security matrix. R4-dependent app checks wait for R4 baseline
+reconciliation; unresolved high-risk cases remain blocking. Phase B protected
+signing and distribution are **NOT IMPLEMENTED / NOT VERIFIED** until their
+separate reviewed workflow and exact-artifact controls are proven. Do not merge,
+sign, upload a beta, submit to a store or publish without explicit owner approval
+for that action and artifact. Passing CI provides none of these approvals.
+
 ## Codex Cloud: implement and prepare handoff
 
 1. Work in a task-specific branch; investigate, implement, add or update tests, and run suitable checks (for example, `npm run test` and `npm run lint`). Report actual pass/fail results; do not claim a native simulator was run unless it really was.

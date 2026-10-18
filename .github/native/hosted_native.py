@@ -442,7 +442,7 @@ def record():
         'run_id': os.environ.get('GITHUB_RUN_ID'), 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
         'runner': {key: os.environ.get(key) for key in
                    ['RUNNER_OS', 'RUNNER_ARCH', 'ImageOS', 'ImageVersion']},
-        'os': platform.platform(), 'commands': [], 'build': 'NOT RUN', 'smoke': 'NOT RUN',
+        'os': platform.platform(), 'commands': [], 'build': 'NOT RUN', 'smoke': 'NOT RUN', 'native_probe': 'NOT RUN',
         'hardware': 'NOT RUN', 'signing': 'NOT RUN', 'app_id': APP_IDS[PLATFORM],
         'smoke_scope': 'Fresh install; render Create a passcode; type four disposable digits; assert Confirm your passcode; stop before persisting credentials.',
         'startup_timing_scope': 'Bounded cold development bundle/startup allowance; no release performance acceptance.',
@@ -696,7 +696,7 @@ def build():
     save(data)
 
 
-def warm_metro_bundle():
+def warm_metro_bundle(suite='startup'):
     """Bound cold development bundling before starting either disposable app."""
     bundle_platform = {'IOS': 'ios', 'ANDROID': 'android'}.get(PLATFORM)
     if bundle_platform is None:
@@ -723,20 +723,30 @@ def warm_metro_bundle():
     finally:
         details['duration_seconds'] = round(time.monotonic() - started, 1)
         data = read()
-        data['metro_warmup'] = details
+        data['metro_warmup' if suite == 'startup' else 'probe_bundle'] = details
         save(data)
 
 
-def smoke():
+def smoke(suite='startup'):
+    if suite not in ['startup', 'probe']:
+        raise ValueError('Unknown disposable native suite.')
+    is_probe = suite == 'probe'
+    result_key = 'native_probe' if is_probe else 'smoke'
+    if is_probe and read()['smoke'] != 'PASS':
+        raise RuntimeError('The real app startup smoke must pass before module probes.')
     if read()['build'] != 'PASS':
         raise RuntimeError('A successful native build is required before smoke testing.')
     if artifact_identity() != read()['built_artifact']:
         raise RuntimeError('Built artifact changed before the disposable startup smoke.')
+    report = PRIVATE / ('probe-junit.xml' if is_probe else 'smoke-junit.xml')
+    report.unlink(missing_ok=True)
     metro_output = (PRIVATE / 'metro.log').open('wb')
-    metro = subprocess.Popen(['node', 'node_modules/react-native/cli.js', 'start', '--port', '8081'],
+    metro_args = ['node', 'node_modules/react-native/cli.js', 'start', '--port', '8081']
+    if is_probe:
+        metro_args += ['--config', str(ROOT / '.github/native/release_metro.cjs')]
+    metro = subprocess.Popen(metro_args,
                              cwd=ROOT, stdout=metro_output, stderr=subprocess.STDOUT, start_new_session=True)
     device = None
-    report = PRIVATE / 'smoke-junit.xml'
     try:
         for _ in range(60):
             if metro.poll() is not None:
@@ -749,7 +759,7 @@ def smoke():
                 time.sleep(1)
         else:
             raise RuntimeError('Metro did not become ready within 60 attempts.')
-        warm_metro_bundle()
+        warm_metro_bundle(suite)
         if PLATFORM == 'IOS':
             device = command(['xcrun', 'simctl', 'create', 'Keeper-disposable-ci',
                               'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
@@ -785,19 +795,31 @@ def smoke():
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
                  '--flatten-debug-output', '--debug-output', str(PRIVATE / 'maestro-output'),
                  '--format', 'junit', '--output', str(report), '--test-output-dir', str(PRIVATE / 'maestro-output'),
-                 '.github/native/startup.yaml'], 'Assert startup and disposable passcode transition', timeout=420)
-        suite = ET.parse(report).getroot()
-        cases = list(suite.iter('testcase'))
-        if not cases or any(list(case.iter('failure')) or list(case.iter('error')) or list(case.iter('skipped'))
-                            for case in cases):
-            raise RuntimeError('Maestro did not produce a complete successful smoke report.')
+                 '.github/native/release_probe.yaml' if is_probe else '.github/native/startup.yaml'],
+                'Assert native persistence across process launches' if is_probe else
+                'Assert startup and disposable passcode transition', timeout=300 if is_probe else 420,
+                error_details=not is_probe)
+        cases = successful_junit(report)
+        if artifact_identity() != read()['built_artifact']:
+            raise RuntimeError('Built artifact changed during native execution.')
         data = read()
-        data['smoke'] = 'PASS'
-        data['smoke_test_cases'] = len(cases)
+        data[result_key] = 'PASS'
+        data[result_key + '_test_cases'] = cases
+        if is_probe:
+            data['probe_scope'] = ('CI-only Metro entrypoint; actual encrypted Realm/current schemas and production MMKV; '
+                                   'three process launches, rollback, wrong-key rejection, targeted primitive deletion, '
+                                   'separate database files and cleanup. NOT app key deletion, account isolation, '
+                                   'setup/recovery or release performance acceptance.')
         save(data)
     except Exception:
         try:
-            record_startup_failure(report, device)
+            if not is_probe:
+                record_startup_failure(report, device)
+            else:
+                data = read()
+                data['native_probe'] = 'FAIL'
+                data['probe_diagnostics'] = 'Native module probe failed; raw output retained only on ephemeral runner.'
+                save(data)
         except Exception as error:
             # Diagnostics never replace the original failed native/UI result.
             data = read()
@@ -823,9 +845,29 @@ def smoke():
                            stderr=subprocess.DEVNULL, timeout=30, check=False)
 
 
+def successful_junit(report):
+    if not report.is_file() or report.stat().st_size > 1024 * 1024:
+        raise RuntimeError('Missing or oversized native JUnit report.')
+    root = ET.parse(report).getroot()
+    for suite in root.iter():
+        if suite.tag in ['testsuite', 'testsuites']:
+            for attribute in ['failures', 'errors', 'skipped', 'disabled']:
+                if int(suite.get(attribute, '0')) != 0:
+                    raise RuntimeError('Native JUnit declares unsuccessful cases.')
+    cases = list(root.iter('testcase'))
+    if not cases or any(list(root.iter(tag)) for tag in ['failure', 'error', 'skipped']) or any(
+            case.get('status', 'SUCCESS').upper() != 'SUCCESS' for case in cases):
+        raise RuntimeError('Maestro did not produce a complete successful native report.')
+    return len(cases)
+
+
+def probe():
+    smoke('probe')
+
+
 def main():
-    if PLATFORM not in APP_IDS or len(sys.argv) != 2 or sys.argv[1] not in ['record', 'prepare', 'driver', 'build', 'smoke']:
-        raise RuntimeError('Expected a hosted platform and record|prepare|driver|build|smoke.')
+    if PLATFORM not in APP_IDS or len(sys.argv) != 2 or sys.argv[1] not in ['record', 'prepare', 'driver', 'build', 'smoke', 'probe']:
+        raise RuntimeError('Expected a hosted platform and record|prepare|driver|build|smoke|probe.')
     os.environ.update({'ENVFILE': '.env.ci', 'RCT_NO_LAUNCH_PACKAGER': '1',
                        'RCT_NEW_ARCH_ENABLED': '1', 'MAESTRO_CLI_NO_ANALYTICS': '1'})
     run_phase(sys.argv[1])
@@ -838,8 +880,8 @@ def run_phase(phase):
         if EVIDENCE.exists():
             evidence = read()
             evidence['failed_phase'] = phase
-            if phase in ['build', 'smoke']:
-                evidence[phase] = 'FAIL'
+            if phase in ['build', 'smoke', 'probe']:
+                evidence['native_probe' if phase == 'probe' else phase] = 'FAIL'
             save(evidence)
         raise
 
