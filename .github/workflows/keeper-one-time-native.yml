@@ -1,0 +1,239 @@
+# LOCAL REVIEW ARTIFACT. A future first push starts jobs; explicit approval required.
+name: One-time native bridge prerequisite - requires approval before push
+permissions:
+  contents: read
+concurrency:
+  group: keeper-one-time-native-prerequisite
+  cancel-in-progress: false
+env:
+  CI: 'true'
+  HUSKY: '0'
+  KEEPER_SOURCE_SHA: bccb63348754e7a7975ea140717d31be214f0801
+  MAESTRO_CLI_NO_ANALYTICS: '1'
+  KEEPER_POD_LOCK_REPAIR: '0'
+jobs:
+  ios:
+    name: Hosted iOS simulator
+    if: ${{ github.repository == 'KeeperCommunity/bitcoin-keeper' && github.event_name == 'push' && github.ref ==
+      'refs/heads/codex/one-time-native-validation-bccb6334' && github.event.repository.private == false && github.event.created == true && github.event.deleted
+      == false && github.event.forced == false && github.run_attempt == 1 && github.sha == github.workflow_sha }}
+    runs-on: macos-15
+    timeout-minutes: 65
+    env:
+      KEEPER_NATIVE_PLATFORM: IOS
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+    - name: Check out exact app source
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        ref: bccb63348754e7a7975ea140717d31be214f0801
+        persist-credentials: false
+        repository: KeeperCommunity/bitcoin-keeper
+        path: app
+    - name: Check out pinned reviewed harness
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: 0984c5b97e7e8326d6856ba662274ecf325e5e0f
+        path: harness
+        persist-credentials: false
+    - name: Check out this reviewed runner
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: ${{ github.workflow_sha }}
+        path: review
+        persist-credentials: false
+        fetch-depth: 2
+    - name: Verify reviewed inputs and stage pinned harness
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" stage
+    - name: Set up Node
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+      with:
+        node-version: 22.22.0
+        package-manager-cache: false
+    - name: Set up Java for Maestro
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+      with:
+        distribution: temurin
+        java-version: '17'
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@675dd7ba1b06c8786a1480d89c384f5620a42647
+      with:
+        ruby-version: 3.3.8
+    - name: Record runner and toolchain
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py record
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: record
+    - name: Install immutable native dependencies
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py prepare
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: prepare
+    - name: Check disposable iOS driver readiness
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py driver
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: driver
+    - name: Build development app
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py build
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: build
+    - name: Run disposable startup smoke
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/native_probe.py" startup
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: smoke
+    - name: Run same-binary storage and strict IAP probe
+      id: bridge
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/native_probe.py" bridge
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+    - name: Emit bounded unaccepted evidence summary
+      if: ${{ always() }}
+      env:
+        STEP_RECORD: ${{ steps.record.outcome }}
+        STEP_PREPARE: ${{ steps.prepare.outcome }}
+        STEP_DRIVER: ${{ steps.driver.outcome }}
+        STEP_BUILD: ${{ steps.build.outcome }}
+        STEP_SMOKE: ${{ steps.smoke.outcome }}
+        STEP_BRIDGE: ${{ steps.bridge.outcome }}
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" summary
+  android:
+    name: Hosted Android emulator
+    if: ${{ github.repository == 'KeeperCommunity/bitcoin-keeper' && github.event_name == 'push' && github.ref ==
+      'refs/heads/codex/one-time-native-validation-bccb6334' && github.event.repository.private == false && github.event.created == true && github.event.deleted
+      == false && github.event.forced == false && github.run_attempt == 1 && github.sha == github.workflow_sha }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      KEEPER_NATIVE_PLATFORM: ANDROID
+    steps:
+    - name: Check out exact app source
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        ref: bccb63348754e7a7975ea140717d31be214f0801
+        persist-credentials: false
+        repository: KeeperCommunity/bitcoin-keeper
+        path: app
+    - name: Check out pinned reviewed harness
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: 0984c5b97e7e8326d6856ba662274ecf325e5e0f
+        path: harness
+        persist-credentials: false
+    - name: Check out this reviewed runner
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: KeeperCommunity/bitcoin-keeper
+        ref: ${{ github.workflow_sha }}
+        path: review
+        persist-credentials: false
+        fetch-depth: 2
+    - name: Verify reviewed inputs and stage pinned harness
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" stage
+    - name: Set up Node
+      uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+      with:
+        node-version: 22.22.0
+        package-manager-cache: false
+    - name: Set up Java
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+      with:
+        distribution: temurin
+        java-version: '17'
+    - name: Set up Android command-line tools
+      uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
+      with:
+        cmdline-tools-version: '13114758'
+        packages: platform-tools
+        log-accepted-android-sdk-licenses: false
+    - name: Record runner and toolchain
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py record
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: record
+    - name: Install immutable native dependencies
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py prepare
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: prepare
+    - name: Build development app
+      run: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+        python3 -B .github/native/hosted_native.py build
+
+        python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: build
+    - name: Enable emulator acceleration
+      run: 'echo ''KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"'' | sudo tee /etc/udev/rules.d/99-keeper-kvm.rules
+
+        sudo udevadm control --reload-rules
+
+        sudo udevadm trigger --name-match=kvm
+
+        '
+    - name: Run bootstrap, same-binary storage and strict IAP probes
+      uses: reactivecircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed
+      with:
+        working-directory: app
+        api-level: 35
+        target: google_apis
+        arch: x86_64
+        profile: pixel_6
+        cores: 2
+        ram-size: 3072M
+        force-avd-creation: true
+        disable-animations: true
+        emulator-boot-timeout: 240
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -camera-back
+          none -camera-front none
+        script: 'python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+          python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/native_probe.py" startup
+
+          python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard
+
+
+          python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/native_probe.py" bridge
+
+
+          python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" guard'
+      id: smoke
+    - name: Emit bounded unaccepted evidence summary
+      if: ${{ always() }}
+      env:
+        STEP_RECORD: ${{ steps.record.outcome }}
+        STEP_PREPARE: ${{ steps.prepare.outcome }}
+        STEP_DRIVER: ${{ steps.driver.outcome }}
+        STEP_BUILD: ${{ steps.build.outcome }}
+        STEP_SMOKE: ${{ steps.smoke.outcome }}
+        STEP_BRIDGE: ${{ steps.smoke.outcome }}
+      run: python3 -B "$GITHUB_WORKSPACE/review/review-only/keeper-native-validation/verify.py" summary
+defaults:
+  run:
+    shell: bash
+    working-directory: app
+'on':
+  push:
+    branches:
+    - codex/one-time-native-validation-bccb6334
