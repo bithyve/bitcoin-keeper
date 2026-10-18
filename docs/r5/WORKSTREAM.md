@@ -28,15 +28,17 @@ global text scaling and Ask Keeper reply delivery (Soon); #6917 guided setup (R1
 
 ## Baseline and overlap
 
-Inspected R4 PR #7045 at `4927ad549dd1d610d9eb84c6d9a37ed0a6f33a29`.
-It is unmerged and NOT RELEASE-READY. R4 changes the backup/deletion backend,
+The initial checkpoint inspected R4 PR #7045 at
+`4927ad549dd1d610d9eb84c6d9a37ed0a6f33a29`. A read-only recheck on 18 October
+2026 found it still an unmerged draft at
+`be89c34473bb6aab253b98325f1fe746ca391c6f`. R4 changes the backup/deletion backend,
 Login/CreatePin, Home/navigation, ResetEmergencyKey/ResetInheritanceKey, transaction
 views and Android native configuration. Leave those dependencies alone now.
 R4, Reproducibility, Bitkey/Assisted Multisig and Claude-review branches are not
 implementation sources for this workstream and must not be modified.
 
-The three initial R5 UI modules are byte-identical between the inspected R4 head
-and sprint. Initial independent changes:
+The three initial R5 UI modules are byte-identical between both inspected R4
+heads and sprint. No R4 implementation was imported. Initial independent changes:
 
 - Keys tab links to Manage Keys; visible eligible keys offer Delete without Hide.
 - Read the full Vault collection rather than the network/canary-filtered display
@@ -121,3 +123,88 @@ Next: after R4 release, reconcile this draft with its exact baseline and rerun
 these tests; review backend reference enforcement before expanding deletion use.
 Then complete the bounded startup work and actual performance/native matrix.
 Do not claim R5 completion, close issues, merge or release this checkpoint.
+
+## Independent Cloud follow-up — 18 October 2026
+
+The owner authorized continued independent Cloud implementation and automated
+testing while R4 and its Mac remain untouched. This follow-up stays on the R5
+draft; it changes no backend, account/session, shared PIN, native, production
+configuration, version/counter or contributor-pin inputs.
+
+Deletion review reproduced replayed and cancelled passcode callbacks dispatching
+deletion, plus callbacks reading detached active/archived-reference snapshots.
+Each deletion selection now has a one-use intent, consumed synchronously and
+cancelled when its confirmation closes or its screen loses focus. Confirmation
+reads the live Vault collection, blocking active references and retaining keys
+needed by archived wallets. The screen still does not supply backend atomicity
+or shared authentication/account-session provenance.
+
+The full safety query must include concealed and canary references, but those
+records must not disclose wallet names, descriptions or counts in a deletion
+warning. Only the selected key identity is retained; every render reads current
+references again, including newly added references and changes to visibility.
+The warning uses a generic message whenever details are concealed or unavailable,
+and leaving the screen clears it. Tests exercise both callback lifetime and the actual production
+signer-identity helper; native Realm, presentation and dispatch remain replaced
+at the test boundary.
+
+Setup review reproduced late Firebase-token completion dispatching setup or a
+token update after the screen unmounted. Effect-owned guards suppress those late
+Redux actions. The tests now use the real login reducer and setup action with a
+small test-owned Redux store, covering repeated error/Retry/success, rapid presses,
+pending/rejected tokens and successful remount. They simulate `appCreated`; they
+do not prove native wallet creation, wallet-worker success, persistent storage or
+backend idempotency. No arbitrary notification timeout or navigation fix was added.
+
+### Reproducible JavaScript preparation
+
+The unchanged R5 frozen installation failure was reproduced first. The repair
+adds only the two missing root ESLint selectors, preserving all 2,299 existing
+selectors and their version/resolution/integrity/dependency fields. Manifest,
+Pod lock, Nitro/Hermes and native inputs stay unchanged.
+
+Node 22.23.3 and Yarn 1.22.22 frozen installation with root lifecycle scripts
+disabled then passed; all six explicit dependency patches passed. Yarn still
+prepares the pinned Git dependencies while packaging them, so this is not a claim
+that no dependency build scripts execute. The existing IAP/Nitro peer mismatch
+is retained and is not a native-build pass.
+
+Both existing CI jobs now use verified immutable action pins, exact Node/Yarn,
+frozen installation, fail-closed patch application and manifest/lock immutability
+checks. Checkout credentials are not persisted. This avoids invoking the normal
+Mac-specific root prepare script on Linux; that script can mask a CocoaPods
+failure because it lacks `set -e`. Required `Tests`, the local-validation gate,
+and inherited tolerated lint behavior are unchanged.
+
+### Executed follow-up validation
+
+- Frozen JavaScript install: PASS (250.09 seconds), after the original frozen
+  failure and minimal selector repair. All six dependency patches: PASS.
+- Combined offline Jest: **16 suites / 181 tests PASS**, zero failures/skips.
+  This includes **42 deletion** and **9 setup-lifecycle** cases. Command:
+  `node_modules/.bin/jest --runInBand --coverage=false --testPathIgnorePatterns '/tests/services/(client|wallet|vault)\.test\.ts$'`.
+  The three existing live-Electrum integration suites were not run locally;
+  the existing CI `npm run test` command still runs the complete suite.
+- Accepted regression controls: the original deletion code failed 12/30 cases;
+  subsequent lifecycle checks failed 2/32 and live-warning checks failed 10/42
+  before their fixes. Original setup code failed 3/9 lifecycle cases. These
+  were assertion failures after successful test setup, not native results.
+- Existing merge-gate contracts: **11/11 PASS**. Actionlint 1.7.7, workflow
+  YAML/shell checks, localization JSON and `git diff --check`: PASS.
+- Focused ESLint: **FAIL 29 errors / 17 warnings**, exactly the original R5
+  diagnostic multiset after ignoring positions, including embedded upper-scope
+  line/column references. No new lint findings; this is not a clean lint pass.
+- Whole TypeScript: **FAIL 1,013 diagnostics**, versus 1,014 at the original R5
+  checkpoint with the same installed dependencies. Normalizing positions and
+  linked dependency paths finds zero added/one removed diagnostic. The removed
+  diagnostic was the existing Vault JSON conversion assignment in DeleteKeys.
+- Independent review: the two additional visible-to-hidden/canary warning probes
+  failed before the live-warning repair and passed afterward. No additional
+  blocker was found in this bounded source/test/workflow follow-up.
+
+The final draft handoff records the exact tested head and hosted CI results.
+The initial failures above remain part of this checkpoint's history. No native
+iOS/Android, physical-device, startup/first-wallet performance, real-backend or
+retained-data continuity result follows from these JavaScript tests. Finish the
+R4-baseline reconciliation before the affected native matrix. No Mac access,
+private-data transfer, merge, signing or release occurred.

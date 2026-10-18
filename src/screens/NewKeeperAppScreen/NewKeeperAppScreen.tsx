@@ -117,21 +117,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const isMultiAccountFlow = !!useAppSelector((state) => state.account).allAccounts.length;
 
   useEffect(() => {
+    let active = true;
     if (appCreated) {
       setInitiating(false);
-      updateFCM();
+      updateFCM(() => active);
     }
     if (appCreationError) {
       setModalVisible(false);
       setInitiating(false);
     }
+    return () => {
+      active = false;
+    };
   }, [appCreated, appCreationError]);
 
-  async function updateFCM() {
+  async function updateFCM(isCurrent: () => boolean) {
     try {
       const app = getApp();
       const token = await getToken(getMessaging(app));
-      dispatch(updateFCMTokens([token]));
+      if (isCurrent()) dispatch(updateFCMTokens([token]));
     } catch (error) {
       //
     }
@@ -158,19 +162,23 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }, []);
 
   useEffect(() => {
+    let active = true;
     if (keeperInitiating) {
       setModalVisible(true);
-      createNewApp();
+      createNewApp(() => active);
     }
+    return () => {
+      active = false;
+    };
   }, [keeperInitiating]);
 
-  async function createNewApp() {
+  async function createNewApp(isCurrent: () => boolean) {
     try {
       const app = getApp();
       const fcmToken = await getToken(getMessaging(app));
-      dispatch(setupKeeperApp(fcmToken));
+      if (isCurrent()) dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
-      dispatch(setupKeeperApp());
+      if (isCurrent()) dispatch(setupKeeperApp());
     }
   }
 

@@ -1,17 +1,10 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
+import { configureStore } from '@reduxjs/toolkit';
+import { Provider } from 'react-redux';
+import loginReducer, { setAppCreationError } from '../../src/store/reducers/login';
 
-const mockDispatch = jest.fn();
-const mockState = {
-  bhr: {},
-  storage: { appCreated: false },
-  login: { appCreationError: true },
-  account: { allAccounts: [] },
-};
-jest.mock('src/store/hooks', () => ({
-  useAppDispatch: () => mockDispatch,
-  useAppSelector: (select) => select(mockState),
-}));
+const mockGetToken = jest.fn();
 jest.mock('src/constants/responsive', () => ({ hp: (v) => v, wp: (v) => v, windowWidth: 400 }));
 jest.mock('@gluestack-ui/themed-native-base', () => ({
   Box: 'Box',
@@ -22,19 +15,15 @@ jest.mock('@react-navigation/native', () => ({ useIsFocused: () => true }));
 jest.mock('@react-native-firebase/app', () => ({ getApp: jest.fn() }));
 jest.mock('@react-native-firebase/messaging', () => ({
   getMessaging: jest.fn(),
-  getToken: async () => 'test-token',
+  getToken: (...args) => mockGetToken(...args),
 }));
 jest.mock('src/hooks/useToastMessage', () => ({
   __esModule: true,
   default: () => ({ showToast: jest.fn() }),
 }));
-jest.mock('src/store/reducers/login', () => ({
-  setAppCreationError: (value) => ({ type: 'ERROR', value }),
+jest.mock('src/store/sagaActions/notifications', () => ({
+  updateFCMTokens: (tokens) => ({ type: 'UPDATE_FCM', tokens }),
 }));
-jest.mock('src/store/sagaActions/storage', () => ({
-  setupKeeperApp: (token) => ({ type: 'SETUP', token }),
-}));
-jest.mock('src/store/sagaActions/notifications', () => ({ updateFCMTokens: jest.fn() }));
 jest.mock('src/utils/service-utilities/config', () => ({
   KEEPER_WEBSITE_BASE_URL: 'https://example.invalid',
 }));
@@ -64,21 +53,205 @@ Object.entries({
 }).forEach(([path, name]) => jest.doMock(require.resolve(`../../${path}`), () => name));
 const NewKeeperApp = require('../../src/screens/NewKeeperAppScreen/NewKeeperAppScreen').default;
 
-test('setup failure presents one actionable retry dialog and starts one retry', async () => {
-  let screen;
-  await act(async () => {
-    screen = renderer.create(<NewKeeperApp navigation={{ replace: jest.fn() }} />);
+let screen;
+let store;
+let actions;
+let view;
+
+function deferred() {
+  let resolve!: (value: string) => void;
+  let reject!: (reason: Error) => void;
+  const promise = new Promise<string>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
   });
-  const visible = screen.root.findAllByType('Modal').filter((m) => m.props.visible);
-  expect(visible).toHaveLength(1);
-  expect(visible[0].props.buttonText).toBe('Retry');
-  await act(async () => {
-    visible[0].props.buttonCallback();
-    visible[0].props.buttonCallback();
+  return { promise, resolve, reject };
+}
+
+async function mount({ error = false, created = false } = {}) {
+  actions = [];
+  const loginState = {
+    ...loginReducer(undefined, { type: '@@test/init' }),
+    appCreationError: error,
+  };
+  store = configureStore({
+    reducer: {
+      login: (state = loginState, action) => loginReducer(state, action),
+      storage: (state = { appCreated: created }, action) =>
+        action.type === 'TEST_APP_CREATED' ? { appCreated: true } : state,
+      bhr: (state = {}) => state,
+      account: (state = { allAccounts: [] }) => state,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(() => (next) => (action) => {
+        actions.push(action);
+        return next(action);
+      }),
   });
-  expect(mockDispatch).toHaveBeenCalledWith({ type: 'ERROR', value: false });
-  expect(mockDispatch.mock.calls.filter(([a]) => a.type === 'SETUP')).toEqual([
-    [{ type: 'SETUP', token: 'test-token' }],
+  const navigation = { replace: jest.fn(), navigate: jest.fn() };
+  view = () => (
+    <Provider store={store}>
+      <NewKeeperApp navigation={navigation} />
+    </Provider>
+  );
+  await act(async () => {
+    screen = renderer.create(view());
+  });
+}
+
+function visibleDialogs() {
+  return screen.root.findAllByType('Modal').filter((modal) => modal.props.visible);
+}
+
+function setupActions() {
+  return actions.filter((action) => action.type === 'SETUP_KEEPER_APP');
+}
+
+async function start() {
+  await act(async () => {
+    screen.root.findByProps({ testID: 'view_startNewTile' }).props.onPress();
+  });
+}
+
+beforeEach(() => {
+  mockGetToken.mockReset().mockResolvedValue('test-token');
+});
+
+afterEach(() => {
+  if (screen) {
+    act(() => screen.unmount());
+    screen = null;
+  }
+});
+
+test('setup failure presents one retry dialog, clears its error and starts one retry', async () => {
+  await mount({ error: true });
+  expect(visibleDialogs()).toHaveLength(1);
+  const retry = visibleDialogs()[0];
+  expect(retry.props.buttonText).toBe('Retry');
+  await act(async () => {
+    retry.props.buttonCallback();
+    retry.props.buttonCallback();
+  });
+  expect(store.getState().login.appCreationError).toBe(false);
+  expect(visibleDialogs()).toHaveLength(1);
+  expect(visibleDialogs()[0].props.buttonText).toBeNull();
+  expect(setupActions()).toEqual([
+    { type: 'SETUP_KEEPER_APP', payload: { appName: '', fcmToken: 'test-token' } },
   ]);
-  act(() => screen.unmount());
+});
+
+test('repeated failures each allow one retry and a later success does not replay setup', async () => {
+  await mount();
+  await start();
+  expect(setupActions()).toHaveLength(1);
+
+  for (const attempts of [2, 3]) {
+    await act(async () => {
+      store.dispatch(setAppCreationError(true));
+    });
+    expect(visibleDialogs()).toHaveLength(1);
+    expect(visibleDialogs()[0].props.buttonText).toBe('Retry');
+    await act(async () => {
+      visibleDialogs()[0].props.buttonCallback();
+    });
+    expect(store.getState().login.appCreationError).toBe(false);
+    expect(visibleDialogs()).toHaveLength(1);
+    expect(visibleDialogs()[0].props.buttonText).toBeNull();
+    expect(setupActions()).toHaveLength(attempts);
+  }
+
+  await act(async () => {
+    store.dispatch({ type: 'TEST_APP_CREATED' });
+  });
+  expect(visibleDialogs()).toHaveLength(1);
+  expect(visibleDialogs()[0].props.buttonText).toBe('Next');
+  expect(actions.filter((action) => action.type === 'UPDATE_FCM')).toEqual([
+    { type: 'UPDATE_FCM', tokens: ['test-token'] },
+  ]);
+  await act(async () => screen.update(view()));
+  expect(setupActions()).toHaveLength(3);
+});
+
+test('rapid Start presses and rerenders keep one pending token lookup and one setup attempt', async () => {
+  const token = deferred();
+  mockGetToken.mockReturnValue(token.promise);
+  await mount();
+  const pressStart = screen.root.findByProps({ testID: 'view_startNewTile' }).props.onPress;
+  await act(async () => {
+    pressStart();
+    pressStart();
+  });
+  await act(async () => {
+    screen.update(view());
+    pressStart();
+  });
+  expect(mockGetToken).toHaveBeenCalledTimes(1);
+  expect(setupActions()).toHaveLength(0);
+  expect(visibleDialogs()).toHaveLength(1);
+  await act(async () => token.resolve('delayed-token'));
+  expect(setupActions()).toEqual([
+    { type: 'SETUP_KEEPER_APP', payload: { appName: '', fcmToken: 'delayed-token' } },
+  ]);
+});
+
+test('token retrieval failure starts one setup attempt without a token', async () => {
+  mockGetToken.mockRejectedValue(new Error('offline token retrieval'));
+  await mount();
+  await start();
+  expect(setupActions()).toEqual([
+    { type: 'SETUP_KEEPER_APP', payload: { appName: '', fcmToken: '' } },
+  ]);
+  expect(visibleDialogs()).toHaveLength(1);
+  expect(visibleDialogs()[0].props.buttonText).toBeNull();
+});
+
+test.each(['resolve', 'reject'])(
+  'unmounting before token %s prevents a stale setup attempt',
+  async (completion) => {
+    const token = deferred();
+    mockGetToken.mockReturnValue(token.promise);
+    await mount();
+    await start();
+    expect(mockGetToken).toHaveBeenCalledTimes(1);
+    expect(setupActions()).toHaveLength(0);
+    act(() => screen.unmount());
+    screen = null;
+    await act(async () => {
+      if (completion === 'resolve') token.resolve('late-token');
+      else token.reject(new Error('late offline failure'));
+    });
+    expect(setupActions()).toHaveLength(0);
+  }
+);
+
+test.each(['resolve', 'reject'])(
+  'unmounting before the successful app token %s prevents a stale token update',
+  async (completion) => {
+    const token = deferred();
+    mockGetToken.mockReturnValue(token.promise);
+    await mount({ created: true });
+    expect(mockGetToken).toHaveBeenCalledTimes(1);
+    expect(actions.filter((action) => action.type === 'UPDATE_FCM')).toHaveLength(0);
+    act(() => screen.unmount());
+    screen = null;
+    await act(async () => {
+      if (completion === 'resolve') token.resolve('late-success-token');
+      else token.reject(new Error('late token refresh failure'));
+    });
+    expect(actions.filter((action) => action.type === 'UPDATE_FCM')).toHaveLength(0);
+    expect(setupActions()).toHaveLength(0);
+  }
+);
+
+test('a successfully created app remount does not automatically create another app', async () => {
+  await mount({ created: true });
+  expect(visibleDialogs()).toHaveLength(0);
+  expect(setupActions()).toHaveLength(0);
+  await act(async () => {
+    screen.unmount();
+    screen = renderer.create(view());
+  });
+  expect(visibleDialogs()).toHaveLength(0);
+  expect(setupActions()).toHaveLength(0);
 });

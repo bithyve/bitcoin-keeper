@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Box, Pressable, useColorMode } from '@gluestack-ui/themed-native-base';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -17,13 +17,12 @@ import { Signer, Vault } from 'src/services/wallets/interfaces/vault';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import ActionCard from 'src/components/ActionCard';
 import WalletVault from 'src/assets/images/wallet_vault.svg';
 import { archiveSigningDevice, deleteSigningDevice } from 'src/store/sagaActions/vaults';
-import useArchivedVault from 'src/hooks/useArchivedVaults';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { SignerType } from 'src/services/wallets/enums';
+import { SignerType, VaultType, VisibilityType } from 'src/services/wallets/enums';
 import { RECOVERY_KEY_SIGNER_NAME } from 'src/constants/defaultData';
 import KeyCard from 'src/components/SigningDevices/KeyCard';
 import HexagonIcon from 'src/components/HexagonIcon';
@@ -41,6 +40,8 @@ import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import usePlan from 'src/hooks/usePlan';
+
+type DeletionIntent = { signer: Signer };
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -63,14 +64,24 @@ function DeleteKeys({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [unhidingKeyUID, setUnhidingKeyUID] = useState('');
-  const [multipleHidden, setMultipleHidden] = useState(false);
   // Deletion safety must include hidden/canary wallets and both networks.
   // Presentation hooks intentionally filter those records out.
-  const allVaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
-  const { archivedVaults } = useArchivedVault();
+  const vaultRecords = useQuery(RealmSchema.Vault);
+  // Realm types toJSON as DefaultObject; this query contains Vault records.
+  const readVaults = (): Vault[] =>
+    vaultRecords.map((record) => getJSONFromRealmObject(record) as unknown as Vault);
   const [warningEnabled, setHideWarning] = useState(false);
-  const [vaultsUsed, setVaultsUsed] = useState<Vault[]>();
-  const [signerToDelete, setSignerToDelete] = useState<Signer>();
+  const [warningKeyUID, setWarningKeyUID] = useState<string | null>(null);
+  // Store only the key identity: names, visibility and all current references
+  // must be read again when the warning rerenders, including newly added ones.
+  const vaultsUsed = warningKeyUID === null
+    ? []
+    : readVaults().filter(
+        (vault) => !vault.archived && vault.signers.some((s) => getKeyUID(s) === warningKeyUID)
+      );
+  const [deletionIntent, setDeletionIntent] = useState<DeletionIntent | null>(null);
+  const pendingDeletion = useRef<DeletionIntent | null>(null);
+  const signerToDelete = deletionIntent?.signer;
   const [deletedSigner, setDeletedSigner] = useState<Signer>();
   const deletingKeyModalVisible = useAppSelector((state) => state.bhr.deletingKeyModalVisible);
   const keyDeletedSuccessModalVisible = useAppSelector(
@@ -85,31 +96,57 @@ function DeleteKeys({ route }) {
   const [showAllForced, setShowAllForced] = useState(false);
   const [passwordMode, setPasswordMode] = useState(PasswordMode.DEFAULT);
 
-  const displaySigners = showAll ? [...allUnhideSigners, ...hiddenSigners] : allUnhideSigners;
-
-  const onSuccess = () => {
-    if (signerToDelete) {
-      // References may have changed while the passcode dialog was open.
-      const vaultsInvolved = getActiveReferences(signerToDelete);
-      if (vaultsInvolved.length) {
+  useFocusEffect(
+    useCallback(
+      () => () => {
+        pendingDeletion.current = null;
+        setDeletionIntent(null);
         setConfirmPassVisible(false);
-        setSignerToDelete(null);
-        setMultipleHidden(vaultsInvolved.length > 1);
-        setVaultsUsed(vaultsInvolved);
+        setWarningKeyUID(null);
+        setHideWarning(false);
+      },
+      []
+    )
+  );
+
+  const displaySigners = showAll ? [...allUnhideSigners, ...hiddenSigners] : allUnhideSigners;
+  // References remain blocking even when their names must stay concealed.
+  const showReferenceDetails = vaultsUsed.length > 0 && vaultsUsed.every(
+    (vault) =>
+      typeof vault.id === 'string' && vault.id.trim().length > 0 &&
+      vault.type !== VaultType.CANARY &&
+      vault.presentationData?.visibility === VisibilityType.DEFAULT
+  );
+  const showMultipleReferences = vaultsUsed.length > 1 && showReferenceDetails;
+
+  const cancelDeletion = (intent: DeletionIntent | null) => {
+    if (pendingDeletion.current !== intent) return;
+    pendingDeletion.current = null;
+    setDeletionIntent(null);
+    setConfirmPassVisible(false);
+  };
+
+  const onSuccess = (intent: DeletionIntent | null) => {
+    if (intent && pendingDeletion.current === intent) {
+      // Consume synchronously: replayed/cancelled callbacks cannot reuse this
+      // authorization or clear a later selection before React rerenders.
+      cancelDeletion(intent);
+      const { signer } = intent;
+      // Read live Results at invocation; a retained callback must not use a
+      // render-time snapshot from before a new active or archived reference.
+      const references = getReferences(signer);
+      const vaultsInvolved = references.filter((vault) => !vault.archived);
+      if (vaultsInvolved.length) {
+        setWarningKeyUID(getKeyUID(signer));
         setHideWarning(true);
         return;
       }
-      setConfirmPassVisible(false);
-      const involvedArchivedVaults = archivedVaults.filter((vault) =>
-        vault.signers.find((s) => getKeyUID(s) === getKeyUID(signerToDelete))
-      );
-      if (involvedArchivedVaults.length) {
-        dispatch(archiveSigningDevice([signerToDelete]));
+      if (references.some((vault) => vault.archived)) {
+        dispatch(archiveSigningDevice([signer]));
       } else {
-        dispatch(deleteSigningDevice([signerToDelete]));
+        dispatch(deleteSigningDevice([signer]));
       }
-      setDeletedSigner(signerToDelete);
-      setSignerToDelete(null);
+      setDeletedSigner(signer);
     }
   };
   const onForceProceed = () => {
@@ -140,24 +177,26 @@ function DeleteKeys({ route }) {
     }
   };
 
-  const getActiveReferences = (signer: Signer) =>
-    allVaults.filter(
-      (vault) => !vault.archived && vault.signers.some((s) => getKeyUID(s) === getKeyUID(signer))
-    );
+  const getReferences = (signer: Signer): Vault[] =>
+    readVaults()
+      .filter((vault) => vault.signers.some((s) => getKeyUID(s) === getKeyUID(signer)));
 
   const handleDelete = (signer: Signer) => {
-    setSignerToDelete(null);
-    setMultipleHidden(false);
-    const vaultsInvolved = getActiveReferences(signer);
+    pendingDeletion.current = null;
+    setDeletionIntent(null);
+    setHideWarning(false);
+    setWarningKeyUID(null);
+    const vaultsInvolved = getReferences(signer).filter((vault) => !vault.archived);
     if (vaultsInvolved.length > 0) {
-      if (vaultsInvolved.length > 1) setMultipleHidden(true);
       setHideWarning(true);
-      setVaultsUsed(vaultsInvolved);
+      setWarningKeyUID(getKeyUID(signer));
       setConfirmPassVisible(false);
       return;
     }
+    const intent = { signer };
+    pendingDeletion.current = intent;
+    setDeletionIntent(intent);
     setConfirmPassVisible(true);
-    setSignerToDelete(signer);
   };
 
   useEffect(() => {
@@ -212,7 +251,7 @@ function DeleteKeys({ route }) {
           showsHorizontalScrollIndicator={false}
         >
           {vaultsUsed.map((vault) => (
-            <Box>
+            <Box key={vault.id}>
               <ActionCard
                 description={vault.presentationData?.description}
                 cardName={vault.presentationData.name}
@@ -225,7 +264,7 @@ function DeleteKeys({ route }) {
 
         <Box style={{ paddingVertical: 20 }}>
           <Text color={`${colorMode}.primaryText`} style={styles.warningText}>
-            {multipleHidden
+            {showMultipleReferences
               ? signerText.deleteMultipleVaultInstruction
               : signerText.deleteVaultInstruction}
           </Text>
@@ -304,13 +343,17 @@ function DeleteKeys({ route }) {
         </Pressable>
       </Box>
       <KeeperModal
-        visible={warningEnabled && !!vaultsUsed}
+        visible={warningEnabled}
         close={() => setHideWarning(false)}
         title={
-          multipleHidden ? signerText.deleteMultipleVaultWarning : signerText.deleteVaultWarning
+          showMultipleReferences ? signerText.deleteMultipleVaultWarning : signerText.deleteVaultWarning
         }
         subTitle={
-          multipleHidden ? signerText.multipleVaultWarningSubtitle : signerText.vaultWarningSubtitle
+          !showReferenceDetails
+            ? signerText.deleteVaultInstruction
+            : showMultipleReferences
+              ? signerText.multipleVaultWarningSubtitle
+              : signerText.vaultWarningSubtitle
         }
         buttonText={signerText.viewVault}
         secondaryButtonText={signerText.back}
@@ -324,7 +367,9 @@ function DeleteKeys({ route }) {
           navigation.dispatch(CommonActions.navigate('ManageWallets'));
         }}
         textColor={`${colorMode}.textGreen`}
-        Content={() => <Content vaultsUsed={vaultsUsed} colorMode={colorMode} />}
+        Content={() =>
+          showReferenceDetails ? <Content vaultsUsed={vaultsUsed} colorMode={colorMode} /> : null
+        }
       />
       <KeeperModal
         visible={deletingKeyModalVisible}
@@ -359,10 +404,7 @@ function DeleteKeys({ route }) {
       <KeeperModal
         visible={confirmPassVisible}
         closeOnOverlayClick={false}
-        close={() => {
-          setConfirmPassVisible(false);
-          setSignerToDelete(null);
-        }}
+        close={() => cancelDeletion(deletionIntent)}
         title={signerText.enterPasscode}
         subTitleWidth={wp(240)}
         subTitle={signerText.confirmPasscodeToDeleteKey}
@@ -391,11 +433,8 @@ function DeleteKeys({ route }) {
             )}
             <PasscodeVerifyModal
               useBiometrics={false}
-              close={() => {
-                setConfirmPassVisible(false);
-                setSignerToDelete(null);
-              }}
-              onSuccess={onSuccess}
+              close={() => cancelDeletion(deletionIntent)}
+              onSuccess={() => onSuccess(deletionIntent)}
             />
           </Box>
         )}
