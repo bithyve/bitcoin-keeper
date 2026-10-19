@@ -27,17 +27,19 @@ type Operation = 'updateAppImage' | 'migrateXfps' | 'deleteAppImageEntity' | 'de
 type Account = { id: string; primarySeed: string };
 type Path = '/backup/v3/enroll' | '/backup/v3/snapshot' | '/backup/v3/mutate';
 
-// This is a distinct gate from local consent. Explicit repair is not permission
-// to write to a hosted backend whose readiness has not been established.
-export const PROTECTED_BACKUP_HOSTED_READY = false;
+// App availability is distinct from local consent and backend readiness.
+// This permits protected-write attempts; it does not certify the deployed
+// backend or authorize public release. The original authority/CAS guards apply.
+export const PROTECTED_BACKUP_HOSTED_AVAILABLE = true;
 function loopback() {
   return /^http:\/\/(127\.0\.0\.1|localhost):\d+\/$/.test(config.RELAY) &&
     ((typeof process !== 'undefined' && !!process.env?.KEEPER_PROTECTED_RELAY_CHECKOUT) ||
       (config.ENVIRONMENT === 'DEVELOPMENT' && config.isDevMode()));
 }
+/** Checks compiled client availability only; not observed server readiness. */
 export function assertProtectedBackupWriteReady() {
-  if (!PROTECTED_BACKUP_HOSTED_READY && !loopback())
-    throw new Error('Protected backup is not enabled on this server');
+  if (!PROTECTED_BACKUP_HOSTED_AVAILABLE && !loopback())
+    throw new Error('Protected backup is not enabled in this app');
 }
 function endpoint(path: Path) {
   const base = new URL(config.RELAY);

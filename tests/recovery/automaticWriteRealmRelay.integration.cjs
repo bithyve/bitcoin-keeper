@@ -804,7 +804,7 @@ test('fixture authorization never permits a hosted Relay target', async (t) => {
 });
 
 for (const mode of ['development-loopback', 'production-environment', 'development-disabled', 'missing-explicit-port']) {
-  test(`without the Node fixture override ${mode} obeys the native source and rollout gates`, async (t) => {
+  test(`without the Node fixture override ${mode} obeys the native source and availability gates`, async (t) => {
     const f = await setup(t, 'updateAppImage');
     const request = await committedRequest(f, 'updateAppImage');
     if (mode === 'production-environment') f.config.ENVIRONMENT = 'PRODUCTION';
@@ -824,7 +824,7 @@ for (const mode of ['development-loopback', 'production-environment', 'developme
       assert.equal(attemptedWrites().length, 0);
       assertPending(f);
     }
-    assert.equal(f.automatic.AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY, false, 'Disposable source proof never enables the hosted Relay fleet');
+    assert.equal(f.automatic.AUTOMATIC_BACKUP_HOSTED_AVAILABLE, true, 'App availability does not certify hosted backend readiness');
   });
 }
 

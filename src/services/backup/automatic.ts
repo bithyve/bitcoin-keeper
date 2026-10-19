@@ -70,11 +70,11 @@ const managedCommits = new WeakSet<BackupLocalOperation>();
 const results = new WeakMap<object, { proof: Proof; session: number; appId: string }>();
 const generations = new Map<string, { generation: number; fingerprint: string }>();
 let sequence = 0;
-// The genuine Realm/transactional Relay matrix permits development loopback
-// validation. Hosted writes remain fenced until the separate fleet rollout,
-// old-writer drainage and operator evidence have been reviewed and approved.
+// Source proof and app availability are separate from per-account consent.
+// Hosted availability allows protected-write attempts after explicit opt-in;
+// it does not attest deployed backend readiness or authorize public release.
 export const AUTOMATIC_BACKUP_SOURCE_READY = true;
-export const AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY = false;
+export const AUTOMATIC_BACKUP_HOSTED_AVAILABLE = true;
 let commitVerification: (appId: string, deleted: boolean, consentEpoch: number) => boolean = () =>
   false;
 export const setAutomaticBackupVerificationCommit = (commit: typeof commitVerification) => {
@@ -583,9 +583,9 @@ export function enqueueAutomaticBackupOperation(
       const nativeLoopback = config.ENVIRONMENT === 'DEVELOPMENT' && config.isDevMode() &&
         /^http:\/\/(127\.0\.0\.1|localhost):\d+\/$/.test(config.RELAY);
       if ((!AUTOMATIC_BACKUP_SOURCE_READY && !loopbackFixture) ||
-        (!AUTOMATIC_BACKUP_RELAY_ROLLOUT_READY && !loopbackFixture &&
+        (!AUTOMATIC_BACKUP_HOSTED_AVAILABLE && !loopbackFixture &&
           !(AUTOMATIC_BACKUP_SOURCE_READY && nativeLoopback)))
-        throw new Error('Automatic backup source or rollout is not enabled');
+        throw new Error('Automatic backup source or availability is not enabled');
       assertProtectedBackupWriteReady();
       assertOwned();
       const baseline = await snapshot(appId, proof.after.app, deadline, assertOwned);

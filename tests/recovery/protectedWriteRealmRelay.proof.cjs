@@ -384,14 +384,23 @@ test('a malformed protected discovery reports read-error and never falls back to
   assert.equal(server.trace.some(event => event.legacyRead), false); assert.equal(mutations().length, 0);
 });
 
-test('hosted enablement remains false for explicit enrollment and repair despite valid local authority', async t => {
+test('hosted availability grants no consent and preserves original authority and HTTPS requirements', async t => {
   await server.reset(); const f = await client(t); const previous = f.config.RELAY;
   f.config.RELAY = 'https://fixture.invalid/';
   try {
-    await assert.rejects(f.protected.enrollProtectedBackup(mnemonic), /not enabled/);
-    await assert.rejects(f.protected.protectedBackupMutation(mnemonic, {}, 'repairAppBackup', {}), /not enabled/);
+    assert.equal(f.automatic.AUTOMATIC_BACKUP_HOSTED_AVAILABLE, true);
+    assert.equal(f.protected.PROTECTED_BACKUP_HOSTED_AVAILABLE, true);
+    assert.doesNotThrow(() => f.protected.assertProtectedBackupWriteReady());
+    assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[appId], undefined);
+    // An unavailable original CAS tuple still rejects before signing or send.
+    await assert.rejects(f.protected.protectedBackupMutation(mnemonic, {}, 'repairAppBackup', {}),
+      /Invalid protected backup response/);
+    // No test contacts a hosted target: HTTP is rejected before any request.
+    f.config.RELAY = 'http://fixture.invalid/';
+    await assert.rejects(f.protected.enrollProtectedBackup(mnemonic), /requires HTTPS/);
   } finally { f.config.RELAY = previous; }
   assert.equal(server.trace.length, 0);
+  assert.equal(f.store.getState().bhr.automaticCloudBackupByAppId[appId], undefined);
 });
 
 test('a real committed mnemonic change invalidates queued authority before any old ciphertext is sent', async t => {
