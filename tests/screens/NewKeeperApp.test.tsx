@@ -57,6 +57,7 @@ let screen;
 let store;
 let actions;
 let view;
+let navigation;
 
 function deferred() {
   let resolve!: (value: string) => void;
@@ -68,7 +69,7 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
-async function mount({ error = false, created = false } = {}) {
+async function mount({ error = false, created = false, recreated = false } = {}) {
   actions = [];
   const loginState = {
     ...loginReducer(undefined, { type: '@@test/init' }),
@@ -79,7 +80,7 @@ async function mount({ error = false, created = false } = {}) {
       login: (state = loginState, action) => loginReducer(state, action),
       storage: (state = { appCreated: created }, action) =>
         action.type === 'TEST_APP_CREATED' ? { appCreated: true } : state,
-      bhr: (state = {}) => state,
+      bhr: (state = { appRecreated: recreated }) => state,
       account: (state = { allAccounts: [] }) => state,
     },
     middleware: (getDefaultMiddleware) =>
@@ -88,7 +89,7 @@ async function mount({ error = false, created = false } = {}) {
         return next(action);
       }),
   });
-  const navigation = { replace: jest.fn(), navigate: jest.fn() };
+  navigation = { replace: jest.fn(), navigate: jest.fn() };
   view = () => (
     <Provider store={store}>
       <NewKeeperApp navigation={navigation} />
@@ -122,6 +123,7 @@ afterEach(() => {
     act(() => screen.unmount());
     screen = null;
   }
+  jest.useRealTimers();
 });
 
 test('setup failure presents one retry dialog, clears its error and starts one retry', async () => {
@@ -254,4 +256,54 @@ test('a successfully created app remount does not automatically create another a
   });
   expect(visibleDialogs()).toHaveLength(0);
   expect(setupActions()).toHaveLength(0);
+});
+
+test('recreated-app navigation is cancelled when its screen unmounts', async () => {
+  jest.useFakeTimers();
+  await mount({ recreated: true });
+  act(() => screen.unmount());
+  screen = null;
+  await act(async () => jest.advanceTimersByTime(4000));
+  expect(navigation.replace).not.toHaveBeenCalled();
+});
+
+test('Next navigation is cancelled when its screen unmounts', async () => {
+  jest.useFakeTimers();
+  await mount();
+  await start();
+  await act(async () => store.dispatch({ type: 'TEST_APP_CREATED' }));
+  const next = visibleDialogs()[0].props.buttonCallback;
+  act(() => next());
+  act(() => screen.unmount());
+  screen = null;
+  await act(async () => jest.advanceTimersByTime(1000));
+  expect(navigation.replace).not.toHaveBeenCalled();
+});
+
+test('rapid Next taps schedule only one navigation', async () => {
+  jest.useFakeTimers();
+  await mount();
+  await start();
+  await act(async () => store.dispatch({ type: 'TEST_APP_CREATED' }));
+  const next = visibleDialogs()[0].props.buttonCallback;
+  act(() => {
+    next();
+    next();
+  });
+  await act(async () => jest.advanceTimersByTime(1000));
+  expect(navigation.replace).toHaveBeenCalledTimes(1);
+  expect(navigation.replace).toHaveBeenCalledWith('App', { screen: 'Home' });
+});
+
+test('a retained Next callback cannot schedule navigation after unmount', async () => {
+  jest.useFakeTimers();
+  await mount();
+  await start();
+  await act(async () => store.dispatch({ type: 'TEST_APP_CREATED' }));
+  const next = visibleDialogs()[0].props.buttonCallback;
+  act(() => screen.unmount());
+  screen = null;
+  act(() => next());
+  await act(async () => jest.advanceTimersByTime(1000));
+  expect(navigation.replace).not.toHaveBeenCalled();
 });

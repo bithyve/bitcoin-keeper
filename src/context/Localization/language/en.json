@@ -185,6 +185,7 @@
     "help": "Help"
   },
   "login": {
+    "startupCredentialError": "Unable to check your passcode. Please try again.",
     "welcomeback": "Welcome Back",
     "welcome": "Welcome",
     "welcomeToBitcoinKeeper": "Welcome to Bitcoin Keeper",

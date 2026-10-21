@@ -2,7 +2,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, BackHandler , TouchableOpacity} from 'react-native';
 import Text from 'src/components/KeeperText';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import AppIcon from 'src/assets/images/new-app-icon.svg';
@@ -114,6 +114,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { translations } = useContext(LocalizationContext);
   const { login, common, error: errorText, home } = translations;
   const isFocused = useIsFocused();
+  const nextNavigation = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigationActive = useRef(true);
   const isMultiAccountFlow = !!useAppSelector((state) => state.account).allAccounts.length;
 
   useEffect(() => {
@@ -149,11 +151,21 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   useEffect(() => {
     if (appRecreated) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         navigation.replace('App', { screen: 'Home' });
       }, 3000);
+      return () => clearTimeout(timer);
     }
+    return undefined;
   }, [appRecreated]);
+
+  useEffect(() => {
+    navigationActive.current = true;
+    return () => {
+      navigationActive.current = false;
+      if (nextNavigation.current !== null) clearTimeout(nextNavigation.current);
+    };
+  }, []);
 
   useEffect(() => {
     const backAction = () => true;
@@ -339,8 +351,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={appCreated ? common.next : null}
         buttonCallback={() => {
+          if (!navigationActive.current || nextNavigation.current !== null) return;
           setModalVisible(false);
-          setTimeout(() => {
+          nextNavigation.current = setTimeout(() => {
             navigation.replace('App', { screen: 'Home' });
           }, 500);
         }}

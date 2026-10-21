@@ -208,3 +208,44 @@ iOS/Android, physical-device, startup/first-wallet performance, real-backend or
 retained-data continuity result follows from these JavaScript tests. Finish the
 R4-baseline reconciliation before the affected native matrix. No Mac access,
 private-data transfer, merge, signing or release occurred.
+
+## Cloud continuation — 21 October 2026
+
+Continued from the latest #7058 head `625435ac26af0304670c993a639626b1117699ba`
+after checking current guidance, the approved sheet rows, R4 and overlapping PRs.
+The [startup investigation](STARTUP-INVESTIGATION.md) records the confirmed fixes,
+source traces and limits. No optional Linux setup or Mac session was required.
+
+Independent implementation now includes starting the credential read without the
+fixed splash-animation gate, explicit error propagation for startup-only Keychain
+reads, one generic Retry action, stale-read protection, and setup navigation-timer
+cleanup/repeat protection. The legacy login flow's visibility/disabled-state and
+first-error assumptions are corrected as an unexecuted native test specification.
+No R4 code/ref, shared PIN, navigation, wallet worker, backup/backend, native
+configuration, dependency, CI or version/counter input changed in this follow-up.
+
+New regression controls before fixes: Splash 9 failures/10; actual secure-store
+boundary 2 failures/5; setup navigation 3 new failures/12, then a retained-callback
+failure/13. These are executed JavaScript assertion failures, not native results.
+All final focused cases pass. The expanded offline run passes 19 suites/218 tests,
+with the same three live-Electrum integration suites excluded. Four process-level
+timezone runs pass 18 cases each (72 total); no Android timezone defect or
+navigation root cause is established. Neither received a speculative patch.
+
+Focused ESLint on Splash, NewKeeperApp and secure-store still FAILS with 26 errors
+and 11 warnings, versus 28/11 on the previous R5 head with the same dependencies;
+no added findings after position normalization. Whole TypeScript still FAILS:
+1,018 diagnostics versus 1,019 on previous head625435 with these same installed
+dependencies, zero added/one removed after normalizing positions and linked paths.
+These counts differ from the previous worker's 1,013 and do not supersede its
+separately scoped evidence. Gate contracts 11/11, test formatting, YAML/JSON and
+diff checks PASS. A transient new noImplicitReturns diagnostic in timer cleanup
+was corrected before the final comparison. No clean whole-lint/typecheck claim.
+
+R5 remains two substantial features and within its 13k–18k estimate: a rough
+changed-source/test character count divided by four is about 15k tokens. This is
+an estimate, not tokenizer usage. Stop/propose a split before approximately 20k
+or a third feature. Native startup/first-wallet timings, offline wallet-worker
+idempotency/persistence, real Realm/authentication, #7055/#6991 native reproduction,
+PIN/biometrics and R4-shipped copy reconciliation remain open. Reconcile against
+R4's eventual released baseline and rerun affected checks before native acceptance.
