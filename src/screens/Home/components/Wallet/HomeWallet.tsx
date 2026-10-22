@@ -203,6 +203,7 @@ const HomeWallet = () => {
         onPress={collaborativeHandoff.openAdd}
       />
       <FlatList
+        testID={`home_visible_wallet_count_${allWallets.length}`}
         data={allWallets}
         renderItem={renderWalletCard}
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
