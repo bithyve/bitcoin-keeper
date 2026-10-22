@@ -14,6 +14,11 @@ const operations = {
 };
 const sha = /^[a-f0-9]{40}$/;
 const digest = /^[a-f0-9]{64}$/;
+// Status/check names and bot/app names do not authenticate their workflow
+// origin. No caller/API JSON can mint this module-private capability. The
+// installed canonical/native provenance route is not implemented/verified yet,
+// so collectEvidence deliberately never sets it and authorization fails closed.
+const verifiedCIOrigin = Symbol('verified-installed-ci-origin');
 function requireCondition(condition, code) { if (!condition) throw new Error(code); }
 
 function requestFromEnvironment(env) {
@@ -68,6 +73,7 @@ function validateEvidence(request, evidence, now = Date.now()) {
   requireCondition(['Tests', 'CodeQL', 'keeper/local-validation'].every(name => passedNames.has(name)), 'REQUIRED_CHECK_MISSING');
   requireCondition(evidence.manifest?.version === request.version && String(evidence.manifest[request.operation.startsWith('ios-') || request.operation === 'testflight-upload' ? 'iosBuildNumber' : 'androidVersionCode']) === request.build, 'SOURCE_VERSION_BUILD_MISMATCH');
   requireCondition(validateIntent(evidence.manifest, { now }).length === 0 && validateSources(evidence.manifest, evidence.sources).length === 0, 'RELEASE_SOURCE_PREFLIGHT_FAILED');
+  requireCondition(evidence[verifiedCIOrigin] === true, 'TRUSTED_CI_ORIGIN_NOT_VERIFIED');
   return {
     schema: 1, repository, sourceSha: request.sourceSha, driverSha: request.driverSha,
     operation: request.operation, version: request.version, build: request.build,
