@@ -54,7 +54,8 @@ STARTUP_CATEGORIES = ('NATIVE_CODE_NEG34018', 'NATIVE_CODE_NEG25308', 'NATIVE_CO
                       'NATIVE_CODE_NEG25293', 'NATIVE_CODE_NEG26275', 'NATIVE_CODE_NEG50',
                       'ERROR', 'TYPE_ERROR', 'SYNTAX_ERROR', 'RANGE_ERROR', 'REFERENCE_ERROR', 'UNKNOWN')
 _STARTUP_MARKER = re.compile(
-    r'KEEPER_STARTUP_ERROR stage=(' + '|'.join(STARTUP_STAGES) +
+    # Exact RN0.83.9 OSLog subsystem/category in the compact message envelope.
+    r'(?:\[com\.facebook\.react\.log:javascript\] )?KEEPER_STARTUP_ERROR stage=(' + '|'.join(STARTUP_STAGES) +
     r') category=(' + '|'.join(STARTUP_CATEGORIES) + r')')
 
 

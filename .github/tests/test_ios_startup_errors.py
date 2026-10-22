@@ -34,15 +34,22 @@ class IOSStartupErrorsTest(unittest.TestCase):
             for category in ios.STARTUP_CATEGORIES:
                 self.assertIn("'" + category + "'", source)
                 marker = f'KEEPER_STARTUP_ERROR stage={stage} category={category}'
-                result = ios.classify(record(marker, severity='I'), APP)
-                self.assertEqual(result['startup_failure_facts'], [{'stage': stage, 'category': category}])
-                self.assertEqual(result['error_records'], 1)
-                self.assertEqual(result['cause'], 'UNDETERMINED')
+                for envelope in ('', '[com.facebook.react.log:javascript] '):
+                    result = ios.classify(record(envelope + marker, severity='I'), APP)
+                    self.assertEqual(result['startup_failure_facts'], [{'stage': stage, 'category': category}])
+                    self.assertEqual(result['error_records'], 1)
+                    self.assertEqual(result['cause'], 'UNDETERMINED')
 
     def test_foreign_malformed_and_private_marker_variants_supply_no_fixed_facts(self):
         marker = 'KEEPER_STARTUP_ERROR stage=KEYCHAIN_READ category=NATIVE_CODE_NEG34018'
         for payload in [record(marker, process='OtherApp'), marker,
                         record('prefix ' + marker), record(marker + ' PRIVATE_SENTINEL'),
+                        record('[com.facebook.react:javascript] ' + marker),
+                        record('[com.facebook.react.log:native] ' + marker),
+                        record('[com.facebook.react.log:javascriptX] ' + marker),
+                        record('[com.facebook.react.log:javascript]  ' + marker),
+                        record('[com.facebook.react.log:javascript] ' + marker + ' suffix'),
+                        record('[com.facebook.react.log:javascript] ' + marker, process='OtherApp'),
                         record(marker.replace('KEYCHAIN_READ', 'PRIVATE_SENTINEL')),
                         record(marker.replace('NATIVE_CODE_NEG34018', 'PRIVATE_SENTINEL')),
                         record(marker.replace('KEEPER_STARTUP_ERROR', 'keeper_startup_error'))]:
