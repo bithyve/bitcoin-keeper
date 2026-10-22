@@ -113,6 +113,16 @@ scenarios/helper timing pairs. Worker function hashes are checked against the
 same committed source files fetched as data from GitHub, rather than merely
 trusting another PASS boolean or a self-reported source SHA.
 
+The separate installed-byte follow-up also requires a literal verified boolean
+and the exact platform proof schema at the receipt root, every one of the five
+product observations, Retry and key/PIN UI. Android requires the single pulled
+base APK SHA256; iOS requires the full typed bundle inventory and executable
+SHA256. Every observation must match the root proof, and the installed binary
+hash must match the built artifact. iOS typed inventory and the older build tree
+use different algorithms, so their digest strings are not equated. Missing,
+malformed, unexpected or mismatched fields fail closed; installer normalization
+and successful installation commands provide no substitute for byte comparison.
+
 The existing helper probe and product measurements do **not** complete every
 required native obligation. The producer must emit blocked readiness evidence
 while any obligation is unimplemented or unexecuted. The consumer rejects such
