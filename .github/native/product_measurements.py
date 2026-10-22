@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Five full-product UI samples on a task-owned device; metadata-only evidence.
+"""Five full-product UI samples and one separate controlled Retry fixture.
 
 Requires the hosted_native.py foundation and its successful exact-source build.
 Normal Metro entrypoint is mandatory. The loopback responder is a controlled
@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import shutil
 import signal
+import socket
 import subprocess
 import tempfile
 import threading
@@ -23,6 +24,8 @@ import urllib.request
 STAGES = ('startup_start', 'startup_ready', 'wallet_start', 'wallet_ready',
           'home_ready', 'relaunch_start', 'relaunch_login', 'relaunch_home',
           'version_history_verified', 'key_management_entry_verified', 'navigation_verified')
+RETRY_STAGES = ('retry_fixture_start', 'retry_error_visible', 'retry_submit', 'retry_home_ready',
+                'retry_relaunch_start', 'retry_relaunch_login', 'retry_relaunch_home')
 PORT = 8765
 SAMPLE_COUNT = 5
 
@@ -33,20 +36,51 @@ class Receipt:
         self.lock = threading.Lock()
         self.reset(1)
 
-    def reset(self, sample):
+    def reset(self, sample, retry=False):
         with self.lock:
             self.sample, self.times = sample, []
             self.create_calls, self.blocked_calls = 0, 0
+            self.retry, self.stages = retry, RETRY_STAGES if retry else STAGES
+            self.dropped, self.acknowledged, self.unexpected = 0, 0, 0
+
+    def create_attempt(self):
+        with self.lock:
+            self.create_calls += 1
+            if self.retry and self.create_calls == 1:
+                self.dropped += 1
+                return False
+            if self.retry and self.stages[len(self.times) - 1] != 'retry_submit':
+                self.unexpected += 1
+            self.acknowledged += 1
+            return True
 
     def mark(self, stage):
         with self.lock:
-            if len(self.times) >= len(STAGES) or stage != STAGES[len(self.times)]:
+            if len(self.times) >= len(self.stages) or stage != self.stages[len(self.times)]:
+                return False
+            if self.retry and stage in ('retry_error_visible', 'retry_submit') and (
+                    self.create_calls, self.dropped, self.acknowledged, self.unexpected) != (1, 1, 0, 0):
                 return False
             self.times.append(time.monotonic_ns())
             return True
 
     def snapshot(self, passed=False):
         with self.lock:
+            if self.retry:
+                if passed and (len(self.times) != len(RETRY_STAGES) or
+                               (self.create_calls, self.dropped, self.acknowledged, self.unexpected) != (2, 1, 1, 0)):
+                    raise RuntimeError('PRODUCT_UI_RETRY_INCOMPLETE_OR_UNEXPECTED_REQUEST')
+                stages = list(RETRY_STAGES[:len(self.times)])
+                return {'sample': self.sample, 'status': 'PASS' if passed else 'FAIL',
+                        'scenario': 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE',
+                        'completed_stages': stages, 'create_new_app_calls': self.create_calls,
+                        'transport_requests_dropped_without_commit': self.dropped,
+                        'acknowledged_create_responses': self.acknowledged,
+                        'unexpected_create_attempts': self.unexpected,
+                        'other_backend_calls_rejected': self.blocked_calls,
+                        'visible_wallet_count_before_relaunch': 1 if 'retry_home_ready' in stages else None,
+                        'visible_wallet_count_after_relaunch': 1 if 'retry_relaunch_home' in stages else None,
+                        'performance_sample': False}
             if passed and (len(self.times) != len(STAGES) or self.create_calls != 1):
                 raise RuntimeError('PRODUCT_UI_INCOMPLETE_OR_DUPLICATE_SETUP')
             stamps = dict(zip(STAGES, self.times))
@@ -92,8 +126,16 @@ def make_server(receipt, port=PORT):
                 # Discard without parsing, logging, echoing or retaining them.
                 raw = self.rfile.read(length)
                 if self.path == '/createNewApp':
-                    with receipt.lock:
-                        receipt.create_calls += 1
+                    if not receipt.create_attempt():
+                        # Controlled transport failure only: no account storage
+                        # or simulated server commit exists in this responder.
+                        self.close_connection = True
+                        try:
+                            self.connection.shutdown(socket.SHUT_RDWR)
+                        except OSError:
+                            pass
+                        self.connection.close()
+                        return
                     return self.reply(200, {'created': True})
                 if self.path == '/metric' and length <= 128:
                     metric = json.loads(raw)
@@ -191,6 +233,7 @@ def run(h):
     # Only app/test-specific data created here is removed. Never touch shared
     # caches, another worktree, an existing iOS simulator or a real phone.
     result = {'status': 'RUNNING', 'samples': [], 'requested_samples': SAMPLE_COUNT,
+              'controlled_disconnect_retry': {'status': 'NOT RUN', 'performance_sample': False},
               'entrypoint': 'index.js', 'network': 'TESTNET', 'backend': 'CONTROLLED_LOOPBACK_CREATE_ONLY',
               'expected_installed_version': expected_version['version'],
               'expected_installed_build': expected_version['build'],
@@ -249,8 +292,9 @@ def run(h):
                     ['adb', '-s', device, 'shell', 'getprop', 'ro.build.fingerprint'],
                     'Record actual product UI emulator image', capture=True)}
             app = h.APP_IDS[h.PLATFORM]
-            for sample in range(1, SAMPLE_COUNT + 1):
-                receipt.reset(sample)
+            for sample in range(1, SAMPLE_COUNT + 2):
+                retry_fixture = sample == SAMPLE_COUNT + 1
+                receipt.reset(sample, retry=retry_fixture)
                 output = private / ('sample-%d' % sample)
                 output.mkdir()
                 report = output / 'junit.xml'
@@ -272,14 +316,23 @@ def run(h):
                                '--flatten-debug-output',
                                '--debug-output', str(output), '--test-output-dir', str(output),
                                '--format', 'junit', '--output', str(report),
+                               '.github/native/product_retry.yaml' if retry_fixture else
                                '.github/native/product_first_wallet.yaml'],
+                              'Full-product controlled disconnect and Retry fixture' if retry_fixture else
                               'Full-product first-wallet and relaunch UI sample', timeout=600, error_details=False)
                     h.successful_junit(report)
                     if h.artifact_identity() != data['built_artifact']:
                         raise RuntimeError('PRODUCT_UI_ARTIFACT_CHANGED')
-                    result['samples'].append(receipt.snapshot(passed=True))
+                    outcome = receipt.snapshot(passed=True)
+                    if retry_fixture:
+                        result['controlled_disconnect_retry'] = outcome
+                    else:
+                        result['samples'].append(outcome)
                 except Exception:
-                    result['samples'].append(receipt.snapshot())
+                    if retry_fixture:
+                        result['controlled_disconnect_retry'] = receipt.snapshot()
+                    else:
+                        result['samples'].append(receipt.snapshot())
                     raise
                 finally:
                     # Maestro can capture automatic failure diagnostics. Keep no

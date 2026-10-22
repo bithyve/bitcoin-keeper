@@ -1,6 +1,7 @@
 """HTTP controls and fail-closed measurement receipts; these are not native tests."""
 import importlib.util
 import hashlib
+import http.client
 import json
 from pathlib import Path
 import threading
@@ -95,6 +96,51 @@ class FixtureTests(unittest.TestCase):
         state = self.receipt.snapshot()
         self.assertEqual((state['sample'], state['create_new_app_calls']), (2, 0))
         self.assertEqual(state['completed_stages'], [])
+
+    def start_retry_fixture(self):
+        self.receipt.reset(6, retry=True)
+        self.assertEqual(self.post('/metric', {'stage': 'retry_fixture_start'})[0], 200)
+        with self.assertRaises(http.client.RemoteDisconnected):
+            self.post('/createNewApp', {'publicId': 'DO_NOT_RETAIN'})
+
+    def finish_retry_fixture(self):
+        self.start_retry_fixture()
+        for stage in ('retry_error_visible', 'retry_submit'):
+            self.assertEqual(self.post('/metric', {'stage': stage})[0], 200)
+        self.assertEqual(self.post('/createNewApp', b'{}'), (200, {'created': True}))
+        for stage in product.RETRY_STAGES[3:]:
+            self.assertEqual(self.post('/metric', {'stage': stage})[0], 200)
+
+    def test_real_disconnect_then_explicit_retry_receipt_is_separate_from_timings(self):
+        self.finish_retry_fixture()
+        result = self.receipt.snapshot(passed=True)
+        self.assertEqual(result['create_new_app_calls'], 2)
+        self.assertEqual(result['transport_requests_dropped_without_commit'], 1)
+        self.assertEqual(result['acknowledged_create_responses'], 1)
+        self.assertEqual(result['visible_wallet_count_after_relaunch'], 1)
+        self.assertFalse(result['performance_sample'])
+        self.assertNotIn('raw_durations', result)
+        self.assertNotIn('DO_NOT_RETAIN', json.dumps(result))
+
+    def test_automatic_hidden_retry_prevents_error_marker_and_acceptance(self):
+        self.start_retry_fixture()
+        self.post('/createNewApp', b'{}')  # without explicit UI Retry marker
+        self.assertEqual(self.post('/metric', {'stage': 'retry_error_visible'})[0], 422)
+        self.assertEqual(self.receipt.snapshot()['unexpected_create_attempts'], 1)
+        with self.assertRaises(RuntimeError):
+            self.receipt.snapshot(passed=True)
+
+    def test_extra_creation_after_relaunch_invalidates_retry_fixture(self):
+        self.finish_retry_fixture()
+        self.post('/createNewApp', b'{}')
+        with self.assertRaises(RuntimeError):
+            self.receipt.snapshot(passed=True)
+
+    def test_ui_error_cannot_be_claimed_without_real_first_disconnect(self):
+        self.receipt.reset(6, retry=True)
+        self.post('/metric', {'stage': 'retry_fixture_start'})
+        self.assertEqual(self.post('/metric', {'stage': 'retry_error_visible'})[0], 422)
+        self.assertEqual(self.receipt.snapshot()['transport_requests_dropped_without_commit'], 0)
 
 
 class PackageOverlayTests(unittest.TestCase):

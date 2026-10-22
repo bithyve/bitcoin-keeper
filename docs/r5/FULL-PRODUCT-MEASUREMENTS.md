@@ -77,6 +77,19 @@ Each of five samples clears only the disposable app and its credentials, then:
    intent, confirmation, recovery material or seed-word screen is opened. This
    checks discoverability/return navigation only, not safe-deletion acceptance.
 
+A sixth fresh fixture runs separately from the five performance samples. Its
+first bounded createNewApp body is read and discarded, then the loopback server
+closes the connection without any account storage/commit. The actual app must
+show exactly one creation-error title, its internet/retry explanation and Retry,
+with no Next action. Only after those UI assertions may the fixed Retry marker
+and explicit Retry tap precede the second successful HTTP response. Success/home,
+cold process relaunch, PIN login and persistent visible-wallet count1 are required.
+Exactly one dropped attempt and one acknowledged response are allowed; a hidden
+native HTTP retry, extra setup call or error marker without the transport failure
+fails closed. This is **controlled loopback disconnection before commit**, not
+physical WAN-offline or uncertain-after-commit acceptance. Its receipt is stored
+under `controlled_disconnect_retry`, never in the five raw performance samples.
+
 Only metadata.json receives bounded raw durations/counts/stage labels. Five
 separate startup-to-passcode and StartNew-to-ready values are retained; no median
 can hide an individual failure. Timings include Maestro driver and React Native
@@ -98,11 +111,12 @@ log or database artifact belongs in uploaded evidence.
 ## Verification and limits
 
 `python3 -m unittest discover -s .github/tests -p test_product_measurements.py`
-tests real loopback HTTP allowlisting, rejection and nonretention, ordered receipt
-validation, missing/duplicate setup failure and partial-flow preservation.
+tests real loopback HTTP allowlisting, disconnect/retry, rejection and nonretention,
+ordered receipts, hidden/extra retry rejection, approved manifest overlays, native
+version expectations and partial-flow preservation.
 Those tests provide no native acceptance. Before the first hosted execution,
 the full-app Maestro selectors and per-platform credential-reset behavior remain
 unverified. Record actual execution outcomes for each exact candidate; never
 copy passes or raw timings from another SHA. Physical biometrics and devices,
-offline/error/retry scenarios, full deletion/reference protection, actual
+physical WAN-offline/other error-retry scenarios, full deletion/reference protection, actual
 protected-backup operations and release readiness remain separate evidence.
