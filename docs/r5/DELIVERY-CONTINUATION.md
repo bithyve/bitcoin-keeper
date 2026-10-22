@@ -37,6 +37,7 @@ acceptance remains remaining unless an exact-source receipt says it ran.
 | Companion orchestration | codex/r5-native-feature-orchestration-20261022 #7102,196bfeded03705315871eb5c8d1b693540110581 | COMPLETED source/review,124Node/125Python/actionlintPASS; root9+3controlsPASS. Producer ancestry preserved, primary failures/cleanup hardened, new native execution remaining. |
 | Retry artifacts | codex/r5-native-attempt-artifacts #7100,461d3119dae6e717ab700ada2e4caaae2fcd257f | COMPLETED source/review,106Node/93PythonPASS; run+attempt names preserve prior evidence without overwrite. |
 | Android startup diagnosis | codex/r5-android-startup-diagnostics #7101,87d21fa34ee7d55e2b49c91ccb83bc9a1c1346c7 | COMPLETED source/review,105Python/4policy controlsPASS. Actual collectionNOTRUN; unavailable factsUNKNOWN, causeUNDETERMINED. |
+| Bounded iOS installation | codex/r5-ios-install-allowance,70cfbfa3a5d58fb324420fdf87d90850e5b28b14 | COMPLETED narrow preparation after actual120.4s timeout; bounded300s allowance, no retry or acceptance relaxation.126Python/108Node/actionlintPASS; root14affected controlsPASS. NativeNOTRUN. |
 | Witness fee sizing | codex/r5-witness-fee-fix-20261022 #7098,514d2d656da17336312fef98989c01c2113ef9f1 | COMPLETED narrow fix/review;223actual-production-body testsPASS, immutable baseline78policies/927witnesses/120APIcasesPASS. Exact combined security/native fee checks remain. |
 
 The orchestration and canonical platform workers have the same240minute global
@@ -80,7 +81,7 @@ operation requirements. No production account operation is permitted here.
 | Private teardown follow-up | Relay #167,35860ea95202d071b585c9793215d5dbffdea3f4 | COMPLETED bounded fix/18Python2NodePASS; root independent18controlsPASS. Execution-fork setup remaining, no native marker. |
 | Fresh restore fixture | Relay #166,codex/r5-native-recovery-20261022,f15a0825e82b3ec0775cac5286e6da9e2c191579 | COMPLETED bounded source/6current-protocol/crypto/source/admission controlsPASS; known-public vector, provider-free current v3. Build workflow correctlySKIPPED; no native execution. |
 | Fresh restore / native accounts UI | Separate recovery consumer, then account switching | RUNNING bounded packages; genuine normal Restore UI/native Realm and cold history, native generated B remains on-device in separate package. Source estimates12–16k/7–12k, split before20k. No native result yet. |
-| Hosted driver/runtime diagnosis | codex/r5-hosted-readiness-20261022 #7094,a319936a754372ff76b10d515dadeded87e88aca; reviewed follow-up codex/r5-startup-diagnostic-cleanup,50a0e3e7c1acbc8417001a6bbd1c691f7b2c08e8 | COMPLETED bounded source/integration/review;108Node/124Python/actionlintPASS, root32affected controlsPASS. Initialffb2131 diagnosis39832536511FAIL, runner lookup timed outUNKNOWN. No proven SDK cause; unchanged3eb retry passed driver readiness. New observation collectionNOTRUN. |
+| Hosted driver/runtime diagnosis | codex/r5-hosted-readiness-20261022 #7094,a319936a754372ff76b10d515dadeded87e88aca; reviewed follow-up codex/r5-startup-diagnostic-cleanup #7103,50a0e3e7c1acbc8417001a6bbd1c691f7b2c08e8 | COMPLETED bounded source/integration/review;108Node/124Python/actionlintPASS, root32affected controlsPASS. Initialffb2131 diagnosis39832536511FAIL, runner lookup timed outUNKNOWN. No proven SDK cause; unchanged3eb retry passed driver readiness. New observation collectionNOTRUN. |
 | Historical public caller ports | codex/r4-public-ci-v3-ports-20261022 #7091,b9dc036049561a8edd48f18f7492e2520ce4591c | RUNNING independent work preserved;32candidate ports, genuine runtime pending at inspected checkpoint,263historical obligations remain. |
 | 5.2 | Actual task/branch/PR/handoff unavailable | RUNNING per owner; locate authoritative completed checkpoint, inspect overlaps, integrate verified commits and rerun affected checks before freeze. |
 | Read-only assessor | task01a15e9e-3c9a-7518-8adc-2fe5eee410f4; supplied patchSHA2567f7ffc52c1aafa39448e2a1d6e7205c6a2b4c98606eb3a23b830bfe413a2c50f | BLOCKED source handoff; full key/origin/script/intent binding and native isolation remain. Never guessed to be5.2. |
@@ -93,9 +94,12 @@ operation requirements. No production account operation is permitted here.
 The current3eb window is preserved independently of next-source work. Attempt1
 iOS driverFAIL/appNOTRUN; Android build/install/actual installed APKPASS but
 startupFAIL, product/worker/Retry/key UI/five measurementsNOTRUN. Attempt2passed
-the unchanged driver and development build, with startup smoke in progress at
-the last recorded checkpoint. Its
-future result belongs only to3eb and its actual run/attempt.
+the unchanged driver and development build, then failed during app installation:
+simctl install reached120seconds (exit124, observed120.4s), before Maestro/UI or
+installed-byte comparison. Its iOS artifact12452576904 ZIP SHA256 is
+eb78af70712620e31478d239931f804e21cdad11fc8655f398023d77f87cfc3a.
+The dependent Android continuation started naturally as job120035062245;
+preserve it. Every outcome belongs only to3eb and its actual run/attempt.
 
 Old public protocol matrix2PASS/293FAIL, original CodeQL High, whole TypeScript
 943errors and ESLint4450errors/882warnings remain recorded. Exact3eb individually

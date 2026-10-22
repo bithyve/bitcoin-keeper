@@ -104,10 +104,21 @@ test('reusable paths keep explicit draft and diagnostic boundaries with no dispa
   assert.equal(workflows['android-diagnostic-build.yml'].concurrency['cancel-in-progress'], 'false');
 });
 
-test('pushing the unpublished branch triggers no checked-in push workflow', () => {
-  for (const [filename, workflow] of Object.entries(workflows)) {
-    assert.equal(triggered(workflow, 'push', null, 'codex/cloud-bootstrap-privacy'), false, filename);
-  }
+test('pushing an isolated branch permits only the read-only origin contract workflow', () => {
+  const triggeredFiles = Object.entries(workflows).filter(([, workflow]) =>
+    triggered(workflow, 'push', null, 'codex/cloud-bootstrap-privacy')).map(([filename]) => filename);
+  assert.deepEqual(triggeredFiles, ['keeper-release-origin-contracts.yml']);
+  const workflow = workflows['keeper-release-origin-contracts.yml'];
+  assert.deepEqual(workflow.permissions, { contents: 'read' });
+  assert.equal(workflow.on.pull_request_target, undefined);
+  assert.equal(workflow.concurrency['cancel-in-progress'], 'false');
+  const job = workflow.jobs.contracts;
+  assert.equal(job.environment, undefined);
+  assert.equal(job.secrets, undefined);
+  assert.equal(job.steps.some(step => /secrets\.|workflow_dispatch/.test(JSON.stringify(step))), false);
+  assert.deepEqual(job.steps.filter(step => step.run).map(step => step.run), [
+    'node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs',
+  ]);
 });
 
 test('draft opening and updates retain the expected host checks without a release trigger', () => {
@@ -116,7 +127,8 @@ test('draft opening and updates retain the expected host checks without a releas
       triggered(workflow, 'pull_request', action, 'sprint')).map(([filename]) => filename).sort();
     const expected = [
       'android-diagnostic-build.yml', 'codeql.yml', 'keeper-canonical-native-contracts.yml', 'keeper-hosted-native.yml',
-      'keeper-release-acceptance.yml', 'keeper-release-preparation-contracts.yml',
+      'keeper-release-acceptance.yml', 'keeper-release-origin-contracts.yml',
+      'keeper-release-preparation-contracts.yml', 'keeper-ruby-lock-contracts.yml',
       'keeper-validation-tests.yml', 'public-backend.yml', 'test.yml',
     ];
     if (action === 'synchronize' || action === 'reopened') expected.push('keeper-native-diagnostic.yml');
