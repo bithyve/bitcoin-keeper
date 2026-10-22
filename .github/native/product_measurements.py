@@ -6,6 +6,7 @@ Normal Metro entrypoint is mandatory. The loopback responder is a controlled
 createNewApp transport fixture, NEVER evidence of Relay compatibility.
 """
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -113,6 +114,27 @@ def make_server(receipt, port=PORT):
     return Server(('127.0.0.1', port), Handler)
 
 
+def verify_package_overlay(original_bytes, installed_bytes, overlay):
+    """Accept only the foundation's exact recorded module-mapping overlay."""
+    allowed = ['browser', 'react-native', 'browserify']
+    if (not isinstance(overlay, dict) or overlay.get('path') != 'package.json' or
+            overlay.get('allowed_fields') != allowed or
+            overlay.get('before_sha256') != hashlib.sha256(original_bytes).hexdigest() or
+            overlay.get('after_sha256') != hashlib.sha256(installed_bytes).hexdigest()):
+        raise RuntimeError('PRODUCT_UI_PACKAGE_OVERLAY_UNRECORDED')
+    try:
+        original, installed = json.loads(original_bytes), json.loads(installed_bytes)
+        if not isinstance(original, dict) or not isinstance(installed, dict):
+            raise ValueError('Expected manifest objects')
+        for field in allowed:
+            original.pop(field, None)
+            installed.pop(field, None)
+        if original != installed:
+            raise ValueError('Protected manifest fields changed')
+    except (ValueError, TypeError, UnicodeError):
+        raise RuntimeError('PRODUCT_UI_PACKAGE_PROTECTED_FIELDS_CHANGED') from None
+
+
 def run(h):
     if (os.environ.get('GITHUB_ACTIONS') != 'true' or
             os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted'):
@@ -125,10 +147,13 @@ def run(h):
         raise RuntimeError('PRODUCT_UI_EXACT_BUILD_REQUIRED')
     source_paths = ['.github/native', 'src', 'index.js', 'App.tsx', 'App.js', 'shim.js',
                     'AndroidFontFix.js', 'metro.config.js', 'babel.config.js', 'app.json',
-                    'react-native.config.js', 'tsconfig.json', 'package.json', 'yarn.lock']
+                    'react-native.config.js', 'tsconfig.json', 'yarn.lock']
     if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', *source_paths],
                       cwd=h.ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
         raise RuntimeError('PRODUCT_UI_COMMITTED_SOURCE_REQUIRED')
+    verify_package_overlay(
+        subprocess.check_output(['git', 'show', 'HEAD:package.json'], cwd=h.ROOT),
+        (h.ROOT / 'package.json').read_bytes(), data.get('nodeify_overlay'))
     expected_environment = {
         'ENVIRONMENT': 'DEVELOPMENT', 'RELAY': 'http://127.0.0.1:8765/',
         'SIGNING_SERVER_TESTNET': 'https://127.0.0.1:9/',

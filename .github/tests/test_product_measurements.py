@@ -1,5 +1,6 @@
 """HTTP controls and fail-closed measurement receipts; these are not native tests."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import threading
@@ -94,6 +95,57 @@ class FixtureTests(unittest.TestCase):
         state = self.receipt.snapshot()
         self.assertEqual((state['sample'], state['create_new_app_calls']), (2, 0))
         self.assertEqual(state['completed_stages'], [])
+
+
+class PackageOverlayTests(unittest.TestCase):
+    def setUp(self):
+        self.original = {'name': 'fixture', 'dependencies': {'crypto-shim': '1.0.0'},
+                         'scripts': {'start': 'react-native start'}, 'browser': {'path': 'before'}}
+        self.installed = {**self.original, 'browser': {'path': 'react-native-path'},
+                          'react-native': {'crypto': 'crypto-shim'}, 'browserify': {'transform': []}}
+
+    def evidence(self, original=None, installed=None):
+        original_bytes = json.dumps(self.original if original is None else original).encode()
+        installed_bytes = json.dumps(self.installed if installed is None else installed).encode()
+        return original_bytes, installed_bytes, {
+            'path': 'package.json', 'allowed_fields': ['browser', 'react-native', 'browserify'],
+            'before_sha256': hashlib.sha256(original_bytes).hexdigest(),
+            'after_sha256': hashlib.sha256(installed_bytes).hexdigest(),
+        }
+
+    def test_recorded_mapping_overlay_is_accepted(self):
+        product.verify_package_overlay(*self.evidence())
+
+    def test_recorded_unchanged_mapping_is_accepted(self):
+        product.verify_package_overlay(*self.evidence(installed=self.original))
+
+    def test_unrecorded_changes_are_rejected(self):
+        original, installed, overlay = self.evidence()
+        for missing in (None, {}, {**overlay, 'after_sha256': '0' * 64}):
+            with self.assertRaisesRegex(RuntimeError, 'UNRECORDED'):
+                product.verify_package_overlay(original, installed, missing)
+
+    def test_recording_must_match_committed_original_bytes(self):
+        original, installed, overlay = self.evidence()
+        with self.assertRaisesRegex(RuntimeError, 'UNRECORDED'):
+            product.verify_package_overlay(original + b' ', installed, overlay)
+
+    def test_hash_matching_protected_dependency_change_is_rejected(self):
+        installed = {**self.installed, 'dependencies': {'crypto-shim': '2.0.0'}}
+        with self.assertRaisesRegex(RuntimeError, 'PROTECTED_FIELDS_CHANGED'):
+            product.verify_package_overlay(*self.evidence(installed=installed))
+
+    def test_hash_matching_script_change_is_rejected(self):
+        installed = {**self.installed, 'scripts': {'start': 'different-entrypoint'}}
+        with self.assertRaisesRegex(RuntimeError, 'PROTECTED_FIELDS_CHANGED'):
+            product.verify_package_overlay(*self.evidence(installed=installed))
+
+    def test_expanded_field_allowlist_and_wrong_path_are_rejected(self):
+        original, installed, overlay = self.evidence()
+        for changed in ({**overlay, 'allowed_fields': overlay['allowed_fields'] + ['dependencies']},
+                        {**overlay, 'path': 'another-package.json'}):
+            with self.assertRaisesRegex(RuntimeError, 'UNRECORDED'):
+                product.verify_package_overlay(original, installed, changed)
 
 
 if __name__ == '__main__':

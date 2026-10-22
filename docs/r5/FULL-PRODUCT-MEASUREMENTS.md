@@ -37,6 +37,13 @@ Metro and the fixture ports. It removes only its new iOS simulator or disposable
 development app and its own temporary measurement files. Existing personal
 devices, simulator profiles, other worktrees, caches and evidence are untouched.
 
+Production source and bundle configuration must match committed HEAD. The sole
+manifest exception is the foundation's recorded rn-nodeify module-mapping overlay:
+its before hash must match `git show HEAD:package.json`, its after hash must match
+current bytes, its allowed fields must be exactly browser/react-native/browserify,
+and all other parsed manifest fields must remain equal. Unrecorded mapping changes,
+dependency/script changes and expanded allowlists fail closed.
+
 The setup responder binds only127.0.0.1:8765, answers only `createNewApp` with the
 controlled `{created:true}` response, discards request bodies without logging or
 retaining identifiers, and rejects every other backend operation. A separate
