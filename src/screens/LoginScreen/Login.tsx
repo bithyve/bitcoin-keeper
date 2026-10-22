@@ -167,8 +167,46 @@ function LoginScreen({ navigation, route }) {
   }, [failedAttempts, lastLoginFailedAt]);
 
   useEffect(() => {
-    biometricAuth();
-  }, [canLogin]);
+    const biometricEnabled =
+      (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
+      (allAccounts.length > 0 && biometricEnabledAppId !== null);
+    if (!biometricEnabled || !canLogin || isAuthenticated || loggingIn) return undefined;
+
+    const originAppId = biometricEnabledAppId ?? appId;
+    let active = true;
+    const timer = setTimeout(async () => {
+      if (!active) return;
+      try {
+        const { success, signature } = await RNBiometrics.createSignature({
+          promptMessage: 'Authenticate',
+          payload: originAppId,
+          cancelButtonText: common.usePin,
+        });
+        if (!active || !success) return;
+        setIsBiometric(true);
+        setLoginModal(true);
+        setLogging(true);
+        setLoginError(false);
+        dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, false, originAppId));
+      } catch {
+        // A failed/cancelled native prompt leaves PIN login available.
+      }
+    }, 200);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [
+    allAccounts.length,
+    appId,
+    biometricEnabledAppId,
+    canLogin,
+    common.usePin,
+    dispatch,
+    isAuthenticated,
+    loggingIn,
+    loginMethod,
+  ]);
 
   useEffect(() => {
     requestUserPermission();
@@ -183,37 +221,6 @@ function LoginScreen({ navigation, route }) {
       navigation.replace('App');
     }
   }, [recepitVerificationError]);
-
-  const biometricAuth = async () => {
-    if (
-      (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
-      (allAccounts.length > 0 && biometricEnabledAppId !== null)
-    ) {
-      try {
-        setTimeout(async () => {
-          if (canLogin) {
-            const { success, signature } = await RNBiometrics.createSignature({
-              promptMessage: 'Authenticate',
-              payload: biometricEnabledAppId ?? appId,
-              cancelButtonText: common.usePin,
-            });
-            if (success) {
-              setIsBiometric(true);
-              setLoginModal(true);
-              setLogging(true);
-              setLoginError(false);
-              dispatch(
-                credsAuth(signature, LoginMethod.BIOMETRIC, false, biometricEnabledAppId ?? appId)
-              );
-            }
-          }
-        }, 200);
-      } catch (error) {
-        //
-        console.log(error);
-      }
-    }
-  };
 
   const onPressNumber = (text) => {
     if (text === 'x') {
