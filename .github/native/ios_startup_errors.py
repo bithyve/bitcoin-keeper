@@ -24,15 +24,17 @@ CATEGORIES = {
     'JS_RANGE_ERROR': r'\bRangeError\b',
     'JS_EXCEPTION': r'\bUnhandled (?:JS|JavaScript) Exception\b|\bJavaScript exception\b|\bUnhandled promise rejection\b',
     'JS_INVARIANT': r'\bInvariant Violation\b|\bhas not been registered\b',
-    'SCRIPT_URL_MISSING': r'\bNo script URL provided\b',
-    'SCRIPT_LOAD_ERROR': r'\bUnable to load script\b|\bCould not connect to development server\b|\bdevelopment server returned response error\b',
+    'SCRIPT_URL_MISSING': r'\bNo script URL provided\b|\bNo bundle URL present\b',
+    'SCRIPT_LOAD_ERROR': r'\bUnable to load script\b|\bCould not connect to development server\b|\bdevelopment server returned response error\b|\b(?:Could not|Failed to) load bundle\b',
     'MODULE_RESOLUTION_ERROR': r'\bUnable to resolve module\b|\bCannot find module\b|\bUnableToResolveError\b',
     'NATIVE_MODULE_UNAVAILABLE': r'\bNative module cannot be null\b|\bCannot find native module\b|\bTurboModuleRegistry(?:\.getEnforcing)?\b.{0,256}\b(?:could not be found|not found|missing|null|unavailable|failed|failure)\b',
-    'NATIVE_LIBRARY_LOAD_ERROR': r'\bLibrary not loaded\b|\bSymbol not found\b|\bdlopen(?:\([^\n]{0,256}\))? failed\b|\bincompatible architecture\b',
+    'NATIVE_LIBRARY_LOAD_ERROR': r'\bLibrary not loaded\b|\bSymbol not found\b|\bdlopen(?:\([^\n]{0,256}\))? failed\b|\bincompatible architecture\b|\bdyld\b.{0,256}\b(?:not found|failed|error)\b',
     'CONNECTION_ERROR': r'\b(?:ECONNREFUSED|ECONNRESET|NSURLErrorDomain)\b|\bConnection refused\b|\bCould not connect\b',
-    'NATIVE_EXCEPTION': r'\bNS[A-Za-z0-9_]*Exception\b|\bRCTFatal\b',
+    'NATIVE_EXCEPTION': r'\bNS[A-Za-z0-9_]*Exception\b|\bRCTFatal\b|\bRCTExceptionsManager\b|\bException in HostFunction\b',
     'EXCEPTION_MARKER': r'\b[A-Za-z_$][A-Za-z0-9_.$]*Exception\b|\buncaught exception\b|\bunhandled exception\b',
     'FATAL_MARKER': r'\bfatal(?: error| exception| signal)?\b|\bSIG(?:ABRT|SEGV|BUS|ILL|TRAP)\b',
+    'HERMES_ERROR': r'\bhermes\b.{0,256}\b(?:exception|fatal|error|failed)\b|\b(?:exception|fatal|error)\b.{0,256}\bhermes\b',
+    'ATS_BLOCKED': r'\bApp Transport Security\b.{0,256}\b(?:blocked|requires)\b|\bNSURLErrorDomain\b.{0,256}-1022\b',
 }
 _CATEGORY_PATTERNS = {name: re.compile(pattern, re.IGNORECASE)
                       for name, pattern in CATEGORIES.items()}

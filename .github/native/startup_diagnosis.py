@@ -1,5 +1,6 @@
 """Private launch-window capture and fixed startup observation; never acceptance."""
 import json
+from itertools import islice
 import os
 import re
 import subprocess
@@ -93,9 +94,18 @@ def stop(handle):
 def hierarchy(native, directory):
     flags = {'credential_error': False, 'retry': False, 'logbox_controls': False,
              'redbox_resource': False, 'loading': False, 'snapshot_count': 0}
-    for path in list(directory.glob('**/screen-hierarchy/step-*.json'))[:8]:
+    if native.PLATFORM == 'IOS':
+        flags.update(login=False, welcome_back=False, logbox_error_header=False,
+                     logbox_warning_header=False, logbox_syntax_footer=False, logbox_counter=False)
+    paths = (list(islice(directory.glob('**/screen-hierarchy/step-*.json'), 9)) if native.PLATFORM == 'IOS'
+             else list(directory.glob('**/screen-hierarchy/step-*.json'))[:8])
+    if native.PLATFORM == 'IOS' and len(paths) > 8:
+        raise ValueError('Hierarchy snapshot count exceeded limit.')
+    for path in paths:
         text, truncated = _read(native, path)
         if truncated:
+            if native.PLATFORM == 'IOS':
+                raise ValueError('Incomplete bounded hierarchy snapshot.')
             continue
         pending = [json.loads(text)]
         count, dismiss, minimize = 0, False, False
@@ -104,8 +114,9 @@ def hierarchy(native, directory):
             count += 1
             if count > 10000 or not isinstance(node, dict):
                 raise ValueError('Invalid bounded hierarchy.')
-            attrs = node.get('attributes') or {}
-            if not isinstance(attrs, dict) or not isinstance(node.get('children', []), list):
+            attrs = node.get('attributes', {}) if native.PLATFORM == 'IOS' else node.get('attributes') or {}
+            children = node.get('children', [])
+            if not isinstance(attrs, dict) or not isinstance(children, list):
                 raise ValueError('Invalid hierarchy shape.')
             resource = attrs.get('resource-id', '')
             flags['redbox_resource'] |= isinstance(resource, str) and resource.rsplit(':id/', 1)[-1] in LOGBOX_IDS
@@ -116,10 +127,25 @@ def hierarchy(native, directory):
                 flags['loading'] |= value in ['please wait', 'loading']
                 dismiss |= value == 'Dismiss'
                 minimize |= value == 'Minimize'
-            pending.extend(node.get('children', []))
+                if native.PLATFORM == 'IOS' and isinstance(value, str):
+                    value = value.strip()
+                    flags['credential_error'] |= value == 'Unable to check your passcode. Please try again.'
+                    flags['retry'] |= value == 'Retry'
+                    flags['loading'] |= value in ['please wait', 'loading']
+                    dismiss |= value == 'Dismiss'
+                    minimize |= value == 'Minimize'
+                    flags['login'] |= value == 'Enter your passcode'
+                    flags['welcome_back'] |= value == 'Welcome Back'
+                    flags['logbox_error_header'] |= value in ['Console Error', 'Uncaught Error', 'Syntax Error', 'Render Error', 'Failed to compile']
+                    flags['logbox_warning_header'] |= value == 'Console Warning'
+                    flags['logbox_syntax_footer'] |= value == 'This error cannot be dismissed.'
+                    flags['logbox_counter'] |= bool(re.fullmatch(r'Log [1-9]\d* of [1-9]\d*', value))
+            pending.extend(children)
         flags['snapshot_count'] += 1
         flags['logbox_controls'] |= dismiss and minimize
-    flags['observation_state'] = 'OBSERVED' if flags['snapshot_count'] else 'UNKNOWN'
+    flags['observation_state'] = ('SNAPSHOTS_PARSED' if native.PLATFORM == 'IOS' else 'OBSERVED') if flags['snapshot_count'] else 'UNKNOWN'
+    if native.PLATFORM == 'IOS':
+        flags['scope'] = 'ANY_RETAINED_SNAPSHOT_NOT_FINAL_ROUTE_OR_VISIBILITY_PROOF'
     return flags
 
 
@@ -162,7 +188,8 @@ def collect(native, device, handle=None):
                         result.update({key: row.get(key) if type(row.get(key)) is bool else None for key in ['dev', 'minify']})
                     result['error_type'] = row.get('error_type') if row.get('error_type') in ['SyntaxError', 'TypeError', 'ReferenceError', 'RangeError', 'TransformError', 'UnableToResolveError', 'ResolutionError', 'AmbiguousModuleResolutionError', 'NotFoundError', 'ResourceNotFoundError', 'GraphNotFoundError', 'RevisionNotFoundError', 'OTHER', None] else 'OTHER'
                     categories = row.get('categories', [])
-                    if not isinstance(categories, list):
+                    if (not isinstance(categories, list) or (native.PLATFORM == 'IOS' and
+                            any(type(item) is not str for item in categories))):
                         raise ValueError('Invalid fixed category shape.')
                     result['categories'] = [item for item in ['MODULE_RESOLUTION', 'SYNTAX', 'TYPE', 'REFERENCE', 'MEMORY', 'TRANSFORM', 'CONNECTION'] if item in categories]
                 elif kind in ['REQUEST', 'RESPONSE'] and row.get('request') in ['ENTRY_BUNDLE', 'SPLIT_BUNDLE', 'SYMBOLICATE']:
@@ -182,10 +209,23 @@ def collect(native, device, handle=None):
                 rows.append(result)
             except Exception:
                 invalid += 1
-        return {'rows': rows[:512], 'input_truncated': truncated, 'invalid_rows': invalid,
-                'row_limit_reached': len(lines) > 1024 or len(rows) > 512,
-                'emitter_cap_observed': len(lines) >= 512,
-                'scope': 'Outer HTTP status only; multipart terminal status is not observed.'}
+        result = {'rows': rows[:512], 'input_truncated': truncated, 'invalid_rows': invalid,
+                  'scope': 'Outer HTTP status only; multipart terminal status is not observed.'}
+        if native.PLATFORM == 'IOS':
+            # Input coverage only: invalid rows or a possibly reached emitter cap
+            # cannot establish a complete launch window or a successful bundle.
+            result.update(observation_state='ROWS_OBSERVED' if rows else 'UNKNOWN',
+                          producer_row_limit=512, export_row_limit=512, line_scan_limit=1024,
+                          lines_scanned=min(len(lines), 1024), valid_rows_in_scanned_input=len(rows),
+                          exported_rows=min(len(rows), 512),
+                          producer_limit_may_be_reached=len(lines) >= 512,
+                          export_truncated=len(rows) > 512, line_scan_truncated=len(lines) > 1024,
+                          coverage=('UNKNOWN' if not rows else 'PARTIAL_OR_CAPPED'
+                                    if truncated or invalid or len(lines) >= 512 else 'BOUNDED_INPUT_ONLY'))
+        else:
+            result.update(row_limit_reached=len(lines) > 1024 or len(rows) > 512,
+                          emitter_cap_observed=len(lines) >= 512)
+        return result
     def process():
         proc = subprocess.run(['adb', '-s', device, 'shell', 'pidof', APP], capture_output=True, timeout=10)
         present = proc.returncode == 0 and bool(re.fullmatch(rb'\s*\d+(?:\s+\d+)*\s*', proc.stdout))
@@ -202,9 +242,25 @@ def collect(native, device, handle=None):
             match[1] == APP for line in text.splitlines())
         return {'exit_code': proc.returncode, 'own_app_resumed': True if present else None,
                 'input_truncated': truncated, 'scope': 'Positive observation only; absence is not inferred.'}
-    actions = [('metro', observer), ('hierarchy', lambda: hierarchy(native, native.PRIVATE / 'maestro-output'))]
-    if native.PLATFORM == 'ANDROID':
-        actions = [('logcat', logcat), *actions, ('process', process), ('foreground', foreground)]
+    if native.PLATFORM == 'IOS':
+        facts['metro'] = {'observation_state': 'UNKNOWN', 'rows': [], 'coverage': 'UNKNOWN',
+                         'producer_row_limit': 512, 'export_row_limit': 512, 'line_scan_limit': 1024,
+                         'valid_rows_in_scanned_input': None, 'exported_rows': 0}
+        # Missing, invalid or capped input cannot establish that a UI is absent.
+        facts['hierarchy'] = {name: None for name in ['credential_error', 'retry', 'logbox_controls',
+            'redbox_resource', 'loading', 'login', 'welcome_back', 'logbox_error_header',
+            'logbox_warning_header', 'logbox_syntax_footer', 'logbox_counter']}
+        facts['hierarchy'].update(observation_state='UNKNOWN', snapshot_count=0,
+                                 scope='ANY_RETAINED_SNAPSHOT_NOT_FINAL_ROUTE_OR_VISIBILITY_PROOF')
+        def ios_hierarchy():
+            result = hierarchy(native, native.PRIVATE / 'maestro-output')
+            return result if result['snapshot_count'] else facts['hierarchy']
+        facts['process'] = {'state': 'UNKNOWN', 'scope': 'Not queried; Metro and hierarchy do not establish process state.'}
+        actions = [('metro', observer), ('hierarchy', ios_hierarchy)]
+    else:
+        actions = [('logcat', logcat), ('metro', observer),
+                   ('hierarchy', lambda: hierarchy(native, native.PRIVATE / 'maestro-output')),
+                   ('process', process), ('foreground', foreground)]
     for name, action in actions:
         collect_one(name, action)
     return facts
