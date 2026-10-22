@@ -1,0 +1,52 @@
+name: R5 fixed public artifact transport proof
+
+on:
+  push:
+    branches: [codex/r5-public-artifact-transport-proof-20261022]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: r5-fixed-artifact-transport-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  transport:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/codex/r5-public-artifact-transport-proof-20261022'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact probe source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22.23.3'
+      - name: Read one existing artifact through the production adapter
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const assert = require('node:assert/strict'), fs = require('node:fs'), path = require('node:path');
+            const { execFileSync } = require('node:child_process');
+            const member = '.github/scripts/probe-public-artifact-transport.cjs', root = process.cwd();
+            const sha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+            assert.ok(/^[a-f0-9]{40}$/.test(context.sha) && sha === context.sha && sha === process.env.GITHUB_WORKFLOW_SHA,
+              'FIXED_ARTIFACT_BOOTSTRAP_INVALID');
+            for (const item of ['.github', '.github/scripts', member]) {
+              const file = path.join(root, item), info = fs.lstatSync(file);
+              assert.ok(!info.isSymbolicLink() && fs.realpathSync(file) === file &&
+                (item === member ? info.isFile() && !(info.mode & 0o100) : info.isDirectory()),
+              'FIXED_ARTIFACT_BOOTSTRAP_INVALID');
+            }
+            const original = execFileSync('git', ['show', 'HEAD:' + member], { maxBuffer: 65536 });
+            const entry = execFileSync('git', ['ls-tree', '-z', 'HEAD', '--', member], { encoding: 'utf8' });
+            assert.ok(/^100644 blob [a-f0-9]{40}\t\.github\/scripts\/probe-public-artifact-transport\.cjs\0$/.test(entry) &&
+              fs.readFileSync(member).equals(original), 'FIXED_ARTIFACT_BOOTSTRAP_INVALID');
+            const { run } = require('./' + member);
+            const result = await run({ github, context });
+            core.info('FIXED_PUBLIC_ARTIFACT_TRANSPORT ' + JSON.stringify(result));
