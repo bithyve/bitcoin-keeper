@@ -6,6 +6,7 @@ const { attach } = require('./public-companions.cjs');
 const { WORKER_SOURCES } = require('../../native/public_software_receipts.cjs');
 const { SCENARIOS, LIMITS } = require('../../native/r5_features_core');
 const { WORKFLOWS, NATIVE_FILES } = require('../../native/release_preflight.cjs');
+const { sdkDownloadArtifact } = require('./github-script-sdk-shape.cjs');
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const raw = JSON.parse(execFileSync('python3', ['-B', path.join(__dirname, 'public_software.py')], { encoding: 'utf8' }));
 const sources = Object.entries(WORKER_SOURCES).map(([name, names]) => {
@@ -95,10 +96,19 @@ function fixture() {
       listJobsForWorkflowRunAttempt: list('jobs', () => state.jobs, 'jobs'),
       listWorkflowRunArtifacts: list('artifacts', () => state.artifacts, 'artifacts'),
       getArtifact: endpoint('artifact', options => response(state.artifacts.find(row => row.id === options.artifact_id))),
-      downloadArtifact: endpoint('download', options => ({ status: state.downloadStatus ?? 302,
-        headers: { location: state.location || `https://evidence.blob.core.windows.net/r5/${options.artifact_id}.zip?safe=fixture` } })) },
+      downloadArtifact: endpoint('download', options => sdkDownloadArtifact(options, state.options.fetchImpl, state.sdkShape || {})) },
   } };
   state.options = { clock: () => state.now, fetchImpl: async (url, options) => {
+    url = new URL(url);
+    if (url.hostname === 'api.github.com') {
+      state.apiFetchOptions = options;
+      const artifactId = Number(url.pathname.match(/artifacts\/(\d+)\/zip$/)?.[1]);
+      const response = new Response('PRIVATE_API_RESPONSE_NOT_FOR_LOGS', { status: state.downloadStatus ?? 302,
+        headers: { location: state.location || `https://evidence.blob.core.windows.net/r5/${artifactId}.zip?safe=fixture` } });
+      const cancel = response.body.cancel.bind(response.body);
+      response.body.cancel = async () => { state.apiBodyCancellations = (state.apiBodyCancellations || 0) + 1; await cancel(); };
+      return response;
+    }
     state.fetchOptions = options;
     const bytes = state.archiveOverride || state.archives[Number(url.pathname.match(/(\d+)\.zip$/)?.[1])];
     state.fetches++;
