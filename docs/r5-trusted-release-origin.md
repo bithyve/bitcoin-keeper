@@ -5,7 +5,8 @@ provenance. It does not import into the preparation gate or enable an operation.
 The B1 guard at `551198c6a5d55d05b5ecd2cae57505ca69270264` remains fail-closed.
 There is no release authorization, signing, build, upload or dispatch entry point.
 
-`scripts/trusted-release-origin.cjs` exports `collectTrustedOrigin(request, token)`
+`scripts/trusted-release-origin.cjs` exports
+`collectTrustedOrigin(request, provenanceToken, now, pinReadToken)`
 and `isTrustedOrigin(proof)`. A proof is an immutable object registered in this
 module's private WeakSet; a copied API/JSON payload cannot mint one. A future,
 separately reviewed gate integration must call the collector again immediately
@@ -41,12 +42,40 @@ The official GitHub Advanced Security CodeQL result is checked separately from
 the Actions analysis job: a failed, pending, missing or foreign-app exact-source
 security result blocks this read-only proof. This matters because an Actions
 analysis run can succeed while the separate CodeQL security check fails on a
-high alert. The current API token cannot read code-scanning analyses (HTTP 403),
-so analysis-key/security-result linkage to the selected run/attempt remains
-**UNVERIFIED**, recorded as `security_analysis_run_linkage_verified: false`.
-No fallback infers that linkage or treats the Actions job as security review.
-The preparation capability remains disabled until that binding receives its
-own reviewed implementation and genuine verification.
+high alert. The consumer now also requires the selected installed analysis job's
+original attempt-scoped upload receipt. The CodeQL workflow pins official CodeQL
+v4 actions to `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` and checkout v7 to
+`3d3c42e5aac5ba805825da76410c181273ba90b1` (official tag targets read on
+2026-10-22), disables checkout credential persistence, and uses the fixed
+`keeper-javascript-typescript/` category. It captures only the analyze action's
+documented `sarif-id` output after processing completes; SARIF and code contents
+are never published. Both capture and artifact upload must be successful
+original job steps. Their supported producer context is a sprint push.
+
+The consumer checks the receipt's original Actions artifact API record, digest
+and bounded ZIP bytes, exact source/ref/workflow/run/current attempt, then reads
+the official SARIF processing status, matching analysis list and individual
+analysis record. Exactly one processed CodeQL analysis must match the upload ID,
+source/ref, analysis key, category and no-matrix environment (`{}` or `null`),
+with no processing error or warning. Timestamps and matching analysis keys alone
+cannot establish linkage. It rechecks the selected run/current attempt, artifact,
+official analysis and separate security result before returning a read-only
+proof. Missing receipts, denied APIs or changed authority fail closed.
+
+Successful collection records `codeql_analysis_run_linkage_verified: true` for
+**analysis-to-run origin**, through the reviewed installed workflow and official
+action output. The public API does not expose a direct GAS-check-to-analysis-ID
+join. Therefore `security_check_analysis_linkage_verified` and the existing
+broader `security_analysis_run_linkage_verified` remain **false**. A prior
+successful GAS check cannot establish full security linkage to a newer analysis
+or attempt. No future integration may treat the narrower analysis-origin flag
+as completion of this remaining security obligation.
+
+**Live installation and linkage remain UNVERIFIED.** No receipt from the changed
+installed workflow has been executed or consumed. The current integration token
+cannot read code-scanning analyses (HTTP 403), so this session cannot produce a
+live proof. The B1 preparation capability remains disabled; even a successful
+synthetic origin proof grants no release or execution authority.
 
 ## Artifact contract
 
@@ -56,6 +85,11 @@ The canonical producer uses attempt-scoped names:
   `keeper-canonical-native-attestation.json`.
 - `keeper-canonical-native-${IOS|ANDROID}-${sha}-${runid}-${attempt}` contains only
   `metadata.json`.
+
+CodeQL separately uses `keeper-codeql-analysis-${sha}-${runid}-${attempt}`,
+containing only `analysis.json` with the official upload ID and immutable
+execution context. It receives the same bounded single-file ZIP/API/digest
+checks as canonical evidence. Earlier runs without this artifact are ineligible.
 
 The consumer independently reads the original artifact API record, requires its
 immutable SHA256 digest, original run/source association and unexpired bounded
@@ -88,7 +122,7 @@ artifact authority checks after downloading the receipts.
 
 ## Verification and setup boundaries
 
-Run `node --test scripts/trusted-release-origin.test.cjs scripts/protected-release-plan.test.cjs`.
+Run `node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs`.
 All tests use fake API responses and bounded synthetic unsigned metadata archives.
 They do not establish actual Actions permissions, installed trust, native feature
 acceptance, signing identities, store access or release readiness. No native or
@@ -96,9 +130,50 @@ release operation has been run by this package.
 
 Before any future integration, separately verify the canonical producer is
 reviewed and installed, the nonsecret commit pin is set through the approved
-repository administration process, and the read-only token can read repository
-variables, Actions runs/jobs/artifacts and checks. Missing permissions, a missing
+repository administration process, and the provenance identity can read repository
+contents, Actions runs/jobs/artifacts, checks and code-scanning analyses/SARIF
+processing. `pinReadToken` is a separate required repository-selected identity
+with **Variables: read only**; only the live repository-variable endpoint receives
+it. The default Actions `GITHUB_TOKEN` cannot read repository variables, and the
+consumer never falls back to it. Provision the dedicated
+`KEEPER_CANONICAL_PIN_READ_TOKEN` secret only through the separately approved
+setup for #7084; no credential is added or configured here. Missing permissions, a missing
 digest, pagination over 100 entries, a changed current source or incomplete
 feature scenarios fail closed. This package adds no credentials and performs no
 repository configuration or protection changes. Physical-device and paired-backend
 acceptance remain separate exact-candidate evidence requirements.
+
+## Installation handoff and current access blockers
+
+This successor preserves #7085 head
+`a1e167cab4e8485bb84418cadfb2313cbcedb644`; review its delta against that head.
+It does not install changes into sprint or rewrite producer branches. Coordinate
+the reviewed workflow/receipt contract with #7084's pin-reader setup before future
+operation. No variable, secret, protection, release capability or native route is
+activated here. No duplicate native dispatch or personal Mac check is requested.
+
+The separately approved installer must verify the provenance identity has
+**Contents: read, Actions: read, Checks: read, Code scanning alerts: read**
+(`security_events=read` in the API permission header), and the isolated pin
+reader has Variables: read on this repository. Give no Variables write or
+administration permission. Keep tokens out of receipts/logs. Verify a genuine
+normal installed sprint-push CodeQL receipt on its exact source/attempt; a PR
+analysis or synthetic contract is not interchangeable. No native dispatch is
+needed to verify CodeQL upload provenance. Full canonical acceptance still needs
+the separately completed hosted native matrix and route coordination. Full
+official security-check/analysis linkage needs a separately verified mechanism;
+this patch intentionally does not invent one from names or timestamps.
+
+Read-only probes on 2026-10-22:
+
+| Probe | Actual outcome | Consequence |
+| --- | --- | --- |
+| `GET /repos/KeeperCommunity/bitcoin-keeper/code-scanning/analyses?per_page=1` | HTTP 403, `Resource not accessible by integration`; `X-Accepted-GitHub-Permissions: security_events=read` | Current integration lacks required Code Scanning read access; no live analysis/run linkage verified. |
+| Same endpoint with `ref=refs/heads/sprint&tool_name=CodeQL&per_page=100` | Same HTTP 403 and required permission | Filtering does not resolve access; no private analysis metadata obtained. |
+| `GET /repos/KeeperCommunity/bitcoin-keeper/check-runs/119985857101` | Official GAS App 57789, exact `3eb92fc8a622a3e09926d49f47243c163e32d009`, `conclusion: failure` | Failed security result remains blocking. |
+| Original Actions/check-suite reads for that candidate | Reads succeeded; CodeQL Actions run `39830650673` attempt 1 completed successfully | Actions success does not clear the GAS failure or establish analysis provenance. |
+
+No settings, credentials or alert disposition were changed. The analyses API
+denial is an integration-permission blocker, not evidence that the repository
+lacks analyses or CodeQL failed to execute. Genuine verification needs approved
+read access and an installed output receipt; neither is waived by offline tests.

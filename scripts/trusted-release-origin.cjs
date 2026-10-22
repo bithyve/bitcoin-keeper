@@ -5,6 +5,7 @@
 // The preparation gate deliberately does not import this uninstalled package.
 const crypto = require('node:crypto');
 const zlib = require('node:zlib');
+const { UUID: SARIF_ID, CATEGORY: CODEQL_CATEGORY } = require('./codeql-analysis-receipt.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const PIN = 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA';
 const CANONICAL_PATH = '.github/workflows/keeper-canonical-native.yml';
@@ -39,7 +40,8 @@ const SOURCES = Object.freeze({
 const PRODUCERS = Object.freeze([
   { file: 'test.yml', path: '.github/workflows/test.yml', event: 'push', job: 'Tests',
     steps: ['Run tests', 'Run recovery regression tests', 'Verify checked-out release version consistency', 'Run release and packaged-artifact tests'] },
-  { file: 'codeql.yml', path: '.github/workflows/codeql.yml', event: 'push', job: 'Analyze JavaScript/TypeScript', steps: ['Initialize CodeQL', 'Analyze'] },
+  { file: 'codeql.yml', path: '.github/workflows/codeql.yml', event: 'push', job: 'Analyze JavaScript/TypeScript',
+    steps: ['Initialize CodeQL', 'Analyze', 'Capture official CodeQL upload ID', 'Upload CodeQL analysis provenance'] },
   { file: 'keeper-canonical-native.yml', path: CANONICAL_PATH, event: 'workflow_dispatch',
     jobs: ['ios / Canonical IOS build and features', 'android / Canonical ANDROID build and features', 'Canonical native attestation'] },
 ]);
@@ -77,13 +79,17 @@ async function boundedBytes(response, limit) {
   return Buffer.concat(chunks);
 }
 
-function client(token) {
-  check(typeof token === 'string' && token.length > 0, 'PROVENANCE_TOKEN_MISSING');
+function client(token, missing = 'PROVENANCE_TOKEN_MISSING') {
+  check(typeof token === 'string' && token.length > 0, missing);
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
   const base = `https://api.github.com/repos/${REPOSITORY}`;
   return {
     async api(endpoint) {
       const response = await fetch(base + (endpoint ? `/${endpoint}` : ''), { headers, redirect: 'error', signal: AbortSignal.timeout(30000) });
+      // Code Scanning lists are bare arrays, so no total_count can prove a
+      // bounded page complete. Never silently ignore a continuation link.
+      check(!response.headers.get('link')?.match(/rel="next"/), 'INCOMPLETE_PROVENANCE_PAGINATION');
+      if (endpoint.startsWith('code-scanning/')) check(response.ok, 'CODEQL_ANALYSIS_READ_UNAVAILABLE');
       return JSON.parse((await boundedBytes(response, 1024 * 1024)).toString('utf8'));
     },
     async archive(artifactId) {
@@ -256,15 +262,50 @@ async function securityResult(api, sourceSha) {
   return results.map(value => value.id).sort((a, b) => a - b);
 }
 
-async function collectTrustedOriginUnchecked(request, token, now) {
+async function analysisResult(api, receipt, sourceSha) {
+  const processing = await api(`code-scanning/sarifs/${receipt.sarif_id}`);
+  check(processing.processing_status === 'complete' && (processing.errors == null ||
+    (Array.isArray(processing.errors) && processing.errors.length === 0)), 'CODEQL_UPLOAD_NOT_COMPLETE');
+  const analyses = await api(`code-scanning/analyses?sarif_id=${receipt.sarif_id}&ref=refs%2Fheads%2Fsprint&tool_name=CodeQL&per_page=100`);
+  check(Array.isArray(analyses) && analyses.length === 1, 'CODEQL_ANALYSIS_MISSING_OR_AMBIGUOUS');
+  const selected = analyses[0];
+  check(id(selected.id), 'CODEQL_ANALYSIS_ID_INVALID');
+  const analysis = await api(`code-scanning/analyses/${selected.id}`);
+  check(analysis.id === selected.id && analysis.url === `https://api.github.com/repos/${REPOSITORY}/code-scanning/analyses/${selected.id}` &&
+    analysis.commit_sha === sourceSha && analysis.ref === 'refs/heads/sprint' && analysis.sarif_id === receipt.sarif_id &&
+    analysis.analysis_key === receipt.analysis_key && analysis.category === CODEQL_CATEGORY &&
+    ['{}', 'null'].includes(analysis.environment) && analysis.tool?.name === 'CodeQL' &&
+    analysis.error === '' && analysis.warning === '' && id(analysis.rules_count) &&
+    Number.isSafeInteger(analysis.results_count) && analysis.results_count >= 0, 'CODEQL_ANALYSIS_IDENTITY_INVALID');
+  check(['id', 'url', 'commit_sha', 'ref', 'sarif_id', 'analysis_key', 'category', 'environment', 'error', 'warning', 'rules_count', 'results_count']
+    .every(key => selected[key] === analysis[key]) && JSON.stringify(selected.tool) === JSON.stringify(analysis.tool), 'CODEQL_ANALYSIS_CHANGED_DURING_READ');
+  // Identity comes from the official action output + original installed job
+  // artifact + API upload ID, never from timestamps or an analysis-key guess.
+  return analysis;
+}
+
+function validateAnalysisReceipt(value, sourceSha, run) {
+  check(exactKeys(value, ['schema', 'kind', 'repository', 'source_sha', 'source_ref', 'workflow_sha', 'workflow_path',
+    'run_id', 'run_attempt', 'analysis_key', 'category', 'sarif_id']) &&
+    value.schema === 1 && value.kind === 'keeper-codeql-upload' && value.repository === REPOSITORY &&
+    value.source_sha === sourceSha && value.source_ref === 'refs/heads/sprint' && value.workflow_sha === sourceSha &&
+    value.workflow_path === PRODUCERS[1].path && value.run_id === run.id && value.run_attempt === run.run_attempt &&
+    value.analysis_key === `${PRODUCERS[1].path}:analyze` && value.category === CODEQL_CATEGORY &&
+    SARIF_ID.test(value.sarif_id || ''), 'CODEQL_UPLOAD_RECEIPT_INVALID');
+}
+
+async function collectTrustedOriginUnchecked(request, token, now, pinReadToken) {
   check(hex40.test(request?.sourceSha || '') && request.sourceSha === request.driverSha &&
     request.repository === REPOSITORY, 'CANONICAL_SOURCE_REQUIRED');
   const { api, archive } = client(token);
+  // Only this endpoint receives the dedicated Variables:read identity. Never
+  // fall back to the Actions/provenance token when it is missing or revoked.
+  const pinApi = client(pinReadToken, 'PIN_READ_TOKEN_MISSING').api;
   const sourceSha = request.sourceSha;
   const repository = await api('');
   check(repository.id === 470904030 && repository.full_name === REPOSITORY && repository.default_branch === 'sprint', 'REPOSITORY_IDENTITY_INVALID');
   async function currentSource() {
-    const [branch, pin] = await Promise.all([api('branches/sprint'), api(`actions/variables/${PIN}`)]);
+    const [branch, pin] = await Promise.all([api('branches/sprint'), pinApi(`actions/variables/${PIN}`)]);
     check(branch.protected === true && branch.commit?.sha === sourceSha && pin.name === PIN && pin.value === sourceSha,
       'INSTALLED_CANONICAL_DRIVER_NOT_CURRENT');
   }
@@ -274,6 +315,25 @@ async function collectTrustedOriginUnchecked(request, token, now) {
   const results = [];
   for (const producer of PRODUCERS) results.push(await selectRun(api, producer, sourceSha, repository.id, now));
   const security = await securityResult(api, sourceSha);
+  const requestedArtifacts = [];
+  async function readArtifact(run, artifacts, name, filename, artifactId) {
+    const matches = artifacts.filter(value => value.name === name && (artifactId === undefined || value.id === artifactId));
+    check(matches.length === 1, 'CANONICAL_ARTIFACT_MISSING_OR_AMBIGUOUS');
+    const info = await api(`actions/artifacts/${matches[0].id}`);
+    check(info.id === matches[0].id, 'ARTIFACT_ID_CHANGED');
+    verifyArtifact(info, name, run, sourceSha, now);
+    const zipped = await archive(info.id);
+    check(zipped.length === info.size_in_bytes && `sha256:${digest(zipped)}` === info.digest, 'ARTIFACT_DIGEST_MISMATCH');
+    const bytes = unpack(zipped, filename);
+    requestedArtifacts.push({ info, run });
+    return { bytes, payload: JSON.parse(bytes.toString('utf8')) };
+  }
+  const codeql = results[1].run;
+  const codeqlArtifacts = complete(await api(`actions/runs/${codeql.id}/artifacts?per_page=100`), 'artifacts');
+  const analysisReceipt = await readArtifact(codeql, codeqlArtifacts,
+    `keeper-codeql-analysis-${sourceSha}-${codeql.id}-${codeql.run_attempt}`, 'analysis.json');
+  validateAnalysisReceipt(analysisReceipt.payload, sourceSha, codeql);
+  const analysis = await analysisResult(api, analysisReceipt.payload, sourceSha);
   const sources = await Promise.all(Object.entries(SOURCES).map(async ([path, names]) => {
     const file = await api(`contents/${path}?ref=${sourceSha}`);
     check(file.path === path && file.encoding === 'base64' && typeof file.content === 'string' && file.size > 0 && file.size <= 512 * 1024 &&
@@ -284,25 +344,13 @@ async function collectTrustedOriginUnchecked(request, token, now) {
   }));
   const canonical = results[2].run;
   const artifacts = complete(await api(`actions/runs/${canonical.id}/artifacts?per_page=100`), 'artifacts');
-  const requestedArtifacts = [];
-  async function readArtifact(name, filename, artifactId) {
-    const matches = artifacts.filter(value => value.name === name && (artifactId === undefined || value.id === artifactId));
-    check(matches.length === 1, 'CANONICAL_ARTIFACT_MISSING_OR_AMBIGUOUS');
-    const info = await api(`actions/artifacts/${matches[0].id}`);
-    check(info.id === matches[0].id, 'ARTIFACT_ID_CHANGED');
-    verifyArtifact(info, name, canonical, sourceSha, now);
-    const zipped = await archive(info.id);
-    check(zipped.length === info.size_in_bytes && `sha256:${digest(zipped)}` === info.digest, 'ARTIFACT_DIGEST_MISMATCH');
-    const bytes = unpack(zipped, filename);
-    requestedArtifacts.push(info);
-    return { bytes, payload: JSON.parse(bytes.toString('utf8')) };
-  }
+  const readCanonicalArtifact = (name, filename, artifactId) => readArtifact(canonical, artifacts, name, filename, artifactId);
   const suffix = `${sourceSha}-${canonical.id}-${canonical.run_attempt}`;
-  const attestation = await readArtifact(`keeper-canonical-native-attestation-${suffix}`, 'keeper-canonical-native-attestation.json');
+  const attestation = await readCanonicalArtifact(`keeper-canonical-native-attestation-${suffix}`, 'keeper-canonical-native-attestation.json');
   validateAttestation(attestation.payload, sourceSha, commit.tree.sha, canonical);
   for (const platform of ['IOS', 'ANDROID']) {
     const expected = attestation.payload.platforms[platform];
-    const receipt = await readArtifact(`keeper-canonical-native-${platform}-${suffix}`, 'metadata.json', expected.artifact_id);
+    const receipt = await readCanonicalArtifact(`keeper-canonical-native-${platform}-${suffix}`, 'metadata.json', expected.artifact_id);
     check(digest(receipt.bytes) === expected.receipt_sha256, 'PLATFORM_RECEIPT_DIGEST_MISMATCH');
     validateReceipt(receipt.payload, sourceSha, canonical, platform, sources);
   }
@@ -314,24 +362,29 @@ async function collectTrustedOriginUnchecked(request, token, now) {
     check(current.run.id === results[index].run.id && current.run.run_attempt === results[index].run.run_attempt,
       'PRODUCER_MOVED_DURING_COLLECTION');
   }
-  for (const original of requestedArtifacts) {
+  for (const { info: original, run } of requestedArtifacts) {
     const current = await api(`actions/artifacts/${original.id}`);
-    verifyArtifact(current, original.name, canonical, sourceSha, now);
+    verifyArtifact(current, original.name, run, sourceSha, now);
     check(current.id === original.id && current.digest === original.digest && current.size_in_bytes === original.size_in_bytes, 'ARTIFACT_CHANGED_DURING_COLLECTION');
   }
   check(JSON.stringify(await securityResult(api, sourceSha)) === JSON.stringify(security), 'SECURITY_RESULT_CHANGED_DURING_COLLECTION');
+  check(JSON.stringify(await analysisResult(api, analysisReceipt.payload, sourceSha)) === JSON.stringify(analysis),
+    'CODEQL_ANALYSIS_CHANGED_DURING_COLLECTION');
   await currentSource();
   const proof = Object.freeze({ schema: 1, repository: REPOSITORY, source_sha: sourceSha, source_tree: commit.tree.sha,
     workflow_sha: sourceSha, verified_at: new Date(now).toISOString(),
     producer_runs: Object.freeze(results.map(result => Object.freeze({ path: result.workflow.path, run_id: result.run.id, run_attempt: result.run.run_attempt }))),
-    attestation_sha256: digest(attestation.bytes), security_analysis_run_linkage_verified: false,
+    attestation_sha256: digest(attestation.bytes), codeql_analysis_run_linkage_verified: true,
+    security_analysis_run_linkage_verified: false, security_check_analysis_linkage_verified: false,
+    codeql_analysis: Object.freeze({ analysis_id: analysis.id, sarif_id: analysis.sarif_id,
+      run_id: codeql.id, run_attempt: codeql.run_attempt, receipt_sha256: digest(analysisReceipt.bytes) }),
     authorization_eligible: false, release_authorized: false, execution_allowed: false });
   proofs.add(proof);
   return proof;
 }
 
-async function collectTrustedOrigin(request, token, now = Date.now()) {
-  try { return await collectTrustedOriginUnchecked(request, token, now); }
+async function collectTrustedOrigin(request, token, now = Date.now(), pinReadToken) {
+  try { return await collectTrustedOriginUnchecked(request, token, now, pinReadToken); }
   catch (error) {
     // Parser/network/redirect exceptions can embed an API payload or signed
     // storage URL. Expose only fixed code vocabulary to any future caller.

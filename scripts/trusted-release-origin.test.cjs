@@ -82,7 +82,7 @@ function fixture() {
     const jobs = jobNames.map((name, jobIndex) => {
       const checkId = run.id + jobIndex + 500;
       const requiredSteps = index === 0 ? ['Run tests', 'Run recovery regression tests', 'Verify checked-out release version consistency', 'Run release and packaged-artifact tests'] :
-        index === 1 ? ['Initialize CodeQL', 'Analyze'] : name === 'Canonical native attestation' ? ['Verify canonical receipts and required matrix'] : [];
+        index === 1 ? ['Initialize CodeQL', 'Analyze', 'Capture official CodeQL upload ID', 'Upload CodeQL analysis provenance'] : name === 'Canonical native attestation' ? ['Verify canonical receipts and required matrix'] : [];
       endpoints.set(`check-runs/${checkId}`, { id: checkId, name, check_suite: { id: run.check_suite_id }, head_sha: source,
         status: 'completed', conclusion: 'success', app: { id: 15368, slug: 'github-actions' } });
       return { id: checkId + 2000, name, run_id: run.id, run_attempt: 1, head_sha: source, status: 'completed', conclusion: 'success',
@@ -142,6 +142,26 @@ function fixture() {
   function refreshAttestation() {
     addArtifact(3, `keeper-canonical-native-attestation-${source}-300-1`, 'keeper-canonical-native-attestation.json', payload);
   }
+  const sarifId = '11111111-2222-3333-4444-555555555555';
+  const analysisReceipt = { schema: 1, kind: 'keeper-codeql-upload', repository: REPOSITORY, source_sha: source,
+    source_ref: 'refs/heads/sprint', workflow_sha: source, workflow_path: '.github/workflows/codeql.yml',
+    run_id: 200, run_attempt: 1, analysis_key: '.github/workflows/codeql.yml:analyze',
+    category: 'keeper-javascript-typescript/', sarif_id: sarifId };
+  const analysesEndpoint = `code-scanning/analyses?sarif_id=${sarifId}&ref=refs%2Fheads%2Fsprint&tool_name=CodeQL&per_page=100`;
+  const analysis = { id: 900, url: `https://api.github.com/repos/${REPOSITORY}/code-scanning/analyses/900`,
+    commit_sha: source, ref: 'refs/heads/sprint', sarif_id: sarifId, analysis_key: analysisReceipt.analysis_key,
+    category: analysisReceipt.category, environment: '{}', tool: { name: 'CodeQL', version: '2.24.4' },
+    error: '', warning: '', rules_count: 200, results_count: 0 };
+  endpoints.set(`code-scanning/sarifs/${sarifId}`, { processing_status: 'complete', errors: [] });
+  endpoints.set(analysesEndpoint, [analysis]);
+  endpoints.set('code-scanning/analyses/900', analysis);
+  function refreshAnalysisReceipt() {
+    addArtifact(4, `keeper-codeql-analysis-${source}-${runs[1].id}-${runs[1].run_attempt}`, 'analysis.json', analysisReceipt);
+    endpoints.get('actions/artifacts/4').workflow_run = { id: 200, head_sha: source };
+    const codeqlArtifacts = artifacts.splice(artifacts.findIndex(info => info.id === 4), 1);
+    endpoints.set('actions/runs/200/artifacts?per_page=100', { total_count: 1, artifacts: codeqlArtifacts });
+  }
+  refreshAnalysisReceipt();
   refreshAttestation();
   endpoints.set('actions/runs/300/artifacts?per_page=100', { total_count: artifacts.length, artifacts });
   async function fetchMock(url, options) {
@@ -150,10 +170,10 @@ function fixture() {
       assert.equal(options.headers, undefined, 'never forward API token to storage');
       return new Response(archives.get(Number(target.split('/').pop())), { status: 200 });
     }
-    assert.equal(options.headers.Authorization, 'Bearer disposable-test-token');
     const base = `https://api.github.com/repos/${REPOSITORY}`;
     assert.ok(target === base || target.startsWith(base + '/'));
     const endpoint = target === base ? '' : target.slice((base + '/').length);
+    assert.equal(options.headers.Authorization, endpoint === `actions/variables/${PIN}` ? 'Bearer disposable-pin-token' : 'Bearer disposable-test-token');
     const archive = endpoint.match(/^actions\/artifacts\/(\d+)\/zip$/);
     if (archive) return new Response(null, { status: 302, headers: { location: `https://storage.blob.core.windows.net/${archive[1]}` } });
     reads.set(endpoint, (reads.get(endpoint) || 0) + 1);
@@ -162,7 +182,8 @@ function fixture() {
     if (typeof value === 'function') value = value(reads.get(endpoint));
     return new Response(JSON.stringify(value), { status: 200 });
   }
-  return { endpoints, archives, payload, receipts, runs, artifacts, reads, fetchMock, refreshAttestation, refreshReceipt };
+  return { endpoints, archives, payload, receipts, runs, artifacts, reads, fetchMock, refreshAttestation, refreshReceipt,
+    analysisReceipt, analysis, analysesEndpoint, sarifId, refreshAnalysisReceipt };
 }
 
 async function withFixture(action) {
@@ -174,13 +195,17 @@ async function withFixture(action) {
 
 test('mocked installed producer/API artifact chain creates opaque read-only proof; JSON copy cannot mint it', async () => {
   await withFixture(async () => {
-    const proof = await collectTrustedOrigin(request, 'disposable-test-token', now);
+    const proof = await collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token');
     assert.equal(isTrustedOrigin(proof), true);
     assert.equal(isTrustedOrigin(JSON.parse(JSON.stringify(proof))), false);
     assert.equal(proof.execution_allowed, false);
     assert.equal(proof.release_authorized, false);
     assert.equal(proof.authorization_eligible, false);
+    assert.equal(proof.codeql_analysis_run_linkage_verified, true);
     assert.equal(proof.security_analysis_run_linkage_verified, false);
+    assert.equal(proof.security_check_analysis_linkage_verified, false);
+    assert.equal(proof.codeql_analysis.analysis_id, 900);
+    assert.equal(Object.isFrozen(proof.codeql_analysis), true);
     assert.equal(proof.producer_runs.length, 3);
     assert.equal(Object.isFrozen(proof.producer_runs[0]), true);
   });
@@ -235,7 +260,7 @@ for (const [name, mutate] of [
   await withFixture(async f => {
     mutate(f);
     f.refreshAttestation();
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now));
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'));
   });
 });
 
@@ -244,14 +269,14 @@ test('a newer failed run prevents fallback to an older passing run', async () =>
     const failed = { ...f.runs[0], id: 101, conclusion: 'failure' };
     f.endpoints.set('actions/runs/101', failed);
     f.endpoints.set(`actions/workflows/1/runs?branch=sprint&event=push&head_sha=${source}&per_page=100`, { total_count: 2, workflow_runs: [f.runs[0], failed] });
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /PRODUCER_NOT_EXACT_CURRENT_SUCCESS/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PRODUCER_NOT_EXACT_CURRENT_SUCCESS/);
   });
 });
 
 test('same-source driver pin change during collection revokes proof', async () => {
   await withFixture(async f => {
     f.endpoints.set(`actions/variables/${PIN}`, count => ({ name: PIN, value: count === 1 ? source : 'c'.repeat(40) }));
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /INSTALLED_CANONICAL_DRIVER_NOT_CURRENT/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_CANONICAL_DRIVER_NOT_CURRENT/);
   });
 });
 
@@ -259,7 +284,7 @@ test('same-source producer rerun during collection revokes old attempt', async (
   await withFixture(async f => {
     const original = f.runs[0];
     f.endpoints.set('actions/runs/100', count => count === 1 ? original : { ...original, run_attempt: 2, status: 'queued', conclusion: null });
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /PRODUCER_NOT_EXACT_CURRENT_SUCCESS/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PRODUCER_NOT_EXACT_CURRENT_SUCCESS/);
   });
 });
 
@@ -267,7 +292,7 @@ test('same-run artifact change during final read revokes proof', async () => {
   await withFixture(async f => {
     const original = f.endpoints.get('actions/artifacts/1');
     f.endpoints.set('actions/artifacts/1', count => count === 1 ? original : { ...original, digest: 'sha256:' + 'c'.repeat(64) });
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /ARTIFACT_CHANGED_DURING_COLLECTION/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /ARTIFACT_CHANGED_DURING_COLLECTION/);
   });
 });
 
@@ -276,7 +301,7 @@ test('bounded deflated streaming ZIP descriptor is accepted without extraction t
     const zipped = zip('metadata.json', Buffer.from(JSON.stringify(f.receipts.IOS)), { deflate: true, descriptor: true });
     f.archives.set(1, zipped);
     Object.assign(f.endpoints.get('actions/artifacts/1'), { digest: `sha256:${sha256(zipped)}`, size_in_bytes: zipped.length });
-    assert.equal(isTrustedOrigin(await collectTrustedOrigin(request, 'disposable-test-token', now)), true);
+    assert.equal(isTrustedOrigin(await collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token')), true);
   });
 });
 
@@ -291,7 +316,7 @@ for (const [name, mutate] of [
     mutate(f.receipts.IOS);
     f.refreshReceipt('IOS');
     f.refreshAttestation();
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /PLATFORM_RECEIPT_NOT_EXACT_SUCCESS/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PLATFORM_RECEIPT_NOT_EXACT_SUCCESS/);
   });
 });
 
@@ -313,7 +338,7 @@ for (const [name, code, mutate] of [
     mutate(f.receipts.IOS);
     f.refreshReceipt('IOS');
     f.refreshAttestation();
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), new RegExp(code));
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), new RegExp(code));
   });
 });
 
@@ -322,7 +347,7 @@ test('archive additional-entry count fails despite correct API digest', async ()
     const zipped = f.archives.get(1);
     zipped.writeUInt16LE(2, zipped.length - 22 + 10);
     f.endpoints.get('actions/artifacts/1').digest = `sha256:${sha256(zipped)}`;
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /ARTIFACT_ZIP_INVALID/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /ARTIFACT_ZIP_INVALID/);
   });
 });
 
@@ -330,7 +355,7 @@ test('artifact redirect never sends API token to untrusted host', async () => {
   await withFixture(async f => {
     global.fetch = async (url, options) => String(url).endsWith('/artifacts/3/zip') ?
       new Response(null, { status: 302, headers: { location: 'https://attacker.invalid/object' } }) : f.fetchMock(url, options);
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /UNTRUSTED_ARTIFACT_HOST/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /UNTRUSTED_ARTIFACT_HOST/);
   });
 });
 
@@ -340,13 +365,174 @@ test('forged serializable booleans cannot mint module-private proof', () => {
 });
 
 test('canonical source equality required before any API access', async () => {
-  await assert.rejects(collectTrustedOrigin({ ...request, driverSha: 'c'.repeat(40) }, 'disposable-test-token', now), /CANONICAL_SOURCE_REQUIRED/);
+  await assert.rejects(collectTrustedOrigin({ ...request, driverSha: 'c'.repeat(40) }, 'disposable-test-token', now, 'disposable-pin-token'), /CANONICAL_SOURCE_REQUIRED/);
 });
 
 test('unexpected network or parser details never escape as evidence errors', async () => {
   const original = global.fetch;
   global.fetch = async () => { throw new Error('signed-storage-url-or-private-payload'); };
   try {
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /^Error: PROVENANCE_READ_INVALID$/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /^Error: PROVENANCE_READ_INVALID$/);
   } finally { global.fetch = original; }
+});
+
+test('missing dedicated pin-read identity fails closed before API reads', async () => {
+  await withFixture(async f => {
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /PIN_READ_TOKEN_MISSING/);
+    assert.equal(f.reads.size, 0);
+  });
+});
+
+for (const status of [403, 404]) test(`pin-read identity HTTP ${status} never falls back to provenance token`, async () => {
+  await withFixture(async f => {
+    global.fetch = async (url, options) => {
+      if (String(url).includes(`/actions/variables/${PIN}`)) {
+        assert.equal(options.headers.Authorization, 'Bearer disposable-pin-token');
+        return new Response('{}', { status });
+      }
+      return f.fetchMock(url, options);
+    };
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PROVENANCE_READ_UNAVAILABLE/);
+  });
+});
+
+for (const [name, mutate] of [
+  ['another producer run', value => value.run_id = 199],
+  ['earlier attempt', value => value.run_attempt = 2],
+  ['foreign source', value => value.source_sha = 'c'.repeat(40)],
+  ['foreign workflow commit', value => value.workflow_sha = 'c'.repeat(40)],
+  ['PR source ref', value => value.source_ref = 'refs/pull/7085/merge'],
+  ['foreign repository', value => value.repository = 'other/repository'],
+  ['foreign workflow path', value => value.workflow_path = '.github/workflows/other.yml'],
+  ['missing official SARIF ID', value => delete value.sarif_id],
+  ['boolean official SARIF ID', value => value.sarif_id = true],
+  ['untrusted analysis key', value => value.analysis_key = '.github/workflows/other.yml:analyze'],
+  ['wrong category', value => value.category = 'other/'],
+]) test(`rejects CodeQL receipt without exact original upload: ${name}`, async () => {
+  await withFixture(async f => {
+    mutate(f.analysisReceipt);
+    f.refreshAnalysisReceipt();
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /CODEQL_UPLOAD_RECEIPT_INVALID/);
+  });
+});
+
+for (const [name, code, mutate] of [
+  ['missing upload artifact', 'INCOMPLETE_PROVENANCE_PAGINATION', f => f.endpoints.set('actions/runs/200/artifacts?per_page=100', { total_count: 0, artifacts: [] })],
+  ['ambiguous upload artifact', 'CANONICAL_ARTIFACT_MISSING_OR_AMBIGUOUS', f => {
+    const info = f.endpoints.get('actions/artifacts/4');
+    f.endpoints.set('actions/runs/200/artifacts?per_page=100', { total_count: 2, artifacts: [info, { ...info, id: 5 }] });
+  }],
+  ['foreign upload artifact run', 'ARTIFACT_PROVENANCE_INVALID', f => f.endpoints.get('actions/artifacts/4').workflow_run.id = 100],
+  ['failed official output capture', 'REQUIRED_PRODUCER_STEP_MISSING', f => f.endpoints.get('actions/runs/200/attempts/1/jobs?per_page=100').jobs[0].steps[2].conclusion = 'failure'],
+  ['skipped official output upload', 'REQUIRED_PRODUCER_STEP_MISSING', f => f.endpoints.get('actions/runs/200/attempts/1/jobs?per_page=100').jobs[0].steps[3].conclusion = 'skipped'],
+  ['pending processing', 'CODEQL_UPLOAD_NOT_COMPLETE', f => f.endpoints.get(`code-scanning/sarifs/${f.sarifId}`).processing_status = 'pending'],
+  ['failed processing', 'CODEQL_UPLOAD_NOT_COMPLETE', f => f.endpoints.get(`code-scanning/sarifs/${f.sarifId}`).processing_status = 'failed'],
+  ['processing error', 'CODEQL_UPLOAD_NOT_COMPLETE', f => f.endpoints.get(`code-scanning/sarifs/${f.sarifId}`).errors = ['partial upload']],
+  ['missing official analysis', 'CODEQL_ANALYSIS_MISSING_OR_AMBIGUOUS', f => f.endpoints.set(f.analysesEndpoint, [])],
+  ['ambiguous official analyses', 'CODEQL_ANALYSIS_MISSING_OR_AMBIGUOUS', f => f.endpoints.get(f.analysesEndpoint).push({ ...f.analysis, id: 901 })],
+]) test(`rejects incomplete CodeQL analysis origin: ${name}`, async () => {
+  await withFixture(async f => {
+    mutate(f);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), new RegExp(code));
+  });
+});
+
+for (const [name, mutate] of [
+  ['wrong analysis ID', value => value.id = 901],
+  ['foreign analysis URL', value => value.url = 'https://api.github.com/repos/other/repository/code-scanning/analyses/900'],
+  ['another upload', value => value.sarif_id = '66666666-2222-3333-4444-555555555555'],
+  ['another commit', value => value.commit_sha = 'c'.repeat(40)],
+  ['another ref', value => value.ref = 'refs/heads/dev'],
+  ['another workflow job', value => value.analysis_key = '.github/workflows/other.yml:analyze'],
+  ['another category', value => value.category = 'another/'],
+  ['another matrix environment', value => value.environment = '{"other":"matrix"}'],
+  ['foreign scanner', value => value.tool.name = 'OtherQL'],
+  ['analysis error', value => value.error = 'upload partially processed'],
+  ['analysis warning', value => value.warning = 'results ignored'],
+  ['no analyzed rules', value => value.rules_count = 0],
+]) test(`rejects official analysis without exact receipt identity: ${name}`, async () => {
+  await withFixture(async f => {
+    const detail = structuredClone(f.analysis);
+    mutate(detail);
+    f.endpoints.set('code-scanning/analyses/900', detail);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /CODEQL_ANALYSIS_IDENTITY_INVALID/);
+  });
+});
+
+test('analysis API permission denial blocks instead of retaining unverified origin proof', async () => {
+  await withFixture(async f => {
+    global.fetch = async (url, options) => String(url).includes('/code-scanning/') ? new Response('{}', { status: 403 }) : f.fetchMock(url, options);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /CODEQL_ANALYSIS_READ_UNAVAILABLE/);
+  });
+});
+
+test('current CodeQL rerun links its own official upload and artifact, without restricting runs to attempt one', async () => {
+  await withFixture(async f => {
+    f.runs[1].run_attempt = 2;
+    const jobs = structuredClone(f.endpoints.get('actions/runs/200/attempts/1/jobs?per_page=100'));
+    jobs.jobs[0].run_attempt = 2;
+    f.endpoints.set('actions/runs/200/attempts/2/jobs?per_page=100', jobs);
+    f.analysisReceipt.run_attempt = 2;
+    f.refreshAnalysisReceipt();
+    const proof = await collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token');
+    assert.equal(proof.codeql_analysis.run_attempt, 2);
+    assert.equal(proof.execution_allowed, false);
+  });
+});
+
+test('no-matrix CodeQL upload accepts official null environment without accepting extra matrix axes', async () => {
+  await withFixture(async f => {
+    f.analysis.environment = 'null';
+    assert.equal(isTrustedOrigin(await collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token')), true);
+  });
+});
+
+test('an older successful official GAS check never claims full linkage to the selected newer analysis', async () => {
+  await withFixture(async f => {
+    f.endpoints.get(`commits/${source}/check-runs?per_page=100`).check_runs[0].completed_at = '2026-10-20T00:00:00Z';
+    const proof = await collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token');
+    assert.equal(proof.codeql_analysis_run_linkage_verified, true);
+    assert.equal(proof.security_check_analysis_linkage_verified, false);
+    assert.equal(proof.security_analysis_run_linkage_verified, false);
+    assert.equal(proof.authorization_eligible, false);
+    assert.equal(proof.release_authorized, false);
+    assert.equal(proof.execution_allowed, false);
+  });
+});
+
+test('revoking Variables read after artifact collection blocks despite startup pin success', async () => {
+  await withFixture(async f => {
+    let pinReads = 0;
+    global.fetch = async (url, options) => {
+      if (String(url).includes(`/actions/variables/${PIN}`) && ++pinReads > 1) {
+        assert.equal(options.headers.Authorization, 'Bearer disposable-pin-token');
+        return new Response('{}', { status: 403 });
+      }
+      return f.fetchMock(url, options);
+    };
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PROVENANCE_READ_UNAVAILABLE/);
+  });
+});
+
+test('continued analysis page fails closed even if first page contains a plausible match', async () => {
+  await withFixture(async f => {
+    global.fetch = async (url, options) => String(url).endsWith(f.analysesEndpoint) ?
+      new Response(JSON.stringify([f.analysis]), { headers: { link: '<https://api.github.com/next>; rel="next"' } }) : f.fetchMock(url, options);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INCOMPLETE_PROVENANCE_PAGINATION/);
+  });
+});
+
+test('changed official analysis after receipt collection revokes proof', async () => {
+  await withFixture(async f => {
+    f.endpoints.set('code-scanning/analyses/900', count => count === 1 ? f.analysis : { ...f.analysis, results_count: 1 });
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /CODEQL_ANALYSIS_CHANGED_DURING_READ/);
+  });
+});
+
+test('changed CodeQL upload artifact during final read revokes original upload', async () => {
+  await withFixture(async f => {
+    const original = f.endpoints.get('actions/artifacts/4');
+    f.endpoints.set('actions/artifacts/4', count => count === 1 ? original : { ...original, digest: `sha256:${'c'.repeat(64)}` });
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /ARTIFACT_CHANGED_DURING_COLLECTION/);
+  });
 });
