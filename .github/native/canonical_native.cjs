@@ -8,6 +8,7 @@ const { execFileSync } = require('node:child_process');
 const { REQUIRED, acceptance } = require('./release_acceptance.cjs');
 const { publicCompanionChecks } = require('./public_companion_receipts.cjs');
 const { validatePublicSoftware, WORKER_SOURCES, PUBLIC_SOFTWARE_SCOPE } = require('./public_software_receipts.cjs');
+const { parseStrictJson } = require('./strict_json.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const REPOSITORY_ID = 470904030;
 const WORKFLOW = '.github/workflows/keeper-canonical-native.yml';
@@ -223,7 +224,7 @@ async function collect(github, context, request, output, readZip, { pinReader } 
       current.workflow_run?.id === request.runId && current.workflow_run.head_sha === request.sourceSha,
     'CANONICAL_ARTIFACT_EXPIRED_OR_CHANGED');
     const raw = readZip(archive);
-    const metadata = JSON.parse(raw.toString('utf8'));
+    const metadata = parseStrictJson(raw);
     platforms[platform] = { conclusion: 'success', artifact_id: artifact.id,
       receipt_sha256: digest(raw), ...validateMetadata(metadata, request, platform, workerSources) };
   }

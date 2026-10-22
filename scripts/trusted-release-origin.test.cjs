@@ -15,21 +15,32 @@ const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const names = ['Tests', 'Analyze JavaScript/TypeScript', 'ios / Canonical IOS build and features', 'android / Canonical ANDROID build and features', 'Canonical native attestation'];
 
 function zip(name, bytes, { deflate = false, descriptor = false } = {}) {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+  }
+  crc = (crc ^ 0xffffffff) >>> 0;
   const filename = Buffer.from(name);
   const content = deflate ? zlib.deflateRawSync(bytes) : bytes;
   const local = Buffer.alloc(30);
   local.writeUInt32LE(0x04034b50);
+  local.writeUInt16LE(20, 4);
   local.writeUInt16LE(descriptor ? 8 : 0, 6);
   local.writeUInt16LE(deflate ? 8 : 0, 8);
   if (!descriptor) {
+    local.writeUInt32LE(crc, 14);
     local.writeUInt32LE(content.length, 18);
     local.writeUInt32LE(bytes.length, 22);
   }
   local.writeUInt16LE(filename.length, 26);
   const central = Buffer.alloc(46);
   central.writeUInt32LE(0x02014b50);
+  central.writeUInt16LE(20, 4);
+  central.writeUInt16LE(20, 6);
   central.writeUInt16LE(descriptor ? 8 : 0, 8);
   central.writeUInt16LE(deflate ? 8 : 0, 10);
+  central.writeUInt32LE(crc, 16);
   central.writeUInt32LE(content.length, 20);
   central.writeUInt32LE(bytes.length, 24);
   central.writeUInt16LE(filename.length, 28);
@@ -41,6 +52,7 @@ function zip(name, bytes, { deflate = false, descriptor = false } = {}) {
   const trailer = descriptor ? Buffer.alloc(16) : Buffer.alloc(0);
   if (descriptor) {
     trailer.writeUInt32LE(0x08074b50);
+    trailer.writeUInt32LE(crc, 4);
     trailer.writeUInt32LE(content.length, 8);
     trailer.writeUInt32LE(bytes.length, 12);
   }
@@ -314,6 +326,30 @@ test('bounded deflated streaming ZIP descriptor is accepted without extraction t
     f.archives.set(1, zipped);
     Object.assign(f.endpoints.get('actions/artifacts/1'), { digest: `sha256:${sha256(zipped)}`, size_in_bytes: zipped.length });
     assert.equal(isTrustedOrigin(await collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token')), true);
+  });
+});
+
+for (const [name, artifactId, filename, duplicate, expectedField, expectedValue] of [
+  ['platform metadata', 1, 'metadata.json', '"smoke":"FAIL",', 'smoke', 'PASS'],
+  ['canonical attestation', 3, 'keeper-canonical-native-attestation.json', '"feature_matrix_complete":false,', 'feature_matrix_complete', true],
+  ['CodeQL upload receipt', 4, 'analysis.json', `"source_sha":"${'b'.repeat(40)}",`, 'source_sha', source],
+]) test(`raw ${name} rejects contradictory duplicates inside a correctly rehashed artifact ZIP`, async () => {
+  await withFixture(async f => {
+    const value = artifactId === 1 ? f.receipts.IOS : artifactId === 3 ? f.payload : f.analysisReceipt;
+    const raw = Buffer.from('{' + duplicate + JSON.stringify(value).slice(1));
+    assert.equal(JSON.parse(raw)[expectedField], expectedValue, 'last-key-wins would conceal original contradictory evidence');
+    const zipped = zip(filename, raw, { deflate: true, descriptor: true });
+    f.archives.set(artifactId, zipped);
+    Object.assign(f.endpoints.get(`actions/artifacts/${artifactId}`), {
+      digest: `sha256:${sha256(zipped)}`, size_in_bytes: zipped.length,
+    });
+    if (artifactId === 1) {
+      // The external attestation's original-byte binding also agrees with the altered bytes.
+      f.payload.platforms.IOS.receipt_sha256 = sha256(raw);
+      f.refreshAttestation();
+    }
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'),
+      /^Error: STRICT_ARTIFACT_JSON_INVALID$/);
   });
 });
 
