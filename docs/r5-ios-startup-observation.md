@@ -7,8 +7,9 @@ source `eceb5551a430a0e31cff7a32d70181ee55007b69` already included in
 checkpoint `76d1c949d91c5d885fc002f689a9ec321c16eafb` by ancestry.
 [Original #7115 patch](https://github.com/KeeperCommunity/bitcoin-keeper/compare/c8c4e22ffc0137f774e533f167ada81aa673b94a...eceb5551a430a0e31cff7a32d70181ee55007b69)
 and [original #7116 startup patch](https://github.com/KeeperCommunity/bitcoin-keeper/compare/23f14e01...76d1c949d91c5d885fc002f689a9ec321c16eafb)
-retain their producing sources and receipts. Later product-failure observation
-at `1bc34890cb8618b2fffd446a63924974e0fe15b5` is a separate Stage B package.
+retain their producing sources and receipts. Stage B preserves the frozen Stage A source and merges product-failure
+observation at `1bc34890cb8618b2fffd446a63924974e0fe15b5` by ancestry; see
+[its separate observation contract](product-failure-observation.md).
 No original producer or main integration branch is rewritten.
 
 ## Compact-log receipt

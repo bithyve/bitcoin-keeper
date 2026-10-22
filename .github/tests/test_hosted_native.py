@@ -361,6 +361,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertEqual(diagnostics['parse_status'], 'PARTIAL')
         self.assertEqual(diagnostics['cause'], 'UNDETERMINED')
         self.assertEqual(diagnostics['category_record_counts']['JS_REFERENCE_ERROR'], 1)
+        self.assertEqual(diagnostics['query_status'], 'SUCCESS')
         self.assertEqual(data['startup_diagnostics']['metro_progress'],
                          {'bundle_marker_observed': True, 'bundle_marker_count': 2, 'prebundle_marker_count': 1})
         self.assertNotIn('private unrelated', native.EVIDENCE.read_text())
@@ -376,6 +377,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
                 def compact_log(args, stdout, **kwargs):
                     self.assertEqual(args[:4], ['xcrun', 'simctl', 'spawn', 'owned-simulator'])
                     self.assertIn('process == "hexa_keeper_dev"', args[-1])
+                    self.assertEqual(kwargs['timeout'], 25)
                     stdout.write(b'2026-10-17 09:22:33.123 E hexa_keeper_dev[123:abc] TypeError: PRIVATE_SENTINEL\n')
                     if code == 124:
                         raise subprocess.TimeoutExpired(args, 25)

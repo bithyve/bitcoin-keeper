@@ -32,7 +32,7 @@ PIN_MARKERS = ('confirm_passcode_visible', 'confirmation_digits_tapped', 'create
 
 
 def native_module(name):
-    if name not in ('product_metro', 'product_credential_acceptance',
+    if name not in ('product_metro', 'product_failure_diagnosis', 'product_credential_acceptance',
                     'product_history_acceptance', 'product_vault_acceptance'):
         raise RuntimeError('PRODUCT_UI_FIXED_COMPANION_REQUIRED')
     spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name(name + '.py'))
@@ -64,6 +64,22 @@ def android_failure_observation(private, device):
         return {'status': 'COLLECTED', 'scope': scope, 'facts': module.collect(private, device)}
     except Exception:
         return {'status': 'UNAVAILABLE', 'scope': scope}
+
+
+def prepare_failure_observation(metro):
+    try:
+        module = native_module('product_failure_diagnosis')
+        return module, module.bind_metro(metro)
+    except Exception:
+        return None
+
+
+def sample_failure_observation(private, flow, metro, observer):
+    try:
+        module, binding = observer or (native_module('product_failure_diagnosis'), None)
+        return module.collect(private, flow, metro, binding)
+    except Exception:
+        return {'status': 'UNKNOWN', 'scope': 'Failed-sample observation unavailable; original failure retained.'}
 
 
 class Receipt:
@@ -375,8 +391,11 @@ def run(h):
             else:
                 h.command(['adb', '-s', device, 'install', '-r', artifact], 'Install exact product UI APK', timeout=120)
                 h.command(['adb', '-s', device, 'shell', 'pm', 'clear', app], 'Clear only disposable development app')
+            flow = 'product_retry.yaml' if retry_fixture else 'product_first_wallet.yaml'
+            observer = None
             try:
                 installed_before = key_companion.installed_proof(h, device)
+                observer = prepare_failure_observation(metro)
                 h.command([data['maestro']['binary'], '--device', device, 'test',
                            '--env', 'APP_ID=' + app,
                            '--env', 'EXPECTED_INSTALLED_REGEX=' + expected_version['installed_regex'],
@@ -384,8 +403,7 @@ def run(h):
                            '--flatten-debug-output',
                            '--debug-output', str(output), '--test-output-dir', str(output),
                            '--format', 'junit', '--output', str(report),
-                           '.github/native/product_retry.yaml' if retry_fixture else
-                           '.github/native/product_first_wallet.yaml'],
+                           '.github/native/' + flow],
                           'Full-product controlled disconnect and Retry fixture' if retry_fixture else
                           'Full-product first-wallet and relaunch UI sample', timeout=600, error_details=False)
                 h.successful_junit(report)
@@ -403,6 +421,7 @@ def run(h):
                     result['samples'].append(outcome)
             except Exception:
                 outcome = receipt.snapshot()
+                outcome['failure_observation'] = sample_failure_observation(output, flow, metro, observer)
                 if h.PLATFORM == 'ANDROID':
                     outcome['android_runtime_diagnostic'] = android_failure_observation(output, device)
                 if retry_fixture:
