@@ -32,7 +32,13 @@ const bounded = (value, limit) => typeof value === 'number' && Number.isFinite(v
 function consistentCleanup(row) {
   // Absence asserts nothing about disposal; only reject explicit contradictions.
   demand(row && !Object.keys(row).some(name => /^cleanup_failure(?:_|$)/.test(name)) &&
-    (!Object.hasOwn(row, 'cleanup') || row.cleanup === 'PASS'));
+    !Object.keys(row).some(name => /^failure(?:_|$)/.test(name)) &&
+    (!Object.hasOwn(row, 'cleanup') || row.cleanup === 'PASS') &&
+    (!Object.hasOwn(row, 'startup_cleanup_errors') || same(row.startup_cleanup_errors, [])) &&
+    !Object.hasOwn(row, 'startup_observation_cleanup') &&
+    (!Object.hasOwn(row, 'install_succeeded') || row.install_succeeded === true) &&
+    (!Object.hasOwn(row, 'device') || (row.device && typeof row.device === 'object' && !Array.isArray(row.device) &&
+      (!Object.hasOwn(row.device, 'fresh_disposable_state') || row.device.fresh_disposable_state === true))));
 }
 function proof(value, platform, expected) {
   const fields = platform === 'IOS' ? ['inventory_sha256', 'executable_sha256'] : ['sha256'];
@@ -66,15 +72,19 @@ function validatePublicSoftware(value, expected) {
       demand(row.sample === i + 1 && row.status === 'PASS' && same(row.completed_stages, STAGES) && row.create_new_app_calls === 1 &&
         row.visible_wallet_count_before_relaunch === 1 && row.visible_wallet_count_after_relaunch === 1 &&
         ['installed_version_header_and_initial_history', 'key_management_entry_and_exit', 'more_wallets_navigation'].every(name => row[name] === 'PASS') &&
-        keys(row.raw_durations, DURATIONS) && DURATIONS.every(name => bounded(row.raw_durations[name], 3600000)));
+        keys(row.raw_durations, DURATIONS) && DURATIONS.every(name => bounded(row.raw_durations[name], 3600000)) &&
+        row.raw_durations.start_new_to_home_ms >= row.raw_durations.start_new_to_ready_ms &&
+        row.raw_durations.cold_relaunch_to_authenticated_home_ms >= row.raw_durations.cold_relaunch_to_login_ms &&
+        Number.isSafeInteger(row.other_backend_calls_rejected) && row.other_backend_calls_rejected >= 0);
       proof(row, platform, installed);
     });
     const retry = ui.controlled_disconnect_retry;
     consistentCleanup(retry);
-    demand(retry.status === 'PASS' && same(retry.completed_stages, RETRY) && retry.scenario === 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE' &&
+    demand(retry.sample === 6 && retry.status === 'PASS' && same(retry.completed_stages, RETRY) && retry.scenario === 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE' &&
       retry.performance_sample === false && retry.create_new_app_calls === 2 && retry.transport_requests_dropped_without_commit === 1 &&
       retry.acknowledged_create_responses === 1 && retry.unexpected_create_attempts === 0 &&
-      retry.visible_wallet_count_before_relaunch === 1 && retry.visible_wallet_count_after_relaunch === 1);
+      retry.visible_wallet_count_before_relaunch === 1 && retry.visible_wallet_count_after_relaunch === 1 &&
+      Number.isSafeInteger(retry.other_backend_calls_rejected) && retry.other_backend_calls_rejected >= 0);
     proof(retry, platform, installed);
     const key = ui.key_management_ui;
     consistentCleanup(key);

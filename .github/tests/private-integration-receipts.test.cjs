@@ -178,6 +178,13 @@ for (const platform of ['IOS', 'ANDROID']) {
     f.values['control/artifacts/native-protected/mongo.json'].disposition = 'absent';
     assert.equal(validatePrivateIntegration(f.rebind(), f.expected).installed_trust, 'UNVERIFIED');
   });
+  for (const member of [`control/artifacts/native-integration/${lower}/startup.json`, `app/artifacts/native/${lower}/metadata.json`])
+    for (const field of ['startup_cleanup_errors', 'startup_observation_cleanup'])
+      test(`${platform} rejects original startup cleanup contradiction in ${member} ${field}`, () => {
+        const f = synthetic(platform);
+        f.values[member][field] = field === 'startup_cleanup_errors' ? ['device_uninstall'] : 'FAIL';
+        reject(f.rebind(), f.expected);
+      });
   for (let i = 0; i < 10; i++) test(`${platform} rejects correctly rehashed contradictory duplicate JSON member ${i}`, () => {
     const f = synthetic(platform), member = privateIntegrationMembers(platform)[i], original = f.raw[member];
     const key = Object.keys(f.values[member])[0];
