@@ -325,6 +325,7 @@ function DeleteKeys({ route }) {
               return (
                 <KeyCard
                   key={getKeyUID(signer)}
+                  testID={`manage_key_type_${signer.type}`}
                   isLoading={getKeyUID(signer) === unhidingKeyUID && !showAll}
                   primaryAction={showDelete ? () => handleDelete(signer) : null}
                   secondaryAction={() =>
