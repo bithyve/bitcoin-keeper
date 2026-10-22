@@ -137,7 +137,7 @@ async function selectedJob(github, value, run, now) {
   const other = platform === 'IOS' ? 'Run one Android startup then public phases and three serial private suites' :
     'Run one iOS startup then public phases and three serial private suites';
   const skipped = job.steps?.filter(s => s.name === other) || [];
-  demand(skipped.length === 1 && skipped[0].conclusion === 'skipped', 'PRIVATE_ACTIONS_SELECTED_PLATFORM_INVALID');
+  demand(skipped.length === 1 && skipped[0].status === 'completed' && skipped[0].conclusion === 'skipped', 'PRIVATE_ACTIONS_SELECTED_PLATFORM_INVALID');
   const check = data(await github.rest.checks.get({ ...args, check_run_id: Number(match[1]) }));
   demand(check.id === Number(match[1]) && check.name === job.name && check.check_suite?.id === run.check_suite_id &&
     check.head_sha === control.sha && check.status === 'completed' && check.conclusion === 'success' &&
