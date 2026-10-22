@@ -10,14 +10,19 @@ Observed 22 October 2026. Recheck producer heads before candidate freeze.
 
 | Input | Verified commit | Integration |
 | --- | --- | --- |
-| Released R4 | `1d8a86a7462d935cbd0e28b857934b5718c152fc` | Ancestor of core and 5.1; no further R4 confirmation required |
+| Submitted R4 source | `1d8a86a7462d935cbd0e28b857934b5718c152fc` | Ancestor of core and 5.1; source reconciliation complete, public release held |
 | Core #7058, `codex/r5-key-deletion-startup` | `77b72da29ac5f2cdf3f51c9a0e9f3fd1c2af7238` | Included by ancestry |
 | 5.1 #7067, `codex/7066-protected-backup-correction` | `c1c4b803039b61b940373c4dc9d08473cf25e042` | Integration starts here; includes backup and Version History corrections |
 | 5.2 | Identity and authoritative checkpoint unresolved | Owner reports running; do not infer identity/completion or duplicate its implementation |
 
+R4 signed iOS620/Android627 were submitted with public release held. The
+[recorded store checkpoint](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6313099996)
+and current owner instruction establish the source baseline; fresh store status
+and owner R4 closure remain separate. Preserve all running R5 work and checks.
+
 Patch-only review links remain separate:
 
-- [Core changes after released R4](https://github.com/KeeperCommunity/bitcoin-keeper/compare/1d8a86a7462d935cbd0e28b857934b5718c152fc...77b72da29ac5f2cdf3f51c9a0e9f3fd1c2af7238)
+- [Core changes after submitted R4](https://github.com/KeeperCommunity/bitcoin-keeper/compare/1d8a86a7462d935cbd0e28b857934b5718c152fc...77b72da29ac5f2cdf3f51c9a0e9f3fd1c2af7238)
 - [5.1 changes after core](https://github.com/KeeperCommunity/bitcoin-keeper/compare/77b72da29ac5f2cdf3f51c9a0e9f3fd1c2af7238...c1c4b803039b61b940373c4dc9d08473cf25e042)
 
 5.1 contains exactly two commits after core: protected-backup correction
@@ -75,7 +80,7 @@ No independent review or severity waiver is established. Lint jobs tolerate
 command failures; green jobs do not mean lint is clean.
 
 Read-only alert triage confirmed the flagged module blob
-`db29ee432496e84bc70be82b0d9a3017e154888d` is identical in released R4, core,
+`db29ee432496e84bc70be82b0d9a3017e154888d` is identical in submitted R4, core,
 5.1 and the inspected interim candidate. The flagged string feeds a numeric
 witness-size estimate; no HTML sink was established in the traced callers.
 An uncommitted literal-selector counting candidate matched 140 pinned fixture
@@ -108,7 +113,7 @@ post-test evidence update and silently transfer results to the resulting SHA.
 | Current protocol pairing | Private Relay #160 / `4db6a758a307111137ad6bb4f35a32fa15b17a9d` | 52 backend + 43 protected app + 1 upgraded-account + 3 guard cases pass at their exact documented pair; pin/retest combined app SHA |
 | Protected release preparation | #7072 / `f2fc0cb557f0e5303335dadc9e98152640795e6c`; origin correction #7074 / `76150f455978c1a565f2c670774672bc18789877` | Included; inventory and plan controls implemented, authorization planning deliberately disabled until installed CI origin is verified. Review reproduced forged check-name acceptance; 21 corrected plan controls pass with specific rejection-code assertions. Separate future workers/protected setup remain, with no signing/upload executed |
 | PHP exposure research | #7072, `docs/r5-cloud-release-readiness.md` | Official advisories/source assessment documented; deployed runtime inventory unknown, no Keeper exposure assertion; remedies stay R6 |
-| Navigation/timezone/PIN/copy | `docs/r5/BIOMETRIC-LIFECYCLE.md` and source tests | No speculative #7055/#6991 fix; bounded native reproduction/device checks remain. Retain shipped PIN and scoped EN/ES corrections |
+| Navigation/timezone/PIN/copy | `docs/r5/BIOMETRIC-LIFECYCLE.md` and source tests | No speculative #7055/#6991 fix; bounded native reproduction/device checks remain. Retain R4 PIN and scoped EN/ES corrections |
 | Read-only timelock assessor | Separately recorded candidate, not identified as 5.2 | Source/handoff and complete key/origin/script/intent binding and native isolation acceptance remain; no activation or wallet clearance |
 | Independent/Claude review | Source review receipts on package PRs; policy #7034 / reviewer #7049 | Independent agent reviews performed. Apply risk-based conditional review; policy/auth/recovery/CI changes require adequate review. Applicable Claude provider review remains unavailable without trusted installation and verified existing authorization/budget; no new paid activation or blanket human-review requirement inferred |
 | Physical acceptance / release evidence | Exact artifact and authorized tester required | Not run; no physical deferral inferred. Version/build allocation, protected signing and distribution require the specified fresh evidence and explicit approvals |

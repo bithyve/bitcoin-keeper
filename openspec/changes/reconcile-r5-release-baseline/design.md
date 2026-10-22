@@ -3,11 +3,12 @@
 R4's middleware stamps app/session authority at dispatch and its deletion worker
 checks retained Vault references inside the local transaction. R5's earlier UI
 confirmation predates that dispatch boundary; its origin must survive an account
-switch, including A → B → A. The owner-confirmed release baseline is 1d8a86a.
+switch, including A → B → A. The submitted R4 source baseline is 1d8a86a;
+public release remains held.
 
 ## Goals / Non-Goals
 
-Preserve R4 and R5 history and all released backend/native/dependency inputs;
+Preserve R4 and R5 history and all baseline backend/native/dependency inputs;
 reject stale deletion confirmations without weakening reference, archived-key or
 passcode guards. No schema/MMKV/store-shape change or Persist migration/version
 bump; no PSBT, amount, UTXO or hardware interaction.
