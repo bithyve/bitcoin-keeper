@@ -155,12 +155,14 @@ async function platformJobs(github, request, run) {
 }
 
 async function boundedBytes(response) {
-  demand(response?.ok === true && response.body?.getReader, 'SOFTWARE_ARCHIVE_READ_FAILED');
-  const length = response.headers.get('content-length');
-  demand(length === null || (/^\d+$/.test(length) && Number(length) <= MAX_ARCHIVE), 'SOFTWARE_ARCHIVE_TOO_LARGE');
-  const reader = response.body.getReader(), chunks = [];
-  let size = 0;
+  let reader;
   try {
+    demand(response?.ok === true && response.body?.getReader, 'SOFTWARE_ARCHIVE_READ_FAILED');
+    const length = response.headers.get('content-length');
+    demand(length === null || (/^\d+$/.test(length) && Number(length) <= MAX_ARCHIVE), 'SOFTWARE_ARCHIVE_TOO_LARGE');
+    reader = response.body.getReader();
+    const chunks = [];
+    let size = 0;
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -168,9 +170,14 @@ async function boundedBytes(response) {
       demand(size <= MAX_ARCHIVE, 'SOFTWARE_ARCHIVE_TOO_LARGE');
       chunks.push(Buffer.from(value));
     }
-  } finally { await reader.cancel(); }
-  demand(length === null || Number(length) === size, 'SOFTWARE_ARCHIVE_SIZE_MISMATCH');
-  return Buffer.concat(chunks);
+    demand(length === null || Number(length) === size, 'SOFTWARE_ARCHIVE_SIZE_MISMATCH');
+    return Buffer.concat(chunks);
+  } finally {
+    // Header/status rejection happens before a reader exists. Close that body
+    // too; a cancellation failure must prevent an apparently successful read.
+    if (reader) await reader.cancel();
+    else if (response?.body?.cancel) await response.body.cancel();
+  }
 }
 async function readArchive(github, artifactId, fetchImpl) {
   demand(id(artifactId), 'SOFTWARE_ARTIFACT_IDENTITY_INVALID');
