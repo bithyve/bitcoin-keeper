@@ -1038,7 +1038,7 @@ def smoke(suite='startup'):
             command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 'Wait for simulator boot', timeout=240)
             command(['xcrun', 'simctl', 'install', device,
                      str(PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app')],
-                    'Install unsigned development app', timeout=120)
+                    'Install unsigned development app', timeout=300)
             descriptor = 'iPhone 16; iOS 18.5'
         else:
             sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '')))
