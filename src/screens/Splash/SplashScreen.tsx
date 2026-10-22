@@ -4,12 +4,6 @@ import { useColorMode } from '@gluestack-ui/themed-native-base';
 import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import * as SecureStore from 'src/storage/secure-store';
-import {
-  reportStartupFailure,
-  startupFailureFact,
-  StartupFailureFact,
-  StartupFailureStage,
-} from 'src/storage/startup-credential-diagnostics';
 import Animated, {
   interpolate,
   cancelAnimation,
@@ -27,6 +21,11 @@ import { setDefaultWalletCreated } from 'src/store/reducers/storage';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import {
+  observeStartupFailure,
+  reportStartupFailure,
+  StartupFailureReceipt,
+} from 'src/storage/startup-failure-observer';
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
@@ -72,31 +71,33 @@ function SplashScreen({ navigation }) {
   useEffect(() => {
     let current = true;
     readPending.current = true;
+    const startupFailureObserver =
+      typeof __DEV__ !== 'undefined' && __DEV__
+        ? (receipt: StartupFailureReceipt) => {
+            if (current) observeStartupFailure(receipt);
+          }
+        : undefined;
     const navigateToApp = async () => {
-      let failure: StartupFailureFact | undefined;
-      let stage: StartupFailureStage = 'READ_CALL';
+      let hasCreds;
       try {
-        const hasCreds = await SecureStore.hasPin({
-          throwOnError: true,
-          ...(__DEV__
-            ? {
-                onReadFailure: (fact: StartupFailureFact) => {
-                  failure = fact;
-                },
-              }
-            : {}),
-        });
-        if (!current) return;
+        hasCreds = await SecureStore.hasPin({ throwOnError: true }, startupFailureObserver);
+      } catch {
+        if (current) {
+          readPending.current = false;
+          setStartupError(true);
+        }
+        return;
+      }
+      if (!current) return;
+      try {
         if (hasCreds) {
-          stage = 'NAVIGATE_LOGIN';
           navigation.replace('Login', { relogin: false });
         } else {
-          stage = 'NAVIGATE_CREATE_PIN';
           navigation.replace('CreatePin');
         }
       } catch (error) {
+        reportStartupFailure(startupFailureObserver, 'NAVIGATION', 'THREW', error);
         if (current) {
-          if (__DEV__) reportStartupFailure(failure ?? startupFailureFact(stage, error));
           readPending.current = false;
           setStartupError(true);
         }

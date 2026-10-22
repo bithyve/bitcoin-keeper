@@ -9,8 +9,9 @@ const mockEvents: string[] = [];
 let mockSettings;
 let mockColorMode = 'light';
 let mockDev = false;
-let startupInfo;
+let startupHook;
 const previousDev = __DEV__;
+const previousHook = (global as any).nativeLoggingHook;
 
 jest.mock('src/store/hooks', () => ({
   useAppSelector: (select) => select({ settings: mockSettings }),
@@ -78,8 +79,10 @@ function visibleDialogs() {
 }
 beforeEach(() => {
   (global as any).__DEV__ = true;
-  startupInfo = jest.spyOn(console, 'info').mockImplementation(() => {});
+  startupHook = jest.fn();
+  (global as any).nativeLoggingHook = startupHook;
   jest.useFakeTimers();
+  jest.setSystemTime(1500);
   mockSettings = { torEnbled: false, themeMode: 'LIGHT', bitcoinNetworkType: 'MAINNET' };
   mockColorMode = 'light';
   mockDev = false;
@@ -98,7 +101,7 @@ afterEach(() => {
   jest.clearAllTimers();
   jest.useRealTimers();
   (global as any).__DEV__ = previousDev;
-  startupInfo.mockRestore();
+  (global as any).nativeLoggingHook = previousHook;
 });
 
 test('starts the credential read without waiting for the splash animation', async () => {
@@ -106,10 +109,7 @@ test('starts the credential read without waiting for the splash animation', asyn
   mockHasPin.mockReturnValue(pin.promise);
   await mount();
   expect(mockHasPin).toHaveBeenCalledTimes(1);
-  expect(mockHasPin).toHaveBeenCalledWith({
-    throwOnError: true,
-    onReadFailure: expect.any(Function),
-  });
+  expect(mockHasPin).toHaveBeenCalledWith({ throwOnError: true }, expect.any(Function));
   expect(navigation.replace).not.toHaveBeenCalled();
   await act(async () => pin.resolve(true));
   expect(navigation.replace).toHaveBeenCalledWith('Login', { relogin: false });
@@ -211,13 +211,18 @@ test('rerendering preserves the selected network and does not read credentials a
 });
 
 test('a precise read observation produces one fixed marker and preserves generic Retry', async () => {
-  mockHasPin.mockImplementationOnce(async ({ onReadFailure }) => {
-    onReadFailure({ stage: 'KEYCHAIN_READ', category: 'NATIVE_CODE_NEG34018' });
+  mockHasPin.mockImplementationOnce(async (_, onFailure) => {
+    onFailure({
+      phase: 'NATIVE_CREDENTIAL_READ',
+      outcome: 'REJECTED',
+      errorName: 'Error',
+      nativeCode: -34018,
+    });
     throw Error('PRIVATE_SENTINEL');
   });
   await mount();
-  expect(startupInfo.mock.calls).toEqual([
-    ['KEEPER_STARTUP_ERROR stage=KEYCHAIN_READ category=NATIVE_CODE_NEG34018'],
+  expect(startupHook.mock.calls).toEqual([
+    ['KEEPER_STARTUP_FAILURE_V1|1500|NATIVE_CREDENTIAL_READ|REJECTED|Error|-34018', 3],
   ]);
   expect(visibleDialogs()).toHaveLength(1);
   expect(navigation.replace).not.toHaveBeenCalled();
@@ -234,12 +239,8 @@ test.each([true, false])(
       throw new TypeError('PRIVATE_SENTINEL');
     });
     await act(async () => read.resolve(hasCreds));
-    expect(startupInfo.mock.calls).toEqual([
-      [
-        `KEEPER_STARTUP_ERROR stage=${
-          hasCreds ? 'NAVIGATE_LOGIN' : 'NAVIGATE_CREATE_PIN'
-        } category=TYPE_ERROR`,
-      ],
+    expect(startupHook.mock.calls).toEqual([
+      ['KEEPER_STARTUP_FAILURE_V1|1500|NAVIGATION|THREW|TypeError|NONE', 3],
     ]);
     expect(visibleDialogs()).toHaveLength(1);
   }
@@ -253,18 +254,24 @@ test('production supplies no observation callback and never inspects failure pro
   const failure = Object.defineProperty({}, 'code', { get: code });
   mockHasPin.mockRejectedValue(failure);
   await mount();
-  expect(mockHasPin).toHaveBeenCalledWith({ throwOnError: true });
+  expect(mockHasPin).toHaveBeenCalledWith({ throwOnError: true }, undefined);
   expect(code).not.toHaveBeenCalled();
-  expect(startupInfo).not.toHaveBeenCalled();
+  expect(startupHook).not.toHaveBeenCalled();
   expect(visibleDialogs()).toHaveLength(1);
 });
 
 test('logger failure preserves the generic Retry and the next successful credential read', async () => {
-  startupInfo.mockImplementation(() => {
+  startupHook.mockImplementation(() => {
     throw Error('PRIVATE_SENTINEL');
   });
-  mockHasPin.mockRejectedValueOnce(Error('PRIVATE_SENTINEL')).mockResolvedValue(false);
+  mockHasPin
+    .mockImplementationOnce(async (_, observer) => {
+      observer({ phase: 'ACCOUNT_STATE', outcome: 'THREW', errorName: 'Error', nativeCode: null });
+      throw Error('PRIVATE_SENTINEL');
+    })
+    .mockResolvedValue(false);
   await mount();
+  expect(startupHook).toHaveBeenCalledTimes(1);
   expect(visibleDialogs()).toHaveLength(1);
   await act(async () => visibleDialogs()[0].props.buttonCallback());
   expect(navigation.replace).toHaveBeenCalledWith('CreatePin');
@@ -273,11 +280,21 @@ test('logger failure preserves the generic Retry and the next successful credent
 
 test('an abandoned attempt cannot emit a late failure marker', async () => {
   const read = deferred();
-  mockHasPin.mockReturnValue(read.promise);
+  let observer;
+  mockHasPin.mockImplementationOnce((_, onFailure) => {
+    observer = onFailure;
+    return read.promise;
+  });
   await mount();
   act(() => screen.unmount());
   screen = null;
+  observer({
+    phase: 'NATIVE_CREDENTIAL_READ',
+    outcome: 'REJECTED',
+    errorName: 'Error',
+    nativeCode: -34018,
+  });
   await act(async () => read.reject(Error('PRIVATE_SENTINEL')));
-  expect(startupInfo).not.toHaveBeenCalled();
+  expect(startupHook).not.toHaveBeenCalled();
   expect(navigation.replace).not.toHaveBeenCalled();
 });
