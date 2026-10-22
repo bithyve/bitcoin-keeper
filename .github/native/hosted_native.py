@@ -166,14 +166,14 @@ def private_log_prefix(path):
     return payload.decode(errors='replace'), truncated
 
 
-def ios_startup_diagnostics(payload, executable):
+def ios_startup_diagnostics(payload, executable, started_ms=None, ended_ms=None, input_partial=False):
     # Pure fixed-vocabulary classifier; no source message, stack or path leaves
     # the fresh owned simulator's private compact-log query.
     spec = importlib.util.spec_from_file_location(
         'ios_startup_errors', Path(__file__).with_name('ios_startup_errors.py'))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.classify(payload, executable)
+    return module.classify(payload, executable, started_ms, ended_ms, input_partial)
 
 
 def startup_hierarchy_signals(directory):
@@ -305,10 +305,14 @@ def maestro_preflight_diagnostics(directory=None, command_label='Assert startup 
     return result
 
 
-def record_startup_failure(report, device):
+def record_startup_failure(report, device, startup_started_ms=None):
     """Collect bounded diagnostics before destroying this job's fresh app state."""
     details = {'scope': 'Fresh startup only; no account or persisted PIN created.',
                'collection_errors': []}
+    try:
+        startup_ended_ms = int(time.time() * 1000)
+    except Exception:
+        startup_ended_ms = None
 
     def collect(name, action):
         try:
@@ -377,9 +381,9 @@ def record_startup_failure(report, device):
             predicate = ('process == "%s" AND (messageType == "error" OR messageType == "fault" '
                          'OR eventMessage CONTAINS[c] "error" OR eventMessage CONTAINS[c] "exception" '
                          'OR eventMessage CONTAINS[c] "fatal")') % executable
-            # RN0.83.9 forwards a single console.info string unchanged to
-            # RCTDefaultLogFunction / OS_LOG_TYPE_INFO. Request that level in the
-            # existing bounded query; persistence/routing still need native proof.
+            # Retain INFO for existing bounded diagnostics. The single new
+            # direct-hook failure marker uses RN's OS_LOG_TYPE_ERROR sink;
+            # actual marker routing still needs exact-source native proof.
             args = ['xcrun', 'simctl', 'spawn', device, 'log', 'show', '--info', '--style', 'compact',
                     '--last', '10m', '--predicate', predicate]
             path = PRIVATE / 'ios-startup-errors.log'
@@ -393,11 +397,15 @@ def record_startup_failure(report, device):
                     code = 124
             result = {'command': args, 'exit_code': code, 'errors': [],
                       'query_status': 'SUCCESS' if code == 0 else 'TIMEOUT' if code == 124 else 'FAILED',
-                      'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED', 'input_truncated': None}
+                      'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED', 'input_truncated': None,
+                      'startup_failure_receipt': {'schema': 1, 'status': 'UNKNOWN', 'records': [],
+                          'cause': 'UNDETERMINED', 'reasons': ['QUERY_UNAVAILABLE'],
+                          'scope': 'OPTIONAL_ORIGINAL_STARTUP_MARKERS_NOT_CAUSE_OR_ACCEPTANCE'}}
             if code == 0:
                 try:
                     payload, truncated = private_log_prefix(path)
-                    result.update(ios_startup_diagnostics(payload, executable))
+                    result.update(ios_startup_diagnostics(payload, executable, startup_started_ms,
+                                                         startup_ended_ms, input_partial=truncated))
                     result['input_truncated'] |= truncated
                     if truncated:
                         result['parse_status'] = 'PARTIAL' if result['matching_process_records'] else 'UNKNOWN'
@@ -1107,7 +1115,7 @@ def smoke(suite='startup'):
         startup_error = original_error
         try:
             if not (is_probe or is_features):
-                record_startup_failure(report, device)
+                record_startup_failure(report, device, getattr(startup_capture, 'started_ms', None))
             else:
                 data = read()
                 data[result_key] = 'FAIL'
