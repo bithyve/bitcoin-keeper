@@ -7,6 +7,7 @@ the same ordinary Metro process and disposable backend responder remain alive.
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import threading
@@ -21,6 +22,26 @@ STAGES = (
     'cold_wrong_login_pin_rejected', 'deletion_persisted_after_relaunch',
     'final_wallet_verified',
 )
+
+
+def installed_proof(h, device):
+    proof = h.verify_installed_artifact(device)
+    method, hashes = {
+        'ANDROID': ('SINGLE_INSTALLED_BASE_APK_SHA256', ['sha256']),
+        'IOS': ('FULL_SIMULATOR_BUNDLE_TREE_AND_EXECUTABLE_SHA256',
+                ['inventory_sha256', 'executable_sha256']),
+    }[h.PLATFORM]
+    metadata = h.read()
+    if (not isinstance(proof, dict) or set(proof) != {'method', *hashes} or
+            proof['method'] != method or
+            any(not isinstance(proof[field], str) or not re.fullmatch(r'[a-f0-9]{64}', proof[field])
+                for field in hashes) or metadata.get('installed_artifact_verified') is not True or
+            metadata.get('installed_artifact') != proof):
+        metadata['installed_artifact_verified'] = False
+        metadata.pop('installed_artifact', None)
+        h.save(metadata)
+        raise RuntimeError('PRODUCT_UI_INSTALLED_BYTE_PROOF_REQUIRED')
+    return proof
 
 
 class Receipt:
@@ -123,6 +144,7 @@ def run_companion(h, data, device, private, backend_receipt):
 
     save()
     try:
+        installed_before = installed_proof(h, device)
         server = make_server(receipt)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -136,11 +158,16 @@ def run_companion(h, data, device, private, backend_receipt):
         h.successful_junit(report)
         if h.artifact_identity() != data['built_artifact']:
             raise RuntimeError('PRODUCT_KEY_UI_ARTIFACT_CHANGED')
+        installed_after = installed_proof(h, device)
+        if installed_after != installed_before:
+            raise RuntimeError('PRODUCT_KEY_UI_INSTALLED_BYTES_CHANGED')
         after = backend_receipt.snapshot(passed=True)
         if after['create_new_app_calls'] != before['create_new_app_calls']:
             raise RuntimeError('PRODUCT_KEY_UI_UNEXPECTED_ACCOUNT_SETUP')
         result = receipt.snapshot(passed=True)
         result['new_account_requests_during_key_flow'] = 0
+        result['installed_artifact_verified'] = True
+        result['installed_artifact'] = installed_after
     except Exception as error:
         result = receipt.snapshot()
         result['failure_category'] = type(error).__name__
