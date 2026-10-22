@@ -71,6 +71,12 @@ async function sourceCorpus(t) {
   return { source: f, expected, ...identity, remote };
 }
 
+function assertBlankRecovery(f) {
+  for (const schema of ['KeeperApp', 'Wallet', 'USDTWallet', 'Vault', 'VaultSigner', 'Signer', 'Tags', 'NodeConnect', 'BackupHistory', 'VersionHistory'])
+    assert.equal(f.nativeRealm().objects(schema).length, 0);
+  assert.equal(f.store.getState().storage.appCreated, false);
+}
+
 async function target(t) {
   const f = await createProtectedRealmClient(server.url, { appId, primarySeed: seed.toString('hex'), primaryMnemonic: mnemonic });
   t.after(() => f.close());
@@ -83,8 +89,7 @@ async function target(t) {
   f.store.dispatch(f.storage.setAppId(''));
   f.store.dispatch(f.account.setTempDetails({ hash: f.encryption.hash256('public-disposable-passcode-fixture'),
     realmId: filename, accountIdentifier: 'disposable mixed corpus restore' }));
-  for (const schema of ['KeeperApp', 'Wallet', 'USDTWallet', 'Vault', 'Signer', 'Tags', 'NodeConnect'])
-    assert.equal(f.nativeRealm().objects(schema).length, 0);
+  assertBlankRecovery(f);
   check(f.store.getState().bhr.automaticCloudBackupByAppId[appId] !== true, 'TARGET_MUST_BEGIN_WITHOUT_CONSENT');
   let consentGranted = false;
   const unsubscribe = f.store.subscribe(() => {
@@ -117,7 +122,9 @@ function readOnlyRecovery(destination, expectedSource) {
   assert.equal(f.automatic.isBackupVerificationCurrent(appId), false);
   assert.equal(f.transport.captureBackupWriteIntent(appId), undefined);
   assert.equal(state.account.recoveryKeyStatusByAppId[appId], 'confirmed');
+  assert.equal(state.bhr.recoveryDiscovery.status, 'restored');
   assert.equal(state.bhr.recoveryDiscovery.provenance.source, expectedSource);
+  check(state.bhr.recoveryDiscovery.provenance.keeperAppId === appId, 'RECOVERY_PROVENANCE_MUST_RETAIN_KEEPER_ID');
   check(state.storage.appId === appId, 'KEEPER_ID_MUST_REMAIN_ORIGINAL');
 }
 
@@ -205,7 +212,7 @@ test('protected tombstone suppresses implicit fallback and explicit older select
   server.clearTrace();
   await destination.saga.run('getAppImageWorker', { payload: { primaryMnemonic: mnemonic } });
   assert.equal(destination.f.store.getState().bhr.recoveryDiscovery.status, 'protected-deleted');
-  assert.equal(destination.f.nativeRealm().objects('KeeperApp').length, 0);
+  assertBlankRecovery(destination.f);
   assert.equal(server.trace.filter(event => event.legacyRead).length, 0);
   check(destination.f.store.getState().bhr.automaticCloudBackupByAppId[appId] !== true, 'TOMBSTONE_CANNOT_GRANT_CONSENT');
   equal(await storedProjection(), before, 'DEFAULT_TOMBSTONE_DISCOVERY_MUST_REMAIN_READ_ONLY');

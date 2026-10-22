@@ -14,6 +14,10 @@ original file at this base hashes to
 `0532b00c25741b2a09d63aa86c3605c614cb8b62cb887ddb21143e27adec763f`.
 Only those data-building statements and the existing `cryptoAndRecovery` setup
 are evaluated; the old file's tests and public-v2 setup calls are never scheduled.
+A source review added a pre-selection barrier checking every recovery collection,
+VaultSigner and both history tables plus appCreated false after default tombstone
+discovery, so a partial unintended write cannot be hidden by the later restore.
+Completed recovery must also report restored status and original Keeper provenance.
 The new proof uses the unchanged current protected server/client fixture and the
 actual recovery saga, BIP39/BIP32/BIP85/AES, ESM authority, native encrypted Realm,
 Redux observers, signed HTTP router and transactional Relay storage.
