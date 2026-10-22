@@ -54,11 +54,15 @@ The other platform's native step must be skipped and receives no credit. Hosted
 runner labels constrain the selected route; they do not establish readiness or
 prove that any feature ran. Raw receipt composition remains separately required.
 
-Each run must own exactly one correctly named, unexpired metadata artifact with
-an original-byte SHA256 digest and a positive size within12MiB. Complete bounded
-API lists are required. Repository/workflow/branch/run/attempt/job/check/artifact
-and freshness are read again after source retrieval. A later queued, failed or
-partial rerun revokes an earlier pass. Artifact bytes, ZIP parsing, the thirteen
+Exactly one artifact must match the selected current attempt's full name, with
+an original-byte SHA256 digest, valid job-bound creation time, unexpired retention
+and a positive size within12MiB. Complete bounded API lists may retain older or
+other unselected artifacts; none receive credit or are deleted. Repository,
+workflow, branch, run, attempt, job, check, artifact and freshness are read again
+after source retrieval. A terminal repository/workflow/branch and both latest
+run/attempt fence follows every selected-artifact readback. No subsequent API
+work occurs before issue. A later queued, failed or partial rerun revokes an
+earlier pass. Artifact bytes, ZIP parsing, the thirteen
 raw member validator and post-download origin checks belong to separate P2B2.
 This package does not claim to have performed those steps.
 

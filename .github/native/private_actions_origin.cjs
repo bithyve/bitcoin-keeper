@@ -14,6 +14,8 @@ const POLICY = 'release/r5-native-integration/inputs.json';
 const MARKER = 'release/r5-native-integration/native-request.json';
 const MAX_AGE = 86400000, MAX_ARCHIVE = 12 * 1024 * 1024;
 const SHA = /^[a-f0-9]{40}$/, issued = new WeakSet();
+const sha = value => typeof value === 'string' && SHA.test(value);
+const instant = value => typeof value === 'string' ? Date.parse(value) : NaN;
 // Final app/controller windows require separate source review and installation.
 // No input, artifact, environment variable or API response may populate this.
 const REVIEWED_WINDOWS = Object.freeze({});
@@ -46,7 +48,7 @@ function repository(value, name, number) { return value?.id === number && value.
 function descriptor(value, platform) {
   demand(keys(value, ['platform', 'app', 'control', 'backend', 'execution']) && value.platform === platform);
   for (const [name, repo] of [['app', APP], ['control', PRIVATE]]) demand(keys(value[name], ['repository', 'sha', 'tree']) &&
-    value[name].repository === repo && SHA.test(value[name].sha) && SHA.test(value[name].tree));
+    value[name].repository === repo && sha(value[name].sha) && sha(value[name].tree));
   demand(keys(value.backend, ['repository', 'sha']) && value.backend.repository === PRIVATE && value.backend.sha === BACKEND);
   const e = value.execution;
   demand(keys(e, ['repository', 'workflowPath', 'workflowSha', 'ref', 'runId', 'runAttempt']) &&
@@ -59,7 +61,7 @@ function tree(value, expected) {
     value.tree.length > 0 && value.tree.length <= 20000, 'PRIVATE_ACTIONS_TREE_INVALID');
   const entries = new Map();
   for (const row of value.tree) {
-    demand(safePath(row.path) && SHA.test(row.sha) && !entries.has(row.path) &&
+    demand(safePath(row.path) && sha(row.sha) && !entries.has(row.path) &&
       ((row.type === 'tree' && row.mode === '040000') ||
        (row.type === 'blob' && ['100644', '100755'].includes(row.mode))), 'PRIVATE_ACTIONS_TREE_INVALID');
     entries.set(row.path, row);
@@ -69,7 +71,7 @@ function tree(value, expected) {
 async function contents(github, repo, ref, name, inventory) {
   const value = data(await github.rest.repos.getContent({ ...api(repo), ref, path: name }));
   demand(value.type === 'file' && value.path === name && value.encoding === 'base64' &&
-    id(value.size) && value.size <= 2_000_000 && SHA.test(value.sha || '') && typeof value.content === 'string' &&
+    id(value.size) && value.size <= 2_000_000 && sha(value.sha || '') && typeof value.content === 'string' &&
     /^[A-Za-z0-9+/=\r\n]+$/.test(value.content), 'PRIVATE_ACTIONS_SOURCE_INVALID');
   const bytes = Buffer.from(value.content, 'base64');
   demand(bytes.length === value.size && bytes.toString('base64') === value.content.replace(/[\r\n]/g, '') &&
@@ -78,7 +80,7 @@ async function contents(github, repo, ref, name, inventory) {
   return bytes;
 }
 function fresh(run, now) {
-  const updated = Date.parse(run.updated_at);
+  const updated = instant(run.updated_at);
   demand(Number.isFinite(now) && Number.isFinite(updated) && updated <= now && updated >= now - MAX_AGE,
     'PRIVATE_ACTIONS_RUN_STALE');
 }
@@ -95,10 +97,10 @@ function runIdentity(run, value, workflow, now) {
 function artifactIdentity(info, value, artifactId, now, selected) {
   const e = value.execution, name = `r5-integration-native-${value.platform}-${value.control.sha}-${e.runId}-${e.runAttempt}`;
   demand(info.id === artifactId && info.name === name && info.expired === false && id(info.size_in_bytes) && info.size_in_bytes <= MAX_ARCHIVE &&
-    /^sha256:[a-f0-9]{64}$/.test(info.digest || '') && Date.parse(info.expires_at) > now &&
+    typeof info.digest === 'string' && /^sha256:[a-f0-9]{64}$/.test(info.digest) && instant(info.expires_at) > now &&
     info.workflow_run?.id === e.runId && info.workflow_run.head_sha === value.control.sha && info.workflow_run.head_branch === REF.slice(11) &&
     info.workflow_run.repository_id === PRIVATE_ID && info.workflow_run.head_repository_id === PRIVATE_ID &&
-    Date.parse(info.created_at) >= Date.parse(selected.started_at) && Date.parse(info.created_at) <= Date.parse(selected.completed_at),
+    instant(info.created_at) >= instant(selected.started_at) && instant(info.created_at) <= instant(selected.completed_at),
   'PRIVATE_ACTIONS_ARTIFACT_INVALID');
 }
 function stepNames(platform) {
@@ -128,8 +130,8 @@ async function selectedJob(github, value, run, now) {
   demand(job.name === 'native' && job.run_id === e.runId && job.run_attempt === e.runAttempt && job.head_sha === control.sha &&
     job.status === 'completed' && job.conclusion === 'success' && match && id(Number(match[1])) &&
     Array.isArray(job.labels) && job.labels.includes(platform === 'IOS' ? 'macos-15' : 'ubuntu-24.04') &&
-    !job.labels.includes('self-hosted') && Date.parse(job.started_at) > 0 &&
-    Date.parse(job.completed_at) > Date.parse(job.started_at) && Date.parse(job.completed_at) <= now, 'PRIVATE_ACTIONS_JOB_INVALID');
+    !job.labels.includes('self-hosted') && instant(job.started_at) > 0 &&
+    instant(job.completed_at) > instant(job.started_at) && instant(job.completed_at) <= now, 'PRIVATE_ACTIONS_JOB_INVALID');
   for (const name of stepNames(platform)) {
     const found = job.steps?.filter(s => s.name === name) || [];
     demand(found.length === 1 && found[0].status === 'completed' && found[0].conclusion === 'success', 'PRIVATE_ACTIONS_STEP_INVALID');
@@ -158,7 +160,7 @@ async function windowOrigin(github, value, workflow, backendTree, baselinePolicy
   demand(runs.some(r => r.id === run.id && r.run_attempt === run.run_attempt && r.head_sha === run.head_sha), 'PRIVATE_ACTIONS_EXACT_RUN_REQUIRED');
   demand(commit.sha === control.sha && commit.tree?.sha === control.tree &&
     commit.message?.split('\n')[0] === `ci(r5): run combined native ${platform}` &&
-    Array.isArray(commit.parents) && commit.parents.length === 1 && SHA.test(commit.parents[0].sha), 'PRIVATE_ACTIONS_CONTROL_COMMIT_INVALID');
+    Array.isArray(commit.parents) && commit.parents.length === 1 && sha(commit.parents[0].sha), 'PRIVATE_ACTIONS_CONTROL_COMMIT_INVALID');
   const controlTree = tree(rawTree, control.tree);
   demand(controlTree.get(MARKER)?.mode === '100644', 'PRIVATE_ACTIONS_MARKER_INVALID');
   const [markerBytes, policyBytes, workflowBytes] = await Promise.all([MARKER, POLICY, WORKFLOW].map(name =>
@@ -181,11 +183,11 @@ async function windowOrigin(github, value, workflow, backendTree, baselinePolicy
   const artifacts = complete(await github.rest.actions.listWorkflowRunArtifacts({ ...args, run_id: e.runId, per_page: 100 }), 'artifacts');
   const name = `r5-integration-native-${platform}-${control.sha}-${e.runId}-${e.runAttempt}`;
   const found = artifacts.filter(a => a.name === name);
-  demand(artifacts.length === 1 && found.length === 1, 'PRIVATE_ACTIONS_ARTIFACT_INVALID');
+  demand(found.length === 1, 'PRIVATE_ACTIONS_ARTIFACT_INVALID');
   const info = data(await github.rest.actions.getArtifact({ ...args, artifact_id: found[0].id }));
   artifactIdentity(info, value, found[0].id, now, selected);
   return { descriptor: value, run_updated_at: run.updated_at, workflow_id: workflow.id, ...selected, artifact: { id: info.id, name: info.name, size: info.size_in_bytes,
-      sha256: info.digest.slice(7), expires_at: info.expires_at }, workflow_source_sha256: digest(workflowBytes),
+      sha256: info.digest.slice(7), expires_at: info.expires_at, created_at: info.created_at }, workflow_source_sha256: digest(workflowBytes),
     policy_source_sha256: digest(policyBytes), marker_source_sha256: digest(markerBytes),
     parent: commit.parents[0].sha, controlTree };
 }
@@ -213,7 +215,7 @@ async function authenticatePrivateActionsOrigins(github, supplied, { clock = Dat
     demand(branch.name === REF.slice(11) && [expected.IOS.control.sha, expected.ANDROID.control.sha].includes(branch.commit?.sha),
       'PRIVATE_ACTIONS_BRANCH_MOVED');
     demand(id(workflow.id) && workflow.path === WORKFLOW && workflow.state === 'active', 'PRIVATE_ACTIONS_WORKFLOW_INVALID');
-    demand(appCommit.sha === app.sha && appCommit.tree?.sha === app.tree && backendCommit.sha === BACKEND && SHA.test(backendCommit.tree?.sha || ''),
+    demand(appCommit.sha === app.sha && appCommit.tree?.sha === app.tree && backendCommit.sha === BACKEND && sha(backendCommit.tree?.sha || ''),
       'PRIVATE_ACTIONS_COMMIT_INVALID');
     const appTree = tree(appRawTree, app.tree), backendTree = tree(backendRawTree, backendCommit.tree.sha);
     const baselinePolicy = parseStrictJson(policyBytes, 131072);
@@ -222,7 +224,7 @@ async function authenticatePrivateActionsOrigins(github, supplied, { clock = Dat
     const current = rows.IOS.descriptor.control.sha === branch.commit.sha ? rows.IOS : rows.ANDROID;
     const previous = current === rows.IOS ? rows.ANDROID : rows.IOS;
     demand(current.parent === previous.descriptor.control.sha, 'PRIVATE_ACTIONS_CONTROL_ANCESTRY_INVALID');
-    demand(Date.parse(current.started_at) >= Date.parse(previous.completed_at), 'PRIVATE_ACTIONS_NATIVE_WINDOWS_OVERLAP');
+    demand(instant(current.started_at) >= instant(previous.completed_at), 'PRIVATE_ACTIONS_NATIVE_WINDOWS_OVERLAP');
     const left = [...rows.IOS.controlTree].filter(([p]) => p !== MARKER).map(([p, v]) => [p, v.mode, v.sha]);
     const right = [...rows.ANDROID.controlTree].filter(([p]) => p !== MARKER).map(([p, v]) => [p, v.mode, v.sha]);
     demand(equal(left, right), 'PRIVATE_ACTIONS_CONTROL_EQUIVALENCE_INVALID');
@@ -234,14 +236,6 @@ async function authenticatePrivateActionsOrigins(github, supplied, { clock = Dat
       sha256: digest(sourceBytes.get(name)), names: Object.freeze([...names]) }));
     // Source retrieval is network work. Revoke a moved branch, later failed run,
     // rerun or changed artifact before issuing even this diagnostic-only origin.
-    const [lastBranch, lastWorkflow, lastRepo] = await Promise.all([
-      github.rest.repos.getBranch({ ...args, branch: REF.slice(11) }).then(data),
-      github.rest.actions.getWorkflow({ ...args, workflow_id: 'r5-native-integration.yml' }).then(data),
-      github.rest.repos.get(args).then(data),
-    ]);
-    demand(lastBranch.name === branch.name && lastBranch.commit?.sha === branch.commit.sha, 'PRIVATE_ACTIONS_BRANCH_MOVED');
-    demand(lastWorkflow.id === workflow.id && lastWorkflow.path === WORKFLOW && lastWorkflow.state === 'active', 'PRIVATE_ACTIONS_WORKFLOW_INVALID');
-    demand(repository(lastRepo, PRIVATE, PRIVATE_ID) && lastRepo.private === true, 'PRIVATE_ACTIONS_REPOSITORY_INVALID');
     for (const p of ['IOS', 'ANDROID']) {
       const row = rows[p], e = expected[p].execution;
       const latest = complete(await github.rest.actions.listWorkflowRuns({ ...args, workflow_id: workflow.id,
@@ -253,13 +247,39 @@ async function authenticatePrivateActionsOrigins(github, supplied, { clock = Dat
       demand(equal(await selectedJob(github, expected[p], run, clock()), { check_suite_id: row.check_suite_id,
         job_id: row.job_id, check_run_id: row.check_run_id, started_at: row.started_at, completed_at: row.completed_at }), 'PRIVATE_ACTIONS_JOB_CHANGED');
       const currentArtifacts = complete(await github.rest.actions.listWorkflowRunArtifacts({ ...args, run_id: e.runId, per_page: 100 }), 'artifacts');
-      demand(currentArtifacts.length === 1 && currentArtifacts[0].id === row.artifact.id && currentArtifacts[0].name === row.artifact.name,
+      const selected = currentArtifacts.filter(a => a.name === row.artifact.name);
+      demand(selected.length === 1 && selected[0].id === row.artifact.id,
         'PRIVATE_ACTIONS_ARTIFACT_INVALID');
       const currentArtifact = data(await github.rest.actions.getArtifact({ ...args, artifact_id: row.artifact.id }));
       artifactIdentity(currentArtifact, expected[p], row.artifact.id, clock(), row);
-      demand(currentArtifact.digest === `sha256:${row.artifact.sha256}` && currentArtifact.size_in_bytes === row.artifact.size,
+      demand(currentArtifact.digest === `sha256:${row.artifact.sha256}` && currentArtifact.size_in_bytes === row.artifact.size &&
+        currentArtifact.expires_at === row.artifact.expires_at && currentArtifact.created_at === row.artifact.created_at,
       'PRIVATE_ACTIONS_ARTIFACT_INVALID');
     }
+    // Artifact readbacks above are network work too. Perform a terminal current
+    // window fence AFTER all of them, with no subsequent API reads before issue.
+    const [lastBranch, lastWorkflow, lastRepo, ...lastRuns] = await Promise.all([
+      github.rest.repos.getBranch({ ...args, branch: REF.slice(11) }).then(data),
+      github.rest.actions.getWorkflow({ ...args, workflow_id: 'r5-native-integration.yml' }).then(data),
+      github.rest.repos.get(args).then(data),
+      ...['IOS', 'ANDROID'].flatMap(p => {
+        const e = expected[p].execution;
+        return [github.rest.actions.listWorkflowRuns({ ...args, workflow_id: workflow.id, head_sha: expected[p].control.sha,
+          branch: REF.slice(11), event: 'push', per_page: 100 }).then(r => complete(r, 'workflow_runs')),
+        github.rest.actions.getWorkflowRun({ ...args, run_id: e.runId }).then(data)];
+      }),
+    ]);
+    demand(lastBranch.name === branch.name && lastBranch.commit?.sha === branch.commit.sha, 'PRIVATE_ACTIONS_BRANCH_MOVED');
+    demand(lastWorkflow.id === workflow.id && lastWorkflow.path === WORKFLOW && lastWorkflow.state === 'active', 'PRIVATE_ACTIONS_WORKFLOW_INVALID');
+    demand(repository(lastRepo, PRIVATE, PRIVATE_ID) && lastRepo.private === true, 'PRIVATE_ACTIONS_REPOSITORY_INVALID');
+    ['IOS', 'ANDROID'].forEach((p, index) => {
+      const [latest, run] = lastRuns.slice(index * 2, index * 2 + 2), e = expected[p].execution;
+      demand(Math.max(...latest.map(r => r.id)) === e.runId && run.check_suite_id === rows[p].check_suite_id &&
+        latest.some(r => r.id === e.runId && r.run_attempt === e.runAttempt && r.head_sha === expected[p].control.sha),
+      'PRIVATE_ACTIONS_EXACT_RUN_REQUIRED');
+      runIdentity(run, expected[p], workflow, clock());
+      demand(instant(rows[p].artifact.expires_at) > clock(), 'PRIVATE_ACTIONS_ARTIFACT_INVALID');
+    });
     const platforms = {};
     for (const p of ['IOS', 'ANDROID']) {
       const { controlTree, parent, ...row } = rows[p];

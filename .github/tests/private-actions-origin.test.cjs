@@ -162,3 +162,63 @@ test('complete lists and raw source blob ownership are required', async () => {
     const f = fixture(); mutate(f); await assert.rejects(run(f), /^Error: PRIVATE_ACTIONS_[A-Z_]+$/);
   }
 });
+for (const [name, mutate] of [
+  ['branch moves', f => { f.branch.commit.sha = 'f'.repeat(40); }],
+  ['workflow disabled', f => { f.workflow.state = 'disabled_manually'; }],
+  ['repository becomes public', f => { f.privateRepo.private = false; }],
+  ['later queued IOS run', f => { f.lists[f.expected.IOS.control.sha].push({ ...f.runs[1001], id: 1003, status: 'queued', conclusion: null }); }],
+]) test(`terminal window fence rejects late final ANDROID artifact mutation: ${name}`, async () => {
+  const f = fixture(); let readbacks = 0;
+  f.onRequest = (name, a) => { if (name === 'artifact' && a.artifact_id === 1102 && ++readbacks === 2) mutate(f); };
+  await assert.rejects(run(f), /^Error: PRIVATE_ACTIONS_[A-Z_]+$/);
+});
+function attemptTwo(f, platform) {
+  const runId = f.expected[platform].execution.runId, oldId = runId + 100, id = oldId + 1000;
+  f.expected[platform].execution.runAttempt = 2; f.runs[runId].run_attempt = 2;
+  const job = f.jobs[runId][0], oldCheck = f.checks[runId + 400];
+  job.run_attempt = 2; job.id += 1000; job.check_run_url = job.check_run_url.replace(String(runId + 400), String(runId + 1400));
+  f.checks[runId + 1400] = { ...structuredClone(oldCheck), id: runId + 1400 };
+  f.artifacts[id] = { ...structuredClone(f.artifacts[oldId]), id, name: f.artifacts[oldId].name.slice(0, -1) + '2' };
+  f.artifacts[oldId].created_at = '2026-10-22T20:00:00Z';
+  f.artifactLists[runId].push(id); return id;
+}
+test('latest successful attempt2 selects only its own artifact while preserving both attempt1 receipts', async () => {
+  const f = fixture(); const ios = attemptTwo(f, 'IOS'), android = attemptTwo(f, 'ANDROID');
+  const old = JSON.stringify([f.artifacts[1101], f.artifacts[1102]]), result = await run(f);
+  assert.equal(result.platforms.IOS.artifact.id, ios); assert.equal(result.platforms.ANDROID.artifact.id, android);
+  assert.equal(result.platforms.IOS.expected.execution.runAttempt, 2); assert.equal(result.platforms.ANDROID.expected.execution.runAttempt, 2);
+  assert.equal(JSON.stringify([f.artifacts[1101], f.artifacts[1102]]), old);
+  assert.deepEqual(f.artifactLists[1001], [1101, ios]); assert.deepEqual(f.artifactLists[1002], [1102, android]);
+});
+test('duplicate artifacts with the exact current attempt name remain ambiguous', async () => {
+  const f = fixture(), id = attemptTwo(f, 'IOS');
+  f.artifacts[id + 100] = { ...structuredClone(f.artifacts[id]), id: id + 100 }; f.artifactLists[1001].push(id + 100);
+  await assert.rejects(run(f), /PRIVATE_ACTIONS_ARTIFACT_INVALID/);
+});
+test('an older attempt artifact cannot substitute for the missing current attempt name', async () => {
+  const f = fixture(); attemptTwo(f, 'IOS'); f.artifactLists[1001] = [1101];
+  await assert.rejects(run(f), /PRIVATE_ACTIONS_ARTIFACT_INVALID/);
+});
+for (const malformed of ['array', 'object', 'number']) {
+  const value = sha => malformed === 'array' ? [sha] : malformed === 'object' ? { sha } : 123;
+  test(`Git tree rejects ${malformed} SHA on an unread allowed controller source`, async () => {
+    const f = fixture();
+    for (const p of ['IOS', 'ANDROID']) {
+      const row = f.trees[`${PRIVATE}:${f.expected[p].control.sha}`].tree.find(v => v.path === TOOL); row.sha = value(row.sha);
+    }
+    await assert.rejects(run(f), /PRIVATE_ACTIONS_TREE_INVALID/);
+  });
+  test(`Git tree rejects an additional unread app blob with ${malformed} SHA`, async () => {
+    const f = fixture(); f.trees[`${APP}:${f.expected.IOS.app.sha}`].tree.push({ path: 'src/unread.cjs', type: 'blob', mode: '100644', sha: value('a'.repeat(40)) });
+    await assert.rejects(run(f), /PRIVATE_ACTIONS_TREE_INVALID/);
+  });
+}
+test('JSON arrays cannot coerce source expectations or API timestamp/digest scalars', async () => {
+  for (const mutate of [f => { f.expected.IOS.app.sha = [f.expected.IOS.app.sha]; },
+    f => { f.runs[1001].updated_at = [f.runs[1001].updated_at]; },
+    f => { f.jobs[1001][0].started_at = [f.jobs[1001][0].started_at]; },
+    f => { f.artifacts[1101].digest = [f.artifacts[1101].digest]; },
+    f => { f.artifacts[1101].expires_at = [f.artifacts[1101].expires_at]; }]) {
+    const f = fixture(); mutate(f); await assert.rejects(run(f), /^Error: PRIVATE_ACTIONS_[A-Z_]+$/);
+  }
+});
