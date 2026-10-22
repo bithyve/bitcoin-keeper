@@ -100,8 +100,8 @@ test('reusable paths keep explicit draft and diagnostic boundaries with no dispa
     'keeper-release-acceptance.yml', 'keeper-native-diagnostic.yml']) {
     assert.ok(!Object.hasOwn(workflows[filename].on, 'workflow_dispatch'), filename);
   }
-  assert.match(workflows['android-diagnostic-build.yml'].jobs.build.if, /draft\) == 'false'/);
-  assert.match(workflows['android-diagnostic-build.yml'].jobs.build.if, /!contains/);
+  assert.equal(workflows['android-diagnostic-build.yml'].jobs.build.if, "github.event_name == 'workflow_dispatch'");
+  assert.equal(workflows['android-diagnostic-build.yml'].concurrency['cancel-in-progress'], 'false');
 });
 
 test('pushing the unpublished branch triggers no checked-in push workflow', () => {

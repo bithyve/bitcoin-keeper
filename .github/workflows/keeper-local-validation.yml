@@ -97,22 +97,25 @@ jobs:
             // alone is NOT evidence. All executable CI files must match both the
             // protected current base and the base used by that particular run.
             // This intentionally rejects this infrastructure PR's bootstrap runs.
+            const nativeRoute = value => value.labels?.some(label => label.name === 'keeper/native-diagnostic')
+              ? 'diagnostic' : value.labels?.some(label => label.name === 'keeper/legacy-native')
+                ? 'keeper-hosted-native.yml' : 'keeper-release-acceptance.yml';
             const hostedPasses = async () => {
               const passed = new Set();
               try {
-                const workflowNames = ['keeper-hosted-native.yml', 'keeper-release-acceptance.yml'];
+                const selectedWorkflow = nativeRoute(pr);
+                if (selectedWorkflow === 'diagnostic') return passed;
                 const repository = owner + '/' + repo;
                 if (pr.head.repo?.full_name !== repository) return passed;
-                const groups = await Promise.all(workflowNames.map(workflow_id =>
-                  github.paginate(github.rest.actions.listWorkflowRuns, {
-                    owner, repo, workflow_id, head_sha: sha, event: 'pull_request', per_page: 100
-                  })));
-                const runs = [...new Map(groups.flat().map(run => [run.id, run])).values()];
+                const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+                  owner, repo, workflow_id: selectedWorkflow,
+                  head_sha: sha, event: 'pull_request', per_page: 100
+                });
                 // Do not fall back to an older success after a failed/cancelled
                 // rerun or while newer evidence is pending.
                 const run = runs.sort((a, b) => b.id - a.id)[0];
                 const reusable = run?.path === '.github/workflows/keeper-release-acceptance.yml';
-                const workflowPath = reusable ? '.github/workflows/keeper-release-acceptance.yml' : '.github/workflows/keeper-hosted-native.yml';
+                const workflowPath = '.github/workflows/' + selectedWorkflow;
                 if (reusable && pull_number === 7045) return passed;
                 if (!run || run.head_sha !== sha || run.event !== 'pull_request' ||
                     run.path !== workflowPath || run.head_branch !== pr.head.ref ||
@@ -294,6 +297,13 @@ jobs:
             const { data: current } = await github.rest.pulls.get({ owner, repo, pull_number });
             if (current.head.sha !== sha) {
               core.setFailed('PR head changed during validation; awaiting new-head evaluation');
+              return;
+            }
+            if (current.base.sha !== pr.base.sha || current.base.ref !== pr.base.ref ||
+                current.base.repo?.id !== pr.base.repo?.id || current.base.repo?.full_name !== pr.base.repo?.full_name ||
+                current.head.ref !== pr.head.ref || current.head.repo?.id !== pr.head.repo?.id ||
+                current.head.repo?.full_name !== pr.head.repo?.full_name || nativeRoute(current) !== nativeRoute(pr)) {
+              core.setFailed('PR base, repository, ref or native route changed during validation; awaiting fresh evaluation');
               return;
             }
             await github.rest.repos.createCommitStatus({

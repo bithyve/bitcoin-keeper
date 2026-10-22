@@ -124,15 +124,18 @@ async function evaluate(comments, options = {}) {
         get: async ({ pull_number }) => {
           pullsRequested.push(pull_number);
           pullReads += 1;
-          return { data: {
+          const result = {
             base: { ref: options.baseRef || 'sprint', sha: baseSha,
               repo: { full_name: repository, id: repositoryId } },
             head: { sha: pullReads > 1 && options.afterHead ? options.afterHead : options.head || sha,
               ref: headRef, repo: options.headRepository || { full_name: repository, id: repositoryId } },
             body: options.body || '', user: { login: 'cloud-writer' },
             draft: options.draft ?? false,
+            labels: options.labels ?? [{ name: 'keeper/legacy-native' }],
             html_url: `https://github.com/${repository}/pull/${pull_number}`
-          } };
+          };
+          if (pullReads > 1) options.afterMutation?.(result);
+          return { data: result };
         },
         listFiles: filesRoute
       },
@@ -159,7 +162,7 @@ async function evaluate(comments, options = {}) {
   const core = { info: () => {}, warning: text => warnings.push(text),
     setFailed: text => failures.push(text) };
   await runWorkflow(github, context, core);
-  assert.equal(statuses.length, options.afterHead || options.baseRef ? 0 : 1);
+  assert.equal(statuses.length, options.afterHead || options.baseRef || options.afterMutation ? 0 : 1);
   return { status: statuses[0], statuses, failures, warnings, calls, pullsRequested,
     runsCalls: calls.filter(c => c.route === runsRoute),
     jobsCalls: calls.filter(c => c.route === jobsRoute) };
@@ -561,7 +564,7 @@ const reusableTree = () => ({ ...trustedTree(), tree: [...trustedTree().tree,
   { path: '.github/workflows/keeper-native-platform.yml', mode: '100644', type: 'blob', sha: '7'.repeat(40) },
 ] });
 const reusableOptions = overrides => ({
-  context: { issue: { number: 8000 } },
+  context: { issue: { number: 8000 } }, labels: [],
   runs: [reusableRun()], jobs: [reusableJob('IOS'), reusableJob('ANDROID')],
   trees: { [sha]: reusableTree(), [baseSha]: reusableTree(), [runBaseSha]: reusableTree() },
   ...overrides,
@@ -603,4 +606,37 @@ test('a newer unsuccessful reusable run supersedes older legacy successes across
     },
   }));
   assert.equal(status.state, 'failure');
+});
+test('a deliberately skipped alternate route cannot shadow actual selected-route evidence', async () => {
+  const linked = { ...hostedRun().pull_requests[0], number: 8000 };
+  for (const legacy of [false, true]) {
+    const { status } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions({
+      labels: legacy ? [{ name: 'keeper/legacy-native' }] : [],
+      jobs: legacy ? [hostedJob('IOS'), hostedJob('ANDROID')] : [reusableJob('IOS'), reusableJob('ANDROID')],
+      runsByWorkflow: {
+        'keeper-hosted-native.yml': [hostedRun({ id: legacy ? 90 : 92, pull_requests: [linked], conclusion: legacy ? 'success' : 'skipped' })],
+        'keeper-release-acceptance.yml': [reusableRun({ id: legacy ? 92 : 90, conclusion: legacy ? 'skipped' : 'failure' })],
+      },
+    }));
+    assert.equal(status.state, 'success', `legacy=${legacy}`);
+  }
+});
+test('diagnostic label cannot consume prior trusted selected-route evidence', async () => {
+  const { status, runsCalls } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions({
+    labels: [{ name: 'keeper/native-diagnostic' }],
+  }));
+  assert.equal(status.state, 'failure');
+  assert.equal(runsCalls.length, 0);
+});
+test('base, repository/ref or route movement at unchanged head cannot publish stale success', async () => {
+  for (const afterMutation of [
+    pr => { pr.base.sha = 'd'.repeat(40); }, pr => { pr.base.ref = 'other'; },
+    pr => { pr.base.repo.id += 1; }, pr => { pr.base.repo.full_name = 'other/repo'; },
+    pr => { pr.head.ref = 'other'; }, pr => { pr.head.repo.id += 1; },
+    pr => { pr.head.repo.full_name = 'other/repo'; }, pr => { pr.labels = [{ name: 'keeper/native-diagnostic' }]; },
+  ]) {
+    const { statuses, failures } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions({ afterMutation }));
+    assert.equal(statuses.length, 0);
+    assert.match(failures[0], /changed during validation/);
+  }
 });
