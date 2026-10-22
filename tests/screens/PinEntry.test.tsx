@@ -10,10 +10,11 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import Buttons from 'src/components/Buttons';
 
 const mockDispatch = jest.fn();
+const mockCreateSignature = jest.fn();
 const mockState = {
   login: { hasCreds: false, authenticationFailed: false, isAuthenticated: false },
   settings: { loginMethod: 'PIN' },
-  account: { allAccounts: [] },
+  account: { allAccounts: [], biometricEnabledAppId: null as string | null },
   storage: { appId: 'disposable-test', failedAttempts: 0, lastLoginFailedAt: 0 },
   notifications: {},
   bhr: {},
@@ -60,7 +61,9 @@ jest.mock('src/services/backend/Relay', () => ({
   __esModule: true,
   default: { getAccountManagerDetails: jest.fn(async () => null) },
 }));
-jest.mock('react-native-biometrics', () => jest.fn(() => ({})));
+jest.mock('react-native-biometrics', () =>
+  jest.fn(() => ({ createSignature: (...args: unknown[]) => mockCreateSignature(...args) }))
+);
 jest.mock('@react-native-firebase/app', () => ({ getApp: jest.fn() }));
 jest.mock('@react-native-firebase/messaging', () => ({
   AuthorizationStatus: { AUTHORIZED: 1, PROVISIONAL: 2 },
@@ -91,12 +94,101 @@ function mount(component: React.ReactElement) {
 beforeEach(() => {
   jest.useFakeTimers();
   mockDispatch.mockClear();
+  mockCreateSignature.mockReset();
   mockState.login.isAuthenticated = false;
+  mockState.settings.loginMethod = 'PIN';
+  mockState.storage.appId = 'disposable-test';
+  mockState.account.biometricEnabledAppId = null;
 });
 afterEach(() => {
   act(() => screen?.unmount());
   jest.clearAllTimers();
+  jest.restoreAllMocks();
   jest.useRealTimers();
+});
+
+describe('biometric login callback lifetime', () => {
+  let timers: jest.SpyInstance;
+  const navigation = { replace: jest.fn() };
+  const route = { params: {} };
+  const authCalls = () =>
+    mockDispatch.mock.calls.filter(([action]) => action.type === 'CREDS_AUTH');
+  const startPrompt = () => {
+    // Invoke the actual delayed production callback so its promise is observable.
+    // Timer APIs otherwise discard asynchronous callback rejections.
+    const callbacks = timers.mock.calls.filter(([, delay]) => delay === 200);
+    expect(callbacks.length).toBeGreaterThan(0);
+    return callbacks[callbacks.length - 1][0]();
+  };
+  beforeEach(() => {
+    timers = jest.spyOn(global, 'setTimeout');
+    mockCreateSignature.mockResolvedValue({ success: false });
+    mockState.settings.loginMethod = 'BIOMETRIC';
+    mount(<LoginScreen navigation={navigation} route={route} />);
+  });
+
+  test('native rejection is handled and leaves PIN login available', async () => {
+    mockCreateSignature.mockRejectedValue(new Error('synthetic native cancellation'));
+    await act(async () => {
+      await expect(startPrompt()).resolves.toBeUndefined();
+    });
+    expect(authCalls()).toHaveLength(0);
+    enter('1111');
+    expect(input()).toBe('1111');
+    expect(screen.root.findByType(Buttons).props.primaryDisable).toBe(false);
+  });
+
+  test('a successful current prompt authenticates its originating account once', async () => {
+    mockCreateSignature.mockResolvedValue({ success: true, signature: 'synthetic-signature' });
+    await act(async () => {
+      await startPrompt();
+    });
+    expect(authCalls()).toHaveLength(1);
+    expect(authCalls()[0][0].payload).toEqual({
+      passcode: 'synthetic-signature',
+      method: 'BIOMETRIC',
+      reLogin: false,
+      appId: 'disposable-test',
+    });
+  });
+
+  test('unmount cancels a queued prompt', async () => {
+    act(() => screen.unmount());
+    await act(async () => jest.runOnlyPendingTimers());
+    expect(mockCreateSignature).not.toHaveBeenCalled();
+    expect(authCalls()).toHaveLength(0);
+  });
+
+  test.each(['unmount', 'account change', 'PIN authentication'])(
+    'late native success after %s cannot authenticate',
+    async (transition) => {
+      let complete = (_result: { success: boolean; signature: string }) => {};
+      mockCreateSignature.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            complete = resolve;
+          })
+      );
+      let pending: Promise<void> = Promise.resolve();
+      act(() => {
+        pending = startPrompt();
+      });
+      expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+      act(() => {
+        if (transition === 'unmount') screen.unmount();
+        else {
+          if (transition === 'account change') mockState.storage.appId = 'other-disposable-account';
+          else mockState.login.isAuthenticated = true;
+          screen.update(<LoginScreen navigation={navigation} route={route} />);
+        }
+      });
+      await act(async () => {
+        complete({ success: true, signature: 'stale-synthetic-signature' });
+        await pending;
+      });
+      expect(authCalls()).toHaveLength(0);
+    }
+  );
 });
 
 describe('PIN entry under batched rapid taps', () => {
