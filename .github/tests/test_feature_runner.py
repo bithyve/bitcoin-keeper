@@ -62,7 +62,7 @@ class FeatureEvidenceTest(unittest.TestCase):
                 native.validate_r5_feature_evidence(json.dumps(payload))
 
     def test_measurements_must_be_raw_ordered_finite_bounded_numbers(self):
-        for field, value in [('iteration', 2), ('probe_ready_ms', float('nan')), ('probe_ready_ms', True),
+        for field, value in [('iteration', 2), ('iteration', True), ('probe_ready_ms', float('nan')), ('probe_ready_ms', True),
                              ('probe_ready_ms', -1), ('setup_first_wallet_ms', 600001),
                              ('setup_first_wallet_ms', '25')]:
             with self.subTest(field=field, value=value):

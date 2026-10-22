@@ -801,7 +801,7 @@ def validate_r5_feature_evidence(raw):
     def invalid_constant(value):
         raise ValueError('Non-finite feature measurement.')
     payload = json.loads(raw, parse_constant=invalid_constant)
-    if (payload.get('schema') != 1 or payload.get('scope') != 'production-worker-native-storage'
+    if (type(payload.get('schema')) is not int or payload.get('schema') != 1 or payload.get('scope') != 'production-worker-native-storage'
             or payload.get('status') != 'PASS' or payload.get('stage') != 'pass'
             or payload.get('scenarios') != [{'id': item, 'status': 'PASS'} for item in R5_SCENARIOS]
             or payload.get('limits') != R5_LIMITS):
@@ -810,7 +810,7 @@ def validate_r5_feature_evidence(raw):
     if not isinstance(measurements, list) or len(measurements) != 5:
         raise ValueError('Five raw helper measurements are required.')
     for iteration, row in enumerate(measurements, 1):
-        if not isinstance(row, dict) or set(row) != {'iteration', 'probe_ready_ms', 'setup_first_wallet_ms'} or row['iteration'] != iteration:
+        if not isinstance(row, dict) or set(row) != {'iteration', 'probe_ready_ms', 'setup_first_wallet_ms'} or type(row['iteration']) is not int or row['iteration'] != iteration:
             raise ValueError('Invalid feature measurement shape.')
         for field in ['probe_ready_ms', 'setup_first_wallet_ms']:
             value = row[field]
