@@ -144,7 +144,7 @@ repository administration process, and the provenance identity can read reposito
 contents, Actions runs/jobs/artifacts, checks and code-scanning analyses/SARIF
 processing. `pinReadToken` is a separate required repository-selected identity
 with **Variables: read only**; only the live repository-variable endpoint receives
-it. The default Actions `GITHUB_TOKEN` cannot read repository variables, and the
+it, with `Cache-Control: no-cache` on every live recheck. The default Actions `GITHUB_TOKEN` cannot read repository variables, and the
 consumer never falls back to it. Provision the dedicated
 `KEEPER_CANONICAL_PIN_READ_TOKEN` secret only through the separately approved
 setup for #7084; no credential is added or configured here. Missing permissions, a missing
@@ -156,7 +156,12 @@ acceptance remain separate exact-candidate evidence requirements.
 ## Installation handoff and current access blockers
 
 This successor preserves #7085 head
-`a1e167cab4e8485bb84418cadfb2313cbcedb644`; review its delta against that head.
+`a1e167cab4e8485bb84418cadfb2313cbcedb644` and recovers #7087's installed-byte
+successor `546d77261d02c0633e45b2c62df8f8e5580620c0` as a merge ancestor. #7087
+was published at 18:28:51 UTC during this task, after initial head/ref inspection.
+All installed-byte root/sample/Retry/key/PIN/build-binding rejection controls are
+retained; only their fixture calls gained the required isolated pin token. Review
+the CodeQL/pin-reader delta against `546d77261d02c0633e45b2c62df8f8e5580620c0`.
 It does not install changes into sprint or rewrite producer branches. Coordinate
 the reviewed workflow/receipt contract with #7084's pin-reader setup before future
 operation. No variable, secret, protection, release capability or native route is
@@ -166,7 +171,10 @@ The separately approved installer must verify the provenance identity has
 **Contents: read, Actions: read, Checks: read, Code scanning alerts: read**
 (`security_events=read` in the API permission header), and the isolated pin
 reader has Variables: read on this repository. Give no Variables write or
-administration permission. Keep tokens out of receipts/logs. Verify a genuine
+administration permission. Replacing the stored secret alone does not revoke a
+token already held by a running job: revoke the old token at its issuer or
+change/delete the live pin to revoke in-flight work. Keep tokens out of
+receipts/logs. Verify a genuine
 normal installed sprint-push CodeQL receipt on its exact source/attempt; a PR
 analysis or synthetic contract is not interchangeable. No native dispatch is
 needed to verify CodeQL upload provenance. Full canonical acceptance still needs
@@ -187,3 +195,13 @@ No settings, credentials or alert disposition were changed. The analyses API
 denial is an integration-permission blocker, not evidence that the repository
 lacks analyses or CodeQL failed to execute. Genuine verification needs approved
 read access and an installed output receipt; neither is waived by offline tests.
+
+Final assembled-source verification used Node 22.23.3: **268/268 Node controls
+passed**, comprising the consumer, captured-upload writer, disabled B1 controls
+and inherited `.github` gate tests. The 114 installed-byte rejection controls
+recovered from #7087 remain present. The first merged run failed those controls
+because their old three-argument fixture calls omitted the newly required pin
+identity; adapting those calls retained every rejection assertion. Both changed
+workflows passed actionlint 1.7.12 with external shellcheck/pyflakes disabled;
+whitespace checks passed. No native, installed-provider or release acceptance is
+claimed from these offline controls.

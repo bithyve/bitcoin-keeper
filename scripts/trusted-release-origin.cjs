@@ -79,9 +79,10 @@ async function boundedBytes(response, limit) {
   return Buffer.concat(chunks);
 }
 
-function client(token, missing = 'PROVENANCE_TOKEN_MISSING') {
+function client(token, missing = 'PROVENANCE_TOKEN_MISSING', noCache = false) {
   check(typeof token === 'string' && token.length > 0, missing);
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (noCache) headers['Cache-Control'] = 'no-cache';
   const base = `https://api.github.com/repos/${REPOSITORY}`;
   return {
     async api(endpoint) {
@@ -320,7 +321,7 @@ async function collectTrustedOriginUnchecked(request, token, now, pinReadToken) 
   const { api, archive } = client(token);
   // Only this endpoint receives the dedicated Variables:read identity. Never
   // fall back to the Actions/provenance token when it is missing or revoked.
-  const pinApi = client(pinReadToken, 'PIN_READ_TOKEN_MISSING').api;
+  const pinApi = client(pinReadToken, 'PIN_READ_TOKEN_MISSING', true).api;
   const sourceSha = request.sourceSha;
   const repository = await api('');
   check(repository.id === 470904030 && repository.full_name === REPOSITORY && repository.default_branch === 'sprint', 'REPOSITORY_IDENTITY_INVALID');

@@ -181,6 +181,7 @@ function fixture() {
     assert.ok(target === base || target.startsWith(base + '/'));
     const endpoint = target === base ? '' : target.slice((base + '/').length);
     assert.equal(options.headers.Authorization, endpoint === `actions/variables/${PIN}` ? 'Bearer disposable-pin-token' : 'Bearer disposable-test-token');
+    if (endpoint === `actions/variables/${PIN}`) assert.equal(options.headers['Cache-Control'], 'no-cache');
     const archive = endpoint.match(/^actions\/artifacts\/(\d+)\/zip$/);
     if (archive) return new Response(null, { status: 302, headers: { location: `https://storage.blob.core.windows.net/${archive[1]}` } });
     reads.set(endpoint, (reads.get(endpoint) || 0) + 1);
@@ -378,7 +379,7 @@ for (const platform of ['IOS', 'ANDROID']) {
         mutate(select(f.receipts[platform]));
         f.refreshReceipt(platform);
         f.refreshAttestation();
-        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /INSTALLED_BYTE_PROOF_INCOMPLETE/);
+        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_BYTE_PROOF_INCOMPLETE/);
       });
     });
   }
@@ -390,7 +391,7 @@ for (const platform of ['IOS', 'ANDROID']) {
       mutate(f.receipts[platform]);
       f.refreshReceipt(platform);
       f.refreshAttestation();
-      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /INSTALLED_BYTES_NOT_BOUND_TO_BUILD/);
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_BYTES_NOT_BOUND_TO_BUILD/);
     });
   });
 }
