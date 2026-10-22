@@ -82,6 +82,17 @@ def sample_failure_observation(private, flow, metro, observer):
         return {'status': 'UNKNOWN', 'scope': 'Failed-sample observation unavailable; original failure retained.'}
 
 
+def sample_failed_assertion_snapshot(private, flow, failure_observation, observer):
+    """Optional adjacent receipt; keep the existing four-field observation intact."""
+    try:
+        failure = failure_observation.get('junit')
+        module, _ = observer or (native_module('product_failure_diagnosis'), None)
+        return module.failed_assertion_snapshot(private, flow, failure)
+    except Exception:
+        return {'schema': 1, 'binding_state': 'UNKNOWN', 'reason': 'COLLECTOR_UNAVAILABLE',
+                'scope': 'POST_FAILED_ASSERT_OUTCOME_NOT_TAP_TIME'}
+
+
 class Receipt:
     """Fixed vocabulary and numbers only; never store a request body/identifier."""
     def __init__(self):
@@ -422,6 +433,8 @@ def run(h):
             except Exception:
                 outcome = receipt.snapshot()
                 outcome['failure_observation'] = sample_failure_observation(output, flow, metro, observer)
+                outcome['failed_assertion_snapshot'] = sample_failed_assertion_snapshot(
+                    output, flow, outcome['failure_observation'], observer)
                 if h.PLATFORM == 'ANDROID':
                     outcome['android_runtime_diagnostic'] = android_failure_observation(output, device)
                 if retry_fixture:

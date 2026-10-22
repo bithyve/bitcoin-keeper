@@ -78,9 +78,19 @@ Optional parser failure leaves the receipt UNKNOWN and preserves existing fault
 classification and private-output cleanup. No arbitrary log text, tag, PID,
 timestamp, path, URL or error payload is exported.
 
-The separate Maestro failed-assertion geometry projection is successor C2.
-C1 alone adds no snapshot claim and does not change the existing four-key
-`failure_observation` contract. Missing marker stages remain UNKNOWN.
+A separate pure helper binds the failed assertion's existing Maestro
+`commands.json` outcome to its `SCREEN_HIERARCHY` artifact using the pinned
+flow folder, sequence number and artifact path. Pinned Maestro 2.11.0 source
+`c8c361be1cc89b2e742f185466a302a22778be6b` defines that layout in TestRunner,
+TestSuiteInteractor, TestDebugReporter and ArtifactsGenerator. The helper projects only fixed Skip identity count,
+bounded numeric bounds and public native booleans. Its scope is
+POST_FAILED_ASSERT_OUTCOME_NOT_TAP_TIME. It does not inspect tap-time coordinates,
+infer what was visible to the user, or add any native query. Missing, malformed,
+ambiguous or incorrectly bound input remains UNKNOWN. The older metadata-only
+artifact cannot retroactively gain these new observations.
+The optional receipt is adjacent at each failed outcome's
+`failed_assertion_snapshot`; the existing four-key `failure_observation` remains
+unchanged for both ordinary samples and the controlled Retry sample.
 
 Host controls execute the actual TypeScript handler/effect closures, including
 original return/throw priority, listener/timer cleanup, release guards and quiet
@@ -90,19 +100,21 @@ unchanged four-command query. Relevant React review checks cover existing hook
 lifecycles and unchanged props/accessibility only. No UI-library refactor or
 unrelated optimization is included. These controls are not native acceptance.
 
-## Physical source-review split C1
+## Reconciliation packages C1 and C2
 
-This marker package descends from fixed join `8940d8601d65245ffbd1d42ad0095e8426579978`, whose
-parents are frozen B642fc14d1f2c3bd3451fe257642b01c6d1c07c95 and external
-044ebb6ea2d465f6a70e9116e3feac5a604cd696; its tree is exactly frozen B.
-The join is a source-review baseline, not a native/release candidate.
-The external thirteen-file addition is exposed fully across this marker package
-and successor C2. Neither producer nor the earlier A/B packages are rewritten.
-The complete new external source is approximately16.3k changed code/test tokens
-(chars/4), with exact per-package estimates in their handoffs.
+C1 `69f64b16afc5bcfb98b6d14c2ff63db0eb9474b9` exposes the Android marker
+producer/parser/unchanged-query integration. Its mechanical source-review base
+`8940d8601d65245ffbd1d42ad0095e8426579978` has frozen B642fc14 and external
+044ebb6 as parents and exactly the frozen B tree; it is not a native candidate.
+This successor C2 separately exposes the failed-assertion snapshot projection,
+its existing product-failure adapter and all geometry/privacy/file-bound controls.
+The original thirteen-file external work is preserved through ancestry, producer
+links and both complete package diffs, approximately16.3k code/test tokens in
+total (changed characters/4). Exact counts and checks belong in the handoffs.
 
-React review: existing mount effect/dependency counts, listener registration,
-cleanup and timer behavior are preserved. The Skip handler calls the original
-reset once with the same receiver/arguments and returns/rethrows immediately.
-No state update, render condition, layout, accessibility prop or testID changes.
-No UI-library or unrelated performance refactor is included.
+The app source uses one iOS failure marker plus this separately scoped Android
+onboarding marker, each fixed and development-only. Existing A/B credential
+current-attempt guards remain intact. React review confirms unchanged render
+conditions, hook/listener/timer lifecycles, reset receiver/arguments/count,
+accessibility props and test IDs. No unrelated UI or performance change.
+No producer rewrite, app-cause correction or native/release acceptance is claimed.
