@@ -86,6 +86,14 @@ class FixtureTests(unittest.TestCase):
         self.assertNotIn('deleted', response)
         self.assertEqual(self.receipt.snapshot()['other_backend_calls_rejected'], 1)
 
+    def test_rejected_get_is_counted_without_echoing_path_or_query(self):
+        with self.assertRaises(urllib.error.HTTPError) as failure:
+            urllib.request.urlopen(self.base + '/DO_NOT_RETAIN?secret=DO_NOT_RETAIN', timeout=2)
+        self.assertEqual(failure.exception.code, 503)
+        self.assertNotIn('DO_NOT_RETAIN', failure.exception.read().decode())
+        self.assertEqual(self.receipt.snapshot()['other_backend_calls_rejected'], 1)
+        self.assertNotIn('DO_NOT_RETAIN', json.dumps(self.receipt.snapshot()))
+
     def test_oversized_payload_is_rejected_without_retention(self):
         self.assertEqual(self.post('/createNewApp', b'x' * 8193)[0], 413)
         self.assertEqual(self.receipt.snapshot()['create_new_app_calls'], 0)

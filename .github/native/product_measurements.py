@@ -150,6 +150,8 @@ def make_server(receipt, port=PORT):
             self.reply(503, {'error': 'DISPOSABLE_FIXTURE_UNSUPPORTED_ROUTE'})
 
         def do_GET(self):
+            with receipt.lock:
+                receipt.blocked_calls += 1
             self.reply(503, {'error': 'DISPOSABLE_FIXTURE_UNSUPPORTED_ROUTE'})
 
     class Server(ThreadingHTTPServer):
