@@ -8,7 +8,8 @@ const test = require('node:test');
 
 // Scope: workflows introduced by the bootstrap. Existing gate/action policy is
 // unchanged; this does not silently repin unrelated workflows.
-const workflows = ['keeper-hosted-native.yml', 'keeper-validation-tests.yml'];
+const workflows = ['keeper-hosted-native.yml', 'keeper-validation-tests.yml',
+  'keeper-native-platform.yml', 'keeper-release-acceptance.yml', 'keeper-native-diagnostic.yml'];
 // Verified upstream refs/tags/v2.34.0^{} on 2026-10-18, also used by #7062.
 // The annotated tag object is 324029e2f414c084d8b15ba075288885e74aef9c.
 const emulatorCommit = '1dcd0090116d15e7c562f8db72807de5e036a4ed';
@@ -16,6 +17,7 @@ const emulatorAction = 'reactivecircus/android-emulator-runner';
 // Other pins match the upstream tags noted in the workflows, read-only checked
 // on the same date. Updates require a new verified commit, not just SHA syntax.
 const verifiedPins = new Map([
+  ['actions/github-script', 'ed597411d8f924073f98dfc5c65a23a2325f34cd'],
   ['actions/checkout', 'd23441a48e516b6c34aea4fa41551a30e30af803'],
   ['actions/setup-node', '249970729cb0ef3589644e2896645e5dc5ba9c38'],
   ['actions/setup-java', 'b6effb05e454b25005698d916606bdc6ffcbf961'],
@@ -79,6 +81,7 @@ function validateActionPins(workflow) {
   const references = actionReferences(workflow);
   assert.ok(references.length > 0, 'expected external actions in bootstrap workflow');
   for (const reference of references) {
+    if (reference === './.github/workflows/keeper-native-platform.yml') continue;
     assert.match(reference, /^[\w-]+\/[\w./-]+@[0-9a-f]{40}$/,
       `external actions require a full immutable commit: ${reference}`);
     const [action, revision] = reference.split('@');

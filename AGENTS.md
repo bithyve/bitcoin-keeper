@@ -1,5 +1,14 @@
 # Bitcoin Keeper: Codex workflow
 
+## Current R5 owner direction (22 October 2026)
+
+R5 and subsequent ordinary development/native validation run in Cloud. Use hosted macOS/Xcode for iOS and hosted Android development/emulator runners; the owner's personal Mac is not a prerequisite. Preserve genuine phone/signer checks separately. The older Local handoff format below remains a compatibility record for the existing gate, not a request for the owner's Mac.
+
+Candidate diagnostics are explicit read-only runs on the exact PR head. Add `keeper/native-diagnostic` only when scheduling the isolated integration candidate; the new workflow serializes iOS then Android and does not cancel active native work. Pre-merge diagnostic success never grants protected-base native acceptance. After approved installation, `Keeper release acceptance` is the default reusable worker route; `keeper/legacy-native` selects the serialized legacy startup fallback instead. New commits invalidate previous source evidence. Missing app feature/UI/backend/physical checks stay explicit and blocking where required.
+
+Never merge, promote a shared branch, release-sign, upload, distribute, deploy or publish without the owner's explicit approval. Draft PR creation and isolated branch pushes are preparation, not release approval. See `docs/r5-cloud-native-reconciliation.md` for source identities and outstanding acceptance.
+
+
 The prepared workflow is **Cloud code complete → hosted native validation → authorized physical checks → release review**. Until the hosted infrastructure is reviewed, installed and verified, retain the existing Local path below as the safe fallback; do not assume the owner's Mac is available. Signing remains a separate approved action. Follow the [bootstrap adoption order](docs/cloud-bootstrap-preparation.md), including the later restacking of Phase A #7062. The GitHub pull request is the durable handoff between stages. Do **not** rely on one agent having access to another agent's conversation, unpushed changes, machine, or installed tools.
 
 Repository: `KeeperCommunity/bitcoin-keeper`. Use `sprint` as the PR base unless the task explicitly specifies another base.

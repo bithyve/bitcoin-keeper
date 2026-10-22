@@ -8,7 +8,7 @@ on:
   issue_comment:
     types: [created, edited, deleted]
   workflow_run:
-    workflows: [Keeper hosted native validation]
+    workflows: [Keeper hosted native validation, Keeper release acceptance]
     types: [completed, requested, in_progress]
 
 permissions:
@@ -100,16 +100,20 @@ jobs:
             const hostedPasses = async () => {
               const passed = new Set();
               try {
-                const workflowPath = '.github/workflows/keeper-hosted-native.yml';
+                const workflowNames = ['keeper-hosted-native.yml', 'keeper-release-acceptance.yml'];
                 const repository = owner + '/' + repo;
                 if (pr.head.repo?.full_name !== repository) return passed;
-                const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
-                  owner, repo, workflow_id: 'keeper-hosted-native.yml',
-                  head_sha: sha, event: 'pull_request', per_page: 100
-                });
+                const groups = await Promise.all(workflowNames.map(workflow_id =>
+                  github.paginate(github.rest.actions.listWorkflowRuns, {
+                    owner, repo, workflow_id, head_sha: sha, event: 'pull_request', per_page: 100
+                  })));
+                const runs = [...new Map(groups.flat().map(run => [run.id, run])).values()];
                 // Do not fall back to an older success after a failed/cancelled
                 // rerun or while newer evidence is pending.
                 const run = runs.sort((a, b) => b.id - a.id)[0];
+                const reusable = run?.path === '.github/workflows/keeper-release-acceptance.yml';
+                const workflowPath = reusable ? '.github/workflows/keeper-release-acceptance.yml' : '.github/workflows/keeper-hosted-native.yml';
+                if (reusable && pull_number === 7045) return passed;
                 if (!run || run.head_sha !== sha || run.event !== 'pull_request' ||
                     run.path !== workflowPath || run.head_branch !== pr.head.ref ||
                     run.head_repository?.full_name !== repository ||
@@ -126,9 +130,12 @@ jobs:
                 const fingerprint = async ref => {
                   const { data } = await github.rest.git.getTree({ owner, repo, tree_sha: ref, recursive: '1' });
                   if (data.truncated) throw new Error('Truncated trusted CI tree');
-                  const entries = data.tree.filter(e => e.path === workflowPath ||
+                  const requiredWorkflows = reusable
+                    ? [workflowPath, '.github/workflows/keeper-native-platform.yml', '.github/workflows/keeper-hosted-native.yml']
+                    : [workflowPath];
+                  const entries = data.tree.filter(e => requiredWorkflows.includes(e.path) ||
                     e.path.startsWith('.github/native/'));
-                  if (!entries.some(e => e.path === workflowPath) ||
+                  if (!requiredWorkflows.every(path => entries.some(e => e.path === path && e.type === 'blob' && ['100644', '100755'].includes(e.mode))) ||
                       !entries.some(e => e.path.startsWith('.github/native/') && e.type === 'blob')) {
                     throw new Error('Hosted native infrastructure not present in trusted base');
                   }
@@ -142,14 +149,19 @@ jobs:
                 const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRunAttempt, {
                   owner, repo, run_id: run.id, attempt_number: run.run_attempt, per_page: 100
                 });
-                for (const [platform, name] of [['IOS', 'Hosted iOS simulator'],
+                for (const [platform, legacyName] of [['IOS', 'Hosted iOS simulator'],
                   ['ANDROID', 'Hosted Android emulator']]) {
+                  const name = reusable ? `${platform.toLowerCase()} / Native ${platform} build and probes` : legacyName;
                   const matches = jobs.filter(j => j.name === name);
                   if (matches.length !== 1) continue;
                   const job = matches[0];
                   if (job.head_sha !== sha || job.run_id !== run.id || job.run_attempt !== run.run_attempt ||
                       job.status !== 'completed' || job.conclusion !== 'success') continue;
-                  const steps = ['Build development app', 'Run disposable startup smoke'];
+                  const steps = reusable
+                    ? ['Build development app', ...(platform === 'IOS'
+                      ? ['Run disposable startup smoke', 'Run disposable native persistence probe']
+                      : ['Run Android startup and native persistence probes'])]
+                    : ['Build development app', 'Run disposable startup smoke'];
                   if (steps.every(name => job.steps?.filter(s => s.name === name &&
                       s.status === 'completed' && s.conclusion === 'success').length === 1)) {
                     passed.add(platform);
@@ -163,7 +175,7 @@ jobs:
             };
 
             let state = 'failure';
-            let description = 'Awaiting local Mac validation';
+            let description = 'Awaiting exact-head hosted or local native validation';
             if (docsOnly) {
               state = 'success';
               description = 'Documentation/GitHub metadata only; local testing exempt';

@@ -111,7 +111,7 @@ async function evaluate(comments, options = {}) {
       if (route === commentsRoute) return comments;
       if (route === runsRoute) {
         if (options.runsError) throw new Error(options.runsError);
-        return [...(options.runs || [])];
+        return [...(options.runsByWorkflow?.[args.workflow_id] || options.runs || [])];
       }
       if (route === jobsRoute) {
         if (options.jobsError) throw new Error(options.jobsError);
@@ -539,8 +539,68 @@ test('hosted workflow lifecycle events refresh the privileged gate under the exa
     'keeper-hosted-native.yml'), 'utf8');
   const name = nativeWorkflow.match(/^name:\s*(.+)$/m)?.[1];
   assert.ok(name, 'hosted workflow must have a name');
-  assert.ok(lines.some(line => line.trim() === `workflows: [${name}]`),
+  assert.ok(lines.some(line => line.trim() === `workflows: [${name}, Keeper release acceptance]`),
     'workflow_run must name the actual hosted workflow');
   assert.ok(lines.some(line => line.trim() === 'types: [completed, requested, in_progress]'),
     'new attempts must invalidate old hosted evidence promptly');
+});
+
+const reusableRun = overrides => hostedRun({
+  path: '.github/workflows/keeper-release-acceptance.yml',
+  pull_requests: [{ ...hostedRun().pull_requests[0], number: 8000 }], ...overrides,
+});
+const reusableJob = (platform, overrides) => hostedJob(platform, {
+  name: `${platform.toLowerCase()} / Native ${platform} build and probes`,
+  steps: ['Build development app', ...(platform === 'IOS'
+    ? ['Run disposable startup smoke', 'Run disposable native persistence probe']
+    : ['Run Android startup and native persistence probes'])].map(name => ({ name, status: 'completed', conclusion: 'success' })),
+  ...overrides,
+});
+const reusableTree = () => ({ ...trustedTree(), tree: [...trustedTree().tree,
+  { path: '.github/workflows/keeper-release-acceptance.yml', mode: '100644', type: 'blob', sha: '6'.repeat(40) },
+  { path: '.github/workflows/keeper-native-platform.yml', mode: '100644', type: 'blob', sha: '7'.repeat(40) },
+] });
+const reusableOptions = overrides => ({
+  context: { issue: { number: 8000 } },
+  runs: [reusableRun()], jobs: [reusableJob('IOS'), reusableJob('ANDROID')],
+  trees: { [sha]: reusableTree(), [baseSha]: reusableTree(), [runBaseSha]: reusableTree() },
+  ...overrides,
+});
+test('reusable exact-head native scope can satisfy platform gate without claiming full matrix or hardware', async () => {
+  const { status } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions());
+  assert.equal(status.state, 'success');
+  assert.match(status.description, /hosted IOS, ANDROID/);
+  const hardware = await evaluate([handoff()], reusableOptions());
+  assert.equal(hardware.status.state, 'failure');
+  assert.match(hardware.status.description, /HARDWARE/);
+});
+test('reusable evidence requires probe steps, latest attempt and matching protected worker in both bases', async () => {
+  for (const overrides of [
+    { jobs: [reusableJob('IOS', { steps: hostedJob('IOS').steps }), reusableJob('ANDROID')] },
+    { jobs: [reusableJob('IOS', { run_attempt: 1 }), reusableJob('ANDROID')] },
+    { runs: [reusableRun({ id: 91, conclusion: 'cancelled' }), reusableRun()] },
+    { runs: [reusableRun({ id: 91, conclusion: 'skipped' }), reusableRun()] },
+    { runs: [reusableRun({ path: '.github/workflows/keeper-native-diagnostic.yml' })] },
+  ]) {
+    const { status } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions(overrides));
+    assert.equal(status.state, 'failure');
+  }
+  for (const ref of [baseSha, runBaseSha]) {
+    const changed = reusableTree();
+    changed.tree.find(e => e.path.endsWith('keeper-native-platform.yml')).sha = '8'.repeat(40);
+    const { status } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions({
+      trees: { [sha]: reusableTree(), [baseSha]: reusableTree(), [runBaseSha]: reusableTree(), [ref]: changed },
+    }));
+    assert.equal(status.state, 'failure');
+  }
+});
+test('a newer unsuccessful reusable run supersedes older legacy successes across workflow routes', async () => {
+  const linked = { ...hostedRun().pull_requests[0], number: 8000 };
+  const { status } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions({
+    runsByWorkflow: {
+      'keeper-hosted-native.yml': [hostedRun({ pull_requests: [linked] })],
+      'keeper-release-acceptance.yml': [reusableRun({ id: 91, conclusion: 'cancelled' })],
+    },
+  }));
+  assert.equal(status.state, 'failure');
 });

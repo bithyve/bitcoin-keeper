@@ -3,7 +3,7 @@ name: Keeper release acceptance
 on:
   pull_request:
     branches: [sprint]
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -39,15 +39,15 @@ jobs:
 
   ios:
     needs: provenance
-    if: needs.provenance.outputs.trusted == 'true'
+    if: toJSON(github.event.pull_request.draft) == 'false' && !contains(github.event.pull_request.labels.*.name, 'keeper/legacy-native') && !contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic') && needs.provenance.outputs.trusted == 'true'
     uses: ./.github/workflows/keeper-native-platform.yml
     with:
       source_sha: ${{ github.event.pull_request.head.sha }}
       platform: IOS
 
   android:
-    needs: provenance
-    if: needs.provenance.outputs.trusted == 'true'
+    needs: [provenance, ios]
+    if: toJSON(github.event.pull_request.draft) == 'false' && !contains(github.event.pull_request.labels.*.name, 'keeper/legacy-native') && !contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic') && needs.provenance.outputs.trusted == 'true'
     uses: ./.github/workflows/keeper-native-platform.yml
     with:
       source_sha: ${{ github.event.pull_request.head.sha }}

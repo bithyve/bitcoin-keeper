@@ -3,7 +3,7 @@ name: Keeper hosted native validation
 on:
   pull_request:
     branches: [sprint]
-    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled]
 
 # PR code runs only in disposable, unprivileged jobs. No signing or service secrets.
 permissions:
@@ -23,7 +23,7 @@ jobs:
   ios:
     name: Hosted iOS simulator
     # Skip before allocating a runner; missing/non-boolean draft state fails closed.
-    if: github.event_name == 'pull_request' && toJSON(github.event.pull_request.draft) == 'false'
+    if: github.event_name == 'pull_request' && toJSON(github.event.pull_request.draft) == 'false' && contains(github.event.pull_request.labels.*.name, 'keeper/legacy-native') && !contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')
     runs-on: macos-15
     timeout-minutes: 65
     env:
@@ -80,8 +80,9 @@ jobs:
           retention-days: 7
 
   android:
+    needs: ios
     name: Hosted Android emulator
-    if: github.event_name == 'pull_request' && toJSON(github.event.pull_request.draft) == 'false'
+    if: always() && github.event_name == 'pull_request' && toJSON(github.event.pull_request.draft) == 'false' && contains(github.event.pull_request.labels.*.name, 'keeper/legacy-native') && !contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:

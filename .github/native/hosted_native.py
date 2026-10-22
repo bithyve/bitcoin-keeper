@@ -464,6 +464,7 @@ def record():
         raise RuntimeError('Checkout does not match the exact requested PR head.')
     save({
         'schema': 1, 'platform': PLATFORM, 'source_sha': source,
+        'diagnostic_only': os.environ.get('KEEPER_DIAGNOSTIC') == 'true',
         'workflow_ref': os.environ.get('GITHUB_WORKFLOW_REF'),
         'workflow_sha': os.environ.get('GITHUB_WORKFLOW_SHA'),
         'run_id': os.environ.get('GITHUB_RUN_ID'), 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
@@ -495,7 +496,7 @@ def fixtures():
     # Empty values would fall back to real development services in config.ts.
     overlays = ['.env.ci', 'firebase.json']
     (ROOT / '.env.ci').write_text('''ENVIRONMENT=DEVELOPMENT
-RELAY=https://127.0.0.1:9/
+RELAY=http://127.0.0.1:8765/
 SIGNING_SERVER_TESTNET=https://127.0.0.1:9/
 SIGNING_SERVER_MAINNET=https://127.0.0.1:9/
 CHANNEL_URL=https://127.0.0.1:9/

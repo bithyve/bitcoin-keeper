@@ -23,13 +23,16 @@ const guard = "github.event_name == 'pull_request' && toJSON(github.event.pull_r
 // Evaluate the actual checked-in expressions using only their two context
 // paths and toJSON. Missing context is null, as in Actions. These conditions
 // compare strings only, so JavaScript and Actions equality give the same result.
-function allowed(condition, eventName, draft = null) {
+function allowed(condition, eventName, draft = null, legacy = true) {
   assert.equal(typeof condition, 'string', 'an explicit condition is required');
   const expression = condition
+    .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/legacy-native')", 'legacy')
+    .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')", 'false')
+    .replaceAll('always()', 'true')
     .replaceAll('github.event_name', 'eventName')
     .replaceAll('github.event.pull_request.draft', 'draft');
-  return Boolean(new Function('eventName', 'draft', 'toJSON', `return (${expression});`)(
-    eventName, draft, JSON.stringify));
+  return Boolean(new Function('eventName', 'draft', 'legacy', 'toJSON', `return (${expression});`)(
+    eventName, draft, legacy, JSON.stringify));
 }
 
 function triggered(workflow, event, action, branch) {
@@ -45,7 +48,8 @@ test('native opened, synchronize and reopened draft jobs are skipped before runn
   for (const action of ['opened', 'synchronize', 'reopened']) {
     assert.ok(triggered(native, 'pull_request', action, 'sprint'));
     for (const job of Object.values(native.jobs)) {
-      assert.equal(job.if, guard);
+      assert.ok(job.if.includes(guard));
+      assert.equal(allowed(job.if, 'pull_request', false, false), false, 'legacy lane needs explicit label');
       assert.equal(allowed(job.if, 'pull_request', true), false, action);
       assert.equal(allowed(job.if, 'pull_request', false), true, action);
     }
@@ -76,18 +80,28 @@ test('native non-PR and missing or malformed draft contexts fail closed', () => 
   }
 });
 
-test('bootstrap has no reusable native caller, worker or dispatch entry point', () => {
-  assert.deepEqual(Object.keys(workflows).sort(), [
-    'codeql.yml', 'keeper-hosted-native.yml', 'keeper-local-validation.yml',
-    'keeper-validation-tests.yml', 'rag-ingest-release.yml', 'test.yml',
-  ]);
-  for (const [filename, workflow] of Object.entries(workflows)) {
-    assert.ok(!Object.hasOwn(workflow.on, 'workflow_call'), filename);
-    assert.ok(!Object.hasOwn(workflow.on, 'workflow_dispatch'), filename);
-    for (const job of Object.values(workflow.jobs)) assert.ok(!job.uses, filename);
+test('reusable paths keep explicit draft and diagnostic boundaries with no dispatch', () => {
+  const worker = workflows['keeper-native-platform.yml'];
+  const acceptance = workflows['keeper-release-acceptance.yml'];
+  const diagnostic = workflows['keeper-native-diagnostic.yml'];
+  assert.deepEqual(Object.keys(worker.on), ['workflow_call']);
+  assert.equal(worker.on.workflow_call.inputs.diagnostic.default, 'false');
+  assert.match(worker.jobs.native.if, /toJSON\(github.event.pull_request.draft\) == 'false'/);
+  assert.match(worker.jobs.native.if, /inputs.diagnostic && contains/);
+  for (const platform of ['ios', 'android']) {
+    assert.match(acceptance.jobs[platform].if, /toJSON\(github.event.pull_request.draft\) == 'false'/);
+    assert.equal(diagnostic.jobs[platform].with.diagnostic, 'true');
+    assert.match(diagnostic.jobs[platform].if, /keeper\/native-diagnostic/);
   }
-  // #7062's reusable workflows are intentionally absent, not silently adopted.
-  // Any later addition requires an explicit extension of this entry-path review.
+  assert.deepEqual(acceptance.jobs.android.needs, ['provenance', 'ios']);
+  assert.equal(diagnostic.jobs.android.needs, 'ios');
+  assert.equal(diagnostic.concurrency['cancel-in-progress'], 'false');
+  for (const filename of ['keeper-hosted-native.yml', 'keeper-native-platform.yml',
+    'keeper-release-acceptance.yml', 'keeper-native-diagnostic.yml']) {
+    assert.ok(!Object.hasOwn(workflows[filename].on, 'workflow_dispatch'), filename);
+  }
+  assert.match(workflows['android-diagnostic-build.yml'].jobs.build.if, /draft\) == 'false'/);
+  assert.match(workflows['android-diagnostic-build.yml'].jobs.build.if, /!contains/);
 });
 
 test('pushing the unpublished branch triggers no checked-in push workflow', () => {
@@ -100,32 +114,26 @@ test('draft opening and updates retain the expected host checks without a releas
   for (const action of ['opened', 'synchronize', 'reopened']) {
     const triggeredFiles = Object.entries(workflows).filter(([, workflow]) =>
       triggered(workflow, 'pull_request', action, 'sprint')).map(([filename]) => filename).sort();
-    assert.deepEqual(triggeredFiles, [
-      'codeql.yml', 'keeper-hosted-native.yml', 'keeper-validation-tests.yml', 'test.yml',
-    ]);
+    const expected = [
+      'android-diagnostic-build.yml', 'codeql.yml', 'keeper-hosted-native.yml',
+      'keeper-release-acceptance.yml', 'keeper-validation-tests.yml', 'public-backend.yml', 'test.yml',
+    ];
+    if (action === 'synchronize' || action === 'reopened') expected.push('keeper-native-diagnostic.yml');
+    assert.deepEqual(triggeredFiles, expected.sort());
     assert.ok(triggered(workflows['keeper-local-validation.yml'], 'pull_request_target', action, 'sprint'));
   }
 });
 
-test('draft Tests install cannot invoke native prepare and does not waive install or test failure', () => {
+test('all Tests installs preserve current immutable script-disabled R4 setup and patches', () => {
   const steps = ci.jobs.test.steps;
-  const installs = steps.filter(step => step.run?.startsWith('yarn install'));
-  assert.equal(installs.length, 2);
-  for (const [event, draft, expected] of [
-    ['pull_request', true, 'yarn install --frozen-lockfile --ignore-scripts'],
-    ['pull_request', null, 'yarn install --frozen-lockfile --ignore-scripts'],
-    ['pull_request', 'false', 'yarn install --frozen-lockfile --ignore-scripts'],
-    ['pull_request', false, 'yarn install'], ['push', null, 'yarn install'],
-  ]) {
-    const active = installs.filter(step => allowed(step.if, event, draft));
-    assert.equal(active.length, 1);
-    assert.equal(active[0].run, expected);
-  }
+  const install = steps.find(step => step.name === 'Install dependencies');
+  assert.match(install.run, /yarn install --frozen-lockfile --ignore-scripts --non-interactive/);
+  assert.equal(install.if, undefined);
+  assert.equal(steps.find(step => step.name === 'Apply repository dependency patches').run,
+    'node_modules/.bin/patch-package --error-on-fail');
+  assert.match(steps.find(step => step.name === 'Verify dependency inputs remain unchanged').run,
+    /git diff --exit-code HEAD/);
   assert.ok(!ci.jobs.test.if && !ci.jobs.test['continue-on-error']);
   for (const step of steps) assert.ok(!step['continue-on-error']);
-  const tests = steps.find(step => step.name === 'Run tests');
-  assert.equal(tests.run, 'npm run test');
-  assert.ok(!tests.if);
-  assert.equal(ci.jobs.lint.steps.find(step => step.name === 'Install dependencies').run,
-    'yarn install --ignore-scripts');
+  assert.equal(steps.find(step => step.name === 'Run tests').run, 'npm run test');
 });

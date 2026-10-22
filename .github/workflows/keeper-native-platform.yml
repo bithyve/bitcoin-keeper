@@ -10,14 +10,20 @@ on:
         type: string
         required: true
 
+      diagnostic:
+        type: boolean
+        default: false
+        required: false
+
 # This worker has no environment, release credentials, secret inputs or dispatch.
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   native:
     name: Native ${{ inputs.platform }} build and probes
-    if: github.event_name == 'pull_request' && github.event.pull_request.number != 7045 && inputs.source_sha == github.event.pull_request.head.sha
+    if: github.event_name == 'pull_request' && github.event.pull_request.number != 7045 && inputs.source_sha == github.event.pull_request.head.sha && (toJSON(github.event.pull_request.draft) == 'false' || (inputs.diagnostic && contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')))
     runs-on: ${{ inputs.platform == 'IOS' && 'macos-15' || 'ubuntu-24.04' }}
     timeout-minutes: 75
     env:
@@ -26,12 +32,24 @@ jobs:
       KEEPER_SOURCE_SHA: ${{ inputs.source_sha }}
       KEEPER_NATIVE_PLATFORM: ${{ inputs.platform }}
       MAESTRO_CLI_NO_ANALYTICS: '1'
+      KEEPER_DIAGNOSTIC: ${{ inputs.diagnostic }}
     steps:
       - name: Check out exact app source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ inputs.source_sha }}
           persist-credentials: false
+      - name: Verify current diagnostic source
+        if: inputs.diagnostic
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          EXPECTED_SOURCE: ${{ inputs.source_sha }}
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({ ...context.repo, pull_number: context.payload.pull_request.number });
+            if (pr.head.sha !== process.env.EXPECTED_SOURCE || pr.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}` || !pr.labels.some(label => label.name === 'keeper/native-diagnostic')) {
+              core.setFailed('Diagnostic source moved or opt-in removed; no native credit');
+            }
       - name: Set up Node
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
@@ -115,7 +133,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: keeper-release-native-${{ inputs.platform }}-${{ inputs.source_sha }}
+          name: keeper-${{ inputs.diagnostic && 'diagnostic' || 'release' }}-native-${{ inputs.platform }}-${{ inputs.source_sha }}
           path: artifacts/native/*/metadata.json
           if-no-files-found: error
           retention-days: 7
