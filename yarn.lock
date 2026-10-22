@@ -11094,10 +11094,10 @@ react-native-nfc-manager@3.16.0:
   dependencies:
     "@expo/config-plugins" "~8.0.0"
 
-react-native-nitro-modules@0.35.4:
-  version "0.35.4"
-  resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.35.4.tgz#eff7f3e1e279b44568850300e9789af3fc30facd"
-  integrity sha512-4qZa+1kgR/sPRNZv+UShxyArEPpovWxw76Dfd/DtCVtkQ92wOOxGIzdYvndprabd+t+r8zNYgYEPYE74gzkuVQ==
+react-native-nitro-modules@0.36.5:
+  version "0.36.5"
+  resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.36.5.tgz#438c77e4f1e77bd1d3e901eb5b4953762e68a078"
+  integrity sha512-SJby84+hovD70JmQ1fq+56tw3oapJeChehUqXA4Gqjm+ktJhMAcj8LGwoAjStSOUwRaK7czbzBPB0Widj+EDoQ==
 
 react-native-pdf@7.0.4:
   version "7.0.4"
