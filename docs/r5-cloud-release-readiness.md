@@ -1,5 +1,15 @@
 # R5 protected cloud release preparation
 
+Current continuation: this document preserves the original #7072 preparation
+inventory and design. The worker and orchestration source described below was
+subsequently prepared separately in #7076, #7080 and #7086, with frozen Ruby/input
+alignment in #7078/#7096. See the [current package ledger](r5/DELIVERY-CONTINUATION.md)
+and [prepared worker boundaries](../release/cloud/README.md) for exact commits,
+checks and remaining setup. Source preparation does not establish installed or
+operational signing/distribution; authorization remains disabled and no release
+operation has run. The historical implementation list below is not a request to
+duplicate those completed packages.
+
 This is the separate Phase B preparation package for [#7061](https://github.com/KeeperCommunity/bitcoin-keeper/issues/7061), following [#7065](https://github.com/KeeperCommunity/bitcoin-keeper/issues/7065). It does not install or execute signing or distribution. **Hosted signing/distribution: NOT IMPLEMENTED / NOT VERIFIED.** The personal Mac is not a prerequisite in the proposed route. Existing app, native acceptance, exact-head gate and physical-device requirements remain separate.
 
 Source inspected: R5 core `77b72da29ac5f2cdf3f51c9a0e9f3fd1c2af7238` and 5.1 `c1c4b803039b61b940373c4dc9d08473cf25e042`, containing released R4 `1d8a86a7462d935cbd0e28b857934b5718c152fc`. This package does not establish whether 5.2 is complete or integrated. App inputs are still 2.6.4 / Android627 / iOS620; no R5 version/build counters are assigned here. Work-package names 5.1 and 5.2 are not versions.
