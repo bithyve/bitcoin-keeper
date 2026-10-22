@@ -382,8 +382,13 @@ test('a read-only transient retry owns its new admission and retains the origina
   release.resolve();
   await intervening;
   assert.equal(await checking, 'verified');
-  assert.equal(deadlines.length, 2);
-  assert.equal(deadlines[0], deadlines[1], 'Retry must not receive a fresh ten-minute budget');
+  // The intervening fixture baseline now uses a genuine signed read too. It
+  // supplies no inspection deadline; only the first and third requests belong
+  // to the retried inspection and must retain the same finite budget.
+  assert.equal(deadlines.length, 3, 'Two inspection attempts plus the independent signed baseline read');
+  assert.equal(deadlines[1], undefined, 'The fixture baseline read is independent of the inspection budget');
+  assert.equal(deadlines[0], deadlines[2], 'Retry must not receive a fresh ten-minute budget');
+  assert.ok(Number.isSafeInteger(deadlines[0]), 'The inspection must own one finite absolute deadline');
   assert.ok(deadlines[0] > Date.now());
   assert.deepEqual(phases, ['checking', 'checking', 'verified']);
   assert.equal(snapshots().length, 3, 'Two inspection attempts plus the real matched-baseline setup read');

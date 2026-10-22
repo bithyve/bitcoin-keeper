@@ -59,6 +59,16 @@ prerequisite; no integrity check, lock or native requirement was weakened.
 Record the exact tested app/backend/control revisions and actual pass, failure,
 skip and cleanup outcomes when hosted validation completes.
 
+First hosted execution of these new files at app
+`b9dc036049561a8edd48f18f7492e2520ce4591c` reported **31 PASS / 1 FAIL**, zero
+skips. The retry test counted only its two inspection requests, although its
+intervening matched-baseline helper now also performs a genuine signed read.
+The correction requires all three captured requests, identifies the helper's
+undefined inspection deadline, and compares the first/retried inspection's same
+finite deadline. Admission ownership, phase, three-snapshot and zero-mutation
+assertions remain. The failed result is preserved; corrected runtime validation
+is pending.
+
 The public migration remains incomplete until the remaining obligations are
 mapped and ported, a reviewed public/private CI boundary runs the relevant
 current-source suites, and failures are dispositioned from real results.
