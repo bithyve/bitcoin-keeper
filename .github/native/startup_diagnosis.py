@@ -1,4 +1,4 @@
-"""Private launch-window capture and fixed Android startup facts only."""
+"""Private launch-window capture and fixed startup observation; never acceptance."""
 import json
 import os
 import re
@@ -27,8 +27,11 @@ def categories(text):
 
 
 def _device(native, device):
-    if native.PLATFORM != 'ANDROID' or not re.fullmatch(r'emulator-\d+', device):
-        raise ValueError('Expected owned Android emulator.')
+    if native.PLATFORM == 'ANDROID' and re.fullmatch(r'emulator-\d+', device):
+        return
+    if native.PLATFORM == 'IOS' and re.fullmatch(r'[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}', device):
+        return
+    raise ValueError('Expected owned disposable platform device.')
 
 
 def _read(native, path):
@@ -52,6 +55,11 @@ def start(native, device):
     _device(native, device)
     native.PRIVATE.mkdir(parents=True, exist_ok=True)
     started_ms = int(time.time() * 1000)
+    if native.PLATFORM == 'IOS':
+        # The existing failure-only compact-log query already scopes to the
+        # built executable on this fresh simulator. No additional iOS service,
+        # process inventory, private SPI or raw log stream is needed here.
+        return Capture(None, None, started_ms)
     output = (native.PRIVATE / 'startup-logcat.log').open('wb')
     tags = ['AndroidRuntime:V', 'ReactNativeJS:V', 'ReactNative:V', 'ReactHost:V',
             'unknown:ReactHost:V', 'unknown:ReactNative:V', 'unknown:BridgelessReact:V',
@@ -70,7 +78,7 @@ def stop(handle):
     if handle is None:
         return
     try:
-        if handle.process.poll() is None:
+        if handle.process is not None and handle.process.poll() is None:
             handle.process.terminate()
             try:
                 handle.process.wait(timeout=3)
@@ -78,7 +86,8 @@ def stop(handle):
                 handle.process.kill()
                 handle.process.wait(timeout=5)
     finally:
-        handle.output.close()
+        if handle.output is not None:
+            handle.output.close()
 
 
 def hierarchy(native, directory):
@@ -110,13 +119,15 @@ def hierarchy(native, directory):
             pending.extend(node.get('children', []))
         flags['snapshot_count'] += 1
         flags['logbox_controls'] |= dismiss and minimize
+    flags['observation_state'] = 'OBSERVED' if flags['snapshot_count'] else 'UNKNOWN'
     return flags
 
 
 def collect(native, device, handle=None):
     _device(native, device)
     started_ms = handle.started_ms if handle is not None else None
-    facts = {'scope': 'Owned emulator launch window; fixed facts only.', 'collection_errors': []}
+    facts = {'scope': 'Owned emulator launch window; fixed facts only.' if native.PLATFORM == 'ANDROID' else
+             'Owned simulator launch window; fixed facts only; cause UNKNOWN.', 'collection_errors': []}
     def collect_one(name, action):
         try:
             facts[name] = action()
@@ -130,24 +141,36 @@ def collect(native, device, handle=None):
         # Fixed rows are regenerated, never forwarded from a writable JSON file.
         text, truncated = _read(native, native.PRIVATE / 'startup-observer.jsonl')
         rows, invalid = [], 0
-        for line in text.splitlines()[:1024]:
+        lines = text.splitlines()
+        ended_ms = int(time.time() * 1000)
+        for line in lines[:1024]:
             if not line.strip():
                 continue
             try:
                 row = json.loads(line)
+                if not isinstance(row, dict):
+                    raise ValueError('Invalid observation shape.')
                 when = row.get('time_ms')
                 if type(when) is not int or when < 0 or when > 10**14:
                     raise ValueError('Invalid timestamp.')
-                result = {'stage': 'UNKNOWN' if started_ms is None else 'APP_WINDOW' if when >= started_ms else 'BEFORE_APP'}
+                result = {'stage': 'UNKNOWN' if started_ms is None or when > ended_ms else 'APP_WINDOW' if when >= started_ms else 'BEFORE_APP'}
                 kind = row.get('kind')
                 if (kind == 'BUILD' and row.get('event') in ['bundle_build_started', 'bundle_build_done', 'bundle_build_failed']) or (kind == 'ERROR' and row.get('event') in ['bundling_error', 'initialize_failed', 'transformer_load_failed', 'hmr_client_error', 'cache_read_error', 'cache_write_error', 'worker_stderr_chunk']):
                     result.update(kind=kind, event=row['event'])
+                    if kind == 'BUILD':
+                        result['platform'] = row.get('platform') if row.get('platform') in ['android', 'ios', None] else 'OTHER'
+                        result.update({key: row.get(key) if type(row.get(key)) is bool else None for key in ['dev', 'minify']})
                     result['error_type'] = row.get('error_type') if row.get('error_type') in ['SyntaxError', 'TypeError', 'ReferenceError', 'RangeError', 'TransformError', 'UnableToResolveError', 'ResolutionError', 'AmbiguousModuleResolutionError', 'NotFoundError', 'ResourceNotFoundError', 'GraphNotFoundError', 'RevisionNotFoundError', 'OTHER', None] else 'OTHER'
-                    result['categories'] = [item for item in ['MODULE_RESOLUTION', 'SYNTAX', 'TYPE', 'REFERENCE', 'MEMORY', 'TRANSFORM', 'CONNECTION'] if item in row.get('categories', [])]
+                    categories = row.get('categories', [])
+                    if not isinstance(categories, list):
+                        raise ValueError('Invalid fixed category shape.')
+                    result['categories'] = [item for item in ['MODULE_RESOLUTION', 'SYNTAX', 'TYPE', 'REFERENCE', 'MEMORY', 'TRANSFORM', 'CONNECTION'] if item in categories]
                 elif kind in ['REQUEST', 'RESPONSE'] and row.get('request') in ['ENTRY_BUNDLE', 'SPLIT_BUNDLE', 'SYMBOLICATE']:
                     result.update(kind=kind, request=row['request'])
                     if kind == 'REQUEST':
                         options = row.get('options', {})
+                        if not isinstance(options, dict):
+                            raise ValueError('Invalid request options shape.')
                         result['options'] = {key: options.get(key) if type(options.get(key)) is bool or options.get(key) in [None, 'OTHER'] else 'OTHER' for key in ['dev', 'lazy', 'minify', 'modulesOnly', 'runModule', 'excludeSource']}
                         for key, allowed in {'platform': ['android', 'ios'], 'sourcePaths': ['url-server', 'absolute'], 'engine': ['hermes', 'jsc'], 'app': ['EXPECTED']}.items():
                             result['options'][key] = options.get(key) if options.get(key) in [*allowed, None] else 'OTHER'
@@ -160,6 +183,8 @@ def collect(native, device, handle=None):
             except Exception:
                 invalid += 1
         return {'rows': rows[:512], 'input_truncated': truncated, 'invalid_rows': invalid,
+                'row_limit_reached': len(lines) > 1024 or len(rows) > 512,
+                'emitter_cap_observed': len(lines) >= 512,
                 'scope': 'Outer HTTP status only; multipart terminal status is not observed.'}
     def process():
         proc = subprocess.run(['adb', '-s', device, 'shell', 'pidof', APP], capture_output=True, timeout=10)
@@ -177,6 +202,9 @@ def collect(native, device, handle=None):
             match[1] == APP for line in text.splitlines())
         return {'exit_code': proc.returncode, 'own_app_resumed': True if present else None,
                 'input_truncated': truncated, 'scope': 'Positive observation only; absence is not inferred.'}
-    for name, action in [('logcat', logcat), ('metro', observer), ('hierarchy', lambda: hierarchy(native, native.PRIVATE / 'maestro-output')), ('process', process), ('foreground', foreground)]:
+    actions = [('metro', observer), ('hierarchy', lambda: hierarchy(native, native.PRIVATE / 'maestro-output'))]
+    if native.PLATFORM == 'ANDROID':
+        actions = [('logcat', logcat), *actions, ('process', process), ('foreground', foreground)]
+    for name, action in actions:
         collect_one(name, action)
     return facts

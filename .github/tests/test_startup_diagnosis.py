@@ -105,6 +105,67 @@ class StartupDiagnosisTests(unittest.TestCase):
         self.assertFalse(truncated)
         self.assertEqual(len(json.loads(payload)['padding']), 600 * 1024)
 
+    def test_ios_observation_uses_no_extra_capture_process_or_device_queries(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        (self.root / 'startup-observer.jsonl').write_text(json.dumps({
+            'time_ms': 1000, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE',
+            'options': {'platform': 'ios', 'app': 'EXPECTED', 'lazy': True,
+                        'arbitrary': 'PRIVATE_SENTINEL'}})+'\n')
+        with mock.patch.object(diagnosis.time, 'time', return_value=1), \
+                mock.patch.object(diagnosis.subprocess, 'Popen') as popen, \
+                mock.patch.object(diagnosis.subprocess, 'run') as run:
+            handle = diagnosis.start(native, device)
+            facts = diagnosis.collect(native, device, handle)
+            diagnosis.stop(handle)
+        popen.assert_not_called()
+        run.assert_not_called()
+        self.assertIsNone(handle.process)
+        self.assertEqual(facts['metro']['rows'][0]['options']['platform'], 'ios')
+        self.assertEqual(facts['metro']['rows'][0]['options']['app'], 'EXPECTED')
+        self.assertEqual(facts['metro']['rows'][0]['stage'], 'APP_WINDOW')
+        self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+        for key in ['logcat', 'process', 'foreground']:
+            self.assertNotIn(key, facts)
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+        with self.assertRaises(ValueError):
+            diagnosis.start(native, 'physical-PRIVATE_SENTINEL')
+
+    def test_malformed_future_and_capped_metro_rows_remain_honest_on_ios(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        rows = [[], {'time_ms': True},
+                {'time_ms': 1000, 'kind': 'ERROR', 'event': 'bundling_error', 'categories': 'TYPE PRIVATE_SENTINEL'},
+                {'time_ms': 1000, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE', 'options': 'PRIVATE_SENTINEL'},
+                {'time_ms': 2001, 'kind': 'BUILD', 'event': 'bundle_build_done', 'platform': 'PRIVATE_SENTINEL'}]
+        (self.root / 'startup-observer.jsonl').write_text('\n'.join(map(json.dumps, rows)))
+        with mock.patch.object(diagnosis.time, 'time', return_value=2):
+            facts = diagnosis.collect(native, device, SimpleNamespace(started_ms=1500))
+        self.assertEqual(facts['metro']['invalid_rows'], 4)
+        self.assertEqual(facts['metro']['rows'][0]['stage'], 'UNKNOWN')
+        self.assertEqual(facts['metro']['rows'][0]['platform'], 'OTHER')
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+        row = {'time_ms': 1000, 'kind': 'BUILD', 'event': 'bundle_build_done', 'platform': 'ios'}
+        (self.root / 'startup-observer.jsonl').write_text((json.dumps(row)+'\n')*1100)
+        facts = diagnosis.collect(native, device)
+        self.assertEqual(len(facts['metro']['rows']), 512)
+        self.assertTrue(facts['metro']['row_limit_reached'])
+        self.assertTrue(facts['metro']['emitter_cap_observed'])
+        self.assertEqual(facts['metro']['rows'][0]['stage'], 'UNKNOWN')
+
+    def test_ios_missing_or_private_alias_inputs_cannot_create_observation_pass(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        facts = diagnosis.collect(native, device)
+        self.assertIn('metro', facts['collection_errors'])
+        self.assertNotIn('metro', facts)
+        actual = self.root / 'private-actual.jsonl'
+        actual.write_text('PRIVATE_SENTINEL')
+        (self.root / 'startup-observer.jsonl').symlink_to(actual)
+        facts = diagnosis.collect(native, device)
+        self.assertIn('metro', facts['collection_errors'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+
 
 if __name__ == '__main__':
     unittest.main()

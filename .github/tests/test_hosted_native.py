@@ -358,11 +358,41 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertTrue(diagnostics['input_truncated'])
         self.assertEqual(diagnostics['matching_process_records'], 1)
         self.assertEqual(diagnostics['errors'], ['IOS_STARTUP_ERROR'])
+        self.assertEqual(diagnostics['parse_status'], 'PARTIAL')
+        self.assertEqual(diagnostics['cause'], 'UNDETERMINED')
+        self.assertEqual(diagnostics['category_record_counts']['JS_REFERENCE_ERROR'], 1)
         self.assertEqual(data['startup_diagnostics']['metro_progress'],
                          {'bundle_marker_observed': True, 'bundle_marker_count': 2, 'prebundle_marker_count': 1})
         self.assertNotIn('private unrelated', native.EVIDENCE.read_text())
         self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
         self.assertNotIn('private-path', native.EVIDENCE.read_text())
+
+    def test_ios_failed_or_timed_out_query_cannot_classify_partial_output_as_evidence(self):
+        native.PRIVATE.mkdir()
+        for code in [2, 124]:
+            with self.subTest(code=code):
+                native.save({'commands': [], 'smoke': 'FAIL', 'built_artifact': {'executable': 'hexa_keeper_dev'}})
+                (native.PRIVATE / 'metro.log').write_text('normal startup\n')
+                def compact_log(args, stdout, **kwargs):
+                    self.assertEqual(args[:4], ['xcrun', 'simctl', 'spawn', 'owned-simulator'])
+                    self.assertIn('process == "hexa_keeper_dev"', args[-1])
+                    stdout.write(b'2026-10-17 09:22:33.123 E hexa_keeper_dev[123:abc] TypeError: PRIVATE_SENTINEL\n')
+                    if code == 124:
+                        raise subprocess.TimeoutExpired(args, 25)
+                    return subprocess.CompletedProcess(args, code)
+                with mock.patch.object(native, 'PLATFORM', 'IOS'), \
+                        mock.patch.object(subprocess, 'run', side_effect=compact_log):
+                    native.record_startup_failure(native.PRIVATE/'missing.xml', 'owned-simulator')
+                data = native.read()
+                result = data['startup_diagnostics']['ios_errors']
+                self.assertEqual(result['exit_code'], code)
+                self.assertEqual(result['query_status'], 'TIMEOUT' if code == 124 else 'FAILED')
+                self.assertEqual(result['parse_status'], 'UNKNOWN')
+                self.assertIsNone(result['input_truncated'])
+                self.assertEqual(result['errors'], [])
+                self.assertNotIn('category_record_counts', result)
+                self.assertEqual(data['smoke'], 'FAIL')
+                self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
 
     def test_warmup_keeps_each_platform_body_private_and_does_not_supply_smoke_evidence(self):
         native.PRIVATE.mkdir()

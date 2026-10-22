@@ -167,30 +167,13 @@ def private_log_prefix(path):
 
 
 def ios_startup_diagnostics(payload, executable):
-    if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]*', executable):
-        raise ValueError('Unsafe iOS executable selector.')
-    # log(1) compact: ISO timestamp, abbreviated type, process[PID:TID], message.
-    # Only prefixed own-process records qualify; never retain continuation lines.
-    pattern = re.compile(r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?'
-                         r'(?:[+-]\d{2}:?\d{2}|Z)?\s+(\S+)\s+'
-                         r'([A-Za-z0-9_.-]+)\[\d+:[A-Fa-f0-9x]+\]\s+(.*)$')
-    selected = []
-    matched = 0
-    for line in payload.splitlines():
-        match = pattern.match(line)
-        if not match:
-            continue
-        severity, process, message = match.groups()
-        if process != executable:
-            continue
-        matched += 1
-        if severity.lower() in ['e', 'f', 'er', 'ft', 'error', 'fault'] or re.search(
-                r'(?:\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b)',
-                message, re.IGNORECASE):
-            if not selected:
-                selected.append('IOS_STARTUP_ERROR')
-    return {'format': 'compact', 'matching_process_records': matched,
-            'errors': selected}
+    # Pure fixed-vocabulary classifier; no source message, stack or path leaves
+    # the fresh owned simulator's private compact-log query.
+    spec = importlib.util.spec_from_file_location(
+        'ios_startup_errors', Path(__file__).with_name('ios_startup_errors.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.classify(payload, executable)
 
 
 def startup_hierarchy_signals(directory):
@@ -405,12 +388,16 @@ def record_startup_failure(report, device):
                     code = result.returncode
                 except subprocess.TimeoutExpired:
                     code = 124
-            result = {'command': args, 'exit_code': code, 'errors': []}
+            result = {'command': args, 'exit_code': code, 'errors': [],
+                      'query_status': 'SUCCESS' if code == 0 else 'TIMEOUT' if code == 124 else 'FAILED',
+                      'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED', 'input_truncated': None}
             if code == 0:
                 try:
                     payload, truncated = private_log_prefix(path)
                     result.update(ios_startup_diagnostics(payload, executable))
-                    result['input_truncated'] = truncated
+                    result['input_truncated'] |= truncated
+                    if truncated:
+                        result['parse_status'] = 'PARTIAL' if result['matching_process_records'] else 'UNKNOWN'
                 except (ValueError, TypeError) as error:
                     result['parse_error'] = type(error).__name__
             return result
@@ -1004,9 +991,9 @@ def smoke(suite='startup'):
     try:
         if is_probe or is_features:
             metro_args += ['--config', str(ROOT / ('.github/native/r5_metro.cjs' if is_features else '.github/native/release_metro.cjs'))]
-        elif PLATFORM == 'ANDROID':
+        else:
             # Observation retains the normal entrypoint/resolver/transformer and
-            # response body. Only fixed facts leave the disposable launch window.
+            # response body on both platforms. Only fixed facts leave the window.
             spec = importlib.util.spec_from_file_location('startup_diagnosis', Path(__file__).with_name('startup_diagnosis.py'))
             startup_observer = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(startup_observer)
@@ -1177,7 +1164,10 @@ def smoke(suite='startup'):
         if startup_observer:
             # Purge only this observer's raw files; other phases still need the
             # shared private build/tool directories on the ephemeral runner.
-            for name in ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log']:
+            observer_files = ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log']
+            if PLATFORM == 'IOS':
+                observer_files += ['ios-startup-errors.log', 'ios-startup-errors-stderr.log']
+            for name in observer_files:
                 cleanup('private_' + name.split('.')[0], lambda name=name: (PRIVATE / name).unlink(missing_ok=True))
         if startup_error is not None or cleanup_errors:
             updates[result_key] = 'FAIL'
