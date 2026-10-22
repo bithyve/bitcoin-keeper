@@ -100,9 +100,12 @@ test('actual Actions app and exact current protected source/run/attempt are requ
   }
 });
 test('capacity admission rejects other native runs without cancelling them', async () => {
-  const f = fixture(); f.active = [{ id: 99, path: '.github/workflows/keeper-hosted-native.yml' }];
-  await assert.rejects(driver.origin(f.github, f.context, f.request, { admission: true }), /ANOTHER_NATIVE/);
-  assert.equal(f.active[0].id, 99);
+  const f = fixture();
+  for (const path of ['keeper-hosted-native.yml', 'keeper-one-time-native.yml', 'keeper-one-time-native-diagnostic.yml']) {
+    f.active = [{ id: 99, path: '.github/workflows/' + path }];
+    await assert.rejects(driver.origin(f.github, f.context, f.request, { admission: true }), /ANOTHER_NATIVE/);
+    assert.equal(f.active[0].id, 99);
+  }
   f.active = [{ id: 98, path: '.github/workflows/test.yml' }];
   await driver.origin(f.github, f.context, f.request, { admission: true });
   assert.deepEqual([...new Set(f.capacityStatuses)].sort(), ['in_progress', 'pending', 'queued', 'requested', 'waiting']);

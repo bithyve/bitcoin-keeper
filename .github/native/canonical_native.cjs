@@ -70,6 +70,7 @@ async function origin(github, context, request, { admission = false } = {}) {
       (await github.rest.actions.listWorkflowRunsForRepo({ ...args, status, per_page: 100 })).data));
     const nativePaths = [WORKFLOW, '.github/workflows/keeper-hosted-native.yml',
       '.github/workflows/keeper-native-diagnostic.yml', '.github/workflows/keeper-release-acceptance.yml',
+      '.github/workflows/keeper-one-time-native.yml', '.github/workflows/keeper-one-time-native-diagnostic.yml',
       '.github/workflows/android-diagnostic-build.yml', '.github/workflows/keeper-protected-release-workers.yml'];
     for (const page of active) {
       demand(page.total_count <= 100 && page.total_count === page.workflow_runs?.length, 'CAPACITY_OBSERVATION_INCOMPLETE');

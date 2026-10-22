@@ -106,3 +106,15 @@ stale attempts, skipped/duplicate jobs, artifact spoofing, bounded partial evide
 and archive rejection. They establish neither native execution nor any pass on a
 canonical merge SHA. Complete native software matrix and physical results remain
 unverified. No PR producer/source branch is rewritten or promoted.
+
+The first complete combined contract run retained112PASS/1FAIL because its
+explicit PR-workflow classification omitted this package's new offline contract
+job. The corrected classification also asserts read-only permissions, a pinned
+Node runtime, no environment/secrets and separation from the manual native caller.
+No native obligation, producer-origin check or release gate was relaxed.
+
+Capacity admission includes the existing one-time native bootstrap routes and
+does not cancel their runs. It is a read-only admission check, not a global
+mutex shared by every legacy workflow. Installation must coordinate those routes;
+this package alone cannot promise atomic scheduling across independently triggered
+workflows. No canonical run was dispatched during this preparation.

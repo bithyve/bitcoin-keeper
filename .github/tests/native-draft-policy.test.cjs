@@ -115,7 +115,7 @@ test('draft opening and updates retain the expected host checks without a releas
     const triggeredFiles = Object.entries(workflows).filter(([, workflow]) =>
       triggered(workflow, 'pull_request', action, 'sprint')).map(([filename]) => filename).sort();
     const expected = [
-      'android-diagnostic-build.yml', 'codeql.yml', 'keeper-hosted-native.yml',
+      'android-diagnostic-build.yml', 'codeql.yml', 'keeper-canonical-native-contracts.yml', 'keeper-hosted-native.yml',
       'keeper-release-acceptance.yml', 'keeper-release-preparation-contracts.yml',
       'keeper-validation-tests.yml', 'public-backend.yml', 'test.yml',
     ];
@@ -123,6 +123,24 @@ test('draft opening and updates retain the expected host checks without a releas
     assert.deepEqual(triggeredFiles, expected.sort());
     assert.ok(triggered(workflows['keeper-local-validation.yml'], 'pull_request_target', action, 'sprint'));
   }
+});
+
+test('canonical provenance contracts stay read-only and separate from manual native execution', () => {
+  const contracts = workflows['keeper-canonical-native-contracts.yml'];
+  assert.deepEqual(Object.keys(contracts.on), ['pull_request']);
+  assert.deepEqual(contracts.permissions, { contents: 'read' });
+  assert.equal(contracts.concurrency, undefined);
+  const job = contracts.jobs.contracts;
+  assert.equal(job.environment, undefined);
+  assert.equal(job.secrets, undefined);
+  assert.equal(job['timeout-minutes'], '5');
+  assert.equal(job.steps.find(step => step.with?.['node-version']).with['node-version'], '22.23.3');
+  assert.deepEqual(job.steps.filter(step => step.run).map(step => step.name),
+    ['Test read-only canonical trust and archive controls']);
+  const native = workflows['keeper-canonical-native.yml'];
+  assert.deepEqual(Object.keys(native.on), ['workflow_dispatch']);
+  assert.equal(triggered(native, 'pull_request', 'opened', 'sprint'), false);
+  assert.equal(triggered(native, 'push', null, 'sprint'), false);
 });
 
 test('release preparation PR checks stay offline and separate from the protected manual plan', () => {
