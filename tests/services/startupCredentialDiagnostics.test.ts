@@ -1,28 +1,78 @@
 import {
+  observeStartupFailure,
   reportStartupFailure,
-  startupFailureFact,
-} from '../../src/storage/startup-credential-diagnostics';
+} from '../../src/storage/startup-failure-observer';
 
 const previousDev = __DEV__;
+const previousHook = Object.getOwnPropertyDescriptor(global, 'nativeLoggingHook');
 afterEach(() => {
   (global as any).__DEV__ = previousDev;
+  if (previousHook) Object.defineProperty(global, 'nativeLoggingHook', previousHook);
+  else delete (global as any).nativeLoggingHook;
   jest.restoreAllMocks();
 });
 
-test('only known native codes at the Keychain boundary supply a fixed code category', () => {
-  for (const code of ['-34018', -25308, '-25291', '-25293', '-26275', '-50']) {
-    expect(startupFailureFact('KEYCHAIN_READ', { code, message: 'PRIVATE_SENTINEL' })).toEqual({
-      stage: 'KEYCHAIN_READ',
-      category: `NATIVE_CODE_NEG${String(code).slice(1)}`,
+function installHook(value) {
+  Object.defineProperty(global, 'nativeLoggingHook', { configurable: true, writable: true, value });
+}
+
+test('only canonical native rejection codes supply a bounded code without coercion', () => {
+  for (const [code, expected] of [
+    ['-34018', -34018],
+    ['-25308', -25308],
+    ['0', 0],
+    ['2147483647', 2147483647],
+    ['-2147483648', -2147483648],
+    [-25308, null],
+    ['+1', null],
+    ['01', null],
+    ['-0', null],
+    [' 1', null],
+    ['1e3', null],
+    ['-34018\n', null],
+    ['2147483648', null],
+    [
+      {
+        toString() {
+          throw Error('PRIVATE_SENTINEL');
+        },
+      },
+      null,
+    ],
+  ]) {
+    const observer = jest.fn();
+    reportStartupFailure(observer, 'NATIVE_CREDENTIAL_READ', 'REJECTED', {
+      code,
+      name: 'Error',
+      message: 'PRIVATE_SENTINEL',
     });
+    expect(observer).toHaveBeenCalledWith({
+      phase: 'NATIVE_CREDENTIAL_READ',
+      outcome: 'REJECTED',
+      errorName: 'Error',
+      nativeCode: expected,
+    });
+    expect(JSON.stringify(observer.mock.calls)).not.toContain('PRIVATE_SENTINEL');
   }
-  expect(startupFailureFact('CREDENTIAL_PARSE', { code: '-34018', name: 'SyntaxError' })).toEqual({
-    stage: 'CREDENTIAL_PARSE',
-    category: 'SYNTAX_ERROR',
+  const observer = jest.fn();
+  let codeReads = 0;
+  reportStartupFailure(observer, 'CREDENTIAL_JSON', 'THREW', {
+    name: 'SyntaxError',
+    get code() {
+      codeReads++;
+      return '-34018';
+    },
+  });
+  expect(codeReads).toBe(0);
+  expect(observer).toHaveBeenCalledWith({
+    phase: 'CREDENTIAL_JSON',
+    outcome: 'THREW',
+    errorName: 'SyntaxError',
+    nativeCode: null,
   });
 });
 
-test('unknown values and hostile error accessors cannot escape or replace the failure', () => {
+test('unknown private fields and hostile error accessors cannot escape or replace a failure', () => {
   const values = [
     null,
     'PRIVATE_SENTINEL',
@@ -46,60 +96,99 @@ test('unknown values and hostile error accessors cannot escape or replace the fa
     },
   ];
   for (const value of values) {
-    expect(startupFailureFact('KEYCHAIN_READ', value)).toEqual({
-      stage: 'KEYCHAIN_READ',
-      category: 'UNKNOWN',
-    });
+    const observer = jest.fn();
+    expect(() =>
+      reportStartupFailure(observer, 'NATIVE_CREDENTIAL_READ', 'REJECTED', value)
+    ).not.toThrow();
+    expect(observer).toHaveBeenCalledTimes(1);
+    expect(observer.mock.calls[0][0].nativeCode).toBeNull();
+    expect(['UNKNOWN', 'OTHER']).toContain(observer.mock.calls[0][0].errorName);
+    expect(JSON.stringify(observer.mock.calls)).not.toContain('PRIVATE_SENTINEL');
   }
-  expect(startupFailureFact('PRIVATE_SENTINEL' as any, new TypeError('PRIVATE_SENTINEL'))).toEqual({
-    stage: 'READ_CALL',
-    category: 'TYPE_ERROR',
-  });
+  const observer = jest.fn();
+  reportStartupFailure(observer, 'PRIVATE_SENTINEL' as any, 'THREW', new Error('PRIVATE_SENTINEL'));
+  expect(observer).not.toHaveBeenCalled();
 });
 
-test('development output is one fixed info marker without warnings, errors or raw fields', () => {
+test('development output is one direct Error-level marker without console or LogBox calls', () => {
   (global as any).__DEV__ = true;
+  const hook = jest.fn();
+  installHook(hook);
+  jest.spyOn(Date, 'now').mockReturnValue(1500);
   const info = jest.spyOn(console, 'info').mockImplementation(() => {});
   const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
   const error = jest.spyOn(console, 'error').mockImplementation(() => {});
-  reportStartupFailure(
-    startupFailureFact('KEYCHAIN_READ', { code: '-34018', message: 'PRIVATE_SENTINEL' })
-  );
-  expect(info.mock.calls).toEqual([
-    ['KEEPER_STARTUP_ERROR stage=KEYCHAIN_READ category=NATIVE_CODE_NEG34018'],
+  reportStartupFailure(observeStartupFailure, 'NATIVE_CREDENTIAL_READ', 'REJECTED', {
+    code: '-34018',
+    name: 'Error',
+    message: 'PRIVATE_SENTINEL',
+  });
+  expect(hook.mock.calls).toEqual([
+    ['KEEPER_STARTUP_FAILURE_V1|1500|NATIVE_CREDENTIAL_READ|REJECTED|Error|-34018', 3],
   ]);
+  expect(info).not.toHaveBeenCalled();
   expect(warn).not.toHaveBeenCalled();
   expect(error).not.toHaveBeenCalled();
-  expect(JSON.stringify(info.mock.calls)).not.toContain('PRIVATE_SENTINEL');
+  expect(JSON.stringify(hook.mock.calls)).not.toContain('PRIVATE_SENTINEL');
 });
 
-test('production ignores observation fields, and a failing logger remains harmless', () => {
-  const info = jest.spyOn(console, 'info').mockImplementation(() => {
-    throw Error('PRIVATE_SENTINEL');
+test('production and missing observers inspect nothing, and failing hooks stay harmless', () => {
+  let hookReads = 0,
+    errorReads = 0;
+  Object.defineProperty(global, 'nativeLoggingHook', {
+    configurable: true,
+    get() {
+      hookReads++;
+      throw Error('PRIVATE_SENTINEL');
+    },
   });
   const fact = {
-    get stage() {
+    get phase() {
       throw Error('PRIVATE_SENTINEL');
     },
   } as any;
   (global as any).__DEV__ = false;
-  expect(() => reportStartupFailure(fact)).not.toThrow();
-  expect(info).not.toHaveBeenCalled();
+  expect(() => observeStartupFailure(fact)).not.toThrow();
+  expect(hookReads).toBe(0);
+  reportStartupFailure(undefined, 'NAVIGATION', 'THREW', {
+    get name() {
+      errorReads++;
+      throw Error('PRIVATE_SENTINEL');
+    },
+  });
+  expect(errorReads).toBe(0);
   (global as any).__DEV__ = true;
-  expect(() => reportStartupFailure(fact)).not.toThrow();
-  expect(() => reportStartupFailure({ stage: 'READ_CALL', category: 'UNKNOWN' })).not.toThrow();
+  expect(() => observeStartupFailure(fact)).not.toThrow();
+  installHook(() => {
+    throw Error('PRIVATE_SENTINEL');
+  });
+  expect(() =>
+    observeStartupFailure({
+      phase: 'ACCOUNT_STATE',
+      outcome: 'THREW',
+      errorName: 'Error',
+      nativeCode: null,
+    })
+  ).not.toThrow();
 });
 
-test('a changing fact accessor is read once and never interpolated after validation', () => {
+test('a changing fact accessor is read once before validating and forming the fixed marker', () => {
   (global as any).__DEV__ = true;
-  const info = jest.spyOn(console, 'info').mockImplementation(() => {});
+  const hook = jest.fn();
+  installHook(hook);
+  jest.spyOn(Date, 'now').mockReturnValue(1500);
   let reads = 0;
-  reportStartupFailure({
-    get stage() {
-      return ++reads === 1 ? 'READ_CALL' : 'PRIVATE_SENTINEL';
+  observeStartupFailure({
+    get phase() {
+      return ++reads === 1 ? 'ACCOUNT_STATE' : 'PRIVATE_SENTINEL';
     },
-    category: 'UNKNOWN',
+    outcome: 'THREW',
+    errorName: 'UNKNOWN',
+    nativeCode: null,
   } as any);
   expect(reads).toBe(1);
-  expect(info).toHaveBeenCalledWith('KEEPER_STARTUP_ERROR stage=READ_CALL category=UNKNOWN');
+  expect(hook).toHaveBeenCalledWith(
+    'KEEPER_STARTUP_FAILURE_V1|1500|ACCOUNT_STATE|THREW|UNKNOWN|NONE',
+    3
+  );
 });

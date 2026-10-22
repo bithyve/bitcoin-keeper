@@ -69,16 +69,21 @@ test.each(['STATE_READ', 'SERVICE_SELECT', 'KEYCHAIN_READ', 'CREDENTIAL_PARSE'])
     if (stage === 'CREDENTIAL_PARSE')
       mockGetGenericPassword.mockResolvedValue({ password: 'PRIVATE_SENTINEL' });
     if (stage === 'CREDENTIAL_PARSE') {
-      await expect(hasPin({ throwOnError: true, onReadFailure: observe })).rejects.toBeInstanceOf(
-        SyntaxError
-      );
+      await expect(hasPin({ throwOnError: true }, observe)).rejects.toBeInstanceOf(SyntaxError);
     } else {
-      await expect(hasPin({ throwOnError: true, onReadFailure: observe })).rejects.toBe(failure);
+      await expect(hasPin({ throwOnError: true }, observe)).rejects.toBe(failure);
     }
     expect(observe).toHaveBeenCalledTimes(1);
     expect(observe).toHaveBeenCalledWith({
-      stage,
-      category: stage === 'CREDENTIAL_PARSE' ? 'SYNTAX_ERROR' : 'ERROR',
+      phase:
+        stage === 'CREDENTIAL_PARSE'
+          ? 'CREDENTIAL_JSON'
+          : stage === 'KEYCHAIN_READ'
+          ? 'NATIVE_CREDENTIAL_READ'
+          : 'ACCOUNT_STATE',
+      outcome: stage === 'KEYCHAIN_READ' ? 'REJECTED' : 'THREW',
+      errorName: stage === 'CREDENTIAL_PARSE' ? 'SyntaxError' : 'Error',
+      nativeCode: null,
     });
     expect(JSON.stringify(observe.mock.calls)).not.toContain('PRIVATE_SENTINEL');
   }
@@ -87,11 +92,8 @@ test.each(['STATE_READ', 'SERVICE_SELECT', 'KEYCHAIN_READ', 'CREDENTIAL_PARSE'])
 test.each([true, false])('observer failure preserves throwOnError=%s', async (throwOnError) => {
   const original = new Error('PRIVATE_SENTINEL');
   mockGetGenericPassword.mockRejectedValue(original);
-  const action = hasPin({
-    throwOnError,
-    onReadFailure: () => {
-      throw new Error('OBSERVER_SENTINEL');
-    },
+  const action = hasPin({ throwOnError }, () => {
+    throw new Error('OBSERVER_SENTINEL');
   });
   if (throwOnError) await expect(action).rejects.toBe(original);
   else await expect(action).resolves.toBe(false);
@@ -100,6 +102,6 @@ test.each([true, false])('observer failure preserves throwOnError=%s', async (th
 test('a successful empty native read supplies no failure observation', async () => {
   const observe = jest.fn();
   mockGetGenericPassword.mockResolvedValue(false);
-  await expect(hasPin({ throwOnError: true, onReadFailure: observe })).resolves.toBe(false);
+  await expect(hasPin({ throwOnError: true }, observe)).resolves.toBe(false);
   expect(observe).not.toHaveBeenCalled();
 });
