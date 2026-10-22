@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
 const driver = require('../native/canonical_native.cjs');
 const { attach: attachPublicCompanions } = require('./fixtures/public-companions.cjs');
 const { attach: attachPublicSoftware } = require('./fixtures/public-software.cjs');
@@ -262,6 +263,29 @@ test('artifact names, digests and current-attempt provenance are independently c
     const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
     try { change(f); await assert.rejects(collect(f, output)); }
     finally { fs.rmSync(output, { recursive: true, force: true }); }
+  }
+});
+test('canonical raw metadata rejects correctly rehashed ZIPs with contradictory duplicate smoke keys', async () => {
+  for (const platform of ['IOS', 'ANDROID']) {
+    const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-strict-json-'));
+    try {
+      const index = platform === 'IOS' ? 0 : 1;
+      const raw = Buffer.from('{"smoke":"FAIL",' + JSON.stringify(f.metadata[platform]).slice(1));
+      assert.equal(JSON.parse(raw).smoke, 'PASS', 'reproduce the rejected last-key-wins contradiction');
+      f.archives[index] = raw;
+      // Real ZIP creation and the production reader retain the original bytes and valid CRC.
+      f.archives = f.archives.map(bytes => execFileSync('python3', ['-B', '-c',
+        'import io,sys,zipfile; b=io.BytesIO(); z=zipfile.ZipFile(b,"w",zipfile.ZIP_DEFLATED); z.writestr("metadata.json",sys.stdin.buffer.read()); z.close(); sys.stdout.buffer.write(b.getvalue())'],
+      { input: bytes, maxBuffer: 1048576 }));
+      for (let i = 0; i < f.archives.length; i++) Object.assign(f.artifacts[i], {
+        size_in_bytes: f.archives[i].length, digest: `sha256:${hash(f.archives[i])}`,
+      });
+      assert.equal(driver.readMetadataZip(f.archives[index]).equals(raw), true);
+      await assert.rejects(driver.collect(f.github, f.context, f.request, output, driver.readMetadataZip,
+        { pinReader: f.pinReader }), /^Error: STRICT_ARTIFACT_JSON_INVALID$/);
+      assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
+      assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-readiness.json')), false);
+    } finally { fs.rmSync(output, { recursive: true, force: true }); }
   }
 });
 test('complete native subsets emit bounded BLOCKED readiness and no reusable attestation', async () => {
