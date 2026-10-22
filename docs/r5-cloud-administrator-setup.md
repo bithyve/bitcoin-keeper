@@ -63,8 +63,23 @@ The canonical producer #7084 additionally reads the nonsecret Actions variable
 protected canonical driver SHA and the selected source must equal it. The
 workflow has no environment, so provide this separately approved pin at a scope
 visible to that workflow and verify its live read-only API visibility rather than
-assuming environment variables supply it. Pin creation/update is not authorized
-here. The #7085 consumer is not an authorization integration. Keep B1's
+assuming environment variables supply it. Successor
+[#7095](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7095),
+`effd9175c00ebbdbaf616813a3ecfa6886bbbf45`, fixes the candidate's default-token
+Variables-read incompatibility. Its separate installation requirement is the
+repository secret **`KEEPER_CANONICAL_PIN_READ_TOKEN`**: a finite-expiry fine-grained
+PAT with resource owner KeeperCommunity, selected repository only `bitcoin-keeper`,
+**Variables: Read-only** (`actions_variables=read`) plus automatic Metadata read.
+Obtain organization approval if required; no broad classic PAT or write/admin
+rights. Require a live GET200 of the exact named variable/reviewed SHA under that
+identity. The default token remains for the other read endpoints; no cached pin
+or default-token fallback is acceptable. Explicit reusable alias
+`canonical_pin_read_token` is step-scoped and removed before subprocesses. During
+later authorized rotation revoke the old PAT; replacing the stored secret does
+not revoke an already running token. This identity is not provisioned/live-tested
+here. Review/adopt #7095 separately; it is not installed or included in this
+reconciliation branch. Pin/credential creation or update is not authorized here.
+The #7085 consumer is not an authorization integration. Keep B1's
 private origin capability unminted and all authorization flags false until
 genuine canonical evidence, security linkage and enforcement are established.
 

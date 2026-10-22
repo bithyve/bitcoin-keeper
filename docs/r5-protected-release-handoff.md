@@ -18,6 +18,8 @@ remain unchanged. Work-package labels 5.1/5.2 are not app versions.
 | Upload-only successor | [#7086](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7086), `36df64be4ccafc287c0ac07fb911d7e3a1c4711c` | Preserved and included in the isolated reconciliation. Pinned Pilot fake-boundary regression proves the corrected adapter stops before processing/distribution. No provider operation performed. |
 | Canonical native producer | [#7084](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7084), `29a73faaf4312f3536db9aad1d5b6795042aef7d` | Uninstalled/unexecuted. Five parent obligations remain NOT IMPLEMENTED; only blocked readiness can be emitted until genuine complete coverage exists. Read-only capacity admission is not an atomic lock shared with legacy routes. |
 | Read-only trusted-origin consumer | [#7085](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7085), `a1e167cab4e8485bb84418cadfb2313cbcedb644` | Separate and unintegrated. Proofs retain authorization_eligible:false, release_authorized:false and execution_allowed:false. Official security-analysis/run linkage is unverified after analysis API403. Never use this object to mint B1 authorization. |
+| Strict installed-byte consumer successor | [#7087](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7087), `546d77261d02c0633e45b2c62df8f8e5580620c0` | Implements root/all-five/Retry/key proof schema, equality and built-binary binding missing from #7085. Separate, not included here; review/adoption and genuine exact-canonical receipt acceptance pending. All authorization flags remain false. |
+| Canonical live-pin identity successor | [#7095](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7095), `effd9175c00ebbdbaf616813a3ecfa6886bbbf45` | Fixes default-token Variables-read incompatibility in its candidate. Separate uninstalled repository-selected Variables-read identity/setup and live preflight remain required; no fallback or release capability. |
 
 Each linked PR retains its patch-only comparison. Do not squash these packages
 into an expanded app implementation PR or transfer their checks to another SHA.
@@ -87,14 +89,13 @@ UNKNOWN, not absent. No secret value was requested and no setup was changed.
 2. Reconcile installed selected-route evidence with the legacy all-checks/name
    predicate without accepting unrelated skips, pending/failed checks or another
    SHA. Retain exact owner/environment/version/config/certificate/artifact gates.
-3. Require the later installed-byte proof added in [#7083](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7083)
-   when combining the consumer with that foundation. Current consumer
-   `validateReceipt` checks raw samples/Retry/key outcomes but omits root and
-   per-scenario installed_artifact_verified/installed_artifact. Its positive
-   fixture currently omits those fields. Enforce strict platform proof schema,
-   built-byte identity and equality across samples/Retry/key receipts; reject
-   missing/false/malformed/mismatched proofs. Existing false authorization flags
-   and incomplete canonical matrix prevent this from granting release authority.
+3. Original #7085 omitted root/per-scenario installed-byte binding from #7083.
+   Separate successor [#7087](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7087)
+   now implements strict platform proof schema, built-byte binding and equality
+   across all five samples/Retry/key receipts, rejecting missing/false/malformed/
+   mismatched proofs. Review/adopt that candidate and obtain genuine hosted
+   receipts; do not implement a competing copy or claim it is installed. All
+   authorization flags remain false and the canonical matrix remains incomplete.
 4. Complete the parent native feature/performance matrix in its own app/acceptance
    packages, then obtain genuine exact-canonical receipts after approved
    installation. Do not replace missing cases with helper/startup evidence.
@@ -150,7 +151,19 @@ Fresh safe GitHub metadata readback during this resume, approximately
 - Native run39824790868, attempt1, exact #7082 source above: iOS job119985112961
   failed `Check disposable iOS driver readiness` after immutable dependency
   setup; app build/probes skipped. Android job119991169863 was still running
-  after its development build. No native acceptance is claimed or transferred.
+  after its development build at that observation. No native acceptance is
+  claimed or transferred.
+
+Later refresh at approximately **18:35 UTC** found new #7087/#7095 candidates
+above and native diagnostic successor [#7094](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7094)
+`ffb2131e4e4478e6befc93c9124941fcff4abb31`. #7094 records attempt1 Android's
+natural FAILURE after installed-APK byte comparison: initial Create a passcode
+assertion failed; later feature/performance cases did not run. Its iOS setup-only
+diagnostic owns the next investigation, without an established root cause or
+dependency correction. The original run39824790868 has meanwhile advanced to
+attempt2/in_progress (iOS job120011570058) under its owner's work. This task
+neither initiated nor cancelled/retried it. Coordinate that owner and #7094;
+never infer an idle native window from the earlier observation.
 
 Signing certificate/profile/upload-key continuity, team/app/store API identity,
 roles, expiry/revocation, agreements and fresh complete store histories remain
@@ -196,11 +209,14 @@ Use a new worktree/branch; do not depend on /tmp tools from an earlier session.
    identities, original bounded artifact ZIP/digest bytes, complete parent matrix
    and production source hashes. PR-head checks cannot transfer to canonical SHA.
    Enforce the strict installed-byte schema including per-scenario identity.
+   Review/adopt #7087's existing binding implementation and #7095's explicit
+   Variables-reader fix; provision/live-test the latter only under separately
+   approved administration.
    Producer permits1MiB ZIP/512KiB JSON; consumer permits128KiB/64KiB and stronger
    raw observations. Obtain actual acceptance by BOTH without relaxing limits.
    Resolve official CodeQL security outcome AND analysis-to-run linkage; Actions
    workflow success and a403 analysis API are insufficient. Fix/review selected
-   route/legacy-check reconciliation and missing installed-byte binding first.
+   route/legacy-check reconciliation; neither successor is installed by this task.
 5. Have administrator/custodian complete the separately authorized specification
    and supply only secret-free metadata/readback. Verify environment reviewers,
    prevented self review, can_admins_bypass:false, protected-branches-only policy,
