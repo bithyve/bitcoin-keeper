@@ -74,6 +74,15 @@ incomplete sanitization finding at `src/services/wallets/operations/index.ts`.
 No independent review or severity waiver is established. Lint jobs tolerate
 command failures; green jobs do not mean lint is clean.
 
+Read-only alert triage confirmed the flagged module blob
+`db29ee432496e84bc70be82b0d9a3017e154888d` is identical in released R4, core,
+5.1 and the inspected interim candidate. The flagged string feeds a numeric
+witness-size estimate; no HTML sink was established in the traced callers.
+An uncommitted literal-selector counting candidate matched 140 pinned fixture
+witnesses and 104 production-helper comparisons. This is bounded triage, not
+an exploitability clearance or signing-security review. No financial-source
+refactor, alert dismissal or waiver is included; the failed check remains open.
+
 At initial integration there is no combined native acceptance, no five raw
 measurements and no identified 5.2 checkpoint. Candidate freeze is blocked until
 the authoritative 5.2 handoff is rechecked and all package results are recorded.
@@ -93,9 +102,11 @@ post-test evidence update and silently transfer results to the resulting SHA.
 | Cloud reconciliation | #7070 / `17baf3bff3a5cd96787218b9e8e1fee75f549967`; inputs #7060/#7063/#7062 | Included with original patch review links; installed-base trust and required branch protections remain separate from diagnostic execution |
 | Native production-worker witness | #7071 / `486810052f90550d55dd6ddd541ff53ebd875caa` | Included; actual Realm/MMKV worker scenarios, explicitly controlled generation/transport/dispatch; execute on exact combined source |
 | Full-product UI measurements | #7073 / `040955d0caca38bb3cb386ca2918adf60f0f30db` | Included; require five healthy numeric samples plus a separate failed-transport/explicit-Retry fixture, actual normal app and cold relaunch/counts/navigation; no helper timing substitution or WAN-offline claim |
+| Native key/PIN UI companion | #7079 / `5c4c211339aeee3216faa0663c309314a1627123` | Included; normal app unused Mobile Key creation/deletion, cancellation, wrong-PIN rejection/retry and cold persistence. Seven independent controls pass; referenced-Vault UI, credential-store read faults and real biometrics are not covered |
+| Installed native bytes | `551ce622e94315091e2cf073736c2a5ad8d9ba27`; UI wiring `eee849144ddf706f7786f482b744596cd395a60d` | Included; full owned iOS bundle/executable and single Android installed-APK comparison before/after probes and product UI. Eight independent file/transport controls pass; actual native verification remains unrun until this candidate executes. Installer transformations do not receive an equivalence waiver |
 | Confirmed biometric callback defects | #7069 / `257fbe17e1a85d0e5d7e5d8ab97e1a69edbd9628`, review correction `14a2459b30e31ea3099d56f6c6928a4a3b7d6995` | Included; independent review reproduced prompt repetition and stale epoch cases; 17 component controls pass, actual biometrics remain unrun |
 | Current protocol pairing | Private Relay #160 / `4db6a758a307111137ad6bb4f35a32fa15b17a9d` | 52 backend + 43 protected app + 1 upgraded-account + 3 guard cases pass at their exact documented pair; pin/retest combined app SHA |
-| Protected release preparation | #7072 / `f2fc0cb557f0e5303335dadc9e98152640795e6c`; origin correction #7074 / `551198c6a5d55d05b5ecd2cae57505ca69270264` | Included; inventory and plan controls implemented, authorization planning deliberately disabled until installed CI origin is verified. Review reproduced forged check-name acceptance; 21 corrected plan controls pass. Separate future workers/protected setup remain, with no signing/upload executed |
+| Protected release preparation | #7072 / `f2fc0cb557f0e5303335dadc9e98152640795e6c`; origin correction #7074 / `76150f455978c1a565f2c670774672bc18789877` | Included; inventory and plan controls implemented, authorization planning deliberately disabled until installed CI origin is verified. Review reproduced forged check-name acceptance; 21 corrected plan controls pass with specific rejection-code assertions. Separate future workers/protected setup remain, with no signing/upload executed |
 | PHP exposure research | #7072, `docs/r5-cloud-release-readiness.md` | Official advisories/source assessment documented; deployed runtime inventory unknown, no Keeper exposure assertion; remedies stay R6 |
 | Navigation/timezone/PIN/copy | `docs/r5/BIOMETRIC-LIFECYCLE.md` and source tests | No speculative #7055/#6991 fix; bounded native reproduction/device checks remain. Retain shipped PIN and scoped EN/ES corrections |
 | Read-only timelock assessor | Separately recorded candidate, not identified as 5.2 | Source/handoff and complete key/origin/script/intent binding and native isolation acceptance remain; no activation or wallet clearance |
@@ -107,7 +118,7 @@ the existing packages, much larger than an older 19k estimate. The initial new
 reconciliation was about 6.7k, with a small additional runner hook. Preserve the
 original #7060/#7063/#7062 reviews and the reconciliation-only comparison; this
 aggregate is an integration input, not a request to approve one new 54k patch.
-Native worker (~7.8k), product measurements (~10.1k), biometric correction (~4k)
+Native worker (~7.8k), product measurements (~10.1k), key/PIN UI (~6.5k), biometric correction (~4k)
 and release preparation (~7.2k code/test, ~12.7k including research/docs) stay
 separate. Signing worker preparation grew during independent review and is split
 into bounded core authorization/platform adapters and separate orchestration/
