@@ -95,9 +95,19 @@ reviews that control before it is pushed.
 - Node22 syntax and whitespace: PASS during preparation.
 - Original protected-runner source/admission guard tests: PASS, 3 tests under
   actual Node22.23.3; no guard, runner or original test changed.
-- Genuine nine-case execution: **NOT RUN** during source preparation; the isolated
-  checkout has no installed Realm binding (`MODULE_NOT_FOUND`). Hosted exact-source
-  execution will be recorded separately after source and control review.
+- First genuine hosted execution at app `1952adc87b622eb4c0b6ba6c60a2112fb004bc22`:
+  **FAIL**, 9 cases, 2 PASS / 6 FAIL / 1 cancelled / 0 skipped / 0 todo. All three
+  source fences, genuine Realm installation and owned writable-replica startup/
+  cleanup passed. The new proof incorrectly queried Version History through the
+  generic `id` helper although that schema's primary key is `version`; its HTTP
+  observation assertion also threw into admission, causing the timeout. The
+  failed raw receipt remains preserved, with no native or new-source pass transfer.
+- This correction reads the real Realm primary key and records observation errors
+  for assertion after the actual worker drains, without throwing into HTTP
+  admission. It changes no product behavior or successful result. Genuine nine-case
+  execution of the corrected source is **NOT RUN**, pending fresh exact-source
+  review and bounded hosted execution. Local Realm remains unavailable
+  (`MODULE_NOT_FOUND`).
 - iOS, Android, real devices, original historical disks, native login/PIN UI,
   mobile private-key derivation and server-policy provider calls: **NOT RUN** by
   this host package. No acceptance from another SHA is transferred.

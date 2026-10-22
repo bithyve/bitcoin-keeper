@@ -68,16 +68,28 @@ function assertPending(f) {
   assert.notEqual(f.store.getState().bhr.backupRepairStateByAppId[f.appId], 'verified');
 }
 
-function assertLocalUpgrade(f, migrated = false) {
-  assert.equal(f.dbManager.getObjectById(f.RealmSchema.KeeperApp, f.appId).version, installedVersion);
-  const history = plain(f.dbManager.getObjectById(f.RealmSchema.VersionHistory, historyKey));
-  assert.equal(history.title, `Upgraded from ${f.previousVersion} to ${installedVersion}`);
-  assert.equal(Number.isNaN(Date.parse(history.date)), false);
-  assert.equal(f.dbManager.getCollection(f.RealmSchema.VersionHistory).length, 1);
+function localUpgradeState(f) {
+  return {
+    version: f.dbManager.getObjectById(f.RealmSchema.KeeperApp, f.appId).version,
+    // VersionHistory's actual primary key is `version`; the generic id helper
+    // intentionally cannot query this schema. Read the genuine Realm record.
+    history: plain(f.nativeRealm().objectForPrimaryKey(f.RealmSchema.VersionHistory, historyKey)),
+    historyCount: f.dbManager.getCollection(f.RealmSchema.VersionHistory).length,
+    tagsCount: f.dbManager.getCollection(f.RealmSchema.Tags).length,
+    healthCount: f.dbManager.getCollection(f.RealmSchema.Signer)[0]?.healthCheckDetails.length ?? 0,
+    archived: f.dbManager.getObjectById(f.RealmSchema.Vault, 'upgrade-old-vault')?.archived,
+  };
+}
+
+function assertLocalUpgrade(f, migrated = false, state = localUpgradeState(f)) {
+  assert.equal(state.version, installedVersion);
+  assert.equal(state.history.title, `Upgraded from ${f.previousVersion} to ${installedVersion}`);
+  assert.equal(Number.isNaN(Date.parse(state.history.date)), false);
+  assert.equal(state.historyCount, 1);
   if (migrated) {
-    assert.equal(f.dbManager.getCollection(f.RealmSchema.Tags).length, 1);
-    assert.equal(f.dbManager.getCollection(f.RealmSchema.Signer)[0].healthCheckDetails.length, 1);
-    assert.equal(f.dbManager.getObjectById(f.RealmSchema.Vault, 'upgrade-old-vault').archived, true);
+    assert.equal(state.tagsCount, 1);
+    assert.equal(state.healthCount, 1);
+    assert.equal(state.archived, true);
   }
 }
 
@@ -206,10 +218,10 @@ test('actual R4-derived dormant-account launch upgrades Realm and persisted Redu
   assert.equal(writes()[0].authEpoch, f.origin.originBackupWriteIntent.protectedBase.authEpoch);
   assert.deepEqual(writes().map(event => event.operation), ['updateAppImage']);
   await assertConfirmed(f, 1);
-  const historyBefore = plain(f.dbManager.getObjectById(f.RealmSchema.VersionHistory, historyKey));
+  const historyBefore = plain(f.nativeRealm().objectForPrimaryKey(f.RealmSchema.VersionHistory, historyKey));
   const traceCount = server.trace.length;
   for (let i = 0; i < 2; i++) assert.equal(f.sagas.scope.observeCurrentVersionHistory(f.appId, installedVersion, installedBuild), true);
-  assert.deepEqual(plain(f.dbManager.getObjectById(f.RealmSchema.VersionHistory, historyKey)), historyBefore);
+  assert.deepEqual(plain(f.nativeRealm().objectForPrimaryKey(f.RealmSchema.VersionHistory, historyKey)), historyBefore);
   assert.equal(f.dbManager.getCollection(f.RealmSchema.VersionHistory).length, 1);
   assert.equal(server.trace.length, traceCount, 'History observation neither uploads nor invents an upgrade');
 });
@@ -234,20 +246,24 @@ test('actual dispatched current history worker keeps a no-original-base local ve
 
 test('actual still-gated 1.0.5 producer atomically migrates label/health/version then confirms app/live/archive/label fanout without receipt replay', async t => {
   const f = await setup(t, { previousVersion: '1.0.5', migration: true });
-  const observed = [];
+  const observed = [], observationErrors = [];
   const originalPush = server.trace.push;
   const trace = server.trace;
   trace.push = function (...events) {
     for (const event of events) if (event.path === '/backup/v3/mutate') {
-      assertLocalUpgrade(f, true);
-      observed.push(event.operation);
+      // Observe before forwarding, but never throw into HTTP admission. A
+      // failed observation is asserted after the real producer has drained.
+      try { observed.push({ operation: event.operation, state: localUpgradeState(f) }); }
+      catch (error) { observationErrors.push(error); }
     }
     return originalPush.apply(this, events);
   };
   t.after(() => { trace.push = originalPush; });
   assert.equal(await f.upgrade(), true);
   assertLocalUpgrade(f, true);
-  assert.deepEqual(observed, ['updateAppImage', 'updateVaultImage', 'updateVaultImage', 'modifyLabels']);
+  assert.equal(observationErrors.length, 0, observationErrors.map(error => error.message).join('; '));
+  assert.deepEqual(observed.map(value => value.operation), ['updateAppImage', 'updateVaultImage', 'updateVaultImage', 'modifyLabels']);
+  for (const observation of observed) assertLocalUpgrade(f, true, observation.state);
   for (let i = 1; i < writes().length; i++) assertOwnNextTuple(writes()[i - 1], writes()[i]);
   const image = await assertConfirmed(f, 4);
   assert.equal(image.vaults['upgrade-old-vault'].archived, true);
