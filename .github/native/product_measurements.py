@@ -119,9 +119,13 @@ def run(h):
         raise RuntimeError('PRODUCT_UI_DISPOSABLE_HOSTED_RUNNER_REQUIRED')
     data = h.read()
     first_private_command = len(data.get('commands', [])) + 1
+    actual_source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=h.ROOT, text=True).strip()
     if (data['build'] != 'PASS' or data['source_sha'] != os.environ.get('KEEPER_SOURCE_SHA') or
-            h.artifact_identity() != data['built_artifact']):
+            actual_source != data['source_sha'] or h.artifact_identity() != data['built_artifact']):
         raise RuntimeError('PRODUCT_UI_EXACT_BUILD_REQUIRED')
+    if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', '.github/native', 'src', 'index.js'],
+                      cwd=h.ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
+        raise RuntimeError('PRODUCT_UI_COMMITTED_SOURCE_REQUIRED')
     expected_environment = {
         'ENVIRONMENT': 'DEVELOPMENT', 'RELAY': 'http://127.0.0.1:8765/',
         'SIGNING_SERVER_TESTNET': 'https://127.0.0.1:9/',
