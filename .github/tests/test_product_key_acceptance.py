@@ -71,7 +71,9 @@ class ReceiptTests(unittest.TestCase):
 
 class RunnerTests(unittest.TestCase):
     def exercise(self, *, omit_last=False, artifact_changed=False, command_failure=False,
-                 source_dirty=False, device='emulator-5554', extra_create=False):
+                 source_dirty=False, device='emulator-5554', extra_create=False,
+                 installed_failure=False, installed_mismatch=False, installed_unverified=False,
+                 installed_private_extra=False):
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         root = Path(directory.name)
@@ -107,9 +109,30 @@ class RunnerTests(unittest.TestCase):
 
         identity = mock.Mock(side_effect=[artifact, {'sha256': 'changed'}] if artifact_changed else None,
                              return_value=artifact)
+        installed_calls = 0
+
+        def verify_installed(device):
+            nonlocal installed_calls
+            installed_calls += 1
+            state['installed_artifact_verified'] = False
+            state.pop('installed_artifact', None)
+            if installed_failure and installed_calls == 2:
+                raise RuntimeError('PRIVATE_SENTINEL')
+            proof = {'method': 'SINGLE_INSTALLED_BASE_APK_SHA256',
+                     'sha256': ('e' if installed_mismatch and installed_calls == 2 else 'f') * 64}
+            if installed_private_extra:
+                proof['unreviewed'] = 'PRIVATE_SENTINEL'
+            state['installed_artifact'] = copy.deepcopy(proof)
+            state['installed_artifact_verified'] = not installed_unverified
+            return proof
+
+        def save(value):
+            state.clear()
+            state.update(copy.deepcopy(value))
+
         h = types.SimpleNamespace(ROOT=root, PLATFORM='ANDROID', APP_IDS={'ANDROID': 'disposable.app'},
-            read=lambda: copy.deepcopy(state), save=lambda value: state.update(copy.deepcopy(value)),
-            artifact_identity=identity, command=command, successful_junit=lambda report: 1)
+            read=lambda: copy.deepcopy(state), save=save, artifact_identity=identity,
+            verify_installed_artifact=verify_installed, command=command, successful_junit=lambda report: 1)
         backend = types.SimpleNamespace(snapshot=backend_snapshot)
         with contextlib.ExitStack() as stack:
             stack.enter_context(mock.patch.dict(product.os.environ, {'GITHUB_ACTIONS': 'true',
@@ -120,22 +143,26 @@ class RunnerTests(unittest.TestCase):
             stack.enter_context(mock.patch.object(product, 'make_server', side_effect=server))
             try:
                 value = product.run_companion(h, state, device, private, backend)
-                return value, state, private
+                return value, state, private, installed_calls
             except Exception as error:
-                return error, state, private
+                return error, state, private, installed_calls
 
     def test_complete_flow_keeps_scope_separate_and_removes_all_private_ui_output(self):
-        value, state, private = self.exercise()
+        value, state, private, installed_calls = self.exercise()
         self.assertEqual(value['status'], 'PASS')
         self.assertEqual(value['new_account_requests_during_key_flow'], 0)
         self.assertEqual(value['physical_biometrics'], 'NOT RUN')
+        self.assertEqual(installed_calls, 2)
+        self.assertTrue(value['installed_artifact_verified'])
+        self.assertEqual(value['installed_artifact']['sha256'], 'f' * 64)
         self.assertFalse((private / 'key-ui').exists())
         self.assertNotIn('PRIVATE_SENTINEL', json.dumps(state))
 
     def test_missing_stage_artifact_drift_driver_failure_and_new_setup_each_fail_closed(self):
-        for option in ['omit_last', 'artifact_changed', 'command_failure', 'extra_create']:
+        for option in ['omit_last', 'artifact_changed', 'command_failure', 'extra_create',
+                       'installed_failure', 'installed_mismatch', 'installed_unverified', 'installed_private_extra']:
             with self.subTest(option=option):
-                value, state, private = self.exercise(**{option: True})
+                value, state, private, _calls = self.exercise(**{option: True})
                 self.assertIsInstance(value, RuntimeError)
                 self.assertEqual(state['product_key_ui']['status'], 'FAIL')
                 self.assertFalse((private / 'key-ui').exists())
@@ -144,7 +171,7 @@ class RunnerTests(unittest.TestCase):
     def test_real_device_or_dirty_source_is_rejected_before_ui_execution(self):
         for options in [{'device': 'physical-device-id'}, {'source_dirty': True}]:
             with self.subTest(options=options):
-                value, state, private = self.exercise(**options)
+                value, state, private, _calls = self.exercise(**options)
                 self.assertIsInstance(value, RuntimeError)
                 self.assertNotIn('product_key_ui', state)
                 self.assertFalse((private / 'key-ui').exists())

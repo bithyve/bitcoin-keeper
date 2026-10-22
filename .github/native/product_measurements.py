@@ -294,6 +294,10 @@ def run(h):
                     ['adb', '-s', device, 'shell', 'getprop', 'ro.build.fingerprint'],
                     'Record actual product UI emulator image', capture=True)}
             app = h.APP_IDS[h.PLATFORM]
+            spec = importlib.util.spec_from_file_location(
+                'product_key_acceptance', Path(__file__).with_name('product_key_acceptance.py'))
+            key_companion = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(key_companion)
             for sample in range(1, SAMPLE_COUNT + 2):
                 retry_fixture = sample == SAMPLE_COUNT + 1
                 receipt.reset(sample, retry=retry_fixture)
@@ -311,6 +315,7 @@ def run(h):
                     h.command(['adb', '-s', device, 'install', '-r', artifact], 'Install exact product UI APK', timeout=120)
                     h.command(['adb', '-s', device, 'shell', 'pm', 'clear', app], 'Clear only disposable development app')
                 try:
+                    installed_before = key_companion.installed_proof(h, device)
                     h.command([data['maestro']['binary'], '--device', device, 'test',
                                '--env', 'APP_ID=' + app,
                                '--env', 'EXPECTED_INSTALLED_REGEX=' + expected_version['installed_regex'],
@@ -325,7 +330,12 @@ def run(h):
                     h.successful_junit(report)
                     if h.artifact_identity() != data['built_artifact']:
                         raise RuntimeError('PRODUCT_UI_ARTIFACT_CHANGED')
+                    installed_after = key_companion.installed_proof(h, device)
+                    if installed_before != installed_after:
+                        raise RuntimeError('PRODUCT_UI_INSTALLED_BYTES_CHANGED')
                     outcome = receipt.snapshot(passed=True)
+                    outcome['installed_artifact_verified'] = True
+                    outcome['installed_artifact'] = installed_after
                     if retry_fixture:
                         result['controlled_disconnect_retry'] = outcome
                     else:
@@ -343,10 +353,6 @@ def run(h):
                 save()
             # Separate normal-app UI companion; never part of the five latency
             # samples or the controlled setup-disconnect receipt vocabulary.
-            spec = importlib.util.spec_from_file_location(
-                'product_key_acceptance', Path(__file__).with_name('product_key_acceptance.py'))
-            key_companion = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(key_companion)
             result['key_management_ui'] = key_companion.run_companion(h, data, device, private, receipt)
             result['key_management_scope'] = (
                 'Normal-app unused Mobile Key creation/deletion, cancellation, wrong PIN rejection, '
