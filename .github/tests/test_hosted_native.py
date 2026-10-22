@@ -340,8 +340,13 @@ class HostedNativeHarnessTest(unittest.TestCase):
                                                    ' BUNDLE private-path/index.js\n PREBUNDLE private-path/index.js\n')
 
         def compact_log(args, stdout, **kwargs):
-            self.assertEqual(args[args.index('--style') + 1], 'compact')
-            self.assertEqual(args[args.index('--last') + 1], '10m')
+            self.assertEqual(args, [
+                'xcrun', 'simctl', 'spawn', 'owned-simulator', 'log', 'show', '--info',
+                '--style', 'compact', '--last', '10m', '--predicate',
+                'process == "hexa_keeper_dev" AND (messageType == "error" OR messageType == "fault" '
+                'OR eventMessage CONTAINS[c] "error" OR eventMessage CONTAINS[c] "exception" '
+                'OR eventMessage CONTAINS[c] "fatal")'])
+            self.assertEqual(kwargs['timeout'], 25)
             stdout.write(b'2026-10-17 09:22:33.123 Df hexa_keeper_dev[123:abc] ReferenceError: launch module failed token=private\n')
             stdout.write(b'2026-10-17 09:22:34.123 E OtherApp[124:def] Error: private unrelated data\n')
             # The first MiB ends within a continuation, not a complete record.
