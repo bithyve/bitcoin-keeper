@@ -221,6 +221,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
                      'build': 'NOT RUN', 'smoke': 'NOT RUN'})
         owned = '12345678-1234-1234-1234-123456789abc'
         with mock.patch.object(native, 'PLATFORM', 'IOS'), mock.patch.dict(native.os.environ), \
+                mock.patch.object(native, 'wait_for_simulator_app_services') as ready, \
                 mock.patch.object(native, 'command', side_effect=[owned, None, None, None]) as command, \
                 mock.patch.object(subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as cleanup:
             native.driver()
@@ -228,6 +229,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertEqual(command.call_args.args[0],
                          ['/private/maestro', '--platform', 'ios', '--device', owned, 'hierarchy'])
         self.assertFalse(command.call_args.kwargs['error_details'])
+        ready.assert_called_once_with(owned)
         self.assertEqual([call.args[0] for call in cleanup.call_args_list],
                          [['xcrun', 'simctl', 'shutdown', owned], ['xcrun', 'simctl', 'delete', owned]])
         self.assertEqual(native.read()['driver_preflight']['result'], 'PASS')
@@ -239,6 +241,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
                      'build': 'NOT RUN', 'smoke': 'NOT RUN'})
         owned = '12345678-1234-1234-1234-123456789abc'
         with mock.patch.object(native, 'PLATFORM', 'IOS'), mock.patch.dict(native.os.environ), \
+                mock.patch.object(native, 'wait_for_simulator_app_services'), \
                 mock.patch.object(native, 'command', side_effect=[owned, None, None, RuntimeError('driver failed PRIVATE_SENTINEL')]), \
                 mock.patch.object(subprocess, 'run', side_effect=[subprocess.TimeoutExpired('shutdown', 30),
                                                                 subprocess.CompletedProcess([], 0)]) as cleanup, \
@@ -252,6 +255,25 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.assertEqual(data['failed_phase'], 'driver')
         self.assertEqual(data['build'], 'NOT RUN')
         self.assertEqual(data['smoke'], 'NOT RUN')
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+
+    def test_unresponsive_simulator_blocks_maestro_and_cleans_owned_device(self):
+        native.save({'commands': [], 'maestro': {'binary': '/private/maestro'},
+                     'build': 'NOT RUN', 'smoke': 'NOT RUN'})
+        owned = '12345678-1234-1234-1234-123456789abc'
+        original_error = RuntimeError('PRIVATE_SENTINEL app services unavailable')
+        with mock.patch.object(native, 'PLATFORM', 'IOS'), mock.patch.dict(native.os.environ), \
+                mock.patch.object(native, 'wait_for_simulator_app_services', side_effect=original_error), \
+                mock.patch.object(native, 'command', side_effect=[owned, None, None]) as command, \
+                mock.patch.object(subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as cleanup, \
+                self.assertRaises(RuntimeError) as failure:
+            native.run_phase('driver')
+        self.assertIs(failure.exception, original_error)
+        self.assertEqual(command.call_count, 3)
+        self.assertEqual(command.call_args.args[0], ['xcrun', 'simctl', 'bootstatus', owned, '-b'])
+        self.assertEqual([call.args[0] for call in cleanup.call_args_list],
+                         [['xcrun', 'simctl', 'shutdown', owned], ['xcrun', 'simctl', 'delete', owned]])
+        self.assertEqual(native.read()['driver_preflight']['result'], 'FAIL')
         self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
 
     def test_driver_preflight_diagnostics_cannot_contaminate_smoke_flags(self):

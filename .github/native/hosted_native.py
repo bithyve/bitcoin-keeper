@@ -762,6 +762,17 @@ def verify_installed_artifact(device):
     return result
 
 
+def wait_for_simulator_app_services(device):
+    """Boot completion alone did not establish app-service responsiveness."""
+    if PLATFORM != 'IOS':
+        raise ValueError('Simulator app-service readiness is iOS-only.')
+    spec = importlib.util.spec_from_file_location('simulator_readiness', Path(__file__).with_name('simulator_readiness.py'))
+    readiness = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(readiness)
+    return readiness.wait_for_app_services(SimpleNamespace(PRIVATE=PRIVATE, read=read, save=save),
+                                          device, timeout=120)
+
+
 def driver():
     """Fail early on iOS driver setup without installing or crediting the app."""
     if PLATFORM != 'IOS':
@@ -784,6 +795,7 @@ def driver():
         command(['xcrun', 'simctl', 'boot', device], 'Boot owned driver-preflight simulator', timeout=120)
         command(['xcrun', 'simctl', 'bootstatus', device, '-b'],
                 'Wait for driver-preflight simulator boot', timeout=240)
+        wait_for_simulator_app_services(device)
         command([read()['maestro']['binary'], '--platform', 'ios', '--device', device, 'hierarchy'],
                 label, timeout=300, error_details=False)
         details['result'] = 'PASS'
@@ -1036,9 +1048,17 @@ def smoke(suite='startup'):
                 raise ValueError('Expected owned simulator UUID before installation.')
             command(['xcrun', 'simctl', 'boot', device], 'Boot disposable simulator')
             command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 'Wait for simulator boot', timeout=240)
-            command(['xcrun', 'simctl', 'install', device,
-                     str(PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app')],
-                    'Install unsigned development app', timeout=300)
+            wait_for_simulator_app_services(device)
+            install_args = ['xcrun', 'simctl', 'install', device,
+                            str(PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app')]
+            if not (is_probe or is_features):
+                spec = importlib.util.spec_from_file_location('install_diagnosis', Path(__file__).with_name('install_diagnosis.py'))
+                installer = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(installer)
+                installer.observe(SimpleNamespace(PRIVATE=PRIVATE, ROOT=ROOT, read=read, save=save, command=command),
+                                  device, install_args, 'Install unsigned development app', timeout=120)
+            else:
+                command(install_args, 'Install unsigned development app', timeout=120)
             descriptor = 'iPhone 16; iOS 18.5'
         else:
             sdk = Path(os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', '')))

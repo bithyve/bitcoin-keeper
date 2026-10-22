@@ -300,6 +300,7 @@ class DriverDiagnosisTest(unittest.TestCase):
 
                     with mock.patch.dict(os.environ, {'KEEPER_DIAGNOSTIC': 'true'}), \
                             mock.patch.object(native, 'record'), mock.patch.object(native, 'install_maestro'), \
+                            mock.patch.object(native, 'wait_for_simulator_app_services'), \
                             mock.patch.object(native, 'command', side_effect=command), \
                             mock.patch.object(native, 'read', side_effect=read), \
                             mock.patch.object(native, 'save', side_effect=save), \

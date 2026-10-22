@@ -289,6 +289,7 @@ def run(h):
                                'Create task-owned product UI simulator', capture=True)
             h.command(['xcrun', 'simctl', 'boot', device], 'Boot product UI simulator')
             h.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 'Wait for product UI simulator', timeout=240)
+            h.wait_for_simulator_app_services(device)
             artifact = str(h.PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app')
             result['device'] = {'profile': 'iPhone 16', 'runtime': 'iOS 18.5', 'kind': 'SIMULATOR'}
         else:

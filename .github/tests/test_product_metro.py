@@ -175,6 +175,87 @@ class MetroTests(unittest.TestCase):
 
 
 class IntegrationTests(unittest.TestCase):
+    def test_ios_readiness_precedes_first_product_install_and_keeps_failure_cleanup(self):
+        for readiness_fails in (False, True):
+            with self.subTest(readiness_fails=readiness_fails), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                private = root / 'private'
+                private.mkdir()
+                (root / 'release').mkdir()
+                manifest = b'{"name":"owned"}'
+                (root / 'package.json').write_bytes(manifest)
+                (root / 'release/version.json').write_text(json.dumps(
+                    {'version': '2.6.4', 'androidVersionCode': 627, 'iosBuildNumber': 620}))
+                (root / '.env.ci').write_text('\n'.join([
+                    'ENVIRONMENT=DEVELOPMENT', 'RELAY=http://127.0.0.1:8765/',
+                    'SIGNING_SERVER_TESTNET=https://127.0.0.1:9/', 'SIGNING_SERVER_MAINNET=https://127.0.0.1:9/',
+                    'CHANNEL_URL=https://127.0.0.1:9/', 'SENTRY_DNS=https://public@127.0.0.1:9/1',
+                    'ENC_KEY_STORAGE_IDENTIFIER=KEEPER-HOSTED-DISPOSABLE']))
+                sha, artifact, order = 'a' * 40, {'sha256': 'b' * 64}, []
+                owned = '12345678-1234-1234-1234-123456789ABC'
+                digest = hashlib.sha256(manifest).hexdigest()
+                state = {'build': 'PASS', 'source_sha': sha, 'built_artifact': artifact,
+                         'commands': [], 'maestro': {'binary': 'fake-maestro'}, 'nodeify_overlay': {
+                             'path': 'package.json', 'allowed_fields': ['browser', 'react-native', 'browserify'],
+                             'before_sha256': digest, 'after_sha256': digest}}
+                original_error = RuntimeError('PRIVATE_SENTINEL original setup failure')
+
+                def save(value):
+                    state.clear()
+                    state.update(copy.deepcopy(value))
+
+                def command(args, label, **kwargs):
+                    order.append(label)
+                    if label == 'Create task-owned product UI simulator':
+                        return owned
+                    if label == 'Install exact product UI app':
+                        self.assertEqual(kwargs, {'timeout': 120})
+                        raise original_error
+
+                def ready(device):
+                    self.assertEqual(device, owned)
+                    order.append('app-services-ready')
+                    if readiness_fails:
+                        raise original_error
+
+                manager = types.SimpleNamespace(start=lambda *_a, **_k: order.append('metro-start'),
+                                                close=lambda: order.append('metro-close'), events=[])
+                server = types.SimpleNamespace(serve_forever=lambda: None,
+                    shutdown=lambda: order.append('server-stop'), server_close=lambda: None)
+                h = types.SimpleNamespace(ROOT=root, PRIVATE=private, PLATFORM='IOS', APP_IDS={'IOS': 'owned.app'},
+                    read=lambda: copy.deepcopy(state), save=save, artifact_identity=lambda: artifact,
+                    command=command, wait_for_simulator_app_services=ready)
+
+                def shell(args, **_kwargs):
+                    if args[:2] == ['xcrun', 'simctl']:
+                        order.append('device-' + args[2])
+                    return types.SimpleNamespace(returncode=0)
+
+                with contextlib.ExitStack() as stack:
+                    stack.enter_context(mock.patch.dict(product.os.environ, {'GITHUB_ACTIONS': 'true',
+                        'RUNNER_ENVIRONMENT': 'github-hosted', 'KEEPER_SOURCE_SHA': sha}))
+                    stack.enter_context(mock.patch.object(product.subprocess, 'check_output', side_effect=[sha, manifest]))
+                    stack.enter_context(mock.patch.object(product.subprocess, 'run', side_effect=shell))
+                    stack.enter_context(mock.patch.object(product, 'native_module',
+                        return_value=types.SimpleNamespace(OwnedMetro=lambda *_: manager)))
+                    stack.enter_context(mock.patch.object(product, 'make_server', return_value=server))
+                    with self.assertRaises(RuntimeError) as failure:
+                        product.run(h)
+                self.assertIs(failure.exception, original_error)
+                self.assertLess(order.index('Wait for product UI simulator'), order.index('app-services-ready'))
+                if readiness_fails:
+                    self.assertNotIn('Install exact product UI app', order)
+                    self.assertNotIn('Reset task-owned simulator credentials', order)
+                else:
+                    self.assertLess(order.index('app-services-ready'), order.index('Install exact product UI app'))
+                self.assertLess(order.index('metro-close'), order.index('device-shutdown'))
+                self.assertLess(order.index('device-shutdown'), order.index('device-delete'))
+                self.assertEqual(state['product_ui']['samples'], [])
+                self.assertEqual(state['product_ui']['status'], 'FAIL')
+                self.assertNotIn('Full-product first-wallet and relaunch UI sample', order)
+                self.assertIn('server-stop', order)
+                self.assertEqual(list(private.iterdir()), [])
+
     def test_primary_ui_failure_survives_save_and_metro_cleanup_errors_while_all_owned_data_is_disposed(self):
         class PrimaryFailure(RuntimeError):
             pass

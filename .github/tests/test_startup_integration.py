@@ -30,6 +30,7 @@ class StartupIntegrationTest(unittest.TestCase):
             start=mock.Mock(side_effect=self.start),
             collect=mock.Mock(side_effect=self.collect),
             stop=mock.Mock(side_effect=self.stop),
+            observe=mock.Mock(),
         )
         self.original_error = RuntimeError('PRIVATE_SENTINEL original smoke failure')
         self.import_error = RuntimeError('PRIVATE_SENTINEL observer import failure')
@@ -55,7 +56,8 @@ class StartupIntegrationTest(unittest.TestCase):
     def exercise(self, suite='startup', smoke_fails=False, start_fails=False,
                  collect_fails=False, stop_fails=False, platform='ANDROID',
                  import_fails=False, popen_fails=False, receipt_fails=None,
-                 cleanup_fails=(), diagnostics_fail=False, install_timeout=False):
+                 cleanup_fails=(), diagnostics_fail=False, install_timeout=False,
+                 install_fails=False, readiness_fails=False):
         captured = {}
         original_read, original_save, original_unlink = native.read, native.save, Path.unlink
         original_command = native.command
@@ -79,7 +81,10 @@ class StartupIntegrationTest(unittest.TestCase):
 
         def command(args, label, **kwargs):
             if label == 'Install unsigned development app':
+                captured['install_command_count'] = captured.get('install_command_count', 0) + 1
                 captured['install_args'], captured['install_options'] = args, kwargs
+                if install_fails:
+                    raise self.original_error
                 if install_timeout:
                     return original_command(args, label, **kwargs)
             if label == 'Identify fresh emulator':
@@ -99,7 +104,7 @@ class StartupIntegrationTest(unittest.TestCase):
         def popen(args, **kwargs):
             if args[:3] == ['xcrun', 'simctl', 'install']:
                 process = mock.Mock(pid=7001)
-                process.wait.side_effect = [native.subprocess.TimeoutExpired(args, 300), 0]
+                process.wait.side_effect = [native.subprocess.TimeoutExpired(args, 120), 0]
                 captured.setdefault('install_processes', []).append(process)
                 return process
             captured['metro_args'] = args
@@ -130,6 +135,19 @@ class StartupIntegrationTest(unittest.TestCase):
         def load_observer(module):
             if import_fails:
                 raise self.import_error
+
+        def observe_install(context, device, args, label, **kwargs):
+            self.events.append('install-observe')
+            self.assertEqual(device, '12345678-1234-1234-1234-123456789ABC')
+            self.assertEqual(context.PRIVATE, self.root)
+            return context.command(args, label, **kwargs)
+
+        self.observer.observe.side_effect = observe_install
+
+        def ready(device):
+            self.events.append('app-services-ready')
+            if readiness_fails:
+                raise self.original_error
 
         def dispose(args, **kwargs):
             event = 'device-' + args[2] if args[0] == 'xcrun' else 'device-uninstall'
@@ -185,6 +203,7 @@ class StartupIntegrationTest(unittest.TestCase):
                 (native, 'verify_installed_artifact', lambda device: self.events.append('installed-proof')),
                 (native, 'android_sdk_metadata', lambda *args: {'version': 'fixed'}),
                 (native, 'warm_metro_bundle', lambda suite: self.events.append('warm-' + suite)),
+                (native, 'wait_for_simulator_app_services', ready),
                 (native, 'successful_junit', lambda report: 1),
                 (native, 'record_startup_failure', failure_diagnostics),
                 (native, 'collect_r5_feature_evidence', lambda device: {'status': 'PASS'}),
@@ -293,10 +312,10 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertIn('exit 124', str(value['error']))
         self.assertEqual(len(value['install_processes']), 1)
         self.assertEqual(value['install_processes'][0].wait.call_args_list,
-                         [mock.call(timeout=300), mock.call()])
+                         [mock.call(timeout=120), mock.call()])
         entry = value['metadata']['commands'][0]
         self.assertEqual((entry['label'], entry['timeout_seconds'], entry['exit_code']),
-                         ('Install unsigned development app', 300, 124))
+                         ('Install unsigned development app', 120, 124))
         self.assertEqual(value['metadata']['smoke'], 'FAIL')
         for field in ['install_succeeded', 'installed_artifact_verified', 'smoke_test_cases']:
             self.assertNotIn(field, value['metadata'])
@@ -311,11 +330,63 @@ class StartupIntegrationTest(unittest.TestCase):
     def test_ios_install_success_keeps_exact_bytes_and_default_passcode_flow(self):
         value = self.exercise(platform='IOS')
         self.assertNotIn('error', value)
-        self.assertEqual(value['install_options']['timeout'], 300)
+        self.assertEqual(value['install_options']['timeout'], 120)
         self.assertEqual(value['install_args'][:3], ['xcrun', 'simctl', 'install'])
         self.assertEqual(value['flow'], '.github/native/startup.yaml')
         self.assertEqual(self.events.count('installed-proof'), 2)
         self.assertEqual(value['metadata']['smoke'], 'PASS')
+
+    def test_ios_install_observation_delegates_once_after_readiness_before_proof_and_ui(self):
+        value = self.exercise(platform='IOS')
+        self.assertNotIn('error', value)
+        self.observer.observe.assert_called_once()
+        self.assertEqual(value['install_command_count'], 1)
+        self.assertEqual(value['install_args'], [
+            'xcrun', 'simctl', 'install', '12345678-1234-1234-1234-123456789ABC',
+            str(self.root / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app'),
+        ])
+        self.assertEqual(value['install_options'], {'timeout': 120})
+        self.assertLess(self.events.index('app-services-ready'), self.events.index('install-observe'))
+        self.assertLess(self.events.index('install-observe'), self.events.index('installed-proof'))
+        self.assertLess(self.events.index('installed-proof'), self.events.index('maestro'))
+        self.assertNotIn('capture-start', self.events)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+
+    def test_ios_install_failure_preserves_original_error_and_cleanup_without_ui_credit(self):
+        value = self.exercise(platform='IOS', install_fails=True)
+        self.assertIs(value['error'], self.original_error)
+        self.assertEqual(value['install_command_count'], 1)
+        self.assertNotIn('installed-proof', self.events)
+        self.assertNotIn('maestro', self.events)
+        self.assertIn('failure-diagnostics', self.events)
+        self.assertIn('metro-stop', self.events)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+        self.assertTrue(value['metro_output'].closed)
+
+    def test_ios_unresponsive_app_services_block_install_and_ui_but_still_clean_up(self):
+        value = self.exercise(platform='IOS', readiness_fails=True)
+        self.assertIs(value['error'], self.original_error)
+        self.observer.observe.assert_not_called()
+        self.assertNotIn('install_command_count', value)
+        self.assertNotIn('installed-proof', self.events)
+        self.assertNotIn('maestro', self.events)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+        self.assertTrue(value['metro_output'].closed)
+
+    def test_ios_probe_and_features_keep_direct_single_install_after_readiness(self):
+        for suite in ['probe', 'features']:
+            with self.subTest(suite=suite):
+                self.events.clear()
+                self.observer.observe.reset_mock()
+                value = self.exercise(platform='IOS', suite=suite)
+                self.assertNotIn('error', value)
+                self.observer.observe.assert_not_called()
+                self.assertEqual(value['install_command_count'], 1)
+                self.assertEqual(value['install_options'], {'timeout': 120})
+                self.assertLess(self.events.index('app-services-ready'), self.events.index('installed-proof'))
 
     def test_receipt_failures_preserve_primary_and_do_not_skip_any_disposal(self):
         for boundary in ['read', 'save']:
