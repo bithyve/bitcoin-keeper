@@ -5,6 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const driver = require('../native/canonical_native.cjs');
+const { attach: attachPublicCompanions } = require('./fixtures/public-companions.cjs');
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 
 function fixture() {
@@ -38,6 +39,7 @@ function fixture() {
         visible_wallet_count_before_relaunch: 1, visible_wallet_count_after_relaunch: 1,
         raw_durations: { startup_to_passcode_ms: 120, start_new_to_ready_ms: 500 } })) },
   }]));
+  for (const platform of ['IOS', 'ANDROID']) attachPublicCompanions(state.metadata[platform], platform);
   state.archives = Object.values(state.metadata).map(value => Buffer.from(JSON.stringify(value)));
   state.artifacts = ['IOS', 'ANDROID'].map((platform, index) => ({ id: 101 + index,
     name: driver.artifactName(platform, request), expired: false, size_in_bytes: state.archives[index].length,
@@ -185,6 +187,25 @@ test('real implemented observations stay discoverable without clearing parent ob
   assert.equal(result.executed_checks['five-product-observations'].status, 'PASS');
   assert.equal(result.executed_checks['production-worker-controls'].status, 'PASS');
   assert.equal(result.cases.filter(item => item.status === 'NOT IMPLEMENTED').length, 5);
+  for (const name of ['controlled-credential-json-ui', 'controlled-version-history-ui', 'vault-reference-and-logical-archive-ui'])
+    assert.equal(result.executed_checks[name].status, 'PASS');
+});
+test('canonical public subsets retain exact receipt identity and missing evidence never gets a pass', () => {
+  for (const platform of ['IOS', 'ANDROID']) {
+    const f = fixture(), metadata = f.metadata[platform];
+    delete metadata.product_ui.credential_errors_ui;
+    metadata.product_version_history_ui.original_history_restored = false;
+    metadata.product_ui.vault_references_ui.installed_artifact_verified = false;
+    const result = driver.validateMetadata(metadata, f.request, platform);
+    for (const name of ['controlled-credential-json-ui', 'controlled-version-history-ui', 'vault-reference-and-logical-archive-ui'])
+      assert.equal(result.executed_checks[name].status, 'NOT VERIFIED');
+    assert.equal(result.cases.filter(item => item.status === 'NOT IMPLEMENTED').length, 5);
+    for (const [key, value] of [['source_sha', 'b'.repeat(40)], ['run_attempt', '1'], ['workflow_sha', 'b'.repeat(40)]]) {
+      const stale = attachPublicCompanions(structuredClone(f.metadata[platform]), platform);
+      stale[key] = value;
+      assert.throws(() => driver.validateMetadata(stale, f.request, platform), /IDENTITY_MISMATCH/);
+    }
+  }
 });
 test('artifact names, digests and current-attempt provenance are independently checked', async () => {
   for (const change of [x => { x.artifacts[0].name = x.artifacts[0].name.replace('-2', '-1'); },
@@ -205,6 +226,10 @@ test('complete native subsets emit bounded BLOCKED readiness and no reusable att
     assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
     const raw = fs.readFileSync(path.join(output, 'keeper-canonical-native-readiness.json'), 'utf8');
     const result = JSON.parse(raw); assert.equal(result.feature_matrix_complete, false);
+    assert.equal(Object.keys(result.platforms.IOS.executed_checks).length, 12);
+    for (const name of ['controlled-credential-json-ui', 'controlled-version-history-ui', 'vault-reference-and-logical-archive-ui'])
+      assert.equal(result.platforms.IOS.executed_checks[name].status, 'PASS');
+    assert.equal(result.platforms.IOS.cases.filter(item => item.status === 'NOT IMPLEMENTED').length, 5);
     assert.equal(result.platforms.IOS.receipt_sha256, hash(f.archives[0]));
     assert.equal(raw.includes('PRIVATE_SENTINEL'), false);
   } finally { fs.rmSync(output, { recursive: true, force: true }); }

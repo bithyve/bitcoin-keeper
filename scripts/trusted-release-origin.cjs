@@ -6,6 +6,7 @@
 const crypto = require('node:crypto');
 const zlib = require('node:zlib');
 const { UUID: SARIF_ID, CATEGORY: CODEQL_CATEGORY } = require('./codeql-analysis-receipt.cjs');
+const { SCOPES: PUBLIC_COMPANIONS, validatePublicCompanions } = require('../.github/native/public_companion_receipts.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const PIN = 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA';
 const CANONICAL_PATH = '.github/workflows/keeper-canonical-native.yml';
@@ -25,6 +26,7 @@ const EXECUTED = Object.freeze({
   'installed-version-history': 'native installed tuple and retained initial history; not stale-history recovery',
   'key-management-discoverability': 'ordinary app Keys Manage Keys entry and return',
   'unused-key-and-pin-ui': 'unused Mobile Key delete cancel wrong PIN and cold persistence; not live-Vault references or physical biometrics',
+  ...PUBLIC_COMPANIONS,
 });
 const FEATURE_SCENARIOS = Object.freeze(['production-setup-offline-retry-native-counts', 'production-deletion-retained-native-references',
   'production-deletion-native-rollback', 'production-worker-stale-session-rejection', 'native-worker-process-relaunch-counts']);
@@ -264,6 +266,7 @@ function validateReceipt(value, sourceSha, run, platform, sources) {
     key.scenario === 'UNUSED_MOBILE_KEY_UI_DELETE_AND_NATIVE_PIN' && key.new_account_requests_during_key_flow === 0 &&
     key.visible_eligible_keys_after_deletion === 0 && key.unrelated_visible_wallet_count_after_relaunch === 1, 'PRODUCT_KEY_UI_INCOMPLETE');
   installedBytes(key, platform, installed);
+  validatePublicCompanions(value, platform);
   const feature = value.r5_feature_evidence;
   check(feature?.schema === 1 && feature.scope === 'production-worker-native-storage' && feature.status === 'PASS' &&
     JSON.stringify(feature.scenarios) === JSON.stringify(FEATURE_SCENARIOS.map(id => ({ id, status: 'PASS' }))) &&
