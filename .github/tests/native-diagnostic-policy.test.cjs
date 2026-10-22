@@ -14,17 +14,18 @@ assert.equal(parsed.status, 0, parsed.stderr);
 const workflows = JSON.parse(parsed.stdout);
 const diagnostic = workflows['keeper-native-diagnostic.yml'];
 const worker = workflows['keeper-native-platform.yml'];
-function enabled(condition, { draft = null, labeled = false, sameRepo = true, number = 8000, eventName = 'pull_request', diagnostic = false, sameSha = true } = {}) {
+function enabled(condition, { draft = null, labeled = false, preflightLabeled = false, sameRepo = true, number = 8000, eventName = 'pull_request', diagnostic = false, sameSha = true } = {}) {
   const expression = condition
     .replaceAll('github.event_name', 'eventName')
     .replaceAll('github.event.pull_request.number', 'number')
     .replaceAll('github.event.pull_request.head.repo.full_name == github.repository', 'sameRepo')
     .replaceAll('github.event.pull_request.draft', 'draft')
     .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')", 'labeled')
+    .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/ios-driver-preflight')", 'preflightLabeled')
     .replaceAll('inputs.source_sha == github.event.pull_request.head.sha', 'sameSha')
     .replaceAll('inputs.diagnostic', 'diagnostic')
     .replaceAll('always()', 'true');
-  return new Function('draft', 'labeled', 'sameRepo', 'number', 'eventName', 'diagnostic', 'sameSha', 'toJSON', `return (${expression});`)(draft, labeled, sameRepo, number, eventName, diagnostic, sameSha, JSON.stringify);
+  return new Function('draft', 'labeled', 'preflightLabeled', 'sameRepo', 'number', 'eventName', 'diagnostic', 'sameSha', 'toJSON', `return (${expression});`)(draft, labeled, preflightLabeled, sameRepo, number, eventName, diagnostic, sameSha, JSON.stringify);
 }
 test('candidate diagnostics require explicit same-repository opt-in and serialize platforms', () => {
   for (const name of ['ios', 'android']) {
@@ -38,6 +39,66 @@ test('candidate diagnostics require explicit same-repository opt-in and serializ
   assert.equal(diagnostic.concurrency['cancel-in-progress'], 'false');
   assert.equal(diagnostic.permissions.contents, 'read');
   assert.equal(diagnostic.permissions['pull-requests'], 'read');
+});
+test('isolated driver label cannot schedule an app platform or overlap full diagnostics', () => {
+  const preflight = diagnostic.jobs['driver-preflight'];
+  for (const [labeled, preflightLabeled, expected] of [
+    [false, false, [false, false, false]],
+    [false, true, [true, false, false]],
+    [true, false, [false, true, true]],
+    [true, true, [false, true, true]],
+  ]) {
+    const actual = ['driver-preflight', 'ios', 'android'].map(name =>
+      enabled(diagnostic.jobs[name].if, { draft: true, labeled, preflightLabeled }));
+    assert.deepEqual(actual, expected, JSON.stringify({ labeled, preflightLabeled }));
+  }
+  for (const override of [{ sameRepo: false }, { number: 7045 }]) {
+    assert.equal(enabled(preflight.if, { preflightLabeled: true, ...override }), false);
+  }
+  assert.equal(preflight['runs-on'], 'macos-15');
+  assert.equal(preflight['timeout-minutes'], '15');
+  assert.equal(preflight.env.KEEPER_NATIVE_PLATFORM, 'IOS');
+  assert.equal(preflight.env.KEEPER_DIAGNOSTIC, 'true');
+  assert.equal(preflight.env.KEEPER_SOURCE_SHA, '${{ github.event.pull_request.head.sha }}');
+  assert.ok(!preflight.uses && !preflight.environment && !preflight.secrets);
+  const checkout = preflight.steps.find(step => step.name === 'Check out exact diagnostic source');
+  assert.equal(checkout.with.ref, '${{ github.event.pull_request.head.sha }}');
+  assert.equal(checkout.with['persist-credentials'], 'false');
+  const commands = preflight.steps.filter(step => step.run).map(step => step.run).join('\n');
+  assert.match(commands, /git rev-parse HEAD/);
+  assert.match(commands, /git diff --exit-code HEAD -- \.github\/native \.github\/workflows/);
+  assert.match(commands, /python3 \.github\/native\/driver_diagnosis\.py/);
+  assert.doesNotMatch(commands, /hosted_native\.py (?:prepare|build|smoke|probe|features)|product_measurements|gradlew|adb|xcodebuild/);
+  const evidence = preflight.steps.find(step => step.name === 'Retain bounded driver diagnosis');
+  assert.equal(evidence.with.path, 'artifacts/native/ios/metadata.json');
+});
+test('preflight live source guard rejects moved source, foreign repository and nonisolated labels', async () => {
+  const step = diagnostic.jobs['driver-preflight'].steps.find(step =>
+    step.name === 'Verify current preflight source and isolated opt-in');
+  const script = new vm.Script(`(async()=>{${step.with.script}})()`);
+  for (const mutation of [null, 'sha', 'labels', 'full-only', 'both-labels', 'repo', 'missing-source']) {
+    const pr = { head: { sha: 'a'.repeat(40), repo: { full_name: 'KeeperCommunity/bitcoin-keeper' } },
+      labels: [{ name: 'keeper/ios-driver-preflight' }] };
+    const env = { KEEPER_SOURCE_SHA: 'a'.repeat(40) };
+    if (mutation === 'sha') pr.head.sha = 'b'.repeat(40);
+    if (mutation === 'labels') pr.labels = [];
+    if (mutation === 'full-only') pr.labels = [{ name: 'keeper/native-diagnostic' }];
+    if (mutation === 'both-labels') pr.labels.push({ name: 'keeper/native-diagnostic' });
+    if (mutation === 'repo') pr.head.repo.full_name = 'fork/bitcoin-keeper';
+    if (mutation === 'missing-source') delete env.KEEPER_SOURCE_SHA;
+    const failures = [];
+    const requests = [];
+    await script.runInNewContext({
+      context: { repo: { owner: 'KeeperCommunity', repo: 'bitcoin-keeper' }, payload: { pull_request: { number: 8000 } } },
+      process: { env },
+      core: { setFailed: message => failures.push(message) },
+      github: { rest: { pulls: { get: async input => { requests.push(input); return { data: pr }; } } } },
+    });
+    assert.equal(failures.length, mutation === null ? 0 : 1, String(mutation));
+    assert.equal(JSON.stringify(requests), JSON.stringify([
+      { owner: 'KeeperCommunity', repo: 'bitcoin-keeper', pull_number: 8000 },
+    ]));
+  }
 });
 test('reusable worker cannot silently run a draft, non-PR or wrong SHA', () => {
   const condition = worker.jobs.native.if;
