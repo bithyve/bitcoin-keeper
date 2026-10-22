@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import subprocess
@@ -21,7 +22,7 @@ import urllib.request
 
 STAGES = ('startup_start', 'startup_ready', 'wallet_start', 'wallet_ready',
           'home_ready', 'relaunch_start', 'relaunch_login', 'relaunch_home',
-          'navigation_verified')
+          'version_history_verified', 'key_management_entry_verified', 'navigation_verified')
 PORT = 8765
 SAMPLE_COUNT = 5
 
@@ -63,6 +64,8 @@ class Receipt:
                     'create_new_app_calls': self.create_calls, 'other_backend_calls_rejected': self.blocked_calls,
                     'visible_wallet_count_before_relaunch': 1 if 'home_ready' in stamps else None,
                     'visible_wallet_count_after_relaunch': 1 if 'relaunch_home' in stamps else None,
+                    'installed_version_header_and_initial_history': 'PASS' if 'version_history_verified' in stamps else 'NOT RUN',
+                    'key_management_entry_and_exit': 'PASS' if 'key_management_entry_verified' in stamps else 'NOT RUN',
                     'more_wallets_navigation': 'PASS' if 'navigation_verified' in stamps else 'NOT RUN'}
 
 
@@ -135,6 +138,20 @@ def verify_package_overlay(original_bytes, installed_bytes, overlay):
         raise RuntimeError('PRODUCT_UI_PACKAGE_PROTECTED_FIELDS_CHANGED') from None
 
 
+def version_expectation(manifest, platform):
+    field = {'IOS': 'iosBuildNumber', 'ANDROID': 'androidVersionCode'}.get(platform)
+    version = manifest.get('version')
+    build = manifest.get(field)
+    if (field is None or not isinstance(version, str) or
+            not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version) or
+            type(build) is not int or not 0 < build <= 2100000000):
+        raise RuntimeError('PRODUCT_UI_SOURCE_VERSION_INVALID')
+    escaped = version.replace('.', r'\.')
+    return {'version': version, 'build': build,
+            'installed_regex': '^' + escaped + r' \(' + str(build) + r'\)$',
+            'history_regex': '^' + escaped + r'\(' + str(build) + r'\)$'}
+
+
 def run(h):
     if (os.environ.get('GITHUB_ACTIONS') != 'true' or
             os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted'):
@@ -147,13 +164,14 @@ def run(h):
         raise RuntimeError('PRODUCT_UI_EXACT_BUILD_REQUIRED')
     source_paths = ['.github/native', 'src', 'index.js', 'App.tsx', 'App.js', 'shim.js',
                     'AndroidFontFix.js', 'metro.config.js', 'babel.config.js', 'app.json',
-                    'react-native.config.js', 'tsconfig.json', 'yarn.lock']
+                    'react-native.config.js', 'tsconfig.json', 'yarn.lock', 'release/version.json']
     if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', *source_paths],
                       cwd=h.ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
         raise RuntimeError('PRODUCT_UI_COMMITTED_SOURCE_REQUIRED')
     verify_package_overlay(
         subprocess.check_output(['git', 'show', 'HEAD:package.json'], cwd=h.ROOT),
         (h.ROOT / 'package.json').read_bytes(), data.get('nodeify_overlay'))
+    expected_version = version_expectation(json.loads((h.ROOT / 'release/version.json').read_text()), h.PLATFORM)
     expected_environment = {
         'ENVIRONMENT': 'DEVELOPMENT', 'RELAY': 'http://127.0.0.1:8765/',
         'SIGNING_SERVER_TESTNET': 'https://127.0.0.1:9/',
@@ -174,6 +192,10 @@ def run(h):
     # caches, another worktree, an existing iOS simulator or a real phone.
     result = {'status': 'RUNNING', 'samples': [], 'requested_samples': SAMPLE_COUNT,
               'entrypoint': 'index.js', 'network': 'TESTNET', 'backend': 'CONTROLLED_LOOPBACK_CREATE_ONLY',
+              'expected_installed_version': expected_version['version'],
+              'expected_installed_build': expected_version['build'],
+              'version_history_scope': 'Installed native tuple and retained Initially installed row after cold login. Empty/stale history observation insertion and migration not exercised.',
+              'key_management_scope': 'Discoverable Keys→Manage Keys screen entry and back navigation only; no eligible disposable signer, deletion confirmation or seed view.',
               'backend_compatibility': 'NOT TESTED', 'physical_devices': 'NOT RUN',
               'performance_scope': 'Development app with warm Metro bundle; cold process/UI timing includes Maestro driver overhead. Not release-build performance.',
               'count_scope': 'Actual rendered visible wallet list; disposable one-wallet account, not hidden/archived wallet counts.',
@@ -244,7 +266,10 @@ def run(h):
                     h.command(['adb', '-s', device, 'shell', 'pm', 'clear', app], 'Clear only disposable development app')
                 try:
                     h.command([data['maestro']['binary'], '--device', device, 'test',
-                               '--env', 'APP_ID=' + app, '--flatten-debug-output',
+                               '--env', 'APP_ID=' + app,
+                               '--env', 'EXPECTED_INSTALLED_REGEX=' + expected_version['installed_regex'],
+                               '--env', 'EXPECTED_HISTORY_REGEX=' + expected_version['history_regex'],
+                               '--flatten-debug-output',
                                '--debug-output', str(output), '--test-output-dir', str(output),
                                '--format', 'junit', '--output', str(report),
                                '.github/native/product_first_wallet.yaml'],

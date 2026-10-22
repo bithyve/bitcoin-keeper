@@ -65,6 +65,17 @@ Each of five samples clears only the disposable app and its credentials, then:
 5. Exercises More→Wallets and requires the one-wallet list again. This is a
    bounded fresh-state navigation check; it does not reproduce #7055's original
    backup-delete/multiuser trigger or close that investigation.
+6. Opens More→App Settings→Version History and asserts the native Installed app
+   version header and the retained Initially installed row. Expected version/build
+   regexes come from the exact source's committed release/version.json (currently
+   Android2.6.4/627 and iOS2.6.4/620); no work-package label is an app version.
+   A fresh account already has that tuple's initial-install row, so cold login
+   preserves it and does not insert Current installation observed. Empty/stale
+   history observation insertion and migrations remain separate unproven cases.
+7. Enters Keys→Manage Keys and exits with Back, then verifies the wallet list
+   again. The fresh Recovery Key is excluded from DeleteKeys' list; no deletion
+   intent, confirmation, recovery material or seed-word screen is opened. This
+   checks discoverability/return navigation only, not safe-deletion acceptance.
 
 Only metadata.json receives bounded raw durations/counts/stage labels. Five
 separate startup-to-passcode and StartNew-to-ready values are retained; no median
