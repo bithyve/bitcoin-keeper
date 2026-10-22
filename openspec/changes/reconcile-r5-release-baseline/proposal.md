@@ -1,13 +1,14 @@
 ## Why
 
-The owner confirms R4 / 2.6.4 is live. R5 must use its recorded artifact source
-1d8a86a as the baseline and retain its transactional deletion protections while
-completing the already-approved bounded key-deletion/startup work.
+R4 / 2.6.4 signed iOS620/Android627 were submitted with public release held.
+The recorded source1d8a86a is the R5 source baseline; store availability and owner
+R4 closure remain separate. Preserve running R5 work and retain transactional
+deletion protections while completing the approved key-deletion/startup scope.
 
 ## What Changes
 
-- Integrate the released R4 source into the isolated R5 branch, preserving R5
-  history, R4 refs and the exact released dependency/native/configuration inputs.
+- Integrate the submitted R4 source into the isolated R5 branch, preserving R5
+  history, R4 refs and the exact baseline dependency/native/configuration inputs.
 - Bind a key-deletion confirmation to its originating account/session so a late
   passcode callback cannot be rebound by dispatch-time middleware.
 - Rerun affected automated checks and record finite native acceptance still needed.
@@ -20,7 +21,7 @@ completing the already-approved bounded key-deletion/startup work.
 
 ### Modified Capabilities
 
-None; released R4 backend requirements are preserved.
+None; submitted R4 backend requirements are preserved.
 
 ## Impact
 
