@@ -11,10 +11,10 @@ R5 jobs remain intact.
 | Work package | Verified checkpoint | Remaining work |
 | --- | --- | --- |
 | [Mobile #7045](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045) | Submitted source `1d8a86a7462d935cbd0e28b857934b5718c152fc`, draft/open/unmerged. Required Tests and `keeper/local-validation` pass. [Store receipt](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6313099996) records signed iOS 620 uploaded/VALID, manual release, WAITING_FOR_REVIEW; Android 627 IN_REVIEW with 626 PUBLISHED and Managed publishing ON. APK checksums and both Keeper PGP signatures already verified. | Fresh authenticated Apple/Play readback is unavailable in this cloud session: no store credentials or store connector. Do not infer current review/public status from the 21 October receipt. Do not rebuild, allocate counters or resubmit. Current CodeQL security-result and public-v2 genuine-backup checks still fail. |
-| [Private Relay #158](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/158) | [Accepted production result](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/158#issuecomment-6321195858): `29597b27eeeb299205bf7d0555db0a90c38cc4be` selected, process readiness matched, health 200, old-writer fence 403, 14 synthetic hosted-v3 operations passed, external TCP/3000 denied, temporary access cleaned. | This is completed deployment/hosted-protocol evidence. It does not pass installed-app/device or affected-account acceptance. Do not redeploy or treat the older undeployed/readiness wording as current. |
+| [Private Relay #158](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/158) | [Accepted production result](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/158#issuecomment-6321195858): `29597b27eeeb299205bf7d0555db0a90c38cc4be` selected, process readiness matched, health 200, old-writer fence 403, 14-request synthetic hosted-v3 acceptance passed, external TCP/3000 denied, temporary access cleaned. | This is completed deployment/hosted-protocol evidence. It does not pass installed-app/device or affected-account acceptance. Do not redeploy or treat the older undeployed/readiness wording as current. |
 | [Website #19](https://github.com/KeeperCommunity/bitcoin-keeper-website/pull/19) | Merged and deployed; final website source `ddba13bd289e8899b16a6f653cf5c1ea66be6243`, production 7244276168. [Strict public HTTP run 39726344502](https://github.com/KeeperCommunity/bitcoin-keeper-website/actions/runs/39726344502) passed 8/8, including exact association/fallback bytes and direct JSON 200 without redirects. | Installed iOS/Android cold/warm link association, absent/present fallback, return-to-app and phone-to-Desktop acceptance remain unrun. No website rebuild or deployment is needed. |
-| [Desktop #100](https://github.com/KeeperCommunity/keeper-desktop/pull/100) | Approved source `ef050663d33be51f25fb10310d5a0549b111e273`, CI successful. QA artifact 11615331902 remains downloadable, expires **23 October 2026 12:15:31 UTC**; cloud copy rehashed against the recorded outer/inner archive and executable identities. | Native Desktop plus actual phone pairing/signing acceptance remains unrun. Historical mobile pointer `d25d…` does not identify submitted mobile `1d8a86a…`. Keep #100 approval and head intact. |
-| [Desktop #102](https://github.com/KeeperCommunity/keeper-desktop/pull/102) | Peer-reviewed, green draft `06233e6a576ae1c9d0a49a34c253b3e9354b9efc`; PGP handoff preflight guards are implemented. | Isolated [#103](https://github.com/KeeperCommunity/keeper-desktop/pull/103) adds those 12 guards to ordinary CI, preserving #102. This is CI proof, not native/signing acceptance. |
+| [Desktop #100](https://github.com/KeeperCommunity/keeper-desktop/pull/100) | Approved source `ef050663d33be51f25fb10310d5a0549b111e273`, CI successful. QA artifact 11615331902 was downloaded and durably retained privately. Hosted macOS verifies its source/hashes/identity/strict code signature; native process launch and connected Welcome **PASS**. | QR/channel smoke is blocked by the harness driving Get Started; full Desktop/phone/signing acceptance remains unrun. Historical mobile pointer `d25d…` does not identify submitted mobile `1d8a86a…`. Keep #100 approval and head intact. |
+| [Desktop #102](https://github.com/KeeperCommunity/keeper-desktop/pull/102) | Peer-reviewed, green draft `06233e6a576ae1c9d0a49a34c253b3e9354b9efc`; PGP handoff preflight guards are implemented. Isolated [#103](https://github.com/KeeperCommunity/keeper-desktop/pull/103) `23284ec1dd02b305355525290f2f8aa42cca54d0` adds those 12 guards to ordinary CI. [Full hosted CI 39831840277](https://github.com/KeeperCommunity/keeper-desktop/actions/runs/39831840277) passed, including all 12 guards; original #102 is preserved. | CI tested initial main-based synthetic merge `a6882cf28e8b2f9eac67633e9c32107881cd6891`; subsequent retarget to #102 changes review scope only, with no new acceptance claimed. This is CI proof, not native/signing acceptance. |
 | [SigningServer #6](https://github.com/KeeperCommunity/SigningServer/pull/6) | Source-complete six-field lock correction `df9485e9945cdf0bdc231c70329d8905125d42ff`; hosted tests and both secret scans pass. Fresh runtime audit: zero critical/high/moderate, one existing Low AWS SDK advisory. | Ruleset 24651096 still requires one approval and last-push approval, despite optional-human policy draft #3. No service build artifacts/releases are published. Deployed version, health and mobile/provider compatibility are unverified; source CI cannot establish these. |
 
 The mobile local-validation pass is the owner-selected subset, with unchanged-app
@@ -26,6 +26,57 @@ Developer review remains optional under the [recorded owner decision](https://gi
 requests/approvals are retained. A CodeQL analysis finishing successfully does
 not pass its separate high-severity security result. Numeric-only fee-consumer
 evidence supports review of the inherited warning; it is not a dismissal.
+
+### New submitted-source paired CI
+
+Isolated private [Relay #161](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/161),
+control `921a475752eb6c69765709d16dc8af9d6cc92c8e`, pairs submitted mobile
+`1d8a86a7462d935cbd0e28b857934b5718c152fc` with accepted backend
+`29597b27eeeb299205bf7d0555db0a90c38cc4be`.
+[Hosted run 39832222599 / job 120011029067](https://github.com/KeeperCommunity/bitcoin-keeper-relay/actions/runs/39832222599/job/120011029067)
+**PASS: 43/43 protected cases and 3/3 historical guards, zero failures/skips**.
+Frozen installs, six app patches, actual encrypted Realm prerequisite, loopback
+Mongo and all three source verifications passed; owned cleanup completed.
+Independent exact-source safety review passed before execution. Original #159,
+#160, app and backend refs were unchanged; Build/Sonar was skipped for this lane.
+
+This closes the submitted-source/current-backend **cloud integration** gap. The
+public-v2 295-case lane still reports **2 PASS / 293 FAIL / 0 skips** on submitted
+source; porting/reviewing that current-protocol matrix remains separate source/CI
+work. The new private result neither ports that matrix nor waives its red result,
+native/physical tests, CodeQL security disposition, store state or artifact access.
+
+### Desktop hosted native subset and exact blocker
+
+Isolated [Desktop #104](https://github.com/KeeperCommunity/keeper-desktop/pull/104)
+adds only disposable cloud-test tooling, stacked on unchanged approved #100.
+Final tooling `72c56adcb07fbe020094bee3625d899dd0ba8460`,
+[run 39834105821 / job 120017732757](https://github.com/KeeperCommunity/keeper-desktop/actions/runs/39834105821/job/120017732757),
+is **BLOCKED**, not full native acceptance. Existing QA bytes were never rebuilt
+or re-signed. The macOS ARM64 runner reports 26.6.2/build 25G83.
+
+- Artifact source/provenance, all hashes, QA app identity/version/live endpoint,
+  strict deep code signature, native process launch and connected Welcome: **PASS**.
+- Accessibility, event-posting and screen-capture permissions all read true;
+  exact-process activation read true. After a settled fresh-screen click and one
+  Welcome-only retry, Get Started remained visible, Scan Me was absent and QR
+  count was zero. Root cause remains unproved; this is not an established app defect.
+- QR, malformed/valid channel packets, actual mobile pairing, camera scanning,
+  reconnect/rotation matrix, hardware and PSBT round trip: **NOT RUN**. No test
+  packets were sent. No Continue/signing action ran.
+
+Preserved attempts: initial `49927b13…` run 39832690264 failed in Vision after
+launch; CPU-only fix `cd36015f…` run 39833213888 reached connected Welcome;
+diagnostic `ed2220bf…` run 39833708602 identified the unchanged Welcome and true
+permissions; final focus/click fix above retained the same blocker. Each change
+received independent source/safety review before execution. Sanitized final
+artifact 12450860782 expires **21 November 2026 18:46:34 UTC**; no screenshots,
+OCR text, QR key/room or app logs were uploaded.
+
+Next acceptance route is an authorized **interactive cloud QA session**, or a
+demonstrated correction to this harness, followed by the remaining QR/channel
+cases and separately recorded phone/signer checks. Do not substitute a personal
+Mac requirement or report these unrun cases as passed.
 
 ## Artifact availability
 
@@ -51,9 +102,31 @@ release route.
 Desktop artifact 11615331902 was preserved at
 `/workspace/r4-desktop-evidence/desktop-qa-11615331902.zip`; provenance receipt:
 `/workspace/r4-desktop-evidence/artifact11615331902-revalidation.json`.
-These workspace paths are session copies, not permanent distribution hosting.
-The GitHub artifact retains its stated expiry. No artifact upload/publication is
-implied by this preservation.
+These workspace paths are session copies. An additional **owner-only Google Drive
+retention copy** was created and read back in full: 20,064,440 bytes, SHA-256 and
+byte comparison match the original. File metadata confirms not shared and only
+the owner permission. Its private link is delivered to the owner separately.
+The GitHub copy retains its stated expiry; the private retained copy removes
+that availability deadline. No release distribution or public publication occurred.
+Connected Drive searches for 2.6.4, IPA/AAB/APK and PGP files found no original
+mobile release artifacts.
+
+Desktop outer ZIP SHA-256:
+`2a3ca33dd9a539323f41639d98fb36ab8d2cdc670f1b17b20f861b3528eaeea5`;
+inner QA ZIP:
+`9ae0c39eefafd85a9234bf7a599f75e3b13a481ab0ad7f9418eee66990c34a69`;
+executable:
+`13e252b7a7f339d24e327d8d14d7956946f21b929c037970edffa9e6e90fcb70`.
+
+This is macOS ARM64 **QA 0.2.6-qa.1**, identifier
+`com.keeper.desktop.r3qa`, with an ad hoc signature. It is not a notarized
+production package or a cross-platform distribution set. Fresh authenticated
+Desktop release inventory has no 0.2.6 release/draft and no release targeting
+`ef050663…`; latest production remains `keeper-desktop-v0.2.5`, published
+6 October, source `0b5c18b8d5897a94ded9196cde9a2022d6e17d1a`. Final source/version,
+OS package matrix, production signing/notarization and checksummed PGP assets
+remain separate, with operation-specific authorization required. #102 provides
+preflight guards; it has not executed a signing route or release manifest.
 
 ## Explicit deferred and unresolved acceptance
 
@@ -86,6 +159,15 @@ implied by this preservation.
   deferred R4 Delete campaign. The owner must assess any release-blocking impact
   from this known report; no critical defect is waived.
 
+The recorded physical follow-up belongs to the release owner `antuz123`, after
+release on installed physical phones and relevant cameras/hardware signers,
+reported on #7045 or the release record. Retain that timing and scope; do not
+silently convert the follow-up into a new pre-release requirement. When performed,
+bind installed iOS620/Android627 and website `ddba13bd…` to cold/warm associations,
+camera/browser return and phone-to-Desktop pairing, then record signer/NFC/USB
+outcomes separately. The outstanding Desktop paired-phone matrix remains distinct
+from a Desktop-only hosted launch. Do not ask for private keys or recovery exports.
+
 ## Roadmap and R5 continuity
 
 [Roadmap #7065](https://github.com/KeeperCommunity/bitcoin-keeper/issues/7065)
@@ -105,6 +187,11 @@ these are observations, not pins to force onto active work. Do not duplicate
 R6 = 2.6.6, R7 = 2.6.7; retain the owner's bug allocations and sequential
 closure rule.
 
+Documentation-only drafts [#7089](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7089)
+and [#7090](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7090) correct
+the R5 baseline wording on isolated branches stacked on #7058/#7068. They do not
+modify those producer refs, implementation, acceptance scope or running checks.
+
 #7060's successful hosted native passcode smoke belongs to its own source
 `d865ca9c4f91532a1524443cc6da42d8d7b07e1a`, not submitted R4. Its dependency,
 Pod and infrastructure changes would alter the submitted source. Leave adoption
@@ -118,7 +205,7 @@ This choice neither waives tests nor changes existing gate results.
    report. Keep the current hold; do not start another submission.
 2. Make the existing signed mobile artifacts retrievable from an approved cloud
    location and verify their recorded hashes. Preserve Desktop's downloaded QA
-   artifact by assigning durable retention to the existing cloud copy; use it for the outstanding installed-app,
+   artifact from the verified owner-only cloud retention copy; provide an interactive cloud QA route or proved harness correction for Get Started, then complete the outstanding installed-app,
    paired-phone and signer checks, recording each actual result separately.
 3. Have an authorized administrator reconcile SigningServer's existing approval
    rule with the recorded owner policy while preserving checks/approvals. Bind
