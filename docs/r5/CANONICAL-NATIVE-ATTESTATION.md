@@ -17,12 +17,14 @@ at the expected installed path. The run must be the newest canonical dispatch fo
 that source, in this repository, on sprint, with the exact current run attempt.
 Check-suite and job check-run identities must belong to the real GitHub Actions
 App15368, not a status name, actor name or artifact assertion.
+The live repository pin is read again through the authenticated read-only API at
+each provenance check; revocation or unavailable variable-read permission blocks.
 
 The separate canonical platform worker preserves the existing hosted command
 sequence: record→prepare→iOS driver preflight→development build→startup smoke→native
 persistence→production-worker probe→full-product measurements/companions. iOS
 finishes before Android starts. Native admission checks reject other active or
-queued native workflows without cancelling them. There is no automatic retry,
+queued/waiting/pending/requested native workflows without cancelling them. There is no automatic retry,
 dispatch, concurrency replacement/cancellation or queue mutation. Operators must
 schedule one canonical run at a time; the read-only admission check supplements
 the serial platform dependency rather than providing a distributed lock.

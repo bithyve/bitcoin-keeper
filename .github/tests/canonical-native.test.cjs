@@ -16,6 +16,7 @@ function fixture() {
   const request = driver.requestFromEnvironment(context, env);
   const state = { context, env, request, calls: [], branchReads: 0,
     repository: { id: driver.REPOSITORY_ID, full_name: repository, default_branch: 'sprint' },
+    pin: { name: 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA', value: source },
     branch: { protected: true, commit: { sha: source } }, workflow: { id: 30, path: driver.WORKFLOW, state: 'active' },
     run: { id: 400, run_attempt: 2, workflow_id: 30, event: 'workflow_dispatch', path: driver.WORKFLOW,
       head_sha: source, head_branch: 'sprint', head_repository: { id: driver.REPOSITORY_ID, full_name: repository },
@@ -50,14 +51,27 @@ function fixture() {
       assert.equal(args.workflow_id, 'keeper-canonical-native.yml'); return state.workflow;
     }), getWorkflowRun: wrap('run', () => state.run),
       listWorkflowRuns: wrap('runs', () => ({ total_count: state.newerRun ? 2 : 1, workflow_runs: state.newerRun ? [state.run, { ...state.run, id: 401 }] : [state.run] })),
-      listWorkflowRunsForRepo: wrap('capacity', () => ({ total_count: state.active.length, workflow_runs: state.active })),
+      getRepoVariable: wrap('pin', () => {
+        if (state.pinUnavailable) throw new Error('API403');
+        return state.pinAfterDownload && state.downloaded ? { ...state.pin, value: '' } : state.pin;
+      }),
+      listWorkflowRunsForRepo: wrap('capacity', args => {
+        state.capacityStatuses ??= []; state.capacityStatuses.push(args.status);
+        const selected = state.waitingOnly ? args.status === 'waiting' ? state.active : [] : state.active;
+        return { total_count: selected.length, workflow_runs: selected };
+      }),
       listJobsForWorkflowRunAttempt: () => {},
       listWorkflowRunArtifacts: wrap('artifacts', () => ({ total_count: state.artifacts.length, artifacts: state.artifacts })),
+      getArtifact: wrap('artifact-current', args => ({ ...state.artifacts[args.artifact_id - 101],
+        ...(state.expireAfterDownload ? { expired: true } : {}) })),
       downloadArtifact: wrap('download', args => {
+        state.downloaded = true;
         if (state.staleAfterDownload) state.run = { ...state.run, run_attempt: 3 };
         return state.archives[args.artifact_id - 101];
       }) },
-    checks: { getSuite: wrap('suite', () => state.suite), get: wrap('check', () => ({
+    checks: { getSuite: wrap('suite', () => state.suite), get: wrap('check', args => ({
+      id: state.checkId ?? args.check_run_id,
+      name: state.checkName ?? state.jobs[args.check_run_id - 90]?.name,
       app: state.checkApp || { id: 15368, slug: 'github-actions' }, head_sha: source,
       check_suite: { id: 77 }, status: 'completed', conclusion: 'success' })) },
     git: { getCommit: wrap('tree', () => ({ sha: source, tree: { sha: 'c'.repeat(40) } })) },
@@ -91,12 +105,20 @@ test('capacity admission rejects other native runs without cancelling them', asy
   assert.equal(f.active[0].id, 99);
   f.active = [{ id: 98, path: '.github/workflows/test.yml' }];
   await driver.origin(f.github, f.context, f.request, { admission: true });
+  assert.deepEqual([...new Set(f.capacityStatuses)].sort(), ['in_progress', 'pending', 'queued', 'requested', 'waiting']);
+});
+test('waiting native capacity and revoked/unreadable live pin fail closed', async () => {
+  for (const change of [x => { x.waitingOnly = true; x.active = [{ id: 99, path: driver.WORKFLOW }]; },
+    x => { x.pin.value = ''; }, x => { x.pinUnavailable = true; }]) {
+    const f = fixture(); change(f); await assert.rejects(driver.origin(f.github, f.context, f.request, { admission: true }));
+  }
 });
 test('missing/skipped/duplicate/stale platform jobs or forged check apps cannot pass', async () => {
   for (const change of [x => { x.jobs.pop(); }, x => { x.jobs.push(x.jobs[0]); },
     x => { x.jobs[0].run_attempt = 1; }, x => { x.jobs[0].conclusion = 'skipped'; },
     x => { x.jobs[0].steps[0].conclusion = 'skipped'; }, x => { x.jobs[0].steps.pop(); },
-    x => { x.checkApp = { id: 4, slug: 'github-actions' }; }]) {
+    x => { x.checkApp = { id: 4, slug: 'github-actions' }; },
+    x => { x.checkId = 999; }, x => { x.checkName = 'other job'; }]) {
     const f = fixture(); change(f); await assert.rejects(driver.platformJobs(f.github, f.context, f.request, f.run));
   }
 });
@@ -117,7 +139,8 @@ test('real implemented observations stay discoverable without clearing parent ob
 test('artifact names, digests and current-attempt provenance are independently checked', async () => {
   for (const change of [x => { x.artifacts[0].name = x.artifacts[0].name.replace('-2', '-1'); },
     x => { x.artifacts[0].digest = `sha256:${'0'.repeat(64)}`; }, x => { x.artifacts[0].expired = true; },
-    x => { x.artifacts[0].workflow_run.id = 399; }]) {
+    x => { x.artifacts[0].workflow_run.id = 399; }, x => { x.artifacts[0].size_in_bytes++; },
+    x => { x.expireAfterDownload = true; }]) {
     const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
     try { change(f); await assert.rejects(driver.collect(f.github, f.context, f.request, output, raw => raw)); }
     finally { fs.rmSync(output, { recursive: true, force: true }); }
@@ -136,7 +159,8 @@ test('complete native subsets emit bounded BLOCKED readiness and no reusable att
   } finally { fs.rmSync(output, { recursive: true, force: true }); }
 });
 test('head movement and stale rerun after platform artifact download invalidate collection', async () => {
-  for (const change of [x => { x.moveAfterRead = true; }, x => { x.staleAfterDownload = true; }]) {
+  for (const change of [x => { x.moveAfterRead = true; }, x => { x.staleAfterDownload = true; },
+    x => { x.pinAfterDownload = true; }]) {
     const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
     try { change(f); await assert.rejects(driver.collect(f.github, f.context, f.request, output, raw => raw));
       assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false); }

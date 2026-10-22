@@ -37,12 +37,15 @@ function githubApp(check) {
 
 async function origin(github, context, request, { admission = false } = {}) {
   const args = context.repo;
-  const [repository, branch, workflow, run] = await Promise.all([
+  const [repository, branch, workflow, run, pin] = await Promise.all([
     github.rest.repos.get(args).then(r => r.data),
     github.rest.repos.getBranch({ ...args, branch: 'sprint' }).then(r => r.data),
     github.rest.actions.getWorkflow({ ...args, workflow_id: path.basename(WORKFLOW) }).then(r => r.data),
     github.rest.actions.getWorkflowRun({ ...args, run_id: request.runId }).then(r => r.data),
+    github.rest.actions.getRepoVariable({ ...args, name: 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA' }).then(r => r.data),
   ]);
+  demand(pin.name === 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA' && pin.value === request.sourceSha && pin.value === request.pin,
+    'LIVE_DRIVER_PIN_REVOKED_OR_UNREADABLE');
   demand(repository.id === REPOSITORY_ID && repository.full_name === REPOSITORY && repository.default_branch === 'sprint', 'REPOSITORY_MISMATCH');
   demand(branch.protected === true && branch.commit?.sha === request.sourceSha, 'CANONICAL_HEAD_MOVED_OR_UNPROTECTED');
   demand(workflow.path === WORKFLOW && workflow.state === 'active', 'CANONICAL_WORKFLOW_NOT_INSTALLED');
@@ -63,7 +66,7 @@ async function origin(github, context, request, { admission = false } = {}) {
     Math.max(...listing.workflow_runs.map(item => item.id)) === request.runId,
   'NEWER_OR_INCOMPLETE_CANONICAL_RUNS');
   if (admission) {
-    const active = await Promise.all(['in_progress', 'queued'].map(async status =>
+    const active = await Promise.all(['in_progress', 'queued', 'waiting', 'pending', 'requested'].map(async status =>
       (await github.rest.actions.listWorkflowRunsForRepo({ ...args, status, per_page: 100 })).data));
     const nativePaths = [WORKFLOW, '.github/workflows/keeper-hosted-native.yml',
       '.github/workflows/keeper-native-diagnostic.yml', '.github/workflows/keeper-release-acceptance.yml',
@@ -102,7 +105,8 @@ async function platformJobs(github, context, request, run) {
     const match = job.check_run_url?.match(/^https:\/\/api\.github\.com\/repos\/KeeperCommunity\/bitcoin-keeper\/check-runs\/([0-9]+)$/);
     demand(match, 'CANONICAL_JOB_CHECK_LINK_INVALID');
     const check = (await github.rest.checks.get({ ...context.repo, check_run_id: Number(match[1]) })).data;
-    demand(githubApp(check) && check.head_sha === request.sourceSha && check.check_suite?.id === run.check_suite_id &&
+    demand(check.id === Number(match[1]) && check.name === job.name && githubApp(check) &&
+      check.head_sha === request.sourceSha && check.check_suite?.id === run.check_suite_id &&
       check.status === 'completed' && check.conclusion === 'success', 'CANONICAL_JOB_CHECK_UNTRUSTED');
     result[platform] = job;
   }
@@ -175,7 +179,13 @@ async function collect(github, context, request, output, readZip) {
       /^sha256:[a-f0-9]{64}$/.test(artifact.digest || ''), 'CANONICAL_ARTIFACT_IDENTITY_INVALID');
     const archive = Buffer.from((await github.rest.actions.downloadArtifact({ ...context.repo,
       artifact_id: artifact.id, archive_format: 'zip' })).data);
-    demand(archive.length <= 1048576 && `sha256:${digest(archive)}` === artifact.digest, 'CANONICAL_ARTIFACT_DIGEST_INVALID');
+    demand(archive.length <= 1048576 && archive.length === artifact.size_in_bytes &&
+      `sha256:${digest(archive)}` === artifact.digest, 'CANONICAL_ARTIFACT_DIGEST_INVALID');
+    const current = (await github.rest.actions.getArtifact({ ...context.repo, artifact_id: artifact.id })).data;
+    demand(current.id === artifact.id && current.name === artifact.name && !current.expired &&
+      current.digest === artifact.digest && current.size_in_bytes === artifact.size_in_bytes &&
+      current.workflow_run?.id === request.runId && current.workflow_run.head_sha === request.sourceSha,
+    'CANONICAL_ARTIFACT_EXPIRED_OR_CHANGED');
     const raw = readZip(archive);
     const metadata = JSON.parse(raw.toString('utf8'));
     platforms[platform] = { conclusion: 'success', artifact_id: artifact.id,
