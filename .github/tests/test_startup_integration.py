@@ -30,6 +30,7 @@ class StartupIntegrationTest(unittest.TestCase):
             start=mock.Mock(side_effect=self.start),
             collect=mock.Mock(side_effect=self.collect),
             stop=mock.Mock(side_effect=self.stop),
+            observe=mock.Mock(),
         )
         self.original_error = RuntimeError('PRIVATE_SENTINEL original smoke failure')
 
@@ -52,7 +53,7 @@ class StartupIntegrationTest(unittest.TestCase):
 
     def exercise(self, suite='startup', smoke_fails=False, start_fails=False,
                  collect_fails=False, stop_fails=False, platform='ANDROID',
-                 import_fails=False, popen_fails=False):
+                 import_fails=False, popen_fails=False, install_fails=False, readiness_fails=False):
         captured = {}
 
         def command(args, label, **kwargs):
@@ -64,6 +65,12 @@ class StartupIntegrationTest(unittest.TestCase):
                 return 'fixed-disposable-image'
             if label == 'Create fresh iPhone 16 iOS 18.5 simulator':
                 return '12345678-1234-1234-1234-123456789ABC'
+            if label == 'Install unsigned development app':
+                captured['install_command_count'] = captured.get('install_command_count', 0) + 1
+                captured['install_args'] = args
+                captured['install_options'] = kwargs
+                if install_fails:
+                    raise self.original_error
             if label.startswith('Assert '):
                 self.events.append('maestro')
                 captured['flow'] = args[-1]
@@ -89,8 +96,21 @@ class StartupIntegrationTest(unittest.TestCase):
             if import_fails:
                 raise RuntimeError('PRIVATE_SENTINEL observer import failure')
 
+        def observe_install(context, device, args, label, **kwargs):
+            self.events.append('install-observe')
+            self.assertEqual(device, '12345678-1234-1234-1234-123456789ABC')
+            self.assertEqual(context.PRIVATE, self.root)
+            return context.command(args, label, **kwargs)
+
+        self.observer.observe.side_effect = observe_install
+
+        def ready(device):
+            self.events.append('app-services-ready')
+            if readiness_fails:
+                raise self.original_error
+
         def dispose(args, **kwargs):
-            self.events.append('device-' + args[3] if args[0] == 'xcrun' else 'device-uninstall')
+            self.events.append('device-' + args[2] if args[0] == 'xcrun' else 'device-uninstall')
             return SimpleNamespace(returncode=0)
 
         def fail_start(*args):
@@ -127,6 +147,7 @@ class StartupIntegrationTest(unittest.TestCase):
                 (native, 'verify_installed_artifact', lambda device: self.events.append('installed-proof')),
                 (native, 'android_sdk_metadata', lambda *args: {'version': 'fixed'}),
                 (native, 'warm_metro_bundle', lambda suite: self.events.append('warm-' + suite)),
+                (native, 'wait_for_simulator_app_services', ready),
                 (native, 'successful_junit', lambda report: 1),
                 (native, 'record_startup_failure', lambda *args: self.events.append('failure-diagnostics')),
                 (native, 'collect_r5_feature_evidence', lambda device: {'status': 'PASS'}),
@@ -216,6 +237,46 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertEqual(value['metadata']['smoke'], 'FAIL')
         self.assertIn('metro-stop', self.events)
         self.assertIn('device-uninstall', self.events)
+
+    def test_ios_install_observation_delegates_once_before_proof_and_ui(self):
+        value = self.exercise(platform='IOS')
+        self.assertNotIn('error', value)
+        self.observer.observe.assert_called_once()
+        self.assertEqual(value['install_command_count'], 1)
+        self.assertEqual(value['install_args'], [
+            'xcrun', 'simctl', 'install', '12345678-1234-1234-1234-123456789ABC',
+            str(self.root / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app'),
+        ])
+        self.assertEqual(value['install_options'], {'timeout': 120})
+        self.assertLess(self.events.index('app-services-ready'), self.events.index('install-observe'))
+        self.assertLess(self.events.index('install-observe'), self.events.index('installed-proof'))
+        self.assertLess(self.events.index('installed-proof'), self.events.index('maestro'))
+        self.assertNotIn('capture-start', self.events)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+
+    def test_ios_install_failure_never_reaches_artifact_proof_or_ui_and_still_cleans_up(self):
+        value = self.exercise(platform='IOS', install_fails=True)
+        self.assertIs(value['error'], self.original_error)
+        self.assertEqual(value['install_command_count'], 1)
+        self.assertNotIn('installed-proof', self.events)
+        self.assertNotIn('maestro', self.events)
+        self.assertIn('failure-diagnostics', self.events)
+        self.assertIn('metro-stop', self.events)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+        self.assertTrue(value['metro_options']['stdout'].closed)
+
+    def test_ios_unresponsive_app_services_block_install_and_ui_but_still_clean_up(self):
+        value = self.exercise(platform='IOS', readiness_fails=True)
+        self.assertIs(value['error'], self.original_error)
+        self.observer.observe.assert_not_called()
+        self.assertNotIn('install_command_count', value)
+        self.assertNotIn('installed-proof', self.events)
+        self.assertNotIn('maestro', self.events)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+        self.assertTrue(value['metro_options']['stdout'].closed)
 
     def test_probes_and_ios_preserve_their_existing_metro_configuration_without_observation(self):
         for suite, platform, config in [('probe', 'ANDROID', 'release_metro.cjs'),

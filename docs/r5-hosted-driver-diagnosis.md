@@ -91,7 +91,7 @@ later account/credential feature stage; original app failures remain intact.
 
 Before scheduling the next setup probe, the current run record exposed an
 already-started attempt2 of39824790868 on the original exact3eb92fc source.
-Its iOS job120011570058 passed driver readiness and began the app build. This
+Its iOS job120011570058 passed driver readiness and the app build. This
 task did not trigger that retry. Adopt its results and serialized Android
 continuation as the sole active app-acceptance window. Do not change its source
 or dependency tuple, cancel it, or schedule a competing app build.
@@ -102,3 +102,57 @@ offline preparation until evidence requires another hosted diagnostic; their
 contract passes are not native acceptance. The first failure's underlying cause
 remains unproven, and a passing newer preflight does not establish a dependency
 fix. No pin, timeout or app behavior was changed.
+
+Attempt2 artifact12452576904 has ZIP SHA256
+`eb78af70712620e31478d239931f804e21cdad11fc8655f398023d77f87cfc3a`.
+Its internal source/run/attempt match3eb92fc/39824790868/2. Driver readiness
+passed171.1s, the unsigned app build passed1614.3s, development-bundle warmup
+returned HTTP200, and a new simulator completed boot. The startup phase then
+failed because the unchanged `simctl install` command exceeded120 seconds
+(exit124,120.4s). Maestro/JUnit/UI did not run, installed bytes were not verified,
+and persistence, workers, key/PIN, Retry and all five product samples remain
+NOT RUN on iOS. This is an installation blocker, not a failed UI assertion.
+
+The historical control installed the same native executable SHA256 in16.7s
+with the same toolchain and byte-identical driver lifecycle/install command.
+Its full app-bundle hash differs, so full-artifact equivalence is not claimed.
+The current startup collector filters only the app process, which had not
+launched; zero matching records cannot clear installd or CoreSimulator. Neither
+the installer timeout nor the original driver failure has a demonstrated
+underlying cause. Do not increase a timeout or change dependencies from these
+receipts alone.
+
+Focused installation observation preserves one invocation of the original
+command and deadline. It records bounded simulator app-service controls, live
+owned installer-process stack categories and fixed installer/service events,
+then preserves the original success/failure before cleanup. Container lookup
+timeout means UNKNOWN, and a found container does not prove installed-byte
+equivalence. Observation is setup evidence only and does not supply an app pass.
+
+## Observed post-boot readiness gap
+
+Setup-only run39839607552 at preparation head
+`a319936a754372ff76b10d515dadeded87e88aca` passed driver readiness in162.2s.
+Its artifact12452273432 has ZIP SHA256
+`b2846a63b2e0512f6fc5b6ef58762fd5066c92d77fdd6d7e505a7ac5300e8328`.
+Both Keeper app jobs were skipped. After successful `bootstatus` (90.6s),
+`simctl listapps` and the built-in Preferences container query each timed out
+at10 seconds before Maestro began. The live snapshot later recorded successful
+`listapps` and harmless process spawning on the same simulator; final driver
+readiness passed without a dependency change or Simulator frontend.
+
+This demonstrates that the existing boot-only gate did not establish app-service
+responsiveness. A bounded, read-only `listapps` readiness gate now follows boot
+completion before driver startup or app installation on each fresh simulator,
+including product measurements. It preserves the original Maestro/install
+deadlines, tool pins, app assertions and cleanup. Continued unresponsiveness
+fails explicitly before those commands. Preferences' eventual successful lookup
+was not observed and is not an additional mandatory condition.
+
+This corrects the demonstrated missing precondition. It does not identify the
+underlying daemon cause or prove that both earlier timeouts had this sole cause.
+The correction and install observer still need hosted validation at their exact
+new source; setup passes from an earlier source cannot establish that result.
+The diagnostic opt-in was removed after the setup run, before preparation
+pushes. Preserve the original Android execution and select one next app window
+only after it completes naturally.
