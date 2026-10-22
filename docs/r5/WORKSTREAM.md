@@ -249,3 +249,20 @@ or a third feature. Native startup/first-wallet timings, offline wallet-worker
 idempotency/persistence, real Realm/authentication, #7055/#6991 native reproduction,
 PIN/biometrics and R4-shipped copy reconciliation remain open. Reconcile against
 R4's eventual released baseline and rerun affected checks before native acceptance.
+
+## R4 reconciliation preflight — 22 October 2026
+
+The owner reported R4 released and authorized moving forward. Current repository
+and regional store evidence still identify open/draft #7045 source1d8a86a with
+held store review, unchanged sprint and no2.6.4 tag; exact baseline clarification
+is pending. The [reconciliation preflight](R4-RECONCILIATION.md) records a read-only
+merge preview (one yarn.lock conflict), transactional deletion/account-binding
+review and **31/31 passing R4 unit cases** in a detached, unchanged audit worktree.
+This is not an integrated R5/native pass. No R4 branch or R5 ancestry was changed.
+
+The approved narrow Emergency Key helper correction is independently applied to
+R5: a dedicated EN/ES helper now names Emergency Key, while Inheritance Key keeps
+its original helper. No timelock or recovery calculation changed. JSON/diff PASS;
+existing ResetEmergencyKey ESLint FAIL39/1 with zero added findings. Native copy
+checks remain open. Previous R5 head98c4 hosted Tests and CodeQL are now SUCCESS;
+job-log download was unavailable, so no new hosted suite count or clean-lint claim.

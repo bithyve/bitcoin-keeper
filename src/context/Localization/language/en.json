@@ -673,6 +673,7 @@
     "selectActivationTime": "Select activation time",
     "chooseNewActivationTimeTitle": "Choose New Activation Time",
     "chooseNewActivationTimeDesc": "Please choose the new time for your Inheritance Key to become active",
+    "chooseNewEmergencyActivationTimeDesc": "Please choose the new time for your Emergency Key to become active",
     "scanQR": "Scan QR",
     "scanOrUpload": "Please scan the QR or upload an image",
     "nfcOnTap": "NFC on tap",

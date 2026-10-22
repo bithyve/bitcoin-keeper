@@ -213,7 +213,7 @@ function ResetEmergencyKey({ route }) {
                   {vaultText.chooseNewActivationTimeTitle}
                 </Text>
                 <Text color={`${colorMode}.secondaryText`} fontSize={12}>
-                  {vaultText.chooseNewActivationTimeDesc}
+                  {vaultText.chooseNewEmergencyActivationTimeDesc}
                 </Text>
               </Box>
               <OptionPicker
