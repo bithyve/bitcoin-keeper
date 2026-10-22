@@ -41,12 +41,14 @@ function requestFromEnvironment(env) {
 }
 
 function approvalBody(request, expiresAt) {
-  return [
+  const lines = [
     '## Keeper protected release approval', 'State: APPROVED',
     `Source commit: ${request.sourceSha}`, `Version: ${request.version}`, `Build: ${request.build}`,
     `Operation: ${request.operation}`, `Artifact SHA256: ${request.artifactSha256}`,
-    `Workflow commit: ${request.driverSha}`, `Expires at: ${expiresAt}`,
-  ].join('\n');
+    `Workflow commit: ${request.driverSha}`,
+  ];
+  if (request.identitySha256) lines.push(`Signing identity SHA256: ${request.identitySha256}`, `Production config SHA256: ${request.configSha256}`, 'Artifact storage: GitHub Actions public-repository readers (14 days)');
+  return [...lines, `Expires at: ${expiresAt}`].join('\n');
 }
 
 function validateEvidence(request, evidence, now = Date.now()) {
@@ -92,10 +94,7 @@ async function api(endpoint, token) {
   return response.json();
 }
 
-async function main(env = process.env) {
-  const request = requestFromEnvironment(env);
-  requireCondition(env.GH_TOKEN && env.KEEPER_CANDIDATE_PATH, 'DRIVER_CONFIGURATION_MISSING');
-  const root = path.resolve(env.KEEPER_CANDIDATE_PATH);
+async function collectEvidence(request, root, token) {
   const read = name => fs.readFileSync(path.join(root, name), 'utf8');
   const evidence = {
     // Only trusted driver code is executed. Candidate files are data.
@@ -107,20 +106,27 @@ async function main(env = process.env) {
     },
   };
   [evidence.driver, evidence.branch, evidence.comment, evidence.ownerPermission, evidence.environment, evidence.statuses, evidence.checks] = await Promise.all([
-    api('branches/sprint', env.GH_TOKEN),
-    api(`branches/${encodeURIComponent(request.releaseRef)}`, env.GH_TOKEN),
-    api(`issues/comments/${request.approvalCommentId}`, env.GH_TOKEN),
-    api('collaborators/antuz123/permission', env.GH_TOKEN),
-    api(`environments/${operations[request.operation]}`, env.GH_TOKEN),
-    api(`commits/${request.sourceSha}/status?per_page=100`, env.GH_TOKEN),
-    api(`commits/${request.sourceSha}/check-runs?per_page=100`, env.GH_TOKEN),
+    api('branches/sprint', token),
+    api(`branches/${encodeURIComponent(request.releaseRef)}`, token),
+    api(`issues/comments/${request.approvalCommentId}`, token),
+    api('collaborators/antuz123/permission', token),
+    api(`environments/${operations[request.operation]}`, token),
+    api(`commits/${request.sourceSha}/status?per_page=100`, token),
+    api(`commits/${request.sourceSha}/check-runs?per_page=100`, token),
   ]);
+  return evidence;
+}
+
+async function main(env = process.env) {
+  const request = requestFromEnvironment(env);
+  requireCondition(env.GH_TOKEN && env.KEEPER_CANDIDATE_PATH, 'DRIVER_CONFIGURATION_MISSING');
+  const evidence = await collectEvidence(request, path.resolve(env.KEEPER_CANDIDATE_PATH), env.GH_TOKEN);
   const result = validateEvidence(request, evidence);
   console.log(JSON.stringify(result, null, 2));
   if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `environment=${result.environment}\n`);
 }
 
-module.exports = { requestFromEnvironment, approvalBody, validateEvidence };
+module.exports = { requestFromEnvironment, approvalBody, validateEvidence, collectEvidence, api };
 if (require.main === module) main().catch(() => {
   // Never echo tokens, API payloads, user inputs, paths or exception details.
   console.error('Protected release preparation blocked: source, approval, protection or acceptance evidence is unavailable/invalid. No release action performed.');
