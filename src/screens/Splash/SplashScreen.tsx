@@ -21,6 +21,7 @@ import { setDefaultWalletCreated } from 'src/store/reducers/storage';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { observeStartupFailure, reportStartupFailure } from 'src/storage/startup-failure-observer';
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode, bitcoinNetworkType } = useAppSelector((state) => state.settings);
@@ -66,16 +67,28 @@ function SplashScreen({ navigation }) {
   useEffect(() => {
     let current = true;
     readPending.current = true;
+    const startupFailureObserver = typeof __DEV__ !== 'undefined' && __DEV__
+      ? observeStartupFailure : undefined;
     const navigateToApp = async () => {
+      let hasCreds;
       try {
-        const hasCreds = await SecureStore.hasPin({ throwOnError: true });
-        if (!current) return;
+        hasCreds = await SecureStore.hasPin({ throwOnError: true }, startupFailureObserver);
+      } catch {
+        if (current) {
+          readPending.current = false;
+          setStartupError(true);
+        }
+        return;
+      }
+      if (!current) return;
+      try {
         if (hasCreds) {
           navigation.replace('Login', { relogin: false });
         } else {
           navigation.replace('CreatePin');
         }
-      } catch {
+      } catch (error) {
+        reportStartupFailure(startupFailureObserver, 'NAVIGATION', 'THREW', error);
         if (current) {
           readPending.current = false;
           setStartupError(true);

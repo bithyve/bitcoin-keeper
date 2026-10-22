@@ -172,12 +172,29 @@ def private_log_prefix(path):
     return payload.decode(errors='replace'), truncated
 
 
-def ios_startup_diagnostics(payload, executable):
+def ios_startup_diagnostics(payload, executable, started_ms=None, ended_ms=None, input_partial=False):
     if (not isinstance(executable, str) or
             not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}', executable)):
         raise ValueError('Unsafe iOS executable selector.')
     if not isinstance(payload, str):
         raise TypeError('Expected compact log text.')
+    receipt, receipt_failed, receipt_frame_partial = None, False, False
+    try:
+        spec = importlib.util.spec_from_file_location(
+            'startup_failure_receipts', Path(__file__).with_name('startup_failure_receipts.py'))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        receipt = module.Collector(executable, started_ms, ended_ms)
+    except Exception:
+        receipt_failed = True
+
+    def note_invalid_marker(line):
+        nonlocal receipt_failed
+        if receipt is not None and 'KEEPER_STARTUP_FAILURE_V1' in line:
+            try:
+                receipt.invalid_record(True)
+            except Exception:
+                receipt_failed = True
     # log(1) compact: ISO timestamp, abbreviated type, process[PID:TID], message.
     # Framing/bounds adapted from #7115/eceb; retain this source's categories.
     # Rendered text is not authenticated provenance. Never attach continuations.
@@ -219,10 +236,12 @@ def ios_startup_diagnostics(payload, executable):
         line = raw.removesuffix('\n').removesuffix('\r')
         if len(line) > IOS_LOG_MAX_RECORD_BYTES or len(line.encode('utf-8')) > IOS_LOG_MAX_RECORD_BYTES:
             oversized += 1
+            note_invalid_marker(line)
             continue
         match = pattern.fullmatch(line)
         if not match:
             malformed += bool(re.match(r'^\d{4}-', line))
+            note_invalid_marker(line)
             continue
         try:
             datetime.fromisoformat(match['timestamp'].replace('Z', '+00:00'))
@@ -232,7 +251,22 @@ def ios_startup_diagnostics(payload, executable):
             valid = False
         if not valid:
             malformed += 1
+            note_invalid_marker(line)
             continue
+        if receipt is not None:
+            try:
+                if any(ord(char) > 127 for char in line[:match.start('message')]):
+                    # Preserve prior general classification, but never derive
+                    # a fixed receipt from unsupported Unicode header spacing.
+                    receipt_frame_partial = True
+                    note_invalid_marker(line)
+                elif ('KEEPER_STARTUP_FAILURE_V1' in match['message'] and
+                        match['severity'].lower() not in ['e', 'f', 'er', 'ft', 'error', 'fault']):
+                    receipt.invalid_record(True)
+                else:
+                    receipt.observe(match['timestamp'], match['process'], match['pid'], match['message'])
+            except Exception:
+                receipt_failed = True
         if match['process'] != executable:
             continue
         matched += 1
@@ -248,6 +282,15 @@ def ios_startup_diagnostics(payload, executable):
             for name in found:
                 counts[name] += 1
     partial = any([truncated, malformed, oversized, replacement, scan_limit, record_limit])
+    failure_receipt = {'schema': 1, 'status': 'UNKNOWN', 'records': [], 'cause': 'UNDETERMINED',
+                       'reasons': ['COLLECTOR_UNAVAILABLE'],
+                       'scope': 'OPTIONAL_ORIGINAL_STARTUP_MARKERS_NOT_CAUSE_OR_ACCEPTANCE'}
+    if receipt is not None and not receipt_failed:
+        try:
+            failure_receipt = receipt.result(input_partial=partial or receipt_frame_partial or
+                                            input_partial is not False)
+        except Exception:
+            pass
     return {'format': 'compact', 'matching_process_records': matched,
             'errors': selected, 'observation_state': 'OWN_RECORDS_OBSERVED' if matched else 'UNKNOWN',
             'parse_status': 'UNKNOWN' if not matched else 'PARTIAL' if partial else 'PARSED',
@@ -257,6 +300,7 @@ def ios_startup_diagnostics(payload, executable):
             'scan_limit_reached': scan_limit, 'record_limit_reached': record_limit,
             'error_records': errors, 'classified_error_records': classified,
             'unclassified_error_records': errors - classified,
+            'startup_failure_receipt': failure_receipt,
             'categories': [name for name, count in counts.items() if count],
             'category_record_counts': counts,
             'scope': 'Fixed markers in prefixed own-process records; marker presence is not failure-cause or crash proof.'}
@@ -391,10 +435,14 @@ def maestro_preflight_diagnostics(directory=None, command_label='Assert startup 
     return result
 
 
-def record_startup_failure(report, device):
+def record_startup_failure(report, device, startup_started_ms=None):
     """Collect bounded diagnostics before destroying this job's fresh app state."""
     details = {'scope': 'Fresh startup only; no account or persisted PIN created.',
                'collection_errors': []}
+    try:
+        startup_ended_ms = int(time.time() * 1000)
+    except Exception:
+        startup_ended_ms = None
 
     def collect(name, action):
         try:
@@ -476,11 +524,15 @@ def record_startup_failure(report, device):
                     code = 124
             result = {'command': args, 'exit_code': code, 'errors': [], 'observation_state': 'UNKNOWN',
                       'query_status': 'SUCCESS' if code == 0 else 'TIMEOUT' if code == 124 else 'FAILED',
-                      'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED', 'input_truncated': None}
+                      'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED', 'input_truncated': None,
+                      'startup_failure_receipt': {'schema': 1, 'status': 'UNKNOWN', 'records': [],
+                          'cause': 'UNDETERMINED', 'reasons': ['QUERY_UNAVAILABLE'],
+                          'scope': 'OPTIONAL_ORIGINAL_STARTUP_MARKERS_NOT_CAUSE_OR_ACCEPTANCE'}}
             if code == 0:
                 try:
                     payload, truncated = private_log_prefix(path)
-                    result.update(ios_startup_diagnostics(payload, executable))
+                    result.update(ios_startup_diagnostics(payload, executable, startup_started_ms,
+                                                         startup_ended_ms, input_partial=truncated))
                     result['input_truncated'] |= truncated
                     if truncated:
                         result['parse_status'] = 'PARTIAL' if result['matching_process_records'] else 'UNKNOWN'
@@ -1190,7 +1242,7 @@ def smoke(suite='startup'):
         startup_error = original_error
         try:
             if not (is_probe or is_features):
-                record_startup_failure(report, device)
+                record_startup_failure(report, device, getattr(startup_capture, 'started_ms', None))
             else:
                 data = read()
                 data[result_key] = 'FAIL'

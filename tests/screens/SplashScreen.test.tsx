@@ -100,7 +100,7 @@ test('starts the credential read without waiting for the splash animation', asyn
   mockHasPin.mockReturnValue(pin.promise);
   await mount();
   expect(mockHasPin).toHaveBeenCalledTimes(1);
-  expect(mockHasPin).toHaveBeenCalledWith({ throwOnError: true });
+  expect(mockHasPin).toHaveBeenCalledWith({ throwOnError: true }, expect.any(Function));
   expect(navigation.replace).not.toHaveBeenCalled();
   await act(async () => pin.resolve(true));
   expect(navigation.replace).toHaveBeenCalledWith('Login', { relogin: false });
