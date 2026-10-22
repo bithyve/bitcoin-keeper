@@ -148,5 +148,28 @@ class PackageOverlayTests(unittest.TestCase):
                 product.verify_package_overlay(original, installed, changed)
 
 
+class VersionExpectationTests(unittest.TestCase):
+    def test_installed_and_history_match_their_actual_native_format(self):
+        manifest = {'version': '2.6.4', 'androidVersionCode': 627, 'iosBuildNumber': 620}
+        for platform, build in [('ANDROID', 627), ('IOS', 620)]:
+            expected = product.version_expectation(manifest, platform)
+            self.assertRegex('2.6.4 (%d)' % build, expected['installed_regex'])
+            self.assertRegex('2.6.4(%d)' % build, expected['history_regex'])
+            self.assertNotRegex('2x6x4 (%d)' % build, expected['installed_regex'])
+
+    def test_new_source_versions_do_not_reuse_previous_expected_tuple(self):
+        expected = product.version_expectation({'version': '2.7.0', 'iosBuildNumber': 701}, 'IOS')
+        self.assertRegex('2.7.0 (701)', expected['installed_regex'])
+        self.assertNotRegex('2.6.4 (620)', expected['installed_regex'])
+
+    def test_work_package_labels_or_missing_invalid_builds_are_rejected(self):
+        for manifest in ({'version': '5.1', 'iosBuildNumber': 620},
+                         {'version': '2.6.4'},
+                         {'version': '2.6.4', 'iosBuildNumber': True},
+                         {'version': '2.6.4', 'iosBuildNumber': -1}):
+            with self.assertRaises(RuntimeError):
+                product.version_expectation(manifest, 'IOS')
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -115,6 +115,79 @@ name: Full app startup first wallet and cold persistence
       id: home_visible_wallet_count_1
     timeout: 30000
 - assertVisible: Mobile Wallet
+- tapOn:
+    id: home_tab_more
+- scrollUntilVisible:
+    element:
+      id: btn_setting_App Settings
+    direction: DOWN
+    timeout: 30000
+- tapOn:
+    id: btn_setting_App Settings
+- extendedWaitUntil:
+    visible:
+      id: btn_setting_Version History
+    timeout: 30000
+- tapOn:
+    id: btn_setting_Version History
+- extendedWaitUntil:
+    visible:
+      id: text_installedAppVersionLabel
+      text: Installed app version
+    timeout: 30000
+- assertVisible:
+    id: text_installedAppVersion
+    text: ${EXPECTED_INSTALLED_REGEX}
+- assertVisible:
+    id: view_VersionHistoryList
+- assertVisible: Initially installed
+- assertVisible:
+    text: ${EXPECTED_HISTORY_REGEX}
+- runScript:
+    file: product_metric.js
+    env:
+      STAGE: version_history_verified
+- tapOn:
+    id: btn_back
+- extendedWaitUntil:
+    visible:
+      id: btn_setting_Version History
+    timeout: 30000
+- tapOn:
+    id: btn_back
+- tapOn:
+    id: home_tab_keys
+- extendedWaitUntil:
+    visible:
+      id: manage_keys_actions
+    timeout: 30000
+- tapOn:
+    id: manage_keys_actions
+- extendedWaitUntil:
+    visible:
+      id: header_title
+      text: Manage Keys
+    timeout: 30000
+# The only fresh signer is Recovery Key, excluded by DeleteKeys' production
+# filters. Check safe discovery/back navigation; never create a deletion intent.
+- assertNotVisible: Delete
+- tapOn:
+    id: btn_back
+- extendedWaitUntil:
+    visible:
+      id: manage_keys_actions
+    timeout: 30000
+- runScript:
+    file: product_metric.js
+    env:
+      STAGE: key_management_entry_verified
+- tapOn:
+    id: home_tab_wallets
+- extendedWaitUntil:
+    visible:
+      id: home_visible_wallet_count_1
+    timeout: 30000
+- assertVisible: Mobile Wallet
 - runScript:
     file: product_metric.js
     env:
