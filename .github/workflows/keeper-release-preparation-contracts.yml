@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/keeper-protected-release-plan.yml'
       - '.github/workflows/keeper-release-preparation-contracts.yml'
+      - '.github/workflows/keeper-protected-release-workers.yml'
       - 'scripts/protected-release-plan*'
       - 'scripts/protected-release-worker*'
       - 'scripts/cloud_release_inventory.py'
@@ -12,6 +13,8 @@ on:
       - 'scripts/cloud_release_worker.py'
       - 'scripts/test_cloud_release_worker.py'
       - 'scripts/release-version.cjs'
+      - 'scripts/test_cloud_upload_adapters.rb'
+      - 'release/cloud/**'
   workflow_dispatch:
 
 permissions:
@@ -33,9 +36,13 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '22.23.3'
+      - uses: ruby/setup-ruby@675dd7ba1b06c8786a1480d89c384f5620a42647 # v1.281.0
+        with:
+          ruby-version: '3.3.8'
       - name: Offline gate and inventory contracts
         run: |
           node --test scripts/protected-release-plan.test.cjs scripts/protected-release-worker.test.cjs scripts/release-version.test.cjs scripts/verify-channel-config.test.cjs
           python3 -B -m unittest discover -s scripts -p 'test_cloud_release_inventory.py'
           python3 -B -m unittest discover -s scripts -p 'test_release_artifact.py'
           python3 -B -m unittest discover -s scripts -p 'test_cloud_release_worker.py'
+          ruby scripts/test_cloud_upload_adapters.rb
