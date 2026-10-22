@@ -47,7 +47,7 @@ function synthetic(platform = 'IOS') {
       physicalDevice: 'NOT_TESTED', releaseReadiness: 'NOT_ESTABLISHED', providerOperations: 0 };
     if (suite === 'protected') Object.assign(fixture, { historicalUpgradeInstallation: 'NOT_TESTED',
       normalAppEntry: 'INDEX_JS_IMPORTED_BY_CONTROLLED_FIXTURE', witnessKind: 'FIXTURE_AND_PROTOCOL_RECEIPT_NOT_UI_ATTESTATION',
-      createNewAppCalls: 1, protectedSnapshotCalls: 5, protectedEnrollmentCalls: 2, protectedRepairCalls: 1, protectedDeletionCalls: 1,
+      createNewAppCalls: 1, protectedSnapshotCalls: 8, protectedEnrollmentCalls: 2, protectedRepairCalls: 1, protectedDeletionCalls: 1,
       releasedSnapshotResponseGates: 5, rejectedOtherBackendCalls: 0,
       retentionCanary: 'SYNTHETIC_OPAQUE_LEGACY_RECORD_SCOPE_ONLY', accountIsolationCanary: 'INDEPENDENT_THROWAWAY_ES256K_NAMESPACE',
       nativeAcceptance: 'REQUIRES_SEPARATE_EXACT_INSTALLED_ARTIFACT_AND_UI_RECEIPT' });

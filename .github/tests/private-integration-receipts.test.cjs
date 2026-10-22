@@ -131,6 +131,12 @@ for (const platform of ['IOS', 'ANDROID']) {
       test(`${platform} rejects rehashed protected missing ${field}`, () => {
         const f = synthetic(platform); changeBoth(f, row => row[field] = 0); reject(f.rebind(), f.expected);
       });
+    if (suite === 'protected') for (const [field, number] of [
+      ['releasedSnapshotResponseGates', 1], ['releasedSnapshotResponseGates', 4], ['releasedSnapshotResponseGates', 6],
+      ['protectedSnapshotCalls', 5], ['protectedSnapshotCalls', 6],
+    ]) test(`${platform} rejects rehashed impossible full-stage protected ${field}=${number}`, () => {
+      const f = synthetic(platform); changeBoth(f, row => row[field] = number); reject(f.rebind(), f.expected);
+    });
   }
   for (const [name, mutate] of Object.entries({
     reusedOwner: f => {

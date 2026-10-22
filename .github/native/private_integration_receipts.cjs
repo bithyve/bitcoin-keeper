@@ -141,8 +141,10 @@ function fixture(value, suite, expected) {
   fixed(value, fields);
   demand(COUNTS[suite].every(key => integer(value[key], 0, 10000)) && value.providerOperations === 0);
   if (suite === 'protected') {
-    demand(value.createNewAppCalls === 1 && value.protectedSnapshotCalls >= 1 && value.protectedEnrollmentCalls >= 1 &&
-      value.protectedRepairCalls >= 1 && value.protectedDeletionCalls >= 1 && value.releasedSnapshotResponseGates >= 1);
+    // Five explicit fresh status gates, plus separate repair and Delete ACK/readbacks.
+    demand(value.createNewAppCalls === 1 && value.releasedSnapshotResponseGates === 5 &&
+      value.protectedSnapshotCalls >= value.releasedSnapshotResponseGates + 2 && value.protectedEnrollmentCalls >= 1 &&
+      value.protectedRepairCalls >= 1 && value.protectedDeletionCalls >= 1);
   } else {
     demand(hex(value.ownerSha256, 64) && same(value.sourceMembers, expected.recoverySources) && value.nativeWriteAttempts === 0);
     if (suite === 'recovery') demand(value.authenticatedPublicSnapshotReplies >= 1 &&

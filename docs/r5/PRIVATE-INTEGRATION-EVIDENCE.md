@@ -56,6 +56,9 @@ independent committed crypto source tuples, distinct recovery/account owners,
 read-only recovery/account counts, native UI case counts and same installed
 artifact are checked. The protected fixture retains controlled legacy consent
 and its narrow retention canary; no all-copy privacy claim is introduced.
+Its five explicit fresh-status response gates must all be released, with snapshot
+counts also covering the separate repair and Delete acknowledgement readbacks.
+The full-stage counter cannot claim success with only one fresh response.
 Rejected unrelated route observations remain bounded observations rather than
 a newly imposed zero requirement. Physical devices, biometrics, authentic
 historical installation, B backend mutation and full-product performance remain
@@ -94,6 +97,14 @@ provisional ordinary JSON parser, confirming that raw-byte integrity alone did
 not resolve ambiguous JSON. That failed attempt is retained. Strict parsing is
 now shared with the independently reviewed canonical and trusted-origin raw
 artifact boundaries rather than reimplemented in this consumer.
+
+The first frozen `bc87184385158b962fc8ff79993f6b8977aa5622` checkpoint is also
+preserved. A final source comparison found that its protected gate lower bound
+accepted an impossible full-stage one-gate counter after correct hash rebinding.
+The descendant derives exactly five gates and at least seven snapshots from the
+actual producer's gated stages plus separate repair/Delete readbacks, uses an
+eight-snapshot synthetic corpus, and rejects one/four/six gates or insufficient
+snapshots. This is a host proof correction, with no native/product pass inferred.
 
 Exact committed checks, independent review, parser dependency and source-clean
 receipts are recorded at the frozen checkpoint before publication. Existing
