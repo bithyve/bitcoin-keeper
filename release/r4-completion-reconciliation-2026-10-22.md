@@ -61,7 +61,7 @@ or re-signed. The macOS ARM64 runner reports 26.6.2/build 25G83.
   exact-process activation read true. After a settled fresh-screen click and one
   Welcome-only retry, Get Started remained visible, Scan Me was absent and QR
   count was zero. Root cause remains unproved; this is not an established app defect.
-- QR, malformed/valid channel packets, actual mobile pairing, camera scanning,
+- QR/channel acceptance: **BLOCKED**. Malformed/valid channel packets, actual mobile pairing, camera scanning,
   reconnect/rotation matrix, hardware and PSBT round trip: **NOT RUN**. No test
   packets were sent. No Continue/signing action ran.
 
