@@ -33,6 +33,18 @@ diagnostics. Metadata/cleanup errors cannot replace an earlier UI failure, and
 cleanup failure cannot supply an overall PASS. No shared cache is removed.
 Warmups are phase-specific setup evidence, separate from first-wallet timing.
 
+Independent review found that the inherited key/credential/history finalizers
+saved metadata before cleanup, allowing a save error to mask the original UI
+failure and skip owned server/output disposal. Vault also replaced a primary
+failure when server cleanup raised. The integration-only follow-up uses one
+shared finalizer: every shutdown, close and private-output purge is attempted
+independently; fixed cleanup failures mark the receipt FAIL; final metadata is
+written after disposal with one bounded FAIL-save retry. An original exception
+remains primary. Initial receipt saves are also inside the cleanup boundary.
+The original producer checkpoints remain unchanged. Failure-injection controls
+run each actual companion with fake UI adapters, including combined UI/save/
+server/purge failures, cleanup after successful UI and initial-save failure.
+
 Receipt/control ports are distinct: setup backend8765, key8766,
 credential8767, private protocol control8768, Vault8769. This integration-only
 Vault port correction avoids rebind/TIME_WAIT interaction while preserving its
@@ -68,6 +80,7 @@ Nine new offline controls exercise owned process cleanup, failed replacement
 startup, listener rejection, strict phase/environment selection, private fresh
 JUnit binding, primary-failure preservation, companion order and port isolation.
 Their fake adapters supply no native acceptance. Full native-harness contracts
-passed locally:124 Node and122 Python. Native iOS and Android for this combined
+passed locally after the cleanup correction:124 Node and125 Python; actionlint
+on all three involved native workflows and whitespace also pass. Native iOS and Android for this combined
 package are **NOT RUN**. The coordinator reviews this package before any isolated
 branch push or exact-candidate scheduling.

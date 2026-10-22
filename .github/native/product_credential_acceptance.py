@@ -148,8 +148,8 @@ def run_companion(h, data, device, private, backend_receipt, switch_entrypoint):
                   timeout=240, error_details=False)
         h.successful_junit(report)
 
-    save()
     try:
+        save()
         installed_before = helper.installed_proof(h, device)
         if h.PLATFORM == 'ANDROID':
             h.command(['adb', '-s', device, 'reverse', 'tcp:8767', 'tcp:8767'],
@@ -182,11 +182,12 @@ def run_companion(h, data, device, private, backend_receipt, switch_entrypoint):
         result['failure_category'] = type(error).__name__
         raise
     finally:
-        save()
+        operations = []
         if server:
-            server.shutdown()
-            server.server_close()
+            operations += [('server-shutdown', server.shutdown), ('server-close', server.server_close)]
         # On any failure the parent destroys this owned device, including its
         # test-only backup service. Do not inspect, pull or print Keychain files.
-        shutil.rmtree(output, ignore_errors=True)
+        operations.append(('private-output', lambda: shutil.rmtree(output)))
+        helper.finalize_companion(result, save, operations, 'failure_category' in result,
+                                  'PRODUCT_CREDENTIAL_CLEANUP_FAILED')
     return result

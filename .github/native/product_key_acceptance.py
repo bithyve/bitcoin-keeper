@@ -24,6 +24,41 @@ STAGES = (
 )
 
 
+def finalize_companion(result, save, operations, primary_failed, failure_code):
+    """Visit every owned cleanup boundary and never replace a primary failure."""
+    failures = []
+
+    def failed(stage, error):
+        category = type(error).__name__
+        if category not in {'OSError', 'RuntimeError', 'FileNotFoundError',
+                            'PermissionError', 'TimeoutError', 'TimeoutExpired'}:
+            category = 'OTHER_ERROR'
+        failures.append((stage, category))
+        result.update(status='FAIL', cleanup='FAILED',
+                      cleanup_failure_category=failures[0][1],
+                      cleanup_failure_categories=sorted({kind for _, kind in failures}),
+                      cleanup_failure_stages=sorted({name for name, _ in failures}))
+
+    for stage, operation in operations:
+        try:
+            operation()
+        except Exception as error:
+            failed(stage, error)
+    # Private UI output is disposed before any final receipt is persisted. If
+    # writing itself fails, record that fixed failure and make one best effort
+    # to persist FAIL; an earlier RUNNING receipt cannot become a stale PASS.
+    try:
+        save()
+    except Exception as error:
+        failed('evidence-save', error)
+        try:
+            save()
+        except Exception as retry_error:
+            failed('evidence-save', retry_error)
+    if failures and not primary_failed:
+        raise RuntimeError(failure_code)
+
+
 def installed_proof(h, device):
     proof = h.verify_installed_artifact(device)
     method, hashes = {
@@ -142,8 +177,8 @@ def run_companion(h, data, device, private, backend_receipt):
         current['product_key_ui'] = result
         h.save(current)
 
-    save()
     try:
+        save()
         installed_before = installed_proof(h, device)
         server = make_server(receipt)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -173,11 +208,12 @@ def run_companion(h, data, device, private, backend_receipt):
         result['failure_category'] = type(error).__name__
         raise
     finally:
-        save()
+        operations = []
         if server:
-            server.shutdown()
-            server.server_close()
+            operations += [('server-shutdown', server.shutdown), ('server-close', server.server_close)]
         # Maestro output can contain transient screenshots/hierarchy/PIN actions;
         # retain no such files. The parent also deletes this suite's process logs.
-        shutil.rmtree(output, ignore_errors=True)
+        operations.append(('private-output', lambda: shutil.rmtree(output)))
+        finalize_companion(result, save, operations, 'failure_category' in result,
+                           'PRODUCT_KEY_UI_CLEANUP_FAILED')
     return result

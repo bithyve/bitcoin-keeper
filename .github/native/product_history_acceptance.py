@@ -64,8 +64,8 @@ def run_companion(h, data, device, private, backend_receipt, switch_entrypoint):
         state['product_version_history_ui'] = result
         h.save(state)
 
-    save()
     try:
+        save()
         installed = key_ui.installed_proof(h, device)
         for stage in PHASES:
             fixture = stage.startswith('history_')
@@ -117,6 +117,7 @@ def run_companion(h, data, device, private, backend_receipt, switch_entrypoint):
         result['failure_category'] = type(error).__name__
         raise
     finally:
-        save()
-        shutil.rmtree(output, ignore_errors=True)
+        key_ui.finalize_companion(result, save,
+            [('private-output', lambda: shutil.rmtree(output))], 'failure_category' in result,
+            'PRODUCT_HISTORY_CLEANUP_FAILED')
     return result

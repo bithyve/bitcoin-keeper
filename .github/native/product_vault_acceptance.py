@@ -3,6 +3,7 @@
 No device discovery, database/credential injection, build, standalone CLI or
 native scheduling entrypoint. The coordinator owns the existing Metro/device.
 """
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -133,6 +134,10 @@ def run_companion(h, data, device, private, backend_receipt, installed_proof):
             predecessor.get('new_account_requests_during_key_flow') != 0 or
             predecessor.get('installed_artifact_verified') is not True):
         raise RuntimeError('PRODUCT_VAULT_UI_COMPLETED_DISPOSABLE_PREDECESSOR_REQUIRED')
+    spec = importlib.util.spec_from_file_location('product_key_acceptance',
+        Path(__file__).with_name('product_key_acceptance.py'))
+    key_ui = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(key_ui)
     output = Path(private) / 'vault-ui'
     output.mkdir(mode=0o700)
     report = output / 'junit.xml'
@@ -146,8 +151,8 @@ def run_companion(h, data, device, private, backend_receipt, installed_proof):
         current['product_vault_ui'] = result
         h.save(current)
 
-    save()
     try:
+        save()
         installed_before = installed_proof(h, device)
         if predecessor.get('installed_artifact') != installed_before:
             raise RuntimeError('PRODUCT_VAULT_UI_PREDECESSOR_INSTALLATION_CHANGED')
@@ -179,20 +184,12 @@ def run_companion(h, data, device, private, backend_receipt, installed_proof):
         result['failure_category'] = type(error).__name__
         raise
     finally:
-        try:
-            if server:
-                server.shutdown()
-                server.server_close()
-        except Exception as cleanup_error:
-            original_failure = result.get('failure_category')
-            result = receipt.snapshot()
-            if original_failure:
-                result['failure_category'] = original_failure
-            result['cleanup_failure_category'] = type(cleanup_error).__name__
-            raise
-        finally:
-            # Failure diagnostics can contain PIN actions and app hierarchy.
-            # Remove them before saving evidence, including cleanup failure.
-            shutil.rmtree(output, ignore_errors=True)
-            save()
+        operations = []
+        if server:
+            operations += [('server-shutdown', server.shutdown), ('server-close', server.server_close)]
+        # Failure diagnostics can contain PIN actions and app hierarchy. Visit
+        # disposal even when another boundary fails, then persist safe evidence.
+        operations.append(('private-output', lambda: shutil.rmtree(output)))
+        key_ui.finalize_companion(result, save, operations, 'failure_category' in result,
+                                  'PRODUCT_VAULT_UI_CLEANUP_FAILED')
     return result
