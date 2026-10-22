@@ -4,6 +4,20 @@ on:
     branches: [sprint]
     paths:
       - '.github/native/canonical_*'
+      - '.github/native/public_software_receipts.cjs'
+      - '.github/native/public_companion_receipts.cjs'
+      - '.github/native/actions_software_evidence.cjs'
+      - '.github/native/software_artifact_zip.py'
+      - '.github/native/release_evidence.cjs'
+      - '.github/native/release_acceptance.cjs'
+      - '.github/native/release_preflight.cjs'
+      - '.github/tests/public-software-receipts.test.cjs'
+      - '.github/tests/public-companion-receipts.test.cjs'
+      - '.github/tests/actions-software-evidence.test.cjs'
+      - '.github/tests/release-evidence.test.cjs'
+      - '.github/tests/release-pipeline.test.cjs'
+      - '.github/tests/test_software_artifact_zip.py'
+      - '.github/tests/fixtures/**'
       - '.github/tests/canonical-native.test.cjs'
       - '.github/tests/test_canonical_metadata.py'
       - '.github/workflows/keeper-canonical-native*'
@@ -28,8 +42,9 @@ jobs:
         run: node .github/scripts/verify-ci-source.cjs
       - name: Test read-only canonical trust and archive controls
         run: |
-          node --test .github/tests/canonical-native.test.cjs
+          node --test .github/tests/canonical-native.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs .github/tests/actions-software-evidence.test.cjs .github/tests/release-evidence.test.cjs .github/tests/release-pipeline.test.cjs
           python3 -B -m unittest discover -s .github/tests -p test_canonical_metadata.py
+          python3 -B -m unittest discover -s .github/tests -p test_software_artifact_zip.py
       - name: Verify exact source after checks
         if: always()
         run: node .github/scripts/verify-ci-source.cjs
