@@ -5,6 +5,42 @@ Source baseline: `c1c4b803039b61b940373c4dc9d08473cf25e042` (R5 core plus the
 follow-up, estimated at 1k–3k changed code/test tokens. It does not change
 credentials, signature verification, PIN attempt rules, storage or native inputs.
 
+## Independent review follow-up
+
+Review of the initial callback correction at
+`257fbe17e1a85d0e5d7e5d8ab97e1a69edbd9628` found that its new `loggingIn`
+dependency reopened native biometrics after an authentication failure. The
+failure handler sets `loggingIn` back to false, so a failed biometric credential
+check, or an incorrect PIN after cancelling biometrics, scheduled another prompt
+and interrupted the PIN fallback. A batched A → B → A account transition also
+left a queued/pending callback active if React only rendered the final A. The
+downstream authentication worker captures its epoch after dispatch, so it could
+not reject that callback on the basis of its earlier prompt epoch. These are
+component reproduction results, not proof of a successful native unlock or an
+authentication bypass.
+
+The narrow follow-up retains effect cleanup and allows one automatic prompt per
+eligible principal/session. A PIN submission consumes that scope's automatic
+attempt. Cancellation or authentication failure leaves PIN fallback available;
+ordinary logging state changes cannot open another prompt. A real principal or
+login-method change and a completed cooldown may permit a fresh prompt. The
+queued callback checks the existing live backup-account epoch before invoking
+native biometrics and again before dispatching its result. No authentication
+protocol or signature verification rule changed.
+
+Six added component controls preserve a failing-before comparison against the
+initial correction: **4 FAIL / 13 PASS** before, **17 PASS / 0 FAIL / 0 SKIP**
+after. They cover biometric-authentication failure, cancelled-prompt → incorrect
+PIN fallback, queued and pending batched account cycles, a new principal, and a
+completed cooldown. The existing initial-correction and PIN cases also pass.
+Focused Login ESLint remains **FAIL: 12 errors / 4 warnings** on both sources,
+with zero added/removed findings after line-offset normalization. Modified-test
+ESLint, formatting and whitespace checks pass. Whole TypeScript and native
+checks were not rerun by this follow-up; the initial patch's 943-diagnostic
+TypeScript comparison below remains historical until the combined candidate is
+checked. The new source/test delta remains within approximately 1k–3k changed
+tokens and is kept as a separate review commit.
+
 ## Demonstrated login defect
 
 The prior login function placed an asynchronous native biometric request inside

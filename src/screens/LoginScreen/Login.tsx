@@ -61,6 +61,7 @@ import ThemedColor from 'src/components/ThemedColor/ThemedColor';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { setInitialNodesSaved } from 'src/store/reducers/network';
 import { saveBackupMethodByAppId } from 'src/store/sagaActions/account';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -111,6 +112,8 @@ function LoginScreen({ navigation, route }) {
   const { allAccounts, biometricEnabledAppId } = useAppSelector((state) => state.account);
   const [forgotModal, setForgotModal] = useState(false);
   const completedLogin = useRef(false);
+  const biometricAttemptScope = useRef<string | null>(null);
+  const renderedAccountSession = currentBackupAccountSession();
 
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
@@ -170,19 +173,38 @@ function LoginScreen({ navigation, route }) {
     const biometricEnabled =
       (allAccounts.length === 0 && loginMethod === LoginMethod.BIOMETRIC) ||
       (allAccounts.length > 0 && biometricEnabledAppId !== null);
-    if (!biometricEnabled || !canLogin || isAuthenticated || loggingIn) return undefined;
+    if (!biometricEnabled || !canLogin) {
+      biometricAttemptScope.current = null;
+      return undefined;
+    }
+
+    const scope = JSON.stringify([
+      appId,
+      biometricEnabledAppId,
+      loginMethod,
+      allAccounts.length,
+      renderedAccountSession,
+    ]);
+    if (isAuthenticated || loggingIn) {
+      // An explicit PIN attempt owns this login; failure must keep its fallback
+      // available rather than reopening the biometric prompt automatically.
+      biometricAttemptScope.current = scope;
+      return undefined;
+    }
+    if (biometricAttemptScope.current === scope) return undefined;
 
     const originAppId = biometricEnabledAppId ?? appId;
     let active = true;
     const timer = setTimeout(async () => {
-      if (!active) return;
+      if (!active || currentBackupAccountSession() !== renderedAccountSession) return;
+      biometricAttemptScope.current = scope;
       try {
         const { success, signature } = await RNBiometrics.createSignature({
           promptMessage: 'Authenticate',
           payload: originAppId,
           cancelButtonText: common.usePin,
         });
-        if (!active || !success) return;
+        if (!active || !success || currentBackupAccountSession() !== renderedAccountSession) return;
         setIsBiometric(true);
         setLoginModal(true);
         setLogging(true);
@@ -206,6 +228,7 @@ function LoginScreen({ navigation, route }) {
     isAuthenticated,
     loggingIn,
     loginMethod,
+    renderedAccountSession,
   ]);
 
   useEffect(() => {
