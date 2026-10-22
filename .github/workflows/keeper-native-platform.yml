@@ -149,7 +149,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: keeper-${{ inputs.diagnostic && 'diagnostic' || 'release' }}-native-${{ inputs.platform }}-${{ inputs.source_sha }}
+          name: keeper-${{ inputs.diagnostic && 'diagnostic' || 'release' }}-native-${{ inputs.platform }}-${{ inputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/native/*/metadata.json
           if-no-files-found: error
           retention-days: 7

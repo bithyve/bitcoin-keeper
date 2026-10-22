@@ -3,6 +3,7 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -27,6 +28,25 @@ class HostedNativeHarnessTest(unittest.TestCase):
         self.patches.start()
         self.addCleanup(self.patches.stop)
         native.save({'commands': [], 'build': 'NOT RUN', 'smoke': 'NOT RUN'})
+
+    def test_metadata_records_the_current_run_attempt_without_native_credit(self):
+        source = 'a' * 40
+        for attempt in ['1', '2']:
+            with self.subTest(attempt=attempt), \
+                    mock.patch.dict(os.environ, {'KEEPER_SOURCE_SHA': source,
+                                                'KEEPER_DIAGNOSTIC': 'true',
+                                                'GITHUB_RUN_ID': '90', 'GITHUB_RUN_ATTEMPT': attempt}), \
+                    mock.patch.object(native.subprocess, 'check_output', return_value=source), \
+                    mock.patch.object(native, 'command', return_value='synthetic-tool-version'), \
+                    mock.patch.object(native, 'disk_preflight'):
+                native.record()
+            metadata = native.read()
+            self.assertEqual(metadata['source_sha'], source)
+            self.assertEqual(metadata['run_id'], '90')
+            self.assertEqual(metadata['run_attempt'], attempt)
+            self.assertTrue(metadata['diagnostic_only'])
+            for field in ['build', 'smoke', 'native_probe', 'r5_features', 'hardware', 'signing']:
+                self.assertEqual(metadata[field], 'NOT RUN')
 
     def test_success_records_command_and_duration_without_output(self):
         script = self.root / 'output.py'
