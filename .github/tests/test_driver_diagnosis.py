@@ -9,6 +9,7 @@ from pathlib import Path
 import plistlib
 import sys
 import tempfile
+import threading
 import unittest
 from unittest import mock
 import zipfile
@@ -75,6 +76,10 @@ class DriverDiagnosisTest(unittest.TestCase):
             ('Test Suite PRIVATE_SENTINEL started', 'XCODE_TEST_STARTED'),
             ('** TEST EXECUTE SUCCEEDED ** PRIVATE_SENTINEL', 'XCODE_TEST_SUCCEEDED'),
             ('server started PRIVATE_SENTINEL', 'DRIVER_SERVER_STARTED'),
+            ('PRIVATE_SENTINEL\nCommand line invocation:\nprivate continuation', 'XCODE_COMMAND_INVOCATION'),
+            ('PRIVATE_SENTINEL\nUser defaults from command line:\nprivate continuation', 'XCODE_USER_DEFAULTS'),
+            ('Domain=com.apple.CoreSimulator.SimError Code=405 PRIVATE_SENTINEL', 'ERROR_DOMAIN_CORE_SIMULATOR'),
+            ('Domain=IDETestOperationsObserverErrorDomain Code=4 PRIVATE_SENTINEL', 'ERROR_DOMAIN_IDE_TEST'),
         ]
         for payload, expected in samples:
             with self.subTest(expected=expected):
@@ -155,13 +160,16 @@ class DriverDiagnosisTest(unittest.TestCase):
             '"termination": {"private": "PRIVATE_SENTINEL"}')
 
         def capture(args, label, timeout=20):
+            if label == 'xcodebuild-sample':
+                (self.private / 'driver-xcodebuild.sample').write_text(
+                    'xpc_connection_send_message_with_reply_sync\nSimDevice installApplication\nPRIVATE_SENTINEL')
             payload = {
                 'processes': ' 123 Z xcodebuild test-without-building -destination id=' + self.device + ' PRIVATE_SENTINEL\n'
                              ' 456 S xcodebuild test-without-building -destination id=OTHER PRIVATE_SENTINEL',
                 'runner-installed': 'PRIVATE_SENTINEL app container',
                 'runner-running': '123 0 UIKitApplication:' + diagnosis.RUNNER_ID + '[PRIVATE_SENTINEL]',
                 'simulator-runner-events': 'PRIVATE_SENTINEL',
-            }[label]
+            }.get(label, 'PRIVATE_SENTINEL')
             return payload, {'label': label, 'exit_code': 0}
 
         connection = mock.Mock()
@@ -176,6 +184,8 @@ class DriverDiagnosisTest(unittest.TestCase):
         self.assertEqual(facts['runner_last_exit_codes'], [0])
         self.assertEqual(facts['owned_xcodebuild_process_count'], 1)
         self.assertEqual(facts['owned_xcodebuild_zombie_count'], 1)
+        self.assertEqual(facts['xcodebuild_sample']['stack_categories'],
+                         ['XPC_SYNC_WAIT', 'CORE_SIMULATOR', 'DEVICE_INSTALL'])
         self.assertEqual(facts['driver_port'], 22087)
         self.assertTrue(facts['driver_tcp_connects'])
         self.assertEqual(facts['driver_status_http_code'], 200)
@@ -193,11 +203,45 @@ class DriverDiagnosisTest(unittest.TestCase):
                 mock.patch.object(diagnosis.http.client, 'HTTPConnection') as http:
             facts = diagnosis.collect(self.device)
         self.assertFalse(facts['runner_installed'])
-        self.assertFalse(facts['runner_running'])
+        self.assertIsNone(facts['runner_running'])
         self.assertIsNone(facts['driver_port'])
         self.assertEqual(facts['collection_errors'], [{'stage': 'bundled_runner', 'error_type': 'ValueError'}])
         tcp.assert_not_called()
         http.assert_not_called()
+
+    def test_baseline_controls_are_bounded_read_only_and_export_no_process_text(self):
+        selected = '/Applications/Xcode_16.4.app/Contents/Developer'
+        calls = []
+
+        def capture(args, label, timeout):
+            calls.append((args, label, timeout))
+            payload = '123 S ' + selected + '/Applications/Simulator.app/Contents/MacOS/Simulator PRIVATE_SENTINEL'
+            return payload, {'label': label, 'exit_code': 0 if label == 'baseline-processes' else 124}
+
+        with mock.patch.object(diagnosis, 'capture', side_effect=capture), \
+                mock.patch.dict(os.environ, {'DEVELOPER_DIR': selected}):
+            facts = diagnosis.baseline(self.device)
+        self.assertEqual(facts['simulator_frontend_process_count'], 1)
+        self.assertTrue(facts['selected_simulator_frontend_running'])
+        self.assertEqual(calls, [
+            (['ps', '-axo', 'pid=,stat=,args='], 'baseline-processes', 10),
+            (['xcrun', 'simctl', 'listapps', self.device], 'baseline-listapps', 10),
+            (['xcrun', 'simctl', 'get_app_container', self.device, 'com.apple.Preferences', 'app'],
+             'baseline-preferences-container', 10),
+        ])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+        self.assertNotIn(selected, json.dumps(facts))
+
+    def test_timed_out_runner_lookup_and_failed_process_control_remain_unknown(self):
+        with mock.patch.object(diagnosis, 'capture', return_value=('', {'exit_code': 124})), \
+                mock.patch.object(diagnosis.Path, 'home', return_value=self.root / 'absent'):
+            facts = diagnosis.collect(self.device)
+            before = diagnosis.baseline(self.device)
+        self.assertIsNone(facts['runner_installed'])
+        self.assertIsNone(facts['runner_running'])
+        self.assertIsNone(facts['owned_xcodebuild_alive'])
+        self.assertIsNone(before['simulator_frontend_process_count'])
+        self.assertIsNone(before['selected_simulator_frontend_running'])
 
     def test_run_rejects_other_platforms_and_missing_opt_in_before_operations(self):
         for platform, opt_in in [('ANDROID', 'true'), ('IOS', ''), ('IOS', 'false')]:
@@ -227,8 +271,9 @@ class DriverDiagnosisTest(unittest.TestCase):
             finally:
                 events.append('cleanup')
 
-        def collect(device):
+        def collect(device, metadata):
             self.assertEqual(device, self.device)
+            self.assertEqual(metadata['commands'][-1]['label'], 'Check disposable iOS driver readiness')
             events.append('collect')
             return {'collection_errors': [], 'scope': 'setup only'}
 
@@ -236,14 +281,89 @@ class DriverDiagnosisTest(unittest.TestCase):
                 mock.patch.object(native, 'record'), mock.patch.object(native, 'install_maestro'), \
                 mock.patch.object(native, 'command', side_effect=original) as command, \
                 mock.patch.object(native, 'run_phase', side_effect=driver), \
+                mock.patch.object(diagnosis, 'baseline', return_value={'commands': []}), \
                 mock.patch.object(diagnosis, 'collect', side_effect=collect), \
                 self.assertRaises(RuntimeError) as failure:
             diagnosis.run()
         self.assertIs(failure.exception, original_error)
         self.assertEqual(events, ['hierarchy', 'collect', 'cleanup'])
         self.assertEqual(native.read()['driver_diagnosis']['scope'], 'setup only')
+        self.assertEqual(native.read()['driver_diagnosis']['snapshot_phase'], 'AFTER_DRIVER_COMMAND')
+        self.assertFalse(native.read()['driver_diagnosis']['hierarchy_running_before_collection'])
         self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
         self.assertEqual(command.call_count, 1)
+
+    def test_live_sampling_precedes_cli_cleanup_and_persists_after_command_metadata(self):
+        events = []
+        sampled = threading.Event()
+        original_error = RuntimeError('PRIVATE_SENTINEL original driver failure')
+
+        def before(device):
+            self.assertEqual(device, self.device)
+            events.append('baseline')
+            return {'commands': []}
+
+        def original(args, label, **kwargs):
+            events.append('hierarchy-start')
+            self.assertTrue(sampled.wait(1), 'diagnosis must sample before command returns')
+            data = native.read()
+            data['command_final_write'] = True
+            native.save(data)
+            events.append('hierarchy-finish')
+            raise original_error
+
+        def collect(device, metadata):
+            self.assertEqual(device, self.device)
+            self.assertNotIn('command_final_write', metadata)
+            self.assertNotIn('hierarchy-finish', events)
+            events.append('collect')
+            sampled.set()
+            return {'collection_errors': [], 'scope': 'live setup only'}
+
+        def driver(phase):
+            try:
+                native.command(['maestro', '--device', self.device, 'hierarchy'],
+                               'Check disposable iOS driver readiness', timeout=300, error_details=False)
+            finally:
+                events.append('cleanup')
+
+        with mock.patch.dict(os.environ, {'KEEPER_DIAGNOSTIC': 'true'}), \
+                mock.patch.object(native, 'record'), mock.patch.object(native, 'install_maestro'), \
+                mock.patch.object(native, 'command', side_effect=original) as command, \
+                mock.patch.object(native, 'run_phase', side_effect=driver), \
+                mock.patch.object(diagnosis, 'POLL_SNAPSHOT_SECONDS', 0.01), \
+                mock.patch.object(diagnosis, 'baseline', side_effect=before), \
+                mock.patch.object(diagnosis, 'collect', side_effect=collect), \
+                self.assertRaises(RuntimeError) as failure:
+            diagnosis.run()
+        self.assertIs(failure.exception, original_error)
+        self.assertEqual(events, ['baseline', 'hierarchy-start', 'collect', 'hierarchy-finish', 'cleanup'])
+        data = native.read()
+        self.assertTrue(data['command_final_write'])
+        self.assertEqual(data['driver_diagnosis']['snapshot_phase'], 'DURING_DRIVER_POLLING')
+        self.assertTrue(data['driver_diagnosis']['hierarchy_running_before_collection'])
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
+        self.assertEqual(command.call_count, 1)
+
+    def test_collection_failure_does_not_replace_original_driver_failure(self):
+        original_error = RuntimeError('PRIVATE_SENTINEL original driver failure')
+
+        def driver(phase):
+            native.command(['maestro', '--device', self.device, 'hierarchy'],
+                           'Check disposable iOS driver readiness', timeout=300, error_details=False)
+
+        with mock.patch.dict(os.environ, {'KEEPER_DIAGNOSTIC': 'true'}), \
+                mock.patch.object(native, 'record'), mock.patch.object(native, 'install_maestro'), \
+                mock.patch.object(native, 'command', side_effect=original_error), \
+                mock.patch.object(native, 'run_phase', side_effect=driver), \
+                mock.patch.object(diagnosis, 'baseline', return_value={'commands': []}), \
+                mock.patch.object(diagnosis, 'collect', side_effect=ValueError('PRIVATE_SENTINEL collection')), \
+                self.assertRaises(RuntimeError) as failure:
+            diagnosis.run()
+        self.assertIs(failure.exception, original_error)
+        facts = native.read()['driver_diagnosis']
+        self.assertEqual(facts['collection_errors'], [{'stage': 'pre_cleanup', 'error_type': 'ValueError'}])
+        self.assertNotIn('PRIVATE_SENTINEL', native.EVIDENCE.read_text())
 
 
 if __name__ == '__main__':

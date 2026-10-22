@@ -6,6 +6,7 @@ The gate trusts protected workflow/job provenance, never this writable artifact.
 """
 
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -18,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -972,11 +974,33 @@ def smoke(suite='startup'):
     report.unlink(missing_ok=True)
     metro_output = (PRIVATE / 'metro.log').open('wb')
     metro_args = ['node', 'node_modules/react-native/cli.js', 'start', '--port', '8081']
-    if is_probe or is_features:
-        metro_args += ['--config', str(ROOT / ('.github/native/r5_metro.cjs' if is_features else '.github/native/release_metro.cjs'))]
-    metro = subprocess.Popen(metro_args,
-                             cwd=ROOT, stdout=metro_output, stderr=subprocess.STDOUT, start_new_session=True)
+    startup_observer = None
+    startup_capture = None
+    startup_context = SimpleNamespace(PRIVATE=PRIVATE, PLATFORM=PLATFORM)
+    metro_env = os.environ.copy()
+    try:
+        if is_probe or is_features:
+            metro_args += ['--config', str(ROOT / ('.github/native/r5_metro.cjs' if is_features else '.github/native/release_metro.cjs'))]
+        elif PLATFORM == 'ANDROID':
+            # Observation retains the normal entrypoint/resolver/transformer and
+            # response body. Only fixed facts leave the disposable launch window.
+            spec = importlib.util.spec_from_file_location('startup_diagnosis', Path(__file__).with_name('startup_diagnosis.py'))
+            startup_observer = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(startup_observer)
+            observer_path = PRIVATE / 'startup-observer.jsonl'
+            observer_path.unlink(missing_ok=True)
+            metro_env['KEEPER_STARTUP_OBSERVER_PATH'] = str(observer_path)
+            metro_args += ['--config', str(ROOT / '.github/native/startup_observer.cjs'),
+                           '--custom-log-reporter-path', str(ROOT / '.github/native/startup_reporter.cjs')]
+        metro = subprocess.Popen(metro_args,
+                                 cwd=ROOT, stdout=metro_output, stderr=subprocess.STDOUT, start_new_session=True,
+                                 env=metro_env)
+    except Exception:
+        metro_output.close()
+        raise
     device = None
+    startup_failed = False
+    capture_cleanup_failed = False
     try:
         for _ in range(60):
             if metro.poll() is not None:
@@ -1028,6 +1052,12 @@ def smoke(suite='startup'):
         save(data)
         verify_installed_artifact(device)
         data = read()
+        if startup_observer:
+            try:
+                startup_capture = startup_observer.start(startup_context, device)
+            except Exception:
+                data['startup_observation_capture'] = 'UNAVAILABLE'
+                save(data)
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
                  '--flatten-debug-output', '--debug-output', str(PRIVATE / 'maestro-output'),
                  '--format', 'junit', '--output', str(report), '--test-output-dir', str(PRIVATE / 'maestro-output'),
@@ -1051,6 +1081,7 @@ def smoke(suite='startup'):
                                    'setup/recovery or release performance acceptance.')
         save(data)
     except Exception:
+        startup_failed = True
         try:
             if not (is_probe or is_features):
                 record_startup_failure(report, device)
@@ -1067,6 +1098,22 @@ def smoke(suite='startup'):
             save(data)
         raise
     finally:
+        if startup_observer:
+            try:
+                data = read()
+                data['startup_observation'] = startup_observer.collect(startup_context, device, startup_capture) if device else {'scope': 'App launch NOT RUN; no owned device.'}
+                save(data)
+            except Exception:
+                data = read()
+                data['startup_observation'] = {'collection_errors': ['collector']}
+                save(data)
+            try:
+                startup_observer.stop(startup_capture)
+            except Exception:
+                capture_cleanup_failed = True
+                data = read()
+                data['startup_observation_cleanup'] = 'FAIL'
+                save(data)
         if metro.poll() is None:
             os.killpg(metro.pid, signal.SIGTERM)
             try:
@@ -1082,6 +1129,11 @@ def smoke(suite='startup'):
         elif device:
             subprocess.run(['adb', '-s', device, 'uninstall', APP_IDS[PLATFORM]], stdout=subprocess.DEVNULL,
                            stderr=subprocess.DEVNULL, timeout=30, check=False)
+        if capture_cleanup_failed and not startup_failed:
+            data = read()
+            data[result_key] = 'FAIL'
+            save(data)
+            raise RuntimeError('Startup capture cleanup failed; subsequent probes cannot run.')
 
 
 def successful_junit(report):
