@@ -11,8 +11,14 @@ import Buttons from 'src/components/Buttons';
 
 const mockDispatch = jest.fn();
 const mockCreateSignature = jest.fn();
+let mockBackupSession = 0;
 const mockState = {
-  login: { hasCreds: false, authenticationFailed: false, isAuthenticated: false },
+  login: {
+    hasCreds: false,
+    authenticationFailed: false,
+    isAuthenticated: false,
+    credsAuthenticatedError: '',
+  },
   settings: { loginMethod: 'PIN' },
   account: { allAccounts: [], biometricEnabledAppId: null as string | null },
   storage: { appId: 'disposable-test', failedAttempts: 0, lastLoginFailedAt: 0 },
@@ -22,6 +28,9 @@ const mockState = {
 jest.mock('src/store/hooks', () => ({
   useAppDispatch: () => mockDispatch,
   useAppSelector: (selector) => selector(mockState),
+}));
+jest.mock('src/services/backup/transport', () => ({
+  currentBackupAccountSession: () => mockBackupSession,
 }));
 jest.mock('src/context/Localization/LocContext', () => ({
   LocalizationContext: require('react').createContext({
@@ -96,6 +105,11 @@ beforeEach(() => {
   mockDispatch.mockClear();
   mockCreateSignature.mockReset();
   mockState.login.isAuthenticated = false;
+  mockState.login.authenticationFailed = false;
+  mockState.login.credsAuthenticatedError = '';
+  mockState.storage.failedAttempts = 0;
+  mockState.storage.lastLoginFailedAt = 0;
+  mockBackupSession = 0;
   mockState.settings.loginMethod = 'PIN';
   mockState.storage.appId = 'disposable-test';
   mockState.account.biometricEnabledAppId = null;
@@ -150,6 +164,90 @@ describe('biometric login callback lifetime', () => {
       reLogin: false,
       appId: 'disposable-test',
     });
+  });
+
+  test('failed biometric authentication keeps PIN fallback without another automatic prompt', async () => {
+    mockCreateSignature.mockResolvedValue({ success: true, signature: 'synthetic-signature' });
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+    act(() => {
+      mockState.login.authenticationFailed = true;
+      (mockState.login as any).credsAuthenticatedError = 'Biometric Auth Failed';
+      screen.update(<LoginScreen navigation={navigation} route={route} />);
+    });
+    await act(async () => jest.advanceTimersByTime(200));
+    mockState.login.authenticationFailed = false;
+    (mockState.login as any).credsAuthenticatedError = '';
+    expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+  });
+
+  test('cancelled native prompt preserves PIN fallback after an incorrect PIN', async () => {
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+    enter('1111');
+    act(() => screen.root.findByType(Buttons).props.primaryCallback());
+    expect(authCalls()).toHaveLength(1);
+    expect(authCalls()[0][0].payload.method).toBe('PIN');
+    act(() => {
+      mockState.login.authenticationFailed = true;
+      mockState.login.credsAuthenticatedError = 'Incorrect Passcode';
+      screen.update(<LoginScreen navigation={navigation} route={route} />);
+    });
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+    expect(screen.root.findByType(Buttons).props.primaryDisable).toBe(true);
+  });
+
+  test('a batched A to B to A session change invalidates a pending native result', async () => {
+    let complete = (_result: { success: boolean; signature: string }) => {};
+    mockCreateSignature.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        })
+    );
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+    // Redux observes both transitions even if React only renders the final A.
+    mockBackupSession += 2;
+    await act(async () => complete({ success: true, signature: 'stale-synthetic-signature' }));
+    expect(authCalls()).toHaveLength(0);
+  });
+
+  test('a batched session change cancels the queued prompt before invoking native biometrics', async () => {
+    mockBackupSession += 2;
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).not.toHaveBeenCalled();
+    expect(authCalls()).toHaveLength(0);
+  });
+
+  test('a real principal change permits one new automatic prompt', async () => {
+    await act(async () => jest.advanceTimersByTime(200));
+    act(() => {
+      mockBackupSession += 1;
+      mockState.storage.appId = 'other-disposable-account';
+      screen.update(<LoginScreen navigation={navigation} route={route} />);
+    });
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(2);
+    expect(mockCreateSignature.mock.calls[1][0].payload).toBe('other-disposable-account');
+  });
+
+  test('a completed cooldown permits one new automatic prompt', async () => {
+    await act(async () => jest.advanceTimersByTime(200));
+    act(() => {
+      mockState.storage.failedAttempts = 1;
+      mockState.storage.lastLoginFailedAt = Date.now();
+      screen.update(<LoginScreen navigation={navigation} route={route} />);
+    });
+    await act(async () => jest.advanceTimersByTime(1000));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(1);
+    act(() => {
+      mockState.storage.lastLoginFailedAt = Date.now() - 301000;
+      screen.update(<LoginScreen navigation={navigation} route={route} />);
+    });
+    await act(async () => jest.advanceTimersByTime(200));
+    expect(mockCreateSignature).toHaveBeenCalledTimes(2);
   });
 
   test('unmount cancels a queued prompt', async () => {
