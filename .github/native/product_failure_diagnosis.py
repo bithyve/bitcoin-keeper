@@ -1,5 +1,6 @@
 """Read existing failed-sample files; export fixed observations, never raw text."""
 from itertools import islice
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -255,6 +256,18 @@ def metro_window(metro, binding):
     except Exception:
         pass
     return result
+
+
+def failed_assertion_snapshot(directory, flow, failure):
+    try:
+        spec = importlib.util.spec_from_file_location('maestro_failure_snapshot',
+            Path(__file__).with_name('maestro_failure_snapshot.py'))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.collect(directory, flow, failure)
+    except Exception:
+        return {'schema': 1, 'binding_state': 'UNKNOWN', 'reason': 'COLLECTOR_UNAVAILABLE',
+                'scope': 'POST_FAILED_ASSERT_OUTCOME_NOT_TAP_TIME'}
 
 
 def collect(directory, flow, metro, binding=None):
