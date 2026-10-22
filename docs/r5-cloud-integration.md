@@ -92,14 +92,14 @@ post-test evidence update and silently transfer results to the resulting SHA.
 | 5.2 | Owner-reported running, authoritative task/branch/PR unavailable | Running dependency; obtain checkpoint, inspect overlaps, integrate verified commits, rerun affected checks before freeze |
 | Cloud reconciliation | #7070 / `17baf3bff3a5cd96787218b9e8e1fee75f549967`; inputs #7060/#7063/#7062 | Included with original patch review links; installed-base trust and required branch protections remain separate from diagnostic execution |
 | Native production-worker witness | #7071 / `486810052f90550d55dd6ddd541ff53ebd875caa` | Included; actual Realm/MMKV worker scenarios, explicitly controlled generation/transport/dispatch; execute on exact combined source |
-| Full-product UI measurements | #7073 / `5457cb08194495ed35767db92110727ce54ef9a1` | Included; require all five numeric samples, actual normal app, cold relaunch/counts/navigation; no helper timing substitution |
+| Full-product UI measurements | #7073 / `040955d0caca38bb3cb386ca2918adf60f0f30db` | Included; require five healthy numeric samples plus a separate failed-transport/explicit-Retry fixture, actual normal app and cold relaunch/counts/navigation; no helper timing substitution or WAN-offline claim |
 | Confirmed biometric callback defects | #7069 / `257fbe17e1a85d0e5d7e5d8ab97e1a69edbd9628`, review correction `14a2459b30e31ea3099d56f6c6928a4a3b7d6995` | Included; independent review reproduced prompt repetition and stale epoch cases; 17 component controls pass, actual biometrics remain unrun |
 | Current protocol pairing | Private Relay #160 / `4db6a758a307111137ad6bb4f35a32fa15b17a9d` | 52 backend + 43 protected app + 1 upgraded-account + 3 guard cases pass at their exact documented pair; pin/retest combined app SHA |
-| Protected release preparation | #7072 / `f2fc0cb557f0e5303335dadc9e98152640795e6c` | Included; authorization/inventory preparation implemented, actual signing/distribution not verified; separate bounded worker preparation and protected setup remain |
+| Protected release preparation | #7072 / `f2fc0cb557f0e5303335dadc9e98152640795e6c`; origin correction #7074 / `551198c6a5d55d05b5ecd2cae57505ca69270264` | Included; inventory and plan controls implemented, authorization planning deliberately disabled until installed CI origin is verified. Review reproduced forged check-name acceptance; 21 corrected plan controls pass. Separate future workers/protected setup remain, with no signing/upload executed |
 | PHP exposure research | #7072, `docs/r5-cloud-release-readiness.md` | Official advisories/source assessment documented; deployed runtime inventory unknown, no Keeper exposure assertion; remedies stay R6 |
 | Navigation/timezone/PIN/copy | `docs/r5/BIOMETRIC-LIFECYCLE.md` and source tests | No speculative #7055/#6991 fix; bounded native reproduction/device checks remain. Retain shipped PIN and scoped EN/ES corrections |
 | Read-only timelock assessor | Separately recorded candidate, not identified as 5.2 | Source/handoff and complete key/origin/script/intent binding and native isolation acceptance remain; no activation or wallet clearance |
-| Independent/Claude review | Source review receipts on package PRs | Independent agent reviews performed; human/security and applicable Claude review not established; no paid activation implied |
+| Independent/Claude review | Source review receipts on package PRs; policy #7034 / reviewer #7049 | Independent agent reviews performed. Apply risk-based conditional review; policy/auth/recovery/CI changes require adequate review. Applicable Claude provider review remains unavailable without trusted installation and verified existing authorization/budget; no new paid activation or blanket human-review requirement inferred |
 | Physical acceptance / release evidence | Exact artifact and authorized tester required | Not run; no physical deferral inferred. Version/build allocation, protected signing and distribution require the specified fresh evidence and explicit approvals |
 
 The infrastructure adoption is about **54k changed code/test characters/4** across
@@ -107,10 +107,14 @@ the existing packages, much larger than an older 19k estimate. The initial new
 reconciliation was about 6.7k, with a small additional runner hook. Preserve the
 original #7060/#7063/#7062 reviews and the reconciliation-only comparison; this
 aggregate is an integration input, not a request to approve one new 54k patch.
-Native worker (~7.8k), product measurements (~8.1k), biometric correction (~4k)
+Native worker (~7.8k), product measurements (~10.1k), biometric correction (~4k)
 and release preparation (~7.2k code/test, ~12.7k including research/docs) stay
-separate. Further signing workers are a separate estimated 5–10k preparation
-package. The unknown 5.2 delta is not estimated by guessing.
+separate. Signing worker preparation grew during independent review and is split
+into bounded core authorization/platform adapters and separate orchestration/
+uploader packages, with a small locked Ruby-toolchain package. None is integrated
+into this native candidate or executed. Exact canonical-source native attestation,
+protected environments and one-time credentials remain real dependencies. The
+unknown 5.2 delta is not estimated by guessing.
 
 The first combined preflight exposed an expected-workflow allowlist mismatch
 after adding the offline release-preparation contracts. It is retained as an
