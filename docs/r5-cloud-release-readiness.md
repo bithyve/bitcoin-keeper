@@ -43,6 +43,8 @@ The executable [gate](../scripts/protected-release-plan.cjs) requires all of:
 
 The final protected job records the preparation boundary only. Its result always reports `execution_allowed: false`, `release_worker_implemented: false` and `artifact_bytes_and_signature_verified: false`. The artifact approval digest is bound to the request; this preparation package does not download/verify actual release bytes or signatures. Environment selection and shape-valid metadata alone never produce a release pass.
 
+**Future execution workers must revalidate after the protected environment approval**, immediately before any signing or upload: refresh driver/source ref identity, exact-head check and review state, approval author/scope/expiry, fresh store/version baseline, and the actual immutable artifact bytes/digest/signature/provenance. A source movement, new failure, expired/revoked approval or artifact mismatch while waiting blocks execution. The earlier preparation result cannot serve as final execution authorization, and a successful environment review cannot bypass this fresh validation. Artifact verification must use trusted driver code and must not run artifact-provided code.
+
 The owner approval receipt has this exact form (use actual reviewed identities; no receipt is created or requested by this package):
 
 ```text
