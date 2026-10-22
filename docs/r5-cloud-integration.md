@@ -92,7 +92,7 @@ post-test evidence update and silently transfer results to the resulting SHA.
 | 5.2 | Owner-reported running, authoritative task/branch/PR unavailable | Running dependency; obtain checkpoint, inspect overlaps, integrate verified commits, rerun affected checks before freeze |
 | Cloud reconciliation | #7070 / `17baf3bff3a5cd96787218b9e8e1fee75f549967`; inputs #7060/#7063/#7062 | Included with original patch review links; installed-base trust and required branch protections remain separate from diagnostic execution |
 | Native production-worker witness | #7071 / `486810052f90550d55dd6ddd541ff53ebd875caa` | Included; actual Realm/MMKV worker scenarios, explicitly controlled generation/transport/dispatch; execute on exact combined source |
-| Full-product UI measurements | #7073 / `0c8e4dc17fa98937209c34b61c316858ded73591` and reviewed follow-ups | Included; require all five numeric samples, actual normal app, cold relaunch/counts/navigation; no helper timing substitution |
+| Full-product UI measurements | #7073 / `5457cb08194495ed35767db92110727ce54ef9a1` | Included; require all five numeric samples, actual normal app, cold relaunch/counts/navigation; no helper timing substitution |
 | Confirmed biometric callback defects | #7069 / `257fbe17e1a85d0e5d7e5d8ab97e1a69edbd9628`, review correction `14a2459b30e31ea3099d56f6c6928a4a3b7d6995` | Included; independent review reproduced prompt repetition and stale epoch cases; 17 component controls pass, actual biometrics remain unrun |
 | Current protocol pairing | Private Relay #160 / `4db6a758a307111137ad6bb4f35a32fa15b17a9d` | 52 backend + 43 protected app + 1 upgraded-account + 3 guard cases pass at their exact documented pair; pin/retest combined app SHA |
 | Protected release preparation | #7072 / `f2fc0cb557f0e5303335dadc9e98152640795e6c` | Included; authorization/inventory preparation implemented, actual signing/distribution not verified; separate bounded worker preparation and protected setup remain |
@@ -107,7 +107,7 @@ the existing packages, much larger than an older 19k estimate. The initial new
 reconciliation was about 6.7k, with a small additional runner hook. Preserve the
 original #7060/#7063/#7062 reviews and the reconciliation-only comparison; this
 aggregate is an integration input, not a request to approve one new 54k patch.
-Native worker (~7.8k), product measurements (~6k), biometric correction (~4k)
+Native worker (~7.8k), product measurements (~8.1k), biometric correction (~4k)
 and release preparation (~7.2k code/test, ~12.7k including research/docs) stay
 separate. Further signing workers are a separate estimated 5–10k preparation
 package. The unknown 5.2 delta is not estimated by guessing.
