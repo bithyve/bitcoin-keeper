@@ -19,7 +19,8 @@ function enhanceMiddleware(middleware, server) {
         options.platform = enumeration(query.get('platform'), ['android', 'ios']);
         options.sourcePaths = enumeration(query.get('sourcePaths'), ['url-server', 'absolute']);
         options.engine = enumeration(query.get('transform.engine'), ['hermes', 'jsc']);
-        options.app = query.has('app') ? query.get('app') === 'io.hexawallet.keeper.development' ? 'EXPECTED' : 'OTHER' : null;
+        const expectedApp = { android: 'io.hexawallet.keeper.development', ios: 'io.hexawallet.hexakeeper.dev' }[query.get('platform')];
+        options.app = query.has('app') ? expectedApp && query.get('app') === expectedApp ? 'EXPECTED' : 'OTHER' : null;
         const started = Date.now();
         emit({ kind: 'REQUEST', request: kind, options });
         res.once('finish', () => {

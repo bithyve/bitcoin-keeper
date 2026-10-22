@@ -106,3 +106,22 @@ test('emits only fixed error/query categories and caps rows', () => {
   assert.equal(new disabled.Reporter({}).update({ type: 'bundle_build_done' }), 31);
   assert.equal(disabled.rows.length, 0);
 });
+
+test('expected app enums bind each platform without exporting either identifier or arbitrary query data', () => {
+  for (const [platform, app, expected] of [
+    ['ios', 'io.hexawallet.hexakeeper.dev', 'EXPECTED'],
+    ['android', 'io.hexawallet.keeper.development', 'EXPECTED'],
+    ['ios', 'io.hexawallet.keeper.development', 'OTHER'],
+    ['android', 'io.hexawallet.hexakeeper.dev', 'OTHER'],
+    ['PRIVATE_SENTINEL', 'io.hexawallet.hexakeeper.dev', 'OTHER'],
+    ['ios', 'PRIVATE_SENTINEL', 'OTHER'],
+  ]) {
+    const loaded = load({});
+    const handler = loaded.config.server.enhanceMiddleware(() => 23, {});
+    const request = { url: `/index.bundle?platform=${platform}&app=${app}&PRIVATE_SENTINEL=private` };
+    assert.equal(handler(request, new EventEmitter(), () => {}), 23);
+    assert.equal(loaded.rows[0].options.app, expected);
+    assert(!JSON.stringify(loaded.rows).includes('PRIVATE_SENTINEL'));
+    assert(!JSON.stringify(loaded.rows).includes('io.hexawallet'));
+  }
+});

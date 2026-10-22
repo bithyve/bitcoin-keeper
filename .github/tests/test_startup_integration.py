@@ -37,7 +37,7 @@ class StartupIntegrationTest(unittest.TestCase):
         self.spawn_error = OSError('PRIVATE_SENTINEL Metro spawn failure')
 
     def start(self, context, device):
-        self.assertEqual(context.PLATFORM, 'ANDROID')
+        self.assertEqual(context.PLATFORM, self.platform)
         self.assertEqual(context.PRIVATE, self.root)
         self.assertEqual(device, self.device)
         self.events.append('capture-start')
@@ -58,6 +58,8 @@ class StartupIntegrationTest(unittest.TestCase):
                  import_fails=False, popen_fails=False, receipt_fails=None,
                  cleanup_fails=(), diagnostics_fail=False, install_timeout=False,
                  install_fails=False, readiness_fails=False):
+        self.platform = platform
+        self.device = ('12345678-1234-1234-1234-123456789ABC' if platform == 'IOS' else 'emulator-5554')
         captured = {}
         original_read, original_save, original_unlink = native.read, native.save, Path.unlink
         original_command = native.command
@@ -98,6 +100,7 @@ class StartupIntegrationTest(unittest.TestCase):
             if label.startswith('Assert '):
                 self.events.append('maestro')
                 captured['flow'] = args[-1]
+                captured['maestro_args'], captured['maestro_options'] = args, kwargs
                 if smoke_fails:
                     raise self.original_error
 
@@ -335,6 +338,16 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertEqual(value['flow'], '.github/native/startup.yaml')
         self.assertEqual(self.events.count('installed-proof'), 2)
         self.assertEqual(value['metadata']['smoke'], 'PASS')
+        self.assertEqual(value['metadata']['startup_observation']['scope'], 'startup only')
+        self.assertEqual(value['maestro_options'], {'timeout': 420, 'error_details': True})
+        self.assertEqual(self.events.count('maestro'), 1)
+        self.assertLess(self.events.index('installed-proof'), self.events.index('capture-start'))
+        self.assertLess(self.events.index('capture-start'), self.events.index('maestro'))
+        self.assertLess(self.events.index('maestro'), self.events.index('capture-collect'))
+        self.assertLess(self.events.index('capture-collect'), self.events.index('device-shutdown'))
+        self.assertEqual(value['metro_args'][-4:], [
+            '--config', str(self.root / '.github/native/startup_observer.cjs'),
+            '--custom-log-reporter-path', str(self.root / '.github/native/startup_reporter.cjs')])
 
     def test_ios_install_observation_delegates_once_after_readiness_before_proof_and_ui(self):
         value = self.exercise(platform='IOS')
@@ -349,7 +362,7 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertLess(self.events.index('app-services-ready'), self.events.index('install-observe'))
         self.assertLess(self.events.index('install-observe'), self.events.index('installed-proof'))
         self.assertLess(self.events.index('installed-proof'), self.events.index('maestro'))
-        self.assertNotIn('capture-start', self.events)
+        self.assertEqual(self.events.count('capture-start'), 1)
         self.assertIn('device-shutdown', self.events)
         self.assertIn('device-delete', self.events)
 
@@ -445,10 +458,11 @@ class StartupIntegrationTest(unittest.TestCase):
         for name in ['build-artifact', 'maestro.zip']:
             self.assertTrue((self.root / name).exists())
 
-    def test_probes_and_ios_preserve_their_existing_metro_configuration_without_observation(self):
+    def test_probes_on_both_platforms_preserve_existing_metro_configuration_without_observation(self):
         for suite, platform, config in [('probe', 'ANDROID', 'release_metro.cjs'),
                                          ('features', 'ANDROID', 'r5_metro.cjs'),
-                                         ('startup', 'IOS', None)]:
+                                         ('probe', 'IOS', 'release_metro.cjs'),
+                                         ('features', 'IOS', 'r5_metro.cjs')]:
             with self.subTest(suite=suite, platform=platform):
                 self.events.clear()
                 value = self.exercise(suite=suite, platform=platform)
@@ -459,6 +473,18 @@ class StartupIntegrationTest(unittest.TestCase):
                     self.assertEqual(value['metro_args'][-2:], ['--config', str(self.root / '.github/native' / config)])
                 else:
                     self.assertNotIn('--config', value['metro_args'])
+
+    def test_ios_observation_failure_never_masks_the_original_ui_error_or_skips_cleanup(self):
+        value = self.exercise(platform='IOS', smoke_fails=True, collect_fails=True)
+        self.assertIs(value['error'], self.original_error)
+        self.assertEqual(value['metadata']['smoke'], 'FAIL')
+        self.assertEqual(value['metadata']['startup_observation'], {'collection_errors': ['collector']})
+        self.assertEqual(self.events.count('maestro'), 1)
+        self.assertEqual(value['maestro_options']['timeout'], 420)
+        for event in ['capture-stop', 'metro-stop', 'device-shutdown', 'device-delete',
+                      'purge-startup-observer.jsonl']:
+            self.assertIn(event, self.events)
+        self.assertNotIn('PRIVATE_SENTINEL', str(value['metadata']))
 
 
 if __name__ == '__main__':

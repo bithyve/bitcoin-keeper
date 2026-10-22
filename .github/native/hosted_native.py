@@ -174,8 +174,21 @@ def ios_startup_diagnostics(payload, executable):
     pattern = re.compile(r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?'
                          r'(?:[+-]\d{2}:?\d{2}|Z)?\s+(\S+)\s+'
                          r'([A-Za-z0-9_.-]+)\[\d+:[A-Fa-f0-9x]+\]\s+(.*)$')
-    selected = []
-    matched = 0
+    patterns = {
+        'JS_TYPE': r'\bTypeError\b', 'JS_REFERENCE': r'\bReferenceError\b',
+        'JS_SYNTAX': r'\bSyntaxError\b', 'JS_RANGE': r'\bRangeError\b',
+        'JS_INVARIANT': r'Invariant Violation|has not been registered',
+        'REACT_FATAL': r'\bRCTFatal\b|Unhandled JS Exception|\bRCTExceptionsManager\b|Exception in HostFunction',
+        'OBJC_EXCEPTION': r'\bNS(?:InvalidArgument|InternalInconsistency|Range|Generic|Malloc)?Exception\b|terminating app due to uncaught exception',
+        'NATIVE_MODULE': r'TurboModuleRegistry.*could not be found|Native module cannot be null|Cannot find native module',
+        'NATIVE_LIBRARY': r'Library not loaded|Symbol not found|dyld.*(?:not found|failed|error)',
+        'HERMES_EXCEPTION': r'hermes.*(?:exception|fatal|error|failed)|(?:exception|fatal|error).*hermes',
+        'BUNDLE_LOAD': r'No script URL provided|No bundle URL present|Unable to load script|(?:Could not|Failed to) load bundle|Could not connect to development server',
+        'ATS_BLOCKED': r'App Transport Security.*(?:blocked|requires)|NSURLErrorDomain.*-1022\b',
+        'CONNECTION': r'ECONNREFUSED|Connection refused|NSURLErrorDomain.*-(?:1001|1003|1004|1009)\b|The Internet connection appears to be offline',
+    }
+    selected, counts = [], {name: 0 for name in patterns}
+    matched, errors, classified = 0, 0, 0
     for line in payload.splitlines():
         match = pattern.match(line)
         if not match:
@@ -184,13 +197,23 @@ def ios_startup_diagnostics(payload, executable):
         if process != executable:
             continue
         matched += 1
-        if severity.lower() in ['e', 'f', 'er', 'ft', 'error', 'fault'] or re.search(
+        found = [name for name, regex in patterns.items() if re.search(regex, message, re.IGNORECASE)]
+        if found or severity.lower() in ['e', 'f', 'er', 'ft', 'error', 'fault'] or re.search(
                 r'(?:\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b)',
                 message, re.IGNORECASE):
             if not selected:
                 selected.append('IOS_STARTUP_ERROR')
+            errors += 1
+            classified += bool(found)
+            for name in found:
+                counts[name] += 1
     return {'format': 'compact', 'matching_process_records': matched,
-            'errors': selected}
+            'errors': selected, 'observation_state': 'OWN_RECORDS_OBSERVED' if matched else 'UNKNOWN',
+            'error_records': errors, 'classified_error_records': classified,
+            'unclassified_error_records': errors - classified,
+            'categories': [name for name, count in counts.items() if count],
+            'category_record_counts': counts,
+            'scope': 'Fixed markers in prefixed own-process records; marker presence is not failure-cause or crash proof.'}
 
 
 def startup_hierarchy_signals(directory):
@@ -405,7 +428,7 @@ def record_startup_failure(report, device):
                     code = result.returncode
                 except subprocess.TimeoutExpired:
                     code = 124
-            result = {'command': args, 'exit_code': code, 'errors': []}
+            result = {'command': args, 'exit_code': code, 'errors': [], 'observation_state': 'UNKNOWN'}
             if code == 0:
                 try:
                     payload, truncated = private_log_prefix(path)
@@ -1004,7 +1027,7 @@ def smoke(suite='startup'):
     try:
         if is_probe or is_features:
             metro_args += ['--config', str(ROOT / ('.github/native/r5_metro.cjs' if is_features else '.github/native/release_metro.cjs'))]
-        elif PLATFORM == 'ANDROID':
+        elif PLATFORM in ['ANDROID', 'IOS']:
             # Observation retains the normal entrypoint/resolver/transformer and
             # response body. Only fixed facts leave the disposable launch window.
             spec = importlib.util.spec_from_file_location('startup_diagnosis', Path(__file__).with_name('startup_diagnosis.py'))

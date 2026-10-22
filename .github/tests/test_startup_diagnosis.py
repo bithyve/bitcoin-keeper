@@ -67,6 +67,8 @@ class StartupDiagnosisTests(unittest.TestCase):
         self.assertTrue(facts['hierarchy']['logbox_controls'])
         self.assertTrue(facts['foreground']['own_app_resumed'])
         self.assertTrue(facts['process']['alive'])
+        self.assertNotIn('coverage', facts['metro'], 'Android receipt schema stays unchanged')
+        self.assertNotIn('producer_row_limit', facts['metro'])
 
     def test_failed_malformed_foreign_and_truncated_queries_do_not_claim_absence(self):
         for code, pid, foreground, oversized in [
@@ -104,6 +106,153 @@ class StartupDiagnosisTests(unittest.TestCase):
         payload, truncated = diagnosis._read(self.native, small)
         self.assertFalse(truncated)
         self.assertEqual(len(json.loads(payload)['padding']), 600 * 1024)
+
+    def test_ios_timestamp_only_start_collects_metro_on_success_without_native_commands(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        rows = [
+            {'time_ms': 149, 'kind': 'BUILD', 'event': 'bundle_build_done'},
+            {'time_ms': 150, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE',
+             'options': {'platform': 'ios', 'app': 'EXPECTED', 'private': 'PRIVATE_SENTINEL'}},
+            {'time_ms': 151, 'kind': 'RESPONSE', 'request': 'ENTRY_BUNDLE', 'outer_http_status': 200},
+        ]
+        (self.root / 'startup-observer.jsonl').write_text('\n'.join(json.dumps(row) for row in rows))
+        with mock.patch.object(diagnosis.time, 'time', return_value=0.150), \
+                mock.patch.object(diagnosis.subprocess, 'Popen') as popen, \
+                mock.patch.object(diagnosis.subprocess, 'run') as run:
+            handle = diagnosis.start(native, device)
+            facts = diagnosis.collect(native, device, handle)
+            diagnosis.stop(handle)
+        self.assertEqual(handle.started_ms, 150)
+        self.assertIsNone(handle.process)
+        self.assertIsNone(handle.output)
+        popen.assert_not_called()
+        run.assert_not_called()
+        self.assertEqual([row['stage'] for row in facts['metro']['rows']],
+                         ['BEFORE_APP', 'APP_WINDOW', 'APP_WINDOW'])
+        self.assertEqual(facts['metro']['rows'][-1]['outer_http_status'], 200)
+        self.assertEqual(facts['metro']['observation_state'], 'ROWS_OBSERVED')
+        self.assertEqual(facts['metro']['coverage'], 'BOUNDED_INPUT_ONLY')
+        self.assertEqual(facts['metro']['valid_rows_in_scanned_input'], 3)
+        self.assertEqual(facts['metro']['exported_rows'], 3)
+        self.assertEqual(facts['process']['state'], 'UNKNOWN')
+        self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+        self.assertIsNone(facts['hierarchy']['login'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+
+    def test_ios_missing_or_malformed_observation_does_not_invent_absence_or_app_stage(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        facts = diagnosis.collect(native, device)
+        self.assertEqual(facts['metro']['observation_state'], 'UNKNOWN')
+        self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+        self.assertIn('metro', facts['collection_errors'])
+        (self.root / 'startup-observer.jsonl').write_text(json.dumps(
+            {'time_ms': 150, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE', 'options': {'platform': 'ios'}}))
+        folder = self.root / 'maestro-output' / 'screen-hierarchy'
+        folder.mkdir(parents=True)
+        (folder / 'step-1.json').write_text('{PRIVATE_SENTINEL')
+        facts = diagnosis.collect(native, device)
+        self.assertEqual(facts['metro']['rows'][0]['stage'], 'UNKNOWN')
+        self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+        self.assertIsNone(facts['hierarchy']['credential_error'])
+        self.assertIn('hierarchy', facts['collection_errors'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+        for invalid in ['booted', 'emulator-5554', 'physical-PRIVATE_SENTINEL']:
+            with self.assertRaises(ValueError):
+                diagnosis.start(native, invalid)
+
+    def test_ios_public_login_and_modern_logbox_text_is_presence_only_and_fixed(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        folder = self.root / 'maestro-output' / 'screen-hierarchy'
+        folder.mkdir(parents=True)
+        path = folder / 'step-1.json'
+        def snapshot(values):
+            path.write_text(json.dumps({'children': [
+                {'attributes': {'accessibilityText': value}} for value in values]}))
+            return diagnosis.hierarchy(native, folder.parent)
+        public = ['Enter your passcode', 'Welcome Back',
+                  'Unable to check your passcode. Please try again.', 'Retry',
+                  'Uncaught Error', 'Console Warning', 'Failed to compile',
+                  'This error cannot be dismissed.', 'Dismiss', 'Minimize',
+                  'Log 2 of 11', 'please wait', 'PRIVATE_SENTINEL']
+        facts = snapshot(public)
+        for name in ['login', 'welcome_back', 'credential_error', 'retry', 'loading',
+                     'logbox_error_header', 'logbox_warning_header', 'logbox_syntax_footer',
+                     'logbox_controls', 'logbox_counter']:
+            self.assertTrue(facts[name], name)
+        self.assertFalse(facts['redbox_resource'], 'modern text need not expose native IDs')
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+        facts = snapshot(['Retry', 'PRIVATE_SENTINEL Enter your passcode', 'Log 0 of 3'])
+        self.assertTrue(facts['retry'])
+        for name in ['login', 'credential_error', 'loading', 'logbox_controls', 'logbox_counter']:
+            self.assertFalse(facts[name], name)
+
+    def test_ios_incomplete_or_excess_hierarchy_stays_unknown(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        folder = self.root / 'maestro-output' / 'screen-hierarchy'
+        folder.mkdir(parents=True)
+        path = folder / 'step-1.json'
+        path.write_bytes(b'PRIVATE_SENTINEL' + b'x' * (1024 * 1024 + 1))
+        facts = diagnosis.collect(native, device)
+        self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+        self.assertIsNone(facts['hierarchy']['login'])
+        for index in range(1, 10):
+            (folder / ('step-%d.json' % index)).write_text('{}')
+        facts = diagnosis.collect(native, device)
+        self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+        self.assertIsNone(facts['hierarchy']['logbox_error_header'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+
+    def test_ios_malformed_category_shapes_are_invalid_not_substring_or_key_matches(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        invalid = ['PRIVATE_SENTINELTYPE', {'TYPE': 'PRIVATE_SENTINEL'}, None, True, [True], [['TYPE']]]
+        rows = [{'time_ms': 150, 'kind': 'ERROR', 'event': 'bundling_error',
+                 'categories': value} for value in invalid]
+        rows.append({'time_ms': 150, 'kind': 'ERROR', 'event': 'bundling_error',
+                     'categories': ['TYPE', 'PRIVATE_SENTINEL']})
+        (self.root / 'startup-observer.jsonl').write_text('\n'.join(json.dumps(row) for row in rows))
+        facts = diagnosis.collect(native, device)
+        self.assertEqual(facts['metro']['invalid_rows'], len(invalid))
+        self.assertEqual(len(facts['metro']['rows']), 1)
+        self.assertEqual(facts['metro']['rows'][0]['categories'], ['TYPE'])
+        self.assertEqual(facts['metro']['valid_rows_in_scanned_input'], 1)
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+
+    def test_ios_row_caps_expose_bounded_counts_and_conservative_coverage(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        row = {'time_ms': 150, 'kind': 'BUILD', 'event': 'bundle_build_done'}
+        for count in [511, 512, 513, 1025]:
+            with self.subTest(count=count):
+                (self.root / 'startup-observer.jsonl').write_text('\n'.join(json.dumps(row) for _ in range(count)))
+                facts = diagnosis.collect(native, device)['metro']
+                self.assertEqual((facts['producer_row_limit'], facts['export_row_limit'], facts['line_scan_limit']),
+                                 (512, 512, 1024))
+                self.assertEqual(facts['valid_rows_in_scanned_input'], min(count, 1024))
+                self.assertEqual(facts['exported_rows'], min(count, 512))
+                self.assertEqual(len(facts['rows']), min(count, 512))
+                self.assertEqual(facts['producer_limit_may_be_reached'], count >= 512)
+                self.assertEqual(facts['export_truncated'], count > 512)
+                self.assertEqual(facts['line_scan_truncated'], count > 1024)
+                self.assertEqual(facts['coverage'], 'BOUNDED_INPUT_ONLY' if count < 512 else 'PARTIAL_OR_CAPPED')
+
+    def test_ios_supplied_falsey_nonobject_attributes_and_nonlist_children_stay_unknown(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        folder = self.root / 'maestro-output' / 'screen-hierarchy'
+        folder.mkdir(parents=True)
+        for field, values in [('attributes', [[], None, False, 0, '']),
+                              ('children', [{}, None, False, 0, ''])]:
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    (folder / 'step-1.json').write_text(json.dumps({field: value}))
+                    facts = diagnosis.collect(native, device)
+                    self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
+                    self.assertIsNone(facts['hierarchy']['credential_error'])
+                    self.assertIn('hierarchy', facts['collection_errors'])
 
 
 if __name__ == '__main__':
