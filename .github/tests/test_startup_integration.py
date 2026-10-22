@@ -100,6 +100,7 @@ class StartupIntegrationTest(unittest.TestCase):
             if label.startswith('Assert '):
                 self.events.append('maestro')
                 captured['flow'] = args[-1]
+                captured['maestro_args'], captured['maestro_options'] = args, kwargs
                 if smoke_fails:
                     raise self.original_error
 
@@ -337,6 +338,16 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertEqual(value['flow'], '.github/native/startup.yaml')
         self.assertEqual(self.events.count('installed-proof'), 2)
         self.assertEqual(value['metadata']['smoke'], 'PASS')
+        self.assertEqual(value['metadata']['startup_observation']['scope'], 'startup only')
+        self.assertEqual(value['maestro_options'], {'timeout': 420, 'error_details': True})
+        self.assertEqual(self.events.count('maestro'), 1)
+        self.assertLess(self.events.index('installed-proof'), self.events.index('capture-start'))
+        self.assertLess(self.events.index('capture-start'), self.events.index('maestro'))
+        self.assertLess(self.events.index('maestro'), self.events.index('capture-collect'))
+        self.assertLess(self.events.index('capture-collect'), self.events.index('device-shutdown'))
+        self.assertEqual(value['metro_args'][-4:], [
+            '--config', str(self.root / '.github/native/startup_observer.cjs'),
+            '--custom-log-reporter-path', str(self.root / '.github/native/startup_reporter.cjs')])
 
     def test_ios_install_observation_delegates_once_after_readiness_before_proof_and_ui(self):
         value = self.exercise(platform='IOS')
