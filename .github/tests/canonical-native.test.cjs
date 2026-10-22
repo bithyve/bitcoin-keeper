@@ -109,6 +109,24 @@ function collect(f, output) {
   return driver.collect(f.github, f.context, f.request, output, raw => raw, { pinReader: f.pinReader });
 }
 
+test('installed public proof comes only from complete fresh raw collection and is immutable', async () => {
+  const f = fixture();
+  const proof = await driver.collectInstalledPublicEvidence(f.github, f.context, f.request, raw => raw, { pinReader: f.pinReader });
+  assert.equal(driver.isInstalledPublicEvidence(proof), true);
+  assert.equal(Object.isFrozen(proof.platforms.IOS.executed_checks), true);
+  assert.equal(driver.isInstalledPublicEvidence({ ...proof }), false);
+  assert.equal(driver.isInstalledPublicEvidence(JSON.parse(JSON.stringify(proof))), false);
+  assert.equal(proof.platforms.IOS.cases.filter(row => row.status === 'NOT IMPLEMENTED').length, 5);
+});
+test('public proof rejects contradictory raw success and a different invocation context', async () => {
+  for (const change of [f => { f.context.sha = 'f'.repeat(40); }, f => { f.context.eventName = 'push'; },
+    f => { f.metadata.IOS.smoke = 'FAIL'; f.archives[0] = Buffer.from(JSON.stringify(f.metadata.IOS));
+      f.artifacts[0].digest = `sha256:${hash(f.archives[0])}`; f.artifacts[0].size_in_bytes = f.archives[0].length; }]) {
+    const f = fixture(); change(f);
+    await assert.rejects(driver.collectInstalledPublicEvidence(f.github, f.context, f.request, raw => raw, { pinReader: f.pinReader }));
+  }
+});
+
 test('dedicated pin identity is mandatory and removed from child-process environment', () => {
   const instances = [];
   class Octokit {

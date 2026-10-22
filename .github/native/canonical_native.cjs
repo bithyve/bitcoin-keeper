@@ -19,6 +19,11 @@ const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const demand = (condition, code) => { if (!condition) throw new Error(code); };
 const artifactName = (platform, request) => `keeper-canonical-native-${platform}-${request.sourceSha}-${request.runId}-${request.attempt}`;
 const attestationName = request => `keeper-canonical-native-attestation-${request.sourceSha}-${request.runId}-${request.attempt}`;
+const publicProofs = new WeakSet();
+function freeze(value) {
+  if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
+  return value;
+}
 
 function requestFromEnvironment(context, env) {
   const request = { sourceSha: env.KEEPER_SOURCE_SHA, workflowSha: env.GITHUB_WORKFLOW_SHA,
@@ -189,8 +194,10 @@ function validateMetadata(metadata, request, platform, workerSources) {
   return { cases, executed_checks: checks };
 }
 
-async function collect(github, context, request, output, readZip, { pinReader } = {}) {
-  fs.rmSync(path.join(output, 'keeper-canonical-native-attestation.json'), { force: true });
+async function collectPublic(github, context, request, readZip, { pinReader } = {}) {
+  requestFromEnvironment(context, { KEEPER_SOURCE_SHA: request.sourceSha, GITHUB_WORKFLOW_SHA: request.workflowSha,
+    GITHUB_WORKFLOW_REF: request.workflowRef, KEEPER_CANONICAL_NATIVE_DRIVER_SHA: request.pin,
+    GITHUB_RUN_ID: String(request.runId), GITHUB_RUN_ATTEMPT: String(request.attempt) });
   const { run } = await origin(github, context, request, { pinReader });
   await platformJobs(github, context, request, run);
   // Compare full-file worker hashes with fixed committed inputs, independently
@@ -232,12 +239,30 @@ async function collect(github, context, request, output, readZip, { pinReader } 
   await origin(github, context, request, { pinReader });
   const commit = (await github.rest.git.getCommit({ ...context.repo, commit_sha: request.sourceSha })).data;
   demand(commit.sha === request.sourceSha && SHA.test(commit.tree?.sha || ''), 'CANONICAL_SOURCE_TREE_UNVERIFIED');
-  const complete = Object.values(platforms).every(item => item.cases.length === REQUIRED.length &&
-    item.cases.every(test => test.status === 'PASS') && Object.values(item.executed_checks).every(test => test.status === 'PASS'));
-  const result = { schema: 1, kind: 'keeper-canonical-native', repository: REPOSITORY,
+  const result = freeze({ schema: 1, kind: 'keeper-installed-public-software', repository: REPOSITORY,
     source_sha: request.sourceSha, source_tree: commit.tree.sha, workflow_sha: request.workflowSha,
     workflow_path: WORKFLOW, run_id: request.runId, run_attempt: request.attempt,
-    selected_route: 'canonical-hosted-native', platforms, feature_matrix_complete: complete };
+    selected_route: 'canonical-hosted-native', platforms, worker_sources: workerSources });
+  if (Object.values(platforms).every(item => item.cases.slice(0, 2).every(test => test.status === 'PASS') &&
+    Object.values(item.executed_checks).every(test => test.status === 'PASS'))) publicProofs.add(result);
+  return result;
+}
+
+async function collectInstalledPublicEvidence(github, context, request, readZip, options = {}) {
+  const result = await collectPublic(github, context, request, readZip, options);
+  demand(publicProofs.has(result), 'CANONICAL_PUBLIC_SOFTWARE_INCOMPLETE');
+  return result;
+}
+
+async function collect(github, context, request, output, readZip, { pinReader } = {}) {
+  fs.rmSync(path.join(output, 'keeper-canonical-native-attestation.json'), { force: true });
+  const publicProof = await collectPublic(github, context, request, readZip, { pinReader });
+  const { kind, worker_sources, ...publicFields } = publicProof;
+  // Admission is a separate source capability; the parent collector is stacked
+  // separately. Public raw facts alone keep all five parents blocking.
+  const complete = Object.values(publicProof.platforms).every(item => item.cases.length === REQUIRED.length &&
+    item.cases.every(test => test.status === 'PASS') && Object.values(item.executed_checks).every(test => test.status === 'PASS'));
+  const result = { ...publicFields, kind: 'keeper-canonical-native', feature_matrix_complete: complete };
   fs.mkdirSync(output, { recursive: true });
   fs.writeFileSync(path.join(output, complete ? 'keeper-canonical-native-attestation.json' :
     'keeper-canonical-native-readiness.json'), JSON.stringify(result, null, 2) + '\n');
@@ -254,4 +279,5 @@ function readMetadataZip(archive) {
 }
 module.exports = { REPOSITORY, REPOSITORY_ID, WORKFLOW, WORKER, APP_ID, requestFromEnvironment,
   pinReaderFromEnvironment, origin, requiredSteps, platformJobs, validateMetadata, collect,
-  artifactName, attestationName, readMetadataZip };
+  artifactName, attestationName, readMetadataZip, collectInstalledPublicEvidence,
+  isInstalledPublicEvidence: value => publicProofs.has(value) };
