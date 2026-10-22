@@ -26,6 +26,9 @@ RETRY_STAGES = ('retry_fixture_start', 'retry_error_visible', 'retry_submit', 'r
                 'retry_relaunch_start', 'retry_relaunch_login', 'retry_relaunch_home')
 PORT = 8765
 SAMPLE_COUNT = 5
+PIN_MARKERS = ('confirm_passcode_visible', 'confirmation_digits_tapped', 'create_tapped',
+               'continue_visible', 'continue_tapped', 'cancel_visible', 'cancel_tapped',
+               'skip_visible', 'skip_tapped', 'start_new_visible')
 
 
 def native_module(name):
@@ -50,6 +53,19 @@ def run_post_key_companions(h, data, device, private, receipt, metro, installed_
         metro.ensure_product()
 
 
+def android_failure_observation(private, device):
+    """Best-effort fixed runtime facts; never replace the sample's failure."""
+    scope = 'Failed sample runtime only; no current product Metro log is supplied. Cause remains undetermined.'
+    try:
+        spec = importlib.util.spec_from_file_location('product_android_failure_diagnosis',
+            Path(__file__).with_name('android_startup_diagnosis.py'))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return {'status': 'COLLECTED', 'scope': scope, 'facts': module.collect(private, device)}
+    except Exception:
+        return {'status': 'UNAVAILABLE', 'scope': scope}
+
+
 class Receipt:
     """Fixed vocabulary and numbers only; never store a request body/identifier."""
     def __init__(self):
@@ -62,6 +78,7 @@ class Receipt:
             self.create_calls, self.blocked_calls = 0, 0
             self.retry, self.stages = retry, RETRY_STAGES if retry else STAGES
             self.dropped, self.acknowledged, self.unexpected = 0, 0, 0
+            self.pin_marker_count = 0
 
     def create_attempt(self):
         with self.lock:
@@ -84,8 +101,23 @@ class Receipt:
             self.times.append(time.monotonic_ns())
             return True
 
+    def mark_pin(self, marker):
+        """Record a fixed prefix independently of performance/backend state."""
+        with self.lock:
+            if (type(marker) is not str or self.pin_marker_count >= len(PIN_MARKERS)
+                    or marker != PIN_MARKERS[self.pin_marker_count]):
+                return False
+            self.pin_marker_count += 1
+            return True
+
     def snapshot(self, passed=False):
         with self.lock:
+            pin_progress = {
+                'scope': 'Host marker acknowledgements only; missing markers do not identify an app defect.',
+                'completed_markers': list(PIN_MARKERS[:self.pin_marker_count]),
+                'next_marker': PIN_MARKERS[self.pin_marker_count] if self.pin_marker_count < len(PIN_MARKERS) else None,
+                'complete': self.pin_marker_count == len(PIN_MARKERS),
+            }
             if self.retry:
                 if passed and (len(self.times) != len(RETRY_STAGES) or
                                (self.create_calls, self.dropped, self.acknowledged, self.unexpected) != (2, 1, 1, 0)):
@@ -94,6 +126,7 @@ class Receipt:
                 return {'sample': self.sample, 'status': 'PASS' if passed else 'FAIL',
                         'scenario': 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE',
                         'completed_stages': stages, 'create_new_app_calls': self.create_calls,
+                        'pin_onboarding_progress': pin_progress,
                         'transport_requests_dropped_without_commit': self.dropped,
                         'acknowledged_create_responses': self.acknowledged,
                         'unexpected_create_attempts': self.unexpected,
@@ -115,6 +148,7 @@ class Receipt:
                          for name, (start, end) in pairs.items() if end in stamps and start in stamps}
             return {'sample': self.sample, 'status': 'PASS' if passed else 'FAIL',
                     'completed_stages': list(STAGES[:len(self.times)]), 'raw_durations': durations,
+                    'pin_onboarding_progress': pin_progress,
                     'create_new_app_calls': self.create_calls, 'other_backend_calls_rejected': self.blocked_calls,
                     'visible_wallet_count_before_relaunch': 1 if 'home_ready' in stamps else None,
                     'visible_wallet_count_after_relaunch': 1 if 'relaunch_home' in stamps else None,
@@ -139,6 +173,9 @@ def make_server(receipt, port=PORT):
         def do_POST(self):
             try:
                 length = int(self.headers.get('Content-Length', '0'))
+                if self.path == '/pin-progress' and not 0 < length <= 128:
+                    self.close_connection = True
+                    return self.reply(413, {'error': 'FIXED_PIN_PROGRESS_REJECTED'})
                 if not 0 < length <= 8192:
                     self.close_connection = True
                     return self.reply(413, {'error': 'FIXTURE_BODY_REJECTED'})
@@ -157,6 +194,19 @@ def make_server(receipt, port=PORT):
                         self.connection.close()
                         return
                     return self.reply(200, {'created': True})
+                if self.path == '/pin-progress':
+                    def unique_object(pairs):
+                        if len(pairs) != len({key for key, _ in pairs}):
+                            raise ValueError('Duplicate fields')
+                        return dict(pairs)
+                    try:
+                        marker = json.loads(raw, object_pairs_hook=unique_object)
+                        if (type(marker) is dict and set(marker) == {'marker'} and
+                                receipt.mark_pin(marker['marker'])):
+                            return self.reply(200, {'accepted': True})
+                    except (ValueError, TypeError):
+                        pass
+                    return self.reply(422, {'error': 'FIXED_PIN_PROGRESS_REJECTED'})
                 if self.path == '/metric' and length <= 128:
                     metric = json.loads(raw)
                     if (isinstance(metric, dict) and set(metric) == {'stage'} and
@@ -352,10 +402,13 @@ def run(h):
                 else:
                     result['samples'].append(outcome)
             except Exception:
+                outcome = receipt.snapshot()
+                if h.PLATFORM == 'ANDROID':
+                    outcome['android_runtime_diagnostic'] = android_failure_observation(output, device)
                 if retry_fixture:
-                    result['controlled_disconnect_retry'] = receipt.snapshot()
+                    result['controlled_disconnect_retry'] = outcome
                 else:
-                    result['samples'].append(receipt.snapshot())
+                    result['samples'].append(outcome)
                 raise
             finally:
                 # Maestro can capture automatic failure diagnostics. Keep no

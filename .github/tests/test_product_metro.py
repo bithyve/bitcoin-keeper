@@ -279,7 +279,10 @@ class IntegrationTests(unittest.TestCase):
                      'commands': [], 'maestro': {'binary': 'fake-maestro'}, 'nodeify_overlay': {
                          'path': 'package.json', 'allowed_fields': ['browser', 'react-native', 'browserify'],
                          'before_sha256': digest, 'after_sha256': digest}}
+            receipts, runtime = [], {}
+            original_error = PrimaryFailure('PRIVATE_SENTINEL')
             def save(value):
+                receipts.append(copy.deepcopy(value['product_ui']))
                 if value['product_ui']['status'] == 'FAIL':
                     raise OSError('PRIVATE_SENTINEL')
                 state.clear()
@@ -290,7 +293,13 @@ class IntegrationTests(unittest.TestCase):
                 if args == ['adb', 'get-serialno']:
                     return 'emulator-5554'
                 if args[0] == 'fake-maestro':
-                    raise PrimaryFailure('PRIVATE_SENTINEL')
+                    for stage in product.STAGES[:2]:
+                        runtime['receipt'].mark(stage)
+                    for marker in product.PIN_MARKERS[:3]:
+                        runtime['receipt'].mark_pin(marker)
+                    output = Path(args[args.index('--debug-output') + 1])
+                    (output / 'private-failure.png').write_text('PRIVATE_SENTINEL')
+                    raise original_error
                 return 'fake image'
             def installed(_device):
                 proof = {'method': 'SINGLE_INSTALLED_BASE_APK_SHA256', 'sha256': 'c' * 64}
@@ -302,6 +311,15 @@ class IntegrationTests(unittest.TestCase):
             manager = types.SimpleNamespace(start=lambda *_a, **_k: None, close=close, events=[])
             server = types.SimpleNamespace(serve_forever=lambda: None, shutdown=lambda: order.append('server-stop'),
                                            server_close=lambda: None)
+            def make_server(receipt):
+                runtime['receipt'] = receipt
+                return server
+            def observe(output, device):
+                self.assertEqual(output.name, 'sample-1')
+                self.assertTrue((output / 'private-failure.png').exists())
+                self.assertEqual(device, 'emulator-5554')
+                order.append('failure-observation')
+                return {'status': 'UNAVAILABLE'}
             h = types.SimpleNamespace(ROOT=root, PRIVATE=private, PLATFORM='ANDROID',
                 APP_IDS={'ANDROID': 'owned.app'}, read=lambda: copy.deepcopy(state), save=save,
                 artifact_identity=lambda: artifact, command=command, verify_installed_artifact=installed)
@@ -316,12 +334,24 @@ class IntegrationTests(unittest.TestCase):
                 stack.enter_context(mock.patch.object(product.subprocess, 'run', side_effect=shell))
                 stack.enter_context(mock.patch.object(product, 'native_module',
                     return_value=types.SimpleNamespace(OwnedMetro=lambda *_: manager)))
-                stack.enter_context(mock.patch.object(product, 'make_server', return_value=server))
-                with self.assertRaises(PrimaryFailure):
+                stack.enter_context(mock.patch.object(product, 'make_server', side_effect=make_server))
+                observation = stack.enter_context(mock.patch.object(product, 'android_failure_observation', side_effect=observe))
+                with self.assertRaises(PrimaryFailure) as failure:
                     product.run(h)
+            self.assertIs(failure.exception, original_error)
+            observation.assert_called_once()
+            self.assertLess(order.index('failure-observation'), order.index('metro-close'))
             self.assertLess(order.index('metro-close'), order.index('device-cleanup'))
             self.assertIn('server-stop', order)
             self.assertEqual(list(private.iterdir()), [], 'task-owned UI/process output must be removed')
+            failed = receipts[-1]
+            self.assertEqual(failed['status'], 'FAIL')
+            self.assertEqual(len(failed['samples']), 1, 'the original command must not be retried')
+            self.assertEqual(failed['samples'][0]['completed_stages'], list(product.STAGES[:2]))
+            self.assertEqual(failed['samples'][0]['pin_onboarding_progress']['completed_markers'],
+                             list(product.PIN_MARKERS[:3]))
+            self.assertEqual(failed['samples'][0]['android_runtime_diagnostic'], {'status': 'UNAVAILABLE'})
+            self.assertNotIn('PRIVATE_SENTINEL', json.dumps(receipts))
 
     def test_order_preserves_completed_receipts_if_a_later_companion_fails(self):
         for fail_history in (False, True):

@@ -5,9 +5,13 @@ import http.client
 import json
 from pathlib import Path
 import threading
+import types
 import unittest
+from unittest import mock
 import urllib.error
 import urllib.request
+
+import yaml
 
 SPEC = importlib.util.spec_from_file_location('product_measurements',
     Path(__file__).resolve().parents[1] / 'native/product_measurements.py')
@@ -54,6 +58,75 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(len(evidence['raw_durations']), 5)
         self.assertNotIn('DO_NOT_RETAIN', json.dumps(evidence))
         self.assertTrue(all(value >= 0 for value in evidence['raw_durations'].values()))
+        self.assertFalse(evidence['pin_onboarding_progress']['complete'],
+                         'optional progress must not add a new product acceptance requirement')
+
+    def test_partial_pin_progress_is_ordered_and_independent_of_core_receipt(self):
+        self.assertEqual(self.post('/metric', {'stage': 'startup_start'})[0], 200)
+        before = self.receipt.snapshot()
+        for marker in product.PIN_MARKERS[:4]:
+            self.assertEqual(self.post('/pin-progress', {'marker': marker}), (200, {'accepted': True}))
+        after = self.receipt.snapshot()
+        progress = after.pop('pin_onboarding_progress')
+        before.pop('pin_onboarding_progress')
+        self.assertEqual(after, before, 'progress cannot change timing, stage or backend evidence')
+        self.assertEqual(progress['completed_markers'], list(product.PIN_MARKERS[:4]))
+        self.assertEqual(progress['next_marker'], product.PIN_MARKERS[4])
+        self.assertFalse(progress['complete'])
+        self.assertIn('acknowledgements only', progress['scope'])
+
+    def test_pin_marker_parser_rejects_private_unknown_duplicate_and_malformed_payloads(self):
+        bad = [
+            {'marker': 'DO_NOT_RETAIN'},
+            {'marker': product.PIN_MARKERS[1]},  # cannot skip the first marker
+            {'marker': product.PIN_MARKERS[0], 'secret': 'DO_NOT_RETAIN'},
+            {'marker': ['DO_NOT_RETAIN']}, {'marker': True}, {'marker': None},
+            ['DO_NOT_RETAIN'], 'DO_NOT_RETAIN',
+            b'{"marker":"confirm_passcode_visible","marker":"DO_NOT_RETAIN"}',
+            b'{"marker":"DO_NOT_RETAIN"', b'\xffDO_NOT_RETAIN',
+        ]
+        for payload in bad:
+            with self.subTest(payload=payload):
+                status, response = self.post('/pin-progress', payload)
+                self.assertEqual((status, response), (422, {'error': 'FIXED_PIN_PROGRESS_REJECTED'}))
+                state = self.receipt.snapshot()
+                self.assertEqual(state['pin_onboarding_progress']['completed_markers'], [])
+                self.assertEqual(state['other_backend_calls_rejected'], 0)
+                self.assertNotIn('DO_NOT_RETAIN', json.dumps((response, state)))
+
+    def test_pin_marker_duplicate_and_completion_do_not_accept_extra_events(self):
+        for index, marker in enumerate(product.PIN_MARKERS):
+            self.assertEqual(self.post('/pin-progress', {'marker': marker})[0], 200)
+            self.assertEqual(self.post('/pin-progress', {'marker': marker})[0], 422)
+            self.assertEqual(self.receipt.snapshot()['pin_onboarding_progress']['completed_markers'],
+                             list(product.PIN_MARKERS[:index + 1]))
+        result = self.receipt.snapshot()['pin_onboarding_progress']
+        self.assertTrue(result['complete'])
+        self.assertIsNone(result['next_marker'])
+        self.assertEqual(self.receipt.snapshot()['status'], 'FAIL',
+                         'complete observer markers cannot grant application acceptance')
+
+    def test_pin_body_bound_is_independent_of_backend_payload_limit(self):
+        first = json.dumps({'marker': product.PIN_MARKERS[0]}).encode()
+        self.assertEqual(self.post('/pin-progress', first + b' ' * (128 - len(first)))[0], 200)
+        before = self.receipt.snapshot()
+        oversized = b'{"marker":"DO_NOT_RETAIN"}' + b' ' * 129
+        self.assertEqual(self.post('/pin-progress', oversized),
+                         (413, {'error': 'FIXED_PIN_PROGRESS_REJECTED'}))
+        self.assertEqual(self.receipt.snapshot(), before)
+        self.assertNotIn('DO_NOT_RETAIN', json.dumps(before))
+
+    def test_pin_prefix_resets_for_both_normal_and_retry_fixtures(self):
+        for sample, retry in ((2, False), (6, True), (1, False)):
+            for marker in product.PIN_MARKERS:
+                self.assertEqual(self.post('/pin-progress', {'marker': marker})[0], 200)
+            self.receipt.reset(sample, retry=retry)
+            result = self.receipt.snapshot()
+            self.assertEqual(result['sample'], sample)
+            self.assertEqual(result['pin_onboarding_progress']['completed_markers'], [])
+            self.assertEqual(result['pin_onboarding_progress']['next_marker'], product.PIN_MARKERS[0])
+            self.assertFalse(result['pin_onboarding_progress']['complete'])
+            self.assertEqual(result['create_new_app_calls'], 0)
 
     def test_out_of_order_and_duplicate_markers_are_rejected(self):
         self.assertEqual(self.post('/metric', {'stage': 'wallet_ready'})[0], 422)
@@ -129,6 +202,8 @@ class FixtureTests(unittest.TestCase):
         self.assertFalse(result['performance_sample'])
         self.assertNotIn('raw_durations', result)
         self.assertNotIn('DO_NOT_RETAIN', json.dumps(result))
+        self.assertFalse(result['pin_onboarding_progress']['complete'],
+                         'optional progress must not change controlled Retry acceptance')
 
     def test_automatic_hidden_retry_prevents_error_marker_and_acceptance(self):
         self.start_retry_fixture()
@@ -149,6 +224,71 @@ class FixtureTests(unittest.TestCase):
         self.post('/metric', {'stage': 'retry_fixture_start'})
         self.assertEqual(self.post('/metric', {'stage': 'retry_error_visible'})[0], 422)
         self.assertEqual(self.receipt.snapshot()['transport_requests_dropped_without_commit'], 0)
+
+
+class PinFlowTests(unittest.TestCase):
+    def test_markers_follow_existing_actions_without_changing_the_pin_flow(self):
+        filename = Path(product.__file__).with_name('product_prepare_pin.yaml')
+        header, commands = list(yaml.safe_load_all(filename.read_text()))
+        self.assertEqual(header, {'appId': '${APP_ID}'})
+        expected = [
+            {'repeat': {'times': 4, 'commands': [{'tapOn': {'id': 'key_1'}}]}},
+            {'assertVisible': 'Confirm your passcode'},
+            {'repeat': {'times': 4, 'commands': [{'tapOn': {'id': 'key_1'}}]}},
+            {'tapOn': 'Create'},
+            {'extendedWaitUntil': {'visible': 'Continue', 'timeout': 30000}},
+            {'tapOn': 'Continue'},
+            {'extendedWaitUntil': {'visible': 'Cancel', 'timeout': 30000}},
+            {'tapOn': 'Cancel'},
+            {'extendedWaitUntil': {'visible': {'id': 'btn_skip'}, 'timeout': 30000}},
+            {'tapOn': {'id': 'btn_skip'}},
+            {'extendedWaitUntil': {'visible': {'id': 'view_startNewTile'}, 'timeout': 30000}},
+        ]
+        actions, markers, positions = [], [], []
+        for command in commands:
+            if 'runScript' not in command:
+                actions.append(command)
+                continue
+            self.assertEqual(set(command), {'runScript'})
+            script = command['runScript']
+            self.assertEqual(set(script), {'file', 'env'})
+            self.assertEqual(script['file'], 'product_pin_metric.js')
+            self.assertEqual(set(script['env']), {'MARKER'})
+            markers.append(script['env']['MARKER'])
+            positions.append(len(actions))
+        self.assertEqual(actions, expected)
+        self.assertEqual(markers, list(product.PIN_MARKERS))
+        self.assertEqual(positions, list(range(2, 12)), 'acknowledge each existing completed operation')
+
+
+class AndroidFailureObservationTests(unittest.TestCase):
+    def test_only_sample_private_directory_and_device_are_passed_to_fixed_collector(self):
+        facts = {'diagnostic_only': True, 'cause': 'UNDETERMINED', 'cleanup_status': 'DELETED'}
+        module = types.SimpleNamespace(collect=mock.Mock(return_value=facts))
+        spec = types.SimpleNamespace(loader=types.SimpleNamespace(exec_module=mock.Mock()))
+        with mock.patch.object(product.importlib.util, 'spec_from_file_location', return_value=spec) as source, \
+                mock.patch.object(product.importlib.util, 'module_from_spec', return_value=module):
+            value = product.android_failure_observation(Path('/owned/sample-1'), 'emulator-5554')
+        self.assertEqual(source.call_args.args[1], Path(product.__file__).with_name('android_startup_diagnosis.py'))
+        module.collect.assert_called_once_with(Path('/owned/sample-1'), 'emulator-5554')
+        self.assertEqual(value['facts'], facts)
+        self.assertEqual(value['status'], 'COLLECTED')
+        self.assertIn('no current product Metro log', value['scope'])
+
+    def test_import_and_collector_failures_have_only_fixed_unavailable_metadata(self):
+        for importing in (True, False):
+            with self.subTest(importing=importing):
+                loader = types.SimpleNamespace(exec_module=mock.Mock(
+                    side_effect=RuntimeError('DO_NOT_RETAIN') if importing else None))
+                spec = types.SimpleNamespace(loader=loader)
+                module = types.SimpleNamespace(collect=mock.Mock(side_effect=RuntimeError('DO_NOT_RETAIN')))
+                with mock.patch.object(product.importlib.util, 'spec_from_file_location', return_value=spec), \
+                        mock.patch.object(product.importlib.util, 'module_from_spec', return_value=module):
+                    value = product.android_failure_observation(Path('/owned/sample-1'), 'emulator-5554')
+                self.assertEqual(value['status'], 'UNAVAILABLE')
+                self.assertEqual(set(value), {'status', 'scope'})
+                self.assertNotIn('DO_NOT_RETAIN', json.dumps(value))
+                self.assertEqual(module.collect.call_count, 0 if importing else 1)
 
 
 class PackageOverlayTests(unittest.TestCase):
