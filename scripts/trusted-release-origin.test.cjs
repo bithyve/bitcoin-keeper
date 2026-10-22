@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const zlib = require('node:zlib');
 const { collectTrustedOrigin, isTrustedOrigin, CASES, EXECUTED, PIN } = require('./trusted-release-origin.cjs');
 const { attach: attachPublicCompanions } = require('../.github/tests/fixtures/public-companions.cjs');
+const { attach: attachPublicSoftware } = require('../.github/tests/fixtures/public-software.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const source = 'a'.repeat(40);
 const tree = 'b'.repeat(40);
@@ -139,6 +140,7 @@ function fixture() {
           new_account_requests_during_key_flow: 0, visible_eligible_keys_after_deletion: 0, unrelated_visible_wallet_count_after_relaunch: 1,
           installed_artifact_verified: true, installed_artifact: { ...installed } } } };
     attachPublicCompanions(receipts[platform], platform);
+    attachPublicSoftware(receipts[platform]);
     const bytes = addArtifact(index + 1, `keeper-canonical-native-${platform}-${source}-300-1`, 'metadata.json', receipts[platform]);
     payload.platforms[platform] = { conclusion: 'success', receipt_sha256: sha256(bytes), artifact_id: index + 1,
       cases: CASES.map(id => ({ id, status: 'PASS' })), executed_checks: Object.fromEntries(Object.entries(EXECUTED).map(([id, scope]) => [id, { status: 'PASS', scope }])) };
@@ -315,6 +317,8 @@ test('bounded deflated streaming ZIP descriptor is accepted without extraction t
   });
 });
 
+// Shared raw validation exposes one fixed error code; all original mutations
+// and correctly rehashed original-artifact/freshness controls remain exercised.
 for (const [name, mutate] of [
   ['failed product UI', value => value.product_ui.status = 'FAIL'],
   ['failed R5 worker checks', value => value.r5_features = 'FAIL'],
@@ -326,23 +330,23 @@ for (const [name, mutate] of [
     mutate(f.receipts.IOS);
     f.refreshReceipt('IOS');
     f.refreshAttestation();
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PLATFORM_RECEIPT_NOT_EXACT_SUCCESS/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
   });
 });
 
 for (const [name, code, mutate] of [
-  ['diagnostic receipt', 'PLATFORM_RECEIPT_NOT_EXACT_SUCCESS', value => value.diagnostic_only = true],
-  ['foreign installed app', 'PLATFORM_RECEIPT_NOT_EXACT_SUCCESS', value => value.app_id = 'other.app'],
-  ['missing five raw samples', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples.pop()],
-  ['boolean raw timing', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples[0].raw_durations.startup_to_passcode_ms = true],
-  ['missing version history', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples[0].installed_version_header_and_initial_history = 'NOT RUN'],
-  ['missing key entry UI', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples[0].key_management_entry_and_exit = 'NOT RUN'],
-  ['unexpected retry', 'PRODUCT_RETRY_INCOMPLETE', value => value.product_ui.controlled_disconnect_retry.unexpected_create_attempts = 1],
-  ['missing PIN deletion UI', 'PRODUCT_KEY_UI_INCOMPLETE', value => delete value.product_ui.key_management_ui],
-  ['missing native worker scenario', 'WORKER_FEATURE_EVIDENCE_INCOMPLETE', value => value.r5_feature_evidence.scenarios.pop()],
-  ['worker hash inconsistent with committed source', 'WORKER_FEATURE_EVIDENCE_INCOMPLETE', value => value.r5_feature_evidence.source_functions[0].sha256 = 'c'.repeat(64)],
-  ['missing worker timing', 'WORKER_MEASUREMENTS_INCOMPLETE', value => value.r5_feature_evidence.measurements.pop()],
-  ['boolean helper timing', 'WORKER_MEASUREMENTS_INCOMPLETE', value => value.r5_feature_evidence.measurements[0].probe_ready_ms = true],
+  ['diagnostic receipt', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.diagnostic_only = true],
+  ['foreign installed app', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.app_id = 'other.app'],
+  ['missing five raw samples', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples.pop()],
+  ['boolean raw timing', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples[0].raw_durations.startup_to_passcode_ms = true],
+  ['missing version history', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples[0].installed_version_header_and_initial_history = 'NOT RUN'],
+  ['missing key entry UI', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples[0].key_management_entry_and_exit = 'NOT RUN'],
+  ['unexpected retry', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.controlled_disconnect_retry.unexpected_create_attempts = 1],
+  ['missing PIN deletion UI', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => delete value.product_ui.key_management_ui],
+  ['missing native worker scenario', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.scenarios.pop()],
+  ['worker hash inconsistent with committed source', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.source_functions[0].sha256 = 'c'.repeat(64)],
+  ['missing worker timing', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.measurements.pop()],
+  ['boolean helper timing', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.measurements[0].probe_ready_ms = true],
 ]) test(`rejects independently hashed receipt without real observations: ${name}`, async () => {
   await withFixture(async f => {
     mutate(f.receipts.IOS);
@@ -378,7 +382,7 @@ for (const platform of ['IOS', 'ANDROID']) {
   ]) test(`${platform} independently rehashed native evidence rejects ${name}`, async () => {
     await withFixture(async f => {
       mutate(f.receipts[platform]); f.refreshReceipt(platform); f.refreshAttestation();
-      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_COMPANION_RECEIPT_INCOMPLETE/);
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
     });
   });
 }
@@ -418,7 +422,7 @@ for (const platform of ['IOS', 'ANDROID']) {
         mutate(select(f.receipts[platform]));
         f.refreshReceipt(platform);
         f.refreshAttestation();
-        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_BYTE_PROOF_INCOMPLETE/);
+        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
       });
     });
   }
@@ -430,7 +434,7 @@ for (const platform of ['IOS', 'ANDROID']) {
       mutate(f.receipts[platform]);
       f.refreshReceipt(platform);
       f.refreshAttestation();
-      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_BYTES_NOT_BOUND_TO_BUILD/);
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
     });
   });
 }
