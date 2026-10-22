@@ -1,0 +1,33 @@
+name: Keeper native candidate diagnostics
+
+on:
+  pull_request:
+    branches: [sprint]
+    types: [labeled, synchronize, reopened]
+
+# This explicit opt-in never writes status or supplies trusted native acceptance.
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: keeper-native-diagnostic-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  ios:
+    if: github.event.pull_request.number != 7045 && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')
+    uses: ./.github/workflows/keeper-native-platform.yml
+    with:
+      source_sha: ${{ github.event.pull_request.head.sha }}
+      platform: IOS
+      diagnostic: true
+
+  android:
+    needs: ios
+    if: always() && github.event.pull_request.number != 7045 && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')
+    uses: ./.github/workflows/keeper-native-platform.yml
+    with:
+      source_sha: ${{ github.event.pull_request.head.sha }}
+      platform: ANDROID
+      diagnostic: true
