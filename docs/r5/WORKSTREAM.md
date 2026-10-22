@@ -1,17 +1,19 @@
 # R5 Cloud workstream
 
-Status: development draft reconciled to owner-confirmed live R4 / 2.6.4 source
-`1d8a86a7462d935cbd0e28b857934b5718c152fc`. No R5 app version/date assigned.
-The earlier pending-baseline records below are historical and superseded by the
-22 October owner confirmation and completed reconciliation.
+Status: development draft reconciled to submitted R4 / 2.6.4 source
+`1d8a86a7462d935cbd0e28b857934b5718c152fc`. Signed iOS620/Android627 were
+submitted; public release remains held. No R5 app version/date assigned.
+Source reconciliation is complete; fresh store status and owner R4 closure are
+separate. Earlier released/live and pending-baseline wording below is historical;
+use [the current reconciliation](R4-RECONCILIATION.md). Preserve running R5 work.
 
 ## Authority and budget
 
 Owner request and Master Task List, Backlog row 245 (15 October 2026 scope reset),
-plus rows 7, 8, 23, 76, 231 and 263. The owner's 22 October confirmation that R4
-2.6.4 is live authorizes reconciliation with its recorded released source on R5
-only. Historical instructions to wait for R4 are superseded. PR base is `sprint`;
-do not modify R4 or other workstream branches.
+plus rows 7, 8, 23, 76, 231 and 263. The isolated R5 source reconciliation and
+already-running work remain preserved. The current R4 handoff keeps public
+release held; source ancestry does not establish store availability or owner
+release closure. PR base is `sprint`; do not modify R4 or other workstream branches.
 
 Pre-implementation changed code/test estimate (not model context or runtime cost):
 
@@ -83,8 +85,9 @@ with the released R4 implementation before deletion can be release-ready.
 
 ## Later Local resource plan
 
-No Mac is needed for Cloud source development. R4 is released and reconciliation
-is complete. For later native work, use a separate safe checkout,
+No personal Mac is required. R4 source reconciliation is complete; public
+release remains held. Use hosted macOS/Xcode and a capable cloud Android runner
+or authorized remote devices. For native work, use a separate safe checkout,
 check available disk (approximately 6 GiB minimum planning threshold; require more
 if the selected build needs it), run one native build at a time and reuse safe
 compatible caches/artifacts. Preserve every existing worktree, simulator, AVD user,
@@ -272,13 +275,14 @@ checks remain open. Previous R5 head98c4 hosted Tests and CodeQL are now SUCCESS
 job-log download was unavailable, so no new hosted suite count or clean-lint claim.
 
 
-## Released-baseline reconciliation completed — 22 October 2026
+## Submitted-source reconciliation completed — 22 October 2026
 
-The owner's explicit confirmation that R4/2.6.4 is live resolves the earlier
-metadata discrepancy. No further release/tag/source confirmation is being awaited.
-Released source1d8a86a is now an ancestor of R5 through commit a8947c867; previous
-R5 history remains intact. R4/sprint/other workstream refs and all released native,
-dependency, backend/store/worker/version inputs remain unchanged. The one lock
+Submitted source1d8a86a is an ancestor of R5 through commit a8947c867; previous
+R5 history remains intact. This completes source reconciliation. Signed
+iOS620/Android627 were submitted; public release remains held under the current
+instruction. Fresh store readback and owner R4 closure remain separate.
+R4/sprint/other workstream refs and all baseline native, dependency,
+backend/store/worker/version inputs remain unchanged. The one lock
 conflict resolves to R4's exact lock, which already includes the two R5 selectors.
 
 The [current reconciliation and finite native plan](R4-RECONCILIATION.md) records
@@ -287,7 +291,7 @@ Linux Realm cases after installing its missing N-API prerequisite), gate11 PASS,
 static31 PASS and Node/Python release-tool28/7 PASS. Local Ruby checks remain
 unavailable/failed-prerequisite, not passed; hosted CI explicitly installs Ruby
 before them. Lint82/25 and TypeScript943 remain inherited failures with no added
-normalized diagnostics versus released R4. Native app/UI/performance/physical
+normalized diagnostics versus submitted R4. Native app/UI/performance/physical
 acceptance has NOT RUN here.
 
 Reconciliation also confirmed and fixed eleven stale-origin UI cases: key-delete
@@ -295,7 +299,7 @@ selection and confirmation now retain the original account/session, verify curre
 Redux/Realm ownership, and carry that origin into R4's existing middleware/worker.
 No R4 reference/session guard was weakened. New tests execute real session-counter,
 identity and action-creator logic with modeled screen/storage boundaries. The
-Keys entry's dispatch form was adapted to the released navigation types.
+Keys entry's dispatch form was adapted to the R4 navigation types.
 
 Six additional startup session-crossing regressions failed before the narrow
 effect/timer guards and now pass with the existing cases (20 first-use screen
@@ -305,7 +309,7 @@ cannot act after an A → B → A round trip. No setup worker or backup policy c
 The R5-only changed source/test estimate is approximately 18.1k tokens (rough
 characters/4), at the upper edge of the approved two-feature 13k–18k target. Hold
 scope here. Review against the
-released source rather than counting R4's inherited history as new R5 work. Do not
+submitted source rather than counting R4's inherited history as new R5 work. Do not
 silently add hosted-native infrastructure, extra backend work or a third feature.
 No optional Linux setup or Mac session was awaited. Next is the exact-head finite
 native acceptance/performance plan and required review; no PR merge or release.

@@ -1,5 +1,5 @@
 ## 1. UI Components
-- [x] 1.1 Preserve existing components, confirmation/cancel/privacy and helper copy against released source.
+- [x] 1.1 Preserve existing components, confirmation/cancel/privacy and helper copy against submitted R4 source.
 
 ## 2. Business Logic / Hooks
 - [x] 2.1 Capture and validate deletion origin before selection/confirmation, including A → B → A.
