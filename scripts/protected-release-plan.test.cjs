@@ -36,13 +36,18 @@ function fixture() {
   return { env, request, evidence };
 }
 
-test('even complete synthetic evidence prepares only, never authorizes execution or artifact trust', () => {
+test('complete synthetic names/shape cannot establish trusted CI origin or authorize a plan', () => {
   const { request, evidence } = fixture();
-  const result = validateEvidence(request, evidence, now);
-  assert.equal(result.execution_allowed, false);
-  assert.equal(result.release_worker_implemented, false);
-  assert.equal(result.artifact_bytes_and_signature_verified, false);
-  assert.equal(result.sourceSha, request.sourceSha);
+  assert.throws(() => validateEvidence(request, evidence, now), /TRUSTED_CI_ORIGIN_NOT_VERIFIED/);
+});
+
+test('forged successful status names, creators and apps never count as authenticated execution evidence', () => {
+  const { request, evidence } = fixture();
+  evidence.statuses.statuses = ['Tests', 'CodeQL', 'keeper/local-validation'].map(context => ({ context, state: 'success', creator: { login: 'github-actions[bot]' } }));
+  evidence.checks = { total_count: 1, check_runs: [{ name: 'Unrelated', head_sha: request.sourceSha, status: 'completed', conclusion: 'success', app: { slug: 'github-actions' } }] };
+  evidence.trustedCIOrigin = true;
+  evidence.originVerified = true;
+  assert.throws(() => validateEvidence(request, evidence, now), /TRUSTED_CI_ORIGIN_NOT_VERIFIED/);
 });
 
 for (const [name, mutate] of [
