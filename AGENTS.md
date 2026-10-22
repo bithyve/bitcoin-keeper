@@ -8,7 +8,7 @@ Repository: `KeeperCommunity/bitcoin-keeper`. Use `sprint` as the PR base unless
 
 Read and follow [.github/REVIEW_POLICY.md](.github/REVIEW_POLICY.md) before opening or updating a pull request. Use the PR template, explicitly select the appropriate Copilot effort in GitHub, and record actual review effort, reviewed commit and feedback. Do not request repeated reviews of drafts or every push; record unavailable reviews honestly.
 
-Preserve existing repository conventions and user work. Complete feasible verification before delivery, scaled to the change; documentation changes require link, formatting and diff checks. Retain all required checks and one independent developer approval before merge. Product owner signoff and retrospective owner phone/Desktop/hardware acceptance remain separate from the exact-commit Codex Local validation required below.
+Preserve existing repository conventions and user work. Complete feasible verification before delivery, scaled to the change; documentation changes require link, formatting and diff checks. Retain all required checks before merge; human developer review is optional. Product owner signoff and retrospective owner phone/Desktop/hardware acceptance remain separate from the exact-commit Codex Local validation required below.
 
 ## Codex Cloud: implement and prepare handoff
 

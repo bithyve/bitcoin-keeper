@@ -135,7 +135,7 @@ and moves the change folder to `openspec/changes/archive/YYYY-MM-DD-<name>/`. Us
 
 Read and follow [the pull request review policy](../REVIEW_POLICY.md). Use the PR template,
 select the appropriate Copilot effort before requesting review or marking ready, and record actual review
-evidence. Keep the independent human approval requirement.
+evidence. Human developer review is optional; retain required checks, security/native validation and operation-specific owner authorization.
 
 Then open the PR:
 - Title: `feat: <description>` or `fix: <description> (closes #<N>)`

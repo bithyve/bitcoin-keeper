@@ -24,15 +24,15 @@ Record these in the PR description:
 - Real findings and their disposition, including any substantive review-overview concerns. Check feedback against the implementation and verification.
 - Pending or unavailable review status when appropriate. A quota response is an unavailable review, not a successful review or evidence of no findings.
 
-## Human approval
+## Optional human review
 
-Request Ben (`ben-kaufman`), Utkarsh (`cakesoft-utkarsh`), and Parsh (`Parsh`) when they have review access. Record pending invitations accurately; keep review-owner proposals draft until GitHub recognizes the owners and required checks pass.
+Human developer review is optional. Ben (`ben-kaufman`), Utkarsh (`cakesoft-utkarsh`), and Parsh (`Parsh`) are suggested reviewers when useful and already eligible. Pending invitations or the absence of human review do not block readiness or merge and do not require an access grant.
 
-One independent approval from any one of these developers is required, together with passing required checks and resolution of relevant review concerns. All three approvals are unnecessary. The PR author cannot approve their own change, and Copilot feedback does not satisfy the human approval requirement. Product signoff remains separate. Do not bypass required checks or independent human approval.
+Passing required checks and resolution of relevant review concerns remain required. Record any requested human review, findings and their disposition accurately; no human developer approval is required. Product signoff, required security and native validation, and operation-specific signing, deployment and release authorization remain separate. Do not bypass those gates.
 
 
 ## Native validation and release signoff
 
 Follow [AGENTS.md](../AGENTS.md) for the Cloud → Local handoff and exact-commit validation. Required native checks must pass on the current head before a code PR meets the local-validation gate; a new commit invalidates prior local signoff. Documentation and `.github/`-only changes are exempt from native tests, with the reason recorded in the PR.
 
-Owner phone/Desktop/hardware acceptance may be retrospective, but it does not replace the required Codex Local gate or independent developer approval. Product signoff is separate, and release signing, distribution, store upload, deployment and publication require explicit owner approval for the intended operation and channel.
+Owner phone/Desktop/hardware acceptance may be retrospective, but it does not replace the required Codex Local gate. Product signoff is separate, and release signing, distribution, store upload, deployment and publication require explicit owner approval for the intended operation and channel.
