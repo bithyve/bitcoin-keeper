@@ -72,6 +72,73 @@ test('push uses its event commit while invalid or absent PR heads and other even
   assert.throws(() => verifySource({ ...f, env: { ...f.env, GITHUB_EVENT_NAME: 'pull_request_target' } }), /Unsupported/);
 });
 
+test('only explicit offline contract dispatch checks its exact GITHUB_SHA', t => {
+  const f = fixture(t);
+  for (const workflow of ['keeper-release-preparation-contracts', 'keeper-ruby-lock-contracts']) {
+    for (const ref of ['refs/heads/sprint', 'refs/heads/disposable-review', 'refs/tags/source-only-test']) {
+      const options = { ...f, allowContractDispatch: true, env: { ...f.env,
+        GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_SHA: f.head,
+        GITHUB_WORKFLOW_REF: `KeeperCommunity/bitcoin-keeper/.github/workflows/${workflow}.yml@${ref}` } };
+      const result = verifySource(options);
+      assert.equal(result.source_sha, f.head);
+      assert.equal(result.event, 'workflow_dispatch');
+      assert.match(result.scope, /Source identity only; no native, security or release acceptance/);
+      assert.throws(() => verifySource({ ...options, allowContractDispatch: false }), /Unsupported CI source event/);
+      assert.throws(() => verifySource({ ...options, allowPairedRelay: true }), /Unsupported manual contract route/);
+      for (const sha of [undefined, '', 'refs/heads/sprint', 'b'.repeat(40)]) {
+        assert.throws(() => verifySource({ ...options, env: { ...options.env, GITHUB_SHA: sha } }), /event source/);
+      }
+    }
+  }
+});
+
+test('manual contract admission rejects native, foreign and unsupported routes', t => {
+  const f = fixture(t);
+  for (const route of [undefined, '',
+    'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-canonical-native.yml@refs/heads/sprint',
+    'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-protected-release-plan.yml@refs/heads/sprint',
+    'foreign/repository/.github/workflows/keeper-ruby-lock-contracts.yml@refs/heads/sprint',
+    'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-ruby-lock-contracts.yml@refs/pull/1/merge']) {
+    assert.throws(() => verifySource({ ...f, allowContractDispatch: true, env: { ...f.env,
+      GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_SHA: f.head, GITHUB_WORKFLOW_REF: route } }), /Unsupported manual contract route/);
+  }
+});
+
+test('manual source checks reject same-tree other commits and added or changed source', t => {
+  const f = fixture(t);
+  const options = { ...f, allowContractDispatch: true, env: { ...f.env, GITHUB_EVENT_NAME: 'workflow_dispatch',
+    GITHUB_SHA: f.head, GITHUB_WORKFLOW_REF: 'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-ruby-lock-contracts.yml@refs/heads/review' } };
+  fs.writeFileSync(path.join(f.root, 'unexpected.js'), 'never accepted');
+  assert.throws(() => verifySource(options), /Source changed/);
+  fs.rmSync(path.join(f.root, 'unexpected.js'));
+  fs.appendFileSync(path.join(f.root, 'source.txt'), 'changed');
+  assert.throws(() => verifySource(options), /Source changed/);
+  f.git('add', '.');
+  assert.throws(() => verifySource(options), /Source changed/);
+  f.git('restore', '--staged', '--worktree', '.');
+  f.git('commit', '--allow-empty', '--quiet', '-m', 'same-tree different source');
+  assert.equal(f.git('rev-parse', 'HEAD^{tree}'), f.git('rev-parse', `${f.head}^{tree}`));
+  assert.throws(() => verifySource(options), /differs from the event source/);
+});
+
+test('manual contract CLI emits only a source receipt and rejects combined options', t => {
+  const f = fixture(t), events = fs.mkdtempSync(path.join(os.tmpdir(), 'keeper-source-event-'));
+  t.after(() => fs.rmSync(events, { recursive: true, force: true }));
+  const eventPath = path.join(events, 'event.json');
+  fs.writeFileSync(eventPath, '{}');
+  const script = path.resolve(__dirname, '../scripts/verify-ci-source.cjs');
+  const options = { cwd: f.root, encoding: 'utf8', env: { PATH: process.env.PATH,
+    GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_EVENT_PATH: eventPath, GITHUB_SHA: f.head,
+    GITHUB_WORKFLOW_REF: 'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-ruby-lock-contracts.yml@refs/heads/review' } };
+  const result = JSON.parse(execFileSync(process.execPath, [script, '--contract-dispatch'], options));
+  assert.equal(result.source_sha, f.head);
+  assert.equal(result.event, 'workflow_dispatch');
+  assert.equal(result.authorization_eligible, undefined);
+  assert.equal(result.execution_allowed, undefined);
+  assert.throws(() => execFileSync(process.execPath, [script, '--contract-dispatch', '--paired-relay'],
+    { ...options, stdio: ['ignore', 'pipe', 'pipe'] }), /CI_SOURCE_IDENTITY_FAILED/);
+});
+
 test('all three CI jobs select the event head and verify source before setup, after setup and after checks', () => {
   const source = fs.readFileSync(path.resolve(__dirname, '../workflows/test.yml'), 'utf8');
   const chunks = source.split(/\n  (?:lint|test|automatic-backup-genuine):\n/).slice(1);
