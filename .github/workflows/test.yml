@@ -8,6 +8,8 @@ on:
       - main
       - release/2.6.3
       - release/2.6.4
+      # Isolated ownership package: actual disposable CI only, no native/release route.
+      - codex/r5-public-ci-mongo-owner-20261022
   pull_request:
     branches:
       - sprint

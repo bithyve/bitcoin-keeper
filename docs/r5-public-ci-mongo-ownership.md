@@ -23,6 +23,8 @@ Fault tests use fake Docker replies exclusively. They cover wrong context,
 foreign image/owner, stopped runtime, collision, lost start reply, timeouts,
 malformed/oversized responses, readiness deadlines, and uncertain disposal.
 The main workflow runs them before starting the actual disposable replica.
+Its push filter additionally admits only this isolated package branch so its
+actual CI can run while its draft review uses a fixed, unadvanced review base.
 Actual Docker execution is established only by the new package's own hosted
 run and exact-source receipts, not these tests or another source SHA.
 
