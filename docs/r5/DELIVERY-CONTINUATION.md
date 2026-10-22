@@ -2,7 +2,8 @@
 
 This ledger records bounded implementation packages. Exact current source SHA,
 workflow run/attempt and actual results belong in [integration #7068](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7068)
-and [execution #7082](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7082).
+and the separate execution records [#7082](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7082)
+and [#7107](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7107).
 Never transfer a package's checks to the combined candidate. No merge, shared
 promotion, release signing, upload, distribution, deployment or publication is
 authorized by this document. Native development acceptance uses Cloud, with no
@@ -27,7 +28,7 @@ acceptance remains remaining unless an exact-source receipt says it ran.
 | 5.1 backup/history | codex/7066-protected-backup-correction #7067,c1c4b803039b61b940373c4dc9d08473cf25e042 | REMAINING combined native acceptance; both protected-backup and Version History corrections included. |
 | Biometric callback | codex/r5-biometric-callback-guard #7069,257fbe17e1a85d0e5d7e5d8ab97e1a69edbd9628 +14a2459b30e31ea3099d56f6c6928a4a3b7d6995 | COMPLETED source/review,17component controlsPASS; actual biometricsNOTRUN. |
 | Infrastructure reconciliation | codex/r5-cloud-native-reconcile #7070,17baf3bff3a5cd96787218b9e8e1fee75f549967 | REMAINING live/installed acceptance; preserves7060/7063/7062 package reviews and R4 guards. |
-| Native worker/storage witness | codex/r5-native-feature-probe #7071,486810052f90550d55dd6ddd541ff53ebd875caa | REMAINING execution; actual Realm/MMKV with controlled adapters, not full UI/crypto/backend acceptance. |
+| Native worker/storage witness | codex/r5-native-feature-probe #7071,486810052f90550d55dd6ddd541ff53ebd875caa | COMPLETED source; exact3eb Android attempt2 actual Realm/MMKV persistence and all5 production-worker casesPASS. Combined-source/native UI/crypto/backend acceptance remains. |
 | Product measurements/Retry | codex/r5-native-product-measurements #7073,040955d0caca38bb3cb386ca2918adf60f0f30db | REMAINING five raw observations plus separate real socket-disconnect/Retry; development timing includes warm Metro/driver overhead. |
 | Unused key/PIN UI | codex/r5-native-key-ui-acceptance #7079,5c4c211339aeee3216faa0663c309314a1627123 | COMPLETED implementation/host controls; native cancel/wrong PIN/delete/relaunchNOTRUN. |
 | Installed-byte comparisons | codex/r5-installed-byte-acceptance #7083,56b91ba87da8e979cb3d72cadf25828b59bce61a | REMAINING combined execution;8independent controlsPASS. Exact3eb Android before-smoke pulled-APK comparisonPASS; this supplies no iOS/feature pass. |
@@ -37,8 +38,11 @@ acceptance remains remaining unless an exact-source receipt says it ran.
 | Companion orchestration | codex/r5-native-feature-orchestration-20261022 #7102,196bfeded03705315871eb5c8d1b693540110581 | COMPLETED source/review,124Node/125Python/actionlintPASS; root9+3controlsPASS. Producer ancestry preserved, primary failures/cleanup hardened, new native execution remaining. |
 | Retry artifacts | codex/r5-native-attempt-artifacts #7100,461d3119dae6e717ab700ada2e4caaae2fcd257f | COMPLETED source/review,106Node/93PythonPASS; run+attempt names preserve prior evidence without overwrite. |
 | Android startup diagnosis | codex/r5-android-startup-diagnostics #7101,87d21fa34ee7d55e2b49c91ccb83bc9a1c1346c7 | COMPLETED source/review,105Python/4policy controlsPASS. Actual collectionNOTRUN; unavailable factsUNKNOWN, causeUNDETERMINED. |
-| Bounded iOS installation | codex/r5-ios-install-allowance,70cfbfa3a5d58fb324420fdf87d90850e5b28b14 | COMPLETED narrow preparation after actual120.4s timeout; bounded300s allowance, no retry or acceptance relaxation.126Python/108Node/actionlintPASS; root14affected controlsPASS. NativeNOTRUN. |
+| Bounded iOS installation | codex/r5-ios-install-allowance #7104,70cfbfa3a5d58fb324420fdf87d90850e5b28b14 | COMPLETED historical preparation;126Python/108Node/actionlintPASS, root14controlsPASS. Unverified300s allowance retains ancestry/history; selected #7107 instead keeps120s plus a separate readiness precondition. No installation fix credit. |
 | Witness fee sizing | codex/r5-witness-fee-fix-20261022 #7098,514d2d656da17336312fef98989c01c2113ef9f1 | COMPLETED narrow fix/review;223actual-production-body testsPASS, immutable baseline78policies/927witnesses/120APIcasesPASS. Exact combined security/native fee checks remain. |
+| Exact-event CI source | codex/r5-ci-exact-head-source #7108,24674bd107c5ed8d55fa206911eaa7586c741c31 | COMPLETED source/review,154Node/actionlintPASS; root independent24controlsPASS. Explicit event SHA and clean tracked/nonignored source verified before/after setup and checks; only exact existing paired Relay checkout admitted. Hosted39843976625 Tests/source guardsPASS; inherited automatic matrixFAIL. Actual counts are recorded on #7108. |
+| Public companion receipts | codex/r5-public-companion-evidence #7109,2af7be96178fa12bbde0c9a7f7a651813fc9fa9b | COMPLETED source/review;649Node/179Python/actionlintPASS, independent515scoped controlsPASS. Strict installed-byte, six credential/twelve history/eleven Vault stages and ordinary Metro restore yield only three scoped subchecks after successful predecessors. Five parent obligations stay NOT_IMPLEMENTED; authorizationfalse. |
+| Selected next native source | codex/r5-native-acceptance-20261022 #7107,23f14e01f3437c213f1443c3167d96022f3a43bc | RUNNING sole hosted window39846002094, iOS then Android. Independently151Node/213Python/actionlintPASS. Ports readiness/install diagnosis preserving cleanup and companions, keeps120s install; fixed host PIN acknowledgements and failure-only Android facts change no UI action/wait/counter. No parallel execution or source push during this window. |
 
 The orchestration and canonical platform workers have the same240minute global
 ceiling on standard hosted runners, one build/device per platform. The new
@@ -75,14 +79,21 @@ operation requirements. No production account operation is permitted here.
 
 | Package | Checkpoint | State / next action |
 | --- | --- | --- |
-| Current paired backend | Private Relay #160,control296b2880f1e62f320665fb44d69288b72859fb0c; app3eb92fc8a622a3e09926d49f47243c163e32d009 +Relay29597b27eeeb299205bf7d0555db0a90c38cc4be | COMPLETED exact host protocol witness43+1+3PASS/run39825255620, genuine Realm/owned Mongo cleanup; rerun affected new candidate. Not native acceptance/deployment. |
+| Previous paired backend | Private Relay #160,control296b2880f1e62f320665fb44d69288b72859fb0c; app3eb92fc8a622a3e09926d49f47243c163e32d009 +Relay29597b27eeeb299205bf7d0555db0a90c38cc4be | COMPLETED exact host witness43+1+3PASS/run39825255620. Preserved source-specific history; not native acceptance/deployment. |
+| Exact8cf paired backend | Private Relay #168,codex/r5-combined-protected-pair-20261022,0f09f0137245907d52b0fa0a39c5b4ceb09d9ba6; app8cf8053069e13f1efea7d0a6f5a39b6011c0d293 +Relay29597b27eeeb299205bf7d0555db0a90c38cc4be | COMPLETED actual hosted43protected+1upgrade+3guardsPASS/run39839996160, genuine Realm/frozen inputs/three source checks/owned Mongo cleanup. No pass transferred to newer candidate. |
+| Exact8cf genuine recovery | Private Relay #170,codex/r5-exact-head-recovery-proof-20261022,22108d89fa76fc2d4328c10fde9f876e5468da17 | COMPLETED502recovery+43protected+1upgrade+3guardsPASS in both original push runs39842461445 and39842469359; four exact8cf source checks/actual Realm/frozen inputs/owned cleanupPASS. Duplicate server-created runs serialized naturally, neither canceled. General inherited Build lint failure retained. New candidate requires new pinned run. |
 | Private genuine native fixture | Relay #164,a5b85102c91d9b9362fcd6c0953d8a5827616903 | COMPLETED source/local4characterizationsPASS; real service/router/crypto/Mongo, provider traps. |
 | Private native backup UI | Relay #165,fb021d101eac34855aff1bb440d6a1bc84e50b6a | COMPLETED source/11host controlsPASS; unarmed nativeNOTRUN, original checkpoint retained. |
 | Private teardown follow-up | Relay #167,35860ea95202d071b585c9793215d5dbffdea3f4 | COMPLETED bounded fix/18Python2NodePASS; root independent18controlsPASS. Execution-fork setup remaining, no native marker. |
 | Fresh restore fixture | Relay #166,codex/r5-native-recovery-20261022,f15a0825e82b3ec0775cac5286e6da9e2c191579 | COMPLETED bounded source/6current-protocol/crypto/source/admission controlsPASS; known-public vector, provider-free current v3. Build workflow correctlySKIPPED; no native execution. |
-| Fresh restore / native accounts UI | Separate recovery consumer, then account switching | RUNNING bounded packages; genuine normal Restore UI/native Realm and cold history, native generated B remains on-device in separate package. Source estimates12–16k/7–12k, split before20k. No native result yet. |
-| Hosted driver/runtime diagnosis | codex/r5-hosted-readiness-20261022 #7094,a319936a754372ff76b10d515dadeded87e88aca; reviewed follow-up codex/r5-startup-diagnostic-cleanup #7103,50a0e3e7c1acbc8417001a6bbd1c691f7b2c08e8 | COMPLETED bounded source/integration/review;108Node/124Python/actionlintPASS, root32affected controlsPASS. Initialffb2131 diagnosis39832536511FAIL, runner lookup timed outUNKNOWN. No proven SDK cause; unchanged3eb retry passed driver readiness. New observation collectionNOTRUN. |
-| Historical public caller ports | codex/r4-public-ci-v3-ports-20261022 #7091,b9dc036049561a8edd48f18f7492e2520ce4591c | RUNNING independent work preserved;32candidate ports, genuine runtime pending at inspected checkpoint,263historical obligations remain. |
+| Recovery receipt admission | Private Relay #169,codex/r5-native-recovery-admission-20261022,2b4b38ab59fb83af91f90f8ed2e387670a87a849 | COMPLETED bounded source,7Node+5receipt/lifecycle+13cleanup controlsPASS at exact8cf; original source-guard failure retained. Rejects forged/stale owner/nonzero backend exit. Only explicit3eb/8cf source admitted; newer candidate needs a separately reviewed finite retarget. NativeNOTRUN. |
+| Normal fresh restore UI | Private Relay #171,codex/r5-native-recovery-ui-20261022,265e9d5c3e0145af5da94c5e28ed2db9d70fc712 | COMPLETED source/review,11Node+12Python+13cleanupPASS; real protocol/crypto/owned service disposal. Normal Restore writes genuine Realm, checks public-vector identity/counts/consent/history/coldPIN. Source16.2k; native unarmed/NOTRUN, authentic historical migration not claimed. |
+| Account-isolation fixture | Private Relay #173,codex/r5-native-account-fixture-20261022,6cecfaa3c7db29cd2b131ab6c523a90f313e6c24 | COMPLETED corrected source/review,11genuine-host controlsPASS including arm-time slow-body boundary and held-abort poisoning. Earliera438 source/results preserved. Durable distinct A/B namespaces and signed snapshots, no production accounts. Source~10k; nativeNOTRUN. |
+| Normal account-switch UI | codex/r5-native-account-switch-20261022, base6cecfaa3c7db29cd2b131ab6c523a90f313e6c24; producer checkpoint pending | RUNNING separate12–15k package; generated B stays on-device, cold normal A→B→A/PIN/history/consent isolation. No execution marker or native credit; preserve active producer. |
+| Hosted driver/runtime diagnosis | codex/r5-hosted-readiness-20261022 #7094,c79ab7c22a3a371a7bb7e3b66b788b000a64cc62; cleanup #7103,50a0e3e7c1acbc8417001a6bbd1c691f7b2c08e8 | COMPLETED source/setup observation. Corrected setup39841528773: actual listappsTIMEOUT→SUCCESS11.072s, unchanged driverPASS101.9s, both Keeper app jobsSKIPPED.108Node139PythonPASS. Initialffb setupFAIL preserved; no SDK/daemon cause proven. Full ancestry retained while selected17bf/23f orchestration supersedes per-sample simulator lifecycle. |
+| Queue/bootstrap caller ports | codex/r4-public-ci-v3-ports-20261022 #7091,b572b28c9cec09e47e1b9cb3b62a51369dd74c51 | COMPLETED32genuine current-protocol casesPASS/run39833492710; originalb9dc31PASS/1FAIL preserved. Included by #7105 ancestry without duplicate patches; original295-case matrix unchanged. |
+| Label caller ports | codex/r5-protected-label-callers-20261022 #7105,6cf2ab15bb2bee4ab84c88decbfb6e88d609bcb0; private Relay #172,1db92881f9fb94c66bc1d24b181d9fdb603de07e | COMPLETED9genuine host casesPASS/run39843462322, app6cf/Relay29597,13guards/source/frozen inputs/owned cleanupPASS; no native/rendered UI credit. Separate~6k package included. |
+| Wallet/Vault caller ports | codex/r5-protected-wallet-vault-callers-20261022 #7106,83609f374b28b497850e1a68fe0ec9d7b2925937; private Relay #174,9c45b392ba105be570c8ceab5e44d3375d4871cf | COMPLETED11genuine host casesPASS/run39845023112, app836/Relay29597,15guards/three source checks/frozen inputs/actual Realm/owned cleanupPASS. Separate7–11k package included. Original retired matrix unchanged; neither package supplies combined/native acceptance. |
 | 5.2 | Actual task/branch/PR/handoff unavailable | RUNNING per owner; locate authoritative completed checkpoint, inspect overlaps, integrate verified commits and rerun affected checks before freeze. |
 | Read-only assessor | task01a15e9e-3c9a-7518-8adc-2fe5eee410f4; supplied patchSHA2567f7ffc52c1aafa39448e2a1d6e7205c6a2b4c98606eb3a23b830bfe413a2c50f | BLOCKED source handoff; full key/origin/script/intent binding and native isolation remain. Never guessed to be5.2. |
 | Navigation7055/timezone6991 | Existing bounded investigations | REMAINING native reproduction/QA; fourTZ72assertions+18historical controls, no confirmed narrow fix. Preserve scoped PIN/Emergency/backup copy. |
@@ -91,15 +102,25 @@ operation requirements. No production account operation is permitted here.
 
 ## Evidence retained and remaining deltas
 
-The current3eb window is preserved independently of next-source work. Attempt1
+The completed3eb window is preserved independently of next-source work. Attempt1
 iOS driverFAIL/appNOTRUN; Android build/install/actual installed APKPASS but
 startupFAIL, product/worker/Retry/key UI/five measurementsNOTRUN. Attempt2passed
 the unchanged driver and development build, then failed during app installation:
 simctl install reached120seconds (exit124, observed120.4s), before Maestro/UI or
 installed-byte comparison. Its iOS artifact12452576904 ZIP SHA256 is
 eb78af70712620e31478d239931f804e21cdad11fc8655f398023d77f87cfc3a.
-The dependent Android continuation started naturally as job120035062245;
-preserve it. Every outcome belongs only to3eb and its actual run/attempt.
+The dependent Android continuation finished naturally as job120035062245:
+build/startup/Realm-MMKV persistence/all5 worker cases/installed APK bytesPASS,
+but product sample1FAIL during PIN/onboarding, before wallet_start or account
+creation. Its only product duration is startup_to_passcode_ms20111.336;
+create_new_app_calls0, no first-wallet measurement, no five product pairs.
+Retry/key/credential/history/Vault companionsNOTRUN. Worker measurements are
+controlled probes, not product samples. Android artifact12453239850 ZIP SHA256
+e1e3330538fe266ff29b3bbe278907dc5e914b56f13f3e3d3df57fc9441c9048;
+APK926daa77e540b063832438962a76912854b16a1998534dcebd5618151b7bb2fe.
+No safe failed-step/JUnit was retained; the specific action/cause is unknown.
+Every outcome belongs only to3eb and its actual run/attempt. The next sole
+window39846002094 runs immutable23f14 on #7107, never the integration's later SHA.
 
 Old public protocol matrix2PASS/293FAIL, original CodeQL High, whole TypeScript
 943errors and ESLint4450errors/882warnings remain recorded. Exact3eb individually
@@ -107,16 +128,32 @@ normalized static comparison had0added/0removed diagnostics. Scoped7098CodeQL
 PASS is not fullR5clearance. An independent exact3eb local scan completed all89
 default queries (888/888JS/TS and13/13Actions files), finding two inherited High
 results; the first2048MB analysis attempt failed with OOM and the bounded4096MB
-retry completed. Private SARIF and source evidence remain under SECURITY.md;
-combined security comparison is pending. New combined checks must report
+retry completed. Exact8cf independent comparison completed all89queries,
+930/930JS-TS and19/19Actions files, retaining one inherited High with identical
+SARIF fingerprint/source blob and zero new alerts. Private SARIF/evidence remain
+under SECURITY.md. Independent synthetic review confirmed the remaining issue
+is actionable; its separately documented versioned credential/storage migration
+is8–15k and excluded/later unless explicitly reassigned. No waiver or clearance.
+New combined checks must report
 their own findings and source, including inherited failures and environment
 blockers. Never suppress or relabel them as native success.
+
+Exact8cf local source checks passed50Jest suites/788tests,148nativeNode,
+179Python,303preparationNode/25Python, frozen Ruby checks and32runs175assertions.
+Local recovery originally492PASS/one Realm prerequisite environmentFAIL; this
+failure stays recorded. Genuine private exact8cf host runs above subsequently
+passed all502recovery cases. Standard public8cf CI used a different synthetic
+mergeSHA despite the same tree, so its passes are not exact8cf evidence. #7108
+corrects that checkout policy for future runs. Whole8cf TypeScript943FAIL and
+ESLint4450errors/885raw warningsFAIL; tracked-source normalization against3eb
+has zero added/removed diagnostics,882tracked warnings plus3generated warnings.
 
 Core+5.1 already approximate35k changed code/test tokens. Major adopted
 infrastructure retains its original reviews. New credential8–10k/history9.7k/
 Vault8.3k/orchestration11–13k/Android diagnostics6.5k and private fixture9k/UI13–16k
 are separate packages. Remaining source deltas include bounded recovery/account
-packages above, small diagnosis overlap/cleanup fixes, final receipt-schema/trust
-integration and source retargeting after5.2. Unknown5.2/assessor scope cannot be
+packages above, bounded private execution admission/retargeting and remaining
+parent-receipt/trust integration after real native observations. Candidate-source
+retargeting is required after5.2. Unknown5.2/assessor scope cannot be
 estimated honestly before their authoritative handoffs. Continue unrelated Cloud
 work while those dependencies remain unresolved.

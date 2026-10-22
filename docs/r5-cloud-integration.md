@@ -7,7 +7,9 @@ not a prerequisite. No producer branch or shared branch is rewritten.
 The current package ledger is [R5 delivery continuation](r5/DELIVERY-CONTINUATION.md).
 The PR descriptions hold exact candidate/run/attempt results; implementation
 package checks below never transfer to a new integration SHA. The isolated
-execution window on #7082 remains at3eb92fc while this next candidate is prepared.
+completed execution window on #7082 remains at3eb92fc. The sole next hosted
+window is #7107 at23f14e01f3437c213f1443c3167d96022f3a43bc, separate from
+this integration's later SHA. Its receipts never transfer to this source.
 
 ## Source continuity
 
