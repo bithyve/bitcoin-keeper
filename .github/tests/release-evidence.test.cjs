@@ -1,61 +1,49 @@
+'use strict';
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { evidence } = require('../native/release_evidence.cjs');
-function fixture() {
-  const repository = 'KeeperCommunity/bitcoin-keeper';
-  const pr = { number: 7058, head: { sha: 'a'.repeat(40), ref: 'future-release',
-    repo: { full_name: repository, id: 1 } }, base: { sha: 'b'.repeat(40), ref: 'sprint',
-    repo: { full_name: repository, id: 1 } } };
-  const context = { repo: { owner: 'KeeperCommunity', repo: 'bitcoin-keeper' },
-    eventName: 'pull_request', runId: 90, payload: { pull_request: pr } };
-  const run = { id: 90, run_attempt: 2, path: '.github/workflows/keeper-release-acceptance.yml',
-    event: 'pull_request', head_sha: pr.head.sha, head_branch: pr.head.ref,
-    head_repository: pr.head.repo, pull_requests: [structuredClone(pr)], status: 'in_progress' };
-  const jobs = ['IOS', 'ANDROID'].map(platform => ({
-    name: `${platform.toLowerCase()} / Native ${platform} build and probes`, head_sha: pr.head.sha,
-    run_id: 90, run_attempt: 2, status: 'completed', conclusion: 'success',
-    steps: ['Build development app', ...(platform === 'IOS'
-      ? ['Run disposable startup smoke', 'Run disposable native persistence probe']
-      : ['Run Android startup and native persistence probes'])].map(name =>
-      ({ name, status: 'completed', conclusion: 'success' })),
-  }));
-  const state = { runs: [run], jobs, context, input: { ios: 'success', android: 'success', attempt: 2 }, calls: [] };
-  const runsAPI = () => {}; const jobsAPI = () => {};
-  state.github = { rest: { actions: { listWorkflowRuns: runsAPI, listJobsForWorkflowRunAttempt: jobsAPI } },
-    paginate: async (api, args) => { state.calls.push(args); if (state.error) throw new Error('private');
-      return api === runsAPI ? [...state.runs] : state.jobs; } };
-  state.check = () => evidence(state.github, state.context, state.input);
-  return state;
-}
-test('current in-progress summary credits both completed exact-attempt native jobs only', async () => {
-  const state = fixture(); assert.equal(await state.check(), true);
-  assert.equal(state.calls[1].attempt_number, 2);
-  assert.equal(state.calls[0].head_sha, state.context.payload.pull_request.head.sha);
+const { fixture } = require('./fixtures/actions-software.cjs');
+const { evidence, softwareEvidence } = require('../native/release_evidence.cjs');
+const { acceptance, markdown, REQUIRED } = require('../native/release_acceptance.cjs');
+const check = state => softwareEvidence(state.github, state.context, state.input, state.options);
+test('summary consumes original-byte proof and displays actual scoped checks while parents stay blocked', async () => {
+  const state = fixture(), proof = await check(state);
+  const result = acceptance({ publicSoftware: proof, ios: 'success', android: 'success' });
+  assert.deepEqual(result.cases.map(row => row.id), REQUIRED);
+  assert.deepEqual(result.cases.slice(0, 2).map(row => row.status), ['PASS', 'PASS']);
+  assert.ok(result.cases.slice(2).every(row => row.status === 'NOT VERIFIED'));
+  assert.equal(result.software_complete, false); assert.equal(result.release_ready, false);
+  assert.match(markdown(result), /IOS: five-product-observations/);
+  assert.match(markdown(result), /ANDROID: controlled-setup-disconnect-retry/);
+  assert.match(markdown(result), /PRIVATE PARENTS INCOMPLETE/);
+  assert.match(markdown(result), /no release-build budget/);
+  for (const key of ['authorization_eligible', 'release_authorized', 'execution_allowed']) assert.equal(result[key], false);
 });
-test('latest run and attempt prevent summary-only partial reruns and older-run reuse', async () => {
-  for (const mutate of [s => { s.jobs.pop(); }, s => { s.jobs[0].run_attempt = 1; },
-    s => { s.runs[0].run_attempt = 3; }, s => { s.runs.push({ ...s.runs[0], id: 91 }); }]) {
-    const state = fixture(); mutate(state); assert.equal(await state.check(), false);
+test('caller PASS flags, copied proofs, and private envelopes cannot supply native parent credit', async () => {
+  const state = fixture(), proof = await check(state);
+  for (const value of [null, { status: 'PASS' }, structuredClone(proof), { selected_route: 'canonical-hosted-native', software_complete: true }]) {
+    const result = acceptance({ trusted: true, publicSoftware: value, ios: 'success', android: 'success' });
+    assert.ok(result.cases.every(row => row.status === 'NOT VERIFIED'));
+    assert.equal(result.public_software, null); assert.equal(result.software_complete, false);
   }
 });
-test('wrong source, workflow, event, PR association and repository provide no evidence', async () => {
-  for (const mutate of [s => { s.runs[0].head_sha = 'c'.repeat(40); },
-    s => { s.runs[0].path = 'other.yml'; }, s => { s.runs[0].event = 'push'; },
-    s => { s.runs[0].head_branch = 'other'; }, s => { s.runs[0].head_repository = { id: 9 }; },
-    s => { s.runs[0].pull_requests[0].number += 1; },
-    s => { s.runs[0].pull_requests[0].base.sha = 'c'.repeat(40); }]) {
-    const state = fixture(); mutate(state); assert.equal(await state.check(), false);
-  }
+test('compatibility boolean requires the complete same original-byte proof', async () => {
+  const state = fixture();
+  assert.equal(await evidence(state.github, state.context, state.input, state.options), true);
+  state.jobs[0].steps.pop();
+  assert.equal(await evidence(state.github, state.context, state.input, state.options), false);
 });
-test('failed/skipped/pending jobs, build-only results and ambiguous steps cannot pass', async () => {
-  for (const mutate of [s => { s.jobs[0].conclusion = 'failure'; },
-    s => { s.jobs[1].status = 'in_progress'; }, s => { s.jobs[0].steps.pop(); },
-    s => { s.jobs[1].steps[1].conclusion = 'skipped'; }, s => { s.jobs.push(s.jobs[0]); },
-    s => { s.jobs[0].steps.push(s.jobs[0].steps[0]); }, s => { s.input.android = 'skipped'; },
-    s => { s.context.payload.pull_request.number = 7045; },
-    s => { s.context.payload.pull_request.head.repo.full_name = 'fork/bitcoin-keeper'; },
-    s => { s.runs[0].status = 'queued'; },
-    s => { Object.assign(s.runs[0], { status: 'completed', conclusion: 'cancelled' }); }, s => { s.error = true; }]) {
-    const state = fixture(); mutate(state); assert.equal(await state.check(), false);
-  }
+test('blocking reason is fixed vocabulary, without API payloads, URLs or apparent release authority', async () => {
+  const state = fixture(); state.apiError = true;
+  const result = await check(state);
+  assert.equal(result.status, 'BLOCKED'); assert.equal(result.reason, 'SOFTWARE_EVIDENCE_INVALID');
+  assert.equal(JSON.stringify(result).includes('PRIVATE_PAYLOAD'), false);
+  assert.equal(result.installed_trust, 'UNVERIFIED');
+  assert.ok(Object.isFrozen(result));
+  const summary = markdown(acceptance({ publicSoftware: result, ios: 'success', android: 'success' }));
+  assert.match(summary, /SOFTWARE_EVIDENCE_INVALID/); assert.doesNotMatch(summary, /https:/);
+});
+test('old build-only API model supplies no new evidence or raw software pass', async () => {
+  const state = fixture(); delete state.input.workflowSha;
+  assert.equal(await evidence(state.github, state.context, state.input, state.options), false);
+  assert.equal(state.calls.length, 0);
 });
