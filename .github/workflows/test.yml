@@ -8,6 +8,8 @@ on:
       - main
       - release/2.6.3
       - release/2.6.4
+      # Isolated ownership package: actual disposable CI only, no native/release route.
+      - codex/r5-public-ci-mongo-owner-20261022
   pull_request:
     branches:
       - sprint
@@ -184,22 +186,9 @@ jobs:
         run: node .github/scripts/verify-ci-source.cjs --paired-relay
 
       - name: Start disposable loopback Mongo replica set
-        shell: bash
         run: |
-          set -euo pipefail
-          docker run --detach --name keeper-backup-mongo \
-            --publish 127.0.0.1:27058:27058 \
-            mongo:7.0@sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca \
-            mongod --replSet keeperQA --bind_ip_all --port 27058
-          for attempt in {1..30}; do
-            if docker exec keeper-backup-mongo mongosh --port 27058 --quiet --eval \
-              'try { rs.status(); } catch (e) { if (e.code !== 94) throw e; rs.initiate({_id: "keeperQA", members: [{_id: 0, host: "127.0.0.1:27058"}]}); } quit(db.hello().isWritablePrimary ? 0 : 1)'; then
-              exit 0
-            fi
-            sleep 2
-          done
-          docker logs keeper-backup-mongo
-          exit 1
+          python3 -B .github/ci/test_public_ci_mongo.py
+          python3 -B .github/ci/public_ci_mongo.py start
 
       - name: Run genuine automatic backup source matrix
         run: npm run test:automatic-backup-genuine
@@ -210,4 +199,4 @@ jobs:
 
       - name: Remove disposable Mongo container
         if: always()
-        run: docker rm --force keeper-backup-mongo || true
+        run: python3 -B .github/ci/public_ci_mongo.py cleanup
