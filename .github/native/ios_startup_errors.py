@@ -48,6 +48,15 @@ _SEVERITIES = {'a', 'd', 'db', 'df', 'i', 'info', 'default', 'debug',
 _ERROR_SEVERITIES = {'e', 'er', 'error', 'f', 'ft', 'fault'}
 _ERROR_MARKER = re.compile(
     r'\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b', re.IGNORECASE)
+STARTUP_STAGES = ('READ_CALL', 'STATE_READ', 'SERVICE_SELECT', 'KEYCHAIN_READ',
+                  'CREDENTIAL_PARSE', 'NAVIGATE_LOGIN', 'NAVIGATE_CREATE_PIN')
+STARTUP_CATEGORIES = ('NATIVE_CODE_NEG34018', 'NATIVE_CODE_NEG25308', 'NATIVE_CODE_NEG25291',
+                      'NATIVE_CODE_NEG25293', 'NATIVE_CODE_NEG26275', 'NATIVE_CODE_NEG50',
+                      'ERROR', 'TYPE_ERROR', 'SYNTAX_ERROR', 'RANGE_ERROR', 'REFERENCE_ERROR', 'UNKNOWN')
+_STARTUP_MARKER = re.compile(
+    # Exact RN0.83.9 OSLog subsystem/category in the compact message envelope.
+    r'(?:\[com\.facebook\.react\.log:javascript\] )?KEEPER_STARTUP_ERROR stage=(' + '|'.join(STARTUP_STAGES) +
+    r') category=(' + '|'.join(STARTUP_CATEGORIES) + r')')
 
 
 def classify(payload, executable):
@@ -79,6 +88,8 @@ def classify(payload, executable):
         'scan_limit_reached': False, 'record_limit_reached': False,
         'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED',
         'scope': 'PREFIXED_OWN_PROCESS_MARKERS_ONLY_NOT_CAUSE_OR_ACCEPTANCE',
+        'startup_failure_facts': [], 'startup_failure_fact_limit_reached': False,
+        'startup_failure_scope': 'FIXED_DEVELOPMENT_STAGE_MARKERS_NOT_AUTHENTICATED_CAUSE',
     }
     for index, raw in enumerate(io.StringIO(prefix)):
         if index >= MAX_SCAN_LINES:
@@ -110,9 +121,15 @@ def classify(payload, executable):
         if match['process'] != executable:
             continue
         result['matching_process_records'] += 1
+        marker = _STARTUP_MARKER.fullmatch(match['message'])
+        if marker:
+            if len(result['startup_failure_facts']) < 32:
+                result['startup_failure_facts'].append({'stage': marker[1], 'category': marker[2]})
+            else:
+                result['startup_failure_fact_limit_reached'] = True
         categories = [name for name, pattern in _CATEGORY_PATTERNS.items()
                       if pattern.search(match['message'])]
-        error = (bool(categories) or match['severity'].lower() in _ERROR_SEVERITIES or
+        error = (bool(marker) or bool(categories) or match['severity'].lower() in _ERROR_SEVERITIES or
                  bool(_ERROR_MARKER.search(match['message'])))
         if error:
             result['error_records'] += 1

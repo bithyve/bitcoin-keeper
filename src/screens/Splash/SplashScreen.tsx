@@ -4,6 +4,12 @@ import { useColorMode } from '@gluestack-ui/themed-native-base';
 import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import * as SecureStore from 'src/storage/secure-store';
+import {
+  reportStartupFailure,
+  startupFailureFact,
+  StartupFailureFact,
+  StartupFailureStage,
+} from 'src/storage/startup-credential-diagnostics';
 import Animated, {
   interpolate,
   cancelAnimation,
@@ -67,16 +73,30 @@ function SplashScreen({ navigation }) {
     let current = true;
     readPending.current = true;
     const navigateToApp = async () => {
+      let failure: StartupFailureFact | undefined;
+      let stage: StartupFailureStage = 'READ_CALL';
       try {
-        const hasCreds = await SecureStore.hasPin({ throwOnError: true });
+        const hasCreds = await SecureStore.hasPin({
+          throwOnError: true,
+          ...(__DEV__
+            ? {
+                onReadFailure: (fact: StartupFailureFact) => {
+                  failure = fact;
+                },
+              }
+            : {}),
+        });
         if (!current) return;
         if (hasCreds) {
+          stage = 'NAVIGATE_LOGIN';
           navigation.replace('Login', { relogin: false });
         } else {
+          stage = 'NAVIGATE_CREATE_PIN';
           navigation.replace('CreatePin');
         }
-      } catch {
+      } catch (error) {
         if (current) {
+          if (__DEV__) reportStartupFailure(failure ?? startupFailureFact(stage, error));
           readPending.current = false;
           setStartupError(true);
         }

@@ -377,7 +377,10 @@ def record_startup_failure(report, device):
             predicate = ('process == "%s" AND (messageType == "error" OR messageType == "fault" '
                          'OR eventMessage CONTAINS[c] "error" OR eventMessage CONTAINS[c] "exception" '
                          'OR eventMessage CONTAINS[c] "fatal")') % executable
-            args = ['xcrun', 'simctl', 'spawn', device, 'log', 'show', '--style', 'compact',
+            # RN0.83.9 forwards a single console.info string unchanged to
+            # RCTDefaultLogFunction / OS_LOG_TYPE_INFO. Request that level in the
+            # existing bounded query; persistence/routing still need native proof.
+            args = ['xcrun', 'simctl', 'spawn', device, 'log', 'show', '--info', '--style', 'compact',
                     '--last', '10m', '--predicate', predicate]
             path = PRIVATE / 'ios-startup-errors.log'
             # Keep log/xcrun notices private and separate from compact records.
