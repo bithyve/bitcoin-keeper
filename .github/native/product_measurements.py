@@ -123,7 +123,10 @@ def run(h):
     if (data['build'] != 'PASS' or data['source_sha'] != os.environ.get('KEEPER_SOURCE_SHA') or
             actual_source != data['source_sha'] or h.artifact_identity() != data['built_artifact']):
         raise RuntimeError('PRODUCT_UI_EXACT_BUILD_REQUIRED')
-    if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', '.github/native', 'src', 'index.js'],
+    source_paths = ['.github/native', 'src', 'index.js', 'App.tsx', 'App.js', 'shim.js',
+                    'AndroidFontFix.js', 'metro.config.js', 'babel.config.js', 'app.json',
+                    'react-native.config.js', 'tsconfig.json', 'package.json', 'yarn.lock']
+    if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', *source_paths],
                       cwd=h.ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
         raise RuntimeError('PRODUCT_UI_COMMITTED_SOURCE_REQUIRED')
     expected_environment = {
