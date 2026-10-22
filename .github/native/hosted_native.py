@@ -7,6 +7,7 @@ The gate trusts protected workflow/job provenance, never this writable artifact.
 
 import hashlib
 import importlib.util
+import io
 import json
 import math
 import os
@@ -22,6 +23,7 @@ import time
 from types import SimpleNamespace
 import urllib.request
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,6 +33,10 @@ EVIDENCE = ROOT / 'artifacts' / 'native' / PLATFORM.lower() / 'metadata.json'
 MAESTRO_VERSION = 'cli-2.11.0'
 MAESTRO_SHA256 = '5384593cb4e7a106489e75a821d157dd43f4e438df6bc308b72e82c685e1283a'
 APP_IDS = {'IOS': 'io.hexawallet.hexakeeper.dev', 'ANDROID': 'io.hexawallet.keeper.development'}
+IOS_LOG_MAX_INPUT_BYTES = 1024 * 1024
+IOS_LOG_MAX_RECORD_BYTES = 16 * 1024
+IOS_LOG_MAX_SCAN_LINES = 4096
+IOS_LOG_MAX_OWN_RECORDS = 4096
 
 
 def save(data):
@@ -167,13 +173,20 @@ def private_log_prefix(path):
 
 
 def ios_startup_diagnostics(payload, executable):
-    if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]*', executable):
+    if (not isinstance(executable, str) or
+            not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}', executable)):
         raise ValueError('Unsafe iOS executable selector.')
+    if not isinstance(payload, str):
+        raise TypeError('Expected compact log text.')
     # log(1) compact: ISO timestamp, abbreviated type, process[PID:TID], message.
-    # Only prefixed own-process records qualify; never retain continuation lines.
-    pattern = re.compile(r'^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?'
-                         r'(?:[+-]\d{2}:?\d{2}|Z)?\s+(\S+)\s+'
-                         r'([A-Za-z0-9_.-]+)\[\d+:[A-Fa-f0-9x]+\]\s+(.*)$')
+    # Framing/bounds adapted from #7115/eceb; retain this source's categories.
+    # Rendered text is not authenticated provenance. Never attach continuations.
+    pattern = re.compile(r'(?P<timestamp>\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?'
+                         r'(?:[+-]\d{2}:?\d{2}|Z)?)\s+(?P<severity>[A-Za-z]+)\s+'
+                         r'(?P<process>[A-Za-z0-9_.-]{1,128})\[(?P<pid>[1-9]\d{0,9}):'
+                         r'(?:0x)?[A-Fa-f0-9]{1,16}\]\s+(?P<message>.*)')
+    severities = {'a', 'd', 'db', 'df', 'i', 'info', 'default', 'debug',
+                  'e', 'er', 'error', 'f', 'ft', 'fault'}
     patterns = {
         'JS_TYPE': r'\bTypeError\b', 'JS_REFERENCE': r'\bReferenceError\b',
         'JS_SYNTAX': r'\bSyntaxError\b', 'JS_RANGE': r'\bRangeError\b',
@@ -187,16 +200,43 @@ def ios_startup_diagnostics(payload, executable):
         'ATS_BLOCKED': r'App Transport Security.*(?:blocked|requires)|NSURLErrorDomain.*-1022\b',
         'CONNECTION': r'ECONNREFUSED|Connection refused|NSURLErrorDomain.*-(?:1001|1003|1004|1009)\b|The Internet connection appears to be offline',
     }
+    encoded = payload[:IOS_LOG_MAX_INPUT_BYTES + 1].encode('utf-8', errors='replace')
+    truncated = len(payload) > IOS_LOG_MAX_INPUT_BYTES or len(encoded) > IOS_LOG_MAX_INPUT_BYTES
+    prefix = encoded[:IOS_LOG_MAX_INPUT_BYTES].decode('utf-8', errors='replace')
+    if truncated:
+        prefix = prefix.rsplit('\n', 1)[0] + '\n' if '\n' in prefix else ''
     selected, counts = [], {name: 0 for name in patterns}
     matched, errors, classified = 0, 0, 0
-    for line in payload.splitlines():
-        match = pattern.match(line)
-        if not match:
+    malformed, oversized, scan_limit, record_limit = 0, 0, False, False
+    replacement = '\ufffd' in prefix
+    for index, raw in enumerate(io.StringIO(prefix)):
+        if index >= IOS_LOG_MAX_SCAN_LINES:
+            scan_limit = True
+            break
+        if matched >= IOS_LOG_MAX_OWN_RECORDS:
+            record_limit = True
+            break
+        line = raw.removesuffix('\n').removesuffix('\r')
+        if len(line) > IOS_LOG_MAX_RECORD_BYTES or len(line.encode('utf-8')) > IOS_LOG_MAX_RECORD_BYTES:
+            oversized += 1
             continue
-        severity, process, message = match.groups()
-        if process != executable:
+        match = pattern.fullmatch(line)
+        if not match:
+            malformed += bool(re.match(r'^\d{4}-', line))
+            continue
+        try:
+            datetime.fromisoformat(match['timestamp'].replace('Z', '+00:00'))
+            valid = (match['severity'].lower() in severities and int(match['pid']) <= 2147483647
+                     and not any(ord(char) < 32 and char != '\t' for char in line))
+        except ValueError:
+            valid = False
+        if not valid:
+            malformed += 1
+            continue
+        if match['process'] != executable:
             continue
         matched += 1
+        severity, message = match['severity'], match['message']
         found = [name for name, regex in patterns.items() if re.search(regex, message, re.IGNORECASE)]
         if found or severity.lower() in ['e', 'f', 'er', 'ft', 'error', 'fault'] or re.search(
                 r'(?:\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b)',
@@ -207,8 +247,14 @@ def ios_startup_diagnostics(payload, executable):
             classified += bool(found)
             for name in found:
                 counts[name] += 1
+    partial = any([truncated, malformed, oversized, replacement, scan_limit, record_limit])
     return {'format': 'compact', 'matching_process_records': matched,
             'errors': selected, 'observation_state': 'OWN_RECORDS_OBSERVED' if matched else 'UNKNOWN',
+            'parse_status': 'UNKNOWN' if not matched else 'PARTIAL' if partial else 'PARSED',
+            'cause': 'UNDETERMINED', 'input_truncated': truncated,
+            'malformed_record_lines': malformed, 'oversized_record_lines': oversized,
+            'replacement_character_observed': replacement,
+            'scan_limit_reached': scan_limit, 'record_limit_reached': record_limit,
             'error_records': errors, 'classified_error_records': classified,
             'unclassified_error_records': errors - classified,
             'categories': [name for name, count in counts.items() if count],
@@ -428,12 +474,16 @@ def record_startup_failure(report, device):
                     code = result.returncode
                 except subprocess.TimeoutExpired:
                     code = 124
-            result = {'command': args, 'exit_code': code, 'errors': [], 'observation_state': 'UNKNOWN'}
+            result = {'command': args, 'exit_code': code, 'errors': [], 'observation_state': 'UNKNOWN',
+                      'query_status': 'SUCCESS' if code == 0 else 'TIMEOUT' if code == 124 else 'FAILED',
+                      'parse_status': 'UNKNOWN', 'cause': 'UNDETERMINED', 'input_truncated': None}
             if code == 0:
                 try:
                     payload, truncated = private_log_prefix(path)
                     result.update(ios_startup_diagnostics(payload, executable))
-                    result['input_truncated'] = truncated
+                    result['input_truncated'] |= truncated
+                    if truncated:
+                        result['parse_status'] = 'PARTIAL' if result['matching_process_records'] else 'UNKNOWN'
                 except (ValueError, TypeError) as error:
                     result['parse_error'] = type(error).__name__
             return result

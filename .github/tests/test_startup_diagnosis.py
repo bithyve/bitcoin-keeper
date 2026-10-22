@@ -117,7 +117,7 @@ class StartupDiagnosisTests(unittest.TestCase):
             {'time_ms': 151, 'kind': 'RESPONSE', 'request': 'ENTRY_BUNDLE', 'outer_http_status': 200},
         ]
         (self.root / 'startup-observer.jsonl').write_text('\n'.join(json.dumps(row) for row in rows))
-        with mock.patch.object(diagnosis.time, 'time', return_value=0.150), \
+        with mock.patch.object(diagnosis.time, 'time', side_effect=[0.150, 0.200]), \
                 mock.patch.object(diagnosis.subprocess, 'Popen') as popen, \
                 mock.patch.object(diagnosis.subprocess, 'run') as run:
             handle = diagnosis.start(native, device)
@@ -253,6 +253,53 @@ class StartupDiagnosisTests(unittest.TestCase):
                     self.assertEqual(facts['hierarchy']['observation_state'], 'UNKNOWN')
                     self.assertIsNone(facts['hierarchy']['credential_error'])
                     self.assertIn('hierarchy', facts['collection_errors'])
+
+    def test_ios_future_rows_are_unknown_and_build_options_remain_fixed_without_inheritance(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        rows = [
+            {'time_ms': 149, 'kind': 'BUILD', 'event': 'bundle_build_started',
+             'platform': 'ios', 'dev': True, 'minify': False},
+            {'time_ms': 150, 'kind': 'BUILD', 'event': 'bundle_build_done'},
+            {'time_ms': 200, 'kind': 'BUILD', 'event': 'bundle_build_failed',
+             'platform': 'PRIVATE_SENTINEL', 'dev': 1, 'minify': 'PRIVATE_SENTINEL'},
+            {'time_ms': 201, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE', 'options': {'platform': 'ios'}},
+        ]
+        (self.root / 'startup-observer.jsonl').write_text('\n'.join(json.dumps(row) for row in rows))
+        with mock.patch.object(diagnosis.time, 'time', return_value=0.200):
+            facts = diagnosis.collect(native, device, SimpleNamespace(started_ms=150))['metro']
+        self.assertEqual([row['stage'] for row in facts['rows']], ['BEFORE_APP', 'APP_WINDOW', 'APP_WINDOW', 'UNKNOWN'])
+        self.assertEqual({key: facts['rows'][0][key] for key in ['platform', 'dev', 'minify']},
+                         {'platform': 'ios', 'dev': True, 'minify': False})
+        self.assertEqual({key: facts['rows'][1][key] for key in ['platform', 'dev', 'minify']},
+                         {'platform': None, 'dev': None, 'minify': None})
+        self.assertEqual({key: facts['rows'][2][key] for key in ['platform', 'dev', 'minify']},
+                         {'platform': 'OTHER', 'dev': None, 'minify': None})
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+
+    def test_ios_row_and_options_shapes_are_invalid_and_android_schema_is_unchanged(self):
+        native = SimpleNamespace(PRIVATE=self.root, PLATFORM='IOS')
+        device = '12345678-1234-1234-1234-123456789ABC'
+        rows = [[], None, 'PRIVATE_SENTINEL',
+                {'time_ms': 150, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE', 'options': []},
+                {'time_ms': 150, 'kind': 'REQUEST', 'request': 'ENTRY_BUNDLE', 'options': 'PRIVATE_SENTINEL'}]
+        path = self.root / 'startup-observer.jsonl'
+        path.write_text('\n'.join(json.dumps(row) for row in rows))
+        facts = diagnosis.collect(native, device)['metro']
+        self.assertEqual(facts['invalid_rows'], len(rows))
+        self.assertEqual(facts['rows'], [])
+        self.assertEqual(facts['coverage'], 'UNKNOWN')
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+        path.write_text(json.dumps({'time_ms': 201, 'kind': 'BUILD', 'event': 'bundle_build_started',
+                                    'platform': 'android', 'dev': True, 'minify': False}))
+        with mock.patch.object(diagnosis.time, 'time', return_value=0.200), \
+                mock.patch.object(diagnosis.subprocess, 'run', return_value=SimpleNamespace(returncode=1, stdout=b'')):
+            facts = diagnosis.collect(self.native, 'emulator-5554', SimpleNamespace(started_ms=150))['metro']
+        self.assertEqual(facts['rows'][0]['stage'], 'APP_WINDOW', 'the new end bound is iOS-only')
+        self.assertNotIn('platform', facts['rows'][0])
+        self.assertNotIn('dev', facts['rows'][0])
+        self.assertNotIn('minify', facts['rows'][0])
+        self.assertNotIn('coverage', facts)
 
 
 if __name__ == '__main__':

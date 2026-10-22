@@ -1,13 +1,15 @@
 # iOS startup observation preparation
 
-This isolated preparation starts from exact source
-`23f14e01f3437c213f1443c3167d96022f3a43bc`. Its hosted run39846002094 attempt1
+The published #7116 preparation `76d1c949d91c5d885fc002f689a9ec321c16eafb`
+starts from exact app source `23f14e01f3437c213f1443c3167d96022f3a43bc`.
+That app source's hosted run39846002094 attempt1
 passed driver readiness, unsigned development build, app installation and the
 pre-UI installed-byte comparison, then failed to find Create a passcode. Native
 persistence, production workers and product checks did not run on iOS. The
 retained metadata has36 Metro bundle markers and2446 generic own-process log
-records; those facts do not identify the startup failure. The active combined
-window and its serialized Android execution remain untouched.
+records; those facts do not identify the startup failure. That combined window
+and its serialized Android execution finished naturally. Their source and
+results remain preserved.
 
 This changes observation only. Normal iOS startup uses the existing Metro
 middleware and CLI reporter observer already used for Android. Resolver,
@@ -37,6 +39,33 @@ limit may have been reached; it does not establish how many observations were
 lost. No coverage value claims a complete startup trace. Malformed category
 containers and supplied non-object hierarchy attributes/non-list children
 remain invalid/UNKNOWN rather than producing diagnostic facts.
+
+A subsequent diagnostic-truth adaptation uses published76 as its base and
+adopts compatible validation semantics from #7115 exact source
+`eceb5551a430a0e31cff7a32d70181ee55007b69`. It is not a startup-cause or app
+correction. Pure differential controls showed that76 could credit impossible
+dates, unsupported severity, PID0/oversized PID, malformed TID and C0 controls as
+own-process errors; vertical-tab splitting could turn message text into another
+record. The port validates a complete compact prefix, actual date, supported
+severity, positive bounded PID and hexadecimal TID, rejects control characters
+apart from tabs, and scans newline-delimited records only. Valid Apple compact
+records without a timezone and with bare hexadecimal TIDs remain supported.
+
+The existing1MiB file-prefix bound is retained. The pure classifier also bounds
+input to1MiB, individual records to16KiB and scanned lines/own records to4096.
+It reports malformed/oversized/replacement/cap facts and UNKNOWN/PARTIAL/PARSED
+parse state. PARSED describes supported bounded input, not a complete startup
+trace, process liveness or authenticated log provenance. Reader and classifier
+truncation are combined; failed or timed-out queries remain UNKNOWN and do not
+classify their partial output. The original13 category names, counts, generic
+fallback and observation state remain intact, including Hermes/ATS coverage.
+
+On iOS only, future-dated Metro rows have UNKNOWN window attribution. Fixed
+BUILD platform/dev/minify options are retained as enums/booleans/unknown values;
+done/failed events do not inherit options from an earlier started event. Row
+and request-options shapes are checked before projection. The stronger76
+category-list validation, explicit512/1024 coverage and modern Login/LogBox
+hierarchy flags remain intact. Android collector behavior/schema is unchanged.
 
 The Login flags use exact23f English strings Enter your passcode and Welcome
 Back. Credential-error and Retry are separate public flags; Retry alone does not
@@ -68,9 +97,14 @@ reporter forwarding, platform/window separation, missing/invalid data, public
 hierarchy positives/negatives, own-process log attribution and classification,
 one unchanged Maestro call, probe exclusion, original failure preservation and
 cleanup. They provide no native acceptance. Hosted iOS validation of this
-preparation is NOT RUN; physical devices and signers are NOT RUN. The original
-startup cause remains UNKNOWN. The final offline suites passed 152 Node controls
+semantic port is NOT RUN; physical devices and signers are NOT RUN. The original
+startup cause remains UNKNOWN. The published76 offline suites passed152 Node controls
 and 224 Python controls; independent review cleared malformed category shapes,
 malformed hierarchy fields and undisclosed row-cap coverage. Those are diagnostic
 accuracy checks, not native evidence. No additional native window is selected
-by this preparation.
+by this adaptation; publication and execution remain separately coordinated.
+
+The combined diagnostic preparation, including failed-product observations,
+passed 152 Node and 246 Python controls with zero failures or skips. Independent
+review cleared both the iOS parser adaptation and product reader. App source,
+dependencies, flows, workflows and deadline arguments remain unchanged from 23f.

@@ -163,18 +163,27 @@ def collect(native, device, handle=None):
         text, truncated = _read(native, native.PRIVATE / 'startup-observer.jsonl')
         rows, invalid = [], 0
         lines = text.splitlines()
+        ended_ms = int(time.time() * 1000) if native.PLATFORM == 'IOS' else None
         for line in lines[:1024]:
             if not line.strip():
                 continue
             try:
                 row = json.loads(line)
+                if native.PLATFORM == 'IOS' and type(row) is not dict:
+                    raise ValueError('Invalid observation shape.')
                 when = row.get('time_ms')
                 if type(when) is not int or when < 0 or when > 10**14:
                     raise ValueError('Invalid timestamp.')
-                result = {'stage': 'UNKNOWN' if started_ms is None else 'APP_WINDOW' if when >= started_ms else 'BEFORE_APP'}
+                result = {'stage': 'UNKNOWN' if started_ms is None or (ended_ms is not None and when > ended_ms)
+                          else 'APP_WINDOW' if when >= started_ms else 'BEFORE_APP'}
                 kind = row.get('kind')
                 if (kind == 'BUILD' and row.get('event') in ['bundle_build_started', 'bundle_build_done', 'bundle_build_failed']) or (kind == 'ERROR' and row.get('event') in ['bundling_error', 'initialize_failed', 'transformer_load_failed', 'hmr_client_error', 'cache_read_error', 'cache_write_error', 'worker_stderr_chunk']):
                     result.update(kind=kind, event=row['event'])
+                    if native.PLATFORM == 'IOS' and kind == 'BUILD':
+                        platform = row.get('platform')
+                        result['platform'] = platform if platform in ['android', 'ios', None] else 'OTHER'
+                        result.update({key: row.get(key) if type(row.get(key)) is bool else None
+                                       for key in ['dev', 'minify']})
                     result['error_type'] = row.get('error_type') if row.get('error_type') in ['SyntaxError', 'TypeError', 'ReferenceError', 'RangeError', 'TransformError', 'UnableToResolveError', 'ResolutionError', 'AmbiguousModuleResolutionError', 'NotFoundError', 'ResourceNotFoundError', 'GraphNotFoundError', 'RevisionNotFoundError', 'OTHER', None] else 'OTHER'
                     categories = row.get('categories', [])
                     if native.PLATFORM == 'IOS' and (type(categories) is not list or
@@ -185,6 +194,8 @@ def collect(native, device, handle=None):
                     result.update(kind=kind, request=row['request'])
                     if kind == 'REQUEST':
                         options = row.get('options', {})
+                        if native.PLATFORM == 'IOS' and type(options) is not dict:
+                            raise ValueError('Invalid request options shape.')
                         result['options'] = {key: options.get(key) if type(options.get(key)) is bool or options.get(key) in [None, 'OTHER'] else 'OTHER' for key in ['dev', 'lazy', 'minify', 'modulesOnly', 'runModule', 'excludeSource']}
                         for key, allowed in {'platform': ['android', 'ios'], 'sourcePaths': ['url-server', 'absolute'], 'engine': ['hermes', 'jsc'], 'app': ['EXPECTED']}.items():
                             result['options'][key] = options.get(key) if options.get(key) in [*allowed, None] else 'OTHER'

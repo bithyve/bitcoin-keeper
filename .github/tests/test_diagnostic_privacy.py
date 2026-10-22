@@ -56,7 +56,16 @@ class DiagnosticPrivacyTest(unittest.TestCase):
             with self.subTest(route='ios', payload=payload[:70]):
                 diagnostics = native.ios_startup_diagnostics(
                     '2026-10-18 06:00:00.000 E hexa_keeper_dev[123:abc] ' + payload, 'hexa_keeper_dev')
-                self.assertEqual(diagnostics['errors'], ['IOS_STARTUP_ERROR'])
+                if '\x00' in payload or '\x1b' in payload:
+                    # A malformed compact record cannot establish attribution
+                    # even when its prefix names an error severity.
+                    self.assertEqual(diagnostics['errors'], [])
+                    self.assertEqual(diagnostics['parse_status'], 'UNKNOWN')
+                    self.assertEqual(diagnostics['observation_state'], 'UNKNOWN')
+                    self.assertGreater(diagnostics['malformed_record_lines'], 0)
+                else:
+                    self.assertEqual(diagnostics['errors'], ['IOS_STARTUP_ERROR'])
+                self.assertNotIn('PRIVATE_SENTINEL', json.dumps(diagnostics))
 
     def test_general_failure_categories_cover_install_blockers_without_excerpts(self):
         messages = [
