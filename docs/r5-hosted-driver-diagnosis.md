@@ -126,3 +126,22 @@ The new regressions exercise the actual smoke and driver finalizers with fake
 process/device boundaries, including receipt, capture-stop, Metro, device and
 purge failures. They supply source evidence only. No native run, SDK/profile
 change, timeout change, gate waiver or release operation is part of this fix.
+
+## Observed iOS install timeout
+
+Original source `3eb92fc8a622a3e09926d49f47243c163e32d009`, run39824790868
+attempt2, job120011570058 passed driver readiness and the unsigned app build
+(1614.3s). Warm bundle HTTP200 (164.0s) and fresh simulator boot (82.8s) passed;
+`simctl install` then timed out with exit124 at120.4s. No Maestro, JUnit, app UI,
+installed-byte comparison or later feature checks ran. Artifact12452576904 ZIP
+SHA256 `eb78af70712620e31478d239931f804e21cdad11fc8655f398023d77f87cfc3a`
+preserves that failure separately from the earlier driver failure.
+
+The separate install allowance follow-up raises only that command's bound to
+300s. This is an execution allowance, not an established cause or proven fix.
+There is one install attempt, no retry; timeout still kills its owned process
+group, fails the phase and disposes the simulator. The existing command receipt
+already records the fixed install label, bound, exit code and duration, so no
+additional speculative diagnostic stage is added. Byte comparison, default PIN
+flow, runtime/SDK profiles and acceptance requirements remain unchanged. The
+allowance has no native execution evidence until a coordinated exact-head run.

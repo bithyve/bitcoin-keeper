@@ -55,9 +55,10 @@ class StartupIntegrationTest(unittest.TestCase):
     def exercise(self, suite='startup', smoke_fails=False, start_fails=False,
                  collect_fails=False, stop_fails=False, platform='ANDROID',
                  import_fails=False, popen_fails=False, receipt_fails=None,
-                 cleanup_fails=(), diagnostics_fail=False):
+                 cleanup_fails=(), diagnostics_fail=False, install_timeout=False):
         captured = {}
         original_read, original_save, original_unlink = native.read, native.save, Path.unlink
+        original_command = native.command
 
         def late_read():
             if receipt_fails == 'read' and 'capture-collect' in self.events:
@@ -77,6 +78,10 @@ class StartupIntegrationTest(unittest.TestCase):
             return original_unlink(path, *args, **kwargs)
 
         def command(args, label, **kwargs):
+            if label == 'Install unsigned development app':
+                captured['install_args'], captured['install_options'] = args, kwargs
+                if install_timeout:
+                    return original_command(args, label, **kwargs)
             if label == 'Identify fresh emulator':
                 return self.device
             if label == 'Record actual adb version':
@@ -92,6 +97,11 @@ class StartupIntegrationTest(unittest.TestCase):
                     raise self.original_error
 
         def popen(args, **kwargs):
+            if args[:3] == ['xcrun', 'simctl', 'install']:
+                process = mock.Mock(pid=7001)
+                process.wait.side_effect = [native.subprocess.TimeoutExpired(args, 300), 0]
+                captured.setdefault('install_processes', []).append(process)
+                return process
             captured['metro_args'] = args
             captured['metro_options'] = kwargs
             if popen_fails:
@@ -129,6 +139,9 @@ class StartupIntegrationTest(unittest.TestCase):
             return SimpleNamespace(returncode=0)
 
         def kill_metro(*args):
+            if args[0] == 7001:
+                self.events.append('install-kill')
+                return
             self.events.append('metro-stop')
             if 'metro-stop' in cleanup_fails:
                 raise OSError('PRIVATE_SENTINEL Metro cleanup failure')
@@ -273,6 +286,36 @@ class StartupIntegrationTest(unittest.TestCase):
                 self.assertIs(value['error'], expected)
                 self.assertTrue(value['metro_output'].closed)
                 self.assertEqual(self.events, [])
+
+    def test_ios_install_timeout_still_fails_once_before_any_app_or_junit_credit(self):
+        value = self.exercise(platform='IOS', install_timeout=True)
+        self.assertIsInstance(value['error'], RuntimeError)
+        self.assertIn('exit 124', str(value['error']))
+        self.assertEqual(len(value['install_processes']), 1)
+        self.assertEqual(value['install_processes'][0].wait.call_args_list,
+                         [mock.call(timeout=300), mock.call()])
+        entry = value['metadata']['commands'][0]
+        self.assertEqual((entry['label'], entry['timeout_seconds'], entry['exit_code']),
+                         ('Install unsigned development app', 300, 124))
+        self.assertEqual(value['metadata']['smoke'], 'FAIL')
+        for field in ['install_succeeded', 'installed_artifact_verified', 'smoke_test_cases']:
+            self.assertNotIn(field, value['metadata'])
+        for event in ['maestro', 'installed-proof']:
+            self.assertNotIn(event, self.events)
+        self.assertNotIn('flow', value)
+        self.assertEqual(self.events.count('install-kill'), 1)
+        self.assertIn('device-shutdown', self.events)
+        self.assertIn('device-delete', self.events)
+        self.assertTrue(value['metro_output'].closed)
+
+    def test_ios_install_success_keeps_exact_bytes_and_default_passcode_flow(self):
+        value = self.exercise(platform='IOS')
+        self.assertNotIn('error', value)
+        self.assertEqual(value['install_options']['timeout'], 300)
+        self.assertEqual(value['install_args'][:3], ['xcrun', 'simctl', 'install'])
+        self.assertEqual(value['flow'], '.github/native/startup.yaml')
+        self.assertEqual(self.events.count('installed-proof'), 2)
+        self.assertEqual(value['metadata']['smoke'], 'PASS')
 
     def test_receipt_failures_preserve_primary_and_do_not_skip_any_disposal(self):
         for boundary in ['read', 'save']:
