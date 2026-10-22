@@ -12,14 +12,12 @@ import os
 from pathlib import Path
 import re
 import shutil
-import signal
 import socket
 import subprocess
 import tempfile
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-import urllib.request
 
 STAGES = ('startup_start', 'startup_ready', 'wallet_start', 'wallet_ready',
           'home_ready', 'relaunch_start', 'relaunch_login', 'relaunch_home',
@@ -28,6 +26,28 @@ RETRY_STAGES = ('retry_fixture_start', 'retry_error_visible', 'retry_submit', 'r
                 'retry_relaunch_start', 'retry_relaunch_login', 'retry_relaunch_home')
 PORT = 8765
 SAMPLE_COUNT = 5
+
+
+def native_module(name):
+    if name not in ('product_metro', 'product_credential_acceptance',
+                    'product_history_acceptance', 'product_vault_acceptance'):
+        raise RuntimeError('PRODUCT_UI_FIXED_COMPANION_REQUIRED')
+    spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name(name + '.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def run_post_key_companions(h, data, device, private, receipt, metro, installed_proof, result):
+    """Ordering preserves the original one-account/one-wallet fixture until Vault."""
+    for slot, name in (('credential_errors_ui', 'product_credential_acceptance'),
+                       ('version_history_ui', 'product_history_acceptance'),
+                       ('vault_references_ui', 'product_vault_acceptance')):
+        metro.ensure_product()
+        companion = native_module(name)
+        argument = installed_proof if name == 'product_vault_acceptance' else metro.switch
+        result[slot] = companion.run_companion(h, data, device, private, receipt, argument)
+        metro.ensure_product()
 
 
 class Receipt:
@@ -231,7 +251,10 @@ def run(h):
     private = Path(tempfile.mkdtemp(prefix='keeper-product-ui-', dir=h.PRIVATE))
     private.chmod(0o700)
     receipt = Receipt()
-    server, metro, device = None, None, None
+    server, device = None, None
+    metro_tools = native_module('product_metro')
+    metro = metro_tools.OwnedMetro(h, private)
+    reverse_ports = set()
     # Only app/test-specific data created here is removed. Never touch shared
     # caches, another worktree, an existing iOS simulator or a real phone.
     result = {'status': 'RUNNING', 'samples': [], 'requested_samples': SAMPLE_COUNT,
@@ -239,9 +262,10 @@ def run(h):
               'entrypoint': 'index.js', 'network': 'TESTNET', 'backend': 'CONTROLLED_LOOPBACK_CREATE_ONLY',
               'expected_installed_version': expected_version['version'],
               'expected_installed_build': expected_version['build'],
-              'version_history_scope': 'Installed native tuple and retained Initially installed row after cold login. Empty/stale history observation insertion and migration not exercised.',
+              'version_history_scope': 'Initial samples inspect the installed native tuple and initial row; controlled stale/empty cases have a separate companion receipt. Authentic historical migration is not tested.',
               'key_management_scope': 'Discoverable Keys→Manage Keys screen entry and back navigation only; no eligible disposable signer, deletion confirmation or seed view.',
               'backend_compatibility': 'NOT TESTED', 'physical_devices': 'NOT RUN',
+              'r5_release_acceptance': 'NOT ESTABLISHED; these are scoped diagnostic companions.',
               'performance_scope': 'Development app with warm Metro bundle; cold process/UI timing includes Maestro driver overhead. Not release-build performance.',
               'count_scope': 'Actual rendered visible wallet list; disposable one-wallet account, not hidden/archived wallet counts.',
               'network_scope': 'Fresh production Splash selects Testnet for DEVELOPMENT. Account backend is loopback fixture; signing/channel/Sentry endpoints blocked. Public Testnet Electrum connectivity may fail or connect; no faucet, funded wallet, send, signing or backup opt-in.'}
@@ -251,114 +275,109 @@ def run(h):
         current['product_ui'] = result
         h.save(current)
 
-    save()
     try:
+        save()
         server = make_server(receipt)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
-        # Ordinary product bundle: no --config override and no probe entrypoint.
-        with (private / 'metro.log').open('wb') as log:
-            metro = subprocess.Popen(['node', 'node_modules/react-native/cli.js', 'start', '--port', '8081'],
-                                     cwd=h.ROOT, stdout=log, stderr=subprocess.STDOUT,
-                                     start_new_session=True)
-            for _ in range(60):
-                if metro.poll() is not None:
-                    raise RuntimeError('PRODUCT_UI_METRO_FAILED')
-                try:
-                    with urllib.request.urlopen('http://127.0.0.1:8081/status', timeout=2) as response:
-                        if b'packager-status:running' in response.read():
-                            break
-                except OSError:
-                    time.sleep(1)
-            else:
-                raise RuntimeError('PRODUCT_UI_METRO_NOT_READY')
-            h.warm_metro_bundle('startup')
+        # Only this manager starts/records the ordinary or fixed fixture Metro.
+        metro.start('product', initial=True)
+        if h.PLATFORM == 'IOS':
+            device = h.command(['xcrun', 'simctl', 'create', 'Keeper-product-ui-disposable',
+                                'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
+                                'com.apple.CoreSimulator.SimRuntime.iOS-18-5'],
+                               'Create task-owned product UI simulator', capture=True)
+            h.command(['xcrun', 'simctl', 'boot', device], 'Boot product UI simulator')
+            h.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 'Wait for product UI simulator', timeout=240)
+            artifact = str(h.PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app')
+            result['device'] = {'profile': 'iPhone 16', 'runtime': 'iOS 18.5', 'kind': 'SIMULATOR'}
+        else:
+            device = h.command(['adb', 'get-serialno'], 'Select disposable CI emulator', capture=True)
+            if not device.startswith('emulator-'):
+                raise RuntimeError('PRODUCT_UI_REAL_ANDROID_DEVICE_REJECTED')
+            for port in ('8081', str(PORT)):
+                h.command(['adb', '-s', device, 'reverse', 'tcp:' + port, 'tcp:' + port],
+                          'Connect disposable emulator to local fixture')
+                reverse_ports.add(port)
+            artifact = str(h.ROOT / 'android/app/build/outputs/apk/development/debug/app-development-debug.apk')
+            result['device'] = {'kind': 'EMULATOR', 'image': h.command(
+                ['adb', '-s', device, 'shell', 'getprop', 'ro.build.fingerprint'],
+                'Record actual product UI emulator image', capture=True)}
+        app = h.APP_IDS[h.PLATFORM]
+        spec = importlib.util.spec_from_file_location(
+            'product_key_acceptance', Path(__file__).with_name('product_key_acceptance.py'))
+        key_companion = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(key_companion)
+        for sample in range(1, SAMPLE_COUNT + 2):
+            retry_fixture = sample == SAMPLE_COUNT + 1
+            receipt.reset(sample, retry=retry_fixture)
+            output = private / ('sample-%d' % sample)
+            output.mkdir()
+            report = output / 'junit.xml'
             if h.PLATFORM == 'IOS':
-                device = h.command(['xcrun', 'simctl', 'create', 'Keeper-product-ui-disposable',
-                                    'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
-                                    'com.apple.CoreSimulator.SimRuntime.iOS-18-5'],
-                                   'Create task-owned product UI simulator', capture=True)
-                h.command(['xcrun', 'simctl', 'boot', device], 'Boot product UI simulator')
-                h.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 'Wait for product UI simulator', timeout=240)
-                artifact = str(h.PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app')
-                result['device'] = {'profile': 'iPhone 16', 'runtime': 'iOS 18.5', 'kind': 'SIMULATOR'}
+                # Uninstall plus reset of this newly-created simulator's
+                # keychain prevents prior sample credentials persisting.
+                subprocess.run(['xcrun', 'simctl', 'uninstall', device, app],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30, check=False)
+                h.command(['xcrun', 'simctl', 'keychain', device, 'reset'], 'Reset task-owned simulator credentials')
+                h.command(['xcrun', 'simctl', 'install', device, artifact], 'Install exact product UI app', timeout=120)
             else:
-                device = h.command(['adb', 'get-serialno'], 'Select disposable CI emulator', capture=True)
-                if not device.startswith('emulator-'):
-                    raise RuntimeError('PRODUCT_UI_REAL_ANDROID_DEVICE_REJECTED')
-                for port in ('8081', str(PORT)):
-                    h.command(['adb', '-s', device, 'reverse', 'tcp:' + port, 'tcp:' + port],
-                              'Connect disposable emulator to local fixture')
-                artifact = str(h.ROOT / 'android/app/build/outputs/apk/development/debug/app-development-debug.apk')
-                result['device'] = {'kind': 'EMULATOR', 'image': h.command(
-                    ['adb', '-s', device, 'shell', 'getprop', 'ro.build.fingerprint'],
-                    'Record actual product UI emulator image', capture=True)}
-            app = h.APP_IDS[h.PLATFORM]
-            spec = importlib.util.spec_from_file_location(
-                'product_key_acceptance', Path(__file__).with_name('product_key_acceptance.py'))
-            key_companion = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(key_companion)
-            for sample in range(1, SAMPLE_COUNT + 2):
-                retry_fixture = sample == SAMPLE_COUNT + 1
-                receipt.reset(sample, retry=retry_fixture)
-                output = private / ('sample-%d' % sample)
-                output.mkdir()
-                report = output / 'junit.xml'
-                if h.PLATFORM == 'IOS':
-                    # Uninstall plus reset of this newly-created simulator's
-                    # keychain prevents prior sample credentials persisting.
-                    subprocess.run(['xcrun', 'simctl', 'uninstall', device, app],
-                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30, check=False)
-                    h.command(['xcrun', 'simctl', 'keychain', device, 'reset'], 'Reset task-owned simulator credentials')
-                    h.command(['xcrun', 'simctl', 'install', device, artifact], 'Install exact product UI app', timeout=120)
+                h.command(['adb', '-s', device, 'install', '-r', artifact], 'Install exact product UI APK', timeout=120)
+                h.command(['adb', '-s', device, 'shell', 'pm', 'clear', app], 'Clear only disposable development app')
+            try:
+                installed_before = key_companion.installed_proof(h, device)
+                h.command([data['maestro']['binary'], '--device', device, 'test',
+                           '--env', 'APP_ID=' + app,
+                           '--env', 'EXPECTED_INSTALLED_REGEX=' + expected_version['installed_regex'],
+                           '--env', 'EXPECTED_HISTORY_REGEX=' + expected_version['history_regex'],
+                           '--flatten-debug-output',
+                           '--debug-output', str(output), '--test-output-dir', str(output),
+                           '--format', 'junit', '--output', str(report),
+                           '.github/native/product_retry.yaml' if retry_fixture else
+                           '.github/native/product_first_wallet.yaml'],
+                          'Full-product controlled disconnect and Retry fixture' if retry_fixture else
+                          'Full-product first-wallet and relaunch UI sample', timeout=600, error_details=False)
+                h.successful_junit(report)
+                if h.artifact_identity() != data['built_artifact']:
+                    raise RuntimeError('PRODUCT_UI_ARTIFACT_CHANGED')
+                installed_after = key_companion.installed_proof(h, device)
+                if installed_before != installed_after:
+                    raise RuntimeError('PRODUCT_UI_INSTALLED_BYTES_CHANGED')
+                outcome = receipt.snapshot(passed=True)
+                outcome['installed_artifact_verified'] = True
+                outcome['installed_artifact'] = installed_after
+                if retry_fixture:
+                    result['controlled_disconnect_retry'] = outcome
                 else:
-                    h.command(['adb', '-s', device, 'install', '-r', artifact], 'Install exact product UI APK', timeout=120)
-                    h.command(['adb', '-s', device, 'shell', 'pm', 'clear', app], 'Clear only disposable development app')
-                try:
-                    installed_before = key_companion.installed_proof(h, device)
-                    h.command([data['maestro']['binary'], '--device', device, 'test',
-                               '--env', 'APP_ID=' + app,
-                               '--env', 'EXPECTED_INSTALLED_REGEX=' + expected_version['installed_regex'],
-                               '--env', 'EXPECTED_HISTORY_REGEX=' + expected_version['history_regex'],
-                               '--flatten-debug-output',
-                               '--debug-output', str(output), '--test-output-dir', str(output),
-                               '--format', 'junit', '--output', str(report),
-                               '.github/native/product_retry.yaml' if retry_fixture else
-                               '.github/native/product_first_wallet.yaml'],
-                              'Full-product controlled disconnect and Retry fixture' if retry_fixture else
-                              'Full-product first-wallet and relaunch UI sample', timeout=600, error_details=False)
-                    h.successful_junit(report)
-                    if h.artifact_identity() != data['built_artifact']:
-                        raise RuntimeError('PRODUCT_UI_ARTIFACT_CHANGED')
-                    installed_after = key_companion.installed_proof(h, device)
-                    if installed_before != installed_after:
-                        raise RuntimeError('PRODUCT_UI_INSTALLED_BYTES_CHANGED')
-                    outcome = receipt.snapshot(passed=True)
-                    outcome['installed_artifact_verified'] = True
-                    outcome['installed_artifact'] = installed_after
-                    if retry_fixture:
-                        result['controlled_disconnect_retry'] = outcome
-                    else:
-                        result['samples'].append(outcome)
-                except Exception:
-                    if retry_fixture:
-                        result['controlled_disconnect_retry'] = receipt.snapshot()
-                    else:
-                        result['samples'].append(receipt.snapshot())
-                    raise
-                finally:
-                    # Maestro can capture automatic failure diagnostics. Keep no
-                    # screenshots, hierarchy, PIN actions or app output artifacts.
-                    shutil.rmtree(output, ignore_errors=True)
-                save()
-            # Separate normal-app UI companion; never part of the five latency
-            # samples or the controlled setup-disconnect receipt vocabulary.
-            result['key_management_ui'] = key_companion.run_companion(h, data, device, private, receipt)
-            result['key_management_scope'] = (
-                'Normal-app unused Mobile Key creation/deletion, cancellation, wrong PIN rejection, '
-                'correct PIN retry, cold deletion persistence and unrelated wallet retention. '
-                'Referenced-Vault UI, credential-store read faults and physical biometrics remain unverified.')
+                    result['samples'].append(outcome)
+            except Exception:
+                if retry_fixture:
+                    result['controlled_disconnect_retry'] = receipt.snapshot()
+                else:
+                    result['samples'].append(receipt.snapshot())
+                raise
+            finally:
+                # Maestro can capture automatic failure diagnostics. Keep no
+                # screenshots, hierarchy, PIN actions or app output artifacts.
+                shutil.rmtree(output, ignore_errors=True)
             save()
+        # Separate normal-app UI companion; never part of the five latency
+        # samples or the controlled setup-disconnect receipt vocabulary.
+        # The facade grants switching only after the matching successful
+        # JUnit from a committed allowlisted flow whose final command is stopApp.
+        flow_harness = metro_tools.StoppedFlowHarness(h, data, device, private, metro, reverse_ports)
+        result['key_management_ui'] = key_companion.run_companion(flow_harness, data, device, private, receipt)
+        result['key_management_scope'] = (
+            'Normal-app unused Mobile Key creation/deletion, cancellation, wrong PIN rejection, '
+            'correct PIN retry, cold deletion persistence and unrelated wallet retention. '
+            'Physical biometrics remain unverified; the following receipts have separate scopes.')
+        run_post_key_companions(flow_harness, data, device, private, receipt,
+                                metro, key_companion.installed_proof, result)
+        result['version_history_scope'] = (
+            'Installed native tuple/initial row plus controlled stale/empty actual native Realm histories, '
+            'ordinary cold-login observation/provenance/date/idempotence and exact restoration. '
+            'Authentic historical installation and migration remain unverified.')
+        save()
         result['status'] = 'PASS'
     except Exception as error:
         result['status'] = 'FAIL'
@@ -367,44 +386,49 @@ def run(h):
     finally:
         # Save original outcome before best-effort disposal so a cleanup issue
         # cannot erase a native failure or the completed raw numeric samples.
-        save()
-        if metro and metro.poll() is None:
-            os.killpg(metro.pid, signal.SIGTERM)
+        original_failed = result['status'] == 'FAIL'
+        cleanup_errors = []
+
+        def attempt(operation):
             try:
-                metro.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                os.killpg(metro.pid, signal.SIGKILL)
+                operation()
+            except Exception as cleanup_error:
+                cleanup_errors.append(type(cleanup_error).__name__)
+                result.update(status='FAIL', cleanup='FAILED',
+                              cleanup_failure_categories=sorted(set(cleanup_errors)))
+
+        result['companion_metro_switches'] = list(metro.events)
+        attempt(save)
+        # Stop/reap every recorded child before device and private-log removal,
+        # including the newest child when its readiness/warmup failed.
+        attempt(metro.close)
         if server:
-            server.shutdown()
-            server.server_close()
-        cleanup_failed = False
+            attempt(server.shutdown)
+            attempt(server.server_close)
 
         def cleanup(args):
-            nonlocal cleanup_failed
-            try:
-                code = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                                      timeout=30, check=False).returncode
-                if code and result['status'] == 'PASS':
-                    cleanup_failed = True
-            except (OSError, subprocess.TimeoutExpired):
-                cleanup_failed = True
+            def execute():
+                if subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                  timeout=30, check=False).returncode:
+                    raise RuntimeError('PRODUCT_UI_DISPOSABLE_CLEANUP_COMMAND_FAILED')
+            attempt(execute)
 
         if device and h.PLATFORM == 'IOS':
             for action in ('shutdown', 'delete'):
                 cleanup(['xcrun', 'simctl', action, device])
         elif device and device.startswith('emulator-'):
             cleanup(['adb', '-s', device, 'uninstall', h.APP_IDS[h.PLATFORM]])
-            cleanup(['adb', '-s', device, 'reverse', '--remove', 'tcp:' + str(PORT)])
-        shutil.rmtree(private, ignore_errors=True)
+            for port in sorted(reverse_ports):
+                cleanup(['adb', '-s', device, 'reverse', '--remove', 'tcp:' + port])
+        attempt(lambda: shutil.rmtree(private))
         # Foundation command metadata is safe/nonsecret; its process logs from
         # this suite are not retained even on the ephemeral runner.
-        for index in range(first_private_command, len(h.read().get('commands', [])) + 1):
-            (h.PRIVATE / ('command-%03d.log' % index)).unlink(missing_ok=True)
-        if cleanup_failed:
-            result['status'] = 'FAIL'
-            result['cleanup'] = 'FAILED'
-        save()
-        if cleanup_failed:
+        def remove_command_logs():
+            for index in range(first_private_command, len(h.read().get('commands', [])) + 1):
+                (h.PRIVATE / ('command-%03d.log' % index)).unlink(missing_ok=True)
+        attempt(remove_command_logs)
+        attempt(save)
+        if cleanup_errors and not original_failed:
             raise RuntimeError('PRODUCT_UI_DISPOSABLE_CLEANUP_FAILED')
 
 

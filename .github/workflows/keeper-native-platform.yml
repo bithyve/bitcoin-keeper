@@ -25,7 +25,9 @@ jobs:
     name: Native ${{ inputs.platform }} build and probes
     if: github.event_name == 'pull_request' && github.event.pull_request.number != 7045 && inputs.source_sha == github.event.pull_request.head.sha && (toJSON(github.event.pull_request.draft) == 'false' || (inputs.diagnostic && contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')))
     runs-on: ${{ inputs.platform == 'IOS' && 'macos-15' || 'ubuntu-24.04' }}
-    timeout-minutes: ${{ inputs.platform == 'IOS' && 105 || 90 }}
+    # One build/device per platform includes all scoped companion UI phases.
+    # Standard hosted runners only; this is a global fail-closed runtime ceiling.
+    timeout-minutes: 240
     env:
       CI: 'true'
       HUSKY: '0'

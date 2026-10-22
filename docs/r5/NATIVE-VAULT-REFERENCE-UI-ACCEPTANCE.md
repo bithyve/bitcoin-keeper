@@ -76,7 +76,7 @@ contains a fresh native Mobile key. No account or balance is funded by this work
 ## Evidence and boundaries
 
 `product_vault_acceptance.py` accepts only ordered, fixed stage names over
-loopback port8767. It stores no app identifiers, fingerprints, names, words,
+loopback port8769 (isolated from credential receipt8767 and private protocol control8768). It stores no app identifiers, fingerprints, names, words,
 credentials or raw hierarchy. PASS requires all stages, successful Maestro JUnit,
 the exact committed source/build, the predecessor's verified installed bytes,
 unchanged built and installed artifacts, and no additional account-setup call.

@@ -11,7 +11,7 @@ import subprocess
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-PORT = 8767
+PORT = 8769
 STAGES = (
     'predecessor_fixture_verified', 'native_mobile_and_public_seed_created',
     'real_two_of_two_vault_created', 'visible_reference_blocks_mobile_deletion',
