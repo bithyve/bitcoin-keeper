@@ -22,7 +22,10 @@ test('actual producer-shaped public facts bind app and different merge control w
     assert.ok(Object.values(row.executed_checks).every(check => check.status === 'PASS'));
   }
   assert.equal(state.fetchOptions.redirect, 'error'); assert.equal('headers' in state.fetchOptions, false);
-  assert.ok(state.calls.filter(row => row.name === 'download').every(row => row.options.request.redirect === 'manual'));
+  assert.ok(state.calls.filter(row => row.name === 'download').every(row => row.options.request.parseSuccessResponseBody === false &&
+    typeof row.options.request.fetch === 'function'));
+  assert.equal(state.apiFetchOptions.redirect, 'manual');
+  assert.equal(state.apiBodyCancellations, 2);
   assert.ok(state.calls.every(row => !/create|update|dispatch|delete|status/.test(row.name)));
   assert.ok(state.calls.filter(row => row.name === 'source').every(row => row.options.ref === result.source_sha));
   assert.ok(state.calls.filter(row => row.name === 'runs').every(row => !('status' in row.options) && !('conclusion' in row.options)));
