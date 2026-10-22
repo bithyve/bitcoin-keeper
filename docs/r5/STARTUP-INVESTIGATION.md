@@ -13,7 +13,8 @@ R4 #7045 was an open draft at `1d8a86a7462d935cbd0e28b857934b5718c152fc`.
 Its Splash, NewKeeperApp and secure-store modules are identical to the original
 sprint versions. This permits independent source changes without importing R4.
 R4's changed Login, Home/navigation, transaction views and backup/backend paths
-remain untouched. Reconciliation is still required when R4 is released.
+remained untouched during that independent checkpoint. Reconciliation with the
+owner-confirmed released source is now complete; see R4-RECONCILIATION.md.
 
 Other open work includes native-validation #7060, cloud-release #7062, bootstrap
 #7063, lock-selector #7064, PIN fixes #7052/#7053, reproducibility #7043 and the
@@ -48,6 +49,13 @@ changed. No optional Linux setup or Mac connection was awaited or started.
    disposable fixture PIN remains 1111; the flow accepts old-sprint Next or R4's
    direct advance and then requires Home. It is a native test specification,
    YAML-parsed here but NOT executed with Maestro. Shared PIN code was not edited.
+5. After release reconciliation, six new tests reproduced pending setup/FCM tokens
+   and navigation timers crossing an A → B → A account-session change. Existing
+   effect lifetime checks now also require their captured production session;
+   Next retains its rendered session before scheduling and when the timer fires.
+   All 20 first-use screen cases pass. These tests use the real session counter
+   with explicit account-transition fixtures; workers and account schemas are
+   unchanged. They do not prove native account-switch persistence or performance.
 
 The screen tests replace native Keychain, navigation, animation and UI boundaries;
 they are not cold-start, warm-start, resume, deep-link or native persistence proof.

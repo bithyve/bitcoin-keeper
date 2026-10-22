@@ -23,5 +23,5 @@ Native task6.2 remains NOT RUN; no archive or acceptance claim. Ruby-dependent
 local checks remain unavailable and are explicitly retained in the validation report.
 
 ## 7. Existing startup callback ownership
-- [ ] 7.1 Reproduce pending-token/delayed-navigation account-session crossings.
-- [ ] 7.2 Guard effects/timers by their captured session and rerun focused/full Jest.
+- [x] 7.1 Reproduce pending-token/delayed-navigation account-session crossings (6 assertion failures /14 passes).
+- [x] 7.2 Guard effects/timers by their captured session and rerun focused/full Jest (20 startup, 106 focused, 538 full PASS).

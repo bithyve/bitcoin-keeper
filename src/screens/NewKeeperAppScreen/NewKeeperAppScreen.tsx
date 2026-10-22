@@ -29,6 +29,7 @@ import Colors from 'src/theme/Colors';
 import { useIsFocused } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -116,13 +117,15 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const isFocused = useIsFocused();
   const nextNavigation = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigationActive = useRef(true);
+  const renderedAccountSession = currentBackupAccountSession();
   const isMultiAccountFlow = !!useAppSelector((state) => state.account).allAccounts.length;
 
   useEffect(() => {
     let active = true;
+    const accountSession = currentBackupAccountSession();
     if (appCreated) {
       setInitiating(false);
-      updateFCM(() => active);
+      updateFCM(() => active && accountSession === currentBackupAccountSession());
     }
     if (appCreationError) {
       setModalVisible(false);
@@ -151,8 +154,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   useEffect(() => {
     if (appRecreated) {
+      const accountSession = currentBackupAccountSession();
       const timer = setTimeout(() => {
-        navigation.replace('App', { screen: 'Home' });
+        if (accountSession === currentBackupAccountSession()) {
+          navigation.replace('App', { screen: 'Home' });
+        }
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -175,9 +181,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   useEffect(() => {
     let active = true;
+    const accountSession = currentBackupAccountSession();
     if (keeperInitiating) {
       setModalVisible(true);
-      createNewApp(() => active);
+      createNewApp(() => active && accountSession === currentBackupAccountSession());
     }
     return () => {
       active = false;
@@ -351,10 +358,16 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitleColor={`${colorMode}.modalSubtitleBlack`}
         buttonText={appCreated ? common.next : null}
         buttonCallback={() => {
-          if (!navigationActive.current || nextNavigation.current !== null) return;
+          if (
+            !navigationActive.current ||
+            nextNavigation.current !== null ||
+            renderedAccountSession !== currentBackupAccountSession()
+          ) return;
           setModalVisible(false);
           nextNavigation.current = setTimeout(() => {
-            navigation.replace('App', { screen: 'Home' });
+            if (renderedAccountSession === currentBackupAccountSession()) {
+              navigation.replace('App', { screen: 'Home' });
+            }
           }, 500);
         }}
         subTitleWidth={wp(300)}

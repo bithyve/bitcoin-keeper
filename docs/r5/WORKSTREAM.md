@@ -8,9 +8,10 @@ The earlier pending-baseline records below are historical and superseded by the
 ## Authority and budget
 
 Owner request and Master Task List, Backlog row 245 (15 October 2026 scope reset),
-plus rows 7, 8, 23, 76, 231 and 263. The owner's current request allows independent
-implementation now; historical instructions to wait for R4 still apply to work
-that depends on R4. PR base is `sprint`; do not import the unmerged R4 candidate.
+plus rows 7, 8, 23, 76, 231 and 263. The owner's 22 October confirmation that R4
+2.6.4 is live authorizes reconciliation with its recorded released source on R5
+only. Historical instructions to wait for R4 are superseded. PR base is `sprint`;
+do not modify R4 or other workstream branches.
 
 Pre-implementation changed code/test estimate (not model context or runtime cost):
 
@@ -55,7 +56,7 @@ This is an initial source checkpoint, not completed R5 or native acceptance.
 Backend atomic reference enforcement and account/session changes need reconciliation
 with the released R4 implementation before deletion can be release-ready.
 
-## Remaining bounded work
+## Original bounded worklist (current results below)
 
 1. Reconcile with the released R4 source; rerun deletion tests and inspect every
    delete/archive caller and storage/backup boundary. Include references across
@@ -82,8 +83,8 @@ with the released R4 implementation before deletion can be release-ready.
 
 ## Later Local resource plan
 
-No Mac is needed for Cloud development. Do not start Local native work while R4
-is being finalized. When the baseline is settled, use a separate safe checkout,
+No Mac is needed for Cloud source development. R4 is released and reconciliation
+is complete. For later native work, use a separate safe checkout,
 check available disk (approximately 6 GiB minimum planning threshold; require more
 if the selected build needs it), run one native build at a time and reuse safe
 compatible caches/artifacts. Preserve every existing worktree, simulator, AVD user,
@@ -281,7 +282,7 @@ dependency, backend/store/worker/version inputs remain unchanged. The one lock
 conflict resolves to R4's exact lock, which already includes the two R5 selectors.
 
 The [current reconciliation and finite native plan](R4-RECONCILIATION.md) records
-full Jest47/531 PASS, R5 focused99 PASS, recovery480/480 PASS (including10 real
+final full Jest 47/538 PASS, R5 focused 106 PASS, recovery 480/480 PASS (including 10 real
 Linux Realm cases after installing its missing N-API prerequisite), gate11 PASS,
 static31 PASS and Node/Python release-tool28/7 PASS. Local Ruby checks remain
 unavailable/failed-prerequisite, not passed; hosted CI explicitly installs Ruby
@@ -296,8 +297,14 @@ No R4 reference/session guard was weakened. New tests execute real session-count
 identity and action-creator logic with modeled screen/storage boundaries. The
 Keys entry's dispatch form was adapted to the released navigation types.
 
-The R5-only changed source/test estimate is approximately16.5k tokens (rough
-characters/4), within the approved two-feature13k–18k target. Review against the
+Six additional startup session-crossing regressions failed before the narrow
+effect/timer guards and now pass with the existing cases (20 first-use screen
+tests). Pending token callbacks, recreated-app timers and retained Next callbacks
+cannot act after an A → B → A round trip. No setup worker or backup policy changed.
+
+The R5-only changed source/test estimate is approximately 18.1k tokens (rough
+characters/4), at the upper edge of the approved two-feature 13k–18k target. Hold
+scope here. Review against the
 released source rather than counting R4's inherited history as new R5 work. Do not
 silently add hosted-native infrastructure, extra backend work or a third feature.
 No optional Linux setup or Mac session was awaited. Next is the exact-head finite

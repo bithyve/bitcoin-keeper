@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 import loginReducer, { setAppCreationError } from '../../src/store/reducers/login';
 
 const mockGetToken = jest.fn();
+jest.mock('src/services/rest/RestClient', () => ({ __esModule: true, default: {} }));
+const { observeBackupAccount } = require('../../src/services/backup/transport');
 jest.mock('src/constants/responsive', () => ({ hp: (v) => v, wp: (v) => v, windowWidth: 400 }));
 jest.mock('@gluestack-ui/themed-native-base', () => ({
   Box: 'Box',
@@ -78,15 +80,20 @@ async function mount({ error = false, created = false, recreated = false } = {})
   store = configureStore({
     reducer: {
       login: (state = loginState, action) => loginReducer(state, action),
-      storage: (state = { appCreated: created }, action) =>
-        action.type === 'TEST_APP_CREATED' ? { appCreated: true } : state,
+      storage: (state = { appCreated: created, appId: 'disposable-account-A' }, action) => {
+        if (action.type === 'TEST_APP_CREATED') return { ...state, appCreated: true };
+        if (action.type === 'TEST_SWITCH_ACCOUNT') return { ...state, appId: action.appId };
+        return state;
+      },
       bhr: (state = { appRecreated: recreated }) => state,
       account: (state = { allAccounts: [] }) => state,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(() => (next) => (action) => {
         actions.push(action);
-        return next(action);
+        const result = next(action);
+        observeBackupAccount(store.getState().storage.appId);
+        return result;
       }),
   });
   navigation = { replace: jest.fn(), navigate: jest.fn() };
@@ -116,6 +123,8 @@ async function start() {
 
 beforeEach(() => {
   mockGetToken.mockReset().mockResolvedValue('test-token');
+  observeBackupAccount(undefined);
+  observeBackupAccount('disposable-account-A');
 });
 
 afterEach(() => {
@@ -307,3 +316,66 @@ test('a retained Next callback cannot schedule navigation after unmount', async 
   await act(async () => jest.advanceTimersByTime(1000));
   expect(navigation.replace).not.toHaveBeenCalled();
 });
+
+async function switchAwayAndBack() {
+  for (const appId of ['disposable-account-B', 'disposable-account-A']) {
+    await act(async () => store.dispatch({ type: 'TEST_SWITCH_ACCOUNT', appId }));
+  }
+}
+
+test.each(['resolve', 'reject'])(
+  'an account round trip before token %s prevents setup in the replacement session',
+  async (completion) => {
+    const token = deferred();
+    mockGetToken.mockReturnValue(token.promise);
+    await mount();
+    await start();
+    await switchAwayAndBack();
+    await act(async () => {
+      if (completion === 'resolve') token.resolve('earlier-session-token');
+      else token.reject(new Error('earlier-session token failure'));
+    });
+    expect(setupActions()).toHaveLength(0);
+  }
+);
+
+test('an account round trip prevents an earlier successful-app token update', async () => {
+  const token = deferred();
+  mockGetToken.mockReturnValue(token.promise);
+  await mount({ created: true });
+  await switchAwayAndBack();
+  await act(async () => token.resolve('earlier-session-token'));
+  expect(actions.filter((action) => action.type === 'UPDATE_FCM')).toHaveLength(0);
+});
+
+test('recreated-app navigation runs once in its original session', async () => {
+  jest.useFakeTimers();
+  await mount({ recreated: true });
+  await act(async () => jest.advanceTimersByTime(4000));
+  expect(navigation.replace).toHaveBeenCalledTimes(1);
+  expect(navigation.replace).toHaveBeenCalledWith('App', { screen: 'Home' });
+});
+
+test('an account round trip cancels pending recreated-app navigation', async () => {
+  jest.useFakeTimers();
+  await mount({ recreated: true });
+  await switchAwayAndBack();
+  await act(async () => jest.advanceTimersByTime(4000));
+  expect(navigation.replace).not.toHaveBeenCalled();
+});
+
+test.each(['before', 'after'])(
+  'an account round trip %s tapping a retained Next cannot navigate the replacement session',
+  async (when) => {
+    jest.useFakeTimers();
+    await mount();
+    await start();
+    await act(async () => store.dispatch({ type: 'TEST_APP_CREATED' }));
+    const next = visibleDialogs()[0].props.buttonCallback;
+    if (when === 'before') await switchAwayAndBack();
+    act(() => next());
+    if (when === 'after') await switchAwayAndBack();
+    await act(async () => jest.advanceTimersByTime(1000));
+    expect(navigation.replace).not.toHaveBeenCalled();
+  }
+);

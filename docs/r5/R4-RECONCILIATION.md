@@ -39,6 +39,10 @@ range). This inherited history is not new R5 scope or permission to merge R4.
 - R5's Keys entry uses the released navigation dispatch pattern; this removes the
   TypeScript overload mismatch exposed by integration. No shared PIN/navigation
   implementation, transaction formatting or timelock calculation changed.
+- Six additional startup regressions reproduced token completion and delayed
+  navigation crossing an A → B → A session change. The existing effects/timers
+  now retain their originating session, including a retained Next callback.
+  Setup and notification workers are unchanged; native persistence remains unrun.
 - Emergency reset uses its Emergency-specific helper; Inheritance retains its
   own helper. Native display checks remain open.
 - Existing R5 frozen JavaScript CI preparation is retained. Its recovery lane now
@@ -57,13 +61,16 @@ Node22.23.3 / Yarn1.22.22:
 
 - Frozen install PASS; all six explicit dependency patches PASS. Released
   package/lock/Pod/native/version input-immutability checks PASS.
-- Full Jest **47 suites /531 tests PASS**, zero failures/skips, including the
-  released loopback Electrum fixtures. R5-only focused run **5 suites /99 tests
-  PASS**, including53 deletion cases; final affected UI rerun **71 PASS**.
+- Final full Jest **47 suites /538 tests PASS**, zero failures/skips, including
+  the released loopback Electrum fixtures. Final R5-focused run **5 suites /106
+  tests PASS**, including 53 deletion and 20 first-use screen cases.
 - New guard controls before implementation: **11 assertion failures**, with the
   other42 deletion tests deliberately deselected (not execution passes). All53
   deletion tests pass after the fix. Real account-round-trip session tracking is
   used; this does not prove actual native authentication/Realm provenance.
+- Startup session controls before implementation: **6 assertion failures /14
+  passes**. All 20 pass after the fix, including original-session navigation and
+  the existing retry, duplicate-attempt and unmount cases.
 - Full recovery **480/480 PASS**, zero skips. Initial execution had470 passes and
   one file-load failure because the Realm N-API binary was absent. The exact
   released binary was installed with prebuild-install; the10 encrypted Realm
@@ -86,6 +93,9 @@ Node22.23.3 / Yarn1.22.22:
 The exact final SHA and hosted checks are recorded in the PR handoff. A full
 app-native build/install/UI, performance measurement or physical-device result
 must not be inferred from any JavaScript or Linux Realm result.
+The R5-only changed code/test estimate is approximately 18.1k tokens using changed
+characters/4, at the upper edge of the original 13k–18k estimate. Scope remains two
+substantial features; no additional investigation fix or infrastructure is added.
 
 ## Finite native handoff
 
