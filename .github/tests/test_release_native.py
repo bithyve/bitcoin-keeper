@@ -78,7 +78,7 @@ class ReleaseNativeExecutionTest(unittest.TestCase):
                     (self.private / 'probe-junit.xml').write_text(
                         '<testsuite><testcase status="SUCCESS">'
                         + ('<failure/>' if report_failure else '') + '</testcase></testsuite>')
-            return 'synthetic-device'
+            return 'emulator-5554'
 
         process = mock.Mock(pid=12345)
         process.poll.return_value = None
@@ -94,6 +94,7 @@ class ReleaseNativeExecutionTest(unittest.TestCase):
         stack.enter_context(mock.patch.object(native, 'command', side_effect=command))
         stack.enter_context(mock.patch.object(native, 'warm_metro_bundle'))
         stack.enter_context(mock.patch.object(native, 'android_sdk_metadata', return_value={}))
+        stack.enter_context(mock.patch.object(native, 'verify_installed_artifact'))
         stack.enter_context(mock.patch.object(native, 'artifact_identity',
                            side_effect=[self.identity, after_identity or self.identity]))
         native.run_phase('probe')
