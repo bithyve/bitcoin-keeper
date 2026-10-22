@@ -154,3 +154,18 @@ test('all Tests installs preserve current immutable script-disabled R4 setup and
   for (const step of steps) assert.ok(!step['continue-on-error']);
   assert.equal(steps.find(step => step.name === 'Run tests').run, 'npm run test');
 });
+
+test('standalone native contracts install a locked isolated compiler without app lifecycle hooks', () => {
+  const job = workflows['keeper-validation-tests.yml'].jobs.contracts;
+  const install = job.steps.find(step => step.name === 'Install isolated locked contract tools without lifecycle scripts');
+  assert.match(install.run, /npm ci --prefix \.github\/native\/contract-tools --ignore-scripts --no-audit --no-fund/);
+  assert.match(install.run, /NODE_PATH=/);
+  assert.equal(job.environment, undefined);
+  assert.equal(job.secrets, undefined);
+  const compiler = require('../native/contract-tools/package.json');
+  const app = require('../../package.json');
+  assert.equal(compiler.dependencies.typescript, app.devDependencies.typescript);
+  const lock = require('../native/contract-tools/package-lock.json');
+  assert.equal(lock.packages['node_modules/typescript'].version, app.devDependencies.typescript);
+  assert.match(lock.packages['node_modules/typescript'].integrity, /^sha512-/);
+});

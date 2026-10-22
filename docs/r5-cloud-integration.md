@@ -117,3 +117,10 @@ after adding the offline release-preparation contracts. It is retained as an
 integration failure and corrected by explicitly admitting that read-only test
 workflow and asserting that the protected release plan remains manual-only.
 The corrected policy controls pass; no release gate or test was removed.
+
+The first hosted contract job on interim `7785c741be203cc348726293537238b54183861a`
+(run39735104974) failed because the lightweight runner lacked TypeScript after
+worker-extraction contracts were included. The correction installs only a locked,
+script-disabled TypeScript5.0.4 test tool, matching the frozen app lock integrity,
+and verifies that its version matches the candidate manifest. The failed receipt
+remains preserved; this does not narrow or skip the worker tests.
