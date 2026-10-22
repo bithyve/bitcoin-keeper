@@ -6,6 +6,7 @@ The gate trusts protected workflow/job provenance, never this writable artifact.
 """
 
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -377,6 +378,13 @@ def record_startup_failure(report, device):
             return {'command': args, 'exit_code': code,
                     'errors': android_startup_errors(private_text(path)) if code == 0 else []}
         collect('android_errors', android_details)
+        def android_runtime_details():
+            spec = importlib.util.spec_from_file_location(
+                'android_startup_diagnosis', Path(__file__).with_name('android_startup_diagnosis.py'))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module.collect(PRIVATE, device)
+        collect('android_runtime_diagnosis', android_runtime_details)
     elif PLATFORM == 'IOS' and device:
         def ios_details():
             executable = read()['built_artifact']['executable']
