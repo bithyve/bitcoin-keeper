@@ -34,8 +34,22 @@ dispatch. Its iOS driver readiness and unsigned build passed, then `simctl
 install` timed out at120.4s before Maestro/JUnit/UI or installed-byte proof.
 Artifact12452576904 ZIP SHA256 is
 `eb78af70712620e31478d239931f804e21cdad11fc8655f398023d77f87cfc3a`.
-The existing serialized Android execution must finish naturally before another
-full window is selected. Its actual final result belongs in the PR record.
+The existing serialized Android execution finished naturally. Startup UI,
+Realm/MMKV persistence, all five production-worker scenarios/source receipts
+and strict installed-APK bytes passed. Product sample1 failed inside PIN/
+onboarding preparation before account creation; only startup-to-passcode
+20111.336ms was measured. Samples2–5, the remaining four metrics in sample1,
+product Retry and key/PIN UI were unrun. Artifact12453239850 ZIP SHA256 is
+`e1e3330538fe266ff29b3bbe278907dc5e914b56f13f3e3d3df57fc9441c9048`.
+No cancellation, rerun or duplicate Android execution was issued by this task.
+
+The broad stage receipt cannot identify the failed PIN/onboarding substep.
+Fixed best-effort host progress markers now observe the unchanged UI sequence
+without changing its actions, selectors, waits, timing markers or backend
+counters. Missing marker acknowledgements do not diagnose an app defect or
+create a new pass prerequisite. Failure-only Android runtime diagnostics stay
+bounded and explicit about unavailable or stale observations. No speculative
+product/dependency fix is inferred from the earlier failure.
 
 Setup-only run39839607552 at a319936a demonstrated that successful `bootstatus`
 was followed by timed-out app-listing and built-in Preferences queries before
