@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/keeper-release-origin-contracts.yml'
       - '.github/native/public_software_receipts.cjs'
+      - '.github/native/strict_json.cjs'
+      - '.github/tests/strict-json.test.cjs'
       - '.github/native/public_companion_receipts.cjs'
       - '.github/tests/public-software-receipts.test.cjs'
       - '.github/tests/public-companion-receipts.test.cjs'
@@ -20,6 +22,8 @@ on:
     paths:
       - '.github/workflows/keeper-release-origin-contracts.yml'
       - '.github/native/public_software_receipts.cjs'
+      - '.github/native/strict_json.cjs'
+      - '.github/tests/strict-json.test.cjs'
       - '.github/native/public_companion_receipts.cjs'
       - '.github/tests/public-software-receipts.test.cjs'
       - '.github/tests/public-companion-receipts.test.cjs'
@@ -57,7 +61,7 @@ jobs:
       - name: Verify exact event source before checks
         run: node .github/scripts/verify-ci-source.cjs
       - name: Test fake API and bounded artifact evidence
-        run: node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs
+        run: node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/strict-json.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs
       - name: Verify exact source after checks
         if: always()
         run: node .github/scripts/verify-ci-source.cjs

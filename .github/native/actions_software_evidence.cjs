@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { preflight, fingerprint } = require('./release_preflight.cjs');
+const { parseStrictJson } = require('./strict_json.cjs');
 const { SCOPES: COMPANION_SCOPES } = require('./public_companion_receipts.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper', REPOSITORY_ID = 470904030;
 const OWNER = 'KeeperCommunity', REPO = 'bitcoin-keeper';
@@ -52,6 +53,14 @@ function exactPR(value, original) {
     SHA.test(value.base.sha || '') && repository(value.base.repo) && repository(value.head?.repo) &&
     value.head.sha === original.head.sha && value.head.ref === original.head.ref;
 }
+function linkedPR(value, original) {
+  // Actions run associations use a reduced repository shape (id/url/name),
+  // unlike pulls.get. Global repository IDs bind to the separately verified
+  // complete repository and current PR; full_name is not present here.
+  return value?.number === original.number && value.head?.sha === original.head.sha &&
+    value.head.ref === original.head.ref && value.head.repo?.id === REPOSITORY_ID &&
+    value.base?.ref === 'sprint' && value.base.sha === original.base.sha && value.base.repo?.id === REPOSITORY_ID;
+}
 function publicRequest(context, input) {
   const pr = context.payload?.pull_request;
   demand(context.eventName === 'pull_request' && context.repo?.owner === OWNER && context.repo.repo === REPO &&
@@ -95,7 +104,7 @@ async function origin(github, context, request, now) {
     runs.some(value => value.id === run.id && value.run_attempt === run.run_attempt && value.head_sha === run.head_sha),
   'SOFTWARE_RUN_NOT_EXACT_CURRENT');
   const linked = run.pull_requests?.filter(value => value.number === request.pr.number) || [];
-  demand(linked.length === 1 && exactPR(linked[0], request.pr) && linked[0].base.sha === request.pr.base.sha,
+  demand(linked.length === 1 && linkedPR(linked[0], request.pr),
     'SOFTWARE_RUN_PR_BINDING_INVALID');
   // A local reusable workflow is loaded from the caller's merge control commit,
   // not from the separately checked-out app head. Neither receipt selects this SHA.
@@ -164,6 +173,7 @@ async function boundedBytes(response) {
   return Buffer.concat(chunks);
 }
 async function readArchive(github, artifactId, fetchImpl) {
+  demand(id(artifactId), 'SOFTWARE_ARTIFACT_IDENTITY_INVALID');
   const response = await github.rest.actions.downloadArtifact({ ...args, artifact_id: artifactId, archive_format: 'zip',
     request: { timeout: 30000, redirect: 'manual' } });
   demand(response.status === 302, 'SOFTWARE_ARCHIVE_REDIRECT_REQUIRED');
@@ -174,6 +184,11 @@ async function readArchive(github, artifactId, fetchImpl) {
   'SOFTWARE_ARCHIVE_HOST_INVALID');
   // No GitHub token or API headers reach the signed storage endpoint.
   return boundedBytes(await fetchImpl(location, { redirect: 'error', signal: AbortSignal.timeout(30000) }));
+}
+// Transport only: returns original untrusted ZIP bytes, never an issued proof.
+// A separately reviewed fixed-artifact host probe can exercise this exact adapter.
+async function readPublicArtifactBytes(github, artifactId, { fetchImpl = fetch } = {}) {
+  return readArchive(github, artifactId, fetchImpl);
 }
 function unpack(archive, platform) {
   const result = execFileSync('python3', ['-B', path.join(__dirname, 'software_artifact_zip.py'), platform], {
@@ -225,10 +240,10 @@ async function collectPublicSoftwareEvidence(github, context, input, { clock = D
       const info = data(await github.rest.actions.getArtifact({ ...args, artifact_id: matches[0].id }));
       demand(info.id === matches[0].id, 'SOFTWARE_ARTIFACT_CHANGED');
       artifactIdentity(info, name, request, clock());
-      const archive = await readArchive(github, info.id, fetchImpl);
+      const archive = await readPublicArtifactBytes(github, info.id, { fetchImpl });
       demand(archive.length === info.size_in_bytes && `sha256:${digest(archive)}` === info.digest, 'SOFTWARE_ARTIFACT_DIGEST_MISMATCH');
       const bytes = unpack(archive, platform);
-      const metadata = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+      const metadata = parseStrictJson(bytes, MAX_MEMBER);
       const validated = validatePublicSoftware(metadata, { platform, sourceSha: request.sourceSha, workflowSha: request.workflowSha,
         workflowRef: request.workflowRef, runId: request.runId, runAttempt: request.attempt, workerSources: sources });
       platforms[platform] = Object.freeze({ ...jobs[platform], artifact_id: info.id, archive_sha256: digest(archive),
@@ -278,4 +293,4 @@ function collectPrivateSoftwareEvidence() {
   throw new Error('SOFTWARE_PRIVATE_CONTRACT_NOT_FROZEN');
 }
 module.exports = { collectPublicSoftwareEvidence, collectPrivateSoftwareEvidence,
-  isPublicSoftwareEvidence: value => proofs.has(value), PUBLIC_CHECKS };
+  isPublicSoftwareEvidence: value => proofs.has(value), readPublicArtifactBytes, PUBLIC_CHECKS };

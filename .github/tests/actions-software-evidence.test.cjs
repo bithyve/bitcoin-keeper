@@ -1,13 +1,15 @@
 'use strict';
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { fixture, digest } = require('./fixtures/actions-software.cjs');
-const { collectPublicSoftwareEvidence, collectPrivateSoftwareEvidence, isPublicSoftwareEvidence, PUBLIC_CHECKS } =
+const { fixture, digest, archiveBytes } = require('./fixtures/actions-software.cjs');
+const { collectPublicSoftwareEvidence, collectPrivateSoftwareEvidence, isPublicSoftwareEvidence, readPublicArtifactBytes, PUBLIC_CHECKS } =
   require('../native/actions_software_evidence.cjs');
 const collect = state => collectPublicSoftwareEvidence(state.github, state.context, state.input, state.options);
 
 test('actual producer-shaped public facts bind app and different merge control without parent/release credit', async () => {
   const state = fixture(), result = await collect(state);
+  assert.deepEqual(Object.keys(state.run.pull_requests[0].head.repo).sort(), ['id', 'name', 'url']);
+  assert.deepEqual(Object.keys(state.run.pull_requests[0].base.repo).sort(), ['id', 'name', 'url']);
   assert.notEqual(result.source_sha, result.workflow_sha);
   assert.equal(result.selected_route, 'public-reusable'); assert.equal(result.software_complete, false);
   assert.equal(result.installed_trust, 'UNVERIFIED'); assert.equal(isPublicSoftwareEvidence(result), true);
@@ -57,6 +59,12 @@ const negative = {
   'later failed run': s => { s.runs.push({ ...s.run, id: 91, conclusion: 'failure', status: 'completed' }); },
   'later pending run': s => { s.runs.push({ ...s.run, id: 91, status: 'queued' }); },
   'unrelated PR': s => { s.run.pull_requests[0].number = 9001; },
+  'duplicate linked PR': s => { s.run.pull_requests.push(structuredClone(s.run.pull_requests[0])); },
+  'linked head repo ID': s => { s.run.pull_requests[0].head.repo.id = 2; },
+  'linked base repo ID': s => { s.run.pull_requests[0].base.repo.id = 2; },
+  'linked head SHA': s => { s.run.pull_requests[0].head.sha = '0'.repeat(40); },
+  'linked head ref': s => { s.run.pull_requests[0].head.ref = 'codex/other'; },
+  'linked base ref': s => { s.run.pull_requests[0].base.ref = 'other'; },
   'wrong original base': s => { s.run.pull_requests[0].base.sha = '0'.repeat(40); },
   'stale timestamp': s => { s.run.updated_at = '2026-10-20T20:00:00Z'; },
   'future timestamp': s => { s.run.updated_at = '2026-10-23T20:00:00Z'; },
@@ -148,6 +156,15 @@ test('no proposed private manifest, caller labels or canonical name activates a 
   for (const value of [undefined, { status: 'PASS' }, { selected_route: 'canonical-hosted-native', feature_matrix_complete: true }])
     assert.throws(() => collectPrivateSoftwareEvidence(value), /^Error: SOFTWARE_PRIVATE_CONTRACT_NOT_FROZEN$/);
 });
+test('exported shared transport has no proof authority and rejects invalid artifact IDs before API work', async () => {
+  const state = fixture();
+  for (const value of [0, -1, 1.5, '101', Number.MAX_SAFE_INTEGER + 1])
+    await assert.rejects(readPublicArtifactBytes(state.github, value, state.options), /^Error: SOFTWARE_ARTIFACT_IDENTITY_INVALID$/);
+  assert.equal(state.calls.length, 0);
+  const bytes = await readPublicArtifactBytes(state.github, 101, state.options);
+  assert.equal(digest(bytes), digest(state.archives[101]));
+  assert.equal(isPublicSoftwareEvidence(bytes), false);
+});
 test('authority movement during final artifact readback cannot reuse the earlier run snapshot', async () => {
   for (const change of [s => { s.pr.head.sha = '0'.repeat(40); }, s => { s.run.run_attempt++; },
     s => { s.runs.push({ ...s.run, id: 91, status: 'queued' }); }]) {
@@ -155,4 +172,27 @@ test('authority movement during final artifact readback cannot reuse the earlier
     await assert.rejects(collect(state), /^Error: SOFTWARE_[A-Z0-9_]+$/);
     assert.equal(state.artifactReads, 4);
   }
+});
+for (const [name, transform] of Object.entries({
+  'contradictory root smoke': raw => '{"smoke":"FAIL",' + raw.slice(1),
+  'escaped duplicate root smoke': raw => '{"sm\\u006fke":"FAIL",' + raw.slice(1),
+  'nested raw observation': raw => raw.replace('"startup_to_passcode_ms":', '"startup_to_passcode_ms":-1,"startup_to_passcode_ms":'),
+  'unrelated nested object': raw => '{"ignored":{"same":0,"same":1},' + raw.slice(1),
+  'unrelated array object': raw => '{"ignored":[{"same":0,"s\\u0061me":1}],' + raw.slice(1),
+  'nonfinite overflow': raw => '{"ignored":1e400,' + raw.slice(1),
+  'nonfinite nested overflow': raw => '{"ignored":[{"number":-1e400}],' + raw.slice(1),
+  NaN: raw => '{"ignored":NaN,' + raw.slice(1),
+  Infinity: raw => '{"ignored":Infinity,' + raw.slice(1),
+  'trailing document': raw => raw + '\n{}',
+})) test('correctly rehashed original ZIP cannot brand ' + name + ' as software evidence', async () => {
+  const state = fixture(), original = JSON.stringify(state.metadata.IOS), changed = transform(original);
+  assert.notEqual(changed, original);
+  const bytes = archiveBytes(Buffer.from(changed), 'IOS');
+  state.archives[101] = bytes;
+  state.artifacts[0].size_in_bytes = bytes.length;
+  state.artifacts[0].digest = 'sha256:' + digest(bytes);
+  const originalDigest = digest(bytes);
+  await assert.rejects(collect(state), /^Error: SOFTWARE_[A-Z0-9_]+$/);
+  assert.equal(state.artifacts[0].digest, 'sha256:' + originalDigest);
+  assert.equal(digest(state.archives[101]), originalDigest);
 });

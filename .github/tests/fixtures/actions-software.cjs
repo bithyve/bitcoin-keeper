@@ -13,11 +13,12 @@ const sources = Object.entries(WORKER_SOURCES).map(([name, names]) => {
   return { path: name, names: [...names], sha256: digest(bytes), file: { path: name, type: 'file', encoding: 'base64',
     size: bytes.length, content: bytes.toString('base64'), sha: crypto.createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex') } };
 });
-function archive(value) {
+function archiveBytes(raw, platform) {
   return execFileSync('python3', ['-B', '-c',
-    'import io,json,sys,zipfile; v=json.load(sys.stdin); b=io.BytesIO(); z=zipfile.ZipFile(b,"w",zipfile.ZIP_DEFLATED); z.writestr(v["platform"].lower()+"/metadata.json",json.dumps(v)); z.close(); sys.stdout.buffer.write(b.getvalue())'],
-  { input: JSON.stringify(value), maxBuffer: 1024 * 1024 });
+    'import io,sys,zipfile; raw=sys.stdin.buffer.read(); b=io.BytesIO(); z=zipfile.ZipFile(b,"w",zipfile.ZIP_DEFLATED); z.writestr(sys.argv[1].lower()+"/metadata.json",raw); z.close(); sys.stdout.buffer.write(b.getvalue())', platform],
+  { input: raw, maxBuffer: 1024 * 1024 });
 }
+function archive(value) { return archiveBytes(Buffer.from(JSON.stringify(value)), value.platform); }
 function metadata(platform, input) {
   const value = attach({ schema: 1, platform, source_sha: 'a'.repeat(40), workflow_sha: input.workflowSha,
     workflow_ref: input.workflowRef, run_id: '90', run_attempt: '2', diagnostic_only: false,
@@ -45,6 +46,8 @@ function fixture() {
     updated_at: '2026-10-22T20:00:00Z', repository: repo, head_repository: repo, pull_requests: [structuredClone(pr)],
     referenced_workflows: [{ path: `${repo.full_name}/.github/workflows/keeper-native-platform.yml@${input.workflowSha}`,
       sha: input.workflowSha, ref: 'refs/pull/9000/merge' }] };
+  for (const row of [run.pull_requests[0].head, run.pull_requests[0].base])
+    row.repo = { id: repo.id, url: `https://api.github.com/repos/${repo.full_name}`, name: 'bitcoin-keeper' };
   const jobs = ['IOS', 'ANDROID'].map((platform, index) => ({ id: 20 + index, run_id: 90, run_attempt: 2,
     head_sha: pr.head.sha, name: `${platform.toLowerCase()} / Native ${platform} build and probes`,
     status: 'completed', conclusion: 'success', check_run_url: `https://api.github.com/repos/${repo.full_name}/check-runs/${30 + index}`,
@@ -105,4 +108,4 @@ function fixture() {
   } };
   return state;
 }
-module.exports = { fixture, digest };
+module.exports = { fixture, digest, archiveBytes };

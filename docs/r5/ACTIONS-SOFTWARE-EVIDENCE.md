@@ -15,6 +15,9 @@ The caller is `keeper-release-acceptance.yml` and its local reusable worker is
 control SHA is the caller/reusable PR merge SHA and may differ from the app SHA.
 The collector binds that control SHA/ref/path to the run API's single
 `referenced_workflows` entry; receipt fields never select control provenance.
+Actions linked PR snapshots contain reduced repository objects (`id/url/name`),
+so their exact repository IDs/ref/SHAs bind to the independently authenticated
+full repository/current PR rather than requiring a nonexistent `full_name`.
 
 The current same-repository PR, protected `sprint` base, original run base,
 current app/control trees and existing complete native/workflow installation
@@ -37,6 +40,9 @@ run/head, API ID, size and SHA256 digest are bound to bounded downloaded bytes.
 The API redirect is manual; the signed HTTPS storage request receives no API
 token or headers and follows no further redirect. Missing redirect support in
 an installed client fails closed; live route capability is not claimed here.
+`readPublicArtifactBytes` exposes that same bounded transport for a separately
+reviewed fixed-existing-artifact hosted compatibility probe. It returns only
+untrusted original ZIP bytes and cannot issue a software proof.
 
 The ZIP reader accepts exactly `ios/metadata.json` or `android/metadata.json`,
 at most 1 MiB archive / 512 KiB original member. It verifies ZIP32 local,
@@ -45,6 +51,11 @@ extra members, traversal, links/special files, encryption, ZIP64, overlap,
 trailing ambiguity and decompression overflow. It never extracts paths.
 Its subprocess inherits only PATH and fixed Python flags, not runner tokens.
 The original member bytes, not reserialized JSON, supply the recorded hash.
+The shared strict JSON parser rejects duplicate decoded keys at every nesting
+level, nonfinite numbers, invalid UTF-8 and trailing input before P1 validation.
+This also covers Unicode-escaped duplicate keys and numeric overflow in fields
+that a scoped validator would otherwise ignore. The canonical and trusted-origin
+raw artifact boundaries import the same separate parser leaf.
 
 P1A validates actual producer stages, five healthy observation pairs, the
 separate controlled disconnect/retry case, installed-byte identity, worker
