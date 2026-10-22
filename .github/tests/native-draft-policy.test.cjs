@@ -116,12 +116,29 @@ test('draft opening and updates retain the expected host checks without a releas
       triggered(workflow, 'pull_request', action, 'sprint')).map(([filename]) => filename).sort();
     const expected = [
       'android-diagnostic-build.yml', 'codeql.yml', 'keeper-hosted-native.yml',
-      'keeper-release-acceptance.yml', 'keeper-validation-tests.yml', 'public-backend.yml', 'test.yml',
+      'keeper-release-acceptance.yml', 'keeper-release-preparation-contracts.yml',
+      'keeper-validation-tests.yml', 'public-backend.yml', 'test.yml',
     ];
     if (action === 'synchronize' || action === 'reopened') expected.push('keeper-native-diagnostic.yml');
     assert.deepEqual(triggeredFiles, expected.sort());
     assert.ok(triggered(workflows['keeper-local-validation.yml'], 'pull_request_target', action, 'sprint'));
   }
+});
+
+test('release preparation PR checks stay offline and separate from the protected manual plan', () => {
+  const contracts = workflows['keeper-release-preparation-contracts.yml'];
+  assert.deepEqual(contracts.permissions, { contents: 'read' });
+  assert.equal(contracts.on.pull_request_target, undefined);
+  assert.equal(contracts.concurrency['cancel-in-progress'], 'false');
+  const job = contracts.jobs.contracts;
+  assert.equal(job.environment, undefined);
+  assert.equal(job.secrets, undefined);
+  assert.equal(job.steps.filter(step => step.run).length, 1);
+  assert.match(job.steps.find(step => step.run).run, /node --test scripts\/protected-release-plan\.test\.cjs/);
+  const plan = workflows['keeper-protected-release-plan.yml'];
+  assert.deepEqual(Object.keys(plan.on), ['workflow_dispatch']);
+  assert.equal(triggered(plan, 'pull_request', 'opened', 'sprint'), false);
+  assert.equal(triggered(plan, 'push', null, 'sprint'), false);
 });
 
 test('all Tests installs preserve current immutable script-disabled R4 setup and patches', () => {
