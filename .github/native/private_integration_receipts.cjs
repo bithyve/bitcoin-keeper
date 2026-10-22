@@ -63,7 +63,12 @@ function same(a, b) {
 function fixed(value, fields) { demand(object(value) && Object.entries(fields).every(([key, expected]) => same(value[key], expected))); }
 function noFailure(value) { demand(object(value) && !Object.keys(value).some(key => /(?:^failure(?:_|$)|^cleanup_failure(?!_categories$))/.test(key)) &&
   (!Object.hasOwn(value, 'cleanup') || value.cleanup === 'PASS') &&
-  (!Object.hasOwn(value, 'cleanup_failure_categories') || same(value.cleanup_failure_categories, []))); }
+  (!Object.hasOwn(value, 'cleanup_failure_categories') || same(value.cleanup_failure_categories, [])) &&
+  (!Object.hasOwn(value, 'startup_cleanup_errors') || same(value.startup_cleanup_errors, [])) &&
+  !Object.hasOwn(value, 'startup_observation_cleanup') &&
+  (!Object.hasOwn(value, 'install_succeeded') || value.install_succeeded === true) &&
+  (!Object.hasOwn(value, 'device') || (object(value.device) &&
+    (!Object.hasOwn(value.device, 'fresh_disposable_state') || value.device.fresh_disposable_state === true)))); }
 function privateIntegrationMembers(platform) {
   demand(['IOS', 'ANDROID'].includes(platform));
   const name = platform.toLowerCase(), base = `control/artifacts/native-integration/${name}`;
@@ -184,6 +189,23 @@ function mongo(value, expected) {
   fixed(value, fields);
   demand(['removed', 'absent'].includes(value.disposition) && (expected.platform !== 'IOS' || hex(value.archive_sha256, 64)));
 }
+// Fixed object-level components for a separately reviewed raw D profile. These
+// never parse, project or reserialize a C2 aggregate, or grant origin/authority.
+function privateSuites(values, hashes, expected, built, proof, suites) {
+  demand(keys(suites, SUITES));
+  const owners = new Set();
+  for (const suite of SUITES) {
+    const prefix = `control/artifacts/native-${suite}/${expected.platform.toLowerCase()}`, row = suites[suite];
+    demand(keys(row, ['status', 'scope', 'execution_started', 'cleanup', 'process_exit_code', 'receipt_sha256', 'post_suite_barrier']));
+    fixed(row, { status: 'PASS', scope: SCOPES[suite], execution_started: true, cleanup: 'PASS', process_exit_code: 0,
+      post_suite_barrier: 'PASS', receipt_sha256: { 'metadata.json': hashes[`${prefix}/metadata.json`], 'fixture.json': hashes[`${prefix}/fixture.json`] } });
+    suiteMetadata(values[`${prefix}/metadata.json`], suite, expected, built, proof, values[`${prefix}/fixture.json`]);
+    if (suite !== 'protected') {
+      const owner = values[`${prefix}/fixture.json`].ownerSha256;
+      demand(!owners.has(owner)); owners.add(owner);
+    }
+  }
+}
 function validatePrivateIntegration(rawFiles, suppliedExpected) {
   try {
     const expected = context(suppliedExpected), members = privateIntegrationMembers(expected.platform);
@@ -215,7 +237,7 @@ function validatePrivateIntegration(rawFiles, suppliedExpected) {
     demand(aggregate.startup_receipt_sha256 === hashes[startupName]);
     sourceProofs(aggregate.source_admission, expected);
     demand(keys(aggregate.suites, SUITES) && Array.isArray(aggregate.barriers) && aggregate.barriers.length === PHASES.length);
-    const retained = {}, owners = new Set();
+    const retained = {};
     aggregate.barriers.forEach((row, index) => {
       if (index === 1) retained[startupName.slice('control/'.length)] = hashes[startupName];
       if (index >= 2 && index % 2 === 0) {
@@ -228,17 +250,7 @@ function validatePrivateIntegration(rawFiles, suppliedExpected) {
           overlays_absent: SUITES.map(suite => `.github/native/.private-${suite}`),
           listeners: [8081, 8765, 8768, 8769].map(port => ({ port, result: 'ECONNREFUSED' })) } });
     });
-    for (const suite of SUITES) {
-      const prefix = `control/artifacts/native-${suite}/${expected.platform.toLowerCase()}`, row = aggregate.suites[suite];
-      demand(keys(row, ['status', 'scope', 'execution_started', 'cleanup', 'process_exit_code', 'receipt_sha256', 'post_suite_barrier']));
-      fixed(row, { status: 'PASS', scope: SCOPES[suite], execution_started: true, cleanup: 'PASS', process_exit_code: 0,
-        post_suite_barrier: 'PASS', receipt_sha256: { 'metadata.json': hashes[`${prefix}/metadata.json`], 'fixture.json': hashes[`${prefix}/fixture.json`] } });
-      suiteMetadata(values[`${prefix}/metadata.json`], suite, expected, built, proof, values[`${prefix}/fixture.json`]);
-      if (suite !== 'protected') {
-        const owner = values[`${prefix}/fixture.json`].ownerSha256;
-        demand(!owners.has(owner)); owners.add(owner);
-      }
-    }
+    privateSuites(values, hashes, expected, built, proof, aggregate.suites);
     mongo(values['control/artifacts/native-protected/mongo.json'], expected);
     const identity = Object.freeze({ app: Object.freeze({ ...expected.app }), control: Object.freeze({ ...expected.control }),
       backend: Object.freeze({ ...expected.backend }), execution: Object.freeze({ ...expected.execution }) });
@@ -251,4 +263,5 @@ function validatePrivateIntegration(rawFiles, suppliedExpected) {
       authorization_eligible: false, execution_allowed: false, release_authorized: false });
   } catch { throw new Error('PRIVATE_INTEGRATION_RECEIPT_INVALID'); }
 }
-module.exports = { validatePrivateIntegration, privateIntegrationMembers, RECOVERY_SOURCES };
+const PRIVATE_INTEGRATION_CORE = Object.freeze({ context, builtIdentity, foundation, sourceProofs, privateSuites, mongo });
+module.exports = { validatePrivateIntegration, privateIntegrationMembers, RECOVERY_SOURCES, PRIVATE_INTEGRATION_CORE };
