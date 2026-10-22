@@ -50,29 +50,29 @@ test('forged successful status names, creators and apps never count as authentic
   assert.throws(() => validateEvidence(request, evidence, now), /TRUSTED_CI_ORIGIN_NOT_VERIFIED/);
 });
 
-for (const [name, mutate] of [
-  ['moving driver', e => { e.driver.commit.sha = 'd'.repeat(40); }],
-  ['moving release source', e => { e.branch.commit.sha = 'd'.repeat(40); }],
-  ['unprotected source', e => { e.branch.protected = false; }],
-  ['author assertion', e => { e.comment.user.login = 'someone-else'; }],
-  ['expired owner approval', e => { e.comment.body = e.comment.body.replace('13:00:00Z', '10:00:00Z'); }],
-  ['wrong artifact approval', e => { e.comment.body = e.comment.body.replace('c'.repeat(64), 'd'.repeat(64)); }],
-  ['administrative bypass', e => { e.environment.can_admins_bypass = true; }],
-  ['unverified bypass', e => { delete e.environment.can_admins_bypass; }],
-  ['self approval', e => { e.environment.protection_rules[0].prevent_self_review = false; }],
-  ['missing environment', e => { e.environment = null; }],
-  ['stale native status', e => { e.statuses.sha = 'd'.repeat(40); }],
-  ['failed security check', e => { e.checks.check_runs[1].conclusion = 'failure'; }],
-  ['skipped check', e => { e.checks.check_runs[0].conclusion = 'skipped'; }],
-  ['wrong-SHA check', e => { e.checks.check_runs[0].head_sha = 'd'.repeat(40); }],
-  ['incomplete check pagination', e => { e.checks.total_count = 101; }],
-  ['missing required check', e => { e.checks.check_runs[1].name = 'Other'; }],
-  ['stale store counter evidence', e => { e.manifest.baselines.ios.verifiedAt = '2026-10-20T11:00:00Z'; }],
-  ['source version mismatch', e => { e.sources.packageText = '{"version":"0.0.0"}'; }],
+for (const [name, mutate, expectedCode] of [
+  ['moving driver', e => { e.driver.commit.sha = 'd'.repeat(40); }, 'DRIVER_MOVED_OR_UNPROTECTED'],
+  ['moving release source', e => { e.branch.commit.sha = 'd'.repeat(40); }, 'SOURCE_MOVED_OR_UNPROTECTED'],
+  ['unprotected source', e => { e.branch.protected = false; }, 'SOURCE_MOVED_OR_UNPROTECTED'],
+  ['author assertion', e => { e.comment.user.login = 'someone-else'; }, 'APPROVAL_AUTHOR_UNAUTHORIZED'],
+  ['expired owner approval', e => { e.comment.body = e.comment.body.replace('13:00:00Z', '10:00:00Z'); }, 'APPROVAL_STALE_OR_INVALID'],
+  ['wrong artifact approval', e => { e.comment.body = e.comment.body.replace('c'.repeat(64), 'd'.repeat(64)); }, 'APPROVAL_SCOPE_MISMATCH'],
+  ['administrative bypass', e => { e.environment.can_admins_bypass = true; }, 'ENVIRONMENT_MISSING_OR_BYPASS_UNVERIFIED'],
+  ['unverified bypass', e => { delete e.environment.can_admins_bypass; }, 'ENVIRONMENT_MISSING_OR_BYPASS_UNVERIFIED'],
+  ['self approval', e => { e.environment.protection_rules[0].prevent_self_review = false; }, 'INDEPENDENT_ENVIRONMENT_REVIEW_REQUIRED'],
+  ['missing environment', e => { e.environment = null; }, 'ENVIRONMENT_MISSING_OR_BYPASS_UNVERIFIED'],
+  ['stale native status', e => { e.statuses.sha = 'd'.repeat(40); }, 'STATUS_NOT_EXACT_SUCCESS'],
+  ['failed security check', e => { e.checks.check_runs[1].conclusion = 'failure'; }, 'CHECKS_NOT_EXACT_SUCCESS'],
+  ['skipped check', e => { e.checks.check_runs[0].conclusion = 'skipped'; }, 'CHECKS_NOT_EXACT_SUCCESS'],
+  ['wrong-SHA check', e => { e.checks.check_runs[0].head_sha = 'd'.repeat(40); }, 'CHECKS_NOT_EXACT_SUCCESS'],
+  ['incomplete check pagination', e => { e.checks.total_count = 101; }, 'INCOMPLETE_CHECK_EVIDENCE'],
+  ['missing required check', e => { e.checks.check_runs[1].name = 'Other'; }, 'REQUIRED_CHECK_MISSING'],
+  ['stale store counter evidence', e => { e.manifest.baselines.ios.verifiedAt = '2026-10-20T11:00:00Z'; }, 'RELEASE_SOURCE_PREFLIGHT_FAILED'],
+  ['source version mismatch', e => { e.sources.packageText = '{"version":"0.0.0"}'; }, 'RELEASE_SOURCE_PREFLIGHT_FAILED'],
 ]) test(`fails closed: ${name}`, () => {
   const { request, evidence } = fixture();
   mutate(evidence);
-  assert.throws(() => validateEvidence(request, evidence, now));
+  assert.throws(() => validateEvidence(request, evidence, now), new RegExp(expectedCode));
 });
 
 test('rejects uninstalled/PR driver, injection, mutable source, invalid artifact and public operation', () => {
