@@ -26,7 +26,8 @@ jobs:
     name: Canonical ${{ inputs.platform }} build and features
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/sprint' && inputs.source_sha == github.sha
     runs-on: ${{ inputs.platform == 'IOS' && 'macos-15' || 'ubuntu-24.04' }}
-    timeout-minutes: ${{ inputs.platform == 'IOS' && 105 || 90 }}
+    # Same standard hosted workers and feature budget as candidate diagnostics.
+    timeout-minutes: 240
     env:
       CI: 'true'
       HUSKY: '0'

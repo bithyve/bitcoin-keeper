@@ -4,6 +4,11 @@ This is an isolated candidate, not release approval. Ordinary development and
 native testing use Cloud, including hosted macOS; the owner's personal Mac is
 not a prerequisite. No producer branch or shared branch is rewritten.
 
+The current package ledger is [R5 delivery continuation](r5/DELIVERY-CONTINUATION.md).
+The PR descriptions hold exact candidate/run/attempt results; implementation
+package checks below never transfer to a new integration SHA. The isolated
+execution window on #7082 remains at3eb92fc while this next candidate is prepared.
+
 ## Source continuity
 
 Observed 22 October 2026. Recheck producer heads before candidate freeze.
@@ -64,24 +69,28 @@ existing assessor candidate; do not infer that it is 5.2.
 - Signing, upload, distribution, deployment, publication, merges and shared-branch
   promotion require separate explicit owner approval. No such action is performed.
 
-## Inherited evidence and unresolved findings
+## Initial inherited evidence and unresolved findings
 
 The original core and 5.1 Tests/public-backend jobs pass on their recorded heads.
 Their old genuine automatic-backup matrix fails; the historical fixture's result
 must remain visible alongside the current-v3 witness. CodeQL analysis execution
 passes, while the separate security result fails on an inherited high-severity
 incomplete sanitization finding at `src/services/wallets/operations/index.ts`.
-No independent review or severity waiver is established. Lint jobs tolerate
+This initial checkpoint established no independent clearance or severity waiver. Lint jobs tolerate
 command failures; green jobs do not mean lint is clean.
 
 Read-only alert triage confirmed the flagged module blob
 `db29ee432496e84bc70be82b0d9a3017e154888d` is identical in released R4, core,
 5.1 and the inspected interim candidate. The flagged string feeds a numeric
 witness-size estimate; no HTML sink was established in the traced callers.
-An uncommitted literal-selector counting candidate matched 140 pinned fixture
+An earlier uncommitted literal-selector counting candidate matched 140 pinned fixture
 witnesses and 104 production-helper comparisons. This is bounded triage, not
-an exploitability clearance or signing-security review. No financial-source
-refactor, alert dismissal or waiver is included; the failed check remains open.
+an exploitability clearance or signing-security review. The later separately
+reviewed #7098 literal-selector correction is now incorporated by ancestry, with
+fresh223 controls and78policy/927witness/120fee-API baseline evidence. Its scoped
+official check passes, while its reported full-R5 scan retains another inherited
+High. The original failed check stays attached to its original source; no
+dismissal, waiver or transfer of security acceptance is made.
 
 At initial integration there is no combined native acceptance, no five raw
 measurements and no identified 5.2 checkpoint. Candidate freeze is blocked until
