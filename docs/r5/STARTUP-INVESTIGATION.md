@@ -1,8 +1,9 @@
 # R5 startup and bounded investigations — 21 October 2026
 
-Development evidence only. The owner confirms R4/2.6.4 is live; R5 is now
-reconciled to its recorded source1d8a86a. Earlier unmerged/pending descriptions
-below retain their original investigation scope. No native acceptance,
+Development evidence only. R5 is reconciled to submitted R4 source1d8a86a;
+iOS620/Android627 were submitted with public release held. Source ancestry does
+not establish public availability or owner R4 closure. Earlier unmerged/pending
+descriptions below retain their original investigation scope. No native acceptance,
 release-readiness, issue closure or performance improvement is claimed here.
 
 ## Newer work checked before editing
@@ -14,7 +15,7 @@ Its Splash, NewKeeperApp and secure-store modules are identical to the original
 sprint versions. This permits independent source changes without importing R4.
 R4's changed Login, Home/navigation, transaction views and backup/backend paths
 remained untouched during that independent checkpoint. Reconciliation with the
-owner-confirmed released source is now complete; see R4-RECONCILIATION.md.
+submitted R4 source is now complete; see R4-RECONCILIATION.md.
 
 Other open work includes native-validation #7060, cloud-release #7062, bootstrap
 #7063, lock-selector #7064, PIN fixes #7052/#7053, reproducibility #7043 and the
