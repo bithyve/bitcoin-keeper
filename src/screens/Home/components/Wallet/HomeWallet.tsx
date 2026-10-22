@@ -199,6 +199,7 @@ const HomeWallet = () => {
     <Box style={styles.walletContainer}>
       <ActivityIndicatorView visible={syncing} showLoader />
       <Fab
+        testID="wallets_add_wallet"
         icon={<AddIcon height={hp(22)} width={wp(22)} />}
         onPress={collaborativeHandoff.openAdd}
       />
