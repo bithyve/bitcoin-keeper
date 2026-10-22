@@ -106,3 +106,42 @@ test('emits only fixed error/query categories and caps rows', () => {
   assert.equal(new disabled.Reporter({}).update({ type: 'bundle_build_done' }), 31);
   assert.equal(disabled.rows.length, 0);
 });
+
+test('matches the actual app ID for each request platform without rewriting requests', () => {
+  const nativeSource = fs.readFileSync(path.join(__dirname, '../native/hosted_native.py'), 'utf8');
+  const ids = /APP_IDS = \{'IOS': '([^']+)', 'ANDROID': '([^']+)'\}/.exec(nativeSource);
+  assert(ids, 'bind observations to the app IDs actually passed to installation and Maestro');
+  const calls = [];
+  const loaded = load({ server: {}, reporter: { update() {} } });
+  const handler = loaded.config.server.enhanceMiddleware((req, res) => {
+    calls.push([req, res]); return 'normal-body';
+  }, {});
+  for (const [platform, app, expected] of [
+    ['ios', ids[1], 'EXPECTED'],
+    ['ios', ids[2], 'OTHER'],
+    ['android', ids[2], 'EXPECTED'],
+    ['android', ids[1], 'OTHER'],
+    ['PRIVATE_SENTINEL', ids[1], 'OTHER'],
+  ]) {
+    const req = { url: `/index.bundle?platform=${platform}&app=${app}&dev=true&lazy=true` };
+    const res = new EventEmitter();
+    assert.equal(handler(req, res, () => {}), 'normal-body');
+    assert.equal(calls.at(-1)[0], req);
+    assert.equal(calls.at(-1)[1], res);
+    assert.equal(loaded.rows.at(-1).options.app, expected);
+  }
+  assert(!JSON.stringify(loaded.rows).includes('PRIVATE_SENTINEL'));
+});
+
+test('malformed optional request observation never replaces middleware behavior', () => {
+  const req = { get url() { throw new Error('PRIVATE_SENTINEL request accessor'); } };
+  const res = new EventEmitter();
+  const next = () => {};
+  const loaded = load({ server: {}, reporter: { update() {} } });
+  const handler = loaded.config.server.enhanceMiddleware((actualReq, actualRes, actualNext) => {
+    assert.equal(actualReq, req); assert.equal(actualRes, res); assert.equal(actualNext, next);
+    return false;
+  }, {});
+  assert.equal(handler(req, res, next), false);
+  assert.equal(loaded.rows.length, 0);
+});

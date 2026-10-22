@@ -37,7 +37,7 @@ class StartupIntegrationTest(unittest.TestCase):
         self.spawn_error = OSError('PRIVATE_SENTINEL Metro spawn failure')
 
     def start(self, context, device):
-        self.assertEqual(context.PLATFORM, 'ANDROID')
+        self.assertEqual(context.PLATFORM, self.expected_platform)
         self.assertEqual(context.PRIVATE, self.root)
         self.assertEqual(device, self.device)
         self.events.append('capture-start')
@@ -59,6 +59,8 @@ class StartupIntegrationTest(unittest.TestCase):
                  cleanup_fails=(), diagnostics_fail=False, install_timeout=False,
                  install_fails=False, readiness_fails=False):
         captured = {}
+        self.expected_platform = platform
+        self.device = '12345678-1234-1234-1234-123456789ABC' if platform == 'IOS' else 'emulator-5554'
         original_read, original_save, original_unlink = native.read, native.save, Path.unlink
         original_command = native.command
 
@@ -73,7 +75,7 @@ class StartupIntegrationTest(unittest.TestCase):
             return original_save(value)
 
         def unlink(path, *args, **kwargs):
-            if path.name in ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log'] and 'capture-collect' in self.events:
+            if path.name in ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log', 'ios-startup-errors.log', 'ios-startup-errors-stderr.log'] and 'capture-collect' in self.events:
                 self.events.append('purge-' + path.name)
                 if 'purge' in cleanup_fails:
                     raise OSError('PRIVATE_SENTINEL purge failure')
@@ -348,8 +350,8 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertEqual(value['install_options'], {'timeout': 120})
         self.assertLess(self.events.index('app-services-ready'), self.events.index('install-observe'))
         self.assertLess(self.events.index('install-observe'), self.events.index('installed-proof'))
-        self.assertLess(self.events.index('installed-proof'), self.events.index('maestro'))
-        self.assertNotIn('capture-start', self.events)
+        self.assertLess(self.events.index('installed-proof'), self.events.index('capture-start'))
+        self.assertLess(self.events.index('capture-start'), self.events.index('maestro'))
         self.assertIn('device-shutdown', self.events)
         self.assertIn('device-delete', self.events)
 
@@ -445,10 +447,11 @@ class StartupIntegrationTest(unittest.TestCase):
         for name in ['build-artifact', 'maestro.zip']:
             self.assertTrue((self.root / name).exists())
 
-    def test_probes_and_ios_preserve_their_existing_metro_configuration_without_observation(self):
+    def test_probes_preserve_their_existing_metro_configuration_without_observation(self):
         for suite, platform, config in [('probe', 'ANDROID', 'release_metro.cjs'),
                                          ('features', 'ANDROID', 'r5_metro.cjs'),
-                                         ('startup', 'IOS', None)]:
+                                         ('probe', 'IOS', 'release_metro.cjs'),
+                                         ('features', 'IOS', 'r5_metro.cjs')]:
             with self.subTest(suite=suite, platform=platform):
                 self.events.clear()
                 value = self.exercise(suite=suite, platform=platform)
@@ -459,6 +462,56 @@ class StartupIntegrationTest(unittest.TestCase):
                     self.assertEqual(value['metro_args'][-2:], ['--config', str(self.root / '.github/native' / config)])
                 else:
                     self.assertNotIn('--config', value['metro_args'])
+
+    def test_ios_normal_startup_uses_observer_without_changing_ui_or_deadlines(self):
+        value = self.exercise(platform='IOS')
+        self.assertNotIn('error', value)
+        self.assertEqual(value['metro_args'], [
+            'node', 'node_modules/react-native/cli.js', 'start', '--port', '8081',
+            '--config', str(self.root / '.github/native/startup_observer.cjs'),
+            '--custom-log-reporter-path', str(self.root / '.github/native/startup_reporter.cjs')])
+        self.assertEqual(value['metro_options']['env'], {
+            'KEEPER_PUBLIC_TEST_ENV': 'fixture',
+            'KEEPER_STARTUP_OBSERVER_PATH': str(self.root / 'startup-observer.jsonl')})
+        self.assertEqual(value['install_options'], {'timeout': 120})
+        self.assertEqual(value['flow'], '.github/native/startup.yaml')
+        self.assertEqual(self.events.count('installed-proof'), 2)
+        self.assertLess(self.events.index('maestro'), self.events.index('capture-collect'))
+        self.assertLess(self.events.index('capture-collect'), self.events.index('capture-stop'))
+        self.assertLess(self.events.index('capture-stop'), self.events.index('metro-stop'))
+
+    def test_ios_private_collection_and_receipt_failures_preserve_primary_and_all_disposal(self):
+        observer_names = ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log',
+                          'ios-startup-errors.log', 'ios-startup-errors-stderr.log']
+        for boundary in [None, 'read', 'save']:
+            with self.subTest(boundary=boundary):
+                self.events.clear()
+                value = self.exercise(platform='IOS', smoke_fails=True, receipt_fails=boundary,
+                                      collect_fails=True, stop_fails=True,
+                                      cleanup_fails=('metro-stop', 'metro-output', 'device-shutdown', 'device-delete', 'purge'))
+                self.assertIs(value['error'], self.original_error)
+                for event in ['capture-stop', 'metro-stop', 'device-shutdown', 'device-delete',
+                              *['purge-'+name for name in observer_names]]:
+                    self.assertEqual(self.events.count(event), 1)
+                self.assertTrue(value['metro_output'].closed)
+                self.assertNotIn('PRIVATE_SENTINEL', str(value['metadata']))
+
+    def test_ios_missing_observation_never_changes_real_outcome_or_skips_log_purge(self):
+        for primary in [False, True]:
+            with self.subTest(primary=primary):
+                self.events.clear()
+                for name in ['ios-startup-errors.log', 'ios-startup-errors-stderr.log']:
+                    (self.root/name).write_text('PRIVATE_SENTINEL')
+                value = self.exercise(platform='IOS', smoke_fails=primary, start_fails=True, collect_fails=True)
+                self.assertEqual(value['metadata']['smoke'], 'FAIL' if primary else 'PASS')
+                self.assertEqual(value['metadata']['startup_observation_capture'], 'UNAVAILABLE')
+                self.assertEqual(value['metadata']['startup_observation'], {'collection_errors': ['collector']})
+                for name in ['ios-startup-errors.log', 'ios-startup-errors-stderr.log']:
+                    self.assertFalse((self.root/name).exists())
+                self.assertIn('device-shutdown', self.events)
+                self.assertIn('device-delete', self.events)
+                if primary:
+                    self.assertIs(value['error'], self.original_error)
 
 
 if __name__ == '__main__':
