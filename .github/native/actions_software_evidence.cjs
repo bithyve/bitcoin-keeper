@@ -174,9 +174,27 @@ async function boundedBytes(response) {
 }
 async function readArchive(github, artifactId, fetchImpl) {
   demand(id(artifactId), 'SOFTWARE_ARTIFACT_IDENTITY_INVALID');
+  const apiURL = `https://api.github.com/repos/${REPOSITORY}/actions/artifacts/${artifactId}/zip`;
+  let intercepted = false;
   const response = await github.rest.actions.downloadArtifact({ ...args, artifact_id: artifactId, archive_format: 'zip',
-    request: { timeout: 30000, redirect: 'manual' } });
-  demand(response.status === 302, 'SOFTWARE_ARCHIVE_REDIRECT_REQUIRED');
+    request: { timeout: 30000, parseSuccessResponseBody: false,
+      // The pinned github-script client does not forward request.redirect.
+      // Its supported fetch hook controls the authenticated API hop instead.
+      fetch: async (url, init) => {
+        demand(!intercepted && url === apiURL && init?.method === 'GET' && init.body == null,
+          'SOFTWARE_ARCHIVE_API_REQUEST_INVALID');
+        intercepted = true;
+        const apiResponse = await fetchImpl(url, { ...init, redirect: 'manual', signal: AbortSignal.timeout(30000) });
+        try {
+          demand(apiResponse?.status === 302, 'SOFTWARE_ARCHIVE_REDIRECT_REQUIRED');
+          return apiResponse;
+        } finally {
+          // No SDK JSON/text/arrayBuffer parser may consume an API error or
+          // accidentally followed ZIP body before our streaming size checks.
+          if (apiResponse?.body) await apiResponse.body.cancel();
+        }
+      } } });
+  demand(intercepted && response.status === 302, 'SOFTWARE_ARCHIVE_REDIRECT_REQUIRED');
   const location = new URL(response.headers.location);
   demand(location.protocol === 'https:' && !location.username && !location.password && !location.hash &&
     (!location.port || location.port === '443') &&
@@ -188,7 +206,10 @@ async function readArchive(github, artifactId, fetchImpl) {
 // Transport only: returns original untrusted ZIP bytes, never an issued proof.
 // A separately reviewed fixed-artifact host probe can exercise this exact adapter.
 async function readPublicArtifactBytes(github, artifactId, { fetchImpl = fetch } = {}) {
-  return readArchive(github, artifactId, fetchImpl);
+  try { return await readArchive(github, artifactId, fetchImpl); }
+  catch (error) {
+    throw new Error(/^SOFTWARE_[A-Z0-9_]{1,80}$/.test(error?.message || '') ? error.message : 'SOFTWARE_ARCHIVE_READ_FAILED');
+  }
 }
 function unpack(archive, platform) {
   const result = execFileSync('python3', ['-B', path.join(__dirname, 'software_artifact_zip.py'), platform], {
