@@ -4,6 +4,7 @@ const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { createRequire } = require('node:module');
+const { sdkDownloadArtifact } = require('./fixtures/github-script-sdk-shape.cjs');
 const ROOT = path.resolve(__dirname, '../..');
 const SCRIPT = '.github/scripts/probe-public-artifact-transport.cjs';
 const FILES = [SCRIPT, '.github/native/actions_software_evidence.cjs', '.github/native/release_preflight.cjs',
@@ -23,6 +24,7 @@ async function fixture(action) {
       const target = path.join(directory, file); fs.mkdirSync(path.dirname(target), { recursive: true });
       fs.copyFileSync(path.join(ROOT, file), target); fs.chmodSync(target, 0o644);
     }
+    fs.writeFileSync(path.join(directory, '.gitignore'), '.github/native/json.py\n');
     git(['init', '-q']); git(['add', '.']);
     git(['-c', 'core.hooksPath=/dev/null', '-c', 'user.name=Disposable', '-c', 'user.email=disposable@example.invalid', 'commit', '-qm', 'fixed synthetic source']);
     const sha = git(['rev-parse', 'HEAD']); process.chdir(directory); process.env.GITHUB_WORKFLOW_SHA = sha;
@@ -42,9 +44,16 @@ async function fixture(action) {
       getWorkflowRun: async args => { assert.equal(args.run_id, 39858617273); state.calls.push('run'); return { status: 200, data: structuredClone(state.targetRun) }; },
       getArtifact: async args => { assert.equal(args.artifact_id, 12462694619); state.calls.push('artifact'); return { status: 200, data: structuredClone(state.artifact) }; },
       downloadArtifact: async args => { assert.equal(args.artifact_id, 12462694619); state.calls.push('download');
-        return { status: state.redirectStatus || 302, headers: { location: state.location } }; },
+        return sdkDownloadArtifact(args, state.fetchImpl, state.sdkObservation); },
     } } };
+    state.sdkObservation = {};
     state.fetchImpl = async (url, options) => {
+      if (String(url) === 'https://api.github.com/repos/KeeperCommunity/bitcoin-keeper/actions/artifacts/12462694619/zip') {
+        state.calls.push('manual-api'); assert.equal(options.redirect, 'manual'); assert.equal(options.method, 'GET');
+        assert.equal(options.headers.authorization, 'Bearer DISPOSABLE_TEST_API_IDENTITY');
+        return new Response(new ReadableStream({ cancel() { state.apiCancelled = (state.apiCancelled || 0) + 1; } }),
+          { status: state.redirectStatus || 302, headers: { location: state.location } });
+      }
       state.calls.push('stream'); assert.equal(String(url), state.location);
       assert.equal(options.headers, undefined); assert.equal(options.redirect, 'error'); assert.ok(options.signal instanceof AbortSignal);
       if (state.downloadMutation) state.downloadMutation();
@@ -71,7 +80,8 @@ test('actual authorized original ZIP streams through production adapter and expo
     assert.equal(result.original_smoke, 'FAIL'); assert.equal(result.original_native_probe, 'NOT RUN');
     for (const field of ['native_acceptance', 'installed_trust', 'release_ready', 'authorization_eligible', 'release_authorized', 'execution_allowed']) assert.equal(result[field], false);
     assert.equal(result.retained_raw_files, 0); assert.equal(result.source_fences, 2);
-    assert.deepEqual(f.calls, ['run', 'artifact', 'download', 'stream', 'run', 'artifact']);
+    assert.deepEqual(f.calls, ['run', 'artifact', 'download', 'manual-api', 'stream', 'run', 'artifact']);
+    assert.equal(f.apiCancelled, 1); assert.equal(f.sdkObservation.parsedBodies || 0, 0);
     const output = JSON.stringify(result); assert.equal(output.includes('PRIVATE_TEST_URL'), false);
     assert.equal(output.includes('metadata.json'), false); assert.equal(output.includes('http'), false);
   });
@@ -111,12 +121,25 @@ for (const [name, mutate, error] of [
 }));
 test('post-download source and API changes revoke the result', needsOriginal, async () => {
   for (const mutate of [f => { f.targetRun.run_attempt = 2; }, f => { f.artifact.expired = true; },
-    f => fs.appendFileSync(path.join(f.directory, '.github/native/strict_json.cjs'), '\n// hidden overlay\n')]) {
+    f => fs.appendFileSync(path.join(f.directory, '.github/native/strict_json.cjs'), '\n// hidden overlay\n'),
+    f => fs.writeFileSync(path.join(f.directory, '.github/native/json.py'), '# ignored overlay\n')]) {
     await fixture(async f => { f.downloadMutation = () => mutate(f); await assert.rejects(f.run()); });
   }
 });
 for (const flag of ['--assume-unchanged', '--skip-worktree']) test(`raw source fence rejects ${flag} hidden overlays before API`, async () => fixture(async f => {
   const file = '.github/native/strict_json.cjs'; f.git(['update-index', flag, file]); fs.appendFileSync(path.join(f.directory, file), '\n// overlay\n');
+  await assert.rejects(f.run(), /^Error: FIXED_ARTIFACT_SOURCE_INVALID$/); assert.deepEqual(f.calls, []);
+}));
+test('push branch and immutable workflow SHA pins reject another context before API', async () => {
+  for (const mutate of [f => { f.context.eventName = 'pull_request'; }, f => { f.context.ref = 'refs/heads/sprint'; },
+    f => { process.env.GITHUB_WORKFLOW_SHA = 'b'.repeat(40); }, f => { f.context.repo.owner = 'foreign'; }]) {
+    await fixture(async f => { mutate(f); await assert.rejects(f.run(), /^Error: FIXED_ARTIFACT_CONTEXT_INVALID$/); assert.deepEqual(f.calls, []); });
+  }
+});
+for (const name of ['base64.py', 'json.py']) test(`rejects untracked or ignored Python import shadow ${name}`, async () => fixture(async f => {
+  const file = '.github/native/' + name;
+  fs.writeFileSync(path.join(f.directory, file), '# unreviewed module\n');
+  if (name === 'json.py') assert.equal(f.git(['check-ignore', file]), file);
   await assert.rejects(f.run(), /^Error: FIXED_ARTIFACT_SOURCE_INVALID$/); assert.deepEqual(f.calls, []);
 }));
 test('literal paths and actual owner executable mode are required', async () => {

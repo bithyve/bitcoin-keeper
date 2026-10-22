@@ -18,6 +18,7 @@ const SAFE = new Set(['FIXED_ARTIFACT_CONTEXT_INVALID', 'FIXED_ARTIFACT_SOURCE_I
   'FIXED_ARTIFACT_API_INVALID', 'FIXED_ARTIFACT_RUN_INVALID', 'FIXED_ARTIFACT_IDENTITY_INVALID',
   'FIXED_ARTIFACT_ARCHIVE_INVALID', 'FIXED_ARTIFACT_MEMBER_INVALID', 'FIXED_ARTIFACT_METADATA_INVALID',
   'STRICT_ARTIFACT_JSON_INVALID', 'SOFTWARE_ARTIFACT_IDENTITY_INVALID', 'SOFTWARE_ARCHIVE_READ_FAILED',
+  'SOFTWARE_ARCHIVE_API_REQUEST_INVALID',
   'SOFTWARE_ARCHIVE_TOO_LARGE', 'SOFTWARE_ARCHIVE_SIZE_MISMATCH', 'SOFTWARE_ARCHIVE_REDIRECT_REQUIRED',
   'SOFTWARE_ARCHIVE_HOST_INVALID']);
 
@@ -26,6 +27,8 @@ function sourceFence(expected) {
     demand(/^[a-f0-9]{40}$/.test(expected) && process.cwd() === ROOT && fs.realpathSync(ROOT) === ROOT,
       'FIXED_ARTIFACT_SOURCE_INVALID');
     const git = args => execFileSync('git', args, { cwd: ROOT, maxBuffer: 4 * 1024 * 1024 });
+    // No dependency/build steps need untracked files; include ignored Python import shadows.
+    demand(git(['ls-files', '--others', '-z']).length === 0, 'FIXED_ARTIFACT_SOURCE_INVALID');
     demand(git(['rev-parse', 'HEAD']).toString().trim() === expected, 'FIXED_ARTIFACT_SOURCE_INVALID');
     let count = 0;
     for (const entry of git(['ls-tree', '-r', '-z', 'HEAD']).toString('utf8').split('\0').filter(Boolean)) {

@@ -13,6 +13,10 @@ attempt 1, app `1bc34890cb8618b2fffd446a63924974e0fe15b5`, reusable control
 SHA256 `550142809a0faf812741a586630b17d6f458b2b6c935b5bab4b00f84da67c84f`.
 Its sole `ios/metadata.json` member is 29150 bytes, SHA256
 `202ff3e86b6697e30f02d233453365ffca4ee809fae5491f36d79f7ef28866e4`.
+The fixed workflow ID 392538840 and artifact head branch were confirmed against
+saved [run](https://api.github.com/repos/KeeperCommunity/bitcoin-keeper/actions/runs/39858617273)
+and [artifact](https://api.github.com/repos/KeeperCommunity/bitcoin-keeper/actions/artifacts/12462694619)
+API snapshots, independently of test models.
 
 The script checks fixed API identities before and after download, bounded manual
 redirect/stream handling, original byte digests, the frozen ZIP reader and strict
@@ -25,5 +29,7 @@ installed-trust, readiness and authorization flag remains false.
 Local source controls use mocked API/HTTP and the authorized saved archive via
 test-only `R5_ARTIFACT_FIXTURE`. They do not prove the actual hosted SDK transport.
 The earlier pinned SDK source finding (ignored `request.redirect`) is not a host
-failure. Full reviewed adapter-fix ancestry is required before freezing this
-probe. The actual hosted capability remains **NOT RUN** until separately approved.
+failure. This probe contains the full reviewed adapter-fix ancestry
+`a23992f1604e47bd68e898cb696e51ef3814d4eb`; its mock deliberately ignores
+`request.redirect`, honors `request.fetch` and prevents SDK body parsing.
+The actual hosted capability remains **NOT RUN** until separately approved.
