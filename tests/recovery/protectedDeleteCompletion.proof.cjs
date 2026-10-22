@@ -59,6 +59,7 @@ async function setup(t) {
   f.before = await f.repair.captureBackupImage();
   f.accountBefore = plain(f.dbManager.getObjectByIndex(f.RealmSchema.KeeperApp));
   f.olderBefore = await server.backend.mongoose.connection.db.collection('appimages').findOne({ appId });
+  f.subscriptionBefore = await server.backend.mongoose.connection.db.collection('apps').findOne({ appId });
   server.clearTrace();
   return f;
 }
@@ -68,6 +69,7 @@ async function preserved(f) {
   for (const key of ['id', 'primaryMnemonic', 'primarySeed', 'subscription'])
     assert.deepEqual(current[key], f.accountBefore[key]);
   assert.deepEqual(await server.backend.mongoose.connection.db.collection('appimages').findOne({ appId }), f.olderBefore);
+  assert.deepEqual(await server.backend.mongoose.connection.db.collection('apps').findOne({ appId }), f.subscriptionBefore);
 }
 function consent(f) { return f.store.getState().bhr.automaticCloudBackupByAppId[appId]; }
 function notVerified(f) {
@@ -84,7 +86,7 @@ function holdDelete() {
   return gate;
 }
 
-test('explicit protected Delete with saved automatic consent off retains local data and older copy without enrollment', { timeout: 30000 }, async t => {
+test('explicit protected Delete with saved automatic consent off retains local data and older copy without re-enrollment', { timeout: 30000 }, async t => {
   const f = await setup(t);
   f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId, enabled: false }));
   assert.equal(consent(f), false);
@@ -104,13 +106,24 @@ test('explicit protected Delete with saved automatic consent off retains local d
 test('a genuine held Delete ACK cannot overwrite a newer off-to-on consent choice', { timeout: 30000 }, async t => {
   const f = await setup(t), gate = holdDelete();
   const deleting = f.sagas.run('deleteBackupWorker', { appId });
+  let primaryFailure;
   try {
     await bounded(gate.arrived);
     const originalEpoch = f.transport.backupConsentEpoch(appId);
     f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId, enabled: false }));
     f.store.dispatch(f.bhr.setAutomaticCloudBackup({ appId, enabled: true }));
     assert.ok(f.transport.backupConsentEpoch(appId) > originalEpoch);
-  } finally { gate.release(); }
+  } catch (error) { primaryFailure = error; throw error; }
+  finally {
+    gate.release();
+    // Drain before t.after closes Realm/server, even if a regression causes an
+    // intermediate assertion to fail. Preserve that original failure.
+    try { await deleting; }
+    catch (error) {
+      if (!primaryFailure) throw error;
+      t.diagnostic('Owned Delete worker also failed while draining after the primary assertion');
+    }
+  }
   assert.equal(await deleting, false);
   assert.equal(consent(f), true);
   assert.equal(f.store.getState().bhr.deleteBackupSuccessByAppId[appId], false);
@@ -147,12 +160,21 @@ test('an actual Delete ACK after encrypted Realm A-to-B-to-A cannot report succe
   const f = await setup(t), gate = holdDelete();
   const originalSession = f.transport.currentBackupAccountSession();
   const deleting = f.sagas.run('deleteBackupWorker', { appId, originBackupAccountSession: originalSession });
+  let primaryFailure;
   try {
     await bounded(gate.arrived);
     await f.selectAccount('disposable-distinct-account');
     await f.selectAccount(appId);
     assert.notEqual(f.transport.currentBackupAccountSession(), originalSession);
-  } finally { gate.release(); }
+  } catch (error) { primaryFailure = error; throw error; }
+  finally {
+    gate.release();
+    try { await deleting; }
+    catch (error) {
+      if (!primaryFailure) throw error;
+      t.diagnostic('Owned Delete worker also failed while draining after the primary assertion');
+    }
+  }
   assert.equal(await deleting, false);
   assert.equal(consent(f), true);
   assert.equal(f.store.getState().bhr.deleteBackupSuccessByAppId[appId], false);
