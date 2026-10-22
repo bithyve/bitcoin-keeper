@@ -1,0 +1,156 @@
+"""Normal-app unused-key/PIN companion on the product runner's owned device.
+
+No standalone device selector or fixture/database/credential injection is exposed.
+This runs after the five healthy samples and separate setup Retry fixture, while
+the same ordinary Metro process and disposable backend responder remain alive.
+"""
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+PORT = 8766
+STAGES = (
+    'existing_disposable_home_verified', 'empty_deletion_entry_verified',
+    'unused_mobile_key_created', 'delete_confirmation_scoped',
+    'cancelled_confirmation_preserved_key', 'wrong_deletion_pin_rejected',
+    'unused_mobile_key_deleted', 'unrelated_wallet_preserved',
+    'cold_wrong_login_pin_rejected', 'deletion_persisted_after_relaunch',
+    'final_wallet_verified',
+)
+
+
+class Receipt:
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.completed = []
+
+    def mark(self, stage):
+        with self.lock:
+            if len(self.completed) >= len(STAGES) or stage != STAGES[len(self.completed)]:
+                return False
+            self.completed.append(stage)
+            return True
+
+    def snapshot(self, passed=False):
+        with self.lock:
+            if passed and self.completed != list(STAGES):
+                raise RuntimeError('PRODUCT_KEY_UI_INCOMPLETE')
+            return {'status': 'PASS' if passed else 'FAIL',
+                    'completed_stages': list(self.completed),
+                    'entrypoint': 'index.js', 'network': 'TESTNET',
+                    'scenario': 'UNUSED_MOBILE_KEY_UI_DELETE_AND_NATIVE_PIN',
+                    'visible_eligible_keys_after_deletion': 0 if passed else None,
+                    'unrelated_visible_wallet_count_after_relaunch': 1 if passed else None,
+                    'referenced_vault_ui': 'NOT IMPLEMENTED',
+                    'credential_store_read_fault': 'NOT RUN',
+                    'physical_biometrics': 'NOT RUN',
+                    'protected_backup_deletion': 'NOT TESTED',
+                    'recovery_key_preservation': 'Not selected or exported; excluded by production deletion filters.'}
+
+
+def make_server(receipt, port=PORT):
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *_):
+            pass
+
+        def reply(self, status):
+            self.send_response(status)
+            self.send_header('Content-Length', '0')
+            self.end_headers()
+
+        def do_POST(self):
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if self.path != '/metric' or not 0 < length <= 128:
+                    self.close_connection = True
+                    return self.reply(422)
+                metric = json.loads(self.rfile.read(length))
+                if (isinstance(metric, dict) and set(metric) == {'stage'} and
+                        receipt.mark(metric['stage'])):
+                    return self.reply(200)
+            except (ValueError, TypeError):
+                pass
+            self.reply(422)
+
+        def do_GET(self):
+            self.reply(405)
+
+    class Server(ThreadingHTTPServer):
+        allow_reuse_address = False
+        daemon_threads = True
+
+    return Server(('127.0.0.1', port), Handler)
+
+
+def run_companion(h, data, device, private, backend_receipt):
+    if (os.environ.get('GITHUB_ACTIONS') != 'true' or
+            os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted' or
+            h.PLATFORM not in ['IOS', 'ANDROID'] or
+            (h.PLATFORM == 'ANDROID' and not device.startswith('emulator-'))):
+        raise RuntimeError('PRODUCT_KEY_UI_OWNED_HOSTED_DEVICE_REQUIRED')
+    actual = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=h.ROOT, text=True).strip()
+    if (data['build'] != 'PASS' or actual != data['source_sha'] or
+            actual != os.environ.get('KEEPER_SOURCE_SHA') or
+            h.artifact_identity() != data['built_artifact']):
+        raise RuntimeError('PRODUCT_KEY_UI_EXACT_BUILD_REQUIRED')
+    if subprocess.run(['git', 'diff', '--quiet', 'HEAD', '--', '.github/native', 'src',
+                       'index.js', 'App.tsx', 'metro.config.js', 'babel.config.js'],
+                      cwd=h.ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
+        raise RuntimeError('PRODUCT_KEY_UI_COMMITTED_SOURCE_REQUIRED')
+    # Do not adopt another installation or turn this companion into account setup.
+    before = backend_receipt.snapshot(passed=True)
+    if (before.get('status') != 'PASS' or before.get('sample') != 6 or
+            before.get('scenario') != 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE' or
+            before.get('create_new_app_calls') != 2 or
+            before.get('visible_wallet_count_after_relaunch') != 1):
+        raise RuntimeError('PRODUCT_KEY_UI_DISPOSABLE_RETRY_FIXTURE_REQUIRED')
+    output = Path(private) / 'key-ui'
+    output.mkdir(mode=0o700)
+    report = output / 'junit.xml'
+    receipt = Receipt()
+    result = receipt.snapshot()
+    result['status'] = 'RUNNING'
+    server = None
+
+    def save():
+        current = h.read()
+        current['product_key_ui'] = result
+        h.save(current)
+
+    save()
+    try:
+        server = make_server(receipt)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        h.command([data['maestro']['binary'], '--device', device, 'test',
+                   '--env', 'APP_ID=' + h.APP_IDS[h.PLATFORM], '--flatten-debug-output',
+                   '--debug-output', str(output), '--test-output-dir', str(output),
+                   '--format', 'junit', '--output', str(report),
+                   '.github/native/product_key_acceptance.yaml'],
+                  'Normal-app unused-key deletion and native PIN rejection',
+                  timeout=720, error_details=False)
+        h.successful_junit(report)
+        if h.artifact_identity() != data['built_artifact']:
+            raise RuntimeError('PRODUCT_KEY_UI_ARTIFACT_CHANGED')
+        after = backend_receipt.snapshot(passed=True)
+        if after['create_new_app_calls'] != before['create_new_app_calls']:
+            raise RuntimeError('PRODUCT_KEY_UI_UNEXPECTED_ACCOUNT_SETUP')
+        result = receipt.snapshot(passed=True)
+        result['new_account_requests_during_key_flow'] = 0
+    except Exception as error:
+        result = receipt.snapshot()
+        result['failure_category'] = type(error).__name__
+        raise
+    finally:
+        save()
+        if server:
+            server.shutdown()
+            server.server_close()
+        # Maestro output can contain transient screenshots/hierarchy/PIN actions;
+        # retain no such files. The parent also deletes this suite's process logs.
+        shutil.rmtree(output, ignore_errors=True)
+    return result

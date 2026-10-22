@@ -341,6 +341,18 @@ def run(h):
                     # screenshots, hierarchy, PIN actions or app output artifacts.
                     shutil.rmtree(output, ignore_errors=True)
                 save()
+            # Separate normal-app UI companion; never part of the five latency
+            # samples or the controlled setup-disconnect receipt vocabulary.
+            spec = importlib.util.spec_from_file_location(
+                'product_key_acceptance', Path(__file__).with_name('product_key_acceptance.py'))
+            key_companion = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(key_companion)
+            result['key_management_ui'] = key_companion.run_companion(h, data, device, private, receipt)
+            result['key_management_scope'] = (
+                'Normal-app unused Mobile Key creation/deletion, cancellation, wrong PIN rejection, '
+                'correct PIN retry, cold deletion persistence and unrelated wallet retention. '
+                'Referenced-Vault UI, credential-store read faults and physical biometrics remain unverified.')
+            save()
         result['status'] = 'PASS'
     except Exception as error:
         result['status'] = 'FAIL'

@@ -103,6 +103,7 @@ const ManageKeys = ({ addedSigner }) => {
     <>
       <Box style={styles.containerWrapper}>
         <Fab
+          testID="keys_add_key"
           icon={<AddIcon height={hp(22)} width={wp(22)} />}
           onPress={handleModalOpen}
           containerStyle={{ right: wp(22.5) }}
