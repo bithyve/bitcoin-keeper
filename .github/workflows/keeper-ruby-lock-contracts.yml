@@ -15,6 +15,9 @@ on:
       - 'release/cloud/Fastfile'
       - 'scripts/test_cloud_upload_adapters.rb'
       - 'scripts/test_cloud_upload_fastlane.rb'
+      - '.github/scripts/verify-ci-source.cjs'
+      - '.github/tests/ci-source-identity.test.cjs'
+      - '.github/tests/contract-source-identity.test.cjs'
   workflow_dispatch:
 
 permissions:
@@ -33,6 +36,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22.23.3'
+      - name: Verify exact event source before setup
+        run: node .github/scripts/verify-ci-source.cjs --contract-dispatch
       - uses: ruby/setup-ruby@675dd7ba1b06c8786a1480d89c384f5620a42647 # v1.281.0
         with:
           ruby-version: '3.3.8'
@@ -45,8 +53,12 @@ jobs:
           python3 -B -m unittest discover -s scripts -p 'test_cloud_release_worker.py'
           bundle install --jobs 4 --retry 1
           bundle check
+          node .github/scripts/verify-ci-source.cjs --contract-dispatch
           bundle exec ruby -e 'require "cocoapods"; require "xcodeproj"; require "rexml/document"; abort unless Pod::VERSION == "1.16.2" && Xcodeproj::VERSION == "1.27.0"; puts "Frozen CocoaPods/Xcodeproj load PASS"'
           bundle exec ruby -rxcodeproj -e 'p = Xcodeproj::Project.open("ios/hexa_keeper.xcodeproj"); abort unless p.targets.any? { |t| t.name == "hexa_keeper" }; puts "Existing Xcode project parse PASS"'
           ruby scripts/test_fastlane_build_only.rb
           bundle exec ruby scripts/test_cloud_upload_fastlane.rb
           git diff --exit-code HEAD -- Gemfile Gemfile.lock package.json yarn.lock ios/Podfile.lock
+      - name: Verify exact source after checks
+        if: always()
+        run: node .github/scripts/verify-ci-source.cjs --contract-dispatch

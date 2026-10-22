@@ -117,7 +117,9 @@ test('pushing an isolated branch permits only the read-only origin contract work
   assert.equal(job.secrets, undefined);
   assert.equal(job.steps.some(step => /secrets\.|workflow_dispatch/.test(JSON.stringify(step))), false);
   assert.deepEqual(job.steps.filter(step => step.run).map(step => step.run), [
+    'node .github/scripts/verify-ci-source.cjs',
     'node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs',
+    'node .github/scripts/verify-ci-source.cjs',
   ]);
 });
 
@@ -148,7 +150,8 @@ test('canonical provenance contracts stay read-only and separate from manual nat
   assert.equal(job['timeout-minutes'], '5');
   assert.equal(job.steps.find(step => step.with?.['node-version']).with['node-version'], '22.23.3');
   assert.deepEqual(job.steps.filter(step => step.run).map(step => step.name),
-    ['Test read-only canonical trust and archive controls']);
+    ['Verify exact event source before checks', 'Test read-only canonical trust and archive controls',
+      'Verify exact source after checks']);
   const native = workflows['keeper-canonical-native.yml'];
   assert.deepEqual(Object.keys(native.on), ['workflow_dispatch']);
   assert.equal(triggered(native, 'pull_request', 'opened', 'sprint'), false);
@@ -202,8 +205,9 @@ test('release preparation PR checks stay offline and separate from the protected
   const job = contracts.jobs.contracts;
   assert.equal(job.environment, undefined);
   assert.equal(job.secrets, undefined);
-  assert.equal(job.steps.filter(step => step.run).length, 1);
-  assert.match(job.steps.find(step => step.run).run, /node --test scripts\/protected-release-plan\.test\.cjs/);
+  const checks = job.steps.filter(step => step.run && !step.run.includes('verify-ci-source.cjs'));
+  assert.equal(checks.length, 1);
+  assert.match(checks[0].run, /node --test scripts\/protected-release-plan\.test\.cjs/);
   const plan = workflows['keeper-protected-release-plan.yml'];
   assert.deepEqual(Object.keys(plan.on), ['workflow_dispatch']);
   assert.equal(triggered(plan, 'pull_request', 'opened', 'sprint'), false);
