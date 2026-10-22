@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+---
+- repeat:
+    times: 4
+    commands:
+      - tapOn:
+          id: key_1
+- assertVisible: Confirm your passcode
+- repeat:
+    times: 4
+    commands:
+      - tapOn:
+          id: key_1
+- tapOn: Create
+- extendedWaitUntil:
+    visible: Continue
+    timeout: 30000
+- tapOn: Continue
+- extendedWaitUntil:
+    visible: Cancel
+    timeout: 30000
+- tapOn: Cancel
+- extendedWaitUntil:
+    visible:
+      id: btn_skip
+    timeout: 30000
+- tapOn:
+    id: btn_skip
+- extendedWaitUntil:
+    visible:
+      id: view_startNewTile
+    timeout: 30000
