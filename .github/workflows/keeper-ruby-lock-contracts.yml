@@ -6,6 +6,9 @@ on:
       - 'Gemfile'
       - 'Gemfile.lock'
       - '.github/workflows/keeper-ruby-lock-contracts.yml'
+      - 'release/cloud/Fastfile'
+      - 'scripts/test_cloud_upload_adapters.rb'
+      - 'scripts/test_cloud_upload_fastlane.rb'
   workflow_dispatch:
 
 permissions:
@@ -37,4 +40,5 @@ jobs:
           bundle exec ruby -e 'require "cocoapods"; require "xcodeproj"; require "rexml/document"; abort unless Pod::VERSION == "1.16.2" && Xcodeproj::VERSION == "1.27.0"; puts "Frozen CocoaPods/Xcodeproj load PASS"'
           bundle exec ruby -rxcodeproj -e 'p = Xcodeproj::Project.open("ios/hexa_keeper.xcodeproj"); abort unless p.targets.any? { |t| t.name == "hexa_keeper" }; puts "Existing Xcode project parse PASS"'
           ruby scripts/test_fastlane_build_only.rb
+          bundle exec ruby scripts/test_cloud_upload_fastlane.rb
           git diff --exit-code HEAD -- Gemfile Gemfile.lock ios/Podfile.lock

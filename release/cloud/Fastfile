@@ -19,7 +19,7 @@ platform :ios do
                                    key_content: ENV['KEEPER_ASC_KEY_BASE64'], is_key_content_base64: true, in_house: false)
     upload_to_testflight(ipa: artifact, app_identifier: 'io.hexawallet.keeper', api_key: key,
                          skip_submission: true, distribute_external: false, notify_external_testers: false,
-                         skip_waiting_for_build_processing: false)
+                         skip_waiting_for_build_processing: true)
   end
 end
 

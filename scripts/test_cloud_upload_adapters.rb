@@ -45,6 +45,8 @@ class CloudUploaderTests < Minitest::Test
     assert_equal false, options[:distribute_external]
     assert_equal true, options[:skip_submission]
     assert_equal false, options[:notify_external_testers]
+    assert_equal true, options[:skip_waiting_for_build_processing]
+    assert_nil options[:changelog]
     assert_equal 'io.hexawallet.keeper', options[:app_identifier]
   end
   def test_play_stays_internal_draft_without_metadata_or_review_submission
