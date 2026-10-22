@@ -93,6 +93,20 @@ def ruby_lock_compatibility(root):
     demand(gem_version[1] == pod_version[1] == "1.16.2")
     demand(tuple(map(int, project[1].split('.'))) >= (1, 27, 0))
     demand(re.search(r"gem\s+['\"]xcodeproj['\"],\s*['\"]<\s*1\.26", (root / "Gemfile").read_text()) is None)
+    # The reviewed Pod lock also updates Nitro. Accept the frozen tuple only
+    # when the manifest, Yarn resolution and native Pod agree; never repair it.
+    nitro = json.loads((root / "package.json").read_text())["dependencies"]["react-native-nitro-modules"]
+    demand(isinstance(nitro, str) and re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", nitro) is not None)
+    yarn = (root / "yarn.lock").read_text()
+    # Reject quoted/combined/duplicate Nitro selectors as ambiguous rather than
+    # ignoring them while accepting an earlier matching unquoted stanza.
+    headers = [line for line in yarn.splitlines() if line and not line[0].isspace()
+               and not line.startswith('#') and 'react-native-nitro-modules@' in line]
+    demand(headers == [f'react-native-nitro-modules@{nitro}:'])
+    resolutions = re.findall(r"^react-native-nitro-modules@([^\n]+):\n((?:[ \t][^\n]*\n|\n)*)", yarn, re.M)
+    demand(len(resolutions) == 1 and resolutions[0][0] == nitro)
+    demand(re.findall(r'^  version "([^"]+)"$', resolutions[0][1], re.M) == [nitro])
+    demand(re.findall(r"^  - NitroModules \(([^)]+)\):$", pods, re.M) == [nitro])
 
 
 def safe_unzip(archive, destination, *, exact_names=None):

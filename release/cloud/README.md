@@ -98,3 +98,13 @@ bundle exec ruby scripts/test_cloud_upload_fastlane.rb
 ```
 
 Actual protected-rule enforcement, certificate/profile compatibility, hosted signed build, signature/provenance, upload/provider receipt and artifact transport remain **NOT RUN / NOT VERIFIED**. Apply the latest owner instructions and [conditional review policy #7034](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7034): this signing/workflow package needs adequate Balanced review; record the actual route, exact-source coverage and findings. Claude is unavailable/uninstalled for this task and no fresh paid activation is authorized; do not invent a completed provider review or a blanket human-review requirement. Approved capacity/custody setup and a later explicitly authorized disposable/approved-channel trial must exercise failure cleanup and exact artifacts before capability is called verified. No physical-device or native feature acceptance is established by this package. No production rollout/submission/publication workflow is included. See the [current package handoff](../../docs/r5-protected-release-handoff.md) for cross-package dependencies and observed setup.
+
+The later isolated dependency reconciliation pairs #7078's Ruby inputs with
+#7082's reviewed Pod/Nitro inputs, without changing either producer. The old
+mismatch described above remains a historical failure on the producer heads.
+Run `python3 -B scripts/check_cloud_release_inputs.py --root .` for a read-only
+alignment report on any proposed assembled source; never update locks to make
+the check pass. Alignment does not install missing native helpers or transfer
+native acceptance from #7082. Follow the current package handoff and
+[exact administrator/custodian specification](../../docs/r5-cloud-administrator-setup.md)
+before any separately approved installation. Authorization remains disabled.

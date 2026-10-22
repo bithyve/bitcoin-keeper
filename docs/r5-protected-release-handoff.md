@@ -15,6 +15,7 @@ remain unchanged. Work-package labels 5.1/5.2 are not app versions.
 | Platform worker core | [#7076](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7076), `e195de31ffc38ec54fcee9c43f74e610139d3844` | Implemented future adapters, not executed. Review together with orchestration and the paired canonical native foundation. |
 | Frozen Ruby inputs | [#7078](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7078), `1241256d465d25f2ea2bb4c4e75fccb608ff276e` | Actual frozen118-gem install/load/project parse previously passed. CocoaPods1.16.2/Xcodeproj1.27.0 must be paired with the reviewed native foundation's Podfile.lock; inherited worker-base lock1.15.2 fails before credentials. No native pass follows from dependency loading. |
 | Manual orchestration and upload adapters | [#7080](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7080), `c1e0e6df99eb762d62e31e9d71afa2cb97958bc5` | Prepared, deliberately inoperable through B1. The small follow-up containing this handoff corrects TestFlight processing-path metadata writes; review its patch separately from this preserved producer. |
+| Upload-only successor | [#7086](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7086), `36df64be4ccafc287c0ac07fb911d7e3a1c4711c` | Preserved and included in the isolated reconciliation. Pinned Pilot fake-boundary regression proves the corrected adapter stops before processing/distribution. No provider operation performed. |
 | Canonical native producer | [#7084](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7084), `29a73faaf4312f3536db9aad1d5b6795042aef7d` | Uninstalled/unexecuted. Five parent obligations remain NOT IMPLEMENTED; only blocked readiness can be emitted until genuine complete coverage exists. Read-only capacity admission is not an atomic lock shared with legacy routes. |
 | Read-only trusted-origin consumer | [#7085](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7085), `a1e167cab4e8485bb84418cadfb2313cbcedb644` | Separate and unintegrated. Proofs retain authorization_eligible:false, release_authorized:false and execution_allowed:false. Official security-analysis/run linkage is unverified after analysis API403. Never use this object to mint B1 authorization. |
 
@@ -108,3 +109,113 @@ availability and final native schema may change that estimate. Provider receipt
 and configuration readback would be another bounded estimated3k–6k delta if
 assigned, with actual hosted acceptance separate. No infrastructure absence is
 treated as release approval or grounds to weaken a gate.
+
+## Resumed dependency preparation and metadata evidence
+
+Work continues in isolated `codex/r5-cloud-release-reconciliation`, based on
+#7080 plus #7086. All producer refs and the native candidate are preserved.
+Only the three dependency files below are copied from #7082
+`3eb92fc8a622a3e09926d49f47243c163e32d009`; later native app code is not imported.
+The Gem inputs remain byte-identical to reviewed #7078. No resolver regenerated
+any lock and no authorization code was enabled.
+
+| Input | Origin | SHA256 |
+| --- | --- | --- |
+| Gemfile | #7078 | `5ab2f41eef4d9b3cd84f939f099d0d58cd3fceddb2d4b7815f83eb9b146dd6b4` |
+| Gemfile.lock | #7078 | `e62ce3f1729da11bfdbbbb1665b90c72516352ffaa14606507ff6ce2367b78b1` |
+| package.json | #7082 | `0497b2aaeb76372a6f21721f28ebd42ec2877155a090580b23ace2e017fab6a8` |
+| yarn.lock | #7082 | `60ef283fd7cfb1ac0a940216864d7a779e8449fd245c213d3148b92b97435b7b` |
+| ios/Podfile.lock | #7082 | `b72b31df28a9dececdab9781d5d96785b2081e63cc1d7475941ecfbc624777b3` |
+
+The selected tuple is CocoaPods1.16.2/Xcodeproj1.27.0/Nitro0.36.5. The existing
+worker rejection is retained, extended to reject manifest/Yarn/Pod Nitro drift,
+and exposed through a read-only hash report. It does not confer authorization.
+
+Fresh safe GitHub metadata readback during this resume, approximately
+**2026-10-22 18:28–18:31 UTC**, establishes:
+
+- Complete environment collection: total_count3, exactly `copilot`, `Env`,
+  `keeper-claude-review`; both dedicated release environments absent.
+- Current `sprint` source `def0d6a90c80287edb4f58ae272cbfc340f00d73`,
+  protected:true. Active ruleset24908211 targets `refs/heads/sprint`, has no
+  bypass actors, blocks deletion/non-fast-forward changes, and requires
+  `Tests` and `keeper/local-validation`, both bound to integration15368.
+  Its approval count is0 and strict status policy false; no stronger developer
+  approval/up-to-date-source enforcement is inferred. Other security/native
+  requirements and effective release-ref protection still need proof.
+- Classic branch-protection read, repository secret-name read and variable-name
+  read each return403. Custody/pin visibility and classic policy remain UNKNOWN.
+  No value was printed or retained. The managed task has no configured release
+  credentials; no authorized store/vault metadata route is available here.
+- Native run39824790868, attempt1, exact #7082 source above: iOS job119985112961
+  failed `Check disposable iOS driver readiness` after immutable dependency
+  setup; app build/probes skipped. Android job119991169863 was still running
+  after its development build. No native acceptance is claimed or transferred.
+
+Signing certificate/profile/upload-key continuity, team/app/store API identity,
+roles, expiry/revocation, agreements and fresh complete store histories remain
+**UNKNOWN / NOT VERIFIED**. Source app identifiers and secret names cannot prove
+those facts. The [exact administrator/custodian specification](r5-cloud-administrator-setup.md)
+lists the safe metadata needed, exact protected names and rejection requirements.
+This task prepares that setup; it does not apply it.
+
+## Reusable cloud-only operator handoff
+
+```text
+Resume isolated protected release preparation; no operation authorization.
+Read AGENTS.md, the newest preparation PR/head and this handoff. Preserve every
+producer/shared branch, the native owner's source and all retained failures.
+Use a new worktree/branch; do not depend on /tmp tools from an earlier session.
+
+1. Refresh #7082 and successors, #7078/#7086 and #7084/#7085 exact heads, active
+   native runs/current attempts, complete environment collection and effective
+   protected rules. Record full SHAs, observation time and API limitations.
+   Keep one named native owner and one reserved hosted native window. Wait for
+   existing runs to finish naturally; do not cancel or dispatch a competing run.
+2. Agree with the native owner on ONE new immutable combined-source checkpoint:
+   their current reviewed full app/native foundation plus reviewed Ruby/Gem
+   inputs and any explicitly adopted preparation corrections. Do not replace a
+   newer app manifest with this preparation branch's older complete app tree.
+   Verify the five dependency hashes/provenance; if the owner advances any input,
+   review that delta and record a new tuple instead of regenerating locks.
+3. On that combined source, run the read-only input checker and negative/fake
+   contracts, then frozen Yarn --ignore-scripts and BUNDLE_FROZEN=true bundle
+   install/check/load. Preserve exact input bytes. The native owner alone then
+   schedules hosted macOS15/Xcode16.4 frozen pod install --deployment (no update),
+   no-signing iOS and disposable Android acceptance within that owner's already
+   authorized route. This task does not dispatch or extend that permission. If
+   any route signs artifacts, resolve its separate scope before invoking it.
+   Require all
+   applicable feature/storage/restore/multi-account/recovery, five raw full-app
+   timings, Retry/key UI and strict installed-byte evidence. Failed/skipped or
+   incomplete cases remain blocked. No personal Mac or platform waiver.
+4. Coordinate #7084/#7085 installation separately from native execution. Keep
+   B1's private marker unminted and all authorization flags false. Require current
+   protected sprint = installed driver = reviewed canonical pin/source, genuine
+   exact-canonical latest-run/current-attempt Actions App/job/check-suite/check
+   identities, original bounded artifact ZIP/digest bytes, complete parent matrix
+   and production source hashes. PR-head checks cannot transfer to canonical SHA.
+   Enforce the strict installed-byte schema including per-scenario identity.
+   Producer permits1MiB ZIP/512KiB JSON; consumer permits128KiB/64KiB and stronger
+   raw observations. Obtain actual acceptance by BOTH without relaxing limits.
+   Resolve official CodeQL security outcome AND analysis-to-run linkage; Actions
+   workflow success and a403 analysis API are insufficient. Fix/review selected
+   route/legacy-check reconciliation and missing installed-byte binding first.
+5. Have administrator/custodian complete the separately authorized specification
+   and supply only secret-free metadata/readback. Verify environment reviewers,
+   prevented self review, can_admins_bypass:false, protected-branches-only policy,
+   exact source/ref controls and actual credential-free rejection tests. Verify
+   independent certificate/profile/upload-key/store app/channel identities and
+   fresh full histories; never infer readiness from name presence or status text.
+6. Update a durable exact-head PR handoff with commands and real pass/fail/
+   blocked/not-run results, run IDs/attempts and artifact digests, remaining setup,
+   named ownership and execution_allowed:false. No owner receipt is fabricated.
+   No signing, upload, credential/configuration change, deployment, merge or
+   release operation follows from preparation. A later operation needs its own
+   explicit source/environment/channel/artifact approval after all gates exist.
+```
+
+Exact-head test results and native-owner coordination links belong in the new
+preparation PR, so a later operator can distinguish this static procedure from
+live acceptance. Offline/fake checks never supply canonical native/security or
+signing/store evidence.

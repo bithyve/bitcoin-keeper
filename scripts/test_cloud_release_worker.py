@@ -78,6 +78,37 @@ class WorkerTests(unittest.TestCase):
             before = (root / 'Gemfile.lock').read_bytes()
             with self.assertRaises(ValueError): worker.ruby_lock_compatibility(root)
             self.assertEqual((root / 'Gemfile.lock').read_bytes(), before)
+
+    def test_aligned_frozen_inputs_pass_and_each_lock_drift_fails_without_writes(self):
+        inputs = {
+            'Gemfile': "gem 'cocoapods', '1.16.2'\ngem 'xcodeproj', '1.27.0'\n",
+            'Gemfile.lock': '    cocoapods (1.16.2)\n    xcodeproj (1.27.0)\n',
+            'package.json': '{"dependencies":{"react-native-nitro-modules":"0.36.5"}}',
+            'yarn.lock': 'react-native-nitro-modules@0.36.5:\n  version "0.36.5"\n',
+            'ios/Podfile.lock': '  - NitroModules (0.36.5):\nCOCOAPODS: 1.16.2\n',
+        }
+        changes = [
+            ('Gemfile.lock', '1.16.2', '1.15.2'),
+            ('ios/Podfile.lock', '1.16.2', '1.15.2'),
+            ('package.json', '0.36.5', '^0.36.5'),
+            ('yarn.lock', 'version "0.36.5"', 'version "0.35.4"'),
+            ('yarn.lock', '@0.36.5:', '@0.35.4:'),
+            ('yarn.lock', '  version "0.36.5"\n', '  version "0.36.5"\n"react-native-nitro-modules@0.36.5":\n  version "0.35.4"\n'),
+            ('yarn.lock', '@0.36.5:', '@0.36.5, "react-native-nitro-modules@^0.36.5":'),
+            ('ios/Podfile.lock', '0.36.5', '0.35.4'),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp); (root / 'ios').mkdir()
+            for name, value in inputs.items(): (root / name).write_text(value)
+            worker.ruby_lock_compatibility(root)
+            for name, old, new in changes:
+                with self.subTest(name=name, old=old):
+                    (root / name).write_text(inputs[name].replace(old, new))
+                    before = {path: (root / path).read_bytes() for path in inputs}
+                    with self.assertRaises(ValueError): worker.ruby_lock_compatibility(root)
+                    self.assertEqual(before, {path: (root / path).read_bytes() for path in inputs})
+                    (root / name).write_text(inputs[name])
+
     def test_client_config_requires_approved_digest_and_allowlist(self):
         valid = b'CHANNEL_URL=https://channel.bitcoinkeeper.app/\nENVIRONMENT=PRODUCTION\nRELAY=https://example.invalid/\nSIGNING_SERVER_TESTNET=https://test.example.invalid/\nSIGNING_SERVER_MAINNET=https://main.example.invalid/\nHEXA_ID_TESTNET=' + b'1' * 64 + b'\nHEXA_ID_MAINNET=' + b'2' * 64 + b'\n'
         worker.validate_client_config(valid, hashlib.sha256(valid).hexdigest())
