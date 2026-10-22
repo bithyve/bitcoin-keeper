@@ -40,11 +40,19 @@ const upgradeDeclarations = [
   'healthCheckTimelineMigration', 'migrateServerKeyPolicy',
 ];
 
-function deferred(t) {
+function deferred() {
   let resolve;
   const promise = new Promise(done => { resolve = done; });
-  t.after(() => resolve());
   return { promise, resolve };
+}
+
+async function boundedArrival(promise) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(Error('Expected genuine upgrade read boundary was not reached')), 10000);
+    })]);
+  } finally { clearTimeout(timer); }
 }
 
 function assertOwnNextTuple(previous, next) {
@@ -251,8 +259,23 @@ test('actual late native Realm version validation rolls back every staged migrat
   const f = await setup(t, { previousVersion: '1.0.5', migration: true });
   const before = await f.repair.captureBackupImage();
   const signerBefore = plain(f.dbManager.getCollection(f.RealmSchema.Signer)[0]);
+  let reachedLateVersionWrite = false;
+  const stageVersion = f.sagas.scope.stageVersionUpdate;
+  f.sagas.scope.stageVersionUpdate = (group, ...args) => {
+    // Read-only positive observation, ordered after the real migration writes
+    // and immediately before the unchanged producer's staged version write.
+    group.writes.push(database => {
+      assert.equal(database.isInTransaction, true);
+      assert.equal(database.objects(f.RealmSchema.Tags).length, 1);
+      assert.equal(database.objects(f.RealmSchema.Signer)[0].healthCheckDetails.length, 1);
+      assert.equal(database.objectForPrimaryKey(f.RealmSchema.KeeperApp, f.appId).version, f.previousVersion);
+      reachedLateVersionWrite = true;
+    });
+    return stageVersion(group, ...args);
+  };
   assert.equal(await f.upgrade({ newVersion: null }), false,
     'The unchanged producer reaches the real required string field inside one Realm transaction');
+  assert.equal(reachedLateVersionWrite, true, 'An unrelated earlier failure cannot satisfy the late rollback witness');
   assert.equal(f.dbManager.getObjectById(f.RealmSchema.KeeperApp, f.appId).version, f.previousVersion);
   assert.equal(f.dbManager.getCollection(f.RealmSchema.VersionHistory).length, 0);
   assert.equal(f.dbManager.getCollection(f.RealmSchema.Tags).length, 0);
@@ -279,14 +302,26 @@ test('actual originating A-to-B-to-A session is rejected before any local launch
 
 test('actual account change during a held signed read retains committed A while withholding stale Redux/cloud completion and all B writes', async t => {
   const f = await setup(t);
-  const entered = deferred(t), release = deferred(t);
+  const entered = deferred(), release = deferred();
   server.armFault({ path: '/backup/v3/snapshot', beforeReply() { entered.resolve(); return release.promise; } });
   const upgrading = f.upgrade();
-  await entered.promise;
-  assertLocalUpgrade(f);
-  await f.selectAccount(otherAppId);
-  const beforeB = await f.repair.captureBackupImage();
-  release.resolve();
+  let beforeB, primaryFailure;
+  try {
+    await boundedArrival(entered.promise);
+    assertLocalUpgrade(f);
+    await f.selectAccount(otherAppId);
+    beforeB = await f.repair.captureBackupImage();
+  } catch (error) { primaryFailure = error; throw error; }
+  finally {
+    release.resolve();
+    // Release and drain before t.after closes Realm/server, including failures
+    // in the held-boundary assertions. Preserve any primary assertion failure.
+    try { await upgrading; }
+    catch (error) {
+      if (!primaryFailure) throw error;
+      t.diagnostic('Owned upgrade worker also failed while draining after the primary assertion');
+    }
+  }
   assert.equal(await upgrading, false);
   assert.equal(f.selected(), otherAppId);
   assert.equal(f.dbManager.getObjectById(f.RealmSchema.KeeperApp, otherAppId).version, installedVersion);

@@ -35,9 +35,9 @@ All cases live in `tests/recovery/protectedLaunchHistory.proof.cjs`.
 | 1 | `applyUpgradeSequence` advances dormant `2.6.3` Realm metadata, history and actual persisted Redux to existing `2.6.4`; one real signed CAS and complete readback; `observeCurrentVersionHistory` refuses an unupgraded account and then preserves the genuine upgrade row across repeated observations | Adds the reachable R4-derived producer witness and truthful current history. No invented R5 version or upgrade date |
 | 2 | Dispatch the shipped history action through actual origin middleware after genuine baseline invalidation; `updateVersionHistoryWorker` commits local history/version with no original intent, zero HTTP and backup pending | Current history-worker local-first/no-original-base equivalent; does not assert cloud acknowledgement |
 | 3 | Existing `1.0.5` gates stage label, health and version changes in one actual Realm transaction before any HTTP mutation; app/live/archive/label fanout carries only its own ACK tuples, complete image matches, consumed receipt cannot replay | Original whole-upgrade success and consumed-receipt obligations combined; old source gates remain intact |
-| 4 | A late invalid required version field causes genuine native Realm validation failure and rolls back all earlier staged migration effects; no queue, HTTP, history or Redux upgrade | Original late transaction rollback obligation; no mocked commit result |
+| 4 | A read-only in-transaction probe positively observes the staged label/health edits and old version immediately before the unchanged invalid version write; genuine native Realm validation failure and rolls back all earlier staged migration effects; no queue, HTTP, history or Redux upgrade | Original late transaction rollback obligation; no mocked commit result |
 | 5 | An actual A→B→A account switch invalidates the originating session before launch; no local upgrade, queue or HTTP | Original stale initial origin obligation; current account-session identity is real |
-| 6 | Hold an actual completed signed snapshot response after local A commit, select B, then resume; producer withholds stale Redux/topic/cloud completion, preserves local A and leaves B untouched | Current-path asynchronous account switch; covers the original paused-session invariant without duplicating cold persistence races |
+| 6 | Bound arrival at an actual completed signed snapshot response after local A commit, select B, then release/drain the worker in `finally` before teardown; producer withholds stale Redux/topic/cloud completion, preserves local A and leaves B untouched | Current-path asynchronous account switch; covers the original paused-session invariant without duplicating cold persistence races |
 | 7 | After real ACK1, a genuine competing signed peer CAS makes fanout member2 return actual HTTP409; no rebase, remaining fanout, retry or consumed-receipt replay; all local migrations survive | Original partial fanout conflict obligation, with real server CAS rather than injected successful/rejected write results |
 | 8 | Real launch mutation commits but its ACK is lost; local upgrade survives, even matching independent signed readback cannot confer acknowledgement, and consumed receipt cannot replay | Original uncertain ACK obligation; no invented success |
 | 9 | Four genuine fanout writes commit; corrupt only the actual final snapshot's version metadata response; producer stays pending and cannot claim Verified or replay the consumed receipt | Original final metadata mismatch obligation; backend retains its real committed metadata |
@@ -76,11 +76,11 @@ Mongo replica on port 27038 must be writable and support real transactions.
 Set only the admitted checkout and disposable Mongo inputs:
 
 ```sh
-node --import=./scripts/run-protected-upgrade-regression.cjs \
+node --require ./scripts/run-protected-upgrade-regression.cjs \
   --test tests/recovery/protectedLaunchHistory.proof.cjs
 ```
 
-The import admits the current reviewed backend instead of the older historical
+The unchanged CommonJS preload admits the current reviewed backend instead of the older historical
 runner pin. Do not weaken checks, alter original runners, share caches with active
 producer work, or fabricate Realm/native availability. Only this new file needs
 execution in the separately bounded private control. That control must verify
