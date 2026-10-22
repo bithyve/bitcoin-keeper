@@ -15,7 +15,7 @@ function acceptance({ trusted, ios, android }) {
     id,
     status: index < 2 ? (executed ? 'PASS' : 'NOT VERIFIED') : 'NOT IMPLEMENTED',
     scope: index === 1 ? 'CI entrypoint; actual native storage, not application account isolation' :
-      index > 1 ? 'Requires reviewed app scenarios; R5 R4-dependent checks wait for reconciliation' :
+      index > 1 ? 'Requires reviewed app scenarios on the exact combined candidate' :
         'Unsigned simulator / development debug-key emulator; narrow passcode smoke',
   }));
   return { release_ready: false, phase_a: 'BLOCKED', cases,

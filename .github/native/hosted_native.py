@@ -7,6 +7,7 @@ The gate trusts protected workflow/job provenance, never this writable artifact.
 
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -470,7 +471,7 @@ def record():
         'run_id': os.environ.get('GITHUB_RUN_ID'), 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
         'runner': {key: os.environ.get(key) for key in
                    ['RUNNER_OS', 'RUNNER_ARCH', 'ImageOS', 'ImageVersion']},
-        'os': platform.platform(), 'commands': [], 'build': 'NOT RUN', 'smoke': 'NOT RUN', 'native_probe': 'NOT RUN',
+        'os': platform.platform(), 'commands': [], 'build': 'NOT RUN', 'smoke': 'NOT RUN', 'native_probe': 'NOT RUN', 'r5_features': 'NOT RUN',
         'hardware': 'NOT RUN', 'signing': 'NOT RUN', 'app_id': APP_IDS[PLATFORM],
         'smoke_scope': 'Fresh install; render Create a passcode; type four disposable digits; assert Confirm your passcode; stop before persisting credentials.',
         'startup_timing_scope': 'Bounded cold development bundle/startup allowance; no release performance acceptance.',
@@ -490,6 +491,7 @@ def record():
     data = read()
     data['toolchain'] = versions
     save(data)
+    disk_preflight('initial')
 
 
 def fixtures():
@@ -567,6 +569,7 @@ def android_sdk_metadata(sdk, component):
 
 
 def prepare():
+    disk_preflight('before_dependencies')
     command(['npm', 'install', '--global', 'yarn@1.22.22', '--ignore-scripts'], 'Install pinned Yarn', timeout=180)
     command(['yarn', 'install', '--frozen-lockfile', '--ignore-scripts', '--non-interactive'],
             'Install immutable JavaScript dependencies', timeout=900)
@@ -696,7 +699,21 @@ def driver():
             raise RuntimeError('Owned driver-preflight simulator cleanup failed.')
 
 
+def disk_preflight(stage):
+    free = shutil.disk_usage(ROOT).free
+    minimum = 12 * 1024 ** 3
+    data = read()
+    data.setdefault('disk_preflight', []).append({
+        'stage': stage, 'free_bytes': free, 'minimum_free_bytes': minimum,
+        'result': 'PASS' if free >= minimum else 'FAIL',
+    })
+    save(data)
+    if free < minimum:
+        raise RuntimeError('Insufficient disposable-runner disk reserve; no cache or user data was removed.')
+
+
 def build():
+    disk_preflight('before_native_build')
     if PLATFORM == 'IOS':
         architecture = platform.machine()
         if architecture not in ['arm64', 'x86_64']:
@@ -751,27 +768,102 @@ def warm_metro_bundle(suite='startup'):
     finally:
         details['duration_seconds'] = round(time.monotonic() - started, 1)
         data = read()
-        data['metro_warmup' if suite == 'startup' else 'probe_bundle'] = details
+        data['metro_warmup' if suite == 'startup' else suite + '_bundle'] = details
         save(data)
 
 
+R5_SCENARIOS = [
+    'production-setup-offline-retry-native-counts',
+    'production-deletion-retained-native-references',
+    'production-deletion-native-rollback',
+    'production-worker-stale-session-rejection',
+    'native-worker-process-relaunch-counts',
+]
+R5_LIMITS = [
+    'controlled-transport-no-backend-acceptance',
+    'synthetic-wallet-generation-no-crypto-acceptance',
+    'injected-dispatch-selection-no-login-acceptance',
+    'no-product-ui-navigation-pin-or-biometric-acceptance',
+    'probe-and-worker-timings-not-product-startup-ux',
+]
+R5_SOURCES = {
+    'src/utils/utilities.ts': ['getAccountFromSigner', 'getKeyUID'],
+    'src/store/sagas/storage.ts': ['setupKeeperAppWorker'],
+    'src/store/sagas/wallets.ts': ['currentWalletAccountId', 'assertWalletAccount', 'deleteSigningDeviceWorker'],
+    'src/store/sagas/bhr.ts': ['currentBackupAppId', 'deleteAppImageEntityWorker'],
+    'src/services/backup/transport.ts': ['observeBackupAccount', 'currentBackupAccountSession', 'clearVerifiedRemoteRevision'],
+}
+
+
+def validate_r5_feature_evidence(raw):
+    if not isinstance(raw, str) or len(raw.encode()) > 65536:
+        raise ValueError('Feature evidence absent or oversized.')
+    def invalid_constant(value):
+        raise ValueError('Non-finite feature measurement.')
+    payload = json.loads(raw, parse_constant=invalid_constant)
+    if (payload.get('schema') != 1 or payload.get('scope') != 'production-worker-native-storage'
+            or payload.get('status') != 'PASS' or payload.get('stage') != 'pass'
+            or payload.get('scenarios') != [{'id': item, 'status': 'PASS'} for item in R5_SCENARIOS]
+            or payload.get('limits') != R5_LIMITS):
+        raise ValueError('Feature scenario evidence is incomplete or outside reviewed scope.')
+    measurements = payload.get('measurements')
+    if not isinstance(measurements, list) or len(measurements) != 5:
+        raise ValueError('Five raw helper measurements are required.')
+    for iteration, row in enumerate(measurements, 1):
+        if not isinstance(row, dict) or set(row) != {'iteration', 'probe_ready_ms', 'setup_first_wallet_ms'} or row['iteration'] != iteration:
+            raise ValueError('Invalid feature measurement shape.')
+        for field in ['probe_ready_ms', 'setup_first_wallet_ms']:
+            value = row[field]
+            if type(value) not in [int, float] or not math.isfinite(value) or not 0 <= value <= 600000:
+                raise ValueError('Invalid bounded feature measurement.')
+    sources = payload.get('source_functions')
+    expected = [{'path': path, 'sha256': hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), 'names': names}
+                for path, names in R5_SOURCES.items()]
+    if sources != expected:
+        raise ValueError('Feature workers do not match exact-candidate production source.')
+    # Export only fixed scope/status, public source digests and bounded numbers.
+    # Never forward arbitrary payload fields or native failure messages.
+    return {'schema': 1, 'scope': 'production-worker-native-storage', 'status': 'PASS',
+            'scenarios': payload['scenarios'], 'measurements': measurements,
+            'limits': R5_LIMITS, 'source_functions': sources}
+
+
+def collect_r5_feature_evidence(device):
+    filename = 'keeper-r5-native-evidence.json'
+    if PLATFORM == 'IOS':
+        container = Path(command(['xcrun', 'simctl', 'get_app_container', device, APP_IDS[PLATFORM], 'data'],
+                                 'Locate disposable feature evidence', capture=True))
+        path = container / 'Documents' / filename
+        if path.stat().st_size > 65536:
+            raise ValueError('Oversized native feature evidence.')
+        raw = path.read_text()
+    else:
+        raw = command(['adb', '-s', device, 'exec-out', 'run-as', APP_IDS[PLATFORM],
+                       'head', '-c', '65537', 'files/' + filename],
+                      'Read bounded disposable feature evidence', capture=True, error_details=False)
+    return validate_r5_feature_evidence(raw)
+
+
 def smoke(suite='startup'):
-    if suite not in ['startup', 'probe']:
+    if suite not in ['startup', 'probe', 'features']:
         raise ValueError('Unknown disposable native suite.')
     is_probe = suite == 'probe'
-    result_key = 'native_probe' if is_probe else 'smoke'
-    if is_probe and read()['smoke'] != 'PASS':
+    is_features = suite == 'features'
+    result_key = 'r5_features' if is_features else 'native_probe' if is_probe else 'smoke'
+    if (is_probe or is_features) and read()['smoke'] != 'PASS':
         raise RuntimeError('The real app startup smoke must pass before module probes.')
     if read()['build'] != 'PASS':
         raise RuntimeError('A successful native build is required before smoke testing.')
     if artifact_identity() != read()['built_artifact']:
         raise RuntimeError('Built artifact changed before the disposable startup smoke.')
-    report = PRIVATE / ('probe-junit.xml' if is_probe else 'smoke-junit.xml')
+    if is_features:
+        command(['node', '.github/native/r5_prepare.cjs'], 'Prepare exact-source R5 production worker probe', timeout=60, error_details=False)
+    report = PRIVATE / ('features-junit.xml' if is_features else 'probe-junit.xml' if is_probe else 'smoke-junit.xml')
     report.unlink(missing_ok=True)
     metro_output = (PRIVATE / 'metro.log').open('wb')
     metro_args = ['node', 'node_modules/react-native/cli.js', 'start', '--port', '8081']
-    if is_probe:
-        metro_args += ['--config', str(ROOT / '.github/native/release_metro.cjs')]
+    if is_probe or is_features:
+        metro_args += ['--config', str(ROOT / ('.github/native/r5_metro.cjs' if is_features else '.github/native/release_metro.cjs'))]
     metro = subprocess.Popen(metro_args,
                              cwd=ROOT, stdout=metro_output, stderr=subprocess.STDOUT, start_new_session=True)
     device = None
@@ -823,16 +915,18 @@ def smoke(suite='startup'):
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
                  '--flatten-debug-output', '--debug-output', str(PRIVATE / 'maestro-output'),
                  '--format', 'junit', '--output', str(report), '--test-output-dir', str(PRIVATE / 'maestro-output'),
-                 '.github/native/release_probe.yaml' if is_probe else '.github/native/startup.yaml'],
-                'Assert native persistence across process launches' if is_probe else
-                'Assert startup and disposable passcode transition', timeout=300 if is_probe else 420,
-                error_details=not is_probe)
+                 '.github/native/r5_features.yaml' if is_features else '.github/native/release_probe.yaml' if is_probe else '.github/native/startup.yaml'],
+                'Assert R5 production workers over native storage' if is_features else 'Assert native persistence across process launches' if is_probe else
+                'Assert startup and disposable passcode transition', timeout=660 if is_features else 300 if is_probe else 420,
+                error_details=not (is_probe or is_features))
         cases = successful_junit(report)
         if artifact_identity() != read()['built_artifact']:
             raise RuntimeError('Built artifact changed during native execution.')
         data = read()
         data[result_key] = 'PASS'
         data[result_key + '_test_cases'] = cases
+        if is_features:
+            data['r5_feature_evidence'] = collect_r5_feature_evidence(device)
         if is_probe:
             data['probe_scope'] = ('CI-only Metro entrypoint; actual encrypted Realm/current schemas and production MMKV; '
                                    'three process launches, rollback, wrong-key rejection, targeted primitive deletion, '
@@ -841,12 +935,12 @@ def smoke(suite='startup'):
         save(data)
     except Exception:
         try:
-            if not is_probe:
+            if not (is_probe or is_features):
                 record_startup_failure(report, device)
             else:
                 data = read()
-                data['native_probe'] = 'FAIL'
-                data['probe_diagnostics'] = 'Native module probe failed; raw output retained only on ephemeral runner.'
+                data[result_key] = 'FAIL'
+                data['probe_diagnostics'] = 'Native module or worker probe failed; raw output retained only on ephemeral runner.'
                 save(data)
         except Exception as error:
             # Diagnostics never replace the original failed native/UI result.
@@ -893,9 +987,13 @@ def probe():
     smoke('probe')
 
 
+def features():
+    smoke('features')
+
+
 def main():
-    if PLATFORM not in APP_IDS or len(sys.argv) != 2 or sys.argv[1] not in ['record', 'prepare', 'driver', 'build', 'smoke', 'probe']:
-        raise RuntimeError('Expected a hosted platform and record|prepare|driver|build|smoke|probe.')
+    if PLATFORM not in APP_IDS or len(sys.argv) != 2 or sys.argv[1] not in ['record', 'prepare', 'driver', 'build', 'smoke', 'probe', 'features']:
+        raise RuntimeError('Expected a hosted platform and record|prepare|driver|build|smoke|probe|features.')
     os.environ.update({'ENVFILE': '.env.ci', 'RCT_NO_LAUNCH_PACKAGER': '1',
                        'RCT_NEW_ARCH_ENABLED': '1', 'MAESTRO_CLI_NO_ANALYTICS': '1'})
     run_phase(sys.argv[1])
@@ -908,8 +1006,8 @@ def run_phase(phase):
         if EVIDENCE.exists():
             evidence = read()
             evidence['failed_phase'] = phase
-            if phase in ['build', 'smoke', 'probe']:
-                evidence['native_probe' if phase == 'probe' else phase] = 'FAIL'
+            if phase in ['build', 'smoke', 'probe', 'features']:
+                evidence['r5_features' if phase == 'features' else 'native_probe' if phase == 'probe' else phase] = 'FAIL'
             save(evidence)
         raise
 
