@@ -6,7 +6,9 @@ is not authenticated evidence; callers must retain command/truncation outcomes.
 """
 
 from datetime import datetime
+import importlib.util
 import io
+from pathlib import Path
 import re
 
 
@@ -50,7 +52,7 @@ _ERROR_MARKER = re.compile(
     r'\b(?:error|exception|fatal)\b|\b[\w.$]*(?:Exception|Error)\b', re.IGNORECASE)
 
 
-def classify(payload, executable):
+def classify(payload, executable, started_ms=None, ended_ms=None, input_partial=False):
     """Return fixed positive observations only; an empty result proves no pass.
 
     Invalid selectors/types raise fixed errors. Oversized input is classified
@@ -62,6 +64,23 @@ def classify(payload, executable):
         raise ValueError('Unsafe iOS executable selector.')
     if not isinstance(payload, str):
         raise TypeError('Expected compact log text.')
+    receipt, receipt_failed, receipt_frame_partial = None, False, False
+    try:
+        spec = importlib.util.spec_from_file_location(
+            'startup_failure_receipts', Path(__file__).with_name('startup_failure_receipts.py'))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        receipt = module.Collector(executable, started_ms, ended_ms)
+    except Exception:
+        receipt_failed = True
+
+    def note_invalid_marker(line):
+        nonlocal receipt_failed
+        if receipt is not None and 'KEEPER_STARTUP_FAILURE_V1' in line:
+            try:
+                receipt.invalid_record(True)
+            except Exception:
+                receipt_failed = True
 
     # Slice characters before encoding so even an arbitrarily large argument
     # creates at most a bounded four-byte-per-character temporary buffer.
@@ -90,12 +109,14 @@ def classify(payload, executable):
         line = raw.removesuffix('\n').removesuffix('\r')
         if len(line) > MAX_RECORD_BYTES or len(line.encode('utf-8')) > MAX_RECORD_BYTES:
             result['oversized_record_lines'] += 1
+            note_invalid_marker(line)
             continue
         match = _RECORD.fullmatch(line)
         if not match:
             # Headers, notices and unprefixed multiline continuations are not
             # attributed. Timestamp-shaped malformed records remain visible.
             result['malformed_record_lines'] += int(bool(re.match(r'^\d{4}-', line)))
+            note_invalid_marker(line)
             continue
         try:
             datetime.fromisoformat(match['timestamp'].replace('Z', '+00:00'))
@@ -106,7 +127,20 @@ def classify(payload, executable):
             valid = False
         if not valid:
             result['malformed_record_lines'] += 1
+            note_invalid_marker(line)
             continue
+        if receipt is not None:
+            try:
+                if any(ord(char) > 127 for char in line[:match.start('message')]):
+                    receipt_frame_partial = True
+                    note_invalid_marker(line)
+                elif ('KEEPER_STARTUP_FAILURE_V1' in match['message'] and
+                        match['severity'].lower() not in _ERROR_SEVERITIES):
+                    receipt.invalid_record(True)
+                else:
+                    receipt.observe(match['timestamp'], match['process'], match['pid'], match['message'])
+            except Exception:
+                receipt_failed = True
         if match['process'] != executable:
             continue
         result['matching_process_records'] += 1
@@ -121,10 +155,20 @@ def classify(payload, executable):
             result['unclassified_error_records'] += int(not categories)
     if result['error_records']:
         result['errors'] = ['IOS_STARTUP_ERROR']
+    partial = any(result[name] for name in (
+        'input_truncated', 'scan_limit_reached', 'record_limit_reached',
+        'malformed_record_lines', 'oversized_record_lines',
+        'replacement_character_observed'))
     if result['matching_process_records']:
-        partial = any(result[name] for name in (
-            'input_truncated', 'scan_limit_reached', 'record_limit_reached',
-            'malformed_record_lines', 'oversized_record_lines',
-            'replacement_character_observed'))
         result['parse_status'] = 'PARTIAL' if partial else 'PARSED'
+    result['startup_failure_receipt'] = {
+        'schema': 1, 'status': 'UNKNOWN', 'records': [], 'cause': 'UNDETERMINED',
+        'reasons': ['COLLECTOR_UNAVAILABLE'],
+        'scope': 'OPTIONAL_ORIGINAL_STARTUP_MARKERS_NOT_CAUSE_OR_ACCEPTANCE'}
+    if receipt is not None and not receipt_failed:
+        try:
+            result['startup_failure_receipt'] = receipt.result(
+                input_partial=partial or receipt_frame_partial or input_partial is not False)
+        except Exception:
+            pass
     return result

@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import re
 from pathlib import Path
 import unittest
 from unittest import mock
@@ -19,6 +20,56 @@ def record(message, process=APP, severity='Df', timestamp='2026-10-22 09:22:33.1
 
 
 class IOSStartupErrorsTest(unittest.TestCase):
+    def test_precise_development_marker_uses_the_shared_final_vocabulary(self):
+        source = (Path(__file__).resolve().parents[2] /
+                  'src/storage/startup-failure-observer.ts').read_text()
+        phases = re.search(r"const PHASES = \[(.*?)\];", source, re.S)[1]
+        names = re.search(r"const NAMES = \[(.*?)\];", source, re.S)[1]
+        spec = importlib.util.spec_from_file_location('receipt_vocab',
+            Path(__file__).resolve().parents[1] / 'native/startup_failure_receipts.py')
+        receipts = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(receipts)
+        self.assertEqual(tuple(re.findall(r"'([^']+)'", phases)), receipts.PHASES)
+        self.assertEqual(tuple(re.findall(r"'([^']+)'", names)), receipts.ERROR_NAMES)
+        for phase in receipts.PHASES:
+            for name in receipts.ERROR_NAMES:
+                marker = f'KEEPER_STARTUP_FAILURE_V1|1500|{phase}|THREW|{name}|NONE'
+                for envelope in ('', receipts.COMPACT_PREFIX):
+                    result = ios.classify(record(envelope + marker, severity='E'), APP, 1000, 2000)
+                    observed = result['startup_failure_receipt']
+                    self.assertEqual(observed['status'], 'OBSERVED')
+                    self.assertEqual(observed['records'], [{'phase': phase, 'outcome': 'THREW',
+                        'error_name': name, 'code': None, 'window_relation': 'IN_WINDOW'}])
+                    self.assertEqual(result['error_records'], 1)
+                    self.assertEqual(result['cause'], 'UNDETERMINED')
+
+    def test_foreign_malformed_and_private_marker_variants_cannot_claim_one_fixed_fact(self):
+        marker = 'KEEPER_STARTUP_FAILURE_V1|1500|NATIVE_CREDENTIAL_READ|REJECTED|Error|-34018'
+        for payload in [record(marker, process='OtherApp'), marker,
+                        record('prefix ' + marker), record(marker + ' PRIVATE_SENTINEL'),
+                        record('[com.facebook.react:javascript] ' + marker),
+                        record('[com.facebook.react.log:native] ' + marker),
+                        record('[com.facebook.react.log:javascriptX] ' + marker),
+                        record('[com.facebook.react.log:javascript]  ' + marker),
+                        record('[com.facebook.react.log:javascript] ' + marker + ' suffix'),
+                        record(marker.replace('NATIVE_CREDENTIAL_READ', 'PRIVATE_SENTINEL')),
+                        record(marker.replace('Error', 'PRIVATE_SENTINEL'))]:
+            result = ios.classify(payload, APP, 1000, 2000)
+            self.assertNotEqual(result['startup_failure_receipt']['status'], 'OBSERVED')
+            self.assertEqual(result['startup_failure_receipt']['records'], [])
+            self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+
+    def test_marker_observations_remain_bounded_and_never_establish_native_cause(self):
+        marker = 'KEEPER_STARTUP_FAILURE_V1|1500|ACCOUNT_STATE|THREW|UNKNOWN|NONE'
+        result = ios.classify('\n'.join([record(marker, severity='E')] * 40), APP, 1000, 2000)
+        observed = result['startup_failure_receipt']
+        self.assertEqual(len(observed['records']), 1)
+        self.assertTrue(observed['limit_reached'])
+        self.assertEqual(observed['status'], 'AMBIGUOUS')
+        self.assertEqual(result['error_records'], 40)
+        self.assertEqual(result['cause'], 'UNDETERMINED')
+        self.assertNotIn('PASS', json.dumps(result))
+
     def test_exact_process_prefix_preserves_existing_generic_error_contract(self):
         payload = '\n'.join([
             'Filtering the log data using the process predicate',
