@@ -36,3 +36,7 @@ The R5 delta remains within the two-feature, approximately 13k–18k token estim
 No R4 branch modification or PR merge, release, backend/protocol change, dependency
 upgrade, Receive QR, shared-component rewrite, scaling, Ask Keeper delivery,
 private-data transfer or optional Linux setup.
+
+The same existing startup feature must retain its account session across pending
+notification tokens and delayed navigation; this is callback ownership, not a
+third feature or a change to backend account creation.

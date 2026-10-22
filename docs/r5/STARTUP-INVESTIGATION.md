@@ -1,6 +1,8 @@
 # R5 startup and bounded investigations — 21 October 2026
 
-Development evidence only. R4 remains an unmerged draft; no native acceptance,
+Development evidence only. The owner confirms R4/2.6.4 is live; R5 is now
+reconciled to its recorded source1d8a86a. Earlier unmerged/pending descriptions
+below retain their original investigation scope. No native acceptance,
 release-readiness, issue closure or performance improvement is claimed here.
 
 ## Newer work checked before editing

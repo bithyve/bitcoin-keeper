@@ -32,3 +32,18 @@ All active Vault references remain blocking. No satoshi amount or UTXO changes.
 - **WHEN** its current account confirms a deletion attempt
 - **THEN** active references block it and archived references retain the Signer;
   cancellation and repeated callbacks cannot produce a second destructive action
+
+### Requirement: First-use callbacks retain their account session
+
+Existing setup and notification callbacks SHALL not dispatch or navigate after
+their original account session changes, even if the screen remains mounted.
+
+#### Scenario: Token completes after an account round trip
+- **GIVEN** setup or its post-success token update pending in session A
+- **WHEN** the account changes A → B → A and the token resolves or rejects
+- **THEN** no old setup/token action is dispatched into the new session
+
+#### Scenario: Delayed navigation belongs to an old session
+- **GIVEN** a recreated-app or Next navigation timer scheduled in session A
+- **WHEN** the account session changes before the delay ends
+- **THEN** it does not navigate over the current account's screen

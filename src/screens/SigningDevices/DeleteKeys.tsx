@@ -6,7 +6,6 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import KeeperModal from 'src/components/KeeperModal';
 import useSigners from 'src/hooks/useSigners';
 import { StyleSheet, ScrollView } from 'react-native';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import Text from 'src/components/KeeperText';
 import { getSignerDescription, getSignerNameFromType } from 'src/hardware';
 import DeleteIcon from 'src/assets/images/delete_bin.svg';
@@ -40,8 +39,25 @@ import HideWalletIcon from 'src/assets/images/hide_wallet.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import usePlan from 'src/hooks/usePlan';
+import { store } from 'src/store/store';
+import dbManager from 'src/storage/realm/dbManager';
+import { currentBackupAccountSession } from 'src/services/backup/transport';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
-type DeletionIntent = { signer: Signer };
+type DeletionOrigin = { appId: string; accountSession: number };
+type DeletionIntent = DeletionOrigin & { signer: Signer };
+
+const isCurrentDeletionOrigin = (origin: DeletionOrigin) => {
+  if (
+    !origin.appId || store.getState().storage.appId !== origin.appId ||
+    currentBackupAccountSession() !== origin.accountSession
+  ) return false;
+  try {
+    return (dbManager.getObjectByIndex(RealmSchema.KeeperApp) as { id?: string } | undefined)?.id === origin.appId;
+  } catch {
+    return false;
+  }
+};
 
 function DeleteKeys({ route }) {
   const { colorMode } = useColorMode();
@@ -62,6 +78,8 @@ function DeleteKeys({ route }) {
   );
 
   const dispatch = useDispatch();
+  const renderedAppId = useAppSelector((state) => state.storage.appId);
+  const renderedSession = currentBackupAccountSession();
   const navigation = useNavigation();
   const [unhidingKeyUID, setUnhidingKeyUID] = useState('');
   // Deletion safety must include hidden/canary wallets and both networks.
@@ -131,6 +149,8 @@ function DeleteKeys({ route }) {
       // Consume synchronously: replayed/cancelled callbacks cannot reuse this
       // authorization or clear a later selection before React rerenders.
       cancelDeletion(intent);
+      // Dispatch-time origin stamping must not rebind an old confirmation.
+      if (!isCurrentDeletionOrigin(intent)) return;
       const { signer } = intent;
       // Read live Results at invocation; a retained callback must not use a
       // render-time snapshot from before a new active or archived reference.
@@ -142,9 +162,15 @@ function DeleteKeys({ route }) {
         return;
       }
       if (references.some((vault) => vault.archived)) {
-        dispatch(archiveSigningDevice([signer]));
+        dispatch({
+          ...archiveSigningDevice([signer]), originAppId: intent.appId,
+          originBackupAccountSession: intent.accountSession,
+        });
       } else {
-        dispatch(deleteSigningDevice([signer]));
+        dispatch({
+          ...deleteSigningDevice([signer]), originAppId: intent.appId,
+          originBackupAccountSession: intent.accountSession,
+        });
       }
       setDeletedSigner(signer);
     }
@@ -182,6 +208,8 @@ function DeleteKeys({ route }) {
       .filter((vault) => vault.signers.some((s) => getKeyUID(s) === getKeyUID(signer)));
 
   const handleDelete = (signer: Signer) => {
+    const origin = { appId: renderedAppId, accountSession: renderedSession };
+    if (!isCurrentDeletionOrigin(origin)) return;
     pendingDeletion.current = null;
     setDeletionIntent(null);
     setHideWarning(false);
@@ -193,7 +221,7 @@ function DeleteKeys({ route }) {
       setConfirmPassVisible(false);
       return;
     }
-    const intent = { signer };
+    const intent = { ...origin, signer };
     pendingDeletion.current = intent;
     setDeletionIntent(intent);
     setConfirmPassVisible(true);

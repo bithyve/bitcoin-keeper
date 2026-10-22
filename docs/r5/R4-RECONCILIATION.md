@@ -1,100 +1,120 @@
-# R4 baseline reconciliation preflight — 22 October 2026
+# R5 reconciliation against released R4 / 2.6.4
 
-Status: source comparison complete; baseline selection is awaiting clarification.
-This is not a completed rebase, released-baseline verification or native result.
+The owner explicitly confirmed on 22 October 2026 that 2.6.4 is live on the app
+stores. That confirmation resolves the earlier stale-record discrepancy; GitHub
+PR/tag status and regional store caches are not prerequisites for R5 work.
 
-## Evidence and baseline discrepancy
+## Baseline and history
 
-The owner reported that R4 is released and authorized the next R5 step. Read-only
-checks found the latest recorded store-artifact source to be
-`1d8a86a7462d935cbd0e28b857934b5718c152fc`, from open/draft/unmerged PR #7045.
-Its newest public record, [store checkpoint](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7045#issuecomment-6313099996),
-still says iOS 2.6.4/620 WAITING_FOR_REVIEW/manual release and Android 2.6.4/627
-IN_REVIEW/managed publishing; public release is held. GitHub has no v2.6.4 tag or
-release, and sprint remains `def0d6a90c80287edb4f58ae272cbfc340f00d73`.
-The public Apple India lookup for app1545535925 returned 2.6.3, released 7 October.
-That regional lookup is not proof of all countries/platforms and does not override
-newer owner evidence that may not yet be recorded.
+Released artifact source: `1d8a86a7462d935cbd0e28b857934b5718c152fc` (R4 / 2.6.4,
+iOS620, Android627). The recorded signed-artifact/source checkpoint identifies
+this exact source. The source is now an ancestor of the isolated R5 branch through
+reconciliation commit `a8947c867562b6148f328289069785b18053b944`.
+The earlier R5 head5954 and its history are also preserved. No R4/sprint/other
+workstream ref was changed, no force push occurred and no GitHub PR was merged.
 
-Clarification requested: use 1d8a86a as the settled baseline, or provide the newer
-released SHA/tag. Pending that answer, R5's ancestry and PR base remain unchanged.
-No R4 ref, release state, store state or backend was modified.
+The single yarn.lock conflict was resolved to the **exact released R4 lockfile**.
+That file already includes both missing ESLint selectors repaired earlier in R5,
+so retaining the obsolete R5 resolution would have been incorrect. package.json,
+yarn.lock, Podfile.lock, Android/iOS native inputs, version metadata and existing
+backup/backend/store/worker modules remain byte-identical to the released source.
 
-## Read-only integration preview
+The PR remains based on sprint per repository guidance. Until released history is
+carried to sprint by its owner, its ordinary diff includes inherited R4 history.
+Review R5's own scope as `git diff 1d8a86a...<R5-head>` (the PR handoff links that
+range). This inherited history is not new R5 scope or permission to merge R4.
 
-R5 compared: `98c4e2e78483ec03fac7ac72d86419e6da42fc98`.
-R4 compared: `1d8a86a7462d935cbd0e28b857934b5718c152fc`.
-Common ancestor: sprint `def0d6a90c80287edb4f58ae272cbfc340f00d73`.
+## Combined-source changes and findings
 
-`git merge-tree --write-tree` wrote a preview object only; no checkout, index or
-branch merge was performed. The preview reports one textual conflict, yarn.lock.
-Application modules combine textually; this does not prove semantic compatibility.
-Localization and the CI workflow auto-combine but still require review.
+- R4's local transaction checks **all retained Vault signer references** before
+  deleting a Signer. R5 retains that guard, its current-reference UI checks,
+  archived retention, protected-key exclusions and one-use passcode intent.
+- R4 stamps action origin at dispatch. Eleven new screen regressions demonstrated
+  that an earlier R5 confirmation could reach that boundary after an account
+  switch or A → B → A round trip. Selection/confirmation now compare their original
+  app/session with current Redux and Realm ownership. Delete/archive actions carry
+  the original app/session explicitly, preventing dispatch-time rebinding. These
+  tests use production transport-session tracking, identity and action creators;
+  native UI, Realm access and the Redux state getter are modeled boundaries.
+- R5's Keys entry uses the released navigation dispatch pattern; this removes the
+  TypeScript overload mismatch exposed by integration. No shared PIN/navigation
+  implementation, transaction formatting or timelock calculation changed.
+- Emergency reset uses its Emergency-specific helper; Inheritance retains its
+  own helper. Native display checks remain open.
+- Existing R5 frozen JavaScript CI preparation is retained. Its recovery lane now
+  explicitly installs the released Realm N-API binary, and existing Ruby setup
+  precedes all Ruby-dependent guards. No dependency version or workflow gate was
+  changed. The existing public-v2 genuine backend fixture remains baseline debt;
+  no protocol, readiness, pin, backend deployment or scanner waiver was introduced.
 
-Resolve a future lock conflict by preserving the selected R4 dependency graph and
-retaining only necessary R5 root ESLint selector repairs. Do not reintroduce an
-obsolete eslint-plugin-react resolution or discard R4's pinned backup dependencies.
-Run frozen install, explicit patch application and input-immutability checks before
-using reconciled dependencies. Do not copy another workstream's lockfile wholesale.
+Repository OpenSpec planning artifacts for this reconciliation were committed with
+the baseline integration before the new ownership guard was implemented. DESIGN.md
+was reviewed; existing components, layout, theme and critical controls are retained.
 
-R4 contains 337 changed paths relative to sprint. Incorporating that unmerged tree
-into the sprint-based R5 PR now would also expose R4's large change set as R5's diff.
-Keep the R5 review range separate and confirm the release/integration baseline
-rather than silently turning R5 into a vehicle to merge R4.
+## Executed Cloud checks
 
-## Compatibility findings
+Node22.23.3 / Yarn1.22.22:
 
-- The R4 deletion worker forwards original app/session/write authority and treats
-  unsuccessful local deletion as failure. `deleteAppImageEntityWorker` checks all
-  retained Vault signer references *inside* the local transaction before deleting
-  any signer. This complements R5's live-query/UI guard; it does not replace the
-  pending integrated account/authentication, callback and native Realm tests.
-- R4 middleware binds destructive action origins at dispatch. After integration,
-  verify that an R5 confirmation created before an account/session switch cannot
-  be rebound to a new account merely because dispatch happens later. Do not infer
-  this from separate UI and backend unit tests. No backend/session guard was
-  changed in this preflight.
-- R5's Splash, setup and secure-store changes combine without textual conflict.
-  R4's changed PIN/login flow remains authoritative for native validation; no
-  shipped PIN fix was reimplemented. The updated Maestro flow must actually run.
-- R4 still uses the Inheritance Key helper on ResetEmergencyKey. The independent
-  R5 copy correction now selects an Emergency-specific localization entry, leaving
-  the Inheritance helper and every time/policy/calculation operation unchanged.
-  Both supplied locales retained their existing English-copy convention.
-- Assisted Server Backup names/retention guarantees still require comparison with
-  the actual shipped app/help surfaces; do not rewrite backup guarantees from the
-  store-submission record alone.
+- Frozen install PASS; all six explicit dependency patches PASS. Released
+  package/lock/Pod/native/version input-immutability checks PASS.
+- Full Jest **47 suites /531 tests PASS**, zero failures/skips, including the
+  released loopback Electrum fixtures. R5-only focused run **5 suites /99 tests
+  PASS**, including53 deletion cases; final affected UI rerun **71 PASS**.
+- New guard controls before implementation: **11 assertion failures**, with the
+  other42 deletion tests deliberately deselected (not execution passes). All53
+  deletion tests pass after the fix. Real account-round-trip session tracking is
+  used; this does not prove actual native authentication/Realm provenance.
+- Full recovery **480/480 PASS**, zero skips. Initial execution had470 passes and
+  one file-load failure because the Realm N-API binary was absent. The exact
+  released binary was installed with prebuild-install; the10 encrypted Realm
+  cases then passed and the complete recovery rerun passed. These are Linux Realm
+  tests, not iOS/Android app-native acceptance.
+- Gate contracts **11/11 PASS**. Static Android16KB/reproducibility checks **31 PASS**.
+  Version consistency, JSON/YAML/prerequisite ordering, formatting, OpenSpec strict
+  validation and diff checks PASS.
+- Release-tool Node **28 PASS** and Python **7 PASS**. Local Ruby is unavailable:
+  the combined release command stops at Ruby. A related guard run recorded30 PASS
+  and11 failures from its missing Ruby runner; those failures are preserved and
+  not reported as app regressions or passes. Hosted CI now sets up the existing
+  Ruby3.3.8 prerequisite before these unchanged checks.
+- Focused lint remains **FAIL82 errors/25 warnings**, versus85/25 on released R4
+  for the same six modules/dependencies; normalized0 added,3 removed.
+- Whole TypeScript remains **FAIL943 diagnostics**, versus944 on released R4 with
+  the same dependencies; normalized0 added,1 removed. The transient new navigation
+  overload finding was fixed before this comparison. Neither check is clean.
 
-## Executed checks and limits
+The exact final SHA and hosted checks are recorded in the PR handoff. A full
+app-native build/install/UI, performance measurement or physical-device result
+must not be inferred from any JavaScript or Linux Realm result.
 
-R4 source was checked out **detached in a separate task-owned audit worktree**;
-its tracked files remain unchanged. It reused the current R5 node_modules by
-symlink, so no new dependency/environment/native setup was needed. Executed:
+## Finite native handoff
 
-`node --test tests/recovery/accountSessionDestructive.test.cjs tests/recovery/deleteResultTruthfulness.test.cjs tests/recovery/signerPersistence.test.cjs`
+Use the final PR head, reuse compatible released-R4 caches and preserve all data.
+Cloud development remains primary; optional Linux setup is not a prerequisite.
+The separate hosted-native infrastructure PR is not imported as another R5 feature.
+Where that approved route is available, run its exact-head development startup
+build/smoke; use the Mac only for remaining platform/feature/device checks.
 
-Result: **31 PASS, 0 FAIL, 0 SKIP**, actual R4 source at 1d8a86a, using the existing
-unit transaction/queue/Realm adapters. No production provider/backend, native
-Realm, physical device, integration build or R5-on-R4 combined tree was tested.
-These cases must not be presented as a reconciled R5 or native pass.
+Before any Mac work, read its actual local guidance, measure free disk and use the
+larger actual build forecast (approximately6GiB is only a planning floor), one
+native build at a time. Never delete other worktrees, simulators/AVD users,
+wallets/databases, caches, artifacts or evidence without approval.
 
-The Emergency copy change passes localization JSON parsing and `git diff --check`.
-Its focused ESLint remains **FAIL 39 errors / 1 warning**, exactly the prior R5
-screen's findings; zero added diagnostics. No new copy-mirroring test was added.
-Native Emergency and Inheritance reset screens still need verification.
+1. IOS and ANDROID: new development artifacts from the exact head; cold/warm/resume,
+   theme/network/Tor, credential error/retry, deep-link/auth and small display cases.
+2. Disposable account only: unused visible/hidden key cancellation/deletion, active/
+   hidden/canary/multi-wallet blocks, archived retention, new references during
+   confirmation and same-key account/session changes (including A → B → A). Preserve
+   real wallets; test against an approved disposable fixture, not production data.
+3. Setup offline/failure/repeated Retry/Next, success/relaunch and persistent wallet
+   counts; measure at least five raw first-wallet/startup samples with exact build,
+   device/OS/network configuration. Do not substitute the animation duration or
+   unit-test wall time for native performance.
+4. Bounded #7055 More→Wallets and #6991 device timezone/DST/history/details checks;
+   no speculative patch. Verify Emergency/Inheritance helper and shipped Assisted
+   Server Backup copy. Owner-parked #7056/#7057 remain excluded.
+5. HARDWARE: actual physical PIN/biometric/device scenarios remain explicit. R4's
+   physical deferral is not an R5 pass or automatically transferable scope decision.
 
-The previous R5 head98c4 hosted CI39586080249 Tests job and CodeQL39586080223 are
-now SUCCESS. This is recorded job status, not a new native or clean-lint result.
-Detailed hosted job-log download was unavailable (403); no new full-suite count
-or claim that actual full lint passed follows from the green workflow job.
-Prior local R5 218-test proof retains its original source scope.
-
-## Next action
-
-Confirm the exact settled R4 source, integrate/reconcile R5 in isolation while
-preserving R4 and the existing review history, resolve the lock conflict narrowly,
-and rerun affected R5 plus account/session/deletion and release-baseline checks.
-Only then issue the exact-head finite native plan: Cloud first where available,
-Mac only where needed, one native build at a time, fresh capacity assessment and
-no unapproved worktree/device/wallet/cache/evidence cleanup. No optional Linux
-setup is a prerequisite. No merge/release action is authorized by this preflight.
+No PR merge, signing, store action, deployment or release is authorized by passing
+these checks. R5 remains a draft with unrun native acceptance and review visible.

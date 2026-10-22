@@ -22,9 +22,11 @@ so R4 middleware cannot silently bind them to a different account. Existing
 wallet sagas and transactional guards remain unchanged.
 
 Affected R5 files: src/screens/SigningDevices/DeleteKeys.tsx,
-tests/screens/DeleteKeys.test.tsx, docs/r5/R4-RECONCILIATION.md,
+tests/screens/DeleteKeys.test.tsx, src/screens/Home/components/Keys/ManageKeys.tsx
+(typed navigation dispatch adaptation), docs/r5/R4-RECONCILIATION.md,
 docs/r5/WORKSTREAM.md, and this OpenSpec change. The baseline integration also
-combines the existing R5 CI workflow; package.json/yarn.lock/Podfile.lock and native
+combines the existing R5 CI workflow and explicitly installs its Realm N-API
+prerequisite before recovery tests; package.json/yarn.lock/Podfile.lock and native
 inputs remain exact R4 bytes. No new UI component: reuse KeyCard, KeeperModal and
 PasscodeVerify and existing theme tokens per DESIGN.md. Its implementation
 checklist is satisfied without changing layout, text scale or critical controls.
@@ -42,3 +44,9 @@ switches. Run original R5 tests against the combined tree, add stale-origin
 regressions, rerun existing R4 deletion/session checks and disclose every unrun
 native/genuine fixture. The inherited public-v2 Relay fixture mismatch is baseline
 debt; no backend/protocol/pin workaround belongs in this reconciliation.
+
+Existing NewKeeperApp effects/timers also capture the production transport session.
+Their active predicates combine effect lifetime and session equality. Tests use
+the real counter with explicit account-transition fixtures; setup workers and
+account/credential schemas remain unchanged. Affected files additionally include
+src/screens/NewKeeperAppScreen/NewKeeperAppScreen.tsx and its existing screen test.

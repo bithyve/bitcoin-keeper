@@ -7,7 +7,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import SignerContent from './SignerContent';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { CommonActions, useFocusEffect, useNavigation } from '@react-navigation/native';
 import SignerList from './SignerList';
 import KeyAddedModal from 'src/components/KeyAddedModal';
 
@@ -110,7 +110,7 @@ const ManageKeys = ({ addedSigner }) => {
         <Pressable
           accessibilityRole="button"
           testID="manage_keys_actions"
-          onPress={() => navigation.navigate('DeleteKeys')}
+          onPress={() => navigation.dispatch(CommonActions.navigate('DeleteKeys'))}
           style={{ paddingVertical: hp(12) }}
         >
           <Text color={`${colorMode}.textGreen`}>{translations.signer.manageKeys}</Text>

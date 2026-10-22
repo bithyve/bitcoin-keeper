@@ -1,6 +1,9 @@
 # R5 Cloud workstream
 
-Status: development draft; R4 release baseline pending. No app version/date assigned.
+Status: development draft reconciled to owner-confirmed live R4 / 2.6.4 source
+`1d8a86a7462d935cbd0e28b857934b5718c152fc`. No R5 app version/date assigned.
+The earlier pending-baseline records below are historical and superseded by the
+22 October owner confirmation and completed reconciliation.
 
 ## Authority and budget
 
@@ -266,3 +269,36 @@ its original helper. No timelock or recovery calculation changed. JSON/diff PASS
 existing ResetEmergencyKey ESLint FAIL39/1 with zero added findings. Native copy
 checks remain open. Previous R5 head98c4 hosted Tests and CodeQL are now SUCCESS;
 job-log download was unavailable, so no new hosted suite count or clean-lint claim.
+
+
+## Released-baseline reconciliation completed — 22 October 2026
+
+The owner's explicit confirmation that R4/2.6.4 is live resolves the earlier
+metadata discrepancy. No further release/tag/source confirmation is being awaited.
+Released source1d8a86a is now an ancestor of R5 through commit a8947c867; previous
+R5 history remains intact. R4/sprint/other workstream refs and all released native,
+dependency, backend/store/worker/version inputs remain unchanged. The one lock
+conflict resolves to R4's exact lock, which already includes the two R5 selectors.
+
+The [current reconciliation and finite native plan](R4-RECONCILIATION.md) records
+full Jest47/531 PASS, R5 focused99 PASS, recovery480/480 PASS (including10 real
+Linux Realm cases after installing its missing N-API prerequisite), gate11 PASS,
+static31 PASS and Node/Python release-tool28/7 PASS. Local Ruby checks remain
+unavailable/failed-prerequisite, not passed; hosted CI explicitly installs Ruby
+before them. Lint82/25 and TypeScript943 remain inherited failures with no added
+normalized diagnostics versus released R4. Native app/UI/performance/physical
+acceptance has NOT RUN here.
+
+Reconciliation also confirmed and fixed eleven stale-origin UI cases: key-delete
+selection and confirmation now retain the original account/session, verify current
+Redux/Realm ownership, and carry that origin into R4's existing middleware/worker.
+No R4 reference/session guard was weakened. New tests execute real session-counter,
+identity and action-creator logic with modeled screen/storage boundaries. The
+Keys entry's dispatch form was adapted to the released navigation types.
+
+The R5-only changed source/test estimate is approximately16.5k tokens (rough
+characters/4), within the approved two-feature13k–18k target. Review against the
+released source rather than counting R4's inherited history as new R5 work. Do not
+silently add hosted-native infrastructure, extra backend work or a third feature.
+No optional Linux setup or Mac session was awaited. Next is the exact-head finite
+native acceptance/performance plan and required review; no PR merge or release.
