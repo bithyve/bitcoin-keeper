@@ -2,6 +2,7 @@ import { call, put, select } from 'redux-saga/effects';
 import Realm from 'realm';
 import semver from 'semver';
 import dbManager from 'src/storage/realm/dbManager';
+import realmDatabase from 'src/storage/realm/realm';
 import { RealmSchema } from 'src/storage/realm/enum';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
@@ -149,7 +150,8 @@ function stageVersionUpdate(
     if (!app) throw new Error('Upgrade account unavailable');
     app.version = newVersion;
     // Recovery records its own single Recovered Wallet entry.
-    if (!isRecovery) realm.create(RealmSchema.VersionHistory, history, Realm.UpdateMode.Modified);
+    if (!isRecovery && !realm.objectForPrimaryKey(RealmSchema.VersionHistory, history.version))
+      realm.create(RealmSchema.VersionHistory, history, Realm.UpdateMode.Modified);
   });
   group.appImage = true;
 }
@@ -158,6 +160,45 @@ function updateReleaseTopics(previousVersion: string, newVersion: string) {
   const messaging = getMessaging(getApp());
   unsubscribeFromTopic(messaging, getReleaseTopic(previousVersion));
   subscribeToTopic(messaging, getReleaseTopic(newVersion));
+}
+
+// A history row is evidence of an observation, not proof that a migration ran.
+// Reconcile only an account already at this installed version. Never replace
+// its existing initial-install/recovery provenance or invent an upgrade date.
+export function observeCurrentVersionHistory(
+  appId: string,
+  version: string,
+  build: string,
+  session = currentBackupAccountSession()
+) {
+  try {
+    if (!semver.valid(version) || !/^[0-9]+(?:\.[0-9]+){0,2}$/.test(build)) return false;
+    const database = realmDatabase.getDatabase();
+    const assertCurrent = () => {
+      if (
+        !upgradeAccountIsActive(appId, session) ||
+        realmDatabase.getDatabase() !== database ||
+        database.objectForPrimaryKey<KeeperApp>(RealmSchema.KeeperApp, appId)?.version !== version
+      )
+        throw new Error('Version history account changed');
+    };
+    assertCurrent();
+    const key = `${version}(${build})`;
+    if (database.objectForPrimaryKey(RealmSchema.VersionHistory, key)) return true;
+    database.write(() => {
+      assertCurrent();
+      if (!database.objectForPrimaryKey(RealmSchema.VersionHistory, key))
+        database.create(RealmSchema.VersionHistory, {
+          version: key,
+          date: new Date().toString(),
+          title: 'Current installation observed',
+        });
+      assertCurrent();
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function* applyUpgradeSequence({

@@ -1,4 +1,4 @@
-# Protected-backup correction — #7066
+# Protected-backup and Version History follow-up — #7066 / #7067
 
 ## Source and scope
 
@@ -7,7 +7,10 @@ This patch uses the owner-designated completed R5 implementation source
 Live records checked on 22 October 2026 show an open draft with `NEEDS_LOCAL`,
 not a publicly released 2.6.5. There is no 2.6.5 GitHub tag/release. The source
 still declares 2.6.4 (Android 627, iOS 620); this patch assigns no version.
-Store publication/availability has not been checked or inferred.
+Store publication/availability has not been independently checked. The owner
+reports the App Store showing 2.6.4 after updating, while Keeper's Version History
+still ends at 2.6.3. The actual running binary/build is not established by that
+historical row or by the store listing alone.
 Its ancestry includes released R4 source
 `1d8a86a7462d935cbd0e28b857934b5718c152fc` and `sprint`
 `def0d6a90c80287edb4f58ae272cbfc340f00d73`.
@@ -19,11 +22,13 @@ Live searches found no other #7066 PR/implementation. R5 and the original
 checkout remain unchanged. The PR targets `sprint` per AGENTS.md and links a
 patch-only comparison from the exact R5 SHA.
 
-The provisional code/test estimate was 5k–10k changed tokens; after diagnosis the
-estimate is 10k–12k, including workflow/privacy regressions and the supplemental
-current-backend witness. This remains one backup correction and its adjacent UI,
-with no legacy all-copy purge, protocol redesign, release change, or parked
-investigation.
+The provisional code/test estimate was 5k–10k changed tokens; the first backup
+patch measured approximately 12.1k, including workflow/privacy regressions and
+the supplemental current-backend witness. The owner subsequently authorized the
+stale Version History correction in the same follow-up (called the "5.1 patch"
+in the conversation). The revised estimate is approximately 16k–17k code/test
+tokens. This is a scope label, not a new app release version. No legacy all-copy
+purge, protocol redesign, release change, or parked investigation is included.
 
 ## Evidence and limits
 
@@ -67,6 +72,47 @@ and app version/build. This result exists only in memory for the selected accoun
 session and is cleared on account changes/new operations. It never displays or
 persists caught errors, request/response bodies, headers, identifiers, ciphertext
 or recovery contents. Do not request raw logs to fill the remaining evidence gap.
+
+## Owner-added Version History correction
+
+The app's history list reads local Realm records; it is separate from both the
+App Store listing and the running binary's native version/build. Source diagnosis
+found a shared Redux version controlling account-specific upgrades, an unguarded
+last-row access, and a comparison of only the last build number. Those conditions
+can skip a selected account's upgrade, fail on missing history, or leave a stale
+marketing-version row when build numbers match. They are reproducible source
+defects, not confirmation of the original phone's precise cause.
+
+Use the selected account's valid persisted version for migration decisions,
+retaining the legacy fallback only when that account version is absent. That
+fallback cannot establish a current account or justify an observation by itself.
+Compare
+the complete native version/build tuple when reconciling history. A missing
+current row can be recorded as a current installation observation only after a
+successful upgrade or when that account is already current. Preserve existing
+recovery/installation rows and dates; do not fabricate a successful transition
+after a failed migration or grant backup verification. Account/session ownership
+and atomic migration rollback remain required.
+
+The Version History screen separately labels the running native version/build
+as **Installed app version**. Historical rows are retained as historical evidence,
+including when they disagree with the running version. The store listing must
+never supply a fabricated installed version.
+
+Native acceptance for this addition:
+
+- Upgrade a disposable 2.6.3 account and verify the installed native version/build,
+  account version and history entry after normal unlock. Repeat with another
+  account that has already advanced the shared version value.
+- Test empty/stale history, the same build across different marketing versions,
+  build-only changes, repeated cold launches, and an existing Recovered Wallet
+  record. No duplicates, invented upgrade dates, or overwritten recovery labels.
+- Inject a failed local migration and switch A → B → A during the operation.
+  Failure must not append a success/observation row for the attempted upgrade or
+  write another account/session. Backup consent/readback semantics stay intact.
+- Check the installed-version label and history on iOS/Android at small width and
+  larger text. On the owner's phone, only normal navigation/reopen/unlock and
+  reading version/build are permitted; no reset, reinstall or recovery operation.
 
 ## Targeted native acceptance
 
@@ -159,14 +205,16 @@ Package, lockfile, Pod inputs and version consistency remain unchanged.
 
 | Check | Actual result |
 | --- | --- |
-| `npm run test -- --runInBand --coverage=false` | PASS: 48 suites, 550 tests, zero skips/failures |
+| `npm run test -- --runInBand --coverage=false` | PASS after history addition: 49 suites, 553 tests, zero skips/failures |
 | `node --test tests/recovery/backupDiagnostic.test.cjs tests/recovery/transport.test.cjs tests/recovery/repair.test.cjs` | PASS: 70 tests, zero skips/failures |
 | UI interaction suite | PASS: 12; exact-baseline controls FAIL 2 assertions, 10 deliberately deselected (enabled never-enrolled and unverified backup action absent) |
 | Diagnostic baseline controls | FAIL: all 9 before; PASS: all 9 after; these establish diagnostic coverage, not the phone's request cause |
-| `npm run test:recovery` | FAIL: 479 pass, one test-file load failure, zero skips; missing Realm binding prevents the 10 encrypted-Realm scenarios from loading |
+| `npm run test:recovery` | FAIL after history addition: 492 pass, one test-file load failure (493 total), zero skips; missing Realm binding prevents the 10 encrypted-Realm scenarios from loading |
+| History reconciliation and upgrade/login tests | PASS: 27 Node cases (13 new); Version History Jest PASS: 9; exact-before controls FAIL: 4 actual-login cases and one actual-migration preservation case |
+| Installed-version header | PASS: 2 UI regressions; both FAIL before; native version/history disagreement tested in both directions without rewriting rows |
 | Supplemental current-backend upgrade witness | BLOCKED by missing Realm native binding; no passing upgraded-account integration claim |
 | Current Relay protected/legacy protocol tests on disposable Mongo | PASS: 45; readiness tests PASS: 7; backend only, not upgraded-app acceptance |
-| Whole ESLint | FAIL: 4450 errors / 882 warnings; exact baseline 4451 / 882; normalized zero added, one removed |
+| Whole ESLint | FAIL: 4450 errors / 882 warnings; R5 baseline 4451 / 882, first patch 4450 / 882; normalized zero added by the history addition |
 | Whole TypeScript | FAIL: 943 diagnostics; exact baseline 943; normalized zero added/removed |
 | Focused backup service ESLint | PASS: zero errors/warnings |
 | CI USDT/retired-configuration guard command | FAIL: 30 pass / 11 fail, all 11 require unavailable Ruby |
@@ -188,3 +236,11 @@ The task-owned disposable Mongo container is stopped; its data/evidence are
 retained. Passing backend checks do not replace the blocked upgraded-account
 witness. Existing formatting/lint/type failures are reported, not waived. No
 independent cryptographic certification or release clearance is claimed.
+
+The history before-controls use isolated source
+`3c5f8d8ace5c211ed78264b1a460c4e06e060ceb` (before the owner-added history
+correction). The current-backend 45+7 results and release/tooling results were
+executed for that first patch and retained as prior evidence; they were not
+rerun after the history-only addition. Current full Jest/recovery, lint/type,
+version/input and targeted history checks are reported separately above. IOS,
+ANDROID, HARDWARE and the original phone still require exact-head acceptance.

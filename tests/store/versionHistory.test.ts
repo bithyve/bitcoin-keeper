@@ -108,7 +108,9 @@ function fixture(appId = 'test-app') {
         ? app.id === id
           ? app
           : undefined
-        : records[schema].find((row) => row.id === id),
+        : records[schema].find(
+            (row) => row[schema === RealmSchema.VersionHistory ? 'version' : 'id'] === id
+          ),
     objects: (schema) => records[schema],
     create,
   };
@@ -291,6 +293,21 @@ describe('Version History retains recovery provenance with local-first upgrades'
     ).toBe(false);
     expect(f.state.events).toEqual([]);
     expect(f.app.version).toBe(previousVersion);
+  });
+
+  test('actual account migration preserves an existing current recovery history entry', async () => {
+    const f = fixture();
+    const recovery = {
+      version: '2.5.16(624)',
+      title: 'Recovered Wallet',
+      date: '2026-09-01T12:00:00.000Z',
+      releaseNote: 'Original recovery provenance',
+    };
+    f.records.VersionHistory.push(recovery);
+    expect(await f.run('applyUpgradeSequence', { previousVersion, newVersion })).toBe(true);
+    expect(f.app.version).toBe(newVersion);
+    expect(f.records.VersionHistory).toEqual([recovery]);
+    expect(f.state.events).toEqual(['local commit', 'queue']);
   });
 
   test('failed local history transaction does not upload or advance the app version', async () => {

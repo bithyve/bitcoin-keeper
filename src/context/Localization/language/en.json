@@ -1062,6 +1062,7 @@
     "ManageWalletsSub": "Hide/Unhide Wallets From Homescreen",
     "torSettingTitle": "Tor Settings",
     "torSettingSubTitle": "Configure in-app Tor and Orbot",
+    "installedAppVersion": "Installed app version",
     "versionHistoryTitle": "Version History",
     "versionHistorySubTitle": "You can verify the history of your app upgrades here",
     "torHeaderSubTitle": "Tor improves your network privacy. To learn more visit: https://www.torproject.org/",

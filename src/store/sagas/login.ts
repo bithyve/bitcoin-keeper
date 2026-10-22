@@ -52,7 +52,7 @@ import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { setLoginMethod } from '../reducers/settings';
 import { setSubscription } from 'src/store/sagaActions/settings';
 import { uaiChecks } from '../sagaActions/uai';
-import { applyUpgradeSequence } from './upgrade';
+import { applyUpgradeSequence, observeCurrentVersionHistory } from './upgrade';
 import { captureBackupWriteIntent, currentBackupAccountSession } from 'src/services/backup/transport';
 import { resetSyncing } from '../reducers/wallets';
 import { autoSyncWallets } from '../sagaActions/wallets';
@@ -197,7 +197,7 @@ function* credentialsAuthWorker({ payload }) {
         throw Error(`Failed to load the database: ${error}`);
       }
 
-      const previousVersion = yield select((state) => state.storage.appVersion);
+      const persistedVersion = yield select((state) => state.storage.appVersion);
       const { defaultWalletCreated } = yield select((state) => state.storage);
 
       // setting correct app id from realm at login
@@ -235,28 +235,35 @@ function* credentialsAuthWorker({ payload }) {
       }
 
       const newVersion = DeviceInfo.getVersion();
-      const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
-      const lastElement = versionCollection[versionCollection.length - 1];
-      const lastVersionCode = lastElement.version.split(/[()]/);
       const currentVersionCode = DeviceInfo.getBuildNumber();
       if (
         currentBackupAccountSession() !== loginAccountSession ||
         store.getState().storage.appId !== expectedAppId
       )
         return;
-      if (semver.lt(previousVersion, newVersion)) {
-        yield call(applyUpgradeSequence, {
-          previousVersion,
-          newVersion,
-          originBackupAccountSession: loginAccountSession,
-          originBackupWriteIntent: loginBackupWriteIntent,
-        });
-      } else if (currentVersionCode !== lastVersionCode[1]) {
-        yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-          version: `${newVersion}(${currentVersionCode})`,
-          date: new Date().toString(),
-          title: `Upgraded from ${lastVersionCode[1]} to ${currentVersionCode}`,
-        });
+      if (keeperApp?.id) {
+        // Redux's version is shared by accounts. A different account may have
+        // upgraded already; migrations must follow this selected Realm account.
+        const previousVersion = keeperApp.version ?? persistedVersion;
+        if (!semver.valid(previousVersion)) throw new Error('Account version unavailable');
+        let current = keeperApp.version === newVersion;
+        if (semver.lt(previousVersion, newVersion)) {
+          current =
+            (yield call(applyUpgradeSequence, {
+              previousVersion,
+              newVersion,
+              originBackupAccountSession: loginAccountSession,
+              originBackupWriteIntent: loginBackupWriteIntent,
+            })) === true;
+        }
+        if (current)
+          yield call(
+            observeCurrentVersionHistory,
+            keeperApp.id,
+            newVersion,
+            currentVersionCode,
+            loginAccountSession
+          );
       }
       if (
         currentBackupAccountSession() !== loginAccountSession ||
