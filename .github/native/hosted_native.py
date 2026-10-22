@@ -798,9 +798,13 @@ def driver():
             details['diagnostics'] = {'collection_error_types': [type(error).__name__]}
         if details['cleanup_errors']:
             details['result'] = 'FAIL'
-        data = read()
-        data['driver_preflight'] = details
-        save(data)
+        try:
+            data = read()
+            data['driver_preflight'] = details
+            save(data)
+        except Exception:
+            if original_error is None:
+                raise RuntimeError('Driver-preflight receipt failed.') from None
         if details['cleanup_errors'] and original_error is None:
             raise RuntimeError('Owned driver-preflight simulator cleanup failed.')
 
@@ -996,11 +1000,13 @@ def smoke(suite='startup'):
                                  cwd=ROOT, stdout=metro_output, stderr=subprocess.STDOUT, start_new_session=True,
                                  env=metro_env)
     except Exception:
-        metro_output.close()
+        try:
+            metro_output.close()
+        except Exception:
+            pass
         raise
     device = None
-    startup_failed = False
-    capture_cleanup_failed = False
+    startup_error = None
     try:
         for _ in range(60):
             if metro.poll() is not None:
@@ -1080,8 +1086,8 @@ def smoke(suite='startup'):
                                    'separate database files and cleanup. NOT app key deletion, account isolation, '
                                    'setup/recovery or release performance acceptance.')
         save(data)
-    except Exception:
-        startup_failed = True
+    except Exception as original_error:
+        startup_error = original_error
         try:
             if not (is_probe or is_features):
                 record_startup_failure(report, device)
@@ -1092,48 +1098,81 @@ def smoke(suite='startup'):
                 save(data)
         except Exception as error:
             # Diagnostics never replace the original failed native/UI result.
-            data = read()
-            data['startup_diagnostics'] = {'collection_errors': [
-                {'stage': 'collector', 'error_type': type(error).__name__}]}
-            save(data)
+            try:
+                data = read()
+                data['startup_diagnostics'] = {'collection_errors': [
+                    {'stage': 'collector', 'error_type': type(error).__name__}]}
+                save(data)
+            except Exception:
+                pass
         raise
     finally:
+        # Receipt I/O is never allowed to skip owned-resource disposal or hide
+        # the original native failure. Retain only fixed cleanup labels.
+        cleanup_errors = []
+        updates = {}
+
+        def cleanup(label, action):
+            try:
+                action()
+            except Exception:
+                cleanup_errors.append(label)
+
         if startup_observer:
             try:
-                data = read()
-                data['startup_observation'] = startup_observer.collect(startup_context, device, startup_capture) if device else {'scope': 'App launch NOT RUN; no owned device.'}
-                save(data)
+                updates['startup_observation'] = startup_observer.collect(startup_context, device, startup_capture) if device else {'scope': 'App launch NOT RUN; no owned device.'}
             except Exception:
-                data = read()
-                data['startup_observation'] = {'collection_errors': ['collector']}
-                save(data)
-            try:
-                startup_observer.stop(startup_capture)
-            except Exception:
-                capture_cleanup_failed = True
-                data = read()
-                data['startup_observation_cleanup'] = 'FAIL'
-                save(data)
-        if metro.poll() is None:
-            os.killpg(metro.pid, signal.SIGTERM)
-            try:
-                metro.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                os.killpg(metro.pid, signal.SIGKILL)
-        metro_output.close()
+                updates['startup_observation'] = {'collection_errors': ['collector']}
+            cleanup('startup_capture', lambda: startup_observer.stop(startup_capture))
+            if 'startup_capture' in cleanup_errors:
+                updates['startup_observation_cleanup'] = 'FAIL'
+
+        def stop_metro():
+            if metro.poll() is None:
+                os.killpg(metro.pid, signal.SIGTERM)
+                try:
+                    metro.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    os.killpg(metro.pid, signal.SIGKILL)
+                    metro.wait(timeout=10)
+
+        cleanup('metro_process', stop_metro)
+        cleanup('metro_output', metro_output.close)
         if device and PLATFORM == 'IOS':
-            subprocess.run(['xcrun', 'simctl', 'shutdown', device], stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL, timeout=30, check=False)
-            subprocess.run(['xcrun', 'simctl', 'delete', device], stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL, timeout=30, check=False)
+            for action in ['shutdown', 'delete']:
+                cleanup('device_' + action, lambda action=action: subprocess.run(
+                    ['xcrun', 'simctl', action, device], stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL, timeout=30, check=True))
         elif device:
-            subprocess.run(['adb', '-s', device, 'uninstall', APP_IDS[PLATFORM]], stdout=subprocess.DEVNULL,
-                           stderr=subprocess.DEVNULL, timeout=30, check=False)
-        if capture_cleanup_failed and not startup_failed:
+            cleanup('device_uninstall', lambda: subprocess.run(
+                ['adb', '-s', device, 'uninstall', APP_IDS[PLATFORM]], stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL, timeout=30, check=True))
+        if startup_observer:
+            # Purge only this observer's raw files; other phases still need the
+            # shared private build/tool directories on the ephemeral runner.
+            for name in ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log']:
+                cleanup('private_' + name.split('.')[0], lambda name=name: (PRIVATE / name).unlink(missing_ok=True))
+        if startup_error is not None or cleanup_errors:
+            updates[result_key] = 'FAIL'
+        if cleanup_errors:
+            updates['startup_cleanup_errors'] = cleanup_errors.copy()
+        try:
             data = read()
-            data[result_key] = 'FAIL'
+            data.update(updates)
             save(data)
-            raise RuntimeError('Startup capture cleanup failed; subsequent probes cannot run.')
+        except Exception:
+            cleanup_errors.append('metadata')
+            # A transient write failure may allow one best-effort FAIL receipt.
+            # A permanently unavailable receipt still causes a failing phase.
+            try:
+                data = read()
+                data.update(updates)
+                data.update({result_key: 'FAIL', 'startup_cleanup_errors': cleanup_errors.copy()})
+                save(data)
+            except Exception:
+                pass
+        if cleanup_errors and startup_error is None:
+            raise RuntimeError('Startup cleanup or receipt failed; subsequent probes cannot run.') from None
 
 
 def successful_junit(report):
@@ -1172,12 +1211,15 @@ def run_phase(phase):
     try:
         globals()[phase]()
     except Exception:
-        if EVIDENCE.exists():
-            evidence = read()
-            evidence['failed_phase'] = phase
-            if phase in ['build', 'smoke', 'probe', 'features']:
-                evidence['r5_features' if phase == 'features' else 'native_probe' if phase == 'probe' else phase] = 'FAIL'
-            save(evidence)
+        try:
+            if EVIDENCE.exists():
+                evidence = read()
+                evidence['failed_phase'] = phase
+                if phase in ['build', 'smoke', 'probe', 'features']:
+                    evidence['r5_features' if phase == 'features' else 'native_probe' if phase == 'probe' else phase] = 'FAIL'
+                save(evidence)
+        except Exception:
+            pass
         raise
 
 

@@ -136,6 +136,12 @@ def version(value):
     return tuple(int(piece) for piece in value.split('.')) if value else ()
 
 
+def process_inventory_known(payload, result):
+    rows = [line for line in payload.splitlines() if line.strip()]
+    return (bool(rows) and result.get('exit_code') == 0 and not result.get('truncated', False) and
+            all(re.fullmatch(r'\s*\d+\s+\S+\s+\S.*', line) for line in rows))
+
+
 def bundled_runner(metadata=None):
     """Read exact checksum-verified release JAR metadata without extracting code."""
     jars = list((native.PRIVATE / 'maestro').rglob('maestro-ios-driver.jar'))
@@ -178,12 +184,13 @@ def baseline(device):
     ps, result = capture(['ps', '-axo', 'pid=,stat=,args='], 'baseline-processes', 10)
     facts['commands'].append(result)
     frontend = [line for line in ps.splitlines() if '/Simulator.app/Contents/MacOS/Simulator' in line]
-    facts['simulator_frontend_process_count'] = len(frontend) if result.get('exit_code') == 0 else None
+    known = process_inventory_known(ps, result)
+    facts['simulator_frontend_process_count'] = len(frontend) if known else None
     selected = os.environ.get('DEVELOPER_DIR', '')
     # Export only a boolean comparison, never the process arguments or path.
     facts['selected_simulator_frontend_running'] = any(
         selected + '/Applications/Simulator.app/Contents/MacOS/Simulator' in line for line in frontend
-    ) if selected and result.get('exit_code') == 0 else None
+    ) if selected and known else None
     for args, label in [
         (['xcrun', 'simctl', 'listapps', device], 'baseline-listapps'),
         (['xcrun', 'simctl', 'get_app_container', device, 'com.apple.Preferences', 'app'],
@@ -212,12 +219,12 @@ def collect(device, metadata=None):
     ps, process_result = command(['ps', '-axo', 'pid=,stat=,args='], 'processes')
     owned = [line for line in ps.splitlines()
              if 'xcodebuild' in line and device in line and 'test-without-building' in line]
-    processes_known = process_result.get('exit_code') == 0
+    processes_known = process_inventory_known(ps, process_result)
     facts['owned_xcodebuild_process_count'] = len(owned) if processes_known else None
     facts['owned_xcodebuild_alive'] = bool(owned) if processes_known else None
     facts['owned_xcodebuild_zombie_count'] = sum(
-        len(line.split(None, 2)) >= 2 and 'Z' in line.split(None, 2)[1] for line in owned)
-    pids = [int(line.split()[0]) for line in owned if re.match(r'^\s*\d+\s', line)]
+        len(line.split(None, 2)) >= 2 and 'Z' in line.split(None, 2)[1] for line in owned) if processes_known else None
+    pids = [int(line.split()[0]) for line in owned if re.match(r'^\s*\d+\s', line)] if processes_known else []
     # Sample only the exact owned-device xcodebuild; never all runner processes.
     if len(pids) == 1:
         sample_path = native.PRIVATE / 'driver-xcodebuild.sample'
@@ -237,14 +244,18 @@ def collect(device, metadata=None):
              'process == "xcodebuild" OR process == "CoreSimulatorService"'], 'host-xcode-simulator-events', 25)
 
     _, container = command(['xcrun', 'simctl', 'get_app_container', device, RUNNER_ID, 'app'], 'runner-installed')
-    facts['runner_installed'] = None if container.get('exit_code') in [None, 124] else container.get('exit_code') == 0
+    # Generic simctl failures do not establish that an app is absent.
+    facts['runner_installed'] = True if container.get('exit_code') == 0 else None
     launchctl, launch_result = command(['xcrun', 'simctl', 'spawn', device, 'launchctl', 'list'], 'runner-running')
     runner_lines = [line for line in launchctl.splitlines() if RUNNER_ID in line]
-    launch_known = launch_result.get('exit_code') == 0
+    launch_rows = [line for line in launchctl.splitlines() if line.strip()]
+    launch_known = (bool(launch_rows) and launch_result.get('exit_code') == 0 and not launch_result.get('truncated', False) and
+                    all(re.fullmatch(r'\s*(?:\d+|-)\s+-?\d+\s+\S+\s*', line)
+                        or re.fullmatch(r'\s*PID\s+Status\s+Label\s*', line) for line in launch_rows))
     facts['runner_launchctl_entries'] = len(runner_lines) if launch_known else None
     facts['runner_running'] = any(re.match(r'^\s*[1-9]\d*\s', line) for line in runner_lines) if launch_known else None
     facts['runner_last_exit_codes'] = [int(match.group(1)) for line in runner_lines
-                                    if (match := re.match(r'^\s*(?:\d+|-)\s+(-?\d+)\s', line))][:4]
+                                    if (match := re.match(r'^\s*(?:\d+|-)\s+(-?\d+)\s', line))][:4] if launch_known else []
 
     paths = []
     for index, entry in enumerate(metadata['commands'], 1):
@@ -345,6 +356,7 @@ def run():
                           hierarchy_running_after_collection=not future.done())
             return result
 
+        primary_failed = False
         try:
             with ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(original, args, label, **kwargs)
@@ -361,13 +373,20 @@ def run():
                 else:
                     facts = snapshot('AFTER_DRIVER_COMMAND', future)
                     return result
+        except Exception:
+            primary_failed = True
+            raise
         finally:
             # Executor exit waits for the bounded original command. Persist only
             # now, after command() has finished its own metadata writes.
             facts['baseline'] = baseline_facts
-            data = native.read()
-            data['driver_diagnosis'] = facts
-            native.save(data)
+            try:
+                data = native.read()
+                data['driver_diagnosis'] = facts
+                native.save(data)
+            except Exception:
+                if not primary_failed:
+                    raise RuntimeError('Driver diagnostic receipt failed.') from None
 
     native.command = observed
     try:

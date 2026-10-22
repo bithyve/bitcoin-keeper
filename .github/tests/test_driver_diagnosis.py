@@ -202,7 +202,7 @@ class DriverDiagnosisTest(unittest.TestCase):
                 mock.patch.object(diagnosis.socket, 'create_connection') as tcp, \
                 mock.patch.object(diagnosis.http.client, 'HTTPConnection') as http:
             facts = diagnosis.collect(self.device)
-        self.assertFalse(facts['runner_installed'])
+        self.assertIsNone(facts['runner_installed'])
         self.assertIsNone(facts['runner_running'])
         self.assertIsNone(facts['driver_port'])
         self.assertEqual(facts['collection_errors'], [{'stage': 'bundled_runner', 'error_type': 'ValueError'}])
@@ -242,6 +242,91 @@ class DriverDiagnosisTest(unittest.TestCase):
         self.assertIsNone(facts['owned_xcodebuild_alive'])
         self.assertIsNone(before['simulator_frontend_process_count'])
         self.assertIsNone(before['selected_simulator_frontend_running'])
+
+    def test_permission_errors_and_truncated_inventories_remain_unknown(self):
+        for truncated, payload in [(True, ''), (False, ''), (False, 'PRIVATE_SENTINEL malformed ps')]:
+            with self.subTest(truncated=truncated):
+                def capture(args, label, timeout=20):
+                    if label == 'runner-installed':
+                        return 'permission denied PRIVATE_SENTINEL', {'exit_code': 1, 'categories': ['PERMISSION_DENIED']}
+                    return payload, {'exit_code': 0, 'truncated': truncated}
+                with mock.patch.object(diagnosis, 'capture', side_effect=capture), \
+                        mock.patch.object(diagnosis.Path, 'home', return_value=self.root / 'absent'):
+                    facts = diagnosis.collect(self.device)
+                    before = diagnosis.baseline(self.device)
+                self.assertIsNone(facts['runner_installed'])
+                self.assertIsNone(facts['owned_xcodebuild_alive'])
+                self.assertIsNone(facts['owned_xcodebuild_process_count'])
+                self.assertIsNone(facts['owned_xcodebuild_zombie_count'])
+                self.assertNotIn('xcodebuild_sample', facts)
+                self.assertIsNone(facts['runner_running'])
+                self.assertIsNone(facts['runner_launchctl_entries'])
+                self.assertIsNone(before['simulator_frontend_process_count'])
+                self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
+
+    def test_receipt_read_and_save_failures_preserve_actual_driver_primary_and_cleanup(self):
+        for boundary in ['read', 'save']:
+            for primary in [True, False]:
+                with self.subTest(boundary=boundary, primary=primary):
+                    native.save({'commands': [], 'toolchain': {}, 'maestro': {'binary': 'fixed-maestro'}})
+                    original_error = RuntimeError('PRIVATE_SENTINEL hierarchy failure')
+                    armed = [False]
+                    events = []
+                    real_read, real_save = native.read, native.save
+
+                    def read():
+                        if armed[0] and boundary == 'read':
+                            raise OSError('PRIVATE_SENTINEL read failure')
+                        return real_read()
+
+                    def save(value):
+                        if armed[0] and boundary == 'save':
+                            raise OSError('PRIVATE_SENTINEL save failure')
+                        real_save(value)
+
+                    def command(args, label, **kwargs):
+                        if label == 'Create owned driver-preflight simulator':
+                            return self.device
+                        if label == 'Check disposable iOS driver readiness':
+                            armed[0] = True
+                            events.append('hierarchy')
+                            if primary:
+                                raise original_error
+
+                    def dispose(args, **kwargs):
+                        events.append(args[2])
+                        if args[2] == 'shutdown':
+                            raise OSError('PRIVATE_SENTINEL shutdown failure')
+
+                    with mock.patch.dict(os.environ, {'KEEPER_DIAGNOSTIC': 'true'}), \
+                            mock.patch.object(native, 'record'), mock.patch.object(native, 'install_maestro'), \
+                            mock.patch.object(native, 'command', side_effect=command), \
+                            mock.patch.object(native, 'read', side_effect=read), \
+                            mock.patch.object(native, 'save', side_effect=save), \
+                            mock.patch.object(native.subprocess, 'run', side_effect=dispose), \
+                            mock.patch.object(diagnosis, 'baseline', return_value={'commands': []}), \
+                            mock.patch.object(diagnosis, 'collect', return_value={'scope': 'setup only'}), \
+                            self.assertRaises(RuntimeError) as failure:
+                        diagnosis.run()
+                    if primary:
+                        self.assertIs(failure.exception, original_error)
+                    else:
+                        self.assertNotIn('PRIVATE_SENTINEL', str(failure.exception))
+                    self.assertEqual(events, ['hierarchy', 'shutdown', 'delete'])
+
+    def test_complete_valid_inventories_can_still_establish_absence(self):
+        def capture(args, label, timeout=20):
+            payload = 'PID Status Label\n' if label == 'runner-running' else '1 Ss /sbin/launchd\n'
+            return payload, {'exit_code': 0, 'truncated': False}
+        with mock.patch.object(diagnosis, 'capture', side_effect=capture), \
+                mock.patch.object(diagnosis.Path, 'home', return_value=self.root / 'absent'):
+            facts = diagnosis.collect(self.device)
+            before = diagnosis.baseline(self.device)
+        self.assertFalse(facts['owned_xcodebuild_alive'])
+        self.assertEqual(facts['owned_xcodebuild_process_count'], 0)
+        self.assertFalse(facts['runner_running'])
+        self.assertEqual(facts['runner_launchctl_entries'], 0)
+        self.assertEqual(before['simulator_frontend_process_count'], 0)
 
     def test_run_rejects_other_platforms_and_missing_opt_in_before_operations(self):
         for platform, opt_in in [('ANDROID', 'true'), ('IOS', ''), ('IOS', 'false')]:

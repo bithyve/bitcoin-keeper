@@ -163,13 +163,20 @@ def collect(native, device, handle=None):
                 'scope': 'Outer HTTP status only; multipart terminal status is not observed.'}
     def process():
         proc = subprocess.run(['adb', '-s', device, 'shell', 'pidof', APP], capture_output=True, timeout=10)
-        return {'exit_code': proc.returncode, 'alive': proc.returncode == 0 and bool(re.fullmatch(rb'\s*\d+(?:\s+\d+)*\s*', proc.stdout))}
+        present = proc.returncode == 0 and bool(re.fullmatch(rb'\s*\d+(?:\s+\d+)*\s*', proc.stdout))
+        return {'exit_code': proc.returncode, 'alive': True if present else None,
+                'scope': 'Positive observation only; failed or malformed queries do not establish absence.'}
     def foreground():
         path = native.PRIVATE / 'startup-foreground.log'
         with path.open('wb') as output:
             proc = subprocess.run(['adb', '-s', device, 'shell', 'dumpsys', 'activity', 'activities'], stdout=output, stderr=subprocess.STDOUT, timeout=10)
         text, truncated = _read(native, path)
-        return {'exit_code': proc.returncode, 'own_app_resumed': any(APP in line and re.search(r'mResumedActivity|topResumedActivity', line) for line in text.splitlines()), 'input_truncated': truncated}
+        present = proc.returncode == 0 and not truncated and any(
+            re.search(r'\b(?:mResumedActivity|topResumedActivity)\s*[:=]', line) and
+            (match := re.search(r'ActivityRecord\{.*?\bu\d+\s+([A-Za-z0-9_.]+)/[^\s}]+', line)) and
+            match[1] == APP for line in text.splitlines())
+        return {'exit_code': proc.returncode, 'own_app_resumed': True if present else None,
+                'input_truncated': truncated, 'scope': 'Positive observation only; absence is not inferred.'}
     for name, action in [('logcat', logcat), ('metro', observer), ('hierarchy', lambda: hierarchy(native, native.PRIVATE / 'maestro-output')), ('process', process), ('foreground', foreground)]:
         collect_one(name, action)
     return facts

@@ -102,3 +102,27 @@ offline preparation until evidence requires another hosted diagnostic; their
 contract passes are not native acceptance. The first failure's underlying cause
 remains unproven, and a passing newer preflight does not establish a dependency
 fix. No pin, timeout or app behavior was changed.
+
+## Prepared diagnostic safety correction
+
+Independent review of `a319936a754372ff76b10d515dadeded87e88aca` reproduced
+receipt read/write failures replacing the original startup/driver exception.
+In the Android observer finalizer, those failures also skipped capture, Metro
+and device cleanup. The isolated follow-up preserves the primary exception,
+attempts every owned cleanup independently, purges only the three new observer
+raw files, then attempts the fixed receipt. A failed receipt or unconfirmed
+cleanup fails a previously successful phase before any subsequent probe.
+Shared private build/tool files remain available to later phases.
+
+Failed, malformed or truncated inventories cannot establish absence. Runner
+installation failures and the observer's non-positive process/foreground queries
+therefore stay UNKNOWN (`null`); complete valid iOS process/launchctl inventories
+can still establish presence or absence. PR #7101's separate Android failure
+inventory remains the canonical complete process/foreground diagnosis when
+combined; this companion retains its unique continuous launch-log and Metro
+observations. Neither package establishes an Android cause.
+
+The new regressions exercise the actual smoke and driver finalizers with fake
+process/device boundaries, including receipt, capture-stop, Metro, device and
+purge failures. They supply source evidence only. No native run, SDK/profile
+change, timeout change, gate waiver or release operation is part of this fix.

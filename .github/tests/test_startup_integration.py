@@ -32,6 +32,8 @@ class StartupIntegrationTest(unittest.TestCase):
             stop=mock.Mock(side_effect=self.stop),
         )
         self.original_error = RuntimeError('PRIVATE_SENTINEL original smoke failure')
+        self.import_error = RuntimeError('PRIVATE_SENTINEL observer import failure')
+        self.spawn_error = OSError('PRIVATE_SENTINEL Metro spawn failure')
 
     def start(self, context, device):
         self.assertEqual(context.PLATFORM, 'ANDROID')
@@ -52,8 +54,27 @@ class StartupIntegrationTest(unittest.TestCase):
 
     def exercise(self, suite='startup', smoke_fails=False, start_fails=False,
                  collect_fails=False, stop_fails=False, platform='ANDROID',
-                 import_fails=False, popen_fails=False):
+                 import_fails=False, popen_fails=False, receipt_fails=None,
+                 cleanup_fails=(), diagnostics_fail=False):
         captured = {}
+        original_read, original_save, original_unlink = native.read, native.save, Path.unlink
+
+        def late_read():
+            if receipt_fails == 'read' and 'capture-collect' in self.events:
+                raise OSError('PRIVATE_SENTINEL receipt read failure')
+            return original_read()
+
+        def late_save(value):
+            if receipt_fails == 'save' and 'capture-collect' in self.events:
+                raise OSError('PRIVATE_SENTINEL receipt write failure')
+            return original_save(value)
+
+        def unlink(path, *args, **kwargs):
+            if path.name in ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log'] and 'capture-collect' in self.events:
+                self.events.append('purge-' + path.name)
+                if 'purge' in cleanup_fails:
+                    raise OSError('PRIVATE_SENTINEL purge failure')
+            return original_unlink(path, *args, **kwargs)
 
         def command(args, label, **kwargs):
             if label == 'Identify fresh emulator':
@@ -74,7 +95,7 @@ class StartupIntegrationTest(unittest.TestCase):
             captured['metro_args'] = args
             captured['metro_options'] = kwargs
             if popen_fails:
-                raise OSError('PRIVATE_SENTINEL Metro spawn failure')
+                raise self.spawn_error
             return self.metro
 
         original_open = Path.open
@@ -82,16 +103,40 @@ class StartupIntegrationTest(unittest.TestCase):
         def track_output(path, *args, **kwargs):
             handle = original_open(path, *args, **kwargs)
             if path == self.root / 'metro.log':
+                if 'metro-output' in cleanup_fails:
+                    real_handle = handle
+                    class FailingClose:
+                        @property
+                        def closed(self):
+                            return real_handle.closed
+
+                        def close(self):
+                            real_handle.close()
+                            raise OSError('PRIVATE_SENTINEL Metro output close failure')
+                    handle = FailingClose()
                 captured['metro_output'] = handle
             return handle
 
         def load_observer(module):
             if import_fails:
-                raise RuntimeError('PRIVATE_SENTINEL observer import failure')
+                raise self.import_error
 
         def dispose(args, **kwargs):
-            self.events.append('device-' + args[3] if args[0] == 'xcrun' else 'device-uninstall')
+            event = 'device-' + args[2] if args[0] == 'xcrun' else 'device-uninstall'
+            self.events.append(event)
+            if event in cleanup_fails:
+                raise OSError('PRIVATE_SENTINEL disposal failure')
             return SimpleNamespace(returncode=0)
+
+        def kill_metro(*args):
+            self.events.append('metro-stop')
+            if 'metro-stop' in cleanup_fails:
+                raise OSError('PRIVATE_SENTINEL Metro cleanup failure')
+
+        def failure_diagnostics(*args):
+            self.events.append('failure-diagnostics')
+            if diagnostics_fail:
+                raise OSError('PRIVATE_SENTINEL diagnostics failure')
 
         def fail_start(*args):
             self.events.append('capture-start')
@@ -128,13 +173,16 @@ class StartupIntegrationTest(unittest.TestCase):
                 (native, 'android_sdk_metadata', lambda *args: {'version': 'fixed'}),
                 (native, 'warm_metro_bundle', lambda suite: self.events.append('warm-' + suite)),
                 (native, 'successful_junit', lambda report: 1),
-                (native, 'record_startup_failure', lambda *args: self.events.append('failure-diagnostics')),
+                (native, 'record_startup_failure', failure_diagnostics),
                 (native, 'collect_r5_feature_evidence', lambda device: {'status': 'PASS'}),
                 (native.subprocess, 'Popen', popen),
                 (native.subprocess, 'run', dispose),
                 (native.urllib.request, 'urlopen', lambda *args, **kwargs: response),
-                (native.os, 'killpg', lambda *args: self.events.append('metro-stop')),
+                (native.os, 'killpg', kill_metro),
                 (native.Path, 'open', track_output),
+                (native.Path, 'unlink', unlink),
+                (native, 'read', late_read),
+                (native, 'save', late_save),
                 (native.importlib.util, 'spec_from_file_location', lambda *args: SimpleNamespace(loader=loader)),
                 (native.importlib.util, 'module_from_spec', lambda *args: self.observer),
             ]
@@ -144,7 +192,7 @@ class StartupIntegrationTest(unittest.TestCase):
                 native.smoke(suite)
             except Exception as error:
                 captured['error'] = error
-            captured['metadata'] = native.read()
+            captured['metadata'] = original_read()
         return captured
 
     def test_android_capture_stays_inside_owned_startup_and_all_resources_close(self):
@@ -216,6 +264,72 @@ class StartupIntegrationTest(unittest.TestCase):
         self.assertEqual(value['metadata']['smoke'], 'FAIL')
         self.assertIn('metro-stop', self.events)
         self.assertIn('device-uninstall', self.events)
+
+    def test_early_close_failure_preserves_exact_import_or_spawn_error(self):
+        for option, expected in [('import_fails', self.import_error), ('popen_fails', self.spawn_error)]:
+            with self.subTest(option=option):
+                self.events.clear()
+                value = self.exercise(**{option: True}, cleanup_fails=('metro-output',))
+                self.assertIs(value['error'], expected)
+                self.assertTrue(value['metro_output'].closed)
+                self.assertEqual(self.events, [])
+
+    def test_receipt_failures_preserve_primary_and_do_not_skip_any_disposal(self):
+        for boundary in ['read', 'save']:
+            for primary in [True, False]:
+                with self.subTest(boundary=boundary, primary=primary):
+                    self.events.clear()
+                    value = self.exercise(smoke_fails=primary, receipt_fails=boundary,
+                                          stop_fails=True, cleanup_fails=('metro-stop', 'metro-output', 'device-uninstall', 'purge'),
+                                          diagnostics_fail=True)
+                    if primary:
+                        self.assertIs(value['error'], self.original_error)
+                    else:
+                        self.assertIsInstance(value['error'], RuntimeError)
+                        self.assertNotIn('PRIVATE_SENTINEL', str(value['error']))
+                    for event in ['capture-stop', 'metro-stop', 'device-uninstall',
+                                  'purge-startup-logcat.log', 'purge-startup-observer.jsonl',
+                                  'purge-startup-foreground.log']:
+                        self.assertEqual(self.events.count(event), 1)
+                    self.assertTrue(value['metro_output'].closed)
+
+    def test_raw_purge_failure_blocks_a_successful_phase_after_other_cleanup(self):
+        value = self.exercise(cleanup_fails=('purge',))
+        self.assertIsInstance(value.get('error'), RuntimeError)
+        self.assertEqual(value['metadata']['smoke'], 'FAIL')
+        self.assertEqual(value['metadata']['startup_cleanup_errors'],
+                         ['private_startup-logcat', 'private_startup-observer', 'private_startup-foreground'])
+        self.assertIn('capture-stop', self.events)
+        self.assertIn('device-uninstall', self.events)
+        self.assertTrue(value['metro_output'].closed)
+
+    def test_cleanup_failures_fail_closed_and_keep_attempting_ios_delete(self):
+        for primary in [True, False]:
+            with self.subTest(primary=primary):
+                self.events.clear()
+                value = self.exercise(platform='IOS', smoke_fails=primary,
+                                      cleanup_fails=('metro-stop', 'device-shutdown', 'device-delete'))
+                if primary:
+                    self.assertIs(value['error'], self.original_error)
+                else:
+                    self.assertIsInstance(value['error'], RuntimeError)
+                self.assertEqual(value['metadata']['smoke'], 'FAIL')
+                self.assertEqual(value['metadata']['startup_cleanup_errors'],
+                                 ['metro_process', 'device_shutdown', 'device_delete'])
+                self.assertTrue(value['metro_output'].closed)
+                self.assertLess(self.events.index('device-shutdown'), self.events.index('device-delete'))
+
+    def test_only_observer_raw_files_are_purged_after_collection(self):
+        observer_names = ['startup-logcat.log', 'startup-observer.jsonl', 'startup-foreground.log']
+        for name in [*observer_names, 'build-artifact', 'maestro.zip']:
+            (self.root / name).write_text('PRIVATE_SENTINEL')
+        value = self.exercise()
+        self.assertNotIn('error', value)
+        for name in observer_names:
+            self.assertFalse((self.root / name).exists())
+            self.assertGreater(self.events.index('purge-' + name), self.events.index('capture-stop'))
+        for name in ['build-artifact', 'maestro.zip']:
+            self.assertTrue((self.root / name).exists())
 
     def test_probes_and_ios_preserve_their_existing_metro_configuration_without_observation(self):
         for suite, platform, config in [('probe', 'ANDROID', 'release_metro.cjs'),

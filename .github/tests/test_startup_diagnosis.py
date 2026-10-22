@@ -54,7 +54,7 @@ class StartupDiagnosisTests(unittest.TestCase):
         def subprocess_result(args, **kwargs):
             if 'pidof' in args:
                 return SimpleNamespace(returncode=0, stdout=b'123\n')
-            kwargs['stdout'].write(('mResumedActivity ' + diagnosis.APP + '/.MainActivity PRIVATE_SENTINEL').encode())
+            kwargs['stdout'].write(('mResumedActivity: ActivityRecord{abc u0 ' + diagnosis.APP + '/.MainActivity t42} PRIVATE_SENTINEL').encode())
             return SimpleNamespace(returncode=0)
         with mock.patch.object(diagnosis.subprocess, 'run', side_effect=subprocess_result):
             facts = diagnosis.collect(self.native, 'emulator-5554', SimpleNamespace(started_ms=150))
@@ -67,6 +67,27 @@ class StartupDiagnosisTests(unittest.TestCase):
         self.assertTrue(facts['hierarchy']['logbox_controls'])
         self.assertTrue(facts['foreground']['own_app_resumed'])
         self.assertTrue(facts['process']['alive'])
+
+    def test_failed_malformed_foreign_and_truncated_queries_do_not_claim_absence(self):
+        for code, pid, foreground, oversized in [
+            (1, b'', 'permission denied PRIVATE_SENTINEL', False),
+            (0, b'PRIVATE_SENTINEL', 'malformed PRIVATE_SENTINEL', False),
+            (0, b'', 'mResumedActivity: ActivityRecord{x u0 ' + diagnosis.APP + '.foreign/.MainActivity t1}', False),
+            (0, b'', 'mResumedActivity: ActivityRecord{x u0 foreign/.MainActivity t1} ' + diagnosis.APP + '/.MainActivity', False),
+            (0, b'123\n', 'mResumedActivity: ActivityRecord{x u0 ' + diagnosis.APP + '/.MainActivity t1}', True),
+        ]:
+            with self.subTest(code=code, oversized=oversized):
+                def run(args, **kwargs):
+                    if 'pidof' in args:
+                        return SimpleNamespace(returncode=code, stdout=pid)
+                    kwargs['stdout'].write((foreground + ('x' * (1024 * 1024 + 1) if oversized else '')).encode())
+                    return SimpleNamespace(returncode=code)
+                with mock.patch.object(diagnosis.subprocess, 'run', side_effect=run):
+                    facts = diagnosis.collect(self.native, 'emulator-5554')
+                self.assertIsNone(facts['foreground']['own_app_resumed'])
+                if not oversized:
+                    self.assertIsNone(facts['process']['alive'])
+                self.assertNotIn('PRIVATE_SENTINEL', json.dumps(facts))
 
     def test_private_size_bounds_and_symlink_rejection(self):
         path = self.root / 'large.log'
