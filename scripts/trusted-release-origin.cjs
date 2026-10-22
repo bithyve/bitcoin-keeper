@@ -6,7 +6,9 @@
 const crypto = require('node:crypto');
 const zlib = require('node:zlib');
 const { UUID: SARIF_ID, CATEGORY: CODEQL_CATEGORY } = require('./codeql-analysis-receipt.cjs');
-const { SCOPES: PUBLIC_COMPANIONS, validatePublicCompanions } = require('../.github/native/public_companion_receipts.cjs');
+const { SCOPES: PUBLIC_COMPANIONS } = require('../.github/native/public_companion_receipts.cjs');
+const { validatePublicSoftware, WORKER_SOURCES: SOURCES, PUBLIC_SOFTWARE_SCOPE } = require('../.github/native/public_software_receipts.cjs');
+const { parseStrictJson } = require('../.github/native/strict_json.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const PIN = 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA';
 const CANONICAL_PATH = '.github/workflows/keeper-canonical-native.yml';
@@ -26,18 +28,8 @@ const EXECUTED = Object.freeze({
   'installed-version-history': 'native installed tuple and retained initial history; not stale-history recovery',
   'key-management-discoverability': 'ordinary app Keys Manage Keys entry and return',
   'unused-key-and-pin-ui': 'unused Mobile Key delete cancel wrong PIN and cold persistence; not live-Vault references or physical biometrics',
+  'public-raw-software-evidence': PUBLIC_SOFTWARE_SCOPE,
   ...PUBLIC_COMPANIONS,
-});
-const FEATURE_SCENARIOS = Object.freeze(['production-setup-offline-retry-native-counts', 'production-deletion-retained-native-references',
-  'production-deletion-native-rollback', 'production-worker-stale-session-rejection', 'native-worker-process-relaunch-counts']);
-const FEATURE_LIMITS = Object.freeze(['controlled-transport-no-backend-acceptance', 'synthetic-wallet-generation-no-crypto-acceptance',
-  'injected-dispatch-selection-no-login-acceptance', 'no-product-ui-navigation-pin-or-biometric-acceptance', 'probe-and-worker-timings-not-product-startup-ux']);
-const SOURCES = Object.freeze({
-  'src/utils/utilities.ts': ['getAccountFromSigner', 'getKeyUID'],
-  'src/store/sagas/storage.ts': ['setupKeeperAppWorker'],
-  'src/store/sagas/wallets.ts': ['currentWalletAccountId', 'assertWalletAccount', 'deleteSigningDeviceWorker'],
-  'src/store/sagas/bhr.ts': ['currentBackupAppId', 'deleteAppImageEntityWorker'],
-  'src/services/backup/transport.ts': ['observeBackupAccount', 'currentBackupAccountSession', 'clearVerifiedRemoteRevision'],
 });
 const PRODUCERS = Object.freeze([
   { file: 'test.yml', path: '.github/workflows/test.yml', event: 'push', job: 'Tests',
@@ -223,59 +215,10 @@ function validateAttestation(payload, sourceSha, tree, run) {
   }
 }
 
-function installedBytes(value, platform, expected) {
-  const [method, hashes] = platform === 'IOS' ?
-    ['FULL_SIMULATOR_BUNDLE_TREE_AND_EXECUTABLE_SHA256', ['inventory_sha256', 'executable_sha256']] :
-    ['SINGLE_INSTALLED_BASE_APK_SHA256', ['sha256']];
-  const proof = value?.installed_artifact;
-  check(value?.installed_artifact_verified === true && exactKeys(proof, ['method', ...hashes]) &&
-    proof.method === method && hashes.every(name => typeof proof[name] === 'string' && hex64.test(proof[name])) &&
-    (!expected || (proof.method === expected.method && hashes.every(name => proof[name] === expected[name]))),
-  'INSTALLED_BYTE_PROOF_INCOMPLETE');
-  return proof;
-}
-
 function validateReceipt(value, sourceSha, run, platform, sources) {
-  const appIds = { IOS: 'io.hexawallet.hexakeeper.dev', ANDROID: 'io.hexawallet.keeper.development' };
-  check(value.schema === 1 && value.platform === platform && value.source_sha === sourceSha && value.workflow_sha === sourceSha &&
-    value.workflow_ref === `${REPOSITORY}/${CANONICAL_PATH}@refs/heads/sprint` && value.diagnostic_only === false && value.app_id === appIds[platform] &&
-    value.run_id === String(run.id) && value.run_attempt === String(run.run_attempt) &&
-    ['build', 'smoke', 'native_probe', 'r5_features'].every(key => value[key] === 'PASS') && value.product_ui?.status === 'PASS',
-  'PLATFORM_RECEIPT_NOT_EXACT_SUCCESS');
-  const installed = installedBytes(value, platform);
-  const binaryHash = platform === 'IOS' ? 'executable_sha256' : 'sha256';
-  check(typeof value.built_artifact?.[binaryHash] === 'string' &&
-    hex64.test(value.built_artifact[binaryHash]) && value.built_artifact[binaryHash] === installed[binaryHash],
-  'INSTALLED_BYTES_NOT_BOUND_TO_BUILD');
-  const samples = value.product_ui.samples;
-  const durations = ['startup_to_passcode_ms', 'start_new_to_ready_ms', 'start_new_to_home_ms', 'cold_relaunch_to_login_ms', 'cold_relaunch_to_authenticated_home_ms'];
-  check(value.product_ui.requested_samples === 5 && Array.isArray(samples) && samples.length === 5 && samples.every((sample, index) =>
-    sample.sample === index + 1 && sample.status === 'PASS' && sample.create_new_app_calls === 1 &&
-    sample.visible_wallet_count_before_relaunch === 1 && sample.visible_wallet_count_after_relaunch === 1 &&
-    sample.installed_version_header_and_initial_history === 'PASS' && sample.key_management_entry_and_exit === 'PASS' &&
-    durations.every(name => Number.isFinite(sample.raw_durations?.[name]) && sample.raw_durations[name] >= 0 && sample.raw_durations[name] <= 3600000)),
-  'PRODUCT_OBSERVATIONS_INCOMPLETE');
-  for (const sample of samples) installedBytes(sample, platform, installed);
-  const retry = value.product_ui.controlled_disconnect_retry;
-  check(retry?.status === 'PASS' && retry.scenario === 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE' && retry.performance_sample === false &&
-    retry.create_new_app_calls === 2 && retry.transport_requests_dropped_without_commit === 1 && retry.acknowledged_create_responses === 1 &&
-    retry.unexpected_create_attempts === 0 && retry.visible_wallet_count_after_relaunch === 1, 'PRODUCT_RETRY_INCOMPLETE');
-  installedBytes(retry, platform, installed);
-  const key = value.product_ui.key_management_ui;
-  check(key?.status === 'PASS' && key.entrypoint === 'index.js' && key.network === 'TESTNET' &&
-    key.scenario === 'UNUSED_MOBILE_KEY_UI_DELETE_AND_NATIVE_PIN' && key.new_account_requests_during_key_flow === 0 &&
-    key.visible_eligible_keys_after_deletion === 0 && key.unrelated_visible_wallet_count_after_relaunch === 1, 'PRODUCT_KEY_UI_INCOMPLETE');
-  installedBytes(key, platform, installed);
-  validatePublicCompanions(value, platform);
-  const feature = value.r5_feature_evidence;
-  check(feature?.schema === 1 && feature.scope === 'production-worker-native-storage' && feature.status === 'PASS' &&
-    JSON.stringify(feature.scenarios) === JSON.stringify(FEATURE_SCENARIOS.map(id => ({ id, status: 'PASS' }))) &&
-    JSON.stringify(feature.limits) === JSON.stringify(FEATURE_LIMITS) && JSON.stringify(feature.source_functions) === JSON.stringify(sources),
-  'WORKER_FEATURE_EVIDENCE_INCOMPLETE');
-  check(Array.isArray(feature.measurements) && feature.measurements.length === 5 && feature.measurements.every((row, index) =>
-    exactKeys(row, ['iteration', 'probe_ready_ms', 'setup_first_wallet_ms']) && row.iteration === index + 1 &&
-    ['probe_ready_ms', 'setup_first_wallet_ms'].every(name => Number.isFinite(row[name]) && row[name] >= 0 && row[name] <= 600000)),
-  'WORKER_MEASUREMENTS_INCOMPLETE');
+  return validatePublicSoftware(value, { platform, sourceSha, workflowSha: sourceSha,
+    workflowRef: `${REPOSITORY}/${CANONICAL_PATH}@refs/heads/sprint`,
+    runId: run.id, runAttempt: run.run_attempt, workerSources: sources });
 }
 
 async function securityResult(api, sourceSha) {
@@ -350,7 +293,7 @@ async function collectTrustedOriginUnchecked(request, token, now, pinReadToken) 
     check(zipped.length === info.size_in_bytes && `sha256:${digest(zipped)}` === info.digest, 'ARTIFACT_DIGEST_MISMATCH');
     const bytes = unpack(zipped, filename);
     requestedArtifacts.push({ info, run });
-    return { bytes, payload: JSON.parse(bytes.toString('utf8')) };
+    return { bytes, payload: parseStrictJson(bytes, MAX_JSON) };
   }
   const codeql = results[1].run;
   const codeqlArtifacts = complete(await api(`actions/runs/${codeql.id}/artifacts?per_page=100`), 'artifacts');

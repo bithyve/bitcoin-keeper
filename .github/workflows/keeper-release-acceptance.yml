@@ -9,6 +9,7 @@ permissions:
   contents: read
   pull-requests: read
   actions: read
+  checks: read
 
 concurrency:
   group: keeper-release-acceptance-${{ github.event.pull_request.number }}
@@ -72,12 +73,13 @@ jobs:
           script: |
             const { preflight } = require('./.github/native/release_preflight.cjs');
             const { acceptance, markdown } = require('./.github/native/release_acceptance.cjs');
-            const { evidence } = require('./.github/native/release_evidence.cjs');
+            const { softwareEvidence } = require('./.github/native/release_evidence.cjs');
             const verified = await preflight(github, context);
-            const currentAttempt = verified.trusted && await evidence(github, context, {
+            const publicSoftware = verified.trusted ? await softwareEvidence(github, context, {
               ios: process.env.IOS_RESULT, android: process.env.ANDROID_RESULT,
-              attempt: Number(process.env.GITHUB_RUN_ATTEMPT) });
-            const result = acceptance({ trusted: currentAttempt,
+              attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
+              workflowSha: process.env.GITHUB_WORKFLOW_SHA, workflowRef: process.env.GITHUB_WORKFLOW_REF }) : null;
+            const result = acceptance({ publicSoftware,
               ios: process.env.IOS_RESULT, android: process.env.ANDROID_RESULT });
             await core.summary.addRaw(markdown(result)).write();
-            core.setFailed('BLOCKED: full app acceptance is NOT IMPLEMENTED / NOT VERIFIED; no release approval');
+            if (!result.software_complete) core.setFailed('BLOCKED: full raw software composition is NOT VERIFIED; no release approval');

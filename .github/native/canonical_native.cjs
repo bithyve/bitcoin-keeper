@@ -7,6 +7,8 @@ const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { REQUIRED, acceptance } = require('./release_acceptance.cjs');
 const { publicCompanionChecks } = require('./public_companion_receipts.cjs');
+const { validatePublicSoftware, WORKER_SOURCES, PUBLIC_SOFTWARE_SCOPE } = require('./public_software_receipts.cjs');
+const { parseStrictJson } = require('./strict_json.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const REPOSITORY_ID = 470904030;
 const WORKFLOW = '.github/workflows/keeper-canonical-native.yml';
@@ -129,7 +131,7 @@ async function platformJobs(github, context, request, run) {
   return result;
 }
 
-function validateMetadata(metadata, request, platform) {
+function validateMetadata(metadata, request, platform, workerSources) {
   const apps = { IOS: 'io.hexawallet.hexakeeper.dev', ANDROID: 'io.hexawallet.keeper.development' };
   demand(metadata.schema === 1 && metadata.platform === platform && metadata.source_sha === request.sourceSha &&
     metadata.workflow_sha === request.workflowSha && metadata.workflow_ref === request.workflowRef &&
@@ -175,6 +177,13 @@ function validateMetadata(metadata, request, platform) {
     checks['native-storage'].status === 'PASS', ios: 'success', android: 'success' });
   const cases = REQUIRED.map(id => ({ id, status: parent.cases.find(item => item.id === id)?.status ?? 'NOT IMPLEMENTED' }));
   Object.assign(checks, publicCompanionChecks(metadata, platform));
+  checks['public-raw-software-evidence'] = { status: 'NOT VERIFIED', scope: PUBLIC_SOFTWARE_SCOPE };
+  try {
+    validatePublicSoftware(metadata, { platform, sourceSha: request.sourceSha,
+      workflowSha: request.workflowSha, workflowRef: request.workflowRef,
+      runId: request.runId, runAttempt: request.attempt, workerSources });
+    checks['public-raw-software-evidence'].status = 'PASS';
+  } catch { /* A label or payload-owned source hash cannot satisfy this subcheck. */ }
   // Parent obligations remain explicit. Scoped companion UI does not establish
   // private bytes, protocol/account isolation, WAN offline, recovery or a budget.
   return { cases, executed_checks: checks };
@@ -184,6 +193,17 @@ async function collect(github, context, request, output, readZip, { pinReader } 
   fs.rmSync(path.join(output, 'keeper-canonical-native-attestation.json'), { force: true });
   const { run } = await origin(github, context, request, { pinReader });
   await platformJobs(github, context, request, run);
+  // Compare full-file worker hashes with fixed committed inputs, independently
+  // of the downloaded receipt. No artifact ingestion or private-route admission.
+  const workerSources = await Promise.all(Object.entries(WORKER_SOURCES).map(async ([member, names]) => {
+    const file = (await github.rest.repos.getContent({ ...context.repo, path: member, ref: request.sourceSha })).data;
+    demand(file?.type === 'file' && file.path === member && file.encoding === 'base64' &&
+      Number.isSafeInteger(file.size) && file.size > 0 && file.size <= 524288 &&
+      typeof file.content === 'string' && /^[A-Za-z0-9+/=\r\n]+$/.test(file.content), 'CANONICAL_WORKER_SOURCE_UNAVAILABLE');
+    const bytes = Buffer.from(file.content, 'base64');
+    demand(bytes.length === file.size, 'CANONICAL_WORKER_SOURCE_UNAVAILABLE');
+    return { path: member, names: [...names], sha256: digest(bytes) };
+  }));
   const page = (await github.rest.actions.listWorkflowRunArtifacts({ ...context.repo, run_id: request.runId, per_page: 100 })).data;
   demand(page.total_count <= 100 && page.total_count === page.artifacts?.length, 'CANONICAL_ARTIFACT_LIST_INCOMPLETE');
   const platforms = {};
@@ -204,9 +224,9 @@ async function collect(github, context, request, output, readZip, { pinReader } 
       current.workflow_run?.id === request.runId && current.workflow_run.head_sha === request.sourceSha,
     'CANONICAL_ARTIFACT_EXPIRED_OR_CHANGED');
     const raw = readZip(archive);
-    const metadata = JSON.parse(raw.toString('utf8'));
+    const metadata = parseStrictJson(raw);
     platforms[platform] = { conclusion: 'success', artifact_id: artifact.id,
-      receipt_sha256: digest(raw), ...validateMetadata(metadata, request, platform) };
+      receipt_sha256: digest(raw), ...validateMetadata(metadata, request, platform, workerSources) };
   }
   // Recheck after every download; moved heads, new runs or rerun attempts invalidate this collector.
   await origin(github, context, request, { pinReader });

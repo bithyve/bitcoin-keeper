@@ -5,6 +5,7 @@ const crypto = require('node:crypto');
 const zlib = require('node:zlib');
 const { collectTrustedOrigin, isTrustedOrigin, CASES, EXECUTED, PIN } = require('./trusted-release-origin.cjs');
 const { attach: attachPublicCompanions } = require('../.github/tests/fixtures/public-companions.cjs');
+const { attach: attachPublicSoftware } = require('../.github/tests/fixtures/public-software.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const source = 'a'.repeat(40);
 const tree = 'b'.repeat(40);
@@ -14,21 +15,32 @@ const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const names = ['Tests', 'Analyze JavaScript/TypeScript', 'ios / Canonical IOS build and features', 'android / Canonical ANDROID build and features', 'Canonical native attestation'];
 
 function zip(name, bytes, { deflate = false, descriptor = false } = {}) {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+  }
+  crc = (crc ^ 0xffffffff) >>> 0;
   const filename = Buffer.from(name);
   const content = deflate ? zlib.deflateRawSync(bytes) : bytes;
   const local = Buffer.alloc(30);
   local.writeUInt32LE(0x04034b50);
+  local.writeUInt16LE(20, 4);
   local.writeUInt16LE(descriptor ? 8 : 0, 6);
   local.writeUInt16LE(deflate ? 8 : 0, 8);
   if (!descriptor) {
+    local.writeUInt32LE(crc, 14);
     local.writeUInt32LE(content.length, 18);
     local.writeUInt32LE(bytes.length, 22);
   }
   local.writeUInt16LE(filename.length, 26);
   const central = Buffer.alloc(46);
   central.writeUInt32LE(0x02014b50);
+  central.writeUInt16LE(20, 4);
+  central.writeUInt16LE(20, 6);
   central.writeUInt16LE(descriptor ? 8 : 0, 8);
   central.writeUInt16LE(deflate ? 8 : 0, 10);
+  central.writeUInt32LE(crc, 16);
   central.writeUInt32LE(content.length, 20);
   central.writeUInt32LE(bytes.length, 24);
   central.writeUInt16LE(filename.length, 28);
@@ -40,6 +52,7 @@ function zip(name, bytes, { deflate = false, descriptor = false } = {}) {
   const trailer = descriptor ? Buffer.alloc(16) : Buffer.alloc(0);
   if (descriptor) {
     trailer.writeUInt32LE(0x08074b50);
+    trailer.writeUInt32LE(crc, 4);
     trailer.writeUInt32LE(content.length, 8);
     trailer.writeUInt32LE(bytes.length, 12);
   }
@@ -139,6 +152,7 @@ function fixture() {
           new_account_requests_during_key_flow: 0, visible_eligible_keys_after_deletion: 0, unrelated_visible_wallet_count_after_relaunch: 1,
           installed_artifact_verified: true, installed_artifact: { ...installed } } } };
     attachPublicCompanions(receipts[platform], platform);
+    attachPublicSoftware(receipts[platform]);
     const bytes = addArtifact(index + 1, `keeper-canonical-native-${platform}-${source}-300-1`, 'metadata.json', receipts[platform]);
     payload.platforms[platform] = { conclusion: 'success', receipt_sha256: sha256(bytes), artifact_id: index + 1,
       cases: CASES.map(id => ({ id, status: 'PASS' })), executed_checks: Object.fromEntries(Object.entries(EXECUTED).map(([id, scope]) => [id, { status: 'PASS', scope }])) };
@@ -315,6 +329,32 @@ test('bounded deflated streaming ZIP descriptor is accepted without extraction t
   });
 });
 
+for (const [name, artifactId, filename, duplicate, expectedField, expectedValue] of [
+  ['platform metadata', 1, 'metadata.json', '"smoke":"FAIL",', 'smoke', 'PASS'],
+  ['canonical attestation', 3, 'keeper-canonical-native-attestation.json', '"feature_matrix_complete":false,', 'feature_matrix_complete', true],
+  ['CodeQL upload receipt', 4, 'analysis.json', `"source_sha":"${'b'.repeat(40)}",`, 'source_sha', source],
+]) test(`raw ${name} rejects contradictory duplicates inside a correctly rehashed artifact ZIP`, async () => {
+  await withFixture(async f => {
+    const value = artifactId === 1 ? f.receipts.IOS : artifactId === 3 ? f.payload : f.analysisReceipt;
+    const raw = Buffer.from('{' + duplicate + JSON.stringify(value).slice(1));
+    assert.equal(JSON.parse(raw)[expectedField], expectedValue, 'last-key-wins would conceal original contradictory evidence');
+    const zipped = zip(filename, raw, { deflate: true, descriptor: true });
+    f.archives.set(artifactId, zipped);
+    Object.assign(f.endpoints.get(`actions/artifacts/${artifactId}`), {
+      digest: `sha256:${sha256(zipped)}`, size_in_bytes: zipped.length,
+    });
+    if (artifactId === 1) {
+      // The external attestation's original-byte binding also agrees with the altered bytes.
+      f.payload.platforms.IOS.receipt_sha256 = sha256(raw);
+      f.refreshAttestation();
+    }
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'),
+      /^Error: STRICT_ARTIFACT_JSON_INVALID$/);
+  });
+});
+
+// Shared raw validation exposes one fixed error code; all original mutations
+// and correctly rehashed original-artifact/freshness controls remain exercised.
 for (const [name, mutate] of [
   ['failed product UI', value => value.product_ui.status = 'FAIL'],
   ['failed R5 worker checks', value => value.r5_features = 'FAIL'],
@@ -326,23 +366,23 @@ for (const [name, mutate] of [
     mutate(f.receipts.IOS);
     f.refreshReceipt('IOS');
     f.refreshAttestation();
-    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PLATFORM_RECEIPT_NOT_EXACT_SUCCESS/);
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
   });
 });
 
 for (const [name, code, mutate] of [
-  ['diagnostic receipt', 'PLATFORM_RECEIPT_NOT_EXACT_SUCCESS', value => value.diagnostic_only = true],
-  ['foreign installed app', 'PLATFORM_RECEIPT_NOT_EXACT_SUCCESS', value => value.app_id = 'other.app'],
-  ['missing five raw samples', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples.pop()],
-  ['boolean raw timing', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples[0].raw_durations.startup_to_passcode_ms = true],
-  ['missing version history', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples[0].installed_version_header_and_initial_history = 'NOT RUN'],
-  ['missing key entry UI', 'PRODUCT_OBSERVATIONS_INCOMPLETE', value => value.product_ui.samples[0].key_management_entry_and_exit = 'NOT RUN'],
-  ['unexpected retry', 'PRODUCT_RETRY_INCOMPLETE', value => value.product_ui.controlled_disconnect_retry.unexpected_create_attempts = 1],
-  ['missing PIN deletion UI', 'PRODUCT_KEY_UI_INCOMPLETE', value => delete value.product_ui.key_management_ui],
-  ['missing native worker scenario', 'WORKER_FEATURE_EVIDENCE_INCOMPLETE', value => value.r5_feature_evidence.scenarios.pop()],
-  ['worker hash inconsistent with committed source', 'WORKER_FEATURE_EVIDENCE_INCOMPLETE', value => value.r5_feature_evidence.source_functions[0].sha256 = 'c'.repeat(64)],
-  ['missing worker timing', 'WORKER_MEASUREMENTS_INCOMPLETE', value => value.r5_feature_evidence.measurements.pop()],
-  ['boolean helper timing', 'WORKER_MEASUREMENTS_INCOMPLETE', value => value.r5_feature_evidence.measurements[0].probe_ready_ms = true],
+  ['diagnostic receipt', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.diagnostic_only = true],
+  ['foreign installed app', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.app_id = 'other.app'],
+  ['missing five raw samples', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples.pop()],
+  ['boolean raw timing', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples[0].raw_durations.startup_to_passcode_ms = true],
+  ['missing version history', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples[0].installed_version_header_and_initial_history = 'NOT RUN'],
+  ['missing key entry UI', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.samples[0].key_management_entry_and_exit = 'NOT RUN'],
+  ['unexpected retry', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.product_ui.controlled_disconnect_retry.unexpected_create_attempts = 1],
+  ['missing PIN deletion UI', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => delete value.product_ui.key_management_ui],
+  ['missing native worker scenario', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.scenarios.pop()],
+  ['worker hash inconsistent with committed source', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.source_functions[0].sha256 = 'c'.repeat(64)],
+  ['missing worker timing', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.measurements.pop()],
+  ['boolean helper timing', 'PUBLIC_SOFTWARE_RECEIPT_INVALID', value => value.r5_feature_evidence.measurements[0].probe_ready_ms = true],
 ]) test(`rejects independently hashed receipt without real observations: ${name}`, async () => {
   await withFixture(async f => {
     mutate(f.receipts.IOS);
@@ -378,7 +418,7 @@ for (const platform of ['IOS', 'ANDROID']) {
   ]) test(`${platform} independently rehashed native evidence rejects ${name}`, async () => {
     await withFixture(async f => {
       mutate(f.receipts[platform]); f.refreshReceipt(platform); f.refreshAttestation();
-      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_COMPANION_RECEIPT_INCOMPLETE/);
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
     });
   });
 }
@@ -418,7 +458,7 @@ for (const platform of ['IOS', 'ANDROID']) {
         mutate(select(f.receipts[platform]));
         f.refreshReceipt(platform);
         f.refreshAttestation();
-        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_BYTE_PROOF_INCOMPLETE/);
+        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
       });
     });
   }
@@ -430,7 +470,7 @@ for (const platform of ['IOS', 'ANDROID']) {
       mutate(f.receipts[platform]);
       f.refreshReceipt(platform);
       f.refreshAttestation();
-      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /INSTALLED_BYTES_NOT_BOUND_TO_BUILD/);
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_SOFTWARE_RECEIPT_INVALID/);
     });
   });
 }
