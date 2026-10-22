@@ -649,6 +649,110 @@ def artifact_identity():
     return {'path': str(apk.relative_to(ROOT)), 'sha256': hashlib.sha256(apk.read_bytes()).hexdigest()}
 
 
+def _file_sha256(path):
+    digest = hashlib.sha256()
+    with path.open('rb') as source:
+        for block in iter(lambda: source.read(1024 * 1024), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _bundle_inventory(bundle):
+    """Private typed tree; internal links must remain inside this bundle."""
+    import plistlib
+    if bundle.is_symlink() or not bundle.is_dir():
+        raise ValueError('Invalid app bundle.')
+    root = bundle.resolve(strict=True)
+    with (bundle / 'Info.plist').open('rb') as source:
+        info = plistlib.load(source)
+    executable = info['CFBundleExecutable']
+    if (info['CFBundleIdentifier'] != APP_IDS['IOS'] or
+            not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]*', executable)):
+        raise ValueError('Unexpected app identity.')
+    tree = {}
+    for entry in sorted(bundle.rglob('*')):
+        if not entry.resolve(strict=True).is_relative_to(root):
+            raise ValueError('Bundle entry escaped app.')
+        if entry.is_symlink():
+            value = ['link', os.readlink(entry)]
+        elif entry.is_file():
+            value = ['file', _file_sha256(entry)]
+        elif entry.is_dir():
+            value = ['directory']
+        else:
+            raise ValueError('Unsupported bundle entry.')
+        tree[entry.relative_to(bundle).as_posix()] = value
+    if tree.get(executable, [None])[0] != 'file':
+        raise ValueError('Missing regular app executable.')
+    return tree, executable
+
+
+def verify_installed_artifact(device):
+    """Attest owned installed bytes, never installation argv or app assertions."""
+    data = read()
+    data['installed_artifact_verified'] = False
+    data['installed_artifact_scope'] = 'NOT VERIFIED: installed bytes require full comparison.'
+    data.pop('installed_artifact', None)
+    save(data)
+    try:
+        expected = data['built_artifact']
+        if PLATFORM == 'IOS':
+            uuid = r'[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}'
+            if not re.fullmatch(uuid, device):
+                raise ValueError('Expected owned simulator UUID.')
+            built = PRIVATE / 'DerivedData/Build/Products/Debug-iphonesimulator/hexa_keeper_dev.app'
+            original, executable = _bundle_inventory(built)
+            installed = Path(command(['xcrun', 'simctl', 'get_app_container', device, APP_IDS['IOS'], 'app'],
+                                     'Locate owned installed app bundle', capture=True, error_details=False))
+            base = Path.home() / 'Library/Developer/CoreSimulator/Devices' / device / 'data/Containers/Bundle/Application'
+            if (not installed.is_absolute() or installed.name != built.name or
+                    not re.fullmatch(uuid, installed.parent.name) or
+                    installed.parent.parent.resolve() != base.resolve() or
+                    installed.resolve(strict=True).parent.parent != base.resolve()):
+                raise ValueError('Unexpected installed app container.')
+            actual, installed_executable = _bundle_inventory(installed)
+            if original != actual or executable != installed_executable:
+                raise ValueError('Installed bundle differs; no installer normalization is accepted.')
+            result = {'method': 'FULL_SIMULATOR_BUNDLE_TREE_AND_EXECUTABLE_SHA256',
+                      'inventory_sha256': hashlib.sha256(json.dumps(original, sort_keys=True).encode()).hexdigest(),
+                      'executable_sha256': actual[executable][1]}
+        elif PLATFORM == 'ANDROID':
+            if not re.fullmatch(r'emulator-[0-9]+', device):
+                raise ValueError('Expected owned emulator serial.')
+            listing = command(['adb', '-s', device, 'shell', 'pm', 'path', APP_IDS['ANDROID']],
+                              'Locate exact installed development package', capture=True, error_details=False)
+            pattern = (r'package:(/data/app/(?:~~[A-Za-z0-9_=-]+/)?' + re.escape(APP_IDS['ANDROID']) +
+                       r'-[A-Za-z0-9_=-]+/base\.apk)')
+            match = re.fullmatch(pattern, listing)
+            if not match:
+                raise ValueError('Expected one exact base APK; split or unexpected paths rejected.')
+            built = ROOT / 'android/app/build/outputs/apk/development/debug/app-development-debug.apk'
+            if built.is_symlink() or not built.is_file():
+                raise ValueError('Invalid built APK.')
+            PRIVATE.mkdir(parents=True, exist_ok=True)
+            with tempfile.TemporaryDirectory(prefix='installed-artifact-', dir=PRIVATE) as temporary:
+                pulled = Path(temporary) / 'base.apk'
+                # Package paths and pulled bytes stay private, including tool output.
+                copied = subprocess.run(['adb', '-s', device, 'pull', match[1], str(pulled)],
+                                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                        timeout=120, check=False)
+                if (copied.returncode or pulled.is_symlink() or not pulled.is_file() or
+                        pulled.stat().st_size != built.stat().st_size or _file_sha256(pulled) != expected['sha256']):
+                    raise ValueError('Installed APK bytes differ or are unavailable.')
+            result = {'method': 'SINGLE_INSTALLED_BASE_APK_SHA256', 'sha256': expected['sha256']}
+        else:
+            raise ValueError('Unsupported artifact platform.')
+        if artifact_identity() != expected:
+            raise ValueError('Built artifact changed during installed comparison.')
+    except Exception:
+        raise RuntimeError('Installed artifact bytes were not verified; no equivalence claimed.') from None
+    data = read()
+    data.update(installed_artifact_verified=True, installed_artifact=result,
+                installed_artifact_scope='Full installed artifact byte comparison; no installer transformations accepted.')
+    save(data)
+    return result
+
+
 def driver():
     """Fail early on iOS driver setup without installing or crediting the app."""
     if PLATFORM != 'IOS':
@@ -891,6 +995,8 @@ def smoke(suite='startup'):
                               'com.apple.CoreSimulator.SimDeviceType.iPhone-16',
                               'com.apple.CoreSimulator.SimRuntime.iOS-18-5'],
                              'Create fresh iPhone 16 iOS 18.5 simulator', capture=True)
+            if not re.fullmatch(r'[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}', device):
+                raise ValueError('Expected owned simulator UUID before installation.')
             command(['xcrun', 'simctl', 'boot', device], 'Boot disposable simulator')
             command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 'Wait for simulator boot', timeout=240)
             command(['xcrun', 'simctl', 'install', device,
@@ -908,6 +1014,8 @@ def smoke(suite='startup'):
             data['toolchain']['adb'] = adb_version
             save(data)
             device = command(['adb', 'get-serialno'], 'Identify fresh emulator', capture=True)
+            if not re.fullmatch(r'emulator-[0-9]+', device):
+                raise ValueError('Expected owned emulator before installation.')
             command(['adb', '-s', device, 'reverse', 'tcp:8081', 'tcp:8081'], 'Connect emulator to Metro')
             command(['adb', '-s', device, 'install', '-r',
                      'android/app/build/outputs/apk/development/debug/app-development-debug.apk'],
@@ -917,9 +1025,9 @@ def smoke(suite='startup'):
         data = read()
         data['device'] = {'id': device, 'image': descriptor, 'fresh_disposable_state': True}
         data['install_succeeded'] = True
-        data['installed_artifact_verified'] = False
-        data['installed_artifact_scope'] = 'Installed from unchanged candidate build path; installed bytes not independently hashed.'
         save(data)
+        verify_installed_artifact(device)
+        data = read()
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
                  '--flatten-debug-output', '--debug-output', str(PRIVATE / 'maestro-output'),
                  '--format', 'junit', '--output', str(report), '--test-output-dir', str(PRIVATE / 'maestro-output'),
@@ -930,6 +1038,7 @@ def smoke(suite='startup'):
         cases = successful_junit(report)
         if artifact_identity() != read()['built_artifact']:
             raise RuntimeError('Built artifact changed during native execution.')
+        verify_installed_artifact(device)
         data = read()
         data[result_key] = 'PASS'
         data[result_key + '_test_cases'] = cases
