@@ -8,6 +8,7 @@ const zlib = require('node:zlib');
 const { UUID: SARIF_ID, CATEGORY: CODEQL_CATEGORY } = require('./codeql-analysis-receipt.cjs');
 const { SCOPES: PUBLIC_COMPANIONS } = require('../.github/native/public_companion_receipts.cjs');
 const { validatePublicSoftware, WORKER_SOURCES: SOURCES, PUBLIC_SOFTWARE_SCOPE } = require('../.github/native/public_software_receipts.cjs');
+const { parseStrictJson } = require('../.github/native/strict_json.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const PIN = 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA';
 const CANONICAL_PATH = '.github/workflows/keeper-canonical-native.yml';
@@ -292,7 +293,7 @@ async function collectTrustedOriginUnchecked(request, token, now, pinReadToken) 
     check(zipped.length === info.size_in_bytes && `sha256:${digest(zipped)}` === info.digest, 'ARTIFACT_DIGEST_MISMATCH');
     const bytes = unpack(zipped, filename);
     requestedArtifacts.push({ info, run });
-    return { bytes, payload: JSON.parse(bytes.toString('utf8')) };
+    return { bytes, payload: parseStrictJson(bytes, MAX_JSON) };
   }
   const codeql = results[1].run;
   const codeqlArtifacts = complete(await api(`actions/runs/${codeql.id}/artifacts?per_page=100`), 'artifacts');
