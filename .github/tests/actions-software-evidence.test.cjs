@@ -107,6 +107,10 @@ const negative = {
   'archive HTTP': s => { s.location = 'http://evidence.blob.core.windows.net/file.zip'; },
   'archive malformed URL': s => { s.location = 'PRIVATE_PAYLOAD'; },
   'archive stream oversized': s => { s.archiveOverride = Buffer.alloc(1024 * 1024 + 1); },
+  'archive undeclared stream oversized': s => { s.archiveOverride = Buffer.alloc(1024 * 1024 + 1); s.fetchHeaders = {}; },
+  'archive declared length smaller': s => { s.fetchHeaders = { 'Content-Length': '1' }; },
+  'archive declared length malformed': s => { s.fetchHeaders = { 'Content-Length': 'PRIVATE_PAYLOAD' }; },
+  'archive storage denied': s => { s.fetchStatus = 403; },
   'API privacy': s => { s.apiError = true; },
 };
 for (const [name, mutate] of Object.entries(negative)) test(`rejects ${name}`, async () => {

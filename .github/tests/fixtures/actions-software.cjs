@@ -100,7 +100,8 @@ function fixture() {
     const bytes = state.archiveOverride || state.archives[Number(url.pathname.match(/(\d+)\.zip$/)?.[1])];
     state.fetches++;
     if (state.fetches === 2) state.afterDownload?.(state);
-    return new Response(bytes, { status: 200, headers: { 'Content-Length': String(bytes.length) } });
+    return new Response(bytes, { status: state.fetchStatus || 200,
+      headers: state.fetchHeaders || { 'Content-Length': String(bytes.length) } });
   } };
   return state;
 }
