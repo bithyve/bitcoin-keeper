@@ -25,7 +25,7 @@ jobs:
     name: Native ${{ inputs.platform }} build and probes
     if: github.event_name == 'pull_request' && github.event.pull_request.number != 7045 && inputs.source_sha == github.event.pull_request.head.sha && (toJSON(github.event.pull_request.draft) == 'false' || (inputs.diagnostic && contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')))
     runs-on: ${{ inputs.platform == 'IOS' && 'macos-15' || 'ubuntu-24.04' }}
-    timeout-minutes: 75
+    timeout-minutes: ${{ inputs.platform == 'IOS' && 105 || 90 }}
     env:
       CI: 'true'
       HUSKY: '0'
@@ -103,6 +103,18 @@ jobs:
           test "$(git rev-parse HEAD)" = '${{ inputs.source_sha }}'
           git diff --exit-code HEAD -- .github/native .github/workflows
           python3 .github/native/hosted_native.py probe
+      - name: Run R5 production worker native scenarios
+        if: inputs.platform == 'IOS'
+        run: |
+          test "$(git rev-parse HEAD)" = '${{ inputs.source_sha }}'
+          git diff --exit-code HEAD -- .github/native .github/workflows
+          python3 .github/native/hosted_native.py features
+      - name: Measure five full-product startup and first-wallet runs
+        if: inputs.platform == 'IOS'
+        run: |
+          test "$(git rev-parse HEAD)" = '${{ inputs.source_sha }}'
+          git diff --exit-code HEAD -- .github/native .github/workflows
+          python3 .github/native/product_measurements.py run
       - name: Enable emulator acceleration
         if: inputs.platform == 'ANDROID'
         run: |
@@ -129,6 +141,10 @@ jobs:
             python3 .github/native/hosted_native.py smoke
             git diff --exit-code HEAD -- .github/native .github/workflows
             python3 .github/native/hosted_native.py probe
+            git diff --exit-code HEAD -- .github/native .github/workflows
+            python3 .github/native/hosted_native.py features
+            git diff --exit-code HEAD -- .github/native .github/workflows
+            python3 .github/native/product_measurements.py run
       - name: Retain safe Phase A evidence
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6

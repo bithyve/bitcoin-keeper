@@ -35,3 +35,14 @@ Only bounded metadata is uploaded, with source/run/attempt, toolchain, artifact 
 - This reconciliation: host policy/negative/provenance tests and semantic workflow lint are verified separately at its final commit. Actual R5 iOS/Android native build, feature checks, full-product startup/first-wallet timing and physical-device results remain NOT RUN until exact-candidate execution. Full Phase A and release readiness remain BLOCKED.
 
 Next: integrate independently reviewed scenario/product-measurement packages and completed 5.2 only after its authoritative checkpoint; verify ancestry and combined head; finish active inherited native jobs; schedule one candidate diagnostic run; retain all failures and rerun affected checks after any correction. Protected-base adoption/required-check configuration needs explicit approval and administrative verification. No merge, signing, upload, distribution, deployment or publication is authorized here.
+
+
+## Feature and product UI hooks
+
+The reusable worker invokes `.github/native/hosted_native.py features` and then `.github/native/product_measurements.py run` after startup and primitive-storage probes. The first hook depends on the separately reviewed native-feature package; the second depends on the separate full-product measurement package. Those source packages are intentionally absent from the standalone foundation branch. A missing dependency fails execution; it cannot be treated as a feature pass. The integration candidate must include both before scheduling a native run.
+
+Worker evidence requires all five fixed scenarios, actual native persistence across six processes, five bounded raw helper measurements and source-function hashes matching the current candidate files. Only an allowlist of fixed metadata and numbers is exported. Helper timings remain explicitly different from the full-product measurements, whose runner uses the normal app/Metro entrypoint and records five raw startup/passcode/first-wallet/relaunch/UI samples. Controlled loopback transport in either runner grants no genuine paired-backend evidence.
+
+Runner disk preflight records available bytes and a 12 GiB minimum reserve before dependency preparation and native compilation; insufficient reserve fails without deleting another task's caches or data. iOS and Android job ceilings are 105 and 90 minutes respectively, with no automatic retry. These are upper bounds, not observed runtime or cost. Actual combined native execution remains NOT RUN here.
+
+The inherited infrastructure adoption is approximately 53.6k changed code/test tokens by the characters/4 estimate, with the new reconciliation delta approximately 6.7k before these hooks. The 19k estimate belongs to the original #7062 delta alone. Keep original source review units and the new reconciliation-only comparison separate; do not describe the aggregate as one sub-20k package.

@@ -446,6 +446,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
 
     def test_ios_build_rejects_unsupported_architecture_before_invoking_xcode(self):
         with mock.patch.object(native, 'PLATFORM', 'IOS'), \
+                mock.patch.object(native, 'disk_preflight'), \
                 mock.patch.object(native.platform, 'machine', return_value='riscv64'), \
                 mock.patch.object(native, 'command') as command, \
                 self.assertRaisesRegex(RuntimeError, 'Unsupported hosted iOS simulator architecture'):
@@ -455,6 +456,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
     def test_ios_build_uses_only_the_supported_host_simulator_architecture(self):
         for architecture in ['arm64', 'x86_64']:
             with self.subTest(architecture=architecture), \
+                    mock.patch.object(native, 'disk_preflight'), \
                     mock.patch.object(native, 'PLATFORM', 'IOS'), \
                     mock.patch.object(native.platform, 'machine', return_value=architecture), \
                     mock.patch.object(native, 'artifact_identity', return_value={'sha256': 'test artifact'}), \
