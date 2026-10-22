@@ -186,15 +186,28 @@ test('an actual Delete ACK after encrypted Realm A-to-B-to-A cannot report succe
 
 test('a lost real Delete ACK and later tombstone read cannot manufacture success, replay or recreate', { timeout: 30000 }, async t => {
   const f = await setup(t);
+  const submissions = [];
+  const enqueue = f.sagas.scope.enqueueAutomaticBackupOperation;
+  f.sagas.scope.enqueueAutomaticBackupOperation = (receipt, mutations) => {
+    // Observe the actual worker submission and delegate unchanged. A later
+    // replay must use this consumed receipt, not begin a new explicit Delete.
+    submissions.push({ receipt, mutations });
+    return enqueue(receipt, mutations);
+  };
   server.armFault({ path: '/backup/v3/mutate', operation: 'deleteBackup', mode: 'lost-reply' });
   assert.equal(await f.sagas.run('deleteBackupWorker', { appId }), false);
+  assert.equal(submissions.length, 1);
+  assert.equal(submissions[0].receipt.committed, true);
+  assert.ok(submissions[0].receipt.intent?.protectedBase);
   assert.equal(mutations().length, 1);
   assert.equal(mutations()[0].committed, true);
   assert.equal(f.store.getState().bhr.deleteBackupSuccessByAppId[appId], false);
   assert.equal(f.store.getState().bhr.pendingAllBackupByAppId[appId], true);
   assert.equal((await read(f)).state, 'deleted');
   assert.equal(await f.sagas.run('runBackupInspection', false, appId, true), false);
-  assert.equal(await f.sagas.run('deleteBackupWorker', { appId }), false);
+  const { receipt, mutations: originalMutations } = submissions[0];
+  const replayed = await f.automatic.enqueueAutomaticBackupOperation(receipt, originalMutations);
+  assert.notEqual(replayed.backupConfirmed, true);
   assert.equal(mutations().length, 1, 'Status/tombstone reads and a consumed deletion cannot replay a CAS');
   assert.equal(server.trace.some(event => event.path === '/backup/v3/enroll'), false);
   assert.equal(f.store.getState().bhr.deleteBackupSuccessByAppId[appId], false);
