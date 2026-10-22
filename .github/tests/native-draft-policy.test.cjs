@@ -118,7 +118,8 @@ test('pushing an isolated branch permits only the read-only origin contract work
   assert.equal(job.steps.some(step => /secrets\.|workflow_dispatch/.test(JSON.stringify(step))), false);
   assert.deepEqual(job.steps.filter(step => step.run).map(step => step.run), [
     'node .github/scripts/verify-ci-source.cjs',
-    'node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/strict-json.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs',
+    'node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/strict-json.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs .github/tests/actions-software-evidence.test.cjs .github/tests/public-artifact-stream-adapter.test.cjs .github/tests/artifact-stream-cleanup.test.cjs .github/tests/private-integration-receipts.test.cjs .github/tests/parent-software-evidence.test.cjs .github/tests/private-actions-origin.test.cjs .github/tests/ci-raw-source.test.cjs .github/tests/native-draft-policy.test.cjs',
+    'python3 -B -m unittest discover -s .github/tests -p test_software_artifact_zip.py\npython3 -B -m unittest discover -s .github/tests -p test_private_software_artifact_zip.py\n',
     'node .github/scripts/verify-ci-source.cjs',
   ]);
 });
