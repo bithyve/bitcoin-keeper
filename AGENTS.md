@@ -6,7 +6,7 @@ Repository: `KeeperCommunity/bitcoin-keeper`. Use `sprint` as the PR base unless
 
 ## Review and contribution requirements
 
-Read and follow [.github/REVIEW_POLICY.md](.github/REVIEW_POLICY.md) before opening or updating a pull request. Use the PR template, explicitly select the appropriate Copilot effort in GitHub, and record actual review effort, reviewed commit and feedback. Do not request repeated reviews of drafts or every push; record unavailable reviews honestly.
+Read and follow [.github/REVIEW_POLICY.md](.github/REVIEW_POLICY.md) before opening or updating a pull request. Use the PR template to choose Skip provider review / Lite / Balanced from actual severity, uncertainty, scope and cost. Cloud review replaces mandatory human developer approval when warranted; independent coverage is needed only when actual risk/findings require it and installed scope/budget permit. Record checks, the reason for skipping or the actual reviewed SHA/effort/coverage, and findings/dispositions. Do not turn drafts or every push into repeated provider requests; report unavailable routes and unresolved substantive security concerns honestly.
 
 Preserve existing repository conventions and user work. Complete feasible verification before delivery, scaled to the change; documentation changes require link, formatting and diff checks. Retain all required checks before merge; human developer review is optional. Product owner signoff and retrospective owner phone/Desktop/hardware acceptance remain separate from the exact-commit Codex Local validation required below.
 

@@ -1,35 +1,47 @@
 # Pull request review policy
 
-## Choose Copilot effort
+## Review decision: severity and cost
 
-Repository default: **Lite**. Before requesting the first review or marking the PR ready, verify the Copilot effort in the PR's GitHub Reviewers controls and override it for the change. A remembered PR choice can override the repository default. GitHub controls the underlying review model; the chat model selector does not change it. See [GitHub's code review documentation](https://docs.github.com/en/copilot/concepts/agents/code-review).
+Cloud review is the primary developer-review route when the change warrants it; it replaces a mandatory human developer-approval gate. Human developer review is optional. Choose whether a separate provider review is useful and, if so, its type from the actual severity, uncertainty, scope and cost. Complete feasible deterministic verification first.
 
-- **Lite:** routine UI or styling, noncritical copy, documentation, and isolated changes with known low risk.
-- **Balanced:** keys, signing, recovery, backup, authentication, pairing, transactions, migrations, security-critical copy, security dependencies, permissions, complex or cross-service changes, and unknown risk. Use Balanced for mixed changes that include these areas.
+| Decision | Use when | Evidence |
+| --- | --- | --- |
+| Skip provider review | Verified routine documentation, noncritical copy or pure style changes with no behavior, security, permission, dependency or workflow impact; policy/security/agent/workflow documents are excluded | Record the reason and the checks/source inspection supporting the low-risk classification. |
+| Lite | Bounded normal changes with understood risk that benefit from cloud review | Record the bounded scope, chosen route, intended effort and cost/allowance. |
+| Balanced | Signing, keys, authentication, recovery, backup, pairing, transactions, migrations, workflows, permissions, security-sensitive dependencies/copy, complex or cross-service changes, or unknown risk | Record the risks and coverage needed; use Balanced when categories are mixed or risk is uncertain. |
 
-Effort is selected explicitly. This document does not implement automatic risk classification or a CI gate for effort selection.
+A filename or a documentation label alone does not justify skipping review. Policy, security, agent and workflow documents are not routine documentation eligible for Skip. Assess their actual effect and choose an adequate Lite or Balanced route. A low-cost check or source inspection may resolve uncertainty without another provider call after valid review coverage; explain that evidence.
 
-## Review timing and evidence
+Independent cloud review is needed only when the actual risk or a substantive finding requires independence. Record why and what it must cover. Use only an already installed, authorized route whose repository scope, provider access and budget permit that review. Do not add another model, paid review or external executor merely to satisfy a routine checklist. If needed independent coverage is unavailable, record the exact blocker; substantive security concerns remain unresolved until supported by evidence, not waived because review is unavailable.
 
-Finish feasible verification before marking a PR ready. The intended repository configuration enables automatic Copilot review of ready PRs and disables automatic draft reviews and reviews on every push. This document does not change GitHub settings; verify the actual configuration and record any difference before claiming this policy is enforced. Keep work in draft while it is being prepared.
+## Route, effort and budget
 
-Batch fixes and stabilize checks before requesting another review. Request a new review when changes materially affect correctness or security; avoid repeated reviews for verified routine documentation or metadata changes. Workflow permissions, security dependencies, secrets, and release signing count as material changes.
+When using Copilot, verify the PR's saved effort because an override may differ from the repository default. [GitHub controls Copilot's review model](https://docs.github.com/en/copilot/concepts/agents/code-review); selecting a ChatGPT or Codex model does not select Copilot's model. Lite and Balanced here specify the review choice; do not claim a mode or independent coverage that the selected route cannot provide.
 
-If a material security change received an automatic Lite review, select Balanced and request one review of the final substantive changes after batching fixes and stabilizing checks. Do not count a Lite review as a Balanced review.
+Use the least-cost already authorized route that adequately covers the risk. Reuse valid review receipts for the exact head/base and coverage; do not buy duplicate initial reviews. Complete stable checks before one initial review, batch material fixes before a necessary re-review, and preserve existing spending limits, permanent reservations, deduplication and no-retry controls. Routine reviews within an established scope and allowance do not need repeated owner permission.
 
-Record these in the PR description:
+Verify installed scope, applicable allowance and expected cost before a provider request. If quota, cap, activation or scope is unavailable, record unavailable and use another already-authorized adequate cloud route or hold the applicable gate. Do not silently downgrade critical review, create paid retries/fallbacks or infer a fresh budget. An uninstalled or disabled reviewer is not an available route, and these files do not install or activate one. Existing Claude limits, where applicable, of $3 reserved per attempt, two attempts per head and three per PR are ceilings, not activation or a fresh allowance. Historical Copilot balances or spending-cap observations are not current-credit proof.
 
-- Selected effort and the reason for it.
-- Actual effort reported by Copilot and the commit SHA it reviewed; distinguish the selected mode from a completed review.
-- Real findings and their disposition, including any substantive review-overview concerns. Check feedback against the implementation and verification.
-- Pending or unavailable review status when appropriate. A quota response is an unavailable review, not a successful review or evidence of no findings.
+## Timing, automation and evidence
 
-## Optional human review
+Batch material fixes and stabilize relevant checks before another review. Repeat cloud review only when a change materially alters the reviewed correctness/security scope or a finding needs independent confirmation. Verified routine follow-up edits do not automatically require another provider call. A Lite review of earlier content is not a Balanced review of the final changes.
 
-Human developer review is optional. Ben (`ben-kaufman`), Utkarsh (`cakesoft-utkarsh`), and Parsh (`Parsh`) are suggested reviewers when useful and already eligible. Pending invitations or the absence of human review do not block readiness or merge and do not require an access grant.
+Blanket automatic ready-PR or every-push review does not implement this conditional decision and may consume allowance for changes classified Skip. Intended automation must honor the recorded decision; otherwise use an explicitly authorized trigger. Keep automatic draft and every-push review off. Inspect and record actual settings before a ready transition or request; these documents do not change GitHub rules, enforce risk classification, grant a budget or prove an installed trigger. Report a settings mismatch rather than claiming it is fixed by Markdown.
 
-Passing required checks and resolution of relevant review concerns remain required. Record any requested human review, findings and their disposition accurately; no human developer approval is required. Product signoff, required security and native validation, and operation-specific signing, deployment and release authorization remain separate. Do not bypass those gates.
+Record in the PR:
 
+- Review decision: Skip provider review / Lite / Balanced, with severity, scope, uncertainty, cost and reason.
+- Deterministic checks and source evidence; distinguish passed, failed, blocked and not run.
+- Selected installed cloud route and intended effort, if used; applicable scope/allowance.
+- Actual provider/model/effort, exact reviewed SHA, coverage, link and result, or accurately skipped/pending/unavailable.
+- Real findings, including substantive overview concerns, and evidence for each disposition. A skipped or unavailable review is not evidence of no findings.
+- Whether independent coverage is needed, why, and its actual status. Do not transfer old-SHA results to new changes.
+
+## Optional human review and required gates
+
+Ben (`ben-kaufman`), Utkarsh (`cakesoft-utkarsh`) and Parsh (`Parsh`) are suggested human reviewers when useful and already eligible. Pending invitations or the absence of human review do not block readiness or merge and do not require an access grant. Record any requested human feedback and its disposition; no human developer approval is required. CODEOWNERS suggestions, where present, do not create a mandatory review assignment.
+
+Required CI/status checks, resolution of substantive findings, security and native/device validation, product signoff and operation-specific signing, deployment and release authorization remain intact. Conditional review is not permission to bypass these gates or to merge a change with unresolved substantive security concerns. Repository protection remains the enforcement mechanism; report any live mismatch separately.
 
 ## Native validation and release signoff
 
