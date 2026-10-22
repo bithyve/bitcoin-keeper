@@ -66,6 +66,16 @@ for (const platform of ['IOS', 'ANDROID']) {
     assert.ok(Object.values(publicCompanionChecks(value, platform)).every(row => row.status === 'NOT VERIFIED'));
     assert.throws(() => validatePublicCompanions(value, platform));
   });
+  for (const phase of ['build', 'smoke', 'native_probe', 'r5_features']) {
+    for (const state of ['FAIL', 'NOT RUN', 'RUNNING', undefined]) {
+      test(`${platform} ${phase} ${state ?? 'missing'} cannot support companion PASS`, () => {
+        const value = attach({}, platform);
+        if (state === undefined) delete value[phase]; else value[phase] = state;
+        assert.ok(Object.values(publicCompanionChecks(value, platform)).every(row => row.status === 'NOT VERIFIED'));
+        assert.throws(() => validatePublicCompanions(value, platform));
+      });
+    }
+  }
   for (const [name, mutate] of [
     ['OS denial promoted from JSON', value => value.product_credential_ui.os_keychain_denial_or_hardware_read_fault = 'PASS'],
     ['credential service not removed', value => value.product_credential_ui.backup_service_removed_after_verified_restore = false],

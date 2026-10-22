@@ -79,7 +79,8 @@ function validateRow(value, fields, stages, platform, proof, history = false) {
 function contextProof(metadata, platform) {
   const proof = installedBytes(metadata, platform);
   const binary = platform === 'IOS' ? 'executable_sha256' : 'sha256';
-  demand(metadata.built_artifact?.[binary] === proof[binary] && metadata.product_ui?.status === 'PASS');
+  demand(metadata.built_artifact?.[binary] === proof[binary] && metadata.product_ui?.status === 'PASS' &&
+    ['build', 'smoke', 'native_probe', 'r5_features'].every(name => metadata[name] === 'PASS'));
   // Validate the exact source-owned switching receipt, including final normal
   // product restoration. These are bundle-setup observations, not extra UI.
   const phases = ['product', 'arm', 'product', 'restore', 'product',

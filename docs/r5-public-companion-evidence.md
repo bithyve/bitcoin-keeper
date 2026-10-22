@@ -15,7 +15,9 @@ top-level companion receipt and its nested `product_ui` copy. Unknown fields,
 missing/duplicate/reordered stages, RUNNING/FAIL status, cleanup failure fields,
 changed scope claims or unverified bytes fail closed. Every companion and every
 history-stage proof must match the platform's installed-byte proof. That root
-proof must also match the built executable/APK hash. The exact successful Metro
+proof must also match the built executable/APK hash. Build, smoke, native
+persistence and production-worker phases must each report PASS. A failed,
+pending or missing predecessor cannot support any companion PASS. The Metro
 switch sequence includes final restoration of the normal product entrypoint;
 its `BUNDLE_SETUP_ONLY` observations grant no additional app acceptance.
 

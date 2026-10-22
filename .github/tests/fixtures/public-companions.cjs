@@ -6,6 +6,10 @@ const path = require('node:path');
 const original = JSON.parse(execFileSync('python3', ['-B', path.join(__dirname, 'public_companions.py')],
   { encoding: 'utf8', maxBuffer: 65536 }));
 function attach(metadata, platform) {
+  // These predecessor phases are explicitly synthetic fixture inputs. Actual
+  // producer compatibility below exercises companions only, never native work.
+  for (const name of ['build', 'smoke', 'native_probe', 'r5_features'])
+    if (!Object.hasOwn(metadata, name)) metadata[name] = 'PASS';
   const proof = metadata.installed_artifact || (platform === 'IOS' ?
     { method: 'FULL_SIMULATOR_BUNDLE_TREE_AND_EXECUTABLE_SHA256', inventory_sha256: 'd'.repeat(64), executable_sha256: 'e'.repeat(64) } :
     { method: 'SINGLE_INSTALLED_BASE_APK_SHA256', sha256: 'f'.repeat(64) });
