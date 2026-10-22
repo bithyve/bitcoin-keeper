@@ -94,6 +94,7 @@ export function observeBackupAccount(appId?: string) {
     for (const id of verifiedRemoteRevisions.keys()) clearVerifiedRemoteRevision(id);
     activeAccount = appId;
     accountSession += 1;
+    lastDiagnostic = undefined;
   }
 }
 export const currentBackupAccountSession = () => accountSession;
@@ -157,9 +158,109 @@ export type BackupRequestFailure =
   | 'other';
 
 export class BackupRequestError extends Error {
-  constructor(public readonly category: BackupRequestFailure) {
+  readonly httpStatus?: number;
+
+  constructor(public readonly category: BackupRequestFailure, httpStatus?: number) {
     super('Backup request could not be completed');
+    if (
+      typeof httpStatus === 'number' &&
+      Number.isInteger(httpStatus) &&
+      httpStatus >= 400 &&
+      httpStatus <= 599
+    )
+      this.httpStatus = httpStatus;
   }
+}
+
+// Construct only after an authenticated, history-checked protected read says
+// the namespace has never been enrolled. This is absence, never Deleted.
+const neverEnrolledErrors = new WeakSet<object>();
+export function backupNotEnrolledError() {
+  const error = new Error('Protected backup is not enrolled');
+  neverEnrolledErrors.add(error);
+  return error;
+}
+
+export type BackupDiagnosticStage =
+  | 'local-capture'
+  | 'snapshot-request'
+  | 'snapshot-validation'
+  | 'snapshot-decryption'
+  | 'comparison'
+  | 'repair-preparation'
+  | 'repair-upload'
+  | 'repair-readback'
+  | 'local-recheck'
+  | 'delete-preparation'
+  | 'delete-validation'
+  | 'delete-upload'
+  | 'delete-readback';
+export type BackupDiagnostic = Readonly<{
+  operation: 'check' | 'backup' | 'delete';
+  stage: BackupDiagnosticStage;
+  category:
+    | BackupRequestFailure
+    | 'non-transport'
+    | 'authority-unavailable'
+    | 'endpoint-configuration'
+    | 'never-enrolled';
+  httpStatus?: number;
+  elapsedMs: number;
+}>;
+// One bounded, in-memory result for the current account session. No error,
+// request, body, identifier or recovery content is retained or persisted.
+let lastDiagnostic: { appId: string; session: number; value: BackupDiagnostic } | undefined;
+export function getBackupDiagnostic(appId: string): BackupDiagnostic | undefined {
+  return lastDiagnostic?.appId === appId &&
+    lastDiagnostic.session === accountSession &&
+    activeAccount === appId
+    ? lastDiagnostic.value
+    : undefined;
+}
+export function clearBackupDiagnostic(appId: string, session = accountSession) {
+  if (session === accountSession && appId === activeAccount) lastDiagnostic = undefined;
+}
+export function recordBackupDiagnostic(
+  appId: string,
+  session: number,
+  operation: BackupDiagnostic['operation'],
+  stage: BackupDiagnosticStage,
+  error: unknown,
+  started: number
+) {
+  if (session !== accountSession || appId !== activeAccount) return;
+  // Equality against fixed internal sentinels only: never retain/display a
+  // caught message, including an Axios message containing private material.
+  const message = (error as { message?: unknown })?.message;
+  const category: BackupDiagnostic['category'] =
+    error !== null && typeof error === 'object' && neverEnrolledErrors.has(error)
+      ? 'never-enrolled'
+      : error instanceof BackupRequestError
+      ? error.category
+      : message === 'PROTECTED_BACKUP_AUTHORITY_UNAVAILABLE'
+      ? 'authority-unavailable'
+      : ['Invalid protected backup endpoint', 'Protected backup requires HTTPS'].includes(
+          message as string
+        )
+      ? 'endpoint-configuration'
+      : [
+          'Invalid protected backup response',
+          'Protected backup history conflicts with this device',
+        ].includes(message as string)
+      ? 'protocol'
+      : 'non-transport';
+  const httpStatus = error instanceof BackupRequestError ? error.httpStatus : undefined;
+  lastDiagnostic = {
+    appId,
+    session,
+    value: Object.freeze({
+      operation,
+      stage,
+      category,
+      ...(httpStatus === undefined ? {} : { httpStatus }),
+      elapsedMs: Math.max(0, Math.min(BACKUP_DEADLINE_MS, Math.round(Date.now() - started))),
+    }),
+  };
 }
 
 function requestFailureCategory(error: unknown, aborted: boolean): BackupRequestFailure {
@@ -239,7 +340,9 @@ export async function boundedBackupPost(
     });
   } catch (error) {
     // Do not propagate Axios errors: they can contain request bodies and headers.
-    throw new BackupRequestError(requestFailureCategory(error, controller.signal.aborted));
+    const status = (error as { response?: { status?: number }; status?: number })?.response?.status ??
+      (error as { status?: number })?.status;
+    throw new BackupRequestError(requestFailureCategory(error, controller.signal.aborted), status);
   } finally {
     clearTimeout(idle);
     clearTimeout(total);

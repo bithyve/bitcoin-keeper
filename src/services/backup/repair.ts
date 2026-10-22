@@ -23,6 +23,8 @@ import {
   currentBackupAccountSession,
   recordVerifiedRemoteRevision,
   withBackupSession,
+  clearBackupDiagnostic,
+  recordBackupDiagnostic,
 } from './transport';
 import {
   BackupImage,
@@ -217,9 +219,11 @@ export function inspectBackup(
     listeners.forEach((listener) => listener(phase));
   };
   let deadline: number;
+  const started = Date.now();
   const inspectOnce = async (allowRetry: boolean): Promise<RepairPhase | 'retry'> => {
     let stage: InspectionStage = 'local-capture';
     let changedRevision = 0;
+    let uploadFailed = false;
     // One deadline covers both read-only attempts; a retry must not double it.
     deadline ??= Date.now() + BACKUP_DEADLINE_MS;
     const revision = backupRevision(appId);
@@ -404,9 +408,11 @@ export function inspectBackup(
           const reply = await protectedBackupMutation(app.primaryMnemonic, expectedBase,
             'repairAppBackup', {...payload, replaceCurrentState: true}, deadline, assertSource, app);
           acknowledgedBase = reply.base;
-        } catch {
+        } catch (error) {
           // An unknown outcome permits a fresh read, never a retry or a new
           // base for this ciphertext. A matching read alone is not its ACK.
+          uploadFailed = true;
+          recordBackupDiagnostic(appId, expectedSession, 'backup', 'repair-upload', error, started);
         }
         notify('verifying');
         stage = 'repair-readback';
@@ -471,6 +477,11 @@ export function inspectBackup(
         failedStage === 'snapshot-decryption' && error instanceof BackupSnapshotValidationError
           ? 'snapshot-validation'
           : failedStage;
+      // Preserve the original redacted upload failure while still attempting
+      // honest readback. Missing ACK is never converted into verification.
+      if (!uploadFailed)
+        recordBackupDiagnostic(appId, expectedSession, repair ? 'backup' : 'check',
+          diagnosticStage, error, started);
       globalThis.console.warn(
         'Assisted Server Backup check failed at stage:',
         diagnosticStage,
@@ -489,6 +500,7 @@ export function inspectBackup(
       // Invalidate only after admission, so a later inspection cannot cancel
       // an earlier writer. Each admitted retry must expire its own baseline.
       clearVerifiedRemoteRevision(appId);
+      clearBackupDiagnostic(appId, expectedSession);
       return inspectOnce(allowRetry);
     });
   const result: Promise<RepairPhase> = runOnce(true).then(async (phase) =>

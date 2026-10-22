@@ -32,6 +32,7 @@ const KeeperSettings = ({ route }) => {
   const { signer: signerText, inheritancePlanning, settings, common } = translations;
   const {
     BackAndRecovery,
+    BackupFeedback,
     General,
     keysAndwallet,
     Tips,
@@ -70,6 +71,7 @@ const KeeperSettings = ({ route }) => {
         icon={<SupportDeveloperIcon width={30} height={30} />}
         showDot={false}
       />
+      {BackupFeedback}
       <SettingCard
         header={inheritancePlanning.backupRecovery}
         subtitleColor={`${colorMode}.balanceText`}

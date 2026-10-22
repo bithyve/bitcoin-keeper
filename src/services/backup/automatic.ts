@@ -32,6 +32,10 @@ import {
   captureBackupWriteIntent,
   isCapturedBackupWriteIntent,
   withBackupSession,
+  clearBackupDiagnostic,
+  recordBackupDiagnostic,
+  BackupDiagnosticStage,
+  backupNotEnrolledError,
 } from './transport';
 
 export type AutomaticBackupMutation = {
@@ -306,7 +310,7 @@ export function isAutomaticBackupResultCurrent(result: object, appId: string) {
 }
 async function snapshot(appId: string, app: any, deadline?: number, checkpoint = () => {}) {
   const result = await readProtectedBackup(app.primaryMnemonic, deadline, appId, checkpoint, app);
-  if (result.state === 'neverEnrolled') throw new Error('Protected backup is not enrolled');
+  if (result.state === 'neverEnrolled') throw backupNotEnrolledError();
   return result.snapshot;
 }
 
@@ -559,6 +563,8 @@ export function enqueueAutomaticBackupOperation(
   return withBackupSession(appId, async () => {
     let acknowledged = 0;
     const deadline = proof?.deadline ?? Date.now() + BACKUP_DEADLINE_MS;
+    const started = Date.now();
+    let diagnosticStage: BackupDiagnosticStage = 'delete-preparation';
     const assertOwned = () => {
       if (!intent || !proof || Date.now() >= deadline)
         throw new Error('Backup proof deadline expired');
@@ -588,12 +594,14 @@ export function enqueueAutomaticBackupOperation(
         throw new Error('Automatic backup source or availability is not enabled');
       assertProtectedBackupWriteReady();
       assertOwned();
+      diagnosticStage = 'snapshot-request';
       const baseline = await snapshot(appId, proof.after.app, deadline, assertOwned);
       assertOwned();
       if (intent.baseRevision !== intent.protectedBase?.revision ||
         !sameProtectedBackupBase(protectedBackupBase(baseline), intent.protectedBase))
         throw new Error('Remote authority changed');
       if (proof.deletion) {
+        diagnosticStage = 'delete-validation';
         if (mutations.length !== 1 || mutations[0].operation !== 'deleteBackup')
           throw new Error('Invalid explicit deletion');
         await decodeImage(
@@ -610,12 +618,14 @@ export function enqueueAutomaticBackupOperation(
       let expectedBase = intent.protectedBase;
       for (const mutation of mutations) {
         assertOwned();
+        diagnosticStage = 'delete-upload';
         const reply = await protectedBackupMutation(proof.after.app.primaryMnemonic,
           expectedBase, mutation.operation, mutation.body, deadline, assertOwned, proof.after.app);
         expectedBase = reply.base;
         acknowledged += 1;
       }
       assertOwned();
+      diagnosticStage = 'delete-readback';
       const readback = await snapshot(appId, proof.after.app, deadline, assertOwned);
       assertOwned();
       if (!sameProtectedBackupBase(protectedBackupBase(readback), expectedBase))
@@ -658,7 +668,9 @@ export function enqueueAutomaticBackupOperation(
       results.set(result, { proof, session: intent.accountSession, appId });
       if (proof.deletion) clearVerifiedRemoteRevision(appId);
       return result;
-    } catch {
+    } catch (error) {
+      if (proof?.deletion && intent)
+        recordBackupDiagnostic(appId, intent.accountSession, 'delete', diagnosticStage, error, started);
       clearVerifiedRemoteRevision(appId);
       notifyBackupReconciliation(appId);
       return pending(committed, acknowledged === mutations.length && acknowledged > 0);
@@ -669,6 +681,9 @@ export async function beginBackupDeleteOperation(
   appId: string,
   originSession = currentBackupAccountSession()
 ): Promise<BackupLocalCommit> {
+  const started = Date.now();
+  let diagnosticStage: BackupDiagnosticStage = 'delete-preparation';
+  clearBackupDiagnostic(appId, originSession);
   try {
     const op = beginBackupLocalOperation(appId, undefined, originSession);
     assertProtectedBackupWriteReady();
@@ -680,6 +695,7 @@ export async function beginBackupDeleteOperation(
         state.generation !== op.generation || state.capture.fingerprint !== op.before.fingerprint ||
         !canAccessBackupAccount(appId, true)) throw new Error('Deletion source changed');
     };
+    diagnosticStage = 'snapshot-request';
     const remote = await withBackupSession(appId, () =>
       snapshot(appId, op.before.app, deadline, assertOrigin));
     const state = local();
@@ -692,6 +708,7 @@ export async function beginBackupDeleteOperation(
       !canAccessBackupAccount(appId, true)
     )
       throw new Error('Deletion scope changed');
+    diagnosticStage = 'delete-validation';
     await decodeImage(
       generateEncryptionKey(op.before.app.primarySeed),
       remote,
@@ -727,7 +744,8 @@ export async function beginBackupDeleteOperation(
       deadline,
     });
     return Object.freeze({ committed: true, intent });
-  } catch {
+  } catch (error) {
+    recordBackupDiagnostic(appId, originSession, 'delete', diagnosticStage, error, started);
     clearVerifiedRemoteRevision(appId);
     notifyBackupReconciliation(appId);
     return Object.freeze({ committed: false });
