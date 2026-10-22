@@ -180,14 +180,19 @@ def run_companion(h, data, device, private, backend_receipt, installed_proof):
         raise
     finally:
         try:
-            save()
+            if server:
+                server.shutdown()
+                server.server_close()
+        except Exception as cleanup_error:
+            original_failure = result.get('failure_category')
+            result = receipt.snapshot()
+            if original_failure:
+                result['failure_category'] = original_failure
+            result['cleanup_failure_category'] = type(cleanup_error).__name__
+            raise
         finally:
-            try:
-                if server:
-                    server.shutdown()
-                    server.server_close()
-            finally:
-                # Failure diagnostics can contain PIN actions and app hierarchy.
-                # Remove them even if saving evidence or closing the server fails.
-                shutil.rmtree(output, ignore_errors=True)
+            # Failure diagnostics can contain PIN actions and app hierarchy.
+            # Remove them before saving evidence, including cleanup failure.
+            shutil.rmtree(output, ignore_errors=True)
+            save()
     return result

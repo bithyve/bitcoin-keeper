@@ -129,6 +129,7 @@ class RunnerTests(unittest.TestCase):
 
         def command(_args, _label, **kwargs):
             self.assertFalse(kwargs['error_details'])
+            runtime['ui_started'] = True
             output = private / 'vault-ui'
             (output / 'PRIVATE_SCREENSHOT_SENTINEL.png').write_text('PRIVATE_SENTINEL')
             if driver_failure:
@@ -151,8 +152,8 @@ class RunnerTests(unittest.TestCase):
             return dict(proof, sha256='e' * 64) if installed_drift and installed_calls > 1 else proof
 
         def save(value):
-            # Fail only after a UI artifact exists; disposal still must run.
-            if save_failure and (private / 'vault-ui/PRIVATE_SCREENSHOT_SENTINEL.png').exists():
+            # Fail the final evidence save; raw output must already be disposed.
+            if save_failure and runtime.get('ui_started'):
                 raise RuntimeError('PRIVATE_SENTINEL')
             state.clear()
             state.update(copy.deepcopy(value))
@@ -217,6 +218,7 @@ class RunnerTests(unittest.TestCase):
                 self.assertIsInstance(value, RuntimeError)
                 self.assertFalse((private / 'vault-ui').exists())
                 self.assertNotIn('PRIVATE_SENTINEL', json.dumps(state))
+                self.assertNotEqual(state['product_vault_ui']['status'], 'PASS')
 
 
 if __name__ == '__main__':
