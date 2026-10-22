@@ -22,6 +22,11 @@ class FeatureEvidenceTest(unittest.TestCase):
             file = self.root / path
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text('public synthetic current source')
+        committed_sources = {path: (self.root / path).read_bytes() for path in native.R5_SOURCES}
+        committed_read = mock.patch.object(native.subprocess, 'check_output',
+            side_effect=lambda args, **kwargs: committed_sources[args[-1].removeprefix('HEAD:')])
+        committed_read.start()
+        self.addCleanup(committed_read.stop)
         patch = mock.patch.multiple(native, ROOT=self.root, EVIDENCE=self.root / 'metadata.json')
         patch.start()
         self.addCleanup(patch.stop)
@@ -102,3 +107,11 @@ class FeatureEvidenceTest(unittest.TestCase):
                 native.run_phase('features')
         process.assert_not_called()
         self.assertEqual(native.read()['r5_features'], 'FAIL')
+
+    def test_mutated_working_source_and_matching_probe_hash_cannot_impersonate_head(self):
+        path = self.payload['source_functions'][0]['path']
+        changed = b'altered public source after build'
+        (self.root / path).write_bytes(changed)
+        self.payload['source_functions'][0]['sha256'] = hashlib.sha256(changed).hexdigest()
+        with self.assertRaisesRegex(ValueError, 'committed candidate'):
+            native.validate_r5_feature_evidence(json.dumps(self.payload))

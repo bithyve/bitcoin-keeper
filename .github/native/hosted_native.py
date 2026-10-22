@@ -817,8 +817,12 @@ def validate_r5_feature_evidence(raw):
             if type(value) not in [int, float] or not math.isfinite(value) or not 0 <= value <= 600000:
                 raise ValueError('Invalid bounded feature measurement.')
     sources = payload.get('source_functions')
-    expected = [{'path': path, 'sha256': hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), 'names': names}
-                for path, names in R5_SOURCES.items()]
+    expected = []
+    for path, names in R5_SOURCES.items():
+        committed = subprocess.check_output(['git', 'show', 'HEAD:' + path], cwd=ROOT)
+        if (ROOT / path).read_bytes() != committed:
+            raise ValueError('Feature production source differs from committed candidate.')
+        expected.append({'path': path, 'sha256': hashlib.sha256(committed).hexdigest(), 'names': names})
     if sources != expected:
         raise ValueError('Feature workers do not match exact-candidate production source.')
     # Export only fixed scope/status, public source digests and bounded numbers.
@@ -857,6 +861,8 @@ def smoke(suite='startup'):
     if artifact_identity() != read()['built_artifact']:
         raise RuntimeError('Built artifact changed before the disposable startup smoke.')
     if is_features:
+        command(['git', 'diff', '--exit-code', 'HEAD', '--', *R5_SOURCES],
+                'Verify committed R5 worker source before extraction', error_details=False)
         command(['node', '.github/native/r5_prepare.cjs'], 'Prepare exact-source R5 production worker probe', timeout=60, error_details=False)
     report = PRIVATE / ('features-junit.xml' if is_features else 'probe-junit.xml' if is_probe else 'smoke-junit.xml')
     report.unlink(missing_ok=True)
@@ -910,7 +916,9 @@ def smoke(suite='startup'):
                                  'Record Android emulator image', capture=True)
         data = read()
         data['device'] = {'id': device, 'image': descriptor, 'fresh_disposable_state': True}
-        data['installed_artifact_verified'] = True
+        data['install_succeeded'] = True
+        data['installed_artifact_verified'] = False
+        data['installed_artifact_scope'] = 'Installed from unchanged candidate build path; installed bytes not independently hashed.'
         save(data)
         command([data['maestro']['binary'], '--device', device, 'test', '--env', 'APP_ID=' + APP_IDS[PLATFORM],
                  '--flatten-debug-output', '--debug-output', str(PRIVATE / 'maestro-output'),
