@@ -93,6 +93,7 @@ for (const [name, mutate] of [
   ['selected UI skipped', f => { f.jobs[1001][0].steps.find(v => v.name.startsWith('Run one iOS')).conclusion = 'skipped'; }],
   ['missing actual iOS driver', f => { f.jobs[1001][0].steps = f.jobs[1001][0].steps.filter(v => v.name !== 'Check hosted iOS driver before the app build'); }],
   ['unselected platform credited', f => { f.jobs[1001][0].steps.find(v => v.name.startsWith('Run one Android')).conclusion = 'success'; }],
+  ['unselected step still running', f => { f.jobs[1001][0].steps.find(v => v.name.startsWith('Run one Android')).status = 'in_progress'; }],
 ]) test(`rejects job/check ownership or incomplete matrix: ${name}`, async () => {
   const f = fixture(); mutate(f); await assert.rejects(run(f), /^Error: PRIVATE_ACTIONS_[A-Z_]+$/);
 });
