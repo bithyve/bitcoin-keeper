@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const zlib = require('node:zlib');
 const { collectTrustedOrigin, isTrustedOrigin, CASES, EXECUTED, PIN } = require('./trusted-release-origin.cjs');
+const { attach: attachPublicCompanions } = require('../.github/tests/fixtures/public-companions.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const source = 'a'.repeat(40);
 const tree = 'b'.repeat(40);
@@ -137,6 +138,7 @@ function fixture() {
         key_management_ui: { status: 'PASS', entrypoint: 'index.js', network: 'TESTNET', scenario: 'UNUSED_MOBILE_KEY_UI_DELETE_AND_NATIVE_PIN',
           new_account_requests_during_key_flow: 0, visible_eligible_keys_after_deletion: 0, unrelated_visible_wallet_count_after_relaunch: 1,
           installed_artifact_verified: true, installed_artifact: { ...installed } } } };
+    attachPublicCompanions(receipts[platform], platform);
     const bytes = addArtifact(index + 1, `keeper-canonical-native-${platform}-${source}-300-1`, 'metadata.json', receipts[platform]);
     payload.platforms[platform] = { conclusion: 'success', receipt_sha256: sha256(bytes), artifact_id: index + 1,
       cases: CASES.map(id => ({ id, status: 'PASS' })), executed_checks: Object.fromEntries(Object.entries(EXECUTED).map(([id, scope]) => [id, { status: 'PASS', scope }])) };
@@ -358,6 +360,43 @@ test('archive additional-entry count fails despite correct API digest', async ()
     await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /ARTIFACT_ZIP_INVALID/);
   });
 });
+
+for (const platform of ['IOS', 'ANDROID']) {
+  for (const [name, mutate] of [
+    ['credential root absent', value => delete value.product_credential_ui],
+    ['credential nested stale stages', value => value.product_ui.credential_errors_ui.completed_stages.pop()],
+    ['credential OS denial falsely passed', value => value.product_credential_ui.os_keychain_denial_or_hardware_read_fault = 'PASS'],
+    ['history stage proof missing', value => delete value.product_version_history_ui.stage_evidence[5].installed_artifact],
+    ['history copied from other source', value => value.product_ui.version_history_ui.source_sha = 'c'.repeat(40)],
+    ['history copied from other attempt', value => value.product_version_history_ui.run_attempt = '2'],
+    ['history restoration missing', value => value.product_version_history_ui.original_history_restored = false],
+    ['Vault proof from other artifact', value => value.product_vault_ui.installed_artifact[platform === 'IOS' ? 'inventory_sha256' : 'sha256'] = '1'.repeat(64)],
+    ['Vault claims private-byte inspection', value => value.product_ui.vault_references_ui.native_private_material_exactness = 'PASS'],
+    ['Vault claims unrun backup', value => value.product_vault_ui.protected_backup = 'PASS'],
+    ['final normal-product restore absent', value => value.product_ui.companion_metro_switches.pop()],
+    ['cleanup failure hidden under PASS', value => value.product_ui.vault_references_ui.cleanup = 'FAILED'],
+  ]) test(`${platform} independently rehashed native evidence rejects ${name}`, async () => {
+    await withFixture(async f => {
+      mutate(f.receipts[platform]); f.refreshReceipt(platform); f.refreshAttestation();
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /PUBLIC_COMPANION_RECEIPT_INCOMPLETE/);
+    });
+  });
+}
+test('public subset PASS cannot substitute for unmet canonical parents', async () => {
+  await withFixture(async f => {
+    f.payload.platforms.IOS.cases.find(row => row.id === 'key-deletion-live-reference-and-privacy').status = 'NOT IMPLEMENTED';
+    f.refreshAttestation();
+    await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /CANONICAL_FEATURE_MATRIX_INCOMPLETE/);
+  });
+});
+for (const name of ['controlled-credential-json-ui', 'controlled-version-history-ui', 'vault-reference-and-logical-archive-ui']) {
+  test(`attestation requires exact new public subcheck ${name}`, async () => {
+    await withFixture(async f => {
+      delete f.payload.platforms.IOS.executed_checks[name]; f.refreshAttestation();
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now, 'disposable-pin-token'), /CANONICAL_EXECUTED_CHECKS_INCOMPLETE/);
+    });
+  });
+}
 
 for (const platform of ['IOS', 'ANDROID']) {
   const rows = [['root', value => value],

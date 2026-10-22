@@ -6,6 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const { REQUIRED, acceptance } = require('./release_acceptance.cjs');
+const { publicCompanionChecks } = require('./public_companion_receipts.cjs');
 const REPOSITORY = 'KeeperCommunity/bitcoin-keeper';
 const REPOSITORY_ID = 470904030;
 const WORKFLOW = '.github/workflows/keeper-canonical-native.yml';
@@ -173,8 +174,9 @@ function validateMetadata(metadata, request, platform) {
   const parent = acceptance({ trusted: checks['native-build'].status === 'PASS' && checks.startup.status === 'PASS' &&
     checks['native-storage'].status === 'PASS', ios: 'success', android: 'success' });
   const cases = REQUIRED.map(id => ({ id, status: parent.cases.find(item => item.id === id)?.status ?? 'NOT IMPLEMENTED' }));
-  // Parent obligations remain explicit. Product observations/worker subsets do
-  // not clear live-Vault UI, multi-account UI, restore/recovery or a performance budget.
+  Object.assign(checks, publicCompanionChecks(metadata, platform));
+  // Parent obligations remain explicit. Scoped companion UI does not establish
+  // private bytes, protocol/account isolation, WAN offline, recovery or a budget.
   return { cases, executed_checks: checks };
 }
 
