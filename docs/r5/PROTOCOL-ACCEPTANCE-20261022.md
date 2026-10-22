@@ -7,10 +7,16 @@ used or changed.
 
 ## Exact source and pairing
 
-- App source: `c1c4b803039b61b940373c4dc9d08473cf25e042`, the completed
+- App AES source for the local backend suite:
+  `c1c4b803039b61b940373c4dc9d08473cf25e042`, the completed
   [5.1 package](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7067).
   It contains R5 core `77b72da29ac5f2cdf3f51c9a0e9f3fd1c2af7238` and released
   R4 `1d8a86a7462d935cbd0e28b857934b5718c152fc` by verified ancestry.
+- Hosted app integration source:
+  `e4245b01af4f48d3812f8e2abcae8bcfe65ae06a` from mobile draft #7068.
+  Verified ancestry includes the completed 5.1 source above. This is an interim
+  integration checkpoint; 5.2 identity/completion remains unverified and this is
+  not a final candidate freeze.
 - Relay: `29597b27eeeb299205bf7d0555db0a90c38cc4be`, verified against the
   current PR158 head and its [latest owner receipt](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/158#issuecomment-6321195858).
   The PR description's earlier `7693ce4b` is stale. The current source includes
@@ -45,7 +51,10 @@ This is backend/crypto interoperability evidence, not a native app run.
 | Current Relay TypeScript `--noEmit` | **PASS**, exit 0, no diagnostics |
 | Existing app protected-runner guard tests | **3/3 PASS**, zero failures/skips |
 | First backend attempt before AES dependency was available | **13 PASS / 39 hook failures**, retained; missing `crypto-js` prevented protected test bodies from running |
-| Current app encrypted-Realm integration proofs | **BLOCKED locally**: actual normal N-API install exits 1 with proxy CONNECT 403; hosted fixed-pair route prepared separately, no app proof pass claimed |
+| Current app full protected-v3 proof | **Hosted PASS: 43/43**, 65.869 seconds, on exact app `e4245b01` / Relay `29597b27` pair; zero failures/skips/cancellations/todo |
+| Current app 5.1 upgraded-account witness | **Hosted PASS: 1/1**, 8.840 seconds, on the same exact pair; zero failures/skips/cancellations/todo |
+| Existing runner guards in that hosted job | **PASS: 3/3**, 85ms; zero failures/skips/cancellations/todo |
+| Same app proofs on this managed worker | **BLOCKED locally**: actual normal N-API install exits 1 with proxy CONNECT 403; the successful hosted route supplies the genuine binding |
 
 The successful backend suite exercises real signed HTTP, native signature
 verification and transactional Mongo state: enrollment; read-only absence;
@@ -77,7 +86,7 @@ App runner-guard log SHA-256:
 The raw logs remain in the Cloud workspace; private backend source is not copied
 into this repository.
 
-## Remaining acceptance
+## Verified hosted route
 
 After the full frozen app install and six patches completed in Cloud, the normal
 Realm prerequisite install was attempted with Node 22.23.3:
@@ -88,14 +97,50 @@ cd node_modules/realm
 ```
 
 It exited 1 with `tunneling socket could not be established, statusCode=403`.
-No policy bypass or mock substitute was used. A separate private fixed-pair
-hosted CI package uses the existing PR159 route to obtain the genuine binding,
-run the complete protected proof and the upgraded-account witness, and retain
-private fixture source in the private repository.
+No policy bypass or mock substitute was used. The separate private fixed-pair
+hosted package [Relay PR160](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/160)
+uses the existing PR159 route. Its exact control source
+`4db6a758a307111137ad6bb4f35a32fa15b17a9d` ran
+[Actions39732797761](https://github.com/KeeperCommunity/bitcoin-keeper-relay/actions/runs/39732797761),
+job `119671456169`, successfully against the fixed full app and Relay SHAs above.
+Frozen installs, all six app patches, actual Realm N-API binding installation,
+three exact-source verifications and owned disposable Mongo cleanup passed.
+Private fixture source remains in the private repository; no artifact or status
+upload, production secret, deployment or publication occurs in this workflow.
 
-Run the existing current-Relay upgrade witness and complete current protected-v3
-app proof using that genuine encrypted Realm binding. Preserve the public-v2
-matrix's inherited failures separately. Rerun affected combined checks after
-verified 5.2 integration; this receipt does not cover that package or any later
-candidate SHA. Hosted iOS/Android feature acceptance and physical-device results
+The runner was Ubuntu `24.04.5`, image `20261012.334.1`, runner `2.338.0`.
+Tests used verified Node `22.23.3`. GitHub warned that the pinned checkout and
+setup-node actions declare Node20 and forced their action runtime to Node24;
+this did not change the verified test runtime. Any action-pin update needs its
+own review. The decoded job log is retained in Cloud; its materialized file
+SHA-256 is `05f1f154bc0b4ff11bd60c0c4527dbf32810c89f2a55f7d9cc76ad6dbbe799b7`.
+
+The first hosted attempt
+[39732600913](https://github.com/KeeperCommunity/bitcoin-keeper-relay/actions/runs/39732600913)
+failed before dependencies/tests: the new control-cleanliness check returned128
+because the sparse control checkout omitted unchanged ignore metadata. The
+follow-up retains `.gitignore` and adds bounded Git failure categories. No
+source guard was relaxed. The unrelated uploader was prevented from starting
+for this CI-only branch; its two runs were skipped, and no active job was
+canceled. Nine actual local verifier outcomes passed, including rejection of
+an unexpected committed runtime path anywhere since the fixed control base.
+
+The 43-case proof covers genuine encrypted Realm, production authority,
+account/session isolation, queue and mutation receipts, all seven operations,
+complete readback, recovery and retained legacy selection, tombstone/recreation,
+CAS conflicts, delayed/lost acknowledgements and native-state interruptions.
+The additional 5.1 witness cold-rehydrates legacy saved consent, verifies
+never-enrolled read/delete behavior, loses an enrollment response, explicitly
+repairs, disables backup, deletes only the protected copy and explicitly
+recreates it while preserving local and legacy recovery contents.
+
+## Remaining acceptance
+
+These host integration proofs are not native iOS/Android feature acceptance or
+original-phone confirmation. Preserve the public-v2 matrix's inherited
+2 PASS / 293 FAIL separately; no test or historical pin was weakened to obtain
+these results. Rerun the fixed-pair job on the eventual combined candidate,
+including verified 5.2 work when available. The passes above cover only the
+reported exact app source. Hosted iOS/Android feature acceptance, genuine
+physical-device results, independent security review and release approval
 remain separate requirements.
