@@ -14,10 +14,12 @@ permissions:
 
 concurrency:
   group: android-diagnostic-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    # Candidate native diagnostics own their sequential platform schedule.
+    if: github.event_name != 'pull_request' || (toJSON(github.event.pull_request.draft) == 'false' && !contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic'))
     runs-on: ubuntu-24.04
     timeout-minutes: 90
 
