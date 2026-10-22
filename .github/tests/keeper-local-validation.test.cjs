@@ -162,7 +162,7 @@ async function evaluate(comments, options = {}) {
   const core = { info: () => {}, warning: text => warnings.push(text),
     setFailed: text => failures.push(text) };
   await runWorkflow(github, context, core);
-  assert.equal(statuses.length, options.afterHead || options.baseRef || options.afterMutation ? 0 : 1);
+  assert.equal(statuses.length, options.afterHead || options.baseRef ? 0 : 1);
   return { status: statuses[0], statuses, failures, warnings, calls, pullsRequested,
     runsCalls: calls.filter(c => c.route === runsRoute),
     jobsCalls: calls.filter(c => c.route === jobsRoute) };
@@ -636,7 +636,12 @@ test('base, repository/ref or route movement at unchanged head cannot publish st
     pr => { pr.head.repo.full_name = 'other/repo'; }, pr => { pr.labels = [{ name: 'keeper/native-diagnostic' }]; },
   ]) {
     const { statuses, failures } = await evaluate([handoff(sha, 'IOS, ANDROID')], reusableOptions({ afterMutation }));
-    assert.equal(statuses.length, 0);
+    assert.equal(statuses.length, 1);
+    assert.equal(statuses[0].state, 'failure', 'same-head race explicitly supersedes prior success');
     assert.match(failures[0], /changed during validation/);
   }
+});
+
+test('route-label changes immediately reevaluate the trusted gate', () => {
+  assert.ok(lines.some(line => line.includes('ready_for_review, labeled, unlabeled]')));
 });

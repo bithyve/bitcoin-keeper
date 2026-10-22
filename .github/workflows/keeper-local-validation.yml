@@ -4,7 +4,7 @@ name: Keeper local validation gate
 on:
   pull_request_target:
     branches: [sprint]
-    types: [opened, reopened, synchronize, edited, ready_for_review]
+    types: [opened, reopened, synchronize, edited, ready_for_review, labeled, unlabeled]
   issue_comment:
     types: [created, edited, deleted]
   workflow_run:
@@ -303,6 +303,12 @@ jobs:
                 current.base.repo?.id !== pr.base.repo?.id || current.base.repo?.full_name !== pr.base.repo?.full_name ||
                 current.head.ref !== pr.head.ref || current.head.repo?.id !== pr.head.repo?.id ||
                 current.head.repo?.full_name !== pr.head.repo?.full_name || nativeRoute(current) !== nativeRoute(pr)) {
+              // The head is unchanged, so explicitly revoke any prior success on this SHA.
+              await github.rest.repos.createCommitStatus({
+                owner, repo, sha, state: 'failure', context: contextName,
+                description: 'PR base, identity or native route changed; fresh evaluation required',
+                target_url: pr.html_url
+              });
               core.setFailed('PR base, repository, ref or native route changed during validation; awaiting fresh evaluation');
               return;
             }
