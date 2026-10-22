@@ -6,6 +6,9 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const driver = require('../native/canonical_native.cjs');
 const { attach: attachPublicCompanions } = require('./fixtures/public-companions.cjs');
+const { attach: attachPublicSoftware } = require('./fixtures/public-software.cjs');
+const { WORKER_SOURCES } = require('../native/public_software_receipts.cjs');
+const { SCENARIOS, LIMITS } = require('../native/r5_features_core.js');
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 
 function fixture() {
@@ -39,14 +42,26 @@ function fixture() {
         visible_wallet_count_before_relaunch: 1, visible_wallet_count_after_relaunch: 1,
         raw_durations: { startup_to_passcode_ms: 120, start_new_to_ready_ms: 500 } })) },
   }]));
-  for (const platform of ['IOS', 'ANDROID']) attachPublicCompanions(state.metadata[platform], platform);
+  state.sourceBytes = Object.fromEntries(Object.keys(WORKER_SOURCES).map(member => [member, Buffer.from(`committed fixture bytes:${member}`)]));
+  state.workerSources = Object.entries(WORKER_SOURCES).map(([member, names]) => ({ path: member, names: [...names], sha256: hash(state.sourceBytes[member]) }));
+  for (const platform of ['IOS', 'ANDROID']) {
+    attachPublicCompanions(state.metadata[platform], platform);
+    attachPublicSoftware(state.metadata[platform]);
+    state.metadata[platform].r5_feature_evidence = { schema: 1, scope: 'production-worker-native-storage', status: 'PASS',
+      scenarios: SCENARIOS.map(id => ({ id, status: 'PASS' })), limits: [...LIMITS], source_functions: structuredClone(state.workerSources),
+      measurements: [1, 2, 3, 4, 5].map(iteration => ({ iteration, probe_ready_ms: 1, setup_first_wallet_ms: 2 })) };
+  }
   state.archives = Object.values(state.metadata).map(value => Buffer.from(JSON.stringify(value)));
   state.artifacts = ['IOS', 'ANDROID'].map((platform, index) => ({ id: 101 + index,
     name: driver.artifactName(platform, request), expired: false, size_in_bytes: state.archives[index].length,
     digest: `sha256:${hash(state.archives[index])}`, workflow_run: { id: 400, head_sha: source } }));
   const wrap = (name, fn) => async args => { state.calls.push(name); return { data: await fn(args) }; };
   state.github = { rest: {
-    repos: { get: wrap('repository', () => state.repository), getBranch: wrap('branch', () => {
+    repos: { get: wrap('repository', () => state.repository), getContent: wrap('worker-source', args => {
+      assert.equal(args.ref, source);
+      const bytes = state.sourceBytes[args.path];
+      return state.badCommittedSource || { type: 'file', path: args.path, encoding: 'base64', size: bytes.length, content: bytes.toString('base64') };
+    }), getBranch: wrap('branch', () => {
       state.branchReads++; return state.moveAfterRead && state.branchReads > 1 ? { ...state.branch, commit: { sha: 'b'.repeat(40) } } : state.branch;
     }) },
     actions: { getWorkflow: wrap('workflow', args => {
@@ -190,6 +205,38 @@ test('real implemented observations stay discoverable without clearing parent ob
   for (const name of ['controlled-credential-json-ui', 'controlled-version-history-ui', 'vault-reference-and-logical-archive-ui'])
     assert.equal(result.executed_checks[name].status, 'PASS');
 });
+test('raw public software requires independent committed sources and never supplies private parent credit', () => {
+  for (const platform of ['IOS', 'ANDROID']) {
+    const f = fixture();
+    const check = value => driver.validateMetadata(value, f.request, platform, f.workerSources);
+    const valid = check(f.metadata[platform]);
+    assert.equal(valid.executed_checks['public-raw-software-evidence'].status, 'PASS');
+    assert.equal(valid.cases.filter(row => row.status === 'NOT IMPLEMENTED').length, 5);
+    const missing = driver.validateMetadata(f.metadata[platform], f.request, platform);
+    assert.equal(missing.executed_checks['public-raw-software-evidence'].status, 'NOT VERIFIED');
+    for (const mutate of [value => delete value.r5_feature_evidence,
+      value => value.r5_feature_evidence.source_functions[0].sha256 = '0'.repeat(64),
+      value => value.product_ui.samples[0].completed_stages.reverse(),
+      value => value.product_ui.key_management_ui.physical_biometrics = 'PASS',
+      value => value.product_ui.cleanup = 'FAILED']) {
+      const bad = structuredClone(f.metadata[platform]); mutate(bad);
+      assert.equal(check(bad).executed_checks['public-raw-software-evidence'].status, 'NOT VERIFIED');
+    }
+  }
+});
+test('malformed committed worker reads cannot fall back to receipt-owned source hashes', async () => {
+  for (const bad of [[], {}, { type: 'symlink' },
+    { type: 'file', path: 'foreign', encoding: 'base64', size: 1, content: 'YQ==' },
+    { type: 'file', path: Object.keys(WORKER_SOURCES)[0], encoding: 'base64', size: 2, content: 'YQ==' }]) {
+    const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-source-test-'));
+    f.badCommittedSource = bad;
+    try {
+      await assert.rejects(collect(f, output), /CANONICAL_WORKER_SOURCE_UNAVAILABLE/);
+      assert.equal(f.calls.includes('download'), false);
+      assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
+    } finally { fs.rmSync(output, { recursive: true, force: true }); }
+  }
+});
 test('canonical public subsets retain exact receipt identity and missing evidence never gets a pass', () => {
   for (const platform of ['IOS', 'ANDROID']) {
     const f = fixture(), metadata = f.metadata[platform];
@@ -226,7 +273,8 @@ test('complete native subsets emit bounded BLOCKED readiness and no reusable att
     assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
     const raw = fs.readFileSync(path.join(output, 'keeper-canonical-native-readiness.json'), 'utf8');
     const result = JSON.parse(raw); assert.equal(result.feature_matrix_complete, false);
-    assert.equal(Object.keys(result.platforms.IOS.executed_checks).length, 12);
+    assert.equal(Object.keys(result.platforms.IOS.executed_checks).length, 13);
+    assert.equal(result.platforms.IOS.executed_checks['public-raw-software-evidence'].status, 'PASS');
     for (const name of ['controlled-credential-json-ui', 'controlled-version-history-ui', 'vault-reference-and-logical-archive-ui'])
       assert.equal(result.platforms.IOS.executed_checks[name].status, 'PASS');
     assert.equal(result.platforms.IOS.cases.filter(item => item.status === 'NOT IMPLEMENTED').length, 5);
