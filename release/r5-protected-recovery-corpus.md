@@ -18,6 +18,12 @@ A source review added a pre-selection barrier checking every recovery collection
 VaultSigner and both history tables plus appCreated false after default tombstone
 discovery, so a partial unintended write cannot be hidden by the later restore.
 Completed recovery must also report restored status and original Keeper provenance.
+The exact selected7016 original statement bytes additionally hash to
+`852f8be219994ee9f8e0af5c2da91046f7dc11bd462cbb7d6591e2365ba80ce9`.
+They execute as a host-context Node function, like the original sourceFixture;
+the proof asserts both byte provenance and the host function prototype. This
+preserves Realm.Mixed input constructor identity without JSON conversion,
+rewriting records, dropping fields or replacing database/crypto results.
 The new proof uses the unchanged current protected server/client fixture and the
 actual recovery saga, BIP39/BIP32/BIP85/AES, ESM authority, native encrypted Realm,
 Redux observers, signed HTTP router and transactional Relay storage.
@@ -104,8 +110,21 @@ approved disposable inputs. Backend source never belongs in this public branch.
 Preparation validation: Node22 syntax and whitespace PASS. Initial genuine
 invocation: **0 PASS /1 file-load FAIL**, MODULE_NOT_FOUND for the missing real
 Realm N-API binding, before either case could execute. The two genuine cases
-remain **NOT RUN**. Preserve that prerequisite failure; no alternate Realm,
+remained **NOT RUN** at that local prerequisite boundary. Preserve that prerequisite failure; no alternate Realm,
 source guard bypass or synthetic result is permitted.
+
+The first genuine hosted run [39853116136](https://github.com/KeeperCommunity/bitcoin-keeper-relay/actions/runs/39853116136),
+at public92bef/private4d8989/runtime29597, completed **0 PASS /2 FAIL /0 skipped /
+0 cancelled**. Both cases failed before source provisioning/recovery, while
+building the original USDT fixture: the new proof's VM-context literal
+accountStatus.fees reached the real Mixed setter, which rejected its foreign
+Object constructor. Existing3 guards, actual Realm N-API, all5 source checks,
+owned Mongo PRIMARY startup and confirmed removal passed. These failures remain
+retained. The narrow correction compiles only the exact original public builder
+statements using their original host constructors and adds byte/prototype
+assertions; no product/fixture algorithm or corpus assertion is changed.
+Corrected genuine selections remain **NOT RUN** pending a newly admitted exact
+public/control checkpoint; the failed run cannot grant them a pass.
 
 The separately reviewed finite private Cloud control should inherit the reviewed
 `625f945c48f857925399424a8601285e2682c9a8` policy once cleared, retain all raw

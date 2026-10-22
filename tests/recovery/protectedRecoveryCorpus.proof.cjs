@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 const { isDeepStrictEqual } = require('node:util');
 const bip39 = require('bip39');
 const { TronWeb } = require('tronweb');
@@ -42,10 +43,17 @@ function populateExistingCorpus(f, saga) {
   check(start > 0 && end > start, 'CORPUS_SETUP_SELECTION_CHANGED');
   const selected = original.slice(start, end);
   check(!selected.includes('await server.') && !selected.includes('createRealmClient'), 'CORPUS_SETUP_BOUNDARY_CHANGED');
-  const scope = { assert, seed, mnemonic, TronWeb };
-  evaluate(`var populate = (f, source) => { ${selected}\nreturn { recoveryKey, fingerprint }; };`,
-    scope, 'unchanged-public-mixed-recovery-records.ts');
-  return scope.populate(f, saga);
+  check(crypto.createHash('sha256').update(selected).digest('hex') ===
+    '852f8be219994ee9f8e0af5c2da91046f7dc11bd462cbb7d6591e2365ba80ce9', 'ORIGINAL_CORPUS_STATEMENT_BYTES_MUST_MATCH');
+  // Original sourceFixture is a Node function. Realm.Mixed rejects VM-foreign
+  // Object literals (first encountered by USDT accountStatus.fees). Compile
+  // these exact public data statements with the original host constructors;
+  // do not JSON-roundtrip, drop a field or replace a database/crypto result.
+  const populate = vm.runInThisContext(`(function(f, source, assert, seed, mnemonic, TronWeb) {
+${selected}
+return { recoveryKey, fingerprint }; })`, { filename: 'unchanged-public-mixed-recovery-records.cjs' });
+  check(Object.getPrototypeOf(populate) === Function.prototype, 'ORIGINAL_NODE_BUILDER_CONSTRUCTORS_REQUIRED');
+  return populate(f, saga, assert, seed, mnemonic, TronWeb);
 }
 
 async function sourceCorpus(t) {
