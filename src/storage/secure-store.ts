@@ -2,6 +2,11 @@ import * as Keychain from 'react-native-keychain';
 import NodeRSA from 'node-rsa';
 import config from '../utils/service-utilities/config';
 import { store as reduxStore } from 'src/store/store';
+import {
+  startupFailureFact,
+  StartupFailureFact,
+  StartupFailureStage,
+} from './startup-credential-diagnostics';
 
 export const store = async (hash: string, enc_key: string, identifier: string) => {
   try {
@@ -67,7 +72,14 @@ export const fetch = async (hash_current: string) => {
 
 // Startup must distinguish an unreadable Keychain from a successfully empty
 // one. Preserve legacy behavior unless the caller explicitly requests errors.
-export const hasPin = async ({ throwOnError = false }: { throwOnError?: boolean } = {}) => {
+export const hasPin = async ({
+  throwOnError = false,
+  onReadFailure,
+}: {
+  throwOnError?: boolean;
+  onReadFailure?: (fact: StartupFailureFact) => void;
+} = {}) => {
+  let stage: StartupFailureStage = 'STATE_READ';
   try {
     let allAccounts = reduxStore.getState().account.allAccounts;
     // if allAccounts is empty | upgraded app with old passcode configuration
@@ -75,14 +87,17 @@ export const hasPin = async ({ throwOnError = false }: { throwOnError?: boolean 
       allAccounts = [{ accountIdentifier: undefined }];
     }
     for (const index in allAccounts) {
+      stage = 'SERVICE_SELECT';
       const identifier =
         allAccounts[index].accountIdentifier == ''
           ? undefined
           : allAccounts[index].accountIdentifier;
+      stage = 'KEYCHAIN_READ';
       const credentials = await Keychain.getGenericPassword({
         service: identifier,
       });
       if (credentials) {
+        stage = 'CREDENTIAL_PARSE';
         const password = JSON.parse(credentials.password);
         if (password) {
           return true;
@@ -91,6 +106,11 @@ export const hasPin = async ({ throwOnError = false }: { throwOnError?: boolean 
     }
     return false;
   } catch (err) {
+    try {
+      onReadFailure?.(startupFailureFact(stage, err));
+    } catch {
+      // An observer cannot replace the original rejection or legacy false.
+    }
     if (throwOnError) throw err;
     return false;
   }

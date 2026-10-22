@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import re
 from pathlib import Path
 import unittest
 from unittest import mock
@@ -19,6 +20,46 @@ def record(message, process=APP, severity='Df', timestamp='2026-10-22 09:22:33.1
 
 
 class IOSStartupErrorsTest(unittest.TestCase):
+    def test_precise_development_marker_uses_only_the_shared_fixed_vocabulary(self):
+        source = (Path(__file__).resolve().parents[2] /
+                  'src/storage/startup-credential-diagnostics.ts').read_text()
+        stages = re.search(r'STARTUP_FAILURE_STAGES = \[(.*?)\] as const', source, re.S)[1]
+        self.assertEqual(tuple(re.findall(r"'([^']+)'", stages)), ios.STARTUP_STAGES)
+        categories = []
+        for name in ('NATIVE_CODES', 'ERROR_NAMES'):
+            block = re.search(r'const ' + name + r' = \{(.*?)\} as const', source, re.S)[1]
+            categories.extend(re.findall(r":\s*'([^']+)'", block))
+        self.assertEqual(tuple(categories + ['UNKNOWN']), ios.STARTUP_CATEGORIES)
+        for stage in ios.STARTUP_STAGES:
+            for category in ios.STARTUP_CATEGORIES:
+                self.assertIn("'" + category + "'", source)
+                marker = f'KEEPER_STARTUP_ERROR stage={stage} category={category}'
+                result = ios.classify(record(marker, severity='I'), APP)
+                self.assertEqual(result['startup_failure_facts'], [{'stage': stage, 'category': category}])
+                self.assertEqual(result['error_records'], 1)
+                self.assertEqual(result['cause'], 'UNDETERMINED')
+
+    def test_foreign_malformed_and_private_marker_variants_supply_no_fixed_facts(self):
+        marker = 'KEEPER_STARTUP_ERROR stage=KEYCHAIN_READ category=NATIVE_CODE_NEG34018'
+        for payload in [record(marker, process='OtherApp'), marker,
+                        record('prefix ' + marker), record(marker + ' PRIVATE_SENTINEL'),
+                        record(marker.replace('KEYCHAIN_READ', 'PRIVATE_SENTINEL')),
+                        record(marker.replace('NATIVE_CODE_NEG34018', 'PRIVATE_SENTINEL')),
+                        record(marker.replace('KEEPER_STARTUP_ERROR', 'keeper_startup_error'))]:
+            with self.subTest(payload=payload[:15]):
+                result = ios.classify(payload, APP)
+                self.assertEqual(result['startup_failure_facts'], [])
+                self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+
+    def test_marker_observations_remain_bounded_and_never_establish_native_cause(self):
+        marker = 'KEEPER_STARTUP_ERROR stage=READ_CALL category=UNKNOWN'
+        result = ios.classify('\n'.join([record(marker)] * 40), APP)
+        self.assertEqual(len(result['startup_failure_facts']), 32)
+        self.assertTrue(result['startup_failure_fact_limit_reached'])
+        self.assertEqual(result['error_records'], 40)
+        self.assertEqual(result['cause'], 'UNDETERMINED')
+        self.assertNotIn('PASS', json.dumps(result))
+
     def test_exact_process_prefix_preserves_existing_generic_error_contract(self):
         payload = '\n'.join([
             'Filtering the log data using the process predicate',
