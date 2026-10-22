@@ -214,6 +214,18 @@ function validateAttestation(payload, sourceSha, tree, run) {
   }
 }
 
+function installedBytes(value, platform, expected) {
+  const [method, hashes] = platform === 'IOS' ?
+    ['FULL_SIMULATOR_BUNDLE_TREE_AND_EXECUTABLE_SHA256', ['inventory_sha256', 'executable_sha256']] :
+    ['SINGLE_INSTALLED_BASE_APK_SHA256', ['sha256']];
+  const proof = value?.installed_artifact;
+  check(value?.installed_artifact_verified === true && exactKeys(proof, ['method', ...hashes]) &&
+    proof.method === method && hashes.every(name => typeof proof[name] === 'string' && hex64.test(proof[name])) &&
+    (!expected || (proof.method === expected.method && hashes.every(name => proof[name] === expected[name]))),
+  'INSTALLED_BYTE_PROOF_INCOMPLETE');
+  return proof;
+}
+
 function validateReceipt(value, sourceSha, run, platform, sources) {
   const appIds = { IOS: 'io.hexawallet.hexakeeper.dev', ANDROID: 'io.hexawallet.keeper.development' };
   check(value.schema === 1 && value.platform === platform && value.source_sha === sourceSha && value.workflow_sha === sourceSha &&
@@ -221,6 +233,11 @@ function validateReceipt(value, sourceSha, run, platform, sources) {
     value.run_id === String(run.id) && value.run_attempt === String(run.run_attempt) &&
     ['build', 'smoke', 'native_probe', 'r5_features'].every(key => value[key] === 'PASS') && value.product_ui?.status === 'PASS',
   'PLATFORM_RECEIPT_NOT_EXACT_SUCCESS');
+  const installed = installedBytes(value, platform);
+  const binaryHash = platform === 'IOS' ? 'executable_sha256' : 'sha256';
+  check(typeof value.built_artifact?.[binaryHash] === 'string' &&
+    hex64.test(value.built_artifact[binaryHash]) && value.built_artifact[binaryHash] === installed[binaryHash],
+  'INSTALLED_BYTES_NOT_BOUND_TO_BUILD');
   const samples = value.product_ui.samples;
   const durations = ['startup_to_passcode_ms', 'start_new_to_ready_ms', 'start_new_to_home_ms', 'cold_relaunch_to_login_ms', 'cold_relaunch_to_authenticated_home_ms'];
   check(value.product_ui.requested_samples === 5 && Array.isArray(samples) && samples.length === 5 && samples.every((sample, index) =>
@@ -229,14 +246,17 @@ function validateReceipt(value, sourceSha, run, platform, sources) {
     sample.installed_version_header_and_initial_history === 'PASS' && sample.key_management_entry_and_exit === 'PASS' &&
     durations.every(name => Number.isFinite(sample.raw_durations?.[name]) && sample.raw_durations[name] >= 0 && sample.raw_durations[name] <= 3600000)),
   'PRODUCT_OBSERVATIONS_INCOMPLETE');
+  for (const sample of samples) installedBytes(sample, platform, installed);
   const retry = value.product_ui.controlled_disconnect_retry;
   check(retry?.status === 'PASS' && retry.scenario === 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE' && retry.performance_sample === false &&
     retry.create_new_app_calls === 2 && retry.transport_requests_dropped_without_commit === 1 && retry.acknowledged_create_responses === 1 &&
     retry.unexpected_create_attempts === 0 && retry.visible_wallet_count_after_relaunch === 1, 'PRODUCT_RETRY_INCOMPLETE');
+  installedBytes(retry, platform, installed);
   const key = value.product_ui.key_management_ui;
   check(key?.status === 'PASS' && key.entrypoint === 'index.js' && key.network === 'TESTNET' &&
     key.scenario === 'UNUSED_MOBILE_KEY_UI_DELETE_AND_NATIVE_PIN' && key.new_account_requests_during_key_flow === 0 &&
     key.visible_eligible_keys_after_deletion === 0 && key.unrelated_visible_wallet_count_after_relaunch === 1, 'PRODUCT_KEY_UI_INCOMPLETE');
+  installedBytes(key, platform, installed);
   const feature = value.r5_feature_evidence;
   check(feature?.schema === 1 && feature.scope === 'production-worker-native-storage' && feature.status === 'PASS' &&
     JSON.stringify(feature.scenarios) === JSON.stringify(FEATURE_SCENARIOS.map(id => ({ id, status: 'PASS' }))) &&

@@ -109,10 +109,15 @@ function fixture() {
     return bytes;
   }
   for (const [index, platform] of ['IOS', 'ANDROID'].entries()) {
+    const installed = platform === 'IOS' ? { method: 'FULL_SIMULATOR_BUNDLE_TREE_AND_EXECUTABLE_SHA256',
+      inventory_sha256: 'd'.repeat(64), executable_sha256: 'e'.repeat(64) } :
+      { method: 'SINGLE_INSTALLED_BASE_APK_SHA256', sha256: 'f'.repeat(64) };
     receipts[platform] = { schema: 1, platform, source_sha: source, workflow_sha: source, run_id: '300', run_attempt: '1',
       workflow_ref: `${REPOSITORY}/.github/workflows/keeper-canonical-native.yml@refs/heads/sprint`, diagnostic_only: false,
       app_id: platform === 'IOS' ? 'io.hexawallet.hexakeeper.dev' : 'io.hexawallet.keeper.development',
       build: 'PASS', smoke: 'PASS', native_probe: 'PASS', r5_features: 'PASS',
+      installed_artifact_verified: true, installed_artifact: { ...installed },
+      built_artifact: platform === 'IOS' ? { executable_sha256: installed.executable_sha256 } : { sha256: installed.sha256 },
       r5_feature_evidence: { schema: 1, scope: 'production-worker-native-storage', status: 'PASS',
         scenarios: ['production-setup-offline-retry-native-counts', 'production-deletion-retained-native-references', 'production-deletion-native-rollback',
           'production-worker-stale-session-rejection', 'native-worker-process-relaunch-counts'].map(id => ({ id, status: 'PASS' })),
@@ -123,13 +128,15 @@ function fixture() {
       product_ui: { status: 'PASS', requested_samples: 5,
         samples: Array.from({ length: 5 }, (_, index) => ({ sample: index + 1, status: 'PASS', create_new_app_calls: 1,
           visible_wallet_count_before_relaunch: 1, visible_wallet_count_after_relaunch: 1, installed_version_header_and_initial_history: 'PASS',
-          key_management_entry_and_exit: 'PASS', raw_durations: { startup_to_passcode_ms: 1, start_new_to_ready_ms: 2, start_new_to_home_ms: 3,
+          key_management_entry_and_exit: 'PASS', installed_artifact_verified: true, installed_artifact: { ...installed },
+          raw_durations: { startup_to_passcode_ms: 1, start_new_to_ready_ms: 2, start_new_to_home_ms: 3,
             cold_relaunch_to_login_ms: 4, cold_relaunch_to_authenticated_home_ms: 5 } })),
         controlled_disconnect_retry: { status: 'PASS', scenario: 'CONTROLLED_DISCONNECT_BEFORE_COMMIT_NOT_WAN_OFFLINE', performance_sample: false,
           create_new_app_calls: 2, transport_requests_dropped_without_commit: 1, acknowledged_create_responses: 1, unexpected_create_attempts: 0,
-          visible_wallet_count_after_relaunch: 1 },
+          visible_wallet_count_after_relaunch: 1, installed_artifact_verified: true, installed_artifact: { ...installed } },
         key_management_ui: { status: 'PASS', entrypoint: 'index.js', network: 'TESTNET', scenario: 'UNUSED_MOBILE_KEY_UI_DELETE_AND_NATIVE_PIN',
-          new_account_requests_during_key_flow: 0, visible_eligible_keys_after_deletion: 0, unrelated_visible_wallet_count_after_relaunch: 1 } } };
+          new_account_requests_during_key_flow: 0, visible_eligible_keys_after_deletion: 0, unrelated_visible_wallet_count_after_relaunch: 1,
+          installed_artifact_verified: true, installed_artifact: { ...installed } } } };
     const bytes = addArtifact(index + 1, `keeper-canonical-native-${platform}-${source}-300-1`, 'metadata.json', receipts[platform]);
     payload.platforms[platform] = { conclusion: 'success', receipt_sha256: sha256(bytes), artifact_id: index + 1,
       cases: CASES.map(id => ({ id, status: 'PASS' })), executed_checks: Object.fromEntries(Object.entries(EXECUTED).map(([id, scope]) => [id, { status: 'PASS', scope }])) };
@@ -325,6 +332,43 @@ test('archive additional-entry count fails despite correct API digest', async ()
     await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /ARTIFACT_ZIP_INVALID/);
   });
 });
+
+for (const platform of ['IOS', 'ANDROID']) {
+  const rows = [['root', value => value],
+    ...Array.from({ length: 5 }, (_, index) => [`sample ${index + 1}`, value => value.product_ui.samples[index]]),
+    ['Retry', value => value.product_ui.controlled_disconnect_retry],
+    ['key/PIN', value => value.product_ui.key_management_ui]];
+  for (const [rowName, select] of rows) {
+    for (const [name, mutate] of [
+      ['missing proof', row => delete row.installed_artifact],
+      ['unverified bytes', row => row.installed_artifact_verified = false],
+      ['truthy verification', row => row.installed_artifact_verified = 'true'],
+      ['wrong method', row => row.installed_artifact.method = 'INSTALL_COMMAND_SUCCEEDED'],
+      ['unexpected proof field', row => row.installed_artifact.normalized = true],
+      ['malformed hash', row => row.installed_artifact[platform === 'IOS' ? 'inventory_sha256' : 'sha256'] = 'invalid'],
+      ...(rowName === 'root' ? [] : [['different installed bytes', row =>
+        row.installed_artifact[platform === 'IOS' ? 'inventory_sha256' : 'sha256'] = '1'.repeat(64)]]),
+    ]) test(`${platform} ${rowName} rejects ${name} despite valid original artifact hashes`, async () => {
+      await withFixture(async f => {
+        mutate(select(f.receipts[platform]));
+        f.refreshReceipt(platform);
+        f.refreshAttestation();
+        await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /INSTALLED_BYTE_PROOF_INCOMPLETE/);
+      });
+    });
+  }
+  for (const [name, mutate] of [
+    ['missing build hash', value => delete value.built_artifact],
+    ['different build bytes', value => value.built_artifact[platform === 'IOS' ? 'executable_sha256' : 'sha256'] = '1'.repeat(64)],
+  ]) test(`${platform} rejects ${name} despite all matching installed receipts`, async () => {
+    await withFixture(async f => {
+      mutate(f.receipts[platform]);
+      f.refreshReceipt(platform);
+      f.refreshAttestation();
+      await assert.rejects(collectTrustedOrigin(request, 'disposable-test-token', now), /INSTALLED_BYTES_NOT_BOUND_TO_BUILD/);
+    });
+  });
+}
 
 test('artifact redirect never sends API token to untrusted host', async () => {
   await withFixture(async f => {
