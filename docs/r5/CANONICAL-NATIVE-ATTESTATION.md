@@ -19,6 +19,12 @@ Check-suite and job check-run identities must belong to the real GitHub Actions
 App15368, not a status name, actor name or artifact assertion.
 The live repository pin is read again through the authenticated read-only API at
 each provenance check; revocation or unavailable variable-read permission blocks.
+The default workflow token cannot read repository Variables. A separate
+repository-selected Variables:read identity, supplied as the step-only secret
+`KEEPER_CANONICAL_PIN_READ_TOKEN`, reads that endpoint. Actions/checks/contents
+continue to use the workflow token. The collector removes the credential from
+its environment before invoking the archive reader. Missing, expired or revoked
+credentials fail closed with no fallback to the initial variable snapshot.
 
 The separate canonical platform worker preserves the existing hosted command
 sequence: record→prepare→iOS driver preflight→development build→startup smoke→native
@@ -33,7 +39,9 @@ Hosted macOS/Xcode and Linux/KVM emulator prerequisites, dependency/source guard
 safe caches, disk budgets, loopback fixtures and development signing conventions
 remain those of the reviewed foundation. No production signing key, upload,
 distribution, protected environment or release credential is used. The worker
-has only contents/actions/checks read permissions. No personal Mac is requested.
+has only contents/actions/checks read workflow permissions; its sole forwarded
+secret is the read-only Variables identity, exposed only during its initial
+provenance script, before dependencies and native tooling. No personal Mac is requested.
 
 Each platform uploads one bounded `metadata.json` artifact:
 
@@ -99,6 +107,8 @@ variable and the required Actions/check/artifact endpoints; then separately
 authorize a single hosted run. Repin only a reviewed canonical candidate. None of
 these configuration changes or executions has occurred here. Existing incomplete
 software/physical acceptance and release approvals remain independent.
+See [the pin-reader installation handoff](CANONICAL-PIN-READ-INSTALLATION.md) for
+the verified permission blocker, narrowly scoped identity and API preflight.
 
 Executed local contract checks: Node API/provenance/receipt controls and Python
 real-ZIP safety controls. They exercise forged runs/apps/workflows, moved heads,

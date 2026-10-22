@@ -51,10 +51,7 @@ function fixture() {
       assert.equal(args.workflow_id, 'keeper-canonical-native.yml'); return state.workflow;
     }), getWorkflowRun: wrap('run', () => state.run),
       listWorkflowRuns: wrap('runs', () => ({ total_count: state.newerRun ? 2 : 1, workflow_runs: state.newerRun ? [state.run, { ...state.run, id: 401 }] : [state.run] })),
-      getRepoVariable: wrap('pin', () => {
-        if (state.pinUnavailable) throw new Error('API403');
-        return state.pinAfterDownload && state.downloaded ? { ...state.pin, value: '' } : state.pin;
-      }),
+      getRepoVariable: () => { throw new Error('DEFAULT_GITHUB_TOKEN_CANNOT_READ_VARIABLES'); },
       listWorkflowRunsForRepo: wrap('capacity', args => {
         state.capacityStatuses ??= []; state.capacityStatuses.push(args.status);
         const selected = state.waitingOnly ? args.status === 'waiting' ? state.active : [] : state.active;
@@ -76,8 +73,51 @@ function fixture() {
       check_suite: { id: 77 }, status: 'completed', conclusion: 'success' })) },
     git: { getCommit: wrap('tree', () => ({ sha: source, tree: { sha: 'c'.repeat(40) } })) },
   }, paginate: async () => state.jobs };
+  state.pinReader = { rest: { actions: { getRepoVariable: wrap('pin', args => {
+    assert.deepEqual(args, { ...context.repo, name: 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA',
+      headers: { 'cache-control': 'no-cache' } });
+    if (state.pinUnavailable || (state.credentialRevokedAfterDownload && state.downloaded))
+      throw Object.assign(new Error('Resource not accessible'), { status: state.pinUnavailable || 401 });
+    return state.pinAfterDownload && state.downloaded ? { ...state.pin, value: '' } : state.pin;
+  }) } } };
   return state;
 }
+
+function origin(f, options = {}) {
+  return driver.origin(f.github, f.context, f.request, { pinReader: f.pinReader, ...options });
+}
+
+function collect(f, output) {
+  return driver.collect(f.github, f.context, f.request, output, raw => raw, { pinReader: f.pinReader });
+}
+
+test('dedicated pin identity is mandatory and removed from child-process environment', () => {
+  const instances = [];
+  class Octokit {
+    constructor(options) { instances.push(options); }
+  }
+  const github = new Octokit({ auth: 'default-token' });
+  const env = { KEEPER_CANONICAL_PIN_READ_TOKEN: 'variables-read-token', GITHUB_TOKEN: 'default-token' };
+  const reader = driver.pinReaderFromEnvironment(github, env);
+  assert.ok(reader instanceof Octokit);
+  assert.notEqual(reader, github);
+  assert.deepEqual(instances, [{ auth: 'default-token' }, { auth: 'variables-read-token' }]);
+  assert.deepEqual(env, { GITHUB_TOKEN: 'default-token' });
+  for (const token of [undefined, null, '', '   ']) {
+    const missing = { KEEPER_CANONICAL_PIN_READ_TOKEN: token, GITHUB_TOKEN: 'default-token' };
+    assert.throws(() => driver.pinReaderFromEnvironment(github, missing), /LIVE_DRIVER_PIN_IDENTITY_REQUIRED/);
+    assert.equal(Object.hasOwn(missing, 'KEEPER_CANONICAL_PIN_READ_TOKEN'), false);
+  }
+});
+
+test('default Variables denial cannot block the separate reader or supply a fallback', async () => {
+  const f = fixture();
+  await origin(f);
+  assert.equal(f.calls.filter(call => call === 'pin').length, 1);
+  for (const pinReader of [undefined, null, {}, { rest: { actions: {} } }]) {
+    await assert.rejects(driver.origin(f.github, f.context, f.request, { pinReader }), /LIVE_DRIVER_PIN_IDENTITY_REQUIRED/);
+  }
+});
 
 test('only pinned immutable manual canonical source is admitted', () => {
   const f = fixture(); assert.equal(f.request.sourceSha, f.context.sha);
@@ -89,31 +129,38 @@ test('only pinned immutable manual canonical source is admitted', () => {
   }
 });
 test('actual Actions app and exact current protected source/run/attempt are required', async () => {
-  await driver.origin(fixture().github, fixture().context, fixture().request);
+  await origin(fixture());
   for (const change of [x => { x.suite.app.id = 999; }, x => { x.run.id++; },
     x => { x.run.run_attempt--; }, x => { x.run.head_sha = 'b'.repeat(40); },
     x => { x.run.path = '.github/workflows/forged.yml'; }, x => { x.workflow.state = 'disabled_manually'; },
     x => { x.run.head_repository.id = 9; }, x => { x.branch.protected = false; },
     x => { x.branch.commit.sha = 'b'.repeat(40); }, x => { x.newerRun = true; },
     x => { x.run.event = 'pull_request'; }, x => { x.run.pull_requests.push({ number: 7058 }); }]) {
-    const f = fixture(); change(f); await assert.rejects(driver.origin(f.github, f.context, f.request));
+    const f = fixture(); change(f); await assert.rejects(origin(f));
   }
 });
 test('capacity admission rejects other native runs without cancelling them', async () => {
   const f = fixture();
   for (const path of ['keeper-hosted-native.yml', 'keeper-one-time-native.yml', 'keeper-one-time-native-diagnostic.yml']) {
     f.active = [{ id: 99, path: '.github/workflows/' + path }];
-    await assert.rejects(driver.origin(f.github, f.context, f.request, { admission: true }), /ANOTHER_NATIVE/);
+    await assert.rejects(origin(f, { admission: true }), /ANOTHER_NATIVE/);
     assert.equal(f.active[0].id, 99);
   }
   f.active = [{ id: 98, path: '.github/workflows/test.yml' }];
-  await driver.origin(f.github, f.context, f.request, { admission: true });
+  await origin(f, { admission: true });
   assert.deepEqual([...new Set(f.capacityStatuses)].sort(), ['in_progress', 'pending', 'queued', 'requested', 'waiting']);
 });
-test('waiting native capacity and revoked/unreadable live pin fail closed', async () => {
-  for (const change of [x => { x.waitingOnly = true; x.active = [{ id: 99, path: driver.WORKFLOW }]; },
-    x => { x.pin.value = ''; }, x => { x.pinUnavailable = true; }]) {
-    const f = fixture(); change(f); await assert.rejects(driver.origin(f.github, f.context, f.request, { admission: true }));
+test('waiting native capacity fails closed', async () => {
+  const f = fixture(); f.waitingOnly = true; f.active = [{ id: 99, path: driver.WORKFLOW }];
+  await assert.rejects(origin(f, { admission: true }), /ANOTHER_NATIVE_RUN_ACTIVE_OR_QUEUED/);
+});
+test('revoked, malformed and unreadable live Variables pins fail closed', async () => {
+  for (const change of [x => { x.pin.value = ''; }, x => { x.pin.value = 'b'.repeat(40); },
+    x => { x.pin.name = 'other'; }, x => { x.pin = null; }, x => { x.pin = {}; }, x => { x.pinUnavailable = 401; },
+    x => { x.pinUnavailable = 403; }, x => { x.pinUnavailable = 404; },
+    x => { x.pinUnavailable = 500; }]) {
+    const f = fixture(); change(f);
+    await assert.rejects(origin(f, { admission: true }), /LIVE_DRIVER_PIN_REVOKED_OR_UNREADABLE/);
   }
 });
 test('missing/skipped/duplicate/stale platform jobs or forged check apps cannot pass', async () => {
@@ -145,7 +192,7 @@ test('artifact names, digests and current-attempt provenance are independently c
     x => { x.artifacts[0].workflow_run.id = 399; }, x => { x.artifacts[0].size_in_bytes++; },
     x => { x.expireAfterDownload = true; }]) {
     const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
-    try { change(f); await assert.rejects(driver.collect(f.github, f.context, f.request, output, raw => raw)); }
+    try { change(f); await assert.rejects(collect(f, output)); }
     finally { fs.rmSync(output, { recursive: true, force: true }); }
   }
 });
@@ -153,7 +200,8 @@ test('complete native subsets emit bounded BLOCKED readiness and no reusable att
   const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
   try {
     fs.writeFileSync(path.join(output, 'keeper-canonical-native-attestation.json'), 'stale');
-    await assert.rejects(driver.collect(f.github, f.context, f.request, output, raw => raw), /MATRIX_INCOMPLETE/);
+    await assert.rejects(collect(f, output), /MATRIX_INCOMPLETE/);
+    assert.equal(f.calls.filter(call => call === 'pin').length, 2, 'pin read both before and after downloads');
     assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
     const raw = fs.readFileSync(path.join(output, 'keeper-canonical-native-readiness.json'), 'utf8');
     const result = JSON.parse(raw); assert.equal(result.feature_matrix_complete, false);
@@ -161,12 +209,22 @@ test('complete native subsets emit bounded BLOCKED readiness and no reusable att
     assert.equal(raw.includes('PRIVATE_SENTINEL'), false);
   } finally { fs.rmSync(output, { recursive: true, force: true }); }
 });
+test('collector rejects missing reader and deletes an old positive artifact before any API read', async () => {
+  const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
+  try {
+    fs.writeFileSync(path.join(output, 'keeper-canonical-native-attestation.json'), 'stale');
+    await assert.rejects(driver.collect(f.github, f.context, f.request, output, raw => raw), /LIVE_DRIVER_PIN_IDENTITY_REQUIRED/);
+    assert.deepEqual(f.calls, []);
+    assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
+  } finally { fs.rmSync(output, { recursive: true, force: true }); }
+});
 test('head movement and stale rerun after platform artifact download invalidate collection', async () => {
   for (const change of [x => { x.moveAfterRead = true; }, x => { x.staleAfterDownload = true; },
-    x => { x.pinAfterDownload = true; }]) {
+    x => { x.pinAfterDownload = true; }, x => { x.credentialRevokedAfterDownload = true; }]) {
     const f = fixture(), output = fs.mkdtempSync(path.join(os.tmpdir(), 'canonical-test-'));
-    try { change(f); await assert.rejects(driver.collect(f.github, f.context, f.request, output, raw => raw));
-      assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false); }
+    try { change(f); await assert.rejects(collect(f, output));
+      assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-attestation.json')), false);
+      assert.equal(fs.existsSync(path.join(output, 'keeper-canonical-native-readiness.json')), false); }
     finally { fs.rmSync(output, { recursive: true, force: true }); }
   }
 });

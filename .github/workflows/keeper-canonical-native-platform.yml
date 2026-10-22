@@ -9,8 +9,13 @@ on:
       platform:
         type: string
         required: true
+    secrets:
+      canonical_pin_read_token:
+        description: Repository-selected Variables read identity for live pin verification only
+        required: true
 
-# This worker has no environment, release credentials, secret inputs or dispatch.
+# This worker has no environment, release credentials or dispatch. Its only
+# secret input is scoped to the initial live-pin verification script.
 permissions:
   contents: read
   actions: read
@@ -39,12 +44,14 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           KEEPER_CANONICAL_NATIVE_DRIVER_SHA: ${{ vars.KEEPER_CANONICAL_NATIVE_DRIVER_SHA }}
+          KEEPER_CANONICAL_PIN_READ_TOKEN: ${{ secrets.canonical_pin_read_token }}
         with:
           script: |
             try {
               const driver = require('./.github/native/canonical_native.cjs');
+              const pinReader = driver.pinReaderFromEnvironment(github, process.env);
               const request = driver.requestFromEnvironment(context, process.env);
-              await driver.origin(github, context, request, { admission: true });
+              await driver.origin(github, context, request, { admission: true, pinReader });
             } catch {
               core.setFailed('Canonical installed source, exact attempt or native capacity is unverified. No native credit.');
             }

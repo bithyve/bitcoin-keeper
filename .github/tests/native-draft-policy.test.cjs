@@ -143,6 +143,45 @@ test('canonical provenance contracts stay read-only and separate from manual nat
   assert.equal(triggered(native, 'push', null, 'sprint'), false);
 });
 
+test('canonical pin credential stays in explicit provenance steps with read-only workflow permissions', () => {
+  const caller = workflows['keeper-canonical-native.yml'];
+  const worker = workflows['keeper-canonical-native-platform.yml'];
+  for (const workflow of [caller, worker]) {
+    assert.deepEqual(workflow.permissions, { contents: 'read', actions: 'read', checks: 'read' });
+    assert.equal(workflow.env?.KEEPER_CANONICAL_PIN_READ_TOKEN, undefined);
+    for (const job of Object.values(workflow.jobs)) {
+      assert.equal(job.environment, undefined);
+      assert.equal(job.env?.KEEPER_CANONICAL_PIN_READ_TOKEN, undefined);
+      for (const step of job.steps || []) {
+        if (step.env?.KEEPER_CANONICAL_PIN_READ_TOKEN) {
+          assert.match(step.uses, /^actions\/github-script@[a-f0-9]{40}$/);
+          assert.equal(step.with['github-token'], undefined, 'Actions/check APIs keep the normal workflow identity');
+          assert.match(step.with.script, /pinReaderFromEnvironment\(github, process.env\)/);
+          assert.match(step.with.script, /(?:admission: true, pinReader|\{ pinReader \})/);
+        } else {
+          assert.doesNotMatch(JSON.stringify(step), /secrets\./, 'build/tooling steps receive no pin credential');
+        }
+      }
+    }
+  }
+  assert.deepEqual(Object.keys(worker.on.workflow_call.secrets), ['canonical_pin_read_token']);
+  assert.equal(worker.on.workflow_call.secrets.canonical_pin_read_token.required, 'true');
+  for (const platform of ['ios', 'android']) {
+    assert.deepEqual(caller.jobs[platform].secrets, {
+      canonical_pin_read_token: '${{ secrets.KEEPER_CANONICAL_PIN_READ_TOKEN }}',
+    });
+  }
+  assert.deepEqual(caller.jobs.provenance.steps.find(step => step.id === 'check').env, {
+    KEEPER_CANONICAL_PIN_READ_TOKEN: '${{ secrets.KEEPER_CANONICAL_PIN_READ_TOKEN }}',
+  });
+  assert.equal(caller.jobs.attestation.steps.find(step => step.name === 'Verify canonical receipts and required matrix')
+    .env.KEEPER_CANONICAL_PIN_READ_TOKEN, '${{ secrets.KEEPER_CANONICAL_PIN_READ_TOKEN }}');
+  const checks = worker.jobs.native.steps.filter(step => step.env?.KEEPER_CANONICAL_PIN_READ_TOKEN);
+  assert.equal(checks.length, 1);
+  assert.equal(checks[0].env.KEEPER_CANONICAL_PIN_READ_TOKEN, '${{ secrets.canonical_pin_read_token }}');
+  assert.equal(checks[0].name, 'Verify canonical installed source');
+});
+
 test('release preparation PR checks stay offline and separate from the protected manual plan', () => {
   const contracts = workflows['keeper-release-preparation-contracts.yml'];
   assert.deepEqual(contracts.permissions, { contents: 'read' });

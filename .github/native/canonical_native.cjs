@@ -35,16 +35,30 @@ function githubApp(check) {
   return check?.app?.id === APP_ID && check.app.slug === 'github-actions';
 }
 
-async function origin(github, context, request, { admission = false } = {}) {
+function pinReaderFromEnvironment(github, env) {
+  const token = env.KEEPER_CANONICAL_PIN_READ_TOKEN;
+  // The collector spawns the bounded ZIP reader. Do not pass this credential to
+  // that subprocess or to subsequent tooling through the process environment.
+  delete env.KEEPER_CANONICAL_PIN_READ_TOKEN;
+  demand(typeof token === 'string' && token.trim().length > 0, 'LIVE_DRIVER_PIN_IDENTITY_REQUIRED');
+  // Keep the normal GITHUB_TOKEN client for Actions/checks/contents. This
+  // repository-selected Variables:read identity is used only for the live pin.
+  return new github.constructor({ auth: token });
+}
+
+async function origin(github, context, request, { admission = false, pinReader } = {}) {
+  demand(typeof pinReader?.rest?.actions?.getRepoVariable === 'function', 'LIVE_DRIVER_PIN_IDENTITY_REQUIRED');
   const args = context.repo;
   const [repository, branch, workflow, run, pin] = await Promise.all([
     github.rest.repos.get(args).then(r => r.data),
     github.rest.repos.getBranch({ ...args, branch: 'sprint' }).then(r => r.data),
     github.rest.actions.getWorkflow({ ...args, workflow_id: path.basename(WORKFLOW) }).then(r => r.data),
     github.rest.actions.getWorkflowRun({ ...args, run_id: request.runId }).then(r => r.data),
-    github.rest.actions.getRepoVariable({ ...args, name: 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA' }).then(r => r.data),
+    pinReader.rest.actions.getRepoVariable({ ...args, name: 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA',
+      headers: { 'cache-control': 'no-cache' } }).then(r => r.data)
+      .catch(() => { throw new Error('LIVE_DRIVER_PIN_REVOKED_OR_UNREADABLE'); }),
   ]);
-  demand(pin.name === 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA' && pin.value === request.sourceSha && pin.value === request.pin,
+  demand(pin?.name === 'KEEPER_CANONICAL_NATIVE_DRIVER_SHA' && pin.value === request.sourceSha && pin.value === request.pin,
     'LIVE_DRIVER_PIN_REVOKED_OR_UNREADABLE');
   demand(repository.id === REPOSITORY_ID && repository.full_name === REPOSITORY && repository.default_branch === 'sprint', 'REPOSITORY_MISMATCH');
   demand(branch.protected === true && branch.commit?.sha === request.sourceSha, 'CANONICAL_HEAD_MOVED_OR_UNPROTECTED');
@@ -164,9 +178,9 @@ function validateMetadata(metadata, request, platform) {
   return { cases, executed_checks: checks };
 }
 
-async function collect(github, context, request, output, readZip) {
+async function collect(github, context, request, output, readZip, { pinReader } = {}) {
   fs.rmSync(path.join(output, 'keeper-canonical-native-attestation.json'), { force: true });
-  const { run } = await origin(github, context, request);
+  const { run } = await origin(github, context, request, { pinReader });
   await platformJobs(github, context, request, run);
   const page = (await github.rest.actions.listWorkflowRunArtifacts({ ...context.repo, run_id: request.runId, per_page: 100 })).data;
   demand(page.total_count <= 100 && page.total_count === page.artifacts?.length, 'CANONICAL_ARTIFACT_LIST_INCOMPLETE');
@@ -193,7 +207,7 @@ async function collect(github, context, request, output, readZip) {
       receipt_sha256: digest(raw), ...validateMetadata(metadata, request, platform) };
   }
   // Recheck after every download; moved heads, new runs or rerun attempts invalidate this collector.
-  await origin(github, context, request);
+  await origin(github, context, request, { pinReader });
   const commit = (await github.rest.git.getCommit({ ...context.repo, commit_sha: request.sourceSha })).data;
   demand(commit.sha === request.sourceSha && SHA.test(commit.tree?.sha || ''), 'CANONICAL_SOURCE_TREE_UNVERIFIED');
   const complete = Object.values(platforms).every(item => item.cases.length === REQUIRED.length &&
@@ -217,4 +231,5 @@ function readMetadataZip(archive) {
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 }
 module.exports = { REPOSITORY, REPOSITORY_ID, WORKFLOW, WORKER, APP_ID, requestFromEnvironment,
-  origin, requiredSteps, platformJobs, validateMetadata, collect, artifactName, attestationName, readMetadataZip };
+  pinReaderFromEnvironment, origin, requiredSteps, platformJobs, validateMetadata, collect,
+  artifactName, attestationName, readMetadataZip };
