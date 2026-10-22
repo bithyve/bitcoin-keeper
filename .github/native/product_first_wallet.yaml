@@ -17,36 +17,7 @@ name: Full app startup first wallet and cold persistence
     file: product_metric.js
     env:
       STAGE: startup_ready
-- repeat:
-    times: 4
-    commands:
-      - tapOn:
-          id: key_1
-- assertVisible: Confirm your passcode
-- repeat:
-    times: 4
-    commands:
-      - tapOn:
-          id: key_1
-- tapOn: Create
-- extendedWaitUntil:
-    visible: Continue
-    timeout: 30000
-- tapOn: Continue
-- extendedWaitUntil:
-    visible: Cancel
-    timeout: 30000
-- tapOn: Cancel
-- extendedWaitUntil:
-    visible:
-      id: btn_skip
-    timeout: 30000
-- tapOn:
-    id: btn_skip
-- extendedWaitUntil:
-    visible:
-      id: view_startNewTile
-    timeout: 30000
+- runFlow: product_prepare_pin.yaml
 - runScript:
     file: product_metric.js
     env:
