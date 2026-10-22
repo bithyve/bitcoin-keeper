@@ -1,5 +1,6 @@
 """Read-only Android startup facts. No raw device or application text escapes."""
 from pathlib import Path
+import importlib.util
 import re
 import shutil
 import subprocess
@@ -130,11 +131,20 @@ def exit_history(payload, usable=True):
 
 def android_log(payload, owned):
     result = {'parsed_error_records': 0, 'own_error_records': 0, 'unclassified_own_error_records': 0,
+              'diagnostic_marker_records': 0,
               'unparsed_nonempty_lines': 0, 'exception_types': [], 'fault_categories': [],
               'attribution': 'CURRENT_OWN_PID_MATCH_HISTORY_FRESHNESS_UNKNOWN' if owned
                              else 'UNKNOWN_NO_CURRENT_OWN_PROCESS'}
     pattern = r'^\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+\s+(\d+)\s+\d+\s+[EF]\s+[^:]+:\s*(.*)$'
     for line in payload.splitlines():
+        # Reserved development diagnostics are not runtime error records. Keep
+        # this message-start filter independent of the optional receipt parser;
+        # an unavailable observer cannot turn its own markers into app faults.
+        if re.fullmatch(r'[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}'
+                        r' +[1-9][0-9]{0,9} +[1-9][0-9]{0,9} +E +ReactNativeJS: '
+                        r'KEEPER_ONBOARDING_BOUNDARY\|[^\n]*', line):
+            result['diagnostic_marker_records'] += 1
+            continue
         match = re.match(pattern, line)
         if not match:
             if line.strip() and not line.startswith('--------- beginning of '):
@@ -150,6 +160,18 @@ def android_log(payload, owned):
         for key in observed:
             result[key] = list(dict.fromkeys(result[key] + observed[key]))
     return result
+
+
+def onboarding_receipt(payload, owned, *, usable, full_input):
+    try:
+        spec = importlib.util.spec_from_file_location('onboarding_failure_receipts',
+            Path(__file__).with_name('onboarding_failure_receipts.py'))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.parse(payload, owned, usable=usable, full_input=full_input)
+    except Exception:
+        return {'state': 'UNKNOWN', 'scope': 'OPTIONAL_DEV_MARKER_PARSER_UNAVAILABLE',
+                'cause': 'UNDETERMINED', 'freshness': 'GUEST_CLOCK_UNVERIFIED'}
 
 
 def metro(payload):
@@ -260,6 +282,9 @@ def collect(private, device):
         result['runtime_errors'].update(
             lookup_status=result['commands'][-1]['lookup_status'],
             input_truncated=result['commands'][-1]['input_truncated'])
+        result['onboarding_boundary_observation'] = onboarding_receipt(payload, owned,
+            usable=result['commands'][-1]['lookup_status'] == 'SUCCESS',
+            full_input=result['commands'][-1]['input_truncated'] is False)
         try:
             payload, observed = bounded(private / 'metro.log', private)
             result['metro'] = {'lookup_status': 'SUCCESS', **observed, **metro(payload)}

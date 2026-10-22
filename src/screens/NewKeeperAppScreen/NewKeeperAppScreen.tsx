@@ -30,6 +30,7 @@ import { useIsFocused } from '@react-navigation/native';
 import Fonts from 'src/constants/Fonts';
 import ThemedSvg from 'src/components/ThemedSvg.tsx/ThemedSvg';
 import { currentBackupAccountSession } from 'src/services/backup/transport';
+import { observeOnboardingBoundary } from 'src/utils/onboarding-boundary-observer';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -166,6 +167,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }, [appRecreated]);
 
   useEffect(() => {
+    observeOnboardingBoundary('NEW_KEEPER_EFFECT');
     navigationActive.current = true;
     return () => {
       navigationActive.current = false;
