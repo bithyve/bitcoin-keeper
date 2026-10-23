@@ -1,6 +1,6 @@
 # Fixed 044 iOS startup readout
 
-This is a read-only descendant of the fixed #7124 reader at
+This is a read-only descendant of the fixed #7123 reader at
 `60dd4582c6b5e7b983aeed9fa4d3abafc9835edc`. It retrieves only artifact
 `12469536083` from run `39873063291`, attempt 1, iOS job `120151926152`.
 The frozen application source is `044ebb6ea2d465f6a70e9116e3feac5a604cd696`,
