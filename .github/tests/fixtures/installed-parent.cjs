@@ -40,7 +40,7 @@ function withWindow(f) {
   };
   return f;
 }
-function loadWindow({ installed = true } = {}) {
+function loadWindow({ installed = true, typesOnly = false } = {}) {
   const file = path.join(root, '.github/native/installed_parent_window.cjs');
   let text = fs.readFileSync(file, 'utf8');
   if (installed) {
@@ -49,6 +49,7 @@ function loadWindow({ installed = true } = {}) {
     text = text.replace(needle, `const INSTALLED_PROFILES = Object.freeze(${JSON.stringify({ 'synthetic-reviewed-profile': profile })});`);
   }
   const module = { exports: {} };
+  if (typesOnly) text += '\nmodule.exports.typePredicates = { sha, hex };';
   new Function('require', 'module', 'Buffer', text)(createRequire(file), module, Buffer);
   return module.exports;
 }

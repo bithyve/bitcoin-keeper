@@ -9,6 +9,8 @@ const WINDOW_PIN = 'KEEPER_CANONICAL_PRIVATE_WINDOW_JSON';
 const INSTALLED_PROFILES = Object.freeze({});
 const issued = new WeakSet(), originals = new WeakMap();
 const SHA = /^[a-f0-9]{40}$/, HEX = /^[a-f0-9]{64}$/;
+const sha = value => typeof value === 'string' && SHA.test(value);
+const hex = value => typeof value === 'string' && HEX.test(value);
 const APP = 'KeeperCommunity/bitcoin-keeper', PRIVATE = 'KeeperCommunity/bitcoin-keeper-relay';
 const BACKEND = '29597b27eeeb299205bf7d0555db0a90c38cc4be';
 const WORKFLOW = '.github/workflows/r5-native-integration.yml';
@@ -25,18 +27,18 @@ function frozen(value) {
 }
 function validateManifest(value, request, tree) {
   demand(keys(value, ['schema', 'profile', 'window_id', 'app', 'backend', 'public', 'private']) && value.schema === 1 &&
-    HEX.test(value.window_id || '') && typeof value.profile === 'string' && Object.hasOwn(INSTALLED_PROFILES, value.profile),
+    hex(value.window_id) && typeof value.profile === 'string' && Object.hasOwn(INSTALLED_PROFILES, value.profile),
   'INSTALLED_PARENT_PROFILE_REQUIRED');
   const profile = INSTALLED_PROFILES[value.profile];
   demand(keys(profile, ['repository', 'repositoryId', 'workflowPath', 'ref', 'driverBase', 'backendSha', 'rawProfile']) &&
     profile.repository === PRIVATE && profile.repositoryId === 496119449 && profile.workflowPath === WORKFLOW &&
     profile.ref === REF && profile.driverBase === DRIVER && profile.backendSha === BACKEND && profile.rawProfile === 'D448_RAW13');
   demand(keys(value.app, ['repository', 'sha', 'tree']) && value.app.repository === APP &&
-    value.app.sha === request.sourceSha && SHA.test(value.app.tree || '') && value.app.tree === tree);
+    sha(value.app.sha) && value.app.sha === request.sourceSha && sha(value.app.tree) && value.app.tree === tree);
   demand(keys(value.backend, ['repository', 'sha']) && value.backend.repository === PRIVATE && value.backend.sha === BACKEND);
   demand(keys(value.public, ['workflowPath', 'workflowSha', 'ref', 'runId', 'runAttempt']) &&
     value.public.workflowPath === '.github/workflows/keeper-canonical-native.yml' &&
-    value.public.workflowSha === request.workflowSha && value.public.ref === 'refs/heads/sprint' &&
+    sha(value.public.workflowSha) && value.public.workflowSha === request.workflowSha && value.public.ref === 'refs/heads/sprint' &&
     value.public.runId === request.runId && value.public.runAttempt === request.attempt);
   demand(keys(value.private, ['IOS', 'ANDROID']));
   for (const platform of ['IOS', 'ANDROID']) {
@@ -44,10 +46,10 @@ function validateManifest(value, request, tree) {
     demand(keys(d, ['platform', 'app', 'control', 'backend', 'execution']) && d.platform === platform &&
       equal(d.app, value.app) && equal(d.backend, value.backend));
     demand(keys(d.control, ['repository', 'sha', 'tree']) && d.control.repository === PRIVATE &&
-      SHA.test(d.control.sha || '') && SHA.test(d.control.tree || ''));
+      sha(d.control.sha) && sha(d.control.tree));
     const e = d.execution;
     demand(keys(e, ['repository', 'workflowPath', 'workflowSha', 'ref', 'runId', 'runAttempt']) &&
-      e.repository === PRIVATE && e.workflowPath === WORKFLOW && e.workflowSha === d.control.sha &&
+      e.repository === PRIVATE && e.workflowPath === WORKFLOW && sha(e.workflowSha) && e.workflowSha === d.control.sha &&
       e.ref === REF && id(e.runId) && id(e.runAttempt));
   }
   demand(value.private.IOS.control.sha !== value.private.ANDROID.control.sha &&
@@ -72,7 +74,7 @@ async function readWindow(github, context, request, pinReader) {
   ]);
   demand(pin?.name === WINDOW_PIN && typeof pin.value === 'string' && Buffer.byteLength(pin.value) > 0 &&
     Buffer.byteLength(pin.value) <= 16384, 'INSTALLED_PARENT_WINDOW_UNREADABLE');
-  demand(commit?.sha === request.sourceSha && SHA.test(commit.tree?.sha || ''));
+  demand(sha(commit?.sha) && commit.sha === request.sourceSha && sha(commit.tree?.sha));
   const bytes = Buffer.from(pin.value, 'utf8');
   let value; try { value = parseStrictJson(bytes, 16384); } catch { throw new Error('INSTALLED_PARENT_WINDOW_INVALID'); }
   validateManifest(value, request, commit.tree.sha);

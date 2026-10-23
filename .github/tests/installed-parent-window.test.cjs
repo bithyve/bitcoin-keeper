@@ -42,9 +42,27 @@ for (const [name, mutate] of Object.entries({
   malformed: f => f.rawWindow = '{', oversized: f => f.rawWindow = ' '.repeat(16385),
   duplicate: f => f.rawWindow = '{"schema":0,' + JSON.stringify(f.window).slice(1),
   escapedDuplicate: f => f.rawWindow = '{"\\u0073chema":0,' + JSON.stringify(f.window).slice(1),
+  arrayWindowId: f => f.window.window_id = [f.window.window_id],
+  arrayControlTree: f => f.window.private.IOS.control.tree = [f.window.private.IOS.control.tree],
+  arrayAndroidControlTree: f => f.window.private.ANDROID.control.tree = [f.window.private.ANDROID.control.tree],
+  arrayControlSha: f => f.window.private.IOS.control.sha = [f.window.private.IOS.control.sha],
+  arrayAppTree: f => f.window.app.tree = [f.window.app.tree],
+  arrayAppSha: f => f.window.app.sha = [f.window.app.sha],
+  arrayPublicSha: f => f.window.public.workflowSha = [f.window.public.workflowSha],
+  arrayPrivateSha: f => f.window.private.IOS.execution.workflowSha = [f.window.private.IOS.execution.workflowSha],
+  objectWindowId: f => f.window.window_id = { toString: 'not a JSON string' },
+  boxedVariable: f => f.rawWindow = new String(JSON.stringify(f.window)),
 })) test(`installed window rejects ${name} without private collection`, async () => {
   const driver = loadWindow(), f = withWindow(canonicalFixture()); mutate(f);
   await assert.rejects(auth(driver, f), /^Error: INSTALLED_PARENT_[A-Z_]+$/);
+});
+test('actual private SHA/HEX predicates reject boxed and coercible values before regex checks', () => {
+  const { sha, hex } = loadWindow({ typesOnly: true }).typePredicates;
+  for (const [predicate, literal] of [[sha, 'a'.repeat(40)], [hex, 'a'.repeat(64)]]) {
+    assert.equal(predicate(literal), true);
+    for (const value of [undefined, null, false, 42, [], [literal], new String(literal), { toString: () => literal }])
+      assert.equal(predicate(value), false);
+  }
 });
 test('live manifest bytes, public pin and protected source are rechecked and revocation never falls back', async () => {
   for (const change of [f => f.window.public.runAttempt++, f => f.rawWindow = JSON.stringify(f.window) + ' ',

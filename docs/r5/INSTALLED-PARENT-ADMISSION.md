@@ -30,6 +30,12 @@ identities and mismatched source trees/runs fail closed. Origin/live pin is
 checked again before capability issuance. No ordinary Actions-token fallback
 is allowed.
 
+Every SHA/hex identity must be a literal string before its regex is evaluated.
+Parsed JSON arrays and coercible objects cannot stand in for window IDs or
+controller trees. The original c030 checkpoint's latent type-coercion acceptance
+is preserved; the descendant rejects it under the synthetic installed-profile
+controls. Actual installed policy remains empty throughout.
+
 Exact top-level keys are `schema:1`, `profile`, `window_id` (64 lowercase hex),
 `app`, `backend`, `public` and `private`:
 
