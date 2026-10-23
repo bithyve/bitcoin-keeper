@@ -4,6 +4,10 @@ on:
     branches: [sprint]
     paths:
       - '.github/native/canonical_*'
+      - '.github/native/private_integration_receipts.cjs'
+      - '.github/tests/native-source-scope-fidelity.test.cjs'
+      - '.github/tests/fixtures/private-integration.cjs'
+      - 'docs/r5/NATIVE-SOURCE-SCOPE-FIDELITY.md'
       - '.github/tests/canonical-native.test.cjs'
       - '.github/tests/test_canonical_metadata.py'
       - '.github/workflows/keeper-canonical-native*'
@@ -28,7 +32,7 @@ jobs:
         run: node .github/scripts/verify-ci-source.cjs
       - name: Test read-only canonical trust and archive controls
         run: |
-          node --test .github/tests/canonical-native.test.cjs
+          node --test .github/tests/canonical-native.test.cjs .github/tests/native-source-scope-fidelity.test.cjs
           python3 -B -m unittest discover -s .github/tests -p test_canonical_metadata.py
       - name: Verify exact source after checks
         if: always()

@@ -117,12 +117,15 @@ function foundation(value, expected, built, proof) {
   return installed(value, platform, built, proof);
 }
 function sourceProofs(value, expected) {
+  const scopes = { protected: 'BOUNDED_PRIVATE_NATIVE_ACCEPTANCE_TOOLING',
+    recovery: 'BOUNDED_PRIVATE_FRESH_RECOVERY_TOOLING',
+    account: 'BOUNDED_PRIVATE_NORMAL_ACCOUNT_READ_ISOLATION_TOOLING' };
   demand(keys(value, SUITES));
   SUITES.forEach(suite => {
     const row = value[suite];
     demand(keys(row, ['sourceVerification', 'rawSources', 'app', 'backendBase', 'control', 'scope', 'nativeAcceptance']));
     fixed(row, { sourceVerification: 'PASS', app: expected.app.sha, backendBase: expected.backend.sha, control: expected.control.sha,
-      scope: 'BOUNDED_PRIVATE_NATIVE_ACCEPTANCE_TOOLING', nativeAcceptance: 'NOT_ESTABLISHED_BY_SOURCE_CHECK' });
+      scope: scopes[suite], nativeAcceptance: 'NOT_ESTABLISHED_BY_SOURCE_CHECK' });
     demand(keys(row.rawSources, ['app', 'control']));
     for (const kind of ['app', 'control']) demand(keys(row.rawSources[kind], ['files', 'sha256']) &&
       integer(row.rawSources[kind].files, kind === 'app' ? 2404 : 98, 100000) && hex(row.rawSources[kind].sha256, 64));
