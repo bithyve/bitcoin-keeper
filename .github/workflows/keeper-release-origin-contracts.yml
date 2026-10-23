@@ -8,6 +8,10 @@ on:
       - 'scripts/codeql-analysis-receipt*'
       - '.github/workflows/codeql.yml'
       - 'docs/r5-trusted-release-origin.md'
+      - '.github/native/private_integration_receipts.cjs'
+      - '.github/tests/native-source-scope-fidelity.test.cjs'
+      - '.github/tests/fixtures/private-integration.cjs'
+      - 'docs/r5/NATIVE-SOURCE-SCOPE-FIDELITY.md'
       - '.github/scripts/verify-ci-source.cjs'
       - '.github/tests/ci-source-identity.test.cjs'
       - '.github/tests/contract-source-identity.test.cjs'
@@ -18,6 +22,10 @@ on:
       - 'scripts/codeql-analysis-receipt*'
       - '.github/workflows/codeql.yml'
       - 'docs/r5-trusted-release-origin.md'
+      - '.github/native/private_integration_receipts.cjs'
+      - '.github/tests/native-source-scope-fidelity.test.cjs'
+      - '.github/tests/fixtures/private-integration.cjs'
+      - 'docs/r5/NATIVE-SOURCE-SCOPE-FIDELITY.md'
       - '.github/scripts/verify-ci-source.cjs'
       - '.github/tests/ci-source-identity.test.cjs'
       - '.github/tests/contract-source-identity.test.cjs'
@@ -47,7 +55,7 @@ jobs:
       - name: Verify exact event source before checks
         run: node .github/scripts/verify-ci-source.cjs
       - name: Test fake API and bounded artifact evidence
-        run: node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs
+        run: node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/native-source-scope-fidelity.test.cjs
       - name: Verify exact source after checks
         if: always()
         run: node .github/scripts/verify-ci-source.cjs
