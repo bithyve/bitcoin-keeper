@@ -6,13 +6,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 const OWNER = 'KeeperCommunity', REPO = 'bitcoin-keeper', REPOSITORY = 470904030;
-const RUN = 39858617273, JOB = 120103187854, ANDROID = 120125972406, ARTIFACT = 12462694619;
-const SOURCE = '1bc34890cb8618b2fffd446a63924974e0fe15b5';
-const TREE = '2e9cd57bf9f78b92cac73e9343ddbd0eef25e86e';
-const WORKFLOW = '3c44ab6412a8118b183273c402dd08136db05b28';
-const DIGEST = '550142809a0faf812741a586630b17d6f458b2b6c935b5bab4b00f84da67c84f';
+const RUN = 39873063291, JOB = 120151926152, ANDROID = 120167960772, ARTIFACT = 12469536083;
+const SOURCE = '044ebb6ea2d465f6a70e9116e3feac5a604cd696';
+const TREE = '4856035ece888230674e061c53115de3d6f025ed';
+const WORKFLOW = '5a7b0c5da0a38197f6dd675ff424f3ba3f441d02';
+const DIGEST = 'e244015128d4aa72e1e1c8be3072bc70d506ba11a804067448122d1318621caf';
 const NAME = `keeper-diagnostic-native-IOS-${SOURCE}-${RUN}-1`;
-const BRANCH = 'codex/r5-ios-startup-diagnosis-20261022';
+const BRANCH = 'codex/r5-startup-credential-failure-observation-20261022';
 
 function validateRun(value, jobs) {
   assert.equal(value.id, RUN); assert.equal(value.run_attempt, 1);
@@ -24,11 +24,11 @@ function validateRun(value, jobs) {
     (value.status === 'completed' && value.conclusion === 'failure'));
   assert.deepEqual(value.referenced_workflows, [{
     path: `${OWNER}/${REPO}/.github/workflows/keeper-native-platform.yml@${WORKFLOW}`,
-    ref: 'refs/pull/7116/merge', sha: WORKFLOW,
+    ref: 'refs/pull/7131/merge', sha: WORKFLOW,
   }]);
   assert.equal(jobs.total_count, 3); assert.equal(jobs.jobs.length, 3);
   assert.deepEqual(jobs.jobs.map(row => row.id).sort((a, b) => a - b),
-    [JOB, 120103189932, ANDROID].sort((a, b) => a - b));
+    [JOB, 120151928067, ANDROID].sort((a, b) => a - b));
   const android = jobs.jobs.find(row => row.id === ANDROID);
   assert.equal(android.run_id, RUN); assert.equal(android.head_sha, SOURCE);
   assert.equal(android.name, 'android / Native ANDROID build and probes');
@@ -60,7 +60,7 @@ function validateJob(value) {
 
 function validateArtifact(value) {
   assert.equal(value.id, ARTIFACT); assert.equal(value.name, NAME);
-  assert.equal(value.expired, false); assert.equal(value.size_in_bytes, 6884);
+  assert.equal(value.expired, false); assert.equal(value.size_in_bytes, 7232);
   assert.equal(value.digest, `sha256:${DIGEST}`);
   assert.equal(value.workflow_run.id, RUN); assert.equal(value.workflow_run.head_sha, SOURCE);
   assert.equal(value.workflow_run.repository_id, REPOSITORY);
@@ -73,7 +73,7 @@ async function run({ github, context, core }) {
   try {
     assert.equal(context.repo.owner, OWNER); assert.equal(context.repo.repo, REPO);
     assert.equal(context.eventName, 'push');
-    assert.equal(context.ref, 'refs/heads/codex/r5-1bc-ios-artifact-readout');
+    assert.equal(context.ref, 'refs/heads/codex/r5-044-ios-artifact-readout');
     const args = { owner: OWNER, repo: REPO, request: { timeout: 30000 } };
     async function snapshot() {
       const [r, j, a, jobs] = await Promise.all([
@@ -87,27 +87,27 @@ async function run({ github, context, core }) {
     await snapshot();
     const [commit, pr] = await Promise.all([
       github.rest.repos.getCommit({ ...args, ref: SOURCE }),
-      github.rest.pulls.get({ ...args, pull_number: 7116 }),
+      github.rest.pulls.get({ ...args, pull_number: 7131 }),
     ]);
     assert.equal(commit.data.sha, SOURCE); assert.equal(commit.data.commit.tree.sha, TREE);
-    assert.equal(pr.data.number, 7116); assert.equal(pr.data.head.sha, SOURCE);
+    assert.equal(pr.data.number, 7131); assert.equal(pr.data.head.sha, SOURCE);
     assert.equal(pr.data.head.ref, BRANCH); assert.equal(pr.data.head.repo.id, REPOSITORY);
     assert.equal(pr.data.state, 'open'); assert.equal(pr.data.merged, false);
     const download = await github.rest.actions.downloadArtifact({ ...args, artifact_id: ARTIFACT, archive_format: 'zip' });
     const bytes = Buffer.from(download.data);
-    assert.equal(bytes.length, 6884);
+    assert.equal(bytes.length, 7232);
     assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), DIGEST);
     await snapshot(); // A later attempt or replacement cannot supply this readout.
     const temp = process.env.RUNNER_TEMP;
     assert.ok(temp && path.isAbsolute(temp)); assert.equal(fs.realpathSync(temp), path.resolve(temp));
-    const filename = path.join(temp, 'r5-1bc-ios-fixed.zip');
+    const filename = path.join(temp, 'r5-044-ios-fixed.zip');
     const descriptor = fs.openSync(filename, 'wx', 0o600);
     owned = { filename }; // A failed stat still reports unresolved private cleanup.
     try {
       const info = fs.fstatSync(descriptor); Object.assign(owned, { dev: info.dev, ino: info.ino });
       fs.writeFileSync(descriptor, bytes);
     } finally { fs.closeSync(descriptor); }
-    output = execFileSync('python3', ['-B', '.github/scripts/read-1bc-ios-artifact.py'],
+    output = execFileSync('python3', ['-B', '.github/scripts/read-044-ios-artifact.py'],
       { encoding: 'utf8', timeout: 30000, maxBuffer: 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
     const tag = 'SAFE_R5_IOS_READOUT ';
     assert.ok(output.startsWith(tag));

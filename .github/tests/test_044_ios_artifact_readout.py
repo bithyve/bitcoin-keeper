@@ -15,7 +15,7 @@ import warnings
 import zipfile
 
 SPEC = importlib.util.spec_from_file_location('ios_readout',
-    Path(__file__).resolve().parents[1] / 'scripts/read-1bc-ios-artifact.py')
+    Path(__file__).resolve().parents[1] / 'scripts/read-044-ios-artifact.py')
 reader = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(reader)
 
@@ -65,6 +65,26 @@ def archive(data=None, raw=None, name='ios/metadata.json', attributes=None, extr
 
 
 class ReadoutTest(unittest.TestCase):
+    def test_original_failure_phase_and_native_int32_are_preserved_without_raw_fields(self):
+        value = fixture()
+        value['startup_diagnostics']['ios_errors']['startup_failure_receipt'] = {
+            'status': 'OBSERVED', 'window': 'BOUNDED', 'marker_records_seen': 1,
+            'own_process_count': 1, 'reasons': [], 'input_partial': False,
+            'records': [{'phase': 'NATIVE_CREDENTIAL_READ', 'outcome': 'REJECTED',
+                'error_name': 'Error', 'code': -34018, 'window_relation': 'IN_WINDOW',
+                'pid': 'PRIVATE_SENTINEL', 'timestamp': 'PRIVATE_SENTINEL', 'message': 'PRIVATE_SENTINEL'}]}
+        result = reader.decode(archive(value))
+        row = result['startup_diagnostics']['ios_errors']['startup_failure_receipt']
+        self.assertEqual(row['status'], 'OBSERVED')
+        self.assertEqual(row['records'][0]['code'], -34018)
+        self.assertEqual(row['own_process_count'], 1)
+        self.assertEqual(row['cause'], 'UNDETERMINED')
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+        for invalid in (True, '-34018', -2147483649, 2147483648, {}, None):
+            value['startup_diagnostics']['ios_errors']['startup_failure_receipt']['records'][0]['code'] = invalid
+            self.assertIsNone(reader.decode(archive(value))['startup_diagnostics']['ios_errors']
+                ['startup_failure_receipt']['records'][0]['code'])
+
     def rejected(self, blob):
         with self.assertRaises(ValueError) as error:
             reader.decode(blob)
@@ -199,7 +219,7 @@ class ReadoutTest(unittest.TestCase):
         blob = archive()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            file = root / 'r5-1bc-ios-fixed.zip'
+            file = root / 'r5-044-ios-fixed.zip'
             file.write_bytes(blob)
             file.chmod(0o600)
             environment = {'RUNNER_TEMP': str(root)}

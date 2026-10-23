@@ -11,12 +11,12 @@ import stat
 import sys
 import zipfile
 
-SOURCE = '1bc34890cb8618b2fffd446a63924974e0fe15b5'
-WORKFLOW = '3c44ab6412a8118b183273c402dd08136db05b28'
-WORKFLOW_REF = 'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-native-diagnostic.yml@refs/pull/7116/merge'
-RUN, ATTEMPT, ARTIFACT = '39858617273', '1', '12462694619'
-ZIP_SIZE, LIMIT = 6884, 1024 * 1024
-ZIP_SHA256 = '550142809a0faf812741a586630b17d6f458b2b6c935b5bab4b00f84da67c84f'
+SOURCE = '044ebb6ea2d465f6a70e9116e3feac5a604cd696'
+WORKFLOW = '5a7b0c5da0a38197f6dd675ff424f3ba3f441d02'
+WORKFLOW_REF = 'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-native-diagnostic.yml@refs/pull/7131/merge'
+RUN, ATTEMPT, ARTIFACT = '39873063291', '1', '12469536083'
+ZIP_SIZE, LIMIT = 7232, 1024 * 1024
+ZIP_SHA256 = 'e244015128d4aa72e1e1c8be3072bc70d506ba11a804067448122d1318621caf'
 ERROR_TYPES = ('ValueError', 'TypeError', 'OSError', 'FileNotFoundError', 'PermissionError',
                'TimeoutExpired', 'JSONDecodeError', 'RuntimeError', 'OTHER_ERROR')
 IOS_CATEGORIES = ('JS_TYPE', 'JS_REFERENCE', 'JS_SYNTAX', 'JS_RANGE', 'JS_INVARIANT',
@@ -142,6 +142,35 @@ def observations(value):
     return result
 
 
+def startup_failure(value):
+    value = obj(value)
+    phases = ('ACCOUNT_STATE', 'NATIVE_CREDENTIAL_READ', 'CREDENTIAL_JSON', 'NAVIGATION')
+    names = ('Error', 'TypeError', 'SyntaxError', 'ReferenceError', 'RangeError',
+             'EvalError', 'URIError', 'AggregateError', 'OTHER', 'UNKNOWN')
+    rows = value.get('records')
+    safe_rows = []
+    for row in rows[:32] if type(rows) is list else []:
+        row = obj(row)
+        phase, outcome = enum(row.get('phase'), phases), enum(row.get('outcome'), ('THREW', 'REJECTED'))
+        code = row.get('code')
+        safe_rows.append({'phase': phase, 'outcome': outcome, 'error_name': enum(row.get('error_name'), names),
+            'code': code if phase == 'NATIVE_CREDENTIAL_READ' and outcome == 'REJECTED' and
+                    type(code) is int and -2147483648 <= code <= 2147483647 else None,
+            'window_relation': enum(row.get('window_relation'), ('IN_WINDOW',))})
+    reasons = ('MISSING_WINDOW', 'INVALID_WINDOW', 'NO_MARKER_OBSERVED', 'INVALID_COMPACT_RECORD',
+               'INVALID_RECORD_FIELDS', 'MALFORMED_MARKER', 'UNSUPPORTED_FRAMING', 'FOREIGN_PROCESS_MARKER',
+               'OUTSIDE_WINDOW', 'MULTIPLE_OWN_PIDS', 'DUPLICATE_MARKER', 'MULTIPLE_MARKERS',
+               'OBSERVATION_LIMIT', 'PARTIAL_INPUT', 'QUERY_UNAVAILABLE')
+    return {'status': enum(value.get('status'), ('OBSERVED', 'AMBIGUOUS', 'UNKNOWN')),
+        'cause': 'UNDETERMINED', 'window': enum(value.get('window'), ('BOUNDED', 'UNKNOWN', 'INVALID')),
+        'records': safe_rows, 'reasons': fixed_list(value.get('reasons'), reasons),
+        **{key: count(value.get(key), 32) for key in ('marker_records_seen', 'duplicate_records',
+           'malformed_markers', 'invalid_compact_markers', 'invalid_record_fields', 'foreign_process_markers',
+           'outside_window_markers', 'own_process_count')},
+        **flags(value, ('own_process_count_capped', 'limit_reached', 'input_partial')),
+        'scope': 'REPORTED_ORIGINAL_MARKERS_NOT_CAUSE_OR_ACCEPTANCE_NO_RAW_PID_OR_TIMESTAMP'}
+
+
 def diagnostics(value):
     value = obj(value)
     ios, driver, maestro = (obj(value.get(key)) for key in ('ios_errors', 'maestro_preflight', 'maestro'))
@@ -153,6 +182,7 @@ def diagnostics(value):
          'error_type': enum(obj(row).get('error_type'), ERROR_TYPES)}
         for row in errors[:32]] if type(errors) is list else [],
         'ios_errors': {
+        'startup_failure_receipt': startup_failure(ios.get('startup_failure_receipt')),
         'cause': 'UNDETERMINED', 'query_status': enum(ios.get('query_status'), ('SUCCESS', 'FAILED', 'TIMEOUT')),
         'parse_status': enum(ios.get('parse_status'), ('PARSED', 'PARTIAL', 'UNKNOWN')),
         'observation_state': enum(ios.get('observation_state'), ('OWN_RECORDS_OBSERVED', 'UNKNOWN')),
@@ -253,7 +283,7 @@ def main(argv=None):
         temp = Path(os.environ['RUNNER_TEMP'])
         if not temp.is_absolute() or temp.resolve(strict=True) != temp:
             raise ValueError('Artifact rejected.')
-        path = temp / 'r5-1bc-ios-fixed.zip'
+        path = temp / 'r5-044-ios-fixed.zip'
         with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), 'rb') as source:
             info = os.fstat(source.fileno())
             if (not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600 or
