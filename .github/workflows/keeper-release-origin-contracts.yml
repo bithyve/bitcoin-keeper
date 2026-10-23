@@ -4,6 +4,23 @@ on:
   pull_request:
     paths:
       - '.github/workflows/keeper-release-origin-contracts.yml'
+      - '.github/native/actions_software_evidence.cjs'
+      - '.github/native/software_artifact_zip.py'
+      - '.github/tests/actions-software-evidence.test.cjs'
+      - '.github/tests/test_software_artifact_zip.py'
+      - 'docs/r5/PRIVATE-ACTIONS-ORIGIN.md'
+      - '.github/native/private_actions_origin.cjs'
+      - '.github/native/private_integration_receipts.cjs'
+      - '.github/native/parent_software_evidence.cjs'
+      - '.github/native/private_software_artifact_zip.py'
+      - '.github/tests/private-actions-origin.test.cjs'
+      - '.github/tests/private-integration-receipts.test.cjs'
+      - '.github/tests/parent-software-evidence.test.cjs'
+      - '.github/tests/test_private_software_artifact_zip.py'
+      - '.github/tests/public-artifact-stream-adapter.test.cjs'
+      - '.github/tests/artifact-stream-cleanup.test.cjs'
+      - '.github/tests/ci-raw-source.test.cjs'
+      - '.github/tests/native-draft-policy.test.cjs'
       - '.github/native/public_software_receipts.cjs'
       - '.github/native/strict_json.cjs'
       - '.github/tests/strict-json.test.cjs'
@@ -21,6 +38,23 @@ on:
   push:
     paths:
       - '.github/workflows/keeper-release-origin-contracts.yml'
+      - '.github/native/actions_software_evidence.cjs'
+      - '.github/native/software_artifact_zip.py'
+      - '.github/tests/actions-software-evidence.test.cjs'
+      - '.github/tests/test_software_artifact_zip.py'
+      - 'docs/r5/PRIVATE-ACTIONS-ORIGIN.md'
+      - '.github/native/private_actions_origin.cjs'
+      - '.github/native/private_integration_receipts.cjs'
+      - '.github/native/parent_software_evidence.cjs'
+      - '.github/native/private_software_artifact_zip.py'
+      - '.github/tests/private-actions-origin.test.cjs'
+      - '.github/tests/private-integration-receipts.test.cjs'
+      - '.github/tests/parent-software-evidence.test.cjs'
+      - '.github/tests/test_private_software_artifact_zip.py'
+      - '.github/tests/public-artifact-stream-adapter.test.cjs'
+      - '.github/tests/artifact-stream-cleanup.test.cjs'
+      - '.github/tests/ci-raw-source.test.cjs'
+      - '.github/tests/native-draft-policy.test.cjs'
       - '.github/native/public_software_receipts.cjs'
       - '.github/native/strict_json.cjs'
       - '.github/tests/strict-json.test.cjs'
@@ -61,7 +95,11 @@ jobs:
       - name: Verify exact event source before checks
         run: node .github/scripts/verify-ci-source.cjs
       - name: Test fake API and bounded artifact evidence
-        run: node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/strict-json.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs
+        run: node --test scripts/trusted-release-origin.test.cjs scripts/codeql-analysis-receipt.test.cjs scripts/protected-release-plan.test.cjs .github/tests/strict-json.test.cjs .github/tests/public-software-receipts.test.cjs .github/tests/public-companion-receipts.test.cjs .github/tests/actions-software-evidence.test.cjs .github/tests/public-artifact-stream-adapter.test.cjs .github/tests/artifact-stream-cleanup.test.cjs .github/tests/private-integration-receipts.test.cjs .github/tests/parent-software-evidence.test.cjs .github/tests/private-actions-origin.test.cjs .github/tests/ci-raw-source.test.cjs .github/tests/native-draft-policy.test.cjs
+      - name: Test fixed public and private ZIP layouts
+        run: |
+          python3 -B -m unittest discover -s .github/tests -p test_software_artifact_zip.py
+          python3 -B -m unittest discover -s .github/tests -p test_private_software_artifact_zip.py
       - name: Verify exact source after checks
         if: always()
         run: node .github/scripts/verify-ci-source.cjs
