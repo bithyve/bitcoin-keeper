@@ -273,7 +273,7 @@ class PinFlowTests(unittest.TestCase):
             if platform == 'Android':
                 wanted[9] = {'tapOn': {'text': r'^Skip[ \u00A0]*$', 'childOf': {'id': 'btn_skip'}}}
             self.assertEqual(resolved, wanted)
-            self.assertEqual(len(resolved), len(expected), 'one actual Skip action; no retries or extra waits')
+            self.assertEqual(len(resolved), len(expected), 'one intended Skip command; no authored retries or extra waits')
         self.assertEqual(markers, list(product.PIN_MARKERS))
         self.assertEqual(positions, list(range(2, 10)) + [11, 12], 'both conditional source rows precede the same Skip acknowledgement')
 
