@@ -19,6 +19,15 @@ The proof includes independently fetched worker-source hashes; those are not
 projected into the old canonical attestation schema. Public facts alone never
 supply private parent credit.
 
+Before issuing that proof, the collector rechecks both selected artifact API
+identities after all platform downloads and the commit-tree read. It then runs
+the live protected-source/workflow/run/attempt/pin fence as its final API phase.
+An earlier platform artifact expiring or changing during the later read, or a
+pin/source/run revocation during the tree read, must reject the whole collection.
+Nine host race controls reproduced proof issuance on the original source and
+reject it after this correction. This is a bounded repeated read, not an atomic
+GitHub snapshot or live installed/native verification.
+
 ## Additional atomic reviewed window
 
 `authenticateInstalledParentWindow(github, context, request, {pinReader})`
