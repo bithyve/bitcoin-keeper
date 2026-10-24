@@ -84,6 +84,15 @@ class CommandObservation(unittest.TestCase):
         self.assertEqual(self.result()['rows'][0]['error_markers'],
             ['APP_LAUNCH_TEXT', 'FBS_OPEN_APPLICATION_TEXT', 'SIMCTL_OPERATION_TEXT'])
 
+    def test_evaluated_app_wrapper_and_fixed_app_binding_cannot_conflict(self):
+        for evaluated in (None, [], {}, {'PRIVATE_SENTINEL': {}},
+                {'launchAppCommand': None}, {'launchAppCommand': {'appId': 'PRIVATE_SENTINEL'}},
+                {'launchAppCommand': {'appId': '${APP_ID}'}},
+                {'launchAppCommand': {'appId': observe.APP}, 'stopAppCommand': {}}):
+            item = row(); item['metadata']['evaluatedCommand'] = evaluated
+            self.write([item])
+            self.assertEqual(self.result()['state'], 'UNKNOWN')
+
     def test_missing_empty_wrong_flow_duplicate_candidates_and_symlinks_are_unknown(self):
         self.assertEqual(self.result()['state'], 'UNKNOWN')
         self.write([]); self.assertEqual(self.result()['state'], 'UNKNOWN')

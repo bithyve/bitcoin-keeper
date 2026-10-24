@@ -82,6 +82,11 @@ def commands(directory):
                 config = command[key]
                 if type(config) is not dict or config.get('appId') not in (APP, '${APP_ID}'):
                     kind = 'OTHER'
+                if 'evaluatedCommand' in metadata:
+                    evaluated = metadata['evaluatedCommand']
+                    if (type(evaluated) is not dict or set(evaluated) != {key} or
+                            type(evaluated[key]) is not dict or evaluated[key].get('appId') != APP):
+                        return result
             rows.append({'sequence': sequence, 'kind': kind,
                          'status': metadata['status'],
                          'error_markers': [label for label, pattern in ERROR_MARKERS.items()
