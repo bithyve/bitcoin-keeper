@@ -538,6 +538,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
                     mock.patch.object(native, 'disk_preflight'), \
                     mock.patch.object(native, 'PLATFORM', 'IOS'), \
                     mock.patch.object(native.platform, 'machine', return_value=architecture), \
+                    mock.patch.object(native, 'sign_simulator_app') as sign_simulator, \
                     mock.patch.object(native, 'artifact_identity', return_value={'sha256': 'test artifact'}), \
                     mock.patch.object(native, 'command') as command:
                 native.build()
@@ -547,6 +548,7 @@ class HostedNativeHarnessTest(unittest.TestCase):
                 self.assertIn('CODE_SIGNING_ALLOWED=NO', arguments)
                 self.assertEqual(command.call_args.kwargs['timeout'], 2400)
                 self.assertEqual(native.read()['toolchain']['ios_simulator_architecture'], architecture)
+                sign_simulator.assert_called_once_with()
 
     def test_artifact_hash_detects_changed_apk_before_smoke(self):
         apk = self.root / 'android/app/build/outputs/apk/development/debug/app-development-debug.apk'

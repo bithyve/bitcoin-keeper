@@ -701,6 +701,7 @@ def verify_installed_artifact(device):
     data['installed_artifact_scope'] = 'NOT VERIFIED: installed bytes require full comparison.'
     data.pop('installed_artifact', None)
     save(data)
+    stage = 'ARTIFACT_METADATA'
     try:
         expected = data['built_artifact']
         if PLATFORM == 'IOS':
@@ -724,34 +725,49 @@ def verify_installed_artifact(device):
                       'inventory_sha256': hashlib.sha256(json.dumps(original, sort_keys=True).encode()).hexdigest(),
                       'executable_sha256': actual[executable][1]}
         elif PLATFORM == 'ANDROID':
+            stage = 'APK_DEVICE_POLICY'
             if not re.fullmatch(r'emulator-[0-9]+', device):
                 raise ValueError('Expected owned emulator serial.')
+            stage = 'APK_PACKAGE_QUERY'
             listing = command(['adb', '-s', device, 'shell', 'pm', 'path', APP_IDS['ANDROID']],
                               'Locate exact installed development package', capture=True, error_details=False)
             pattern = (r'package:(/data/app/(?:~~[A-Za-z0-9_=-]+/)?' + re.escape(APP_IDS['ANDROID']) +
                        r'-[A-Za-z0-9_=-]+/base\.apk)')
+            stage = 'APK_PATH_POLICY'
             match = re.fullmatch(pattern, listing)
             if not match:
                 raise ValueError('Expected one exact base APK; split or unexpected paths rejected.')
             built = ROOT / 'android/app/build/outputs/apk/development/debug/app-development-debug.apk'
+            stage = 'APK_BUILT_FILE'
             if built.is_symlink() or not built.is_file():
                 raise ValueError('Invalid built APK.')
             PRIVATE.mkdir(parents=True, exist_ok=True)
             with tempfile.TemporaryDirectory(prefix='installed-artifact-', dir=PRIVATE) as temporary:
                 pulled = Path(temporary) / 'base.apk'
                 # Package paths and pulled bytes stay private, including tool output.
+                stage = 'APK_PULL'
                 copied = subprocess.run(['adb', '-s', device, 'pull', match[1], str(pulled)],
                                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                                         timeout=120, check=False)
-                if (copied.returncode or pulled.is_symlink() or not pulled.is_file() or
-                        pulled.stat().st_size != built.stat().st_size or _file_sha256(pulled) != expected['sha256']):
+                stage = 'APK_PULL_RESULT'
+                if copied.returncode or pulled.is_symlink() or not pulled.is_file():
+                    raise ValueError('Installed APK bytes differ or are unavailable.')
+                stage = 'APK_SIZE_COMPARISON'
+                if pulled.stat().st_size != built.stat().st_size:
+                    raise ValueError('Installed APK bytes differ or are unavailable.')
+                stage = 'APK_HASH_COMPARISON'
+                if _file_sha256(pulled) != expected['sha256']:
                     raise ValueError('Installed APK bytes differ or are unavailable.')
             result = {'method': 'SINGLE_INSTALLED_BASE_APK_SHA256', 'sha256': expected['sha256']}
         else:
             raise ValueError('Unsupported artifact platform.')
+        stage = 'BUILT_ARTIFACT_STABILITY'
         if artifact_identity() != expected:
             raise ValueError('Built artifact changed during installed comparison.')
     except Exception:
+        # Fixed labels distinguish a rejected path from pull/byte failures.
+        # Never print pm output, installed paths, exception text or APK bytes.
+        print('Installed artifact verification failed at ' + stage, flush=True)
         raise RuntimeError('Installed artifact bytes were not verified; no equivalence claimed.') from None
     data = read()
     data.update(installed_artifact_verified=True, installed_artifact=result,
@@ -839,6 +855,13 @@ def disk_preflight(stage):
         raise RuntimeError('Insufficient disposable-runner disk reserve; no cache or user data was removed.')
 
 
+def sign_simulator_app():
+    spec = importlib.util.spec_from_file_location('simulator_signing', Path(__file__).with_name('simulator_signing.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.sign(SimpleNamespace(PLATFORM=PLATFORM, PRIVATE=PRIVATE, read=read, save=save, command=command))
+
+
 def build():
     disk_preflight('before_native_build')
     if PLATFORM == 'IOS':
@@ -853,6 +876,10 @@ def build():
                  '-derivedDataPath', str(PRIVATE / 'DerivedData'), 'CODE_SIGNING_ALLOWED=NO',
                  'CODE_SIGNING_REQUIRED=NO', 'ARCHS=' + architecture, 'ONLY_ACTIVE_ARCH=YES', 'build'],
                 'Build unsigned development simulator app', timeout=2400)
+        # Keychain rejects unsigned simulator executables with
+        # errSecMissingEntitlement. This uses no certificate or release key;
+        # record built/installed identities only after the ad-hoc signature.
+        sign_simulator_app()
     else:
         observed = command(['./gradlew', '--version'], 'Record actual Gradle and JVM version',
                            capture=True, cwd=ROOT / 'android')

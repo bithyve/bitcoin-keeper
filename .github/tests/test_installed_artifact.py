@@ -1,5 +1,7 @@
 """Host byte/transport controls; no native acceptance credit."""
 import importlib.util
+import contextlib
+import io
 from pathlib import Path
 import plistlib
 import shutil
@@ -76,6 +78,20 @@ class InstalledArtifactTest(unittest.TestCase):
             with self.subTest(value=value), self.reply('package:' + value), mock.patch.object(h.subprocess, 'run') as pull:
                 self.reject('emulator-5554')
                 pull.assert_not_called()
+
+    def test_android_failure_stage_is_fixed_and_does_not_export_package_output(self):
+        for content, code, stage in [(b'PRIVATE_APX', 0, 'APK_HASH_COMPARISON'),
+                                     (b'SHORT', 0, 'APK_SIZE_COMPARISON'),
+                                     (None, 0, 'APK_PULL_RESULT'), (b'PRIVATE_APK', 1, 'APK_PULL_RESULT')]:
+            output = io.StringIO()
+            with self.subTest(stage=stage), self.reply('package:' + self.pm), self.pull(content, code), \
+                    contextlib.redirect_stdout(output):
+                self.reject('emulator-5554')
+            self.assertEqual(output.getvalue(), 'Installed artifact verification failed at ' + stage + '\n')
+        output = io.StringIO()
+        with self.reply('PRIVATE_REJECTED_PACKAGE_OUTPUT'), contextlib.redirect_stdout(output):
+            self.reject('emulator-5554')
+        self.assertEqual(output.getvalue(), 'Installed artifact verification failed at APK_PATH_POLICY\n')
 
     def ios(self):
         h.PLATFORM = 'IOS'
