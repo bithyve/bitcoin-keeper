@@ -46,3 +46,31 @@ execution on this continuation is **NOT RUN**. The coordinator owns candidate
 selection and the next isolated cloud-native window. No protected-base trust,
 physical-device result, signing/distribution permission or release authority is
 provided by these diagnostics.
+
+## Optional iOS-only diagnostic scheduling
+
+The additional `keeper/ios-diagnostic-only` label is a scheduling modifier for
+`Keeper native candidate diagnostics`. On its own it schedules nothing. With
+`keeper/native-diagnostic`, it retains the normal iOS diagnostic and skips only
+that workflow's Android job. Without the modifier, iOS then Android remains the
+default, including Android's existing `always()` behavior after iOS failure.
+The separate driver-preflight label keeps its existing meaning.
+
+| Labels | Driver preflight | iOS app diagnostic | Android app diagnostic |
+| --- | --- | --- | --- |
+| None | No | No | No |
+| `keeper/ios-diagnostic-only` | No | No | No |
+| `keeper/native-diagnostic` | No | Yes | Yes, after iOS |
+| Native diagnostic + iOS-only modifier | No | Yes | Skipped |
+| `keeper/ios-driver-preflight` | Yes | No | No |
+| Driver preflight + iOS-only modifier | Yes | No | No |
+| All three labels | No | Yes | Skipped |
+
+The same-repository/current-head/source checks, R4 exclusion, read-only
+permissions, installed-byte/privacy controls and noncancelling serialization
+remain unchanged. This option does not grant diagnostic source authority or
+trusted acceptance, alter canonical/full acceptance workflows, waive Android
+requirements, or transfer any pass from another source. A skipped Android job is
+reported as skipped. The coordinator must still verify a fresh globally idle
+native window and select exact reviewed source before adding any execution
+label. No labels or native execution are performed by this preparation.

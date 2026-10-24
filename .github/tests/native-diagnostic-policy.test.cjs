@@ -14,7 +14,7 @@ assert.equal(parsed.status, 0, parsed.stderr);
 const workflows = JSON.parse(parsed.stdout);
 const diagnostic = workflows['keeper-native-diagnostic.yml'];
 const worker = workflows['keeper-native-platform.yml'];
-function enabled(condition, { draft = null, labeled = false, preflightLabeled = false, sameRepo = true, number = 8000, eventName = 'pull_request', diagnostic = false, sameSha = true } = {}) {
+function enabled(condition, { draft = null, labeled = false, preflightLabeled = false, iosOnly = false, sameRepo = true, number = 8000, eventName = 'pull_request', diagnostic = false, sameSha = true } = {}) {
   const expression = condition
     .replaceAll('github.event_name', 'eventName')
     .replaceAll('github.event.pull_request.number', 'number')
@@ -22,10 +22,11 @@ function enabled(condition, { draft = null, labeled = false, preflightLabeled = 
     .replaceAll('github.event.pull_request.draft', 'draft')
     .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')", 'labeled')
     .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/ios-driver-preflight')", 'preflightLabeled')
+    .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/ios-diagnostic-only')", 'iosOnly')
     .replaceAll('inputs.source_sha == github.event.pull_request.head.sha', 'sameSha')
     .replaceAll('inputs.diagnostic', 'diagnostic')
     .replaceAll('always()', 'true');
-  return new Function('draft', 'labeled', 'preflightLabeled', 'sameRepo', 'number', 'eventName', 'diagnostic', 'sameSha', 'toJSON', `return (${expression});`)(draft, labeled, preflightLabeled, sameRepo, number, eventName, diagnostic, sameSha, JSON.stringify);
+  return new Function('draft', 'labeled', 'preflightLabeled', 'iosOnly', 'sameRepo', 'number', 'eventName', 'diagnostic', 'sameSha', 'toJSON', `return (${expression});`)(draft, labeled, preflightLabeled, iosOnly, sameRepo, number, eventName, diagnostic, sameSha, JSON.stringify);
 }
 test('candidate diagnostics require explicit same-repository opt-in and serialize platforms', () => {
   for (const name of ['ios', 'android']) {
@@ -39,6 +40,34 @@ test('candidate diagnostics require explicit same-repository opt-in and serializ
   assert.equal(diagnostic.concurrency['cancel-in-progress'], 'false');
   assert.equal(diagnostic.permissions.contents, 'read');
   assert.equal(diagnostic.permissions['pull-requests'], 'read');
+});
+test('explicit iOS-only modifier schedules nothing alone and only removes diagnostic Android', () => {
+  for (const labeled of [false, true]) {
+    for (const preflightLabeled of [false, true]) {
+      for (const iosOnly of [false, true]) {
+        const selected = ['driver-preflight', 'ios', 'android'].map(name =>
+          enabled(diagnostic.jobs[name].if, { draft: true, labeled, preflightLabeled, iosOnly }));
+        assert.deepEqual(selected, [preflightLabeled && !labeled, labeled, labeled && !iosOnly],
+          JSON.stringify({ labeled, preflightLabeled, iosOnly }));
+        for (const override of [{ sameRepo: false }, { number: 7045 }]) {
+          const rejected = ['driver-preflight', 'ios', 'android'].map(name =>
+            enabled(diagnostic.jobs[name].if, { draft: true, labeled, preflightLabeled, iosOnly, ...override }));
+          assert.deepEqual(rejected, [false, false, false]);
+        }
+      }
+    }
+  }
+  assert.deepEqual(Object.keys(diagnostic.on), ['pull_request']);
+  assert.deepEqual(diagnostic.on.pull_request.branches, ['sprint']);
+  assert.deepEqual(diagnostic.on.pull_request.types, ['labeled', 'synchronize', 'reopened']);
+  assert.equal(diagnostic.jobs.android.needs, 'ios');
+  assert.match(diagnostic.jobs.android.if, /^always\(\)/);
+  for (const platform of ['ios', 'android']) {
+    assert.equal(diagnostic.jobs[platform].uses, './.github/workflows/keeper-native-platform.yml');
+    assert.equal(diagnostic.jobs[platform].with.diagnostic, 'true');
+    assert.equal(diagnostic.jobs[platform].with.source_sha, '${{ github.event.pull_request.head.sha }}');
+  }
+  assert.equal(enabled(worker.jobs.native.if, { draft: true, iosOnly: true, diagnostic: true }), false);
 });
 test('isolated driver label cannot schedule an app platform or overlap full diagnostics', () => {
   const preflight = diagnostic.jobs['driver-preflight'];
