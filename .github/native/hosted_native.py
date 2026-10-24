@@ -377,6 +377,15 @@ def record_startup_failure(report, device, startup_started_ms=None):
             spec.loader.exec_module(observer)
             return observer.collect(PRIVATE, device)
         collect('command_observation', ios_command_observation)
+        def ios_replacement_observation():
+            spec = importlib.util.spec_from_file_location('ios_replacement_observation',
+                Path(__file__).with_name('ios_replacement_observation.py'))
+            observer = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(observer)
+            return observer.collect(SimpleNamespace(PRIVATE=PRIVATE, PLATFORM=PLATFORM,
+                read=read, artifact_identity=artifact_identity,
+                _bundle_inventory=_bundle_inventory, owned_ios_bundle_path=owned_ios_bundle_path), device)
+        collect('replacement_observation', ios_replacement_observation)
     if PLATFORM == 'ANDROID' and device:
         def android_details():
             args = ['adb', '-s', device, 'logcat', '-d', '-t', '300', '-v', 'brief',
@@ -720,6 +729,21 @@ def _bundle_inventory(bundle):
     return tree, executable
 
 
+def owned_ios_bundle_path(installed, device, built):
+    """The same exact owned container policy for acceptance and observations."""
+    uuid = r'[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}'
+    if not re.fullmatch(uuid, device):
+        raise ValueError('Expected owned simulator UUID.')
+    installed = Path(installed)
+    base = Path.home() / 'Library/Developer/CoreSimulator/Devices' / device / 'data/Containers/Bundle/Application'
+    if (not installed.is_absolute() or installed.name != built.name or
+            not re.fullmatch(uuid, installed.parent.name) or
+            installed.parent.parent.resolve() != base.resolve() or
+            installed.resolve(strict=True).parent.parent != base.resolve()):
+        raise ValueError('Unexpected installed app container.')
+    return installed
+
+
 def verify_installed_artifact(device):
     """Attest owned installed bytes, never installation argv or app assertions."""
     data = read()
@@ -738,12 +762,7 @@ def verify_installed_artifact(device):
             original, executable = _bundle_inventory(built)
             installed = Path(command(['xcrun', 'simctl', 'get_app_container', device, APP_IDS['IOS'], 'app'],
                                      'Locate owned installed app bundle', capture=True, error_details=False))
-            base = Path.home() / 'Library/Developer/CoreSimulator/Devices' / device / 'data/Containers/Bundle/Application'
-            if (not installed.is_absolute() or installed.name != built.name or
-                    not re.fullmatch(uuid, installed.parent.name) or
-                    installed.parent.parent.resolve() != base.resolve() or
-                    installed.resolve(strict=True).parent.parent != base.resolve()):
-                raise ValueError('Unexpected installed app container.')
+            installed = owned_ios_bundle_path(installed, device, built)
             actual, installed_executable = _bundle_inventory(installed)
             if original != actual or executable != installed_executable:
                 raise ValueError('Installed bundle differs; no installer normalization is accepted.')
