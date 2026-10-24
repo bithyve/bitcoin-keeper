@@ -135,6 +135,19 @@ class ReplacementObservation(unittest.TestCase):
             self.assertEqual(result['bytes'], 'UNKNOWN')
             self.assertEqual(result['stage'], 'INSTALLED_STABILITY' if status == 'EXIT_ZERO' else 'FINAL_CONTAINER_QUERY')
 
+    def test_same_byte_built_link_replacement_is_detected_by_final_typed_inventory(self):
+        def changing(private, args):
+            answer = self.tool(private, args)
+            if args[1:3] == ['--display', '--entitlements']:
+                link = self.built / 'internal-link'
+                content = link.read_bytes()
+                link.unlink()
+                link.write_bytes(content)
+            return answer
+        result = self.collect(changing)
+        self.assertEqual((result['state'], result['stage'], result['bytes']),
+                         ('UNKNOWN', 'BUILT_ARTIFACT_STABILITY', 'UNKNOWN'))
+
     def test_signature_tool_rejection_and_unavailable_entitlements_stay_explicit(self):
         def rejected(private, args):
             if args[:2] == ['codesign', '--verify']:

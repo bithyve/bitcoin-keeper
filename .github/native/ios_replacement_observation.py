@@ -117,7 +117,8 @@ def collect(native, device):
         if final != installed or native._bundle_inventory(final) != (actual, actual_executable):
             return unknown(stage)
         stage = 'BUILT_ARTIFACT_STABILITY'
-        if native.artifact_identity() != expected:
+        if (native._bundle_inventory(built) != (original, executable) or
+                native.artifact_identity() != expected):
             return unknown(stage)
         result.update(state='OBSERVED', stage='COMPLETE')
         return result
