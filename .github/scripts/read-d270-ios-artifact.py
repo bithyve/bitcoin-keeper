@@ -18,6 +18,8 @@ RUN, ATTEMPT = '40065599904', '1'
 ZIP_SIZE = 7339
 DIGEST = '5891036cd8225b97c7edaff9bc057e2c70a8f8720e8f9def3ef0369de043d032'
 SCOPE = 'OBSERVATIONS_ONLY_NOT_NATIVE_ACCEPTANCE_OR_CAUSE'
+STARTUP_SCOPE = 'Owned simulator launch window; fixed facts only; cause UNKNOWN.'
+HIERARCHY_SCOPE = 'ANY_RETAINED_SNAPSHOT_NOT_FINAL_ROUTE_OR_VISIBILITY_PROOF'
 PHASE = 'PRIVATE_FILE'
 FIELDS = frozenset(('schema', 'source_sha', 'workflow_sha', 'workflow_ref', 'run_id', 'run_attempt',
     'platform', 'diagnostic_only', 'build', 'smoke', 'native_probe', 'r5_features', 'hardware', 'signing',
@@ -29,7 +31,7 @@ ADDITIONAL_LITERALS = frozenset(('--info', 'CONNECTION_ERROR', 'EXCEPTION_MARKER
     'HERMES_ERROR', 'JS_EXCEPTION', 'NATIVE_EXCEPTION', 'SCRIPT_LOAD_ERROR', 'SCRIPT_URL_MISSING',
     'PREFIXED_OWN_PROCESS_MARKERS_ONLY_NOT_CAUSE_OR_ACCEPTANCE', 'ios_simulator_signature',
     'verified', 'ADHOC_SIMULATOR_ONLY_NOT_RELEASE_SIGNING', 'bundle_id', 'entitlements_sha256',
-    'embedded_code_count'))
+    'embedded_code_count', STARTUP_SCOPE))
 
 
 def project(blob):
@@ -45,6 +47,18 @@ def project(blob):
     kernel.SOURCE, kernel.WORKFLOW, kernel.WORKFLOW_REF = SOURCE, WORKFLOW, WORKFLOW_REF
     kernel.RUN, kernel.ATTEMPT = RUN, ATTEMPT
     kernel.public_literals = lambda: literals | ADDITIONAL_LITERALS | {SOURCE, WORKFLOW, WORKFLOW_REF, RUN, ATTEMPT}
+    old_hierarchy = kernel.validate_hierarchy
+
+    def current_hierarchy(value, product=False):
+        if product:
+            return old_hierarchy(value, product=True)
+        if type(value) is not dict or value.get('scope') != HIERARCHY_SCOPE:
+            kernel.rejected()
+        # Current d270 adds this fixed conservative scope. Keep it in output;
+        # apply the unchanged 044 flag/type/bound checks to its original fields.
+        return old_hierarchy({key: item for key, item in value.items() if key != 'scope'})
+
+    kernel.validate_hierarchy = current_hierarchy
     PHASE = 'ZIP_IDENTITY'
     if type(blob) is not bytes or len(blob) != ZIP_SIZE or hashlib.sha256(blob).hexdigest() != DIGEST:
         kernel.rejected()
@@ -76,6 +90,10 @@ def project(blob):
             not kernel.bounded_int(signature['embedded_code_count'], 0, 128)):
         kernel.rejected()
     projected['toolchain'] = {'ios_simulator_signature': signature}
+    observation = projected.get('startup_observation')
+    PHASE = 'STARTUP_OBSERVATION'
+    if observation is not None and (type(observation) is not dict or observation.get('scope') != STARTUP_SCOPE):
+        kernel.rejected()
     identity = {key: projected.get(key) for key in ('schema', 'source_sha', 'workflow_sha', 'workflow_ref',
                                                   'run_id', 'run_attempt', 'platform', 'diagnostic_only')}
     for key, value in projected.items():

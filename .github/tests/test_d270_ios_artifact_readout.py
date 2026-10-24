@@ -31,6 +31,14 @@ def fixture():
         'commands': [{'PRIVATE_PATH_OR_OTHER_UNEXPORTED_CONTENT': 'PRIVATE_SENTINEL'}]}
 
 
+def observation():
+    flags = dict.fromkeys(('credential_error', 'retry', 'logbox_controls', 'redbox_resource', 'loading',
+        'login', 'welcome_back', 'logbox_error_header', 'logbox_warning_header',
+        'logbox_syntax_footer', 'logbox_counter'), None)
+    return {'scope': reader.STARTUP_SCOPE, 'collection_errors': [],
+            'hierarchy': dict(flags, observation_state='UNKNOWN', snapshot_count=0, scope=reader.HIERARCHY_SCOPE)}
+
+
 def archive(data=None, raw=None, extra=False):
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, 'w', zipfile.ZIP_DEFLATED) as output:
@@ -72,6 +80,17 @@ class D270ReadoutTests(unittest.TestCase):
                       {'hierarchy': {'text': 'PRIVATE_SENTINEL'}}]:
             data = fixture(); data['startup_diagnostics'] = value
             with self.subTest(value=value), self.assertRaises(Exception): self.project(data)
+
+    def test_current_producer_conservative_scopes_are_retained_and_strict(self):
+        data = fixture(); data['startup_observation'] = observation()
+        self.assertEqual(self.project(data)['observations']['startup_observation'], data['startup_observation'])
+        for mutation in [lambda d: d['startup_observation'].update(scope='UNKNOWN'),
+                         lambda d: d['startup_observation']['hierarchy'].pop('scope'),
+                         lambda d: d['startup_observation']['hierarchy'].update(scope='UNKNOWN'),
+                         lambda d: d['startup_observation']['hierarchy'].update(text='PRIVATE_SENTINEL'),
+                         lambda d: d['startup_observation']['hierarchy'].update(credential_error='false')]:
+            changed = copy.deepcopy(data); mutation(changed)
+            with self.subTest(mutation=mutation), self.assertRaises(Exception): self.project(changed)
 
     def test_original_digest_archive_layout_duplicate_json_and_private_file_alias_reject(self):
         blob = archive()

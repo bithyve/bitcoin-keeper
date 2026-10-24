@@ -46,3 +46,13 @@ both raw-source guards passed and no observations were exported. The bounded
 follow-up adds only fixed admission/decode section labels to rejected output so
 API binding and schema/vocabulary rejection can be distinguished. Raw errors,
 unknown keys and values remain private; every original admission check remains.
+
+The next exact readout `40069912749` at `08577ed` rejected the decoded
+`STARTUP_OBSERVATION` section. The current d270 producer's immutable
+`.github/native/startup_diagnosis.py` adds two conservative fixed scope fields
+relative to 044: the launch-window facts scope says cause UNKNOWN, and the
+hierarchy explicitly says retained snapshots do not prove route or visibility.
+The finite current profile now requires those exact scopes; the unchanged kernel
+still validates every original hierarchy flag, type and bound. The scopes remain
+in the exported observation. No arbitrary text, UI field or generic pattern is
+admitted, and no old or current failed app observation is changed into a pass.
