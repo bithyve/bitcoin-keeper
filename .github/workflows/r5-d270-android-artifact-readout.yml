@@ -8,7 +8,7 @@ on:
       - .github/scripts/read-d270-android-artifact.cjs
       - .github/scripts/read-d270-android-artifact.py
       - .github/tests/d270-android-artifact-readout.test.cjs
-      - .github/tests/test_d270_ios_artifact_readout.py
+      - .github/tests/test_d270_android_artifact_readout.py
 
 permissions:
   contents: read
