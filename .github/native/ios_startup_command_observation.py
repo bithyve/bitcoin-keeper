@@ -31,6 +31,38 @@ ERROR_MARKERS = {
     'SIMCTL_OPERATION_TEXT': r'An error was encountered processing the command',
     'ASSERTION_TEXT': r'Assertion is false:|Element not found:',
 }
+ERROR_DOMAINS = frozenset(('FBSOpenApplicationServiceErrorDomain', 'FBSOpenApplicationErrorDomain',
+    'RBSRequestErrorDomain', 'RBSErrorDomain', 'NSPOSIXErrorDomain', 'NSCocoaErrorDomain',
+    'NSOSStatusErrorDomain', 'NSMachErrorDomain'))
+
+
+def launch_error_codes(error):
+    """Project exact simctl header pairs, without descriptions or interpretation."""
+    result = {'state': 'UNKNOWN', 'pairs': [], 'scope': 'RECORDED_CODES_NOT_INTERPRETED_CAUSE'}
+    pairs = []
+    if (type(error) is not dict or not set(error) <= {'message', 'debugMessage'} or
+            any(type(value) is not str or len(value) > 65536 for value in error.values())):
+        return result
+    pattern = (r'(?:An error was encountered processing the command|Underlying error) '
+               r'\(domain=([A-Za-z][A-Za-z0-9.]{0,95}), code=(-?(?:0|[1-9][0-9]{0,9}))\):')
+    for text in error.values():
+        for line in text.splitlines():
+            if 'domain=' not in line and 'Error Domain=' not in line:
+                continue
+            match = re.fullmatch(pattern, line.strip(' \t'))
+            if not match or match[1] not in ERROR_DOMAINS:
+                return result
+            code = int(match[2])
+            if not -(2 ** 31) <= code < 2 ** 31:
+                return result
+            pair = {'domain': match[1], 'code': code}
+            if pair not in pairs:
+                pairs.append(pair)
+            if len(pairs) > 8:
+                return result
+    if pairs:
+        result.update(state='RECORDED', pairs=pairs)
+    return result
 
 
 def unknown():
@@ -87,10 +119,13 @@ def commands(directory):
                     if (type(evaluated) is not dict or set(evaluated) != {key} or
                             type(evaluated[key]) is not dict or evaluated[key].get('appId') != APP):
                         return result
-            rows.append({'sequence': sequence, 'kind': kind,
+            row = {'sequence': sequence, 'kind': kind,
                          'status': metadata['status'],
                          'error_markers': [label for label, pattern in ERROR_MARKERS.items()
-                                           if re.search(pattern, text, re.IGNORECASE)]})
+                                           if re.search(pattern, text, re.IGNORECASE)]}
+            if kind == 'LAUNCH_APP' and metadata['status'] == 'FAILED':
+                row['launch_error_codes'] = launch_error_codes(error)
+            rows.append(row)
         result.update(state='RECORDED', rows=rows)
     except (OSError, ValueError, TypeError, RecursionError):
         pass
