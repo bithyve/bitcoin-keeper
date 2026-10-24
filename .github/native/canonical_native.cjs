@@ -213,7 +213,7 @@ async function collectPublic(github, context, request, readZip, { pinReader } = 
   }));
   const page = (await github.rest.actions.listWorkflowRunArtifacts({ ...context.repo, run_id: request.runId, per_page: 100 })).data;
   demand(page.total_count <= 100 && page.total_count === page.artifacts?.length, 'CANONICAL_ARTIFACT_LIST_INCOMPLETE');
-  const platforms = {};
+  const platforms = {}, artifactAuthorities = [];
   for (const platform of ['IOS', 'ANDROID']) {
     const matches = page.artifacts.filter(item => item.name === artifactName(platform, request));
     demand(matches.length === 1, 'CANONICAL_ARTIFACT_MISSING_OR_AMBIGUOUS');
@@ -221,6 +221,10 @@ async function collectPublic(github, context, request, readZip, { pinReader } = 
     demand(!artifact.expired && artifact.size_in_bytes > 0 && artifact.size_in_bytes <= 1048576 &&
       artifact.workflow_run?.id === request.runId && artifact.workflow_run.head_sha === request.sourceSha &&
       /^sha256:[a-f0-9]{64}$/.test(artifact.digest || ''), 'CANONICAL_ARTIFACT_IDENTITY_INVALID');
+    // Capture primitive authority fields independently of response object identity.
+    // Every selected artifact is rechecked after all later platform/tree reads.
+    artifactAuthorities.push({ id: artifact.id, name: artifact.name, digest: artifact.digest,
+      size: artifact.size_in_bytes, runId: artifact.workflow_run.id, sourceSha: artifact.workflow_run.head_sha });
     const archive = Buffer.from((await github.rest.actions.downloadArtifact({ ...context.repo,
       artifact_id: artifact.id, archive_format: 'zip' })).data);
     demand(archive.length <= 1048576 && archive.length === artifact.size_in_bytes &&
@@ -235,10 +239,18 @@ async function collectPublic(github, context, request, readZip, { pinReader } = 
     platforms[platform] = { conclusion: 'success', artifact_id: artifact.id,
       receipt_sha256: digest(raw), ...validateMetadata(metadata, request, platform, workerSources) };
   }
-  // Recheck after every download; moved heads, new runs or rerun attempts invalidate this collector.
-  await origin(github, context, request, { pinReader });
   const commit = (await github.rest.git.getCommit({ ...context.repo, commit_sha: request.sourceSha })).data;
   demand(commit.sha === request.sourceSha && SHA.test(commit.tree?.sha || ''), 'CANONICAL_SOURCE_TREE_UNVERIFIED');
+  for (const original of artifactAuthorities) {
+    const current = (await github.rest.actions.getArtifact({ ...context.repo, artifact_id: original.id })).data;
+    demand(current.id === original.id && current.name === original.name && current.expired === false &&
+      current.digest === original.digest && current.size_in_bytes === original.size &&
+      current.workflow_run?.id === original.runId && current.workflow_run.head_sha === original.sourceSha,
+    'CANONICAL_ARTIFACT_EXPIRED_OR_CHANGED');
+  }
+  // The source/pin/run fence must be terminal: commit-tree and final artifact
+  // reads above can observe a revocation that occurred after initial admission.
+  await origin(github, context, request, { pinReader });
   const result = freeze({ schema: 1, kind: 'keeper-installed-public-software', repository: REPOSITORY,
     source_sha: request.sourceSha, source_tree: commit.tree.sha, workflow_sha: request.workflowSha,
     workflow_path: WORKFLOW, run_id: request.runId, run_attempt: request.attempt,

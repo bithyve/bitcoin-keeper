@@ -118,6 +118,36 @@ test('installed public proof comes only from complete fresh raw collection and i
   assert.equal(driver.isInstalledPublicEvidence(JSON.parse(JSON.stringify(proof))), false);
   assert.equal(proof.platforms.IOS.cases.filter(row => row.status === 'NOT IMPLEMENTED').length, 5);
 });
+for (const [name, code, change] of [
+  ['pin revoked', 'LIVE_DRIVER_PIN_REVOKED_OR_UNREADABLE', f => { f.pin.value = ''; }],
+  ['source moved', 'CANONICAL_HEAD_MOVED_OR_UNPROTECTED', f => { f.branch.commit.sha = 'f'.repeat(40); }],
+  ['workflow disabled', 'CANONICAL_WORKFLOW_NOT_INSTALLED', f => { f.workflow.state = 'disabled_manually'; }],
+  ['new attempt', 'CANONICAL_RUN_MISMATCH', f => { f.run.run_attempt++; }],
+  ['new run', 'NEWER_OR_INCOMPLETE_CANONICAL_RUNS', f => { f.newerRun = true; }],
+]) test(`late commit-tree read cannot mint an installed public proof after ${name}`, async () => {
+  const f = fixture(), original = f.github.rest.git.getCommit;
+  f.github.rest.git.getCommit = async args => {
+    const response = await original(args); change(f); return response;
+  };
+  await assert.rejects(driver.collectInstalledPublicEvidence(f.github, f.context, f.request, raw => raw,
+    { pinReader: f.pinReader }), new RegExp(code));
+});
+for (const [name, change] of [
+  ['expired', artifact => { artifact.expired = true; }],
+  ['digest changed', artifact => { artifact.digest = `sha256:${'f'.repeat(64)}`; }],
+  ['source changed', artifact => { artifact.workflow_run = { id: 400, head_sha: 'f'.repeat(40) }; }],
+  ['size changed', artifact => { artifact.size_in_bytes++; }],
+]) test(`second artifact read cannot retain an earlier ${name} artifact's public proof`, async () => {
+  const f = fixture(), original = f.github.rest.actions.getArtifact;
+  let changed = false;
+  f.github.rest.actions.getArtifact = async args => {
+    const response = await original(args);
+    if (args.artifact_id === 102 && !changed) { change(f.artifacts[0]); changed = true; }
+    return response;
+  };
+  await assert.rejects(driver.collectInstalledPublicEvidence(f.github, f.context, f.request, raw => raw,
+    { pinReader: f.pinReader }), /CANONICAL_ARTIFACT_EXPIRED_OR_CHANGED/);
+});
 test('public proof rejects contradictory raw success and a different invocation context', async () => {
   for (const change of [f => { f.context.sha = 'f'.repeat(40); }, f => { f.context.eventName = 'push'; },
     f => { f.metadata.IOS.smoke = 'FAIL'; f.archives[0] = Buffer.from(JSON.stringify(f.metadata.IOS));
