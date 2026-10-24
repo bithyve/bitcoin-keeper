@@ -282,7 +282,17 @@ def collect(private, device):
         result['runtime_errors'].update(
             lookup_status=result['commands'][-1]['lookup_status'],
             input_truncated=result['commands'][-1]['input_truncated'])
-        result['onboarding_boundary_observation'] = onboarding_receipt(payload, owned,
+        # logcat applies -t to the raw ring before priority/tag filtering. An
+        # earlier fixed marker can fall outside that tail despite few E rows.
+        # Keep runtime errors unchanged; query only the reserved marker prefix
+        # separately. -d/15s timeout, 65 matching entries and bounded() limit
+        # collection. The 65th entry makes the existing 64-marker parser report
+        # PARTIAL. Ownership/freshness/positive-only scope remains unchanged.
+        marker_payload, _ = capture('onboarding-markers', [
+            'logcat', '-d', '-b', 'main', '-v', 'threadtime',
+            '--regex', r'^KEEPER_ONBOARDING_BOUNDARY\|', '--max-count', '65',
+            'ReactNativeJS:E', '*:S'])
+        result['onboarding_boundary_observation'] = onboarding_receipt(marker_payload, owned,
             usable=result['commands'][-1]['lookup_status'] == 'SUCCESS',
             full_input=result['commands'][-1]['input_truncated'] is False)
         try:
