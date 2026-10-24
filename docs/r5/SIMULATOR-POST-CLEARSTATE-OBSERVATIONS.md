@@ -64,6 +64,7 @@ The separate driver-preflight label keeps its existing meaning.
 | Native diagnostic + iOS-only modifier | No | Yes | Skipped |
 | `keeper/ios-driver-preflight` | Yes | No | No |
 | Driver preflight + iOS-only modifier | Yes | No | No |
+| Native diagnostic + driver preflight | No | Yes | Yes, after iOS |
 | All three labels | No | Yes | Skipped |
 
 The same-repository/current-head/source checks, R4 exclusion, read-only
