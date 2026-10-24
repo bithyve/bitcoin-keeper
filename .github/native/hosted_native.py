@@ -240,7 +240,7 @@ def startup_hierarchy_signals(directory):
     return result
 
 
-def maestro_preflight_diagnostics(directory=None, command_label='Assert startup and disposable passcode transition'):
+def maestro_preflight_diagnostics(directory=None, command_label='Assert startup and disposable passcode transition', owned_device=None):
     """Export fixed cli-2.11.0 driver markers, never subprocess error text."""
     markers = {
         'runner_install_started': '[Start] Install XCUITest runner on',
@@ -257,6 +257,23 @@ def maestro_preflight_diagnostics(directory=None, command_label='Assert startup 
         'xcode_test_failed': '** TEST FAILED **',
         'xcode_testing_failed': 'Testing failed:',
     }
+    if PLATFORM == 'IOS':
+        # Maestro 2.11 performs clearState and permissions inside launchApp.
+        # These log markers establish observation only; in particular its
+        # "reinstalled and launched" text does not prove an app launch.
+        app = APP_IDS['IOS']
+        markers.update({
+            'app_clear_state_started_text': 'Clearing app %s state' % app,
+            'app_reinstall_started_text': 'Reinstalling and launching %s' % app,
+            'app_reinstall_returned_text': 'App %s reinstalled and launched' % app,
+            'app_permissions_applesimutils_started_text': '[Start] Setting permissions all=deny through applesimutils',
+            'app_permissions_applesimutils_returned_text': '[Done] Setting permissions through applesimutils',
+            'app_permissions_simctl_started_text': '[Start] Setting Permissions all=deny through simctl',
+            'app_permissions_simctl_returned_text': '[Done] Setting Permissions all=deny through simctl',
+        })
+        if type(owned_device) is str and re.fullmatch(r'[A-Fa-f0-9]{8}(?:-[A-Fa-f0-9]{4}){3}-[A-Fa-f0-9]{12}', owned_device):
+            markers['app_simctl_launch_invocation_text'] = (
+                'Running command line operation: [xcrun, simctl, launch, %s, %s] with {}' % (owned_device, app))
     # The install/status "Done" markers precede readiness evaluation; they do
     # not prove that the runner installed successfully or became ready.
     result = {name: False for name in markers}
@@ -341,16 +358,25 @@ def record_startup_failure(report, device, startup_started_ms=None):
                                             ['SUCCESS', 'ERROR', 'WARNING', 'SKIPPED'] else 'UNKNOWN'
                                            for case in list(suite.iter('testcase'))[:10]]
             for failure in list(suite.iter('failure'))[:10]:
-                # Pinned Maestro JUnit stores failure.message separately from UI hierarchy.
+                # Pinned Maestro JUnit stores exception.message as failure XML
+                # text, separately from UI hierarchy; it has no type attribute.
                 first_line = ''.join(failure.itertext()).splitlines()[:1]
                 result['testcase_failures'].extend(maestro_failure_details('\n'.join(first_line)))
         return result
 
     collect('maestro', maestro_details)
-    collect('maestro_preflight', maestro_preflight_diagnostics)
+    collect('maestro_preflight', lambda: maestro_preflight_diagnostics(owned_device=device))
     collect('hierarchy_signals', lambda: startup_hierarchy_signals(PRIVATE / 'maestro-output'))
     collect('metro_errors', lambda: metro_startup_errors(private_text(PRIVATE / 'metro.log')))
     collect('metro_progress', lambda: metro_startup_progress(private_log_prefix(PRIVATE / 'metro.log')[0]))
+    if PLATFORM == 'IOS' and device:
+        def ios_command_observation():
+            spec = importlib.util.spec_from_file_location('ios_startup_command_observation',
+                Path(__file__).with_name('ios_startup_command_observation.py'))
+            observer = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(observer)
+            return observer.collect(PRIVATE, device)
+        collect('command_observation', ios_command_observation)
     if PLATFORM == 'ANDROID' and device:
         def android_details():
             args = ['adb', '-s', device, 'logcat', '-d', '-t', '300', '-v', 'brief',
