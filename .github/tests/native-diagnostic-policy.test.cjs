@@ -14,7 +14,7 @@ assert.equal(parsed.status, 0, parsed.stderr);
 const workflows = JSON.parse(parsed.stdout);
 const diagnostic = workflows['keeper-native-diagnostic.yml'];
 const worker = workflows['keeper-native-platform.yml'];
-function enabled(condition, { draft = null, labeled = false, preflightLabeled = false, iosOnly = false, sameRepo = true, number = 8000, eventName = 'pull_request', diagnostic = false, sameSha = true } = {}) {
+function enabled(condition, { draft = null, labeled = false, preflightLabeled = false, iosOnly = false, androidOnly = false, sameRepo = true, number = 8000, eventName = 'pull_request', diagnostic = false, sameSha = true } = {}) {
   const expression = condition
     .replaceAll('github.event_name', 'eventName')
     .replaceAll('github.event.pull_request.number', 'number')
@@ -23,10 +23,11 @@ function enabled(condition, { draft = null, labeled = false, preflightLabeled = 
     .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/native-diagnostic')", 'labeled')
     .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/ios-driver-preflight')", 'preflightLabeled')
     .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/ios-diagnostic-only')", 'iosOnly')
+    .replaceAll("contains(github.event.pull_request.labels.*.name, 'keeper/android-diagnostic-only')", 'androidOnly')
     .replaceAll('inputs.source_sha == github.event.pull_request.head.sha', 'sameSha')
     .replaceAll('inputs.diagnostic', 'diagnostic')
     .replaceAll('always()', 'true');
-  return new Function('draft', 'labeled', 'preflightLabeled', 'iosOnly', 'sameRepo', 'number', 'eventName', 'diagnostic', 'sameSha', 'toJSON', `return (${expression});`)(draft, labeled, preflightLabeled, iosOnly, sameRepo, number, eventName, diagnostic, sameSha, JSON.stringify);
+  return new Function('draft', 'labeled', 'preflightLabeled', 'iosOnly', 'androidOnly', 'sameRepo', 'number', 'eventName', 'diagnostic', 'sameSha', 'toJSON', `return (${expression});`)(draft, labeled, preflightLabeled, iosOnly, androidOnly, sameRepo, number, eventName, diagnostic, sameSha, JSON.stringify);
 }
 test('candidate diagnostics require explicit same-repository opt-in and serialize platforms', () => {
   for (const name of ['ios', 'android']) {
@@ -69,6 +70,24 @@ test('explicit iOS-only modifier schedules nothing alone and only removes diagno
   }
   assert.equal(enabled(worker.jobs.native.if, { draft: true, iosOnly: true, diagnostic: true }), false);
 });
+test('Android-only modifier selects only Android and conflicting modifiers fail closed', () => {
+  for (const labeled of [false, true]) for (const preflightLabeled of [false, true]) {
+    for (const iosOnly of [false, true]) for (const androidOnly of [false, true]) {
+      const options = { draft: true, labeled, preflightLabeled, iosOnly, androidOnly };
+      const selected = ['driver-preflight', 'ios', 'android'].map(name => enabled(diagnostic.jobs[name].if, options));
+      assert.deepEqual(selected, [preflightLabeled && !labeled && !(iosOnly && androidOnly),
+        labeled && !androidOnly, labeled && !iosOnly], JSON.stringify(options));
+      for (const override of [{ sameRepo: false }, { number: 7045 }]) {
+        assert.deepEqual(['driver-preflight', 'ios', 'android'].map(name =>
+          enabled(diagnostic.jobs[name].if, { ...options, ...override })), [false, false, false]);
+      }
+    }
+  }
+  assert.equal(diagnostic.jobs.android.needs, 'ios');
+  assert.match(diagnostic.jobs.android.if, /^always\(\)/);
+  assert.equal(diagnostic.concurrency['cancel-in-progress'], 'false');
+});
+
 test('isolated driver label cannot schedule an app platform or overlap full diagnostics', () => {
   const preflight = diagnostic.jobs['driver-preflight'];
   for (const [labeled, preflightLabeled, expected] of [
@@ -105,7 +124,7 @@ test('preflight live source guard rejects moved source, foreign repository and n
   const step = diagnostic.jobs['driver-preflight'].steps.find(step =>
     step.name === 'Verify current preflight source and isolated opt-in');
   const script = new vm.Script(`(async()=>{${step.with.script}})()`);
-  for (const mutation of [null, 'sha', 'labels', 'full-only', 'both-labels', 'repo', 'missing-source']) {
+  for (const mutation of [null, 'sha', 'labels', 'full-only', 'both-labels', 'repo', 'missing-source', 'conflicting-modifiers']) {
     const pr = { head: { sha: 'a'.repeat(40), repo: { full_name: 'KeeperCommunity/bitcoin-keeper' } },
       labels: [{ name: 'keeper/ios-driver-preflight' }] };
     const env = { KEEPER_SOURCE_SHA: 'a'.repeat(40) };
@@ -115,6 +134,7 @@ test('preflight live source guard rejects moved source, foreign repository and n
     if (mutation === 'both-labels') pr.labels.push({ name: 'keeper/native-diagnostic' });
     if (mutation === 'repo') pr.head.repo.full_name = 'fork/bitcoin-keeper';
     if (mutation === 'missing-source') delete env.KEEPER_SOURCE_SHA;
+    if (mutation === 'conflicting-modifiers') pr.labels.push({ name: 'keeper/ios-diagnostic-only' }, { name: 'keeper/android-diagnostic-only' });
     const failures = [];
     const requests = [];
     await script.runInNewContext({
