@@ -1,12 +1,85 @@
 # R4 / 2.6.4 completion reconciliation
 
-Evidence checked on 22 October 2026. This record distinguishes source completion,
+Original evidence checkpoint: 22 October 2026; GitHub/publication refresh:
+24 October 2026. This record distinguishes source completion,
 submitted builds, deployed services and actual acceptance. It grants no merge,
-deployment, signing, resubmission or public-release authority. The current owner
-instruction keeps public release held. Existing approvals, source refs and running
-R5 jobs remain intact.
+deployment, signing, resubmission or public-release authority. The dated 22 October
+checkpoint retains its release hold; this refresh makes no new store/publication
+state claim. Existing approvals, source refs and running R5 jobs remain intact.
 
-## Current evidence
+## Resume and publication check — 24 October 2026
+
+The existing work is already published. Before editing, the local and remote
+ledger branch `docs/r4-completion-evidence-20261022` both pointed to
+`5d6ab0ab475b46948b09b276d8fe5b6318352b80`; its five exact-head checks all
+passed: Tests, Lint, CodeQL, analysis execution and local-validation gate.
+The worktree was clean. Desktop #103/#104, private Relay #161 and documentation
+#7089/#7090 are also published with no local-only implementation to push.
+This refresh uses existing [#7092](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7092),
+not a duplicate PR. Historical check results remain bound to their tested heads.
+
+### Adopt the completed submitted-R4 caller batch
+
+[Mobile #7151](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7151),
+`93489d8a8eeb5d99f85ff8aaf74fb447795a56a5`, is directly based on submitted
+`1d8a86a7462d935cbd0e28b857934b5718c152fc`. Its only changes are three added
+paths: two wallet/label proof files and their coverage map. Existing runtime,
+native, dependency, configuration and fixture inputs are unchanged.
+
+Private [Relay #191](https://github.com/KeeperCommunity/bitcoin-keeper-relay/pull/191),
+control `fe45a8c895c0ab9579ec6e55b0549e708da0e1d1`, selected accepted backend
+`29597b27eeeb299205bf7d0555db0a90c38cc4be` through the unchanged reviewed #161
+admission. [Run 40066799617 / job 120791660796](https://github.com/KeeperCommunity/bitcoin-keeper-relay/actions/runs/40066799617/job/120791660796)
+completed **SUCCESS: 20/20 caller cases and 14/14 raw-source/cleanup controls
+PASS**, zero failures/skips/cancellations/todo. All three source/purity checks,
+frozen installs/six patches, actual encrypted Realm, transactional loopback Mongo
+and verified owned cleanup passed. Actual decoded-log totals were checked;
+the proof batch was not rerun or reimplemented in this resume.
+
+The [owner's exact receipt](https://github.com/KeeperCommunity/bitcoin-keeper/pull/7092#issuecomment-6380553077)
+explicitly classifies the remaining **275 original obligations as engineering
+coverage backlog, not a new blanket release condition**. No deferred scenario is
+reopened. The public **2 PASS / 293 FAIL** result is unchanged; the submitted-R4
+43+3 and production 14-request receipts remain separate. #7091's 32 ports and
+#7150/private #190's 20 cases use an R5-derived baseline and are not transferred
+to submitted R4. Do not duplicate those packages or backport R5 product code.
+
+### Availability, continuity and remaining work
+
+- Original Desktop Actions artifact **11615331902 now returns 404** after its
+  23 October expiry. Unchanged #104's pinned download cannot run from that URL.
+  The retained 20,064,440-byte archive remains available in owner-only Drive;
+  24 October metadata readback confirms its size and owner-only permissions.
+  Its complete download/hash/byte comparison was verified on 22 October.
+  Use that existing archive through the separately coordinated cloud route;
+  do not rebuild it or infer that Actions still hosts it. Sanitized outcome
+  artifact 12450860782 remains available through 21 November.
+- Mobile #7045 remains submitted `1d8a86a…`, with selected Tests/local gate PASS
+  and existing public-v2/CodeQL failures. No newer authenticated store receipt or
+  2.6.4 GitHub release/assets was found. Fresh store access and the original signed
+  mobile files remain unavailable here; no counter allocation or resubmission.
+- SigningServer #6/#3 and Desktop source/CI follow-ups are unchanged. The recorded
+  approval-rule settings, deployed SigningServer compatibility, Desktop QR/paired
+  acceptance and production packaging/signing/notarization/PGP gaps remain open.
+- The separate Sonar result reported in #191 remains red: #162's actual scanner
+  run 39833007649, attempt 2/job 120786642230 failed a configured-server connect
+  timeout during server-version query. Service-owner reachability repair remains
+  separate; no DNS, TLS, authentication or quota cause was established.
+- R5 #7068 has progressed to `8b56c6b51831e69f4b67a77754f431f5dcf4711c`.
+  #7090 is still a proposal against fixed historical base `3eb92fc8…`, not an
+  incorporated correction to current R5. Preserve its review history and the
+  current coordinator's owner-attributed baseline statements; do not reset or
+  blindly apply the old proposal to the moving integration branch. Source
+  ancestry and owner reports remain distinct from fresh store readback.
+- Native continuation #7149 and its diagnostic window are coordinated separately.
+  **This resume starts no native build, acceptance attempt or workflow rerun**,
+  and supplies no new native/physical credit. Existing recovery/Delete/C8/navigation
+  scope decisions, failures and post-release follow-ups remain unchanged.
+
+No merge, deployment, release signing, store action or public release is performed
+by this documentation publication. R4 closure remains the owner's decision.
+
+## Preserved 22 October evidence
 
 | Work package | Verified checkpoint | Remaining work |
 | --- | --- | --- |
