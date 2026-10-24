@@ -9,29 +9,30 @@ const vm = require('node:vm');
 const SCRIPT = path.join(__dirname, '../scripts/read-bea-android-artifact.cjs');
 const SOURCE = 'bea6056724dd75d1db99f4ce394ba4896edd10bf';
 const WORKFLOW = 'a'.repeat(40);
-const BINDINGS = 'const WORKFLOW = null, NATIVE_HEAD_BRANCH = null, WORKFLOW_PULL_REF = null, RUN_CONCLUSION = null;';
+const BINDINGS = "const WORKFLOW = 'fbb97bfe160e4b17d52bdf67aacc3f16aeb22f99', NATIVE_HEAD_BRANCH = 'codex/r5-native-failure-continuation-20261024', WORKFLOW_PULL_REF = 'refs/pull/7154/merge', RUN_CONCLUSION = 'failure';";
 const PAYLOAD = Buffer.from('OFFLINE_SYNTHETIC_METADATA_ZIP_BYTES');
 const DIGEST = crypto.createHash('sha256').update(PAYLOAD).digest('hex');
-const SELECTION = 'const ARTIFACT = null, ZIP_SIZE = null, DIGEST = null;';
-const OUTCOME = 'const NATIVE_CONCLUSION = null, STEP_CONCLUSIONS = null;';
+const SELECTION = "const ARTIFACT = 12556810367, ZIP_SIZE = 9632, DIGEST = 'c653b9d73044a8cc67cc098ff561d5a42f0a11d49013ae88dfa9edf5bf69df1b';";
+const OUTCOME = "const NATIVE_CONCLUSION = 'failure', STEP_CONCLUSIONS = ['success', 'failure'];";
 
 function fixture(options = {}) {
+  const observedWorkflow = options.production ? 'fbb97bfe160e4b17d52bdf67aacc3f16aeb22f99' : WORKFLOW;
   const context = { repo: { owner: 'KeeperCommunity', repo: 'bitcoin-keeper' },
     eventName: 'push', ref: 'refs/heads/codex/r5-bea-android-artifact-readout-20261024' };
   const runData = { id: 40078818062, run_attempt: 1, repository: { id: 470904030 },
     head_repository: { id: 470904030 }, head_sha: SOURCE, event: 'pull_request',
-    head_branch: 'codex/fixed-native-fixture',
+    head_branch: options.production ? 'codex/r5-native-failure-continuation-20261024' : 'codex/fixed-native-fixture',
     path: '.github/workflows/keeper-native-diagnostic.yml', status: 'completed', conclusion: 'failure',
-    referenced_workflows: [{path: `KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-native-platform.yml@${WORKFLOW}`,
-      ref: 'refs/pull/9999/merge', sha: WORKFLOW}] };
+    referenced_workflows: [{path: `KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-native-platform.yml@${observedWorkflow}`,
+      ref: options.production ? 'refs/pull/7154/merge' : 'refs/pull/9999/merge', sha: observedWorkflow}] };
   const jobData = { id: 120835800614, run_id: 40078818062, run_attempt: 1, head_sha: SOURCE,
     status: 'completed', conclusion: 'failure', steps: [
       ['Build development app', 'success'], ['Run Android startup and native persistence probes', 'failure'], ['Retain safe Phase A evidence', 'success']
     ].map(([name, conclusion]) => ({name, conclusion, status: 'completed'})) };
-  const artifact = {id: options.production ? 12551461839 : 991,
+  const artifact = {id: options.production ? 12556810367 : 991,
     name: `keeper-diagnostic-native-ANDROID-${SOURCE}-40078818062-1`, expired: false,
-    size_in_bytes: options.production ? 9596 : PAYLOAD.length,
-    digest: 'sha256:' + (options.production ? 'b9182e02a33b7e0568d73654b42d61f66bce8e425d65a6960aa0f4f2194ee13a' : DIGEST), workflow_run: {
+    size_in_bytes: options.production ? 9632 : PAYLOAD.length,
+    digest: 'sha256:' + (options.production ? 'c653b9d73044a8cc67cc098ff561d5a42f0a11d49013ae88dfa9edf5bf69df1b' : DIGEST), workflow_run: {
       id: 40078818062, head_sha: SOURCE, repository_id: 470904030, head_repository_id: 470904030}};
   const calls = [], events = [], output = [], actions = {};
   for (const [name, data] of [['getWorkflowRun', runData], ['getJobForWorkflowRun', jobData], ['getArtifact', artifact]]) {
@@ -70,9 +71,17 @@ function fixture(options = {}) {
 }
 
 test('unavailable terminal selection rejects before API filesystem decoder or logging', async()=>{
-  const f=fixture({production:true});
+  const f=fixture({production:true,edit:s=>s.replace("WORKFLOW = 'fbb97bfe160e4b17d52bdf67aacc3f16aeb22f99'", 'WORKFLOW = null')});
   await assert.rejects(f.invoke,/FIXED_NATIVE_ARTIFACT_READOUT_FAILED_SELECTION/);
   assert.deepEqual(f.calls,[]); assert.deepEqual(f.events,[]); assert.deepEqual(f.output,[]);
+});
+
+test('exact observed production bindings select only original artifact and reject bad bytes before file or output',async()=>{
+  const f=fixture({production:true,payload:Buffer.alloc(9632)});
+  await assert.rejects(f.invoke,/FIXED_NATIVE_ARTIFACT_READOUT_FAILED_DOWNLOAD/);
+  assert.deepEqual(f.calls.map(([name])=>name),['getWorkflowRun','getJobForWorkflowRun','getArtifact','downloadArtifact']);
+  assert.equal(f.calls[2][1].artifact_id,12556810367); assert.equal(f.calls[3][1].artifact_id,12556810367);
+  assert.deepEqual(f.events,[]); assert.deepEqual(f.output,[]);
 });
 
 test('every incomplete observed binding fails before API/filesystem', async()=>{

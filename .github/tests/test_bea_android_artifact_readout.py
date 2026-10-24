@@ -55,7 +55,8 @@ class BeaAndroidReadoutTests(unittest.TestCase):
         with bound(blob): return reader.project(blob)
 
     def test_unavailable_binding_never_accesses_kernel_archive_or_filesystem(self):
-        with mock.patch.object(reader.Path, 'read_bytes') as reading, \
+        with mock.patch.object(reader, 'WORKFLOW', None), \
+                mock.patch.object(reader.Path, 'read_bytes') as reading, \
                 mock.patch.object(reader.zipfile, 'ZipFile') as archive_open, \
                 mock.patch.object(reader.os, 'open') as opening:
             with self.assertRaises(Exception): reader.project(b'PRIVATE_SENTINEL')

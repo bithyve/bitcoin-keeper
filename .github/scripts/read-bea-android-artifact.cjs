@@ -8,10 +8,10 @@ const { execFileSync } = require('node:child_process');
 const OWNER = 'KeeperCommunity', REPO = 'bitcoin-keeper';
 const RUN = 40078818062, JOB = 120835800614;
 const SOURCE = 'bea6056724dd75d1db99f4ce394ba4896edd10bf';
-const WORKFLOW = null, NATIVE_HEAD_BRANCH = null, WORKFLOW_PULL_REF = null, RUN_CONCLUSION = null;
+const WORKFLOW = 'fbb97bfe160e4b17d52bdf67aacc3f16aeb22f99', NATIVE_HEAD_BRANCH = 'codex/r5-native-failure-continuation-20261024', WORKFLOW_PULL_REF = 'refs/pull/7154/merge', RUN_CONCLUSION = 'failure';
 // Exact terminal Android job/artifact API and upload facts.
-const ARTIFACT = null, ZIP_SIZE = null, DIGEST = null;
-const NATIVE_CONCLUSION = null, STEP_CONCLUSIONS = null;
+const ARTIFACT = 12556810367, ZIP_SIZE = 9632, DIGEST = 'c653b9d73044a8cc67cc098ff561d5a42f0a11d49013ae88dfa9edf5bf69df1b';
+const NATIVE_CONCLUSION = 'failure', STEP_CONCLUSIONS = ['success', 'failure'];
 const STEPS = ['Build development app', 'Run Android startup and native persistence probes'];
 const CONCLUSIONS = ['success', 'failure', 'skipped'];
 const NAME = `keeper-diagnostic-native-ANDROID-${SOURCE}-${RUN}-1`;

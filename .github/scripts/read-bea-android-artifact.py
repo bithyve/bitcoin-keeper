@@ -12,12 +12,12 @@ import zipfile
 ROOT = Path(__file__).parent
 KERNEL_SHA256 = '1e9fc4370d733041fb5a48dc8c022e3461decafbf970ba030e90784208aed1d9'
 SOURCE = 'bea6056724dd75d1db99f4ce394ba4896edd10bf'
-WORKFLOW = None
-WORKFLOW_REF = None
+WORKFLOW = 'fbb97bfe160e4b17d52bdf67aacc3f16aeb22f99'
+WORKFLOW_REF = 'KeeperCommunity/bitcoin-keeper/.github/workflows/keeper-native-diagnostic.yml@refs/pull/7154/merge'
 RUN, ATTEMPT = '40078818062', '1'
-ZIP_SIZE = None
-DIGEST = None
-PRODUCT_STATUS = None
+ZIP_SIZE = 9632
+DIGEST = 'c653b9d73044a8cc67cc098ff561d5a42f0a11d49013ae88dfa9edf5bf69df1b'
+PRODUCT_STATUS = 'FAIL'
 SCOPE = 'OBSERVATIONS_ONLY_NOT_NATIVE_ACCEPTANCE_OR_CAUSE'
 PHASE = 'SELECTION'
 FIELDS = frozenset(('schema', 'source_sha', 'workflow_sha', 'workflow_ref', 'run_id', 'run_attempt',
