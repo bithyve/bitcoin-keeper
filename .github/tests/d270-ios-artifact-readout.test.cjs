@@ -58,7 +58,9 @@ function fixture(options = {}) {
       unlinkSync() {events.push('unlink'); if(options.unlink) throw Error('PRIVATE_SENTINEL');}};
     if (name === 'node:child_process') return {execFileSync(command,args,settings) {
       assert.equal(command,'python3'); assert.deepEqual(Array.from(args),['-B','.github/scripts/read-d270-ios-artifact.py']);
-      assert.equal(settings.timeout,30000); events.push('decoder'); if(options.decoder) throw Error('PRIVATE_SENTINEL');
+      assert.equal(settings.timeout,30000); events.push('decoder'); if(options.decoder) {
+        const error = Error('PRIVATE_SENTINEL'); error.stdout = options.decoderOutput; throw error;
+      }
       return options.wrongOutput ? 'PRIVATE_SENTINEL' : 'D270_IOS_OBSERVATIONS_BEGIN\n' + JSON.stringify({schema:1,scope:'OBSERVATIONS_ONLY_NOT_NATIVE_ACCEPTANCE_OR_CAUSE',original_zip_sha256:DIGEST,metadata_sha256:'a'.repeat(64),observations:{source_sha:SOURCE,run_id:'40065599904',run_attempt:'1'}}) + '\nD270_IOS_OBSERVATIONS_END\n';}};
     throw Error('Unexpected test import');
   }};
@@ -135,6 +137,18 @@ test('post-download official identity or attempt race rejects before output',asy
     const f=fixture({after});
     await assert.rejects(f.invoke,/FIXED_NATIVE_ARTIFACT_READOUT_FAILED/);
     assert.equal(f.events.includes('info'),false);
+    assert.equal(f.events.filter(x=>x==='unlink').length,1);
+  }
+});
+
+test('decoder diagnostics admit only fixed stage labels without private output',async()=>{
+  for(const [decoderOutput,stage] of [
+    ['D270_IOS_OBSERVATION_READOUT_FAILED:STARTUP_OBSERVATION\n','DECODE_STARTUP_OBSERVATION'],
+    ['D270_IOS_OBSERVATION_READOUT_FAILED:PRIVATE_SENTINEL\n','DECODE'],
+    ['PRIVATE_SENTINEL','DECODE']]) {
+    const f=fixture({decoder:true,decoderOutput});
+    await assert.rejects(f.invoke,error=>error.message==='FIXED_NATIVE_ARTIFACT_READOUT_FAILED_'+stage);
+    assert.deepEqual(f.output,[]);
     assert.equal(f.events.filter(x=>x==='unlink').length,1);
   }
 });

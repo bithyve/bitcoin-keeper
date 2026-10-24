@@ -83,7 +83,7 @@ class D270ReadoutTests(unittest.TestCase):
             target = Path(directory) / 'r5-d270-ios-fixed.zip'; target.symlink_to(source)
             with bound(blob), redirect_stdout(io.StringIO()) as output:
                 self.assertEqual(reader.main([]), 1)
-            self.assertEqual(output.getvalue(), 'D270_IOS_OBSERVATION_READOUT_FAILED\n')
+            self.assertEqual(output.getvalue(), 'D270_IOS_OBSERVATION_READOUT_FAILED:PRIVATE_FILE\n')
 
 
 if __name__ == '__main__':

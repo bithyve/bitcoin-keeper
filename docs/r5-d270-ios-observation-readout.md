@@ -40,3 +40,9 @@ Keychain issue is fixed. Keep actual outcomes and unknown causes intact.
 
 No native build/rerun, producer edit, merge, release signing, upload, deployment
 or publication is performed by this reader.
+
+The first hosted readout `40069585314` at `035ca695` failed inside the reader;
+both raw-source guards passed and no observations were exported. The bounded
+follow-up adds only fixed admission/decode section labels to rejected output so
+API binding and schema/vocabulary rejection can be distinguished. Raw errors,
+unknown keys and values remain private; every original admission check remains.

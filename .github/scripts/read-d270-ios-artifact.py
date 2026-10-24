@@ -18,6 +18,7 @@ RUN, ATTEMPT = '40065599904', '1'
 ZIP_SIZE = 7339
 DIGEST = '5891036cd8225b97c7edaff9bc057e2c70a8f8720e8f9def3ef0369de043d032'
 SCOPE = 'OBSERVATIONS_ONLY_NOT_NATIVE_ACCEPTANCE_OR_CAUSE'
+PHASE = 'PRIVATE_FILE'
 FIELDS = frozenset(('schema', 'source_sha', 'workflow_sha', 'workflow_ref', 'run_id', 'run_attempt',
     'platform', 'diagnostic_only', 'build', 'smoke', 'native_probe', 'r5_features', 'hardware', 'signing',
     'app_id', 'install_succeeded', 'installed_artifact_verified', 'installed_artifact',
@@ -32,6 +33,8 @@ ADDITIONAL_LITERALS = frozenset(('--info', 'CONNECTION_ERROR', 'EXCEPTION_MARKER
 
 
 def project(blob):
+    global PHASE
+    PHASE = 'KERNEL'
     source = ROOT / 'read-044-ios-artifact.py'
     if hashlib.sha256(source.read_bytes()).hexdigest() != KERNEL_SHA256:
         raise ValueError('Fixed kernel changed.')
@@ -42,8 +45,10 @@ def project(blob):
     kernel.SOURCE, kernel.WORKFLOW, kernel.WORKFLOW_REF = SOURCE, WORKFLOW, WORKFLOW_REF
     kernel.RUN, kernel.ATTEMPT = RUN, ATTEMPT
     kernel.public_literals = lambda: literals | ADDITIONAL_LITERALS | {SOURCE, WORKFLOW, WORKFLOW_REF, RUN, ATTEMPT}
+    PHASE = 'ZIP_IDENTITY'
     if type(blob) is not bytes or len(blob) != ZIP_SIZE or hashlib.sha256(blob).hexdigest() != DIGEST:
         kernel.rejected()
+    PHASE = 'ZIP_LAYOUT'
     with zipfile.ZipFile(io.BytesIO(blob)) as archive:
         members = archive.infolist()
         if len(members) != 1:
@@ -54,11 +59,14 @@ def project(blob):
                 entry.file_size > kernel.LIMIT or entry.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)):
             kernel.rejected()
         raw = kernel.canonical_payload(blob, entry, archive.start_dir, archive.comment)
+    PHASE = 'JSON'
     data = json.loads(raw, object_pairs_hook=kernel.pairs, parse_float=kernel.finite,
                       parse_constant=lambda _: kernel.rejected())
+    PHASE = 'ROOT_KEYS'
     if type(data) is not dict or not set(data) <= kernel.ROOT_KEYS:
         kernel.rejected()
     projected = {key: value for key, value in data.items() if key in FIELDS}
+    PHASE = 'SIGNATURE_POLICY'
     signature = data.get('toolchain', {}).get('ios_simulator_signature')
     if (type(signature) is not dict or set(signature) != {'verified', 'scope', 'bundle_id',
             'entitlements_sha256', 'embedded_code_count'} or signature['verified'] is not True or
@@ -68,12 +76,22 @@ def project(blob):
             not kernel.bounded_int(signature['embedded_code_count'], 0, 128)):
         kernel.rejected()
     projected['toolchain'] = {'ios_simulator_signature': signature}
+    identity = {key: projected.get(key) for key in ('schema', 'source_sha', 'workflow_sha', 'workflow_ref',
+                                                  'run_id', 'run_attempt', 'platform', 'diagnostic_only')}
+    for key, value in projected.items():
+        PHASE = {'startup_diagnostics': 'STARTUP_DIAGNOSTICS', 'startup_observation': 'STARTUP_OBSERVATION',
+                 'driver_preflight': 'DRIVER', 'installed_artifact': 'INSTALLED',
+                 'toolchain': 'SIGNATURE'}.get(key, 'IDENTITY')
+        kernel.validate_metadata(dict(identity, **{key: value}))
+    PHASE = 'PROJECTED_METADATA'
     kernel.validate_metadata(projected)
     return {'schema': 1, 'scope': SCOPE, 'original_zip_sha256': DIGEST,
             'metadata_sha256': hashlib.sha256(raw).hexdigest(), 'observations': projected}
 
 
 def main(argv=None):
+    global PHASE
+    PHASE = 'PRIVATE_FILE'
     try:
         if argv:
             raise ValueError('No selectors.')
@@ -84,7 +102,7 @@ def main(argv=None):
                 raise ValueError('Invalid private file.')
             result = project(source.read(ZIP_SIZE + 1))
     except Exception:
-        print('D270_IOS_OBSERVATION_READOUT_FAILED')
+        print('D270_IOS_OBSERVATION_READOUT_FAILED:' + PHASE)
         return 1
     print('D270_IOS_OBSERVATIONS_BEGIN')
     print(json.dumps(result, sort_keys=True, separators=(',', ':')))

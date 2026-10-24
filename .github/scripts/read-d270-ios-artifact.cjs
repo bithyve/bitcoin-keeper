@@ -19,7 +19,7 @@ const CONCLUSIONS = ['success', 'failure', 'skipped'];
 const NAME = `keeper-diagnostic-native-IOS-${SOURCE}-${RUN}-1`;
 
 async function run({ github, context, core }) {
-  let owned, primary = false, output;
+  let owned, primary = false, output, stage = 'SELECTION';
   try {
     assert.ok(Number.isSafeInteger(ARTIFACT) && ARTIFACT > 0);
     assert.ok(Number.isSafeInteger(ZIP_SIZE) && ZIP_SIZE > 0 && ZIP_SIZE <= 1024 * 1024 + 4096);
@@ -32,11 +32,13 @@ async function run({ github, context, core }) {
     assert.equal(context.ref, 'refs/heads/codex/r5-d270-ios-artifact-readout-20261024');
     const args = { owner: OWNER, repo: REPO, request: { timeout: 30000 } };
     const admit = async () => {
+    stage = 'API_LOOKUP';
     const [r, j, a] = await Promise.all([
       github.rest.actions.getWorkflowRun({ ...args, run_id: RUN }),
       github.rest.actions.getJobForWorkflowRun({ ...args, job_id: JOB }),
       github.rest.actions.getArtifact({ ...args, artifact_id: ARTIFACT }),
     ]);
+    stage = 'RUN_BINDING';
     assert.equal(r.data.id, RUN); assert.equal(r.data.run_attempt, 1);
     assert.equal(r.data.repository.id, 470904030); assert.equal(r.data.head_repository.id, 470904030);
     assert.equal(r.data.head_sha, SOURCE); assert.equal(r.data.event, 'pull_request');
@@ -49,6 +51,7 @@ async function run({ github, context, core }) {
       path: `${OWNER}/${REPO}/.github/workflows/keeper-native-platform.yml@${WORKFLOW}`,
       ref: 'refs/pull/7149/merge', sha: WORKFLOW,
     }]);
+    stage = 'JOB_BINDING';
     assert.equal(j.data.id, JOB); assert.equal(j.data.run_id, RUN); assert.equal(j.data.run_attempt, 1);
     assert.equal(j.data.head_sha, SOURCE); assert.equal(j.data.status, 'completed');
     assert.equal(j.data.conclusion, NATIVE_CONCLUSION);
@@ -60,6 +63,7 @@ async function run({ github, context, core }) {
     const upload = j.data.steps.filter(step => step.name === 'Retain safe Phase A evidence');
     assert.equal(upload.length, 1); assert.equal(upload[0].status, 'completed');
     assert.equal(upload[0].conclusion, 'success');
+    stage = 'ARTIFACT_BINDING';
     assert.equal(a.data.id, ARTIFACT); assert.equal(a.data.name, NAME);
     assert.equal(a.data.expired, false); assert.equal(a.data.size_in_bytes, ZIP_SIZE);
     assert.equal(a.data.digest, `sha256:${DIGEST}`);
@@ -68,18 +72,28 @@ async function run({ github, context, core }) {
     assert.equal(a.data.workflow_run.head_repository_id, 470904030);
     };
     await admit();
+    stage = 'DOWNLOAD';
     const download = await github.rest.actions.downloadArtifact({ ...args, artifact_id: ARTIFACT, archive_format: 'zip' });
     const bytes = Buffer.from(download.data);
     assert.equal(bytes.length, ZIP_SIZE);
     assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), DIGEST);
+    stage = 'PRIVATE_FILE';
     const temp = process.env.RUNNER_TEMP;
     assert.ok(temp && path.isAbsolute(temp)); assert.equal(fs.realpathSync(temp), path.resolve(temp));
     const filename = path.join(temp, 'r5-d270-ios-fixed.zip');
     const descriptor = fs.openSync(filename, 'wx', 0o600); owned = filename;
     try { fs.writeFileSync(descriptor, bytes); }
     finally { fs.closeSync(descriptor); }
-    output = execFileSync('python3', ['-B', '.github/scripts/read-d270-ios-artifact.py'],
-      { encoding: 'utf8', timeout: 30000, maxBuffer: 2 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+    stage = 'DECODE';
+    try {
+      output = execFileSync('python3', ['-B', '.github/scripts/read-d270-ios-artifact.py'],
+        { encoding: 'utf8', timeout: 30000, maxBuffer: 2 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+    } catch (error) {
+      const match = /^D270_IOS_OBSERVATION_READOUT_FAILED:(PRIVATE_FILE|KERNEL|ZIP_IDENTITY|ZIP_LAYOUT|JSON|ROOT_KEYS|SIGNATURE_POLICY|IDENTITY|STARTUP_DIAGNOSTICS|STARTUP_OBSERVATION|DRIVER|INSTALLED|SIGNATURE|PROJECTED_METADATA)\n$/.exec(String(error.stdout ?? ''));
+      if (match) stage = 'DECODE_' + match[1];
+      throw error;
+    }
+    stage = 'PROJECTION_FRAME';
     const lines = output.trim().split('\n');
     assert.equal(lines.length, 3);
     assert.equal(lines[0], 'D270_IOS_OBSERVATIONS_BEGIN');
@@ -96,7 +110,7 @@ async function run({ github, context, core }) {
     await admit(); // Recheck official immutable source/workflow/job/attempt/artifact before releasing output.
   } catch (_) {
     primary = true;
-    throw new Error('FIXED_NATIVE_ARTIFACT_READOUT_FAILED');
+    throw new Error('FIXED_NATIVE_ARTIFACT_READOUT_FAILED_' + stage);
   } finally {
     if (owned) {
       try { fs.unlinkSync(owned); }
