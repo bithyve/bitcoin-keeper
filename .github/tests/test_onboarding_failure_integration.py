@@ -1,4 +1,4 @@
-"""Synthetic existing-query integration; no Android process/device is started."""
+"""Synthetic bounded-query integration; no Android process/device is started."""
 import importlib.util
 import json
 from pathlib import Path
@@ -26,12 +26,14 @@ class IntegrationTests(unittest.TestCase):
         self.private = Path(self.temp.name)
         (self.private / 'metro.log').write_text('')
 
-    def collect(self, payload, *, failed=False):
+    def collect(self, payload, *, failed=False, marker_payload=None, marker_timeout=False):
         expected = [
             ['shell', 'ps', '-A', '-o', 'PID,NAME'],
             ['shell', 'dumpsys', 'activity', 'activities'],
             ['shell', 'dumpsys', 'activity', 'exit-info', diag.APP],
             ['logcat', '-d', '-b', 'main', '-b', 'crash', '-t', '1200', '-v', 'threadtime', '*:E'],
+            ['logcat', '-d', '-b', 'main', '-v', 'threadtime', '--regex',
+             r'^KEEPER_ONBOARDING_BOUNDARY\|', '--max-count', '65', 'ReactNativeJS:E', '*:S'],
         ]
         calls = []
         def query(args, stdout, **kwargs):
@@ -41,17 +43,19 @@ class IntegrationTests(unittest.TestCase):
             calls.append(args)
             content = ['PID NAME\n100 ' + diag.APP + '\n',
                        'topResumedActivity=ActivityRecord{a u0 ' + diag.APP + '/.MainActivity t1}\n',
-                       '', payload][len(calls) - 1]
+                       '', payload, payload if marker_payload is None else marker_payload][len(calls) - 1]
             stdout.write(content.encode())
-            return subprocess.CompletedProcess(args, 1 if failed and len(calls) == 4 else 0)
+            if marker_timeout and len(calls) == 5:
+                raise subprocess.TimeoutExpired(args, 15, output='PRIVATE_SENTINEL')
+            return subprocess.CompletedProcess(args, 1 if failed and len(calls) == 5 else 0)
         with mock.patch.object(diag.subprocess, 'run', side_effect=query):
             result = diag.collect(self.private, 'emulator-5554')
-        self.assertEqual(len(calls), 4, 'observer must not add a native query')
+        self.assertEqual(len(calls), 5, 'one separate finite marker query, original four unchanged')
         self.assertEqual(result['cleanup_status'], 'DELETED')
         self.assertFalse((self.private / 'android-startup-diagnosis').exists())
         return result
 
-    def test_existing_four_queries_supply_separate_positive_receipt_not_runtime_faults(self):
+    def test_runtime_faults_stay_separate_from_fixed_positive_marker_receipt(self):
         result = self.collect(line() + line('TypeError: PRIVATE_SENTINEL') +
                               line('KEEPER_ONBOARDING_BOUNDARY|v999|PRIVATE_SENTINEL'))
         receipt = result['onboarding_boundary_observation']
@@ -91,13 +95,44 @@ class IntegrationTests(unittest.TestCase):
         original = diag.bounded
         def partial(path, private):
             payload, observed = original(path, private)
-            if path.name == 'runtime-errors.log':
+            if path.name == 'onboarding-markers.log':
                 observed.update(input_truncated=True, read_scope='PREFIX_AND_TAIL')
             return payload, observed
         with mock.patch.object(diag, 'bounded', side_effect=partial):
             result = self.collect(line())
         receipt = result['onboarding_boundary_observation']
         self.assertEqual(receipt['state'], 'PARTIAL')
+        self.assertIs(receipt['stages']['SKIP_PRESS'], True)
+        self.assertIsNone(receipt['stages']['SKIP_RESET_RETURNED'])
+
+    def test_marker_missing_from_raw_tail_is_recovered_by_separate_prefix_query(self):
+        result = self.collect(line('TypeError: PRIVATE_SENTINEL'),
+            marker_payload=line('KEEPER_ONBOARDING_BOUNDARY|v1|ONBOARDING_EFFECT') + line())
+        self.assertEqual(result['runtime_errors']['diagnostic_marker_records'], 0)
+        self.assertEqual(result['runtime_errors']['fault_categories'], ['JS_TYPE_ERROR'])
+        receipt = result['onboarding_boundary_observation']
+        self.assertEqual(receipt['state'], 'OBSERVED')
+        self.assertIs(receipt['stages']['ONBOARDING_EFFECT'], True)
+        self.assertIs(receipt['stages']['SKIP_PRESS'], True)
+        self.assertIsNone(receipt['stages']['SKIP_RESET_RETURNED'])
+        self.assertEqual(receipt['freshness'], 'GUEST_CLOCK_UNVERIFIED')
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+
+    def test_marker_query_timeout_preserves_error_facts_and_never_establishes_absence(self):
+        result = self.collect(line('TypeError: PRIVATE_SENTINEL'), marker_timeout=True)
+        receipt = result['onboarding_boundary_observation']
+        self.assertEqual(receipt['state'], 'UNKNOWN')
+        self.assertFalse(receipt['input_usable'])
+        self.assertTrue(all(value is None for value in receipt['stages'].values()))
+        self.assertEqual(result['runtime_errors']['fault_categories'], ['JS_TYPE_ERROR'])
+        self.assertNotIn('PRIVATE_SENTINEL', json.dumps(result))
+
+    def test_matching_entry_cap_is_one_more_than_parser_limit_and_stays_partial(self):
+        result = self.collect('', marker_payload=line() * 65)
+        receipt = result['onboarding_boundary_observation']
+        self.assertEqual(receipt['state'], 'PARTIAL')
+        self.assertTrue(receipt['marker_limit_reached'])
+        self.assertEqual(receipt['marker_records'], 64)
         self.assertIs(receipt['stages']['SKIP_PRESS'], True)
         self.assertIsNone(receipt['stages']['SKIP_RESET_RETURNED'])
 
